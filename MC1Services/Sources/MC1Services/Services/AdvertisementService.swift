@@ -434,6 +434,18 @@ public actor AdvertisementService {
   private func handleContactDeletedEvent(publicKey: Data, radioID: UUID) async {
     let fullPubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
     let pubKeyPrefix = publicKey.prefix(6).map { String(format: "%02X", $0) }.joined()
+
+    // ZephCore CLI `set v.contact off` also pushes 0x8F for the V-key. That is not
+    // overwrite-oldest: no real slot was freed. Keep the local V row/messages and leave
+    // storage-full bookkeeping unchanged.
+    if let selfPublicKey = try? await dataStore.fetchDevice(radioID: radioID)?.publicKey,
+       VContactIdentity.isVContact(publicKey: publicKey, selfPublicKey: selfPublicKey) {
+      logger.info(
+        "Contact deleted push for ZephCore V-contact (\(pubKeyPrefix)...); preserving local row, not clearing storage-full"
+      )
+      return
+    }
+
     logger.info("Overwrite oldest: device deleted contact with key \(pubKeyPrefix)...")
 
     do {

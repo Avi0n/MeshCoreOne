@@ -14,16 +14,24 @@ struct ContactContextMenuModifier: ViewModifier {
     appState.connectionState == .ready
   }
 
+  /// ZephCore V-contact remove is disabled (would turn off firmware admin CLI).
+  private var isVContact: Bool {
+    guard let selfKey = appState.connectedDevice?.publicKey else { return false }
+    return VContactIdentity.isVContact(publicKey: contact.publicKey, selfPublicKey: selfKey)
+  }
+
   func body(content: Content) -> some View {
     content.contextMenu {
-      Button(role: .destructive) {
-        Task {
-          await viewModel.deleteContact(contact)
+      if !isVContact {
+        Button(role: .destructive) {
+          Task {
+            await viewModel.deleteContact(contact)
+          }
+        } label: {
+          Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
         }
-      } label: {
-        Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
+        .disabled(!isConnected || viewModel.isDeletePending(contact.id))
       }
-      .disabled(!isConnected || viewModel.isDeletePending(contact.id))
 
       if contact.type == .chat {
         Button {

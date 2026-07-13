@@ -312,21 +312,39 @@ public actor NodeConfigService {
     // so an over-capacity import is rejected up front instead of failing partway through the
     // writes. The full records (not just keys) also let the planner drop contacts the device
     // already stores byte-for-byte, sparing a redundant /contacts3 commit per unchanged contact.
-    let existingContacts: [String: MeshContact] = try await sections.contacts
+    // ZephCore's virtual V-contact is streamed in GET_CONTACTS but uses no real table slot, so
+    // exclude it from occupancy; never ADD its derived key either (when V is disabled the
+    // firmware no longer intercepts ADD and would store it as a real contact).
+    var existingContacts: [String: MeshContact] = try await sections.contacts
       ? Dictionary(
         session.getContacts(since: nil).map { ($0.publicKey.hexString, $0) },
         uniquingKeysWith: { _, latest in latest }
       )
       : [:]
 
+    // Self-info is shared by V-contact capacity filtering and max TX power.
+    let selfInfo = (sections.contacts || sections.radioSettings)
+      ? try await settingsService.getSelfInfo()
+      : nil
+
+    var planConfig = config
+    if sections.contacts, let selfPublicKey = selfInfo?.publicKey,
+       let vKey = VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey) {
+      let vKeyHex = vKey.hexString
+      existingContacts.removeValue(forKey: vKeyHex)
+      if let contacts = planConfig.contacts {
+        planConfig.contacts = contacts.filter { $0.publicKey.lowercased() != vKeyHex.lowercased() }
+      }
+    }
+
     // The txPower upper bound is hardware/build-specific, so read the device's max rather than
     // assuming a fixed maximum. Only needed when the radio section is selected.
     let maxTxPower = sections.radioSettings
-      ? try await settingsService.getSelfInfo().maxTxPower
+      ? (selfInfo?.maxTxPower ?? 0)
       : 0
 
     return try planConfigImport(
-      config: config,
+      config: planConfig,
       sections: sections,
       maxChannels: maxChannels,
       maxContacts: maxContacts,

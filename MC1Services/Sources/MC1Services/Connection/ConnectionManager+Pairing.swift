@@ -319,7 +319,16 @@ public extension ConnectionManager {
 
     let dataStore = PersistenceStore(modelContainer: modelContainer)
     let allContacts = try await dataStore.fetchContacts(radioID: radioID)
-    let targets = allContacts.filter(predicate)
+    // Never bulk-remove the ZephCore V-contact: CMD_REMOVE turns firmware v.contact off.
+    let selfPublicKey = connectedDevice?.publicKey
+    let targets = allContacts.filter { contact in
+      guard predicate(contact) else { return false }
+      if let selfPublicKey,
+         VContactIdentity.isVContact(publicKey: contact.publicKey, selfPublicKey: selfPublicKey) {
+        return false
+      }
+      return true
+    }
 
     if targets.isEmpty {
       return RemoveUnfavoritedResult(removed: 0, total: 0)

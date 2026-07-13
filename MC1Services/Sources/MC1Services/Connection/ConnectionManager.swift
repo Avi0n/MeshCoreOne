@@ -935,6 +935,8 @@ public final class ConnectionManager {
       logger.info("reconcileIdentity skipped: connectedDevice changed before currentSelfInfo")
       return nil
     }
+    let previousSelfPublicKey = preDevice.publicKey
+    let previousRadioID = preDevice.radioID
 
     let selfInfo: MeshCore.SelfInfo
     do {
@@ -973,6 +975,18 @@ public final class ConnectionManager {
       return nil
     }
 
+    // Drop the local ZephCore V-contact derived from the previous self key when
+    // identity rotates; the new V-key arrives on the next contact sync. It was synced
+    // under the pre-reconcile partition, and ghost reconciliation re-keys only the
+    // Device row, never contacts, so it always lives under previousRadioID.
+    if previousSelfPublicKey != selfInfo.publicKey {
+      await dropStaleVContact(
+        dataStore: expectedServices.dataStore,
+        radioID: previousRadioID,
+        oldSelfPublicKey: previousSelfPublicKey
+      )
+    }
+
     guard let newRadioID else {
       logger.info("reconcileIdentity: publicKey changed but no ghost matched")
       return nil
@@ -998,6 +1012,25 @@ public final class ConnectionManager {
 
     logger.info("Reconciled identity to ghost radioID after key import: \(newRadioID)")
     return newRadioID
+  }
+
+  /// Removes a local contact row for the V-contact derived from a retired self public key.
+  private func dropStaleVContact(
+    dataStore: PersistenceStore,
+    radioID: UUID,
+    oldSelfPublicKey: Data
+  ) async {
+    guard let oldVKey = VContactIdentity.publicKey(forSelfPublicKey: oldSelfPublicKey) else { return }
+    do {
+      guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: oldVKey) else {
+        return
+      }
+      try await dataStore.deleteMessagesForContact(contactID: contact.id)
+      try await dataStore.deleteContact(id: contact.id)
+      logger.info("Dropped stale ZephCore V-contact after identity rotation")
+    } catch {
+      logger.warning("Failed to drop stale V-contact after identity rotation: \(error.localizedDescription)")
+    }
   }
 
   /// Syncs the device clock if it drifts more than 60 seconds from the phone.
