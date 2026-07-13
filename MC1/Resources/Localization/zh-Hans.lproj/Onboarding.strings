@@ -104,7 +104,7 @@
 "deviceScan.demoModeAlert.message" = "您现在可以无需设备继续。随时在设置中切换演示模式。";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "无法配对设备。请检查 PIN 码，然后移除设备并重试。";
+"deviceScan.error.authenticationFailed" = "与此电台保存的配对已失效。点按“移除并重试”在应用内重新配对；电台可能会显示新的配对码。";
 "deviceScan.error.pinRejected" = "PIN 码未被接受。请检查设备上显示的 PIN 码，然后重试。iOS 会先要求你确认移除失败的配对。";
 "deviceScan.error.connectionFailed" = "无法连接到设备。请重试，或在问题持续时移除设备。";
 

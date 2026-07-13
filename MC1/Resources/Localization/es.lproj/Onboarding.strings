@@ -106,7 +106,7 @@
 "deviceScan.demoModeAlert.message" = "Ahora puedes continuar sin un dispositivo. Activa o desactiva el modo demo en Ajustes en cualquier momento.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "No se pudo enlazar el dispositivo. Comprueba el PIN, luego elimina el dispositivo e inténtalo de nuevo.";
+"deviceScan.error.authenticationFailed" = "El enlace guardado con esta radio dejó de funcionar. Toca «Eliminar y reintentar» para volver a enlazarla en la app; la radio puede mostrar un nuevo código de enlace.";
 "deviceScan.error.pinRejected" = "No se aceptó el PIN. Comprueba el PIN que se muestra en tu dispositivo e inténtalo de nuevo. Primero, iOS te pedirá que confirmes la eliminación del enlace fallido.";
 "deviceScan.error.connectionFailed" = "No se pudo conectar al dispositivo. Inténtalo de nuevo, o elimínalo si el problema persiste.";
 

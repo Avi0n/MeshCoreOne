@@ -106,7 +106,7 @@
 "deviceScan.demoModeAlert.message" = "Vous pouvez maintenant continuer sans appareil. Activez ou désactivez le mode démo dans les Réglages à tout moment.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "Impossible de jumeler l'appareil. Vérifiez le code PIN, puis supprimez l'appareil et réessayez.";
+"deviceScan.error.authenticationFailed" = "Le jumelage enregistré avec cette radio ne fonctionne plus. Touchez « Supprimer et réessayer » pour la jumeler à nouveau dans l'app ; la radio peut afficher un nouveau code de jumelage.";
 "deviceScan.error.pinRejected" = "Le code PIN n'a pas été accepté. Vérifiez le code PIN affiché sur votre appareil, puis réessayez. iOS vous demandera d'abord de confirmer la suppression du jumelage échoué.";
 "deviceScan.error.connectionFailed" = "Impossible de se connecter à l'appareil. Réessayez, ou supprimez-le si le problème persiste.";
 

@@ -67,6 +67,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   private var bluetoothPoweredOnHandler: (@Sendable () -> Void)?
   private var bluetoothStateChangeHandler: (@Sendable (CBManagerState) -> Void)?
   private var deviceDiscoveredHandler: (@Sendable (UUID, String?, Int) -> Void)?
+  private var bondVerificationDateProvider: (@Sendable (UUID) -> Date?)?
 
   // MARK: - Initialization
 
@@ -101,6 +102,10 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
 
   public func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void) {
     bluetoothPoweredOnHandler = handler
+  }
+
+  public func setBondVerificationDateProvider(_ provider: @escaping @Sendable (UUID) -> Date?) {
+    bondVerificationDateProvider = provider
   }
 
   public func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void) {
@@ -167,6 +172,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     bluetoothPoweredOnHandler = nil
     bluetoothStateChangeHandler = nil
     deviceDiscoveredHandler = nil
+    bondVerificationDateProvider = nil
   }
 
   /// Simulates auto-reconnecting event

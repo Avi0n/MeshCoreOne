@@ -674,7 +674,7 @@
 "diagnostics.clearLogs" = "Debug-Protokolle löschen";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "Export enthält Debug-Protokolle der letzten 24 Stunden aus allen App-Sitzungen. Protokolle werden lokal gespeichert und automatisch bereinigt.";
+"diagnostics.footer" = "Export enthält Debug-Protokolle aus allen App-Sitzungen. Protokolle werden lokal gespeichert und nach 7 Tagen automatisch entfernt.";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "Debug-Protokolle löschen";

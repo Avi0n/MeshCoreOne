@@ -93,6 +93,10 @@ extension ConnectionManager: BLEReconnectionDelegate {
       throw error
     }
 
+    // Session traffic flowed over the encrypted UART link, so the bond is
+    // proven healthy as of now.
+    recordBondVerification(deviceID: deviceID)
+
     // Check after await — user may have disconnected or a new reconnect cycle may have started
     guard connectionIntent.wantsConnection else {
       logger.info("User disconnected during session setup")

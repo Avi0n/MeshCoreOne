@@ -588,7 +588,7 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
     0
   }
 
-  func pruneDebugLogEntries(keepCount: Int) async throws {}
+  func pruneDebugLogEntries(olderThan cutoff: Date, keepCount: Int) async throws {}
   func clearDebugLogEntries() async throws {}
 
   func fetchContactPublicKeysByPrefix(radioID: UUID) async throws -> [UInt8: [Data]] {

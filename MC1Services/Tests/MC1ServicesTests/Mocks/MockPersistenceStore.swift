@@ -1288,10 +1288,11 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return debugLogEntries.count
   }
 
-  public func pruneDebugLogEntries(keepCount: Int) async throws {
+  public func pruneDebugLogEntries(olderThan cutoff: Date, keepCount: Int) async throws {
     if let error = stubbedDebugLogError {
       throw error
     }
+    debugLogEntries.removeAll { $0.timestamp < cutoff }
     let sorted = debugLogEntries.sorted { $0.timestamp > $1.timestamp }
     let toKeep = Set(sorted.prefix(keepCount).map(\.id))
     debugLogEntries.removeAll { !toKeep.contains($0.id) }

@@ -379,7 +379,10 @@ public final class ServiceContainer {
 
     // Prune debug logs on connection
     Task {
-      try? await dataStore.pruneDebugLogEntries(keepCount: 1000)
+      try? await dataStore.pruneDebugLogEntries(
+        olderThan: Date().addingTimeInterval(-DebugLogRetention.window),
+        keepCount: DebugLogRetention.maxEntries
+      )
     }
 
     // Prune node status snapshots older than 1 year

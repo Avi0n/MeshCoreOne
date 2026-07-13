@@ -674,7 +674,7 @@
 "diagnostics.clearLogs" = "Effacer les journaux de débogage";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "L'exportation inclut les journaux de débogage des dernières 24 heures sur toutes les sessions de l'application. Les journaux sont stockés localement et automatiquement purgés.";
+"diagnostics.footer" = "L'exportation inclut les journaux de débogage de toutes les sessions de l'application. Les journaux sont stockés localement et automatiquement supprimés après 7 jours.";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "Effacer les journaux de débogage";

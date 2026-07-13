@@ -534,6 +534,10 @@ extension ConnectionManager {
 
     let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
 
+    // Session traffic flowed over the encrypted UART link, so the bond is
+    // proven healthy as of now.
+    recordBondVerification(deviceID: deviceID)
+
     // Configure BLE write pacing based on device platform
     await configureBLEPacing(for: deviceCapabilities)
 

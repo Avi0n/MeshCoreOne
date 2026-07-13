@@ -673,7 +673,7 @@
 "diagnostics.clearLogs" = "Clear Debug Logs";
 
 /* Footer explaining log export */
-"diagnostics.footer" = "Export includes debug logs from the last 24 hours across app sessions. Logs are stored locally and automatically pruned.";
+"diagnostics.footer" = "Export includes debug logs from all app sessions. Logs are stored locally and automatically removed after 7 days.";
 
 /* Alert title for clear logs confirmation */
 "diagnostics.alert.clear.title" = "Clear Debug Logs";

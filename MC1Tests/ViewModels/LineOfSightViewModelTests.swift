@@ -244,7 +244,7 @@ actor MockPersistenceStore: PersistenceStoreProtocol {
     0
   }
 
-  func pruneDebugLogEntries(keepCount: Int) async throws {}
+  func pruneDebugLogEntries(olderThan cutoff: Date, keepCount: Int) async throws {}
   func clearDebugLogEntries() async throws {}
 
   // MARK: - Link Preview (stubs)

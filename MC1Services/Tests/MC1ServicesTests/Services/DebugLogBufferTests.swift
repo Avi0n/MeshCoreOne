@@ -195,7 +195,7 @@ struct DebugLogBufferTests {
       savedEntries.count
     }
 
-    func pruneDebugLogEntries(keepCount: Int) async throws {}
+    func pruneDebugLogEntries(olderThan cutoff: Date, keepCount: Int) async throws {}
     func clearDebugLogEntries() async throws {}
 
     /// Resumes every save currently blocked on the gate.

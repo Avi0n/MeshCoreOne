@@ -451,20 +451,25 @@ public extension PersistenceStore {
     return try modelContext.fetchCount(descriptor)
   }
 
-  /// Prunes debug log entries, keeping only the most recent entries.
-  func pruneDebugLogEntries(keepCount: Int = 1000) throws {
-    let count = try countDebugLogEntries()
-    guard count > keepCount else { return }
-
-    let deleteCount = count - keepCount
-    var descriptor = FetchDescriptor<DebugLogEntry>(
-      sortBy: [SortDescriptor(\.timestamp, order: .forward)]
+  /// Prunes debug log entries older than the cutoff, then enforces a hard
+  /// row ceiling by deleting the oldest remaining entries.
+  func pruneDebugLogEntries(olderThan cutoff: Date, keepCount: Int) throws {
+    let cutoffDate = cutoff
+    try modelContext.delete(
+      model: DebugLogEntry.self,
+      where: #Predicate { $0.timestamp < cutoffDate }
     )
-    descriptor.fetchLimit = deleteCount
 
-    let toDelete = try modelContext.fetch(descriptor)
-    for entry in toDelete {
-      modelContext.delete(entry)
+    let count = try countDebugLogEntries()
+    if count > keepCount {
+      var descriptor = FetchDescriptor<DebugLogEntry>(
+        sortBy: [SortDescriptor(\.timestamp, order: .forward)]
+      )
+      descriptor.fetchLimit = count - keepCount
+      let toDelete = try modelContext.fetch(descriptor)
+      for entry in toDelete {
+        modelContext.delete(entry)
+      }
     }
     try modelContext.save()
   }

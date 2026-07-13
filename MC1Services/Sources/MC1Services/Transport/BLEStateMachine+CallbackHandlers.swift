@@ -241,7 +241,8 @@ extension BLEStateMachine {
     // watchdog cannot retry, so a transient failure re-issues the connect and
     // stays in the episode. Only a definitive bond failure tears down at once;
     // exhausting the bounded budget on encryption timeouts escalates to auth
-    // failure so an invalidated bond still reaches guided re-pair.
+    // failure — unless the bond verified an encrypted session recently — so an
+    // invalidated bond still reaches guided re-pair.
     if case let .autoReconnecting(expected, _, _) = phase,
        expected.identifier == peripheral.identifier {
       if Self.isDefinitiveAuthFailure(error) {
@@ -267,8 +268,30 @@ extension BLEStateMachine {
         return
       }
 
+      // An encryption-timeout majority is the ambiguous signature of an
+      // invalidated bond, but it is also what a healthy bond produces when the
+      // user lingers at the edge of BLE range. A recently verified bond tears
+      // down as transient (the watchdog keeps retrying); a dead bond can never
+      // refresh its verification, so it still escalates once the grace elapses.
       let majorityEncryptionTimeouts = encryptionTimedOutConnectFailures * 2 > autoReconnectConnectFailures
-      let teardownError: BLEError = majorityEncryptionTimeouts ? .authenticationFailed : Self.makeConnectionError(error)
+      let now = Date()
+      let lastVerified = bondVerificationDateProvider?(peripheral.identifier)
+      let bondRecentlyVerified = Self.isBondRecentlyVerified(lastVerified: lastVerified, now: now)
+      // The verification age in these lines lets a later debug-log export
+      // distinguish a graced fringe episode from a graced dead bond.
+      let verifiedAge = lastVerified.map {
+        "\((now.timeIntervalSince($0) / 60).formatted(.number.precision(.fractionLength(1))))m ago"
+      } ?? "never"
+      let teardownError: BLEError
+      if majorityEncryptionTimeouts, bondRecentlyVerified {
+        logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(verifiedAge), within grace; classifying as transient")
+        teardownError = .connectionFailed("Encryption timed out repeatedly near range limit")
+      } else if majorityEncryptionTimeouts {
+        logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(verifiedAge), outside grace; escalating to bond-suspect")
+        teardownError = .authenticationFailed
+      } else {
+        teardownError = Self.makeConnectionError(error)
+      }
       logger.warning("Auto-reconnect connect failures exhausted budget for \(peripheral.identifier) - transitioning to idle")
       resetAutoReconnectFailureTracking()
       transition(to: .idle)
@@ -501,9 +524,11 @@ extension BLEStateMachine {
       }
 
       guard let service = peripheral.services?.first(where: { $0.uuid == nordicUARTServiceUUID }) else {
-        logger.warning("Auto-reconnect: service not found")
-        transition(to: .idle)
-        onDisconnection?(expected.identifier, nil)
+        // The GATT on this device is static, so an empty result with no error is an
+        // iOS delivery artifact. Dropping to .idle would let the next didConnect be
+        // cancelled as unexpected, destroying iOS's standing auto-reconnect; hold the
+        // phase and let the armed discovery timeout bound the stall.
+        logger.warning("Auto-reconnect: service not found; holding auto-reconnect")
         return
       }
 
@@ -558,9 +583,9 @@ extension BLEStateMachine {
       guard let characteristics = service.characteristics,
             let tx = characteristics.first(where: { $0.uuid == txCharacteristicUUID }),
             let rx = characteristics.first(where: { $0.uuid == rxCharacteristicUUID }) else {
-        logger.warning("Auto-reconnect: characteristics not found")
-        transition(to: .idle)
-        onDisconnection?(expected.identifier, nil)
+        // Static GATT: a partial result with no error is an iOS artifact. Hold the
+        // phase so the standing auto-reconnect survives; the discovery timeout bounds it.
+        logger.warning("Auto-reconnect: characteristics not found; holding auto-reconnect")
         return
       }
 
@@ -666,16 +691,15 @@ extension BLEStateMachine {
     }
 
     guard characteristic.isNotifying else {
-      logger.warning("[BLE] Auto-reconnect: notification subscription completed without isNotifying=true")
-      transition(to: .idle)
-      onDisconnection?(peripheral.identifier, nil)
+      // No error and not notifying is an iOS artifact on this static GATT. Hold the
+      // phase so the standing auto-reconnect survives; the discovery timeout bounds it.
+      logger.warning("[BLE] Auto-reconnect: notification subscription completed without isNotifying=true; holding auto-reconnect")
       return
     }
 
     guard let tx, let rx else {
-      logger.error("Auto-reconnect: tx/rx characteristics missing from phase")
-      transition(to: .idle)
-      onDisconnection?(peripheral.identifier, nil)
+      // Same invariant: dropping to .idle here would get the next didConnect cancelled.
+      logger.error("Auto-reconnect: tx/rx characteristics missing from phase; holding auto-reconnect")
       return
     }
 

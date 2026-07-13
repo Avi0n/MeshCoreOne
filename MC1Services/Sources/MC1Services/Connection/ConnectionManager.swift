@@ -449,6 +449,15 @@ public final class ConnectionManager {
     lastConnectionStore.persist(deviceID: deviceID, radioID: radioID, deviceName: deviceName)
   }
 
+  /// Records that the device's BLE bond just completed a verified encrypted
+  /// session. Called wherever session traffic flowed over the encrypted UART
+  /// link (fresh connect, device switch, auto-reconnect rebuild); the radio
+  /// gates that link behind MITM-bonded encryption, so any successful exchange
+  /// proves the bond. Never called on the WiFi path, which bypasses the bond.
+  func recordBondVerification(deviceID: UUID) {
+    lastConnectionStore.persistBondVerification(deviceID: deviceID)
+  }
+
   /// Clears the persisted connection
   func clearPersistedConnection() {
     lastConnectionStore.clear()
@@ -556,6 +565,14 @@ public final class ConnectionManager {
         guard let self else { return }
         await self.handleConnectionLoss(deviceID: deviceID, error: error)
       }
+    }
+
+    // Let the state machine distinguish a recently verified bond from a
+    // suspect one when an auto-reconnect encryption-timeout budget exhausts.
+    // Read lazily at decision time; UserDefaults is thread-safe.
+    let bondStore = lastConnectionStore
+    await stateMachine.setBondVerificationDateProvider { deviceID in
+      bondStore.bondVerificationDate(for: deviceID)
     }
 
     // Handle entering auto-reconnecting phase

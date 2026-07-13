@@ -106,7 +106,7 @@
 "deviceScan.demoModeAlert.message" = "Możesz teraz kontynuować bez urządzenia. Wyłącz tryb demo w dowolnym momencie w Ustawieniach.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "Nie udało się sparować urządzenia. Sprawdź PIN, następnie usuń urządzenie i spróbuj ponownie.";
+"deviceScan.error.authenticationFailed" = "Zapisane sparowanie z tym radiem przestało działać. Stuknij „Usuń i spróbuj ponownie”, aby sparować je ponownie w aplikacji; radio może wyświetlić nowy kod parowania.";
 "deviceScan.error.pinRejected" = "PIN nie został zaakceptowany. Sprawdź PIN wyświetlany na urządzeniu i spróbuj ponownie. iOS najpierw poprosi o potwierdzenie usunięcia nieudanego parowania.";
 "deviceScan.error.connectionFailed" = "Nie można połączyć się z urządzeniem. Spróbuj ponownie lub usuń je, jeśli problem nie ustępuje.";
 

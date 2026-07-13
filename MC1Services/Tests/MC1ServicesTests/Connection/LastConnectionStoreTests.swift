@@ -66,6 +66,54 @@ struct LastConnectionStoreTests {
   }
 
   @Test
+  func `bond verification round-trips for the stamped device and is nil for others`() {
+    withIsolatedDefaults { defaults in
+      let store = LastConnectionStore(defaults: defaults)
+      let deviceID = UUID()
+
+      #expect(store.bondVerificationDate(for: deviceID) == nil)
+
+      let before = Date()
+      store.persistBondVerification(deviceID: deviceID)
+
+      let stamped = store.bondVerificationDate(for: deviceID)
+      #expect(stamped != nil)
+      if let stamped {
+        #expect(stamped >= before && stamped <= Date())
+      }
+      #expect(store.bondVerificationDate(for: UUID()) == nil)
+    }
+  }
+
+  @Test
+  func `a later bond verification for another device replaces the slot`() {
+    withIsolatedDefaults { defaults in
+      let store = LastConnectionStore(defaults: defaults)
+      let first = UUID()
+      let second = UUID()
+
+      store.persistBondVerification(deviceID: first)
+      store.persistBondVerification(deviceID: second)
+
+      #expect(store.bondVerificationDate(for: first) == nil)
+      #expect(store.bondVerificationDate(for: second) != nil)
+    }
+  }
+
+  @Test
+  func `clear removes the bond verification`() {
+    withIsolatedDefaults { defaults in
+      let store = LastConnectionStore(defaults: defaults)
+      let deviceID = UUID()
+      store.persistBondVerification(deviceID: deviceID)
+
+      store.clear()
+
+      #expect(store.bondVerificationDate(for: deviceID) == nil)
+    }
+  }
+
+  @Test
   func `persistDisconnectDiagnostic prefixes a parseable ISO8601 timestamp`() throws {
     try withIsolatedDefaults { defaults in
       let store = LastConnectionStore(defaults: defaults)
