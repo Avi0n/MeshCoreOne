@@ -52,7 +52,7 @@ struct BubbleFragmentStack: View, Equatable {
   }
 
   var body: some View {
-    let stack = VStack(alignment: .leading, spacing: 0) {
+    let stack = VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 0) {
       // Stack alignment carries the footer placement: the time sits at the
       // bubble's trailing edge for outgoing, leading for incoming. Driving it
       // through alignment (rather than a greedy `Spacer`/`maxWidth`) keeps the
