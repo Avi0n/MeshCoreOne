@@ -30,7 +30,11 @@ packages:
     exactVersion: 6.25.1
   MessagingUI:
     url: https://github.com/bwees-forks/swiftui-messaging-ui
-    branch: mc1
+    # Pinned to an exact revision: Package.resolved is gitignored (the whole
+    # generated .xcodeproj is), so branch tracking resolves to whatever each
+    # machine last fetched and different developers silently build different
+    # library code. Bump this hash deliberately when the fork advances.
+    revision: 77bac320732c3cf392ba60ddf8ff2ed322061d8b
 
 targets:
   MC1:
