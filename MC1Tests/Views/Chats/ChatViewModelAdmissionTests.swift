@@ -279,7 +279,7 @@ struct ChatViewModelAdmissionTests {
   private func makeBoundViewModel() -> ChatViewModel {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     return viewModel
   }
 

@@ -85,8 +85,8 @@ struct ChatViewModelReactionIndexingTests {
   private func makeViewModel(with message: MessageDTO) -> ChatViewModel {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
-    coordinator.replaceAll([message])
+    viewModel.bindCoordinatorForTesting(coordinator)
+    coordinator.replaceAllForTesting([message])
     return viewModel
   }
 

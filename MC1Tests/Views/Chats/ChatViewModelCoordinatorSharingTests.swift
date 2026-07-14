@@ -27,8 +27,8 @@ struct ChatViewModelCoordinatorSharingTests {
 
     let viewModelA = ChatViewModel()
     let viewModelB = ChatViewModel()
-    viewModelA.coordinator = registry.coordinator(for: id)
-    viewModelB.coordinator = registry.coordinator(for: id)
+    viewModelA.bindCoordinatorForTesting(registry.coordinator(for: id))
+    viewModelB.bindCoordinatorForTesting(registry.coordinator(for: id))
 
     let message = makeDirectMessage(radioID: radioID, contactID: contactID)
     _ = viewModelA.coordinator?.append(message)
@@ -72,8 +72,8 @@ struct ChatViewModelCoordinatorSharingTests {
 
     let viewModelA = ChatViewModel()
     let viewModelB = ChatViewModel()
-    viewModelA.coordinator = registry.coordinator(for: .dm(radioID: radioID, contactID: contactA))
-    viewModelB.coordinator = registry.coordinator(for: .dm(radioID: radioID, contactID: contactB))
+    viewModelA.bindCoordinatorForTesting(registry.coordinator(for: .dm(radioID: radioID, contactID: contactA)))
+    viewModelB.bindCoordinatorForTesting(registry.coordinator(for: .dm(radioID: radioID, contactID: contactB)))
 
     let messageForA = makeDirectMessage(radioID: radioID, contactID: contactA)
     _ = viewModelA.coordinator?.append(messageForA)

@@ -97,6 +97,10 @@ extension AppState {
   func prefetchConversation(_ conversation: ChatConversationType, envInputs: EnvInputs) {
     guard let registry = ensureChatCoordinatorRegistry() else { return }
 
+    // Already open: the live view owns this timeline; a speculative warm
+    // has nothing to add and its `.prime` bind would be denied anyway.
+    if isConversationOpen(conversation) { return }
+
     // Already warm: the registry entry survives from a prior prefetch or open.
     if let existing = registry.existingCoordinator(for: conversation.coordinatorID),
        existing.renderState.phase == .loaded {
@@ -105,13 +109,19 @@ extension AppState {
 
     let viewModel = ChatViewModel()
     Task { @MainActor in
+      // `.prime` binds a revocable writer: if the user opens this chat
+      // mid-prime, the live view's `.interactive` bind revokes it and every
+      // remaining write from this view model no-ops at the coordinator. A
+      // nil writer means the open already happened, so abort the prime.
       viewModel.configure(
         dependencies: self.makeChatViewModelDependencies(),
         onNavigateToMap: nil,
         linkPreviewCache: self.backgroundLinkPreviewCache,
         chatCoordinatorRegistry: registry,
-        conversation: conversation
+        conversation: conversation,
+        role: .prime
       )
+      guard viewModel.timelineWriter != nil else { return }
       viewModel.applyEnvInputs(envInputs)
 
       switch conversation {
@@ -125,6 +135,21 @@ extension AppState {
       // Warm preview metadata and hero dimensions for the primed tail so the
       // open builds cards synchronously at their final height.
       await viewModel.prewarmRecentPreviews()
+    }
+  }
+
+  /// Whether the conversation is currently on screen, per the notification
+  /// service's active-slot bookkeeping (the same signal `ChatPrewarmRefresher`
+  /// consults before an arrival-time refresh).
+  @MainActor
+  private func isConversationOpen(_ conversation: ChatConversationType) -> Bool {
+    guard let notificationService = services?.notificationService else { return false }
+    switch conversation {
+    case let .dm(contact):
+      return notificationService.activeContactID == contact.id
+    case let .channel(channel):
+      return notificationService.activeChannelIndex == channel.index
+        && notificationService.activeChannelRadioID == channel.radioID
     }
   }
 

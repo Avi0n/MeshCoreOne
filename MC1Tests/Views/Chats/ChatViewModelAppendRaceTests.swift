@@ -16,7 +16,7 @@ struct ChatViewModelAppendRaceTests {
   func `appendMessageIfNew skips a message already present in messagesByID`() {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let message = MessageDTO(
       id: UUID(),

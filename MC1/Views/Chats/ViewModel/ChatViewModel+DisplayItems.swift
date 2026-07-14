@@ -10,16 +10,16 @@ extension ChatViewModel {
   /// after `createPendingMessage`. Preserves unread-counter math via the
   /// item-count delta observed by `ChatTiledView`.
   func appendMessageIfNew(_ message: MessageDTO) {
-    guard let coordinator else { return }
+    guard coordinator != nil, let timelineWriter else { return }
     let previous = messages.last
 
     // Synchronous append: coordinator append, render item insertion, and
     // channel sender bookkeeping all mutate Observable state on the main
     // actor in one call frame, so SwiftUI already invalidates dependent
     // views once per change cycle without an explicit transaction.
-    guard coordinator.append(message) else { return }
+    guard timelineWriter.append(message) else { return }
     let newItem = makeItem(for: message, previous: previous)
-    coordinator.appendRenderItem(newItem)
+    timelineWriter.appendRenderItem(newItem)
     if let senderName = message.senderNodeName,
        let radioID = currentChannel?.radioID {
       addChannelSenderIfNew(senderName, radioID: radioID, timestamp: message.timestamp)
@@ -90,7 +90,7 @@ extension ChatViewModel {
   /// `ChatCoordinator.rebuildItems`, which performs the off-actor hop and
   /// applies on main only when the captured `renderStateID` still matches.
   func buildItems() {
-    guard let coordinator else { return }
+    guard let coordinator, let timelineWriter else { return }
 
     // Drop stale entries from the previous build before `makeBuildInputs`
     // re-inserts. Theme toggle and offline-state flip both rebuild items
@@ -117,7 +117,7 @@ extension ChatViewModel {
       return (message, makeBuildInputs(for: message, previous: previous))
     }
 
-    coordinator.rebuildItems(inputs: inputs, envInputs: envInputs) { [weak self] in
+    timelineWriter.rebuildItems(inputs: inputs, envInputs: envInputs) { [weak self] in
       self?.decodeLegacyPreviewImages()
     }
   }

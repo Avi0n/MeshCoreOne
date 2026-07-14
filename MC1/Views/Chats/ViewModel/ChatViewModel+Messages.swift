@@ -377,15 +377,21 @@ extension ChatViewModel {
     // Close the per-conversation empty-state gate while the fetch is
     // in flight. No-op when the coordinator is already past
     // `.uninitialized` (warm rebind, refresh).
-    coordinator?.beginLoading()
+    timelineWriter?.beginLoading()
 
     guard let dataStore else {
-      coordinator?.markLoaded()
+      timelineWriter?.markLoaded()
       return false
     }
 
-    // Clear preview state only when switching to a different conversation
-    if currentContact?.id != contact.id {
+    // Clear preview state only when switching away from a previously loaded
+    // conversation. A fresh view model has nothing to clear, and its cells
+    // may already be fetching previews for this same conversation (warm
+    // coordinators render before the load task runs), so clearing here would
+    // cancel those fetches mid-flight and strand their rows at `.loading`.
+    let isConversationSwitch = currentChannel != nil
+      || (currentContact != nil && currentContact?.id != contact.id)
+    if isConversationSwitch {
       clearPreviewState()
       newMessagesDividerMessageID = nil
       dividerComputed = false
@@ -401,7 +407,7 @@ extension ChatViewModel {
     errorBannerMessage = nil
 
     // Reset pagination state for new conversation
-    coordinator?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
+    timelineWriter?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
 
     var loaded = false
     do {
@@ -409,7 +415,7 @@ extension ChatViewModel {
       let initialLimit = ChatCoordinator.initialPageSize(unreadCount: contact.unreadCount)
       var fetchedMessages = try await dataStore.fetchMessages(contactID: contact.id, limit: initialLimit, offset: 0)
       let unfilteredCount = fetchedMessages.count
-      coordinator?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
+      timelineWriter?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
 
       // Compute divider position before filtering, using unfiltered array
       computeDividerPosition(from: fetchedMessages, unreadCount: contact.unreadCount, isDM: true)
@@ -418,8 +424,8 @@ extension ChatViewModel {
       fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: true)
 
       // A full page means more history may exist above (compare to what we requested).
-      coordinator?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == initialLimit) }
-      coordinator?.replaceAll(fetchedMessages)
+      timelineWriter?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == initialLimit) }
+      timelineWriter?.replaceAll(fetchedMessages)
 
       buildItems()
 
@@ -441,7 +447,7 @@ extension ChatViewModel {
 
     // Ensures the empty-state gate opens even when the fetch threw —
     // `replaceAll` is the success path; this catches the failure path.
-    coordinator?.markLoaded()
+    timelineWriter?.markLoaded()
     isLoading = false
     return loaded
   }
@@ -510,7 +516,7 @@ extension ChatViewModel {
     } catch {
       logger.error("enqueueDM failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
       _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      coordinator?.applyStatusUpdate(messageID: message.id, status: .failed)
+      timelineWriter?.applyStatusUpdate(messageID: message.id, status: .failed)
       sendErrorMessage = Self.copyForEnqueueFailure(error)
     }
   }

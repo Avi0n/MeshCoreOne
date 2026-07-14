@@ -301,8 +301,8 @@ struct ChatViewModelTests {
   func `buildItems with empty messages produces empty output`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
-    coordinator.replaceAll([])
+    viewModel.bindCoordinatorForTesting(coordinator)
+    coordinator.replaceAllForTesting([])
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -315,7 +315,7 @@ struct ChatViewModelTests {
   func `buildItems clears stale mapPreviewRequestIndex so theme-toggle keys do not leak`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // Outgoing message so coordinate-text path runs without sender-name resolution.
     let message = createTestMessage(timestamp: 1000, text: "see 37.7749, -122.4194")
@@ -352,7 +352,7 @@ struct ChatViewModelTests {
   func `a themeID-only EnvInputs change rebuilds items with newly baked theme colors`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // The hashtag run bakes hashtagColor, which differs between default and ember, so a
     // themeID change must produce a different MessageItem. This guards the deliberate baking of
@@ -509,9 +509,9 @@ struct ChatViewModelTests {
   func `renderState.phase is .loaded after replaceAll on bound coordinator`() {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
-    coordinator.replaceAll([])
+    coordinator.replaceAllForTesting([])
 
     #expect(viewModel.renderState.phase == .loaded)
     #expect(viewModel.messages.isEmpty)
@@ -521,7 +521,7 @@ struct ChatViewModelTests {
   func `loadMessages settles phase to .loaded when dataStore is nil`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     await viewModel.loadMessages(for: createTestContact())
 
@@ -532,7 +532,7 @@ struct ChatViewModelTests {
   func `loadChannelMessages settles phase to .loaded when dataStore is nil`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let channel = ChannelDTO(from: Channel(
       radioID: UUID(),
@@ -940,7 +940,7 @@ struct ChatViewModelImageGatingTests {
   ) -> ChatViewModel {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     viewModel.appendMessageIfNew(message)
     viewModel.cachedURLs[message.id] = imageURL
     viewModel.envInputs = makeEnv(previewsEnabled: previewsEnabled)

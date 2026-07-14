@@ -154,7 +154,7 @@ struct ChatViewModelPaginationTests {
 
     viewModel.currentContact = contact
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // Without configuring dataStore, loadOlderMessages should return early
     await viewModel.loadOlderMessages()
@@ -189,7 +189,7 @@ struct ChatViewModelPaginationTests {
     viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
     viewModel.currentContact = createTestContact(id: contactID, radioID: radioID)
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // Seed the database with a page worth of messages so the
     // pagination fetch returns rows and proceeds past the
@@ -265,7 +265,7 @@ struct ChatViewModelChannelPaginationTests {
 
     let viewModel = ChatViewModel()
     viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
-    viewModel.coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
 
     await viewModel.loadChannelMessages(for: channel)
 
@@ -289,7 +289,7 @@ struct ChatViewModelChannelPaginationTests {
 
     let viewModel = ChatViewModel()
     viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
-    viewModel.coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
 
     let channel = createTestChannel(radioID: radioID, index: channelIndex, name: "General")
     let contact = createTestContact(id: contactID, radioID: radioID)
@@ -326,7 +326,7 @@ struct ChatViewModelDisplayItemsPaginationTests {
   func `Display items are rebuilt after loading older messages`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // Start with some messages
     let radioID = UUID()
@@ -340,7 +340,7 @@ struct ChatViewModelDisplayItemsPaginationTests {
       )
     }
 
-    coordinator.replaceAll(messages)
+    coordinator.replaceAllForTesting(messages)
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -366,14 +366,14 @@ struct ChatViewModelDisplayItemsPaginationTests {
   func `Formatted-text cache covers the timeline and persists across pagination`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     let radioID = UUID()
     let contactID = UUID()
 
     let messages = (0..<5).map { index in
       createTestMessage(contactID: contactID, radioID: radioID, timestamp: UInt32(1000 + index), text: "Message \(index)")
     }
-    coordinator.replaceAll(messages)
+    coordinator.replaceAllForTesting(messages)
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -396,7 +396,7 @@ struct ChatViewModelDisplayItemsPaginationTests {
   func `Changing env inputs clears the formatted-text cache`() {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // Empty timeline: applyEnvInputs clears the cache and returns before any
     // rebuild, so the clear is observable in isolation.
@@ -412,20 +412,20 @@ struct ChatViewModelDisplayItemsPaginationTests {
   func `buildItems prunes cache entries for messages no longer in the timeline`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     let radioID = UUID()
     let contactID = UUID()
 
     let messages = (0..<5).map { index in
       createTestMessage(contactID: contactID, radioID: radioID, timestamp: UInt32(1000 + index))
     }
-    coordinator.replaceAll(messages)
+    coordinator.replaceAllForTesting(messages)
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
     #expect(viewModel.formattedTextCache.count == 5)
 
     // Switch conversations: fewer messages than the cache holds triggers the prune.
-    coordinator.replaceAll([messages[0], messages[1]])
+    coordinator.replaceAllForTesting([messages[0], messages[1]])
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -437,14 +437,14 @@ struct ChatViewModelDisplayItemsPaginationTests {
   func `Message lookup by ID works after pagination`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     let radioID = UUID()
     let contactID = UUID()
 
     let message1 = createTestMessage(contactID: contactID, radioID: radioID, timestamp: 1000)
     let message2 = createTestMessage(contactID: contactID, radioID: radioID, timestamp: 1001)
 
-    coordinator.replaceAll([message1, message2])
+    coordinator.replaceAllForTesting([message1, message2])
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 

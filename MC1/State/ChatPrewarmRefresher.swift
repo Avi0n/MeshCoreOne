@@ -124,14 +124,21 @@ final class ChatPrewarmRefresher {
 
     // Same throwaway-view-model prime as `AppState.prefetchConversation`:
     // only the shared coordinator (held by the registry) outlives it.
+    // `.prime` binds a revocable writer; if the user opens this chat
+    // mid-refresh, the live view's `.interactive` bind revokes it and every
+    // remaining write from this view model no-ops at the coordinator.
     let viewModel = ChatViewModel()
     viewModel.configure(
       dependencies: dependencies,
       onNavigateToMap: nil,
       linkPreviewCache: hooks.linkPreviewCache(),
       chatCoordinatorRegistry: registry,
-      conversation: conversation
+      conversation: conversation,
+      role: .prime
     )
+    // A denied writer means an interactive owner appeared between the
+    // active-conversation check and the bind; nothing to refresh.
+    guard viewModel.timelineWriter != nil else { return }
     viewModel.applyEnvInputs(envInputs)
 
     switch conversation {

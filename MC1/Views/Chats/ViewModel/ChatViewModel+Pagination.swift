@@ -10,7 +10,7 @@ extension ChatViewModel {
     guard !isLoadingOlder, hasMoreMessages else { return }
     guard let dataStore else { return }
 
-    coordinator?.updateRenderState { $0.with(isLoadingOlder: true) }
+    timelineWriter?.updateRenderState { $0.with(isLoadingOlder: true) }
 
     // Snapshot conversation context before any await — actor reentrancy
     // means currentContact/currentChannel can change during suspensions
@@ -35,13 +35,13 @@ extension ChatViewModel {
           offset: currentOffset
         )
       } else {
-        coordinator?.updateRenderState { $0.with(isLoadingOlder: false) }
+        timelineWriter?.updateRenderState { $0.with(isLoadingOlder: false) }
         return
       }
 
       // Use unfiltered count to determine if more messages exist
       let unfilteredCount = olderMessages.count
-      coordinator?.updateRenderState { current in
+      timelineWriter?.updateRenderState { current in
         current.with(
           hasMoreMessages: unfilteredCount < ChatCoordinator.pageSize ? false : current.hasMoreMessages,
           totalFetchedCount: current.totalFetchedCount + unfilteredCount
@@ -60,9 +60,9 @@ extension ChatViewModel {
       // Prepend older messages (they're chronologically earlier).
       // Re-run same-sender reordering across the page boundary to handle
       // clusters that were split between the existing and newly loaded pages.
-      coordinator?.prepend(olderMessages)
+      timelineWriter?.prepend(olderMessages)
       let reordered = MessageDTO.reorderSameSenderClusters(messages)
-      coordinator?.replaceMessagesPreservingByID(reordered)
+      timelineWriter?.replaceMessagesPreservingByID(reordered)
 
       // Register senders from the older page; without this, scrolling
       // back to a sender who only appears in older pages leaves them
@@ -81,7 +81,7 @@ extension ChatViewModel {
       // duplicate rebuild of the entire timeline. The prepended messages are
       // already in the canonical array, so the spinner can retire now, and the
       // slow reaction indexing below never gates it.
-      coordinator?.updateRenderState { $0.with(isLoadingOlder: false) }
+      timelineWriter?.updateRenderState { $0.with(isLoadingOlder: false) }
 
       buildItems()
 
@@ -108,7 +108,7 @@ extension ChatViewModel {
       }
 
     } catch {
-      coordinator?.updateRenderState { $0.with(isLoadingOlder: false) }
+      timelineWriter?.updateRenderState { $0.with(isLoadingOlder: false) }
       errorBannerMessage = L10n.Chats.Chats.Error.loadOlderMessagesFailed
       logger.error("Failed to load older messages: \(error)")
     }

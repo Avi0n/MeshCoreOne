@@ -43,7 +43,7 @@ struct ChatViewModelEventGuardTests {
   func `messageStatusResolved applies status in place via the coordinator`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let message = makeMessage()
     _ = coordinator.append(message)
@@ -70,7 +70,7 @@ struct ChatViewModelEventGuardTests {
   func `messageResent schedules a reload via the coordinator`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let message = makeMessage(status: .failed)
     _ = coordinator.append(message)
@@ -85,7 +85,7 @@ struct ChatViewModelEventGuardTests {
   func `messageFailed schedules a reload via the coordinator`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let message = makeMessage()
     _ = coordinator.append(message)
@@ -100,7 +100,7 @@ struct ChatViewModelEventGuardTests {
   func `heardRepeatRecorded schedules a reload via the coordinator`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let message = makeMessage(status: .sent)
     _ = coordinator.append(message)
@@ -115,7 +115,7 @@ struct ChatViewModelEventGuardTests {
   func `reactionReceived schedules a reload via the coordinator`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let message = makeMessage(status: .delivered)
     _ = coordinator.append(message)
@@ -130,7 +130,7 @@ struct ChatViewModelEventGuardTests {
   func `messageStatusResolved does not downgrade .delivered to .sent`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let message = makeMessage()
     _ = coordinator.append(message)

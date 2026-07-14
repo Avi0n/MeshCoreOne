@@ -41,7 +41,7 @@ struct ChatViewModelPreviewSeedTests {
   @Test
   func `build inputs detect the message URL synchronously`() {
     let viewModel = ChatViewModel()
-    viewModel.coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
     let message = makeMessage(text: "look at https://example.com/article")
 
     let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
@@ -54,7 +54,7 @@ struct ChatViewModelPreviewSeedTests {
   @Test
   func `build inputs rehydrate a decoded preview in the same call`() throws {
     let viewModel = ChatViewModel()
-    viewModel.coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
     // Unique URL: DecodedPreviewCache is a process singleton shared by tests.
     let urlString = "https://example.com/\(UUID().uuidString)"
     let message = makeMessage(text: "see \(urlString)")
@@ -88,7 +88,7 @@ struct ChatViewModelPreviewSeedTests {
     await dimensionsStore.save(url: url, size: CGSize(width: 1200, height: 630))
 
     let viewModel = ChatViewModel()
-    viewModel.coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
     viewModel.configure(
       dependencies: ChatViewModel.Dependencies(
         dataStore: { nil },
@@ -124,7 +124,7 @@ struct ChatViewModelPreviewSeedTests {
   @Test
   func `messages without URLs record the negative result and stay fragment-free`() {
     let viewModel = ChatViewModel()
-    viewModel.coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
     let message = makeMessage(text: "no links here")
 
     let inputs = viewModel.makeBuildInputs(for: message, previous: nil)

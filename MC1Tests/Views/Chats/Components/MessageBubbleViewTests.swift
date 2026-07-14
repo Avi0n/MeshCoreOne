@@ -17,9 +17,9 @@ struct MessageBubbleViewTests {
   func `DM bubble path: viewModel resolves the message for its stored item`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     let message = makeMessage(text: "hello dm")
-    coordinator.replaceAll([message])
+    coordinator.replaceAllForTesting([message])
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -36,14 +36,14 @@ struct MessageBubbleViewTests {
   func `Retry/failed bubble: envelope and footer capture retry state`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     let message = makeMessage(
       text: "retry me",
       status: .failed,
       retryAttempt: 2,
       maxRetryAttempts: 3
     )
-    coordinator.replaceAll([message])
+    coordinator.replaceAllForTesting([message])
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
