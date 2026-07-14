@@ -140,6 +140,21 @@ final class AppState {
   /// torn down on services-left.
   private(set) var chatCoordinatorRegistry: ChatCoordinatorRegistry?
 
+  /// Re-primes warm chat coordinators when messages arrive for closed
+  /// conversations, so a reopen renders the fresh tail on the first frame.
+  /// Built lazily by `ensureChatPrewarmRefresher()`.
+  @ObservationIgnored var chatPrewarmRefresher: ChatPrewarmRefresher?
+
+  /// Latest view-environment values seen by `chatEnvInputs`, reused when a
+  /// background coordinator refresh must bake items with no view in hand.
+  @ObservationIgnored var lastChatEnvSnapshot: ChatEnvSnapshot?
+
+  /// Link-preview cache for the background prime paths (navigation prefetch,
+  /// arrival-time refresh), which run without a view's environment. Instance
+  /// identity is not load-bearing: durable preview state lives in the DB tier
+  /// and the shared decoded caches, same as the `\.linkPreviewCache` default.
+  @ObservationIgnored lazy var backgroundLinkPreviewCache: any LinkPreviewCaching = LinkPreviewCache()
+
   /// Cached standalone persistence store for offline browsing
   private var cachedOfflineStore: PersistenceStore?
 

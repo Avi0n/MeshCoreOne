@@ -180,7 +180,7 @@ public enum MessageFragmentBuilder {
     case .malwareWarning:
       .idle
     }
-    return LinkPreviewFragmentState(mode: mode)
+    return LinkPreviewFragmentState(mode: mode, heroAspectHint: inputs.previewHeroAspect)
   }
 
   private static func makeEnvelope(

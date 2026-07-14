@@ -2,6 +2,16 @@ import Foundation
 import MC1Services
 import SwiftUI
 
+/// The view-only environment values `AppState.chatEnvInputs` needs, captured
+/// on each call so background coordinator refreshes can rebuild `EnvInputs`
+/// for any conversation without a view in hand.
+struct ChatEnvSnapshot {
+  var themeID: String
+  var isDark: Bool
+  var isHighContrast: Bool
+  var contentSizeCategory: String
+}
+
 extension AppState {
   /// Builds the dependency bundle a chat `ChatViewModel` needs. Shared by the
   /// live conversation view and the navigation-time prefetch so the two cannot
@@ -41,6 +51,13 @@ extension AppState {
     isHighContrast: Bool,
     contentSizeCategory: String
   ) -> EnvInputs {
+    lastChatEnvSnapshot = ChatEnvSnapshot(
+      themeID: themeID,
+      isDark: isDark,
+      isHighContrast: isHighContrast,
+      contentSizeCategory: contentSizeCategory
+    )
+
     let defaults = UserDefaults.standard
     func bool(_ key: AppStorageKey, _ fallback: Bool) -> Bool {
       defaults.object(forKey: key.rawValue) as? Bool ?? fallback
@@ -91,7 +108,7 @@ extension AppState {
       viewModel.configure(
         dependencies: self.makeChatViewModelDependencies(),
         onNavigateToMap: nil,
-        linkPreviewCache: nil,
+        linkPreviewCache: self.backgroundLinkPreviewCache,
         chatCoordinatorRegistry: registry,
         conversation: conversation
       )
@@ -105,6 +122,54 @@ extension AppState {
         await viewModel.loadAllContacts(radioID: channel.radioID)
         await viewModel.primeInitialChannelMessages(for: channel)
       }
+      // Warm preview metadata and hero dimensions for the primed tail so the
+      // open builds cards synchronously at their final height.
+      await viewModel.prewarmRecentPreviews()
     }
+  }
+
+  /// Lazily builds the refresher that re-primes warm coordinators when
+  /// messages arrive for closed conversations (see `ChatPrewarmRefresher`).
+  /// Every hook resolves through `self` weakly at call time, so the refresher
+  /// stays valid across reconnects and registry rebinds.
+  func ensureChatPrewarmRefresher() -> ChatPrewarmRefresher {
+    if let chatPrewarmRefresher { return chatPrewarmRefresher }
+    let refresher = ChatPrewarmRefresher(hooks: ChatPrewarmRefresher.Hooks(
+      registry: { [weak self] in
+        self?.ensureChatCoordinatorRegistry()
+      },
+      dependencies: { [weak self] in
+        self?.makeChatViewModelDependencies()
+      },
+      envInputs: { [weak self] conversation in
+        guard let self, let snapshot = lastChatEnvSnapshot else { return nil }
+        return chatEnvInputs(
+          for: conversation,
+          themeID: snapshot.themeID,
+          isDark: snapshot.isDark,
+          isHighContrast: snapshot.isHighContrast,
+          contentSizeCategory: snapshot.contentSizeCategory
+        )
+      },
+      isConversationActive: { [weak self] kind in
+        guard let notificationService = self?.services?.notificationService else { return false }
+        switch kind {
+        case let .dm(contact):
+          return notificationService.activeContactID == contact.id
+        case let .channel(radioID, channelIndex):
+          return notificationService.activeChannelIndex == channelIndex
+            && notificationService.activeChannelRadioID == radioID
+        }
+      },
+      channel: { [weak self] radioID, channelIndex in
+        guard let store = self?.offlineDataStore else { return nil }
+        return (try? await store.fetchChannel(radioID: radioID, index: channelIndex)) ?? nil
+      },
+      linkPreviewCache: { [weak self] in
+        self?.backgroundLinkPreviewCache
+      }
+    ))
+    chatPrewarmRefresher = refresher
+    return refresher
   }
 }

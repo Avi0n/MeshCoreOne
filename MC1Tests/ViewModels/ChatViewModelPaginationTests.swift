@@ -124,7 +124,6 @@ private func createChannelMessage(
 private func envInputsChangingAppearance() -> EnvInputs {
   let base = EnvInputs.default
   return EnvInputs(
-    showInlineImages: base.showInlineImages,
     autoPlayGIFs: base.autoPlayGIFs,
     showIncomingPath: base.showIncomingPath,
     showIncomingHopCount: base.showIncomingHopCount,

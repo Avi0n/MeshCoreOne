@@ -147,6 +147,7 @@ extension ChatViewModel {
     // Update state based on result
     switch result {
     case let .loaded(dto):
+      persistHeroAspect(from: dto, requestedURL: url)
       await decodeAndStorePreviewImages(from: dto, for: messageID)
       previewStates[messageID] = .loaded
       loadedPreviews[messageID] = dto
@@ -179,6 +180,7 @@ extension ChatViewModel {
 
     switch result {
     case let .loaded(dto):
+      persistHeroAspect(from: dto, requestedURL: url)
       await decodeAndStorePreviewImages(from: dto, for: messageID)
       previewStates[messageID] = .loaded
       loadedPreviews[messageID] = dto
@@ -189,6 +191,37 @@ extension ChatViewModel {
     }
 
     rebuildDisplayItem(for: messageID)
+  }
+
+  /// Persist the preview hero's aspect ratio keyed by the message's page URL
+  /// (the key `makeBuildInputs` looks up), so the next build's loading shimmer
+  /// reserves the final card footprint instead of guessing `fallbackAspect`.
+  private func persistHeroAspect(from dto: LinkPreviewDataDTO, requestedURL: URL) {
+    guard let width = dto.imageWidth, let height = dto.imageHeight,
+          let store = inlineImageDimensionsStore else { return }
+    Task {
+      await store.save(url: requestedURL, size: CGSize(width: width, height: height))
+    }
+  }
+
+  /// Warm link-preview metadata (and inline-image dimensions) for the newest
+  /// page rows, so a later open builds cards synchronously from the caches at
+  /// their final height. Called by the background prime paths (navigation
+  /// prefetch, arrival-time refresh); a no-op without a configured prefetcher
+  /// or with previews off. `LinkPreviewCache` dedups in-flight and cached
+  /// URLs, so repeat calls cost one dictionary hit per URL.
+  func prewarmRecentPreviews(limit: Int = 10) async {
+    guard let prefetcher, envInputs.previewsEnabled else { return }
+    let isChannel = currentChannel != nil
+    let allowImageProbes = linkPreviewPreferences.shouldAutoResolve(isChannelMessage: isChannel)
+    for message in messages.suffix(limit)
+      where !LinkPreviewService.extractAllURLs(in: message.text).isEmpty {
+      await prefetcher.prefetch(
+        urlsIn: message.text,
+        isChannelMessage: isChannel,
+        allowImageProbes: allowImageProbes
+      )
+    }
   }
 
   /// Decode preview hero image and icon off the main thread and store results

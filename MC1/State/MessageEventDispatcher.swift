@@ -53,8 +53,15 @@ final class MessageEventDispatcher {
         switch event {
         case let .directMessageReceived(message, contact):
           stream.send(.directMessageReceived(message: message, contact: contact))
+          // Keep a closed conversation's warm coordinator current so a reopen
+          // renders the new tail on the first frame (no-op when open or cold).
+          appState?.ensureChatPrewarmRefresher().noteDirectMessage(contact: contact)
         case let .channelMessageReceived(message, channelIndex):
           stream.send(.channelMessageReceived(message: message, channelIndex: channelIndex))
+          appState?.ensureChatPrewarmRefresher().noteChannelMessage(
+            radioID: message.radioID,
+            channelIndex: channelIndex
+          )
         case let .roomMessageReceived(message):
           stream.send(.roomMessageReceived(message: message, sessionID: message.sessionID))
         case let .reactionReceived(messageID, summary):

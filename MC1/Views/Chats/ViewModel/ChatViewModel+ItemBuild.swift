@@ -65,6 +65,7 @@ extension ChatViewModel {
   /// affected rows — hence it must be called on the main actor (the batch
   /// `buildItems()` path already does).
   func makeBuildInputs(for message: MessageDTO, previous: MessageDTO?) -> MessageBuildInputs {
+    seedPreviewStateIfNeeded(for: message)
     let flags = Self.computeDisplayFlags(for: message, previous: previous)
     let cachedURL = cachedURLs[message.id].flatMap(\.self)
     // Extension-based image classification, minus URLs the fetch path has
@@ -76,6 +77,14 @@ extension ChatViewModel {
             let store = inlineImageDimensionsStore else { return nil }
       let directURL = ImageURLClassifier.directImageURL(for: cachedURL)
       return store.aspect(for: directURL) ?? store.aspect(for: cachedURL)
+    }()
+    // Remembered hero size for the link-preview card, keyed by the page URL
+    // (fetch paths persist it on every resolved preview). Distinct namespace
+    // from the inline-image lookup above, which keys by the direct image URL.
+    let previewHeroAspect: Double? = {
+      guard !isInlineImageURL, let cachedURL,
+            let store = inlineImageDimensionsStore else { return nil }
+      return store.aspect(for: cachedURL)
     }()
 
     let formatted: (text: AttributedString, mapCoordinate: CLLocationCoordinate2D?)
@@ -126,6 +135,7 @@ extension ChatViewModel {
       hasPreviewIconRef: decodedPreviewAssets[message.id]?.icon != nil,
       imageIsGIF: imageIsGIF[message.id] ?? false,
       inlineImageAspect: inlineImageAspect,
+      previewHeroAspect: previewHeroAspect,
       mapPreviewLatitude: formatted.mapCoordinate?.latitude,
       mapPreviewLongitude: formatted.mapCoordinate?.longitude,
       isMapPreviewReady: isMapPreviewReady,
@@ -145,7 +155,7 @@ extension ChatViewModel {
 
   /// Single-message convenience that pairs `makeBuildInputs` with the pure
   /// `MessageFragmentBuilder`. Single-row callers (`appendMessageIfNew`,
-  /// `rebuildDisplayItem`, `updateURLForDisplayItem`) keep using this; the
+  /// `rebuildDisplayItem`) keep using this; the
   /// batch path in `buildItems()` calls `makeBuildInputs` on main and then
   /// invokes the builder off-actor with the resulting snapshot.
   func makeItem(for message: MessageDTO, previous: MessageDTO?) -> MessageItem {

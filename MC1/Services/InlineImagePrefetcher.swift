@@ -67,11 +67,18 @@ final class InlineImagePrefetcher {
           }
         } else {
           group.addTask {
-            _ = await linkPreviewCache.preview(
+            let result = await linkPreviewCache.preview(
               for: url,
               using: dataStore,
               isChannelMessage: isChannelMessage
             )
+            // Persist the hero aspect under the requested page URL (the key
+            // the build path looks up) so the loading shimmer reserves the
+            // final card footprint on the next build.
+            if case let .loaded(dto) = result,
+               let width = dto.imageWidth, let height = dto.imageHeight {
+              await dimensionsStore.save(url: url, size: CGSize(width: width, height: height))
+            }
           }
         }
       }

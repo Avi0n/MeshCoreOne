@@ -18,7 +18,6 @@ extension ChatViewModel {
     // actor in one call frame, so SwiftUI already invalidates dependent
     // views once per change cycle without an explicit transaction.
     guard coordinator.append(message) else { return }
-    liveAppendGeneration += 1
     let newItem = makeItem(for: message, previous: previous)
     coordinator.appendRenderItem(newItem)
     if let senderName = message.senderNodeName,
@@ -26,53 +25,26 @@ extension ChatViewModel {
       addChannelSenderIfNew(senderName, radioID: radioID, timestamp: message.timestamp)
     }
 
-    // URL detection writes `cachedURLs[messageID]` from a background task
-    // and lands as its own invalidation cycle.
-    let messageID = message.id
-    let text = message.text
-    let generation = urlDetectionGeneration
-    Task { [weak self] in
-      guard let self else { return }
-      await updateURLForDisplayItem(messageID: messageID, text: text, generation: generation)
-    }
+    // URL detection and cache rehydration happen synchronously inside
+    // `makeItem` (see `seedPreviewStateIfNeeded`), so the appended row is
+    // already carrying its preview fragment.
   }
 
-  /// Update URL detection for a single message by ID.
-  /// Uses O(1) dictionary lookup to handle concurrent array modifications.
-  private func updateURLForDisplayItem(messageID: UUID, text: String, generation: UInt64) async {
-    let detectedURL = await Task.detached(priority: .userInitiated) {
-      LinkPreviewService.extractFirstURL(from: text)
-    }.value
-
-    // Drop stale writes after a buildItems rebuild — Task.cancel only kills the latest chain link.
-    // Single-row rebuilds via rebuildDisplayItem(for:) do not write cachedURLs and need no
-    // generation gating; only this URL-detection writer does.
-    guard urlDetectionGeneration == generation else { return }
-
-    // Gate every per-VM write on the message still being present so a
-    // delete between detection-start and detection-end can never seed
-    // orphan state that no cleanup path purges before conversation
-    // switch.
-    guard let coordinator,
-          let message = coordinator.messagesByID[messageID] else {
-      logger.warning("URL update for missing message id \(messageID)")
-      return
-    }
-
-    cachedURLs[messageID] = detectedURL
-
-    // Rehydrate decoded-image state from the singleton when this is a
-    // fresh chat-entry on a URL whose decode already completed in a
-    // prior session. Painting `.loaded` plus the dict entry in the
-    // same call frame means the next render skips the shimmer
-    // transition entirely.
-    rehydrateInlineImageStateIfCached(messageID: messageID, url: detectedURL)
-    rehydratePreviewStateIfCached(messageID: messageID, url: detectedURL)
-
-    let previous = previousMessage(for: messageID)
-    coordinator.updateRenderItem(id: messageID) { _ in
-      makeItem(for: message, previous: previous)
-    }
+  /// Synchronously detects the message's first URL and rehydrates preview /
+  /// inline-image state from the process-lifetime decoded caches, before the
+  /// build inputs are snapshotted. A fresh view model (every open, prewarm,
+  /// or refresh) starts with cold dictionaries while the shared coordinator's
+  /// items are already on screen; without this seed the first rebuild bakes
+  /// the link-preview fragment as `.idle` (a zero-height `EmptyView`) and the
+  /// list visibly reflows when async detection later restores the card.
+  /// Idempotent: the `cachedURLs` sentinel (present-but-nil marks "detected,
+  /// no URL") makes repeat calls a dictionary hit.
+  func seedPreviewStateIfNeeded(for message: MessageDTO) {
+    guard cachedURLs[message.id] == nil else { return }
+    let url = LinkPreviewService.extractFirstURL(from: message.text)
+    cachedURLs[message.id] = url
+    rehydrateInlineImageStateIfCached(messageID: message.id, url: url)
+    rehydratePreviewStateIfCached(messageID: message.id, url: url)
   }
 
   /// Seed `decodedImages` / `imageIsGIF` / `previewStates = .loaded`
@@ -119,8 +91,6 @@ extension ChatViewModel {
   /// applies on main only when the captured `renderStateID` still matches.
   func buildItems() {
     guard let coordinator else { return }
-    urlDetectionGeneration &+= 1
-    let urlGeneration = urlDetectionGeneration
 
     // Drop stale entries from the previous build before `makeBuildInputs`
     // re-inserts. Theme toggle and offline-state flip both rebuild items
@@ -129,7 +99,6 @@ extension ChatViewModel {
     // current request key has changed.
     mapPreviewRequestIndex.removeAll()
 
-    var uncachedMessageIDs: [(UUID, String)] = []
     let messagesSnapshot = coordinator.messages
 
     // Drop formatted-text entries for messages no longer in the timeline
@@ -140,33 +109,16 @@ extension ChatViewModel {
       formattedTextCache = formattedTextCache.filter { liveIDs.contains($0.key) }
     }
 
+    // URL detection and decoded-cache rehydration run synchronously inside
+    // `makeBuildInputs` (see `seedPreviewStateIfNeeded`), so every row leaves
+    // this loop already carrying its preview fragment at a stable height.
     let inputs: [(MessageDTO, MessageBuildInputs)] = messagesSnapshot.enumerated().map { index, message in
       let previous: MessageDTO? = index > 0 ? messagesSnapshot[index - 1] : nil
-
-      if cachedURLs[message.id] == nil,
-         previewStates[message.id] == nil,
-         loadedPreviews[message.id] == nil {
-        uncachedMessageIDs.append((message.id, message.text))
-      }
-
       return (message, makeBuildInputs(for: message, previous: previous))
     }
 
-    let messagesToDetect = uncachedMessageIDs
-
     coordinator.rebuildItems(inputs: inputs, envInputs: envInputs) { [weak self] in
-      guard let self else { return }
-      if !messagesToDetect.isEmpty {
-        urlDetectionTask?.cancel()
-        urlDetectionTask = Task { [weak self] in
-          guard let self else { return }
-          for (messageID, text) in messagesToDetect {
-            guard !Task.isCancelled, urlDetectionGeneration == urlGeneration else { return }
-            await updateURLForDisplayItem(messageID: messageID, text: text, generation: urlGeneration)
-          }
-        }
-      }
-      decodeLegacyPreviewImages()
+      self?.decodeLegacyPreviewImages()
     }
   }
 
