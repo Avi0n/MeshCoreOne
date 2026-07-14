@@ -18,7 +18,41 @@ struct ChatViewModelAppendRaceTests {
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.coordinator = coordinator
 
-    let message = MessageDTO(
+    let message = Self.makeMessage()
+
+    _ = coordinator.append(message)
+
+    viewModel.appendMessageIfNew(message)
+
+    #expect(viewModel.messages.count == 1,
+            "appendMessageIfNew must not duplicate when messagesByID already holds the id")
+    #expect(viewModel.messagesByID.count == 1)
+  }
+
+  /// `ChatTiledView` distinguishes a live append (animated scroll) from a bulk
+  /// catch-up reload (silent jump) by watching `liveAppendGeneration`. It must
+  /// advance for a genuine append and stay put for a de-duplicated one, or the
+  /// reopen catch-up would be misread as live and animate.
+  @Test
+  func `liveAppendGeneration advances on a new append but not a duplicate`() {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.coordinator = coordinator
+
+    let message = Self.makeMessage()
+    let before = viewModel.liveAppendGeneration
+
+    viewModel.appendMessageIfNew(message)
+    #expect(viewModel.liveAppendGeneration == before + 1,
+            "a genuine live append must advance the generation")
+
+    viewModel.appendMessageIfNew(message)
+    #expect(viewModel.liveAppendGeneration == before + 1,
+            "a de-duplicated append must not advance the generation")
+  }
+
+  private static func makeMessage() -> MessageDTO {
+    MessageDTO(
       id: UUID(),
       radioID: UUID(),
       contactID: UUID(),
@@ -41,13 +75,5 @@ struct ChatViewModelAppendRaceTests {
       retryAttempt: 0,
       maxRetryAttempts: 0
     )
-
-    _ = coordinator.append(message)
-
-    viewModel.appendMessageIfNew(message)
-
-    #expect(viewModel.messages.count == 1,
-            "appendMessageIfNew must not duplicate when messagesByID already holds the id")
-    #expect(viewModel.messagesByID.count == 1)
   }
 }

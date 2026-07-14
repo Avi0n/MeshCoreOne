@@ -89,6 +89,7 @@ struct ChatMessagesTableView: View {
       appearanceIdentity: appearanceIdentity,
       isAtBottom: $isAtBottom,
       unreadCount: $unreadCount,
+      liveAppendGeneration: viewModel.liveAppendGeneration,
       scrollToBottomRequest: scrollToBottomRequest,
       scrollToTargetRequest: scrollToTargetRequest,
       scrollTargetID: scrollToTargetID,

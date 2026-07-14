@@ -18,6 +18,7 @@ extension ChatViewModel {
     // actor in one call frame, so SwiftUI already invalidates dependent
     // views once per change cycle without an explicit transaction.
     guard coordinator.append(message) else { return }
+    liveAppendGeneration += 1
     let newItem = makeItem(for: message, previous: previous)
     coordinator.appendRenderItem(newItem)
     if let senderName = message.senderNodeName,

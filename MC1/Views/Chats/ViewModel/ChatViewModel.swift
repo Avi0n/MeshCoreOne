@@ -317,6 +317,12 @@ final class ChatViewModel {
     renderState.totalFetchedCount
   }
 
+  /// Bumped only when a single message is appended live (incoming arrival or
+  /// outgoing send) via `appendMessageIfNew`. `ChatTiledView` reads this to tell
+  /// a live append (animate the scroll) apart from a bulk catch-up reload on
+  /// reopen (jump silently), since both grow the items array at the tail.
+  var liveAppendGeneration = 0
+
   /// Message ID that should show the "New Messages" divider above it
   var newMessagesDividerMessageID: UUID?
 
