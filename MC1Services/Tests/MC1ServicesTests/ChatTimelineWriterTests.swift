@@ -133,20 +133,20 @@ struct ChatTimelineWriterTests {
     #expect(!primeA.isCurrent)
     #expect(primeB.isCurrent)
 
-    // Deallocated interactive owner frees the slot: the owner's only
-    // strong reference dies with this scope (the coordinator holds it
-    // weakly), so the follow-up prime bind sees a vacant slot.
     func bindTransientInteractiveOwner() {
       let owner = WriterOwner()
       #expect(coordinator.bindWriter(owner: owner, role: .interactive) != nil)
     }
+    // Deallocated interactive owner frees the slot: the owner's only
+    // strong reference dies with this scope (the coordinator holds it
+    // weakly), so the follow-up prime bind sees a vacant slot.
     bindTransientInteractiveOwner()
     let primeOwnerC = WriterOwner()
     #expect(coordinator.bindWriter(owner: primeOwnerC, role: .prime) != nil)
   }
 
   @Test
-  func `interactive bind swaps hooks atomically with write ownership`() throws {
+  func `interactive bind swaps hooks atomically with write ownership`() {
     let coordinator = ChatCoordinator.makeForTesting()
     let ownerA = WriterOwner()
     let ownerB = WriterOwner()
