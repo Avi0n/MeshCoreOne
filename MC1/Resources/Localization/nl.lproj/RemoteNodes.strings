@@ -119,7 +119,7 @@
 "remoteNodes.settings.radioParameters" = "Radioparameters";
 
 /* Location: RepeaterSettingsView.swift - Radio restart warning */
-"remoteNodes.settings.radioRestartWarning" = "Het toepassen van deze wijzigingen herstart de repeater";
+"remoteNodes.settings.radioRestartWarning" = "Deze wijzigingen worden pas van kracht nadat de repeater opnieuw is opgestart";
 
 /* Location: RepeaterSettingsView.swift - Frequency label */
 "remoteNodes.settings.frequencyMHz" = "Frequentie (MHz)";
@@ -822,7 +822,7 @@
 "remoteNodes.roomSettings.rebootMessage" = "De kamer wordt herstart en is tijdelijk niet beschikbaar.";
 
 /* Location: RoomSettingsView.swift - Radio restart warning */
-"remoteNodes.roomSettings.radioRestartWarning" = "Het toepassen van deze wijzigingen herstart de kamer";
+"remoteNodes.roomSettings.radioRestartWarning" = "Deze wijzigingen worden pas van kracht nadat de kamer opnieuw is opgestart";
 
 /* Location: RoomSettingsView.swift - No service error */
 "remoteNodes.roomSettings.noService" = "Roomservice niet beschikbaar";

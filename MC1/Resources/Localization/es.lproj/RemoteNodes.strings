@@ -119,7 +119,7 @@
 "remoteNodes.settings.radioParameters" = "Parámetros de radio";
 
 /* Location: RepeaterSettingsView.swift - Radio restart warning */
-"remoteNodes.settings.radioRestartWarning" = "Aplicar estos cambios reiniciará el repetidor";
+"remoteNodes.settings.radioRestartWarning" = "Estos cambios no tendrán efecto hasta que se reinicie el repetidor";
 
 /* Location: RepeaterSettingsView.swift - Frequency label */
 "remoteNodes.settings.frequencyMHz" = "Frecuencia (MHz)";
@@ -822,7 +822,7 @@
 "remoteNodes.roomSettings.rebootMessage" = "La sala se reiniciará y estará temporalmente no disponible.";
 
 /* Location: RoomSettingsView.swift - Radio restart warning */
-"remoteNodes.roomSettings.radioRestartWarning" = "Aplicar estos cambios reiniciará la sala";
+"remoteNodes.roomSettings.radioRestartWarning" = "Estos cambios no tendrán efecto hasta que se reinicie la sala";
 
 /* Location: RoomSettingsView.swift - No service error */
 "remoteNodes.roomSettings.noService" = "Servicio de sala no disponible";

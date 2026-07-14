@@ -3442,7 +3442,7 @@ public enum L10n {
         /// Location: RoomSettingsView.swift - Not connected error
         public static let notConnected = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.notConnected", fallback: "Not connected to room")
         /// Location: RoomSettingsView.swift - Radio restart warning
-        public static let radioRestartWarning = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.radioRestartWarning", fallback: "Applying these changes will restart the room")
+        public static let radioRestartWarning = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.radioRestartWarning", fallback: "Applying these changes won't take effect until the room is rebooted")
         /// Location: RoomSettingsView.swift - Reboot confirmation title
         public static let rebootConfirmTitle = L10n.tr("RemoteNodes", "remoteNodes.roomSettings.rebootConfirmTitle", fallback: "Reboot Room?")
         /// Location: RoomSettingsView.swift - Reboot confirmation message
@@ -3590,7 +3590,7 @@ public enum L10n {
         /// Location: RepeaterSettingsView.swift - Radio parameters section title
         public static let radioParameters = L10n.tr("RemoteNodes", "remoteNodes.settings.radioParameters", fallback: "Radio Parameters")
         /// Location: RepeaterSettingsView.swift - Radio restart warning
-        public static let radioRestartWarning = L10n.tr("RemoteNodes", "remoteNodes.settings.radioRestartWarning", fallback: "Applying these changes will restart the repeater")
+        public static let radioRestartWarning = L10n.tr("RemoteNodes", "remoteNodes.settings.radioRestartWarning", fallback: "Applying these changes won't take effect until the repeater is rebooted")
         /// Location: RepeaterSettingsView.swift - Reboot confirmation dialog button
         public static let reboot = L10n.tr("RemoteNodes", "remoteNodes.settings.reboot", fallback: "Reboot")
         /// Location: RepeaterSettingsView.swift - Reboot confirmation dialog title

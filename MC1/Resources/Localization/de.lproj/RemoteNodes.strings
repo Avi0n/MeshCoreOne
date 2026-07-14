@@ -119,7 +119,7 @@
 "remoteNodes.settings.radioParameters" = "Funkparameter";
 
 /* Location: RepeaterSettingsView.swift - Radio restart warning */
-"remoteNodes.settings.radioRestartWarning" = "Das Anwenden dieser Änderungen startet den Repeater neu";
+"remoteNodes.settings.radioRestartWarning" = "Diese Änderungen werden erst nach einem Neustart des Repeaters wirksam";
 
 /* Location: RepeaterSettingsView.swift - Frequency label */
 "remoteNodes.settings.frequencyMHz" = "Frequenz (MHz)";
@@ -822,7 +822,7 @@
 "remoteNodes.roomSettings.rebootMessage" = "Der Raum wird neu gestartet und ist vorübergehend nicht verfügbar.";
 
 /* Location: RoomSettingsView.swift - Radio restart warning */
-"remoteNodes.roomSettings.radioRestartWarning" = "Das Anwenden dieser Änderungen startet den Raum neu";
+"remoteNodes.roomSettings.radioRestartWarning" = "Diese Änderungen werden erst nach einem Neustart des Raums wirksam";
 
 /* Location: RoomSettingsView.swift - No service error */
 "remoteNodes.roomSettings.noService" = "Raumdienst nicht verfügbar";

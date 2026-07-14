@@ -119,7 +119,7 @@
 "remoteNodes.settings.radioParameters" = "Параметры радио";
 
 /* Location: RepeaterSettingsView.swift - Radio restart warning */
-"remoteNodes.settings.radioRestartWarning" = "Применение этих изменений перезапустит ретранслятор";
+"remoteNodes.settings.radioRestartWarning" = "Эти изменения вступят в силу только после перезапуска ретранслятора";
 
 /* Location: RepeaterSettingsView.swift - Frequency label */
 "remoteNodes.settings.frequencyMHz" = "Частота (МГц)";
@@ -819,7 +819,7 @@
 "remoteNodes.roomSettings.rebootMessage" = "Комната перезапустится и будет временно недоступна.";
 
 /* Location: RoomSettingsView.swift - Radio restart warning */
-"remoteNodes.roomSettings.radioRestartWarning" = "Применение этих изменений перезапустит комнату";
+"remoteNodes.roomSettings.radioRestartWarning" = "Эти изменения вступят в силу только после перезапуска комнаты";
 
 /* Location: RoomSettingsView.swift - No service error */
 "remoteNodes.roomSettings.noService" = "Сервис комнаты недоступен";

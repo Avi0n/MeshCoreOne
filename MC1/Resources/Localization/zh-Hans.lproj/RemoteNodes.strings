@@ -119,7 +119,7 @@
 "remoteNodes.settings.radioParameters" = "无线电参数";
 
 /* Location: RepeaterSettingsView.swift - Radio restart warning */
-"remoteNodes.settings.radioRestartWarning" = "应用这些更改将重启转发节点";
+"remoteNodes.settings.radioRestartWarning" = "这些更改需重启转发节点后才会生效";
 
 /* Location: RepeaterSettingsView.swift - Frequency label */
 "remoteNodes.settings.frequencyMHz" = "频率（MHz）";
@@ -822,7 +822,7 @@
 "remoteNodes.roomSettings.rebootMessage" = "房间将重启并暂时不可用。";
 
 /* Location: RoomSettingsView.swift - Radio restart warning */
-"remoteNodes.roomSettings.radioRestartWarning" = "应用这些更改将重启房间";
+"remoteNodes.roomSettings.radioRestartWarning" = "这些更改需重启房间后才会生效";
 
 /* Location: RoomSettingsView.swift - No service error */
 "remoteNodes.roomSettings.noService" = "聊天室服务不可用";
