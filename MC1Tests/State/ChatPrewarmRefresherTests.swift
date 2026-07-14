@@ -50,7 +50,7 @@ struct ChatPrewarmRefresherTests {
       envInputs: { _ in .default },
       isConversationActive: isActive,
       channel: { radioID, index in
-        (try? await dataStore.fetchChannel(radioID: radioID, index: index)) ?? nil
+        await (try? dataStore.fetchChannel(radioID: radioID, index: index)) ?? nil
       },
       linkPreviewCache: { nil }
     )
@@ -265,7 +265,7 @@ struct ChatPrewarmRefresherTests {
   }
 
   @Test
-  func `a cold conversation is ignored and no coordinator is created`() async throws {
+  func `a cold conversation is ignored and no coordinator is created`() throws {
     let dataStore = try makeStore()
     let registry = ChatCoordinatorRegistry(dataStore: dataStore)
     let radioID = UUID()

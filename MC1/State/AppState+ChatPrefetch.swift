@@ -163,7 +163,7 @@ extension AppState {
       },
       channel: { [weak self] radioID, channelIndex in
         guard let store = self?.offlineDataStore else { return nil }
-        return (try? await store.fetchChannel(radioID: radioID, index: channelIndex)) ?? nil
+        return await (try? store.fetchChannel(radioID: radioID, index: channelIndex)) ?? nil
       },
       linkPreviewCache: { [weak self] in
         self?.backgroundLinkPreviewCache

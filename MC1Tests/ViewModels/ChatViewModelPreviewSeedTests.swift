@@ -132,6 +132,6 @@ struct ChatViewModelPreviewSeedTests {
     #expect(inputs.cachedURL == nil)
     #expect(viewModel.cachedURLs[message.id] != nil,
             "the detected-no-URL sentinel must be stored so rebuilds skip re-scanning")
-    #expect(viewModel.cachedURLs[message.id]! == nil)
+    #expect(viewModel.cachedURLs[message.id] == nil)
   }
 }

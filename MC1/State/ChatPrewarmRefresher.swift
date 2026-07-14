@@ -104,12 +104,11 @@ final class ChatPrewarmRefresher {
           registry.existingCoordinator(for: id)?.renderState.phase == .loaded
     else { return }
 
-    let conversation: ChatConversationType?
-    switch kind {
+    let conversation: ChatConversationType? = switch kind {
     case let .dm(contact):
-      conversation = .dm(contact)
+      .dm(contact)
     case let .channel(radioID, channelIndex):
-      conversation = await hooks.channel(radioID, channelIndex).map(ChatConversationType.channel)
+      await hooks.channel(radioID, channelIndex).map(ChatConversationType.channel)
     }
     guard let conversation,
           let dependencies = hooks.dependencies(),
