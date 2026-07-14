@@ -118,12 +118,6 @@
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
 
-/* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "滚动到新消息";
-
-/* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "双击以滚动到新消息分隔符";
-
 // MARK: - Chat View (Direct Messages)
 
 /* Location: ChatConversationView.swift - Alert title when message send fails */

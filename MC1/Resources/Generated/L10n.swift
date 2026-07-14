@@ -999,12 +999,6 @@ public enum L10n {
             return L10n.tr("Chats", "chats.scrollButton.scrollToBottom.accessibilityValue", p1, fallback: "%d unread messages")
           }
         }
-        public enum ScrollToDivider {
-          /// Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button
-          public static let accessibilityHint = L10n.tr("Chats", "chats.scrollButton.scrollToDivider.accessibilityHint", fallback: "Double-tap to scroll to the new messages divider")
-          /// Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button
-          public static let accessibilityLabel = L10n.tr("Chats", "chats.scrollButton.scrollToDivider.accessibilityLabel", fallback: "Scroll to new messages")
-        }
       }
       public enum Search {
         /// Location: ChatsView.swift - Search placeholder

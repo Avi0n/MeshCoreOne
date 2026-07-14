@@ -253,6 +253,31 @@ struct ChatViewModelTests {
   }
 
   @Test
+  @MainActor
+  func `Divider shows for a single unread message`() {
+    // Threshold is zero: any unread backlog gets a divider. The one-unread case
+    // lands the divider on the last row (count - 1).
+    let vm = ChatViewModel()
+    let messages = (0..<5).map { createTestMessage(timestamp: UInt32(1000 + $0), text: "m\($0)") }
+
+    vm.computeDividerPosition(from: messages, unreadCount: 1, isDM: true)
+
+    #expect(vm.newMessagesDividerMessageID == messages[4].id)
+  }
+
+  @Test
+  @MainActor
+  func `Divider absent when there are no unread messages`() {
+    // Zero unread must not produce a divider even at the zero threshold.
+    let vm = ChatViewModel()
+    let messages = (0..<5).map { createTestMessage(timestamp: UInt32(1000 + $0), text: "m\($0)") }
+
+    vm.computeDividerPosition(from: messages, unreadCount: 0, isDM: true)
+
+    #expect(vm.newMessagesDividerMessageID == nil)
+  }
+
+  @Test
   func `Mixed gaps show correct timestamps`() {
     let baseTime: UInt32 = 1000
     let messages = [

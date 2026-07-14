@@ -319,7 +319,9 @@ final class ChatViewModel {
   var dividerComputed = false
 
   /// Unread count above which the "New Messages" divider is shown (strictly greater).
-  private let newMessagesDividerThreshold = 10
+  /// Zero shows the divider for any unread backlog; when the unreads fit on one
+  /// screen the open position clamps to the bottom with the divider line visible.
+  private let newMessagesDividerThreshold = 0
 
   /// Computes the divider message ID from a fetched (unfiltered) message array.
   /// Must be called before filtering. Sets `dividerComputed = true`.

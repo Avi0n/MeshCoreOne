@@ -31,20 +31,49 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   var scrollToTargetRequest: Int = 0
   var scrollTargetID: Item.ID?
 
+  /// One-shot item the list opens scrolled to on the first non-empty snapshot;
+  /// nil opens at the bottom. Drives the library's initial scroll target.
+  var initialScrollTargetID: Item.ID?
+
   /// Invoked when the top is reached, to page in older messages.
   var onLoadOlder: (@MainActor @Sendable () async -> Void)?
 
-  @State private var scrollPosition = TiledScrollPosition(
-    autoScrollsToBottomOnAppend: true,
-    scrollsToBottomOnReplace: true
-  )
+  @State private var scrollPosition: TiledScrollPosition
   @State private var host = CellContentHost<Item, Content>()
   @State private var newestID: Item.ID?
 
-  /// The tiled layout reports a stale, oversized `pointsFromBottom` before it
-  /// settles the initial bottom-anchored position, which would flash the button
-  /// on load. Ignore "not at bottom" until we've seen the settled bottom once.
-  @State private var hasSettledAtBottom = false
+  init(
+    items: [Item],
+    cellContent: @escaping (Item) -> Content,
+    contentBackground: Color? = nil,
+    appearanceIdentity: String = "",
+    isAtBottom: Binding<Bool>,
+    unreadCount: Binding<Int>,
+    scrollToBottomRequest: Int = 0,
+    scrollToTargetRequest: Int = 0,
+    scrollTargetID: Item.ID? = nil,
+    initialScrollTargetID: Item.ID? = nil,
+    onLoadOlder: (@MainActor @Sendable () async -> Void)? = nil
+  ) {
+    self.items = items
+    self.cellContent = cellContent
+    self.contentBackground = contentBackground
+    self.appearanceIdentity = appearanceIdentity
+    _isAtBottom = isAtBottom
+    _unreadCount = unreadCount
+    self.scrollToBottomRequest = scrollToBottomRequest
+    self.scrollToTargetRequest = scrollToTargetRequest
+    self.scrollTargetID = scrollTargetID
+    self.initialScrollTargetID = initialScrollTargetID
+    self.onLoadOlder = onLoadOlder
+    // Open at the bottom by default; with an initial target present, hold off
+    // append-follow until the geometry callback re-derives it from the resting
+    // position, so an append during open does not fight the target.
+    _scrollPosition = State(initialValue: TiledScrollPosition(
+      autoScrollsToBottomOnAppend: initialScrollTargetID == nil,
+      scrollsToBottomOnReplace: true
+    ))
+  }
 
   var body: some View {
     host.content = cellContent
@@ -57,12 +86,9 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
         ProgressView().padding(.vertical, 8)
       }
     })
+    .initialScrollTarget(id: initialScrollTargetID.map { AnyHashable($0) }, anchor: .top)
     .onTiledScrollGeometryChange { geometry in
       let atBottom = geometry.pointsFromBottom < ChatScrollConstants.bottomDetectionThreshold
-      if !hasSettledAtBottom {
-        guard atBottom else { return }
-        hasSettledAtBottom = true
-      }
       if atBottom != isAtBottom { isAtBottom = atBottom }
       if atBottom, unreadCount != 0 { unreadCount = 0 }
       // Only follow appends while near the bottom; otherwise new messages

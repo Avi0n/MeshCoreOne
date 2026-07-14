@@ -52,6 +52,9 @@ struct ChatPrewarmRefresherTests {
       channel: { radioID, index in
         await (try? dataStore.fetchChannel(radioID: radioID, index: index)) ?? nil
       },
+      contact: { _, contactID in
+        await (try? dataStore.fetchContact(id: contactID)) ?? nil
+      },
       linkPreviewCache: { nil }
     )
   }
@@ -98,9 +101,9 @@ struct ChatPrewarmRefresherTests {
     )
   }
 
-  private func makeContact(radioID: UUID) -> ContactDTO {
+  private func makeContact(radioID: UUID, id: UUID = UUID(), unreadCount: Int = 0) -> ContactDTO {
     ContactDTO(
-      id: UUID(),
+      id: id,
       radioID: radioID,
       publicKey: Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) }),
       name: "TestContact",
@@ -117,7 +120,7 @@ struct ChatPrewarmRefresherTests {
       isMuted: false,
       isFavorite: false,
       lastMessageDate: nil,
-      unreadCount: 0
+      unreadCount: unreadCount
     )
   }
 
@@ -237,6 +240,45 @@ struct ChatPrewarmRefresherTests {
 
     #expect(coordinator.messages.count == 2)
     #expect(coordinator.messages.last?.id == newMessage.id)
+  }
+
+  @Test
+  func `direct-message refresh bakes the divider from the store's fresh unread count`() async throws {
+    let dataStore = try makeStore()
+    let registry = ChatCoordinatorRegistry(dataStore: dataStore)
+    let radioID = UUID()
+    let contactID = UUID()
+    // The event-time DTO carries the pre-increment count: fully read at capture.
+    let staleContact = makeContact(radioID: radioID, id: contactID, unreadCount: 0)
+    try await dataStore.saveMessage(makeDirectMessage(radioID: radioID, contactID: contactID, timestamp: 1000, text: "old"))
+
+    await warmCoordinator(registry: registry, dataStore: dataStore, conversation: .dm(staleContact))
+    let id = ChatConversationID.dm(radioID: radioID, contactID: contactID)
+    let coordinator = try #require(registry.existingCoordinator(for: id))
+    await coordinator.buildItemsTask?.value
+    #expect(coordinator.renderState.newMessagesDividerItemID == nil)
+
+    // A message arrives while the chat is closed; the store now records one
+    // unread for the contact, later than the event-time DTO.
+    let newMessage = makeDirectMessage(radioID: radioID, contactID: contactID, timestamp: 2000, text: "new")
+    try await dataStore.saveMessage(newMessage)
+    try await dataStore.saveContact(makeContact(radioID: radioID, id: contactID, unreadCount: 1))
+
+    let refresher = ChatPrewarmRefresher(
+      hooks: makeHooks(registry: registry, dataStore: dataStore),
+      debounce: .zero
+    )
+    // Prime with the stale, pre-increment DTO the dispatcher would carry.
+    refresher.noteDirectMessage(contact: staleContact)
+
+    let task = try #require(refresher.inFlight[id])
+    await task.value
+
+    await coordinator.buildItemsTask?.value
+    #expect(coordinator.messages.count == 2)
+    // The divider bakes from the store's fresh count (1), landing on the new
+    // message, rather than the event-time DTO's zero which shows no divider.
+    #expect(coordinator.renderState.newMessagesDividerItemID == newMessage.id)
   }
 
   @Test

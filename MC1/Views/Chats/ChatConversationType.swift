@@ -126,6 +126,17 @@ enum ChatConversationType {
     }
   }
 
+  /// Unread count carried by the navigated DTO. Gates the open-at-divider target
+  /// so a fully-read reopen (count 0) never positions to a stale baked divider.
+  var unreadCount: Int {
+    switch self {
+    case let .dm(contact):
+      contact.unreadCount
+    case let .channel(channel):
+      channel.unreadCount
+    }
+  }
+
   var isPublicStyleChannel: Bool {
     switch self {
     case .dm:

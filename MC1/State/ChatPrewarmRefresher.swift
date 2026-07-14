@@ -49,6 +49,10 @@ final class ChatPrewarmRefresher {
     var isConversationActive: @MainActor (ConversationKind) -> Bool
     /// Resolves the channel DTO for a channel event's radio + slot index.
     var channel: @MainActor (UUID, UInt8) async -> ChannelDTO?
+    /// Resolves the contact DTO for a DM event's radio + contact id. Re-fetched
+    /// at refresh time so the bake reads the post-increment unread count, not the
+    /// pre-increment DTO captured when the event was dispatched.
+    var contact: @MainActor (UUID, UUID) async -> ContactDTO?
     /// Link-preview cache for the priming view model, so a refresh also warms
     /// preview metadata and hero dimensions for the fresh tail; nil skips
     /// preview warming.
@@ -104,9 +108,12 @@ final class ChatPrewarmRefresher {
           registry.existingCoordinator(for: id)?.renderState.phase == .loaded
     else { return }
 
+    // Re-fetch the DM contact so the divider bakes from the current unread count
+    // (which also sizes the first page from that count); fall back to the
+    // event-time DTO if the store lookup misses.
     let conversation: ChatConversationType? = switch kind {
     case let .dm(contact):
-      .dm(contact)
+      await hooks.contact(contact.radioID, contact.id).map(ChatConversationType.dm) ?? .dm(contact)
     case let .channel(radioID, channelIndex):
       await hooks.channel(radioID, channelIndex).map(ChatConversationType.channel)
     }

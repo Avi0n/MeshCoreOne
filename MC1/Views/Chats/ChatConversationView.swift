@@ -118,6 +118,17 @@ struct ChatConversationView: View {
     _chatViewModel = State(initialValue: viewModel)
   }
 
+  // MARK: - Open-at-divider
+
+  /// Item the chat opens scrolled to: the baked "New Messages" divider, gated on
+  /// the navigated DTO still carrying unread. Both conditions must hold, so a
+  /// fully-read warm coordinator (no baked flag) and a stale-unread DTO from a
+  /// non-list entry point (no baked flag) each resolve to nil.
+  private var openAtDividerItemID: UUID? {
+    guard conversationType.unreadCount > 0 else { return nil }
+    return chatViewModel.renderState.newMessagesDividerItemID
+  }
+
   // MARK: - Body
 
   @ViewBuilder
@@ -142,7 +153,7 @@ struct ChatConversationView: View {
       scrollToBottomRequest: $scrollToBottomRequest,
       scrollToTargetRequest: $scrollToTargetRequest,
       scrollToTargetID: $scrollToTargetID,
-      newMessagesDividerMessageID: chatViewModel.newMessagesDividerMessageID,
+      openAtDividerItemID: openAtDividerItemID,
       selectedMessageForActions: $selectedMessageForActions,
       imageViewerData: $imageViewerData,
       onRetryMessage: { retryMessage($0) }

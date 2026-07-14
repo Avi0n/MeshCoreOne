@@ -130,8 +130,11 @@ struct ChatViewModelPreviewSeedTests {
     let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
 
     #expect(inputs.cachedURL == nil)
+    // The dictionary is `[UUID: URL?]`, so a stored negative result is the double
+    // optional `.some(nil)`: the key is present (outer `.some`) while the detected
+    // URL is nil (inner `.none`). Rebuilds key on presence to skip re-scanning.
     #expect(viewModel.cachedURLs[message.id] != nil,
             "the detected-no-URL sentinel must be stored so rebuilds skip re-scanning")
-    #expect(viewModel.cachedURLs[message.id] == nil)
+    #expect(viewModel.cachedURLs[message.id] == .some(nil))
   }
 }

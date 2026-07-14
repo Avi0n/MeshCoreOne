@@ -1,8 +1,9 @@
 import MC1Services
 import SwiftUI
 
-/// Messages list with `ChatTiledView`, overlay scroll buttons, and the
-/// new-messages divider jump.
+/// Messages list with `ChatTiledView` and the scroll-to-bottom overlay button.
+/// When the conversation has an unread backlog it opens scrolled to the baked
+/// "New Messages" divider.
 struct ChatMessagesTableView: View {
   @Bindable var viewModel: ChatViewModel
   let contactName: String
@@ -19,19 +20,15 @@ struct ChatMessagesTableView: View {
   @Binding var selectedMessageForActions: MessageDTO?
   @Binding var imageViewerData: ImageViewerData?
 
-  let newMessagesDividerMessageID: UUID?
+  /// Baked divider id the list opens scrolled to; nil opens at the bottom.
+  let openAtDividerItemID: UUID?
   let onRetryMessage: (MessageDTO) -> Void
 
-  @State private var hasDismissedDividerButton = false
   @Environment(\.appTheme) private var theme
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.openURL) private var openURL
-
-  private var showDividerButton: Bool {
-    newMessagesDividerMessageID != nil && !hasDismissedDividerButton
-  }
 
   var body: some View {
     let factory = ChatCellContentFactory(
@@ -92,33 +89,17 @@ struct ChatMessagesTableView: View {
       scrollToBottomRequest: scrollToBottomRequest,
       scrollToTargetRequest: scrollToTargetRequest,
       scrollTargetID: scrollToTargetID,
+      initialScrollTargetID: openAtDividerItemID,
       onLoadOlder: { await viewModel.loadOlderMessages() }
     )
     .overlay(alignment: .bottomTrailing) {
-      VStack(spacing: 12) {
-        if showDividerButton {
-          ScrollToDividerButton(
-            onTap: {
-              scrollToTargetID = newMessagesDividerMessageID
-              scrollToTargetRequest += 1
-              hasDismissedDividerButton = true
-            }
-          )
-          .transition(.scale.combined(with: .opacity))
-        }
-
-        ScrollToBottomButton(
-          isVisible: !isAtBottom,
-          unreadCount: unreadCount,
-          onTap: { scrollToBottomRequest += 1 }
-        )
-      }
-      .animation(.snappy(duration: 0.2), value: showDividerButton)
+      ScrollToBottomButton(
+        isVisible: !isAtBottom,
+        unreadCount: unreadCount,
+        onTap: { scrollToBottomRequest += 1 }
+      )
       .padding(.trailing, 16)
       .padding(.bottom, 8)
-    }
-    .onChange(of: newMessagesDividerMessageID) { _, _ in
-      hasDismissedDividerButton = false
     }
     .onChange(of: envInputs) { _, new in
       viewModel.applyEnvInputs(new)

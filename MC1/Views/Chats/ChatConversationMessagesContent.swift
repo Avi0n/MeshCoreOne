@@ -26,7 +26,8 @@ struct ChatConversationMessagesContent: View {
   @Binding var scrollToTargetRequest: Int
   @Binding var scrollToTargetID: UUID?
 
-  let newMessagesDividerMessageID: UUID?
+  /// Baked "New Messages" divider id the chat opens scrolled to; nil opens at the bottom.
+  let openAtDividerItemID: UUID?
 
   // MARK: - Sheet State Bindings
 
@@ -60,7 +61,7 @@ struct ChatConversationMessagesContent: View {
           scrollToTargetID: $scrollToTargetID,
           selectedMessageForActions: $selectedMessageForActions,
           imageViewerData: $imageViewerData,
-          newMessagesDividerMessageID: newMessagesDividerMessageID,
+          openAtDividerItemID: openAtDividerItemID,
           onRetryMessage: onRetryMessage
         )
       }
@@ -170,7 +171,7 @@ private struct ChannelEmptyMessagesView: View {
       scrollToBottomRequest: .constant(0),
       scrollToTargetRequest: .constant(0),
       scrollToTargetID: .constant(nil),
-      newMessagesDividerMessageID: nil,
+      openAtDividerItemID: nil,
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
       onRetryMessage: { _ in }
@@ -196,7 +197,7 @@ private struct ChannelEmptyMessagesView: View {
       scrollToBottomRequest: .constant(0),
       scrollToTargetRequest: .constant(0),
       scrollToTargetID: .constant(nil),
-      newMessagesDividerMessageID: nil,
+      openAtDividerItemID: nil,
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
       onRetryMessage: { _ in }
