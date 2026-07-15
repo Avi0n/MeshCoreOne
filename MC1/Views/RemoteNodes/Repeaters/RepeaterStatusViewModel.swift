@@ -44,6 +44,10 @@ final class RepeaterStatusViewModel {
   /// Owner info text
   var ownerInfo: String?
 
+  /// Firmware version reported by the node's owner-info response; nil when the
+  /// node predates owner-info (FIRMWARE_VER_LEVEL < 2) and returns an empty string.
+  var firmwareVersion: String?
+
   /// Owner info loading/state
   var isLoadingOwnerInfo = false
   var ownerInfoLoaded: Bool {
@@ -245,8 +249,16 @@ final class RepeaterStatusViewModel {
       operation: { [repeaterAdminService] timeout in
         try await repeaterAdminService.requestOwnerInfo(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { self.ownerInfo = $0.ownerInfo }
+      onSuccess: { self.applyOwnerInfo($0) }
     )
+  }
+
+  /// Applies an owner-info response to the display state, mapping an empty firmware
+  /// string (nodes predating owner-info, FIRMWARE_VER_LEVEL < 2) to nil so the
+  /// firmware row stays hidden rather than showing a blank value.
+  func applyOwnerInfo(_ response: OwnerInfoResponse) {
+    ownerInfo = response.ownerInfo
+    firmwareVersion = response.firmwareVersion.isEmpty ? nil : response.firmwareVersion
   }
 
   // MARK: - Repeater-Only Display

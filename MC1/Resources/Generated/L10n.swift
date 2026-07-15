@@ -3767,6 +3767,8 @@ public enum L10n {
         public static let ocvSaveNoContact = L10n.tr("RemoteNodes", "remoteNodes.status.ocvSaveNoContact", fallback: "Cannot save: contact not found")
         /// Location: RepeaterStatusView.swift - Owner info section label
         public static let ownerInfo = L10n.tr("RemoteNodes", "remoteNodes.status.ownerInfo", fallback: "Contact Info")
+        /// Location: RepeaterStatusView.swift - Owner info section footer
+        public static let ownerInfoFooter = L10n.tr("RemoteNodes", "remoteNodes.status.ownerInfoFooter", fallback: "Contact info and firmware version.")
         /// Location: SharedNodeStatusViews.swift - Section header grouping the packet-count rows
         public static let packets = L10n.tr("RemoteNodes", "remoteNodes.status.packets", fallback: "Packets")
         /// Location: SharedNodeStatusViews.swift - Total received packets label, under the Packets group header

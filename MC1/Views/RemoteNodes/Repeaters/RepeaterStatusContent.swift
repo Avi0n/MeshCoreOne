@@ -93,11 +93,18 @@ private struct OwnerInfoSection: View {
         } else if let error = viewModel.ownerInfoError {
           Text(error)
             .foregroundStyle(.orange)
-        } else if let info = viewModel.ownerInfo, !info.isEmpty {
-          Text(info)
         } else {
-          Text(L10n.RemoteNodes.RemoteNodes.Status.noOwnerInfo)
-            .foregroundStyle(.secondary)
+          if let info = viewModel.ownerInfo, !info.isEmpty {
+            Text(info)
+          } else {
+            Text(L10n.RemoteNodes.RemoteNodes.Status.noOwnerInfo)
+              .foregroundStyle(.secondary)
+          }
+          // Firmware is a sibling of owner_info in the wire response, so it can be present
+          // even when owner_info is empty; keep it out of the owner-text branch.
+          if let firmware = viewModel.firmwareVersion {
+            LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.firmware, value: firmware)
+          }
         }
       } label: {
         HStack {
@@ -120,6 +127,8 @@ private struct OwnerInfoSection: View {
           }
         }
       }
+    } footer: {
+      Text(L10n.RemoteNodes.RemoteNodes.Status.ownerInfoFooter)
     }
     .themedRowBackground(theme)
   }
