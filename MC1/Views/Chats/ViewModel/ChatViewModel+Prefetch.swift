@@ -278,13 +278,15 @@ extension ChatViewModel {
   /// A `.loading` state with no in-flight task in either fetch table is
   /// orphaned: the task bailed on a path that never reset the state (a
   /// dedup follower's `.loading` result, a cancellation between state write
-  /// and cleanup). Reset to `.idle` so the caller's fetch can re-fire; with
-  /// a task genuinely in flight this is a no-op.
+  /// and cleanup). Reset to `.idle` and rebake so the caller's fetch can
+  /// re-fire and the item cannot strand at a shimmer the state has left
+  /// behind; with a task genuinely in flight this is a no-op.
   private func recoverOrphanedLoadingState(for messageID: UUID) {
     guard bake.previewStates[messageID] == .loading,
           previewFetchTasks[messageID] == nil,
           imageFetchTasks[messageID] == nil else { return }
     bake.previewStates[messageID] = .idle
+    rebuildDisplayItem(for: messageID)
   }
 
   /// Cancel preview fetch for a message (called when cell scrolls away)

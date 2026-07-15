@@ -1069,3 +1069,69 @@ struct ChatViewModelImageGatingTests {
     #expect(viewModel.bake.previewStates[message.id] == .malwareWarning)
   }
 }
+
+// MARK: - Orphaned Loading Recovery
+
+@Suite("ChatViewModel orphaned loading recovery")
+@MainActor
+struct ChatViewModelOrphanRecoveryTests {
+  private func makeEnv() -> EnvInputs {
+    EnvInputs(
+      autoPlayGIFs: true,
+      showIncomingPath: false,
+      showIncomingHopCount: false,
+      showIncomingRegion: false,
+      showIncomingSendTime: false,
+      previewsEnabled: true,
+      isHighContrast: false,
+      isDark: false,
+      showMapPreviews: false,
+      isOffline: false,
+      currentUserName: "Me",
+      themeID: EnvInputs.defaultThemeID,
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+    )
+  }
+
+  private func item(_ coordinator: ChatCoordinator, _ messageID: UUID) -> MessageItem? {
+    coordinator.renderState.items.first { $0.id == messageID }
+  }
+
+  @Test
+  func `recovering an orphaned loading row rearms the cell's fetch`() async throws {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(coordinator)
+    viewModel.envInputs = makeEnv()
+
+    let message = createTestMessage(
+      timestamp: 1000,
+      text: "see https://example.com/\(UUID().uuidString)"
+    )
+    let writer = try #require(viewModel.timelineWriter)
+    writer.replaceAll([message])
+    viewModel.buildItems()
+    await coordinator.buildItemsTask?.value
+
+    // Orphan the row the way a bailed fetch does: `.loading` with no task in
+    // either fetch table. A `.loading` bake carries no fetch-task id, so the
+    // cell cannot re-fire on its own.
+    viewModel.bake.previewStates[message.id] = .loading
+    viewModel.rebuildDisplayItem(for: message.id)
+    let orphaned = try #require(item(coordinator, message.id))
+    #expect(orphaned.previewFetchTaskID == nil)
+
+    // No data store and no preview cache, so `fetchPreview` returns before it
+    // can write a state of its own: recovery is the last write the row sees,
+    // and the item must reflect it.
+    viewModel.requestPreviewFetch(for: message.id)
+    await viewModel.previewFetchTasks[message.id]?.value
+
+    #expect(viewModel.bake.previewStates[message.id] == .idle)
+    let recovered = try #require(item(coordinator, message.id))
+    #expect(
+      recovered.previewFetchTaskID == message.id,
+      "a row recovered to `.idle` must rebake so its cell re-arms the fetch"
+    )
+  }
+}
