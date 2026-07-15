@@ -1,10 +1,10 @@
 import MC1Services
 import SwiftUI
 
-/// Builds the SwiftUI body for a chat cell from a `MessageItem`. Owned by
-/// `ChatMessagesTableView` for the lifetime of the bound `ChatViewModel`
-/// and routed to `ChatTiledView` (via `CellContentHost`) so the closure that
-/// `MessagingUI` hosts in each cell reflects the current theme and callbacks.
+/// Builds the SwiftUI body for a chat cell from a `MessageItem`. Built by
+/// `ChatConversationMessagesContent` for the bound `ChatViewModel` and routed
+/// to `ChatTiledView` (via `CellContentHost`) so the closure that `MessagingUI`
+/// hosts in each cell reflects the current theme and callbacks.
 ///
 /// Pinned to `@MainActor` because `BubbleResolver` and `BubbleActions`
 /// proxy to `ChatViewModel` (an `@Observable @MainActor` class). Not

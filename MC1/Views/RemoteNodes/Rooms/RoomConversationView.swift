@@ -207,7 +207,7 @@ struct RoomConversationView: View {
       messages: viewModel.messages,
       isAtBottom: $isAtBottom,
       unreadCount: $unreadCount,
-      scrollToBottomRequest: $scrollToBottomRequest,
+      scrollToBottomRequest: scrollToBottomRequest,
       session: session,
       theme: theme,
       onRetry: { id in
@@ -307,15 +307,12 @@ private struct MessagesView: View {
   let messages: [RoomMessageDTO]
   @Binding var isAtBottom: Bool
   @Binding var unreadCount: Int
-  @Binding var scrollToBottomRequest: Int
+  let scrollToBottomRequest: Int
   let session: RemoteNodeSessionDTO
   let theme: Theme
   let onRetry: (UUID) -> Void
   let onLongPress: (RoomMessageDTO) -> Void
 
-  @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.colorSchemeContrast) private var colorSchemeContrast
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.openURL) private var openURL
 
   var body: some View {
@@ -335,20 +332,10 @@ private struct MessagesView: View {
               .environment(\.openURL, openURL)
           },
           contentBackground: theme.surfaces?.canvas,
-          appearanceIdentity: "\(theme.id)|\(AppearanceToken.make(colorScheme: colorScheme, contrast: colorSchemeContrast, dynamicTypeSize: dynamicTypeSize))",
           isAtBottom: $isAtBottom,
           unreadCount: $unreadCount,
           scrollToBottomRequest: scrollToBottomRequest
         )
-        .overlay(alignment: .bottomTrailing) {
-          ScrollToBottomButton(
-            isVisible: !isAtBottom,
-            unreadCount: unreadCount,
-            onTap: { scrollToBottomRequest += 1 }
-          )
-          .padding(.trailing, 16)
-          .padding(.bottom, 8)
-        }
       }
     }
     .themedCanvas(theme)

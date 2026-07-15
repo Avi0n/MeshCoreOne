@@ -16,11 +16,6 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   /// surrounding surface shows through.
   var contentBackground: Color?
 
-  /// Fingerprint of theme + appearance. A change fully rebuilds the list so the
-  /// baked bubble colors repaint — the library does not reconfigure cells when
-  /// only the environment changes.
-  var appearanceIdentity: String = ""
-
   @Binding var isAtBottom: Bool
   @Binding var unreadCount: Int
 
@@ -38,6 +33,11 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   /// Invoked when the top is reached, to page in older messages.
   var onLoadOlder: (@MainActor @Sendable () async -> Void)?
 
+  @Environment(\.appTheme) private var appTheme
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
   @State private var scrollPosition: TiledScrollPosition
   @State private var host = CellContentHost<Item, Content>()
   @State private var newestID: Item.ID?
@@ -46,7 +46,6 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     items: [Item],
     cellContent: @escaping (Item) -> Content,
     contentBackground: Color? = nil,
-    appearanceIdentity: String = "",
     isAtBottom: Binding<Bool>,
     unreadCount: Binding<Int>,
     scrollToBottomRequest: Int = 0,
@@ -58,7 +57,6 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     self.items = items
     self.cellContent = cellContent
     self.contentBackground = contentBackground
-    self.appearanceIdentity = appearanceIdentity
     _isAtBottom = isAtBottom
     _unreadCount = unreadCount
     self.scrollToBottomRequest = scrollToBottomRequest
@@ -100,6 +98,15 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     }
     .background(contentBackground ?? .clear)
     .id(appearanceIdentity)
+    .overlay(alignment: .bottomTrailing) {
+      ScrollToBottomButton(
+        isVisible: !isAtBottom,
+        unreadCount: unreadCount,
+        onTap: { scrollPosition.scrollTo(edge: .bottom) }
+      )
+      .padding(.trailing, 16)
+      .padding(.bottom, 8)
+    }
     .onChange(of: scrollToBottomRequest) { scrollPosition.scrollTo(edge: .bottom) }
     .onChange(of: scrollToTargetRequest) {
       guard let id = scrollTargetID else { return }
@@ -112,5 +119,17 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       let appended = items.count - 1 - previousIndex
       if appended > 0 { unreadCount += appended }
     }
+  }
+
+  /// Fingerprint of theme + appearance. A change fully rebuilds the list (via `.id`) so the
+  /// baked bubble colors repaint — the library does not reconfigure cells when only the
+  /// environment changes.
+  private var appearanceIdentity: String {
+    let appearance = AppearanceToken.make(
+      colorScheme: colorScheme,
+      contrast: colorSchemeContrast,
+      dynamicTypeSize: dynamicTypeSize
+    )
+    return "\(appTheme.id)|\(appearance)"
   }
 }

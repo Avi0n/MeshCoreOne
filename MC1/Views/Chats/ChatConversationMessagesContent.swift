@@ -1,11 +1,8 @@
 import MC1Services
-import OSLog
 import SwiftUI
 
-private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationMessagesContent")
-
 /// Unified inner content view for both DM and Channel conversations.
-/// Handles loading state, empty state, message table, bubble construction, and overlay buttons.
+/// Handles loading state, empty state, the messages list, bubble construction, and overlay buttons.
 struct ChatConversationMessagesContent: View {
   // MARK: - Identity
 
@@ -18,13 +15,13 @@ struct ChatConversationMessagesContent: View {
 
   let envInputs: EnvInputs
 
-  // MARK: - Scroll State Bindings
+  // MARK: - Scroll State
 
   @Binding var isAtBottom: Bool
   @Binding var unreadCount: Int
-  @Binding var scrollToBottomRequest: Int
-  @Binding var scrollToTargetRequest: Int
-  @Binding var scrollToTargetID: UUID?
+  let scrollToBottomRequest: Int
+  let scrollToTargetRequest: Int
+  let scrollToTargetID: UUID?
 
   /// Baked "New Messages" divider id the chat opens scrolled to; nil opens at the bottom.
   let openAtDividerItemID: UUID?
@@ -38,6 +35,9 @@ struct ChatConversationMessagesContent: View {
 
   let onRetryMessage: (MessageDTO) -> Void
 
+  @Environment(\.appTheme) private var theme
+  @Environment(\.openURL) private var openURL
+
   // MARK: - Body
 
   var body: some View {
@@ -47,25 +47,81 @@ struct ChatConversationMessagesContent: View {
       } else if viewModel.messages.isEmpty {
         Color.clear
       } else {
-        ChatMessagesTableView(
-          viewModel: viewModel,
-          contactName: conversationType.navigationTitle,
-          deviceName: deviceName,
-          configuration: bubbleConfiguration,
-          recentEmojisStore: recentEmojisStore,
-          envInputs: envInputs,
-          isAtBottom: $isAtBottom,
-          unreadCount: $unreadCount,
-          scrollToBottomRequest: $scrollToBottomRequest,
-          scrollToTargetRequest: $scrollToTargetRequest,
-          scrollToTargetID: $scrollToTargetID,
-          selectedMessageForActions: $selectedMessageForActions,
-          imageViewerData: $imageViewerData,
-          openAtDividerItemID: openAtDividerItemID,
-          onRetryMessage: onRetryMessage
-        )
+        messagesList
       }
     }
+  }
+
+  // MARK: - Messages List
+
+  /// The messages list bound to the current view model. When the conversation has an unread
+  /// backlog it opens scrolled to the baked "New Messages" divider.
+  private var messagesList: some View {
+    ChatTiledView(
+      items: viewModel.items,
+      cellContent: cellFactory.makeContent(for:),
+      contentBackground: theme.surfaces?.canvas,
+      isAtBottom: $isAtBottom,
+      unreadCount: $unreadCount,
+      scrollToBottomRequest: scrollToBottomRequest,
+      scrollToTargetRequest: scrollToTargetRequest,
+      scrollTargetID: scrollToTargetID,
+      initialScrollTargetID: openAtDividerItemID,
+      onLoadOlder: { await viewModel.loadOlderMessages() }
+    )
+    .onChange(of: envInputs) { _, new in
+      viewModel.applyEnvInputs(new)
+    }
+  }
+
+  private var cellFactory: ChatCellContentFactory {
+    ChatCellContentFactory(
+      contactName: conversationType.navigationTitle,
+      deviceName: deviceName,
+      configuration: bubbleConfiguration,
+      theme: theme,
+      openURL: openURL,
+      resolver: BubbleResolver(viewModel: viewModel),
+      actions: BubbleActions(
+        onRetryMessage: onRetryMessage,
+        onReaction: { emoji, message in
+          recentEmojisStore.recordUsage(emoji)
+          Task { await viewModel.sendReaction(emoji: emoji, to: message) }
+        },
+        onLongPress: { message in selectedMessageForActions = message },
+        onImageTap: { message in
+          if let data = viewModel.imageData(for: message.id) {
+            imageViewerData = ImageViewerData(
+              imageData: data,
+              isGIF: viewModel.isGIFImage(for: message.id)
+            )
+          }
+        },
+        onRetryInlineImage: { messageID in
+          Task { await viewModel.retryImageFetch(for: messageID) }
+        },
+        onRequestPreviewFetch: { messageID in
+          if viewModel.shouldRequestImageFetch(for: messageID) {
+            viewModel.requestImageFetch(for: messageID)
+          } else {
+            viewModel.requestPreviewFetch(for: messageID)
+          }
+        },
+        onManualPreviewFetch: { messageID in
+          if viewModel.shouldRequestImageFetch(for: messageID) {
+            viewModel.manualFetchImage(for: messageID)
+          } else {
+            Task { await viewModel.manualFetchPreview(for: messageID) }
+          }
+        },
+        onMapPreviewTap: { coordinate in
+          viewModel.navigateToMap(coordinate)
+        },
+        snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
+        requestSnapshot: { MapSnapshotStore.shared.request($0) },
+        retrySnapshot: { MapSnapshotStore.shared.retry($0) }
+      )
+    )
   }
 
   // MARK: - Empty State
@@ -168,9 +224,9 @@ private struct ChannelEmptyMessagesView: View {
       envInputs: .default,
       isAtBottom: .constant(true),
       unreadCount: .constant(0),
-      scrollToBottomRequest: .constant(0),
-      scrollToTargetRequest: .constant(0),
-      scrollToTargetID: .constant(nil),
+      scrollToBottomRequest: 0,
+      scrollToTargetRequest: 0,
+      scrollToTargetID: nil,
       openAtDividerItemID: nil,
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
@@ -194,9 +250,9 @@ private struct ChannelEmptyMessagesView: View {
       envInputs: .default,
       isAtBottom: .constant(true),
       unreadCount: .constant(0),
-      scrollToBottomRequest: .constant(0),
-      scrollToTargetRequest: .constant(0),
-      scrollToTargetID: .constant(nil),
+      scrollToBottomRequest: 0,
+      scrollToTargetRequest: 0,
+      scrollToTargetID: nil,
       openAtDividerItemID: nil,
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),

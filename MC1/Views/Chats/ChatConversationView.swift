@@ -73,11 +73,11 @@ struct ChatConversationView: View {
 
   /// Snapshot of env-derived inputs the view model needs to construct
   /// MessageItems at write time. Recomputed on every render — Equatable
-  /// drives `.onChange(of: envInputs)` in ChatMessagesTableView.
+  /// drives `.onChange(of: envInputs)` in ChatConversationMessagesContent.
   /// Constructed from the observed `@AppStorage` toggles and `@Environment`
   /// values so a settings change while the chat is open re-renders the view and
-  /// drives `ChatMessagesTableView.onChange(of: envInputs)`. The navigation-time
-  /// prefetch reads the same toggles once via `AppState.chatEnvInputs(...)`.
+  /// drives `ChatConversationMessagesContent.onChange(of: envInputs)`. The
+  /// navigation-time prefetch reads the same toggles once via `AppState.chatEnvInputs(...)`.
   private var currentEnvInputs: EnvInputs {
     EnvInputs(
       autoPlayGIFs: autoPlayGIFs,
@@ -150,9 +150,9 @@ struct ChatConversationView: View {
       envInputs: currentEnvInputs,
       isAtBottom: $isAtBottom,
       unreadCount: $unreadCount,
-      scrollToBottomRequest: $scrollToBottomRequest,
-      scrollToTargetRequest: $scrollToTargetRequest,
-      scrollToTargetID: $scrollToTargetID,
+      scrollToBottomRequest: scrollToBottomRequest,
+      scrollToTargetRequest: scrollToTargetRequest,
+      scrollToTargetID: scrollToTargetID,
       openAtDividerItemID: openAtDividerItemID,
       selectedMessageForActions: $selectedMessageForActions,
       imageViewerData: $imageViewerData,
@@ -331,7 +331,7 @@ struct ChatConversationView: View {
     .chatErrorAlerts(chatViewModel: chatViewModel)
     // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
     // on this pushed destination makes the nav bar appearance re-install after the push, which
-    // reflows the flipped table's top rows.
+    // reflows the message list's top rows.
     // Always paint an opaque surface — the default theme has no `canvas`, so
     // without the `.systemBackground` fallback the empty loading area is
     // transparent and the white window shows through on a cold first open
