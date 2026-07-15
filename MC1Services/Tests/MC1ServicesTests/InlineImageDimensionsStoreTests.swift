@@ -93,15 +93,20 @@ struct InlineImageDimensionsStoreTests {
   }
 
   @Test
-  func `resolutionStream emits the URL on save`() async throws {
+  func `resolutionUpdates emits the URL on save`() async throws {
     let fileURL = Self.makeTempFileURL()
     defer { try? FileManager.default.removeItem(at: fileURL.deletingLastPathComponent()) }
 
     let store = InlineImageDimensionsStore(fileURL: fileURL)
     let url = try #require(URL(string: "https://example.com/stream.png"))
 
+    // Subscribe before saving: registration is synchronous, and the
+    // multicast stream delivers only events yielded after subscription.
+    // Every consumer follows this contract; view models subscribe at
+    // configure time, before any fetch can save.
+    let stream = store.resolutionUpdates()
     let receiveTask = Task<URL?, Never> {
-      for await emitted in store.resolutionStream {
+      for await emitted in stream {
         return emitted
       }
       return nil
@@ -119,6 +124,52 @@ struct InlineImageDimensionsStoreTests {
     timeoutTask.cancel()
 
     #expect(received == url)
+  }
+
+  @Test
+  func `resolutionUpdates delivers every event to every concurrent subscriber`() async throws {
+    let fileURL = Self.makeTempFileURL()
+    defer { try? FileManager.default.removeItem(at: fileURL.deletingLastPathComponent()) }
+
+    let store = InlineImageDimensionsStore(fileURL: fileURL)
+    let urlA = try #require(URL(string: "https://example.com/multicast-a.png"))
+    let urlB = try #require(URL(string: "https://example.com/multicast-b.png"))
+
+    // Subscribe both streams before consuming: registration is synchronous,
+    // so every event yielded after these lines reaches both. Two live
+    // subscribers (iPad split view) must each receive every URL; a
+    // single-consumer stream would split events between them.
+    let streamOne = store.resolutionUpdates()
+    let streamTwo = store.resolutionUpdates()
+
+    func collectTwo(_ stream: AsyncStream<URL>) -> Task<[URL], Never> {
+      Task {
+        var received: [URL] = []
+        for await url in stream {
+          received.append(url)
+          if received.count == 2 { break }
+        }
+        return received
+      }
+    }
+    let consumerOne = collectTwo(streamOne)
+    let consumerTwo = collectTwo(streamTwo)
+
+    let timeoutTask = Task {
+      try? await Task.sleep(nanoseconds: Self.streamWaitNanoseconds)
+      consumerOne.cancel()
+      consumerTwo.cancel()
+    }
+
+    await store.save(url: urlA, size: CGSize(width: 200, height: 100))
+    await store.save(url: urlB, size: CGSize(width: 300, height: 100))
+
+    let receivedOne = await consumerOne.value
+    let receivedTwo = await consumerTwo.value
+    timeoutTask.cancel()
+
+    #expect(receivedOne == [urlA, urlB])
+    #expect(receivedTwo == [urlA, urlB])
   }
 
   @Test

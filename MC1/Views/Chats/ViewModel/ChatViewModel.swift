@@ -84,11 +84,6 @@ final class ChatViewModel {
 
   // MARK: - Conversation Cache Storage
 
-  @ObservationIgnored var urlDetectionTask: Task<Void, Never>?
-  /// Bumped on every buildItems rebuild. Only the URL-detection writer
-  /// checks this before mutating cachedURLs; single-row rebuilds via
-  /// rebuildDisplayItem do not write cachedURLs and do not need gating.
-  @ObservationIgnored var urlDetectionGeneration: UInt64 = 0
   /// Tracks the last region scope sent to the device via setFloodScope.
   @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
 
@@ -118,6 +113,14 @@ final class ChatViewModel {
   /// `loadMessages` and on subsequent toggle changes.
   var envInputs: EnvInputs = .default
 
+  /// Memoized `MessageText.buildFormattedText` output keyed by message ID.
+  /// A message's text and direction are immutable, and every other
+  /// formatting input is a function of `envInputs`, so an entry stays valid
+  /// until `applyEnvInputs` changes the environment (which clears it). This
+  /// turns a pagination rebuild from O(timeline) attributed-string work into
+  /// O(new page); every already-loaded row is a cache hit.
+  @ObservationIgnored var formattedTextCache: [UUID: (text: AttributedString, mapCoordinate: CLLocationCoordinate2D?)] = [:]
+
   /// Update env-derived inputs and trigger a full rebuild when the value
   /// changes and there are messages to rebuild. Idempotent on no-change.
   func applyEnvInputs(_ new: EnvInputs) {
@@ -130,6 +133,9 @@ final class ChatViewModel {
       MapSnapshotStore.shared.clearFailures()
     }
     envInputs = new
+    // The environment feeds every formatting input, so its cached output is
+    // now stale for all rows and must be rebuilt under the new appearance.
+    formattedTextCache.removeAll()
     guard !messages.isEmpty else { return }
     buildItems()
   }
@@ -313,7 +319,9 @@ final class ChatViewModel {
   var dividerComputed = false
 
   /// Unread count above which the "New Messages" divider is shown (strictly greater).
-  private let newMessagesDividerThreshold = 10
+  /// Zero shows the divider for any unread backlog; when the unreads fit on one
+  /// screen the open position clamps to the bottom with the divider line visible.
+  private let newMessagesDividerThreshold = 0
 
   /// Computes the divider message ID from a fetched (unfiltered) message array.
   /// Must be called before filtering. Sets `dividerComputed = true`.
@@ -427,9 +435,10 @@ final class ChatViewModel {
   /// nil while disconnected (offline browse never receives new messages).
   @ObservationIgnored var prefetcher: InlineImagePrefetcher?
 
-  /// Long-running subscription to `InlineImageDimensionsStore.resolutionStream`.
+  /// Long-running subscription to `InlineImageDimensionsStore.resolutionUpdates()`.
   /// On each emitted URL, every message whose body contains that URL is
-  /// rebuilt so the bubble picks up the now-known `cachedAspect`.
+  /// rebuilt so the bubble picks up the now-known `cachedAspect`. Interactive
+  /// view models only; prime view models never subscribe.
   @ObservationIgnored var dimensionResolutionTask: Task<Void, Never>?
 
   /// Long-running subscription to `MapSnapshotStore.shared.resolutionStream`.
@@ -440,6 +449,22 @@ final class ChatViewModel {
   /// callers leave this at `defaultPrefetchTimeout` (3s); tests can shorten
   /// it to bound their wall-clock budget.
   @ObservationIgnored var prefetchTimeout: Duration = ChatViewModel.defaultPrefetchTimeout
+
+  /// Write capability for the bound coordinator, minted by `bindWriter` in
+  /// `bindCoordinator`. Every timeline mutation goes through this; when a
+  /// newer view model binds the same coordinator (live open superseding a
+  /// prime, BFU scene rebuild), this writer goes stale and its writes no-op,
+  /// so a cold view model can never bake its state over the live timeline.
+  /// Reads keep using `coordinator` directly. `nil` when unbound or when a
+  /// `.prime` bind was denied because an interactive owner is active.
+  @ObservationIgnored var timelineWriter: ChatTimelineWriter?
+
+  /// Role this view model binds coordinators with. `.interactive` for the
+  /// live conversation UI (default); `.prime` for the speculative warm paths
+  /// (navigation prefetch, arrival-time refresh), which also skips the
+  /// dimension/snapshot stream subscriptions because a prime has no
+  /// reactive role.
+  @ObservationIgnored private(set) var writerRole: ChatWriterRole = .interactive
 
   /// Contact ID currently having its favorite status toggled (for loading UI)
   var togglingFavoriteID: UUID?
@@ -464,8 +489,10 @@ final class ChatViewModel {
     onNavigateToMap: ((CLLocationCoordinate2D) -> Void)?,
     linkPreviewCache: (any LinkPreviewCaching)?,
     chatCoordinatorRegistry: ChatCoordinatorRegistry?,
-    conversation: ChatConversationType?
+    conversation: ChatConversationType?,
+    role: ChatWriterRole = .interactive
   ) {
+    writerRole = role
     dataStoreProvider = dependencies.dataStore
     messageServiceProvider = dependencies.messageService
     notificationServiceProvider = dependencies.notificationService
@@ -494,35 +521,66 @@ final class ChatViewModel {
     bindCoordinator(registry: chatCoordinatorRegistry, conversation: conversation)
   }
 
+  /// Eagerly attaches the shared coordinator so a warm (prefetched or previously
+  /// opened) conversation renders its messages on the first frame, before the
+  /// load task runs. Sets only this view model's `coordinator` reference — never
+  /// the coordinator's rebuild hooks, which belong to the persistent view model
+  /// and are installed by `configure`/`bindCoordinator`. That omission is what
+  /// makes it safe to call from `init`, where transient view-model instances may
+  /// be created and discarded.
+  func attachCoordinator(_ coordinator: ChatCoordinator) {
+    self.coordinator = coordinator
+  }
+
   private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
     guard let conversation else { return }
     guard let registry else { return }
-    let id: ChatConversationID = switch conversation {
-    case let .dm(contact):
-      .dm(radioID: contact.radioID, contactID: contact.id)
-    case let .channel(channel):
-      .channel(radioID: channel.radioID, channelIndex: channel.index)
-    }
-    let resolved = registry.coordinator(for: id)
-    // The most recently bound view model owns the per-ID rebuild hook
-    // the coordinator invokes after `applyReloadedIDs`. With two view
-    // models on the same conversation (iPad split view) the rendered
-    // state stays consistent because both observe the shared
-    // coordinator's `renderState` — only the per-view-model snapshot
-    // inputs (preview state, decoded images) come from the bound
-    // rebuilder.
-    resolved.renderItemRebuilder = { [weak self] messageID in
-      self?.rebuildDisplayItem(for: messageID)
-    }
-    resolved.renderStateInvalidated = { [weak self] in
-      self?.handleRenderStateInvalidated()
-    }
+    let resolved = registry.coordinator(for: conversation.coordinatorID)
+    // The most recently bound view model owns both the rebuild hooks and
+    // the write capability; `bindWriter` installs them as one atomic act.
+    // An `.interactive` bind always succeeds and revokes any prior writer
+    // (a stale prime's in-flight bakes then no-op at the coordinator); a
+    // `.prime` bind is denied while a live interactive owner exists, in
+    // which case `timelineWriter` stays nil and this view model's writes
+    // all no-op. With two view models on the same conversation the
+    // rendered state stays consistent because both observe the shared
+    // coordinator's `renderState`; only the current writer bakes items.
+    timelineWriter = resolved.bindWriter(
+      owner: self,
+      role: writerRole,
+      renderItemRebuilder: { [weak self] messageID in
+        self?.rebuildDisplayItem(for: messageID)
+      },
+      renderStateInvalidated: { [weak self] in
+        self?.handleRenderStateInvalidated()
+      }
+    )
     coordinator = resolved
   }
 
   private func handleRenderStateInvalidated() {
     buildItems()
   }
+
+  #if DEBUG
+    /// Test seam mirroring `bindCoordinator` for suites that construct a
+    /// coordinator directly instead of resolving one through a registry:
+    /// installs the interactive writer and the rebuild hooks in one act,
+    /// exactly like a live open.
+    func bindCoordinatorForTesting(_ coordinator: ChatCoordinator) {
+      timelineWriter = coordinator.bindWriter(
+        owner: self,
+        role: .interactive,
+        renderItemRebuilder: { [weak self] messageID in
+          self?.rebuildDisplayItem(for: messageID)
+        },
+        renderStateInvalidated: { [weak self] in
+          self?.handleRenderStateInvalidated()
+        }
+      )
+      self.coordinator = coordinator
+    }
+  #endif
 
   /// Build the receive-time prefetcher and start (or restart) the
   /// dimension-resolution subscription. Called from `configure(...)` when a
@@ -533,6 +591,29 @@ final class ChatViewModel {
     dimensionsStore: InlineImageDimensionsStore?,
     prefetchDataStore: (any PersistenceStoreProtocol)?
   ) {
+    // Prime view models have no reactive role: they warm caches with
+    // awaited prefetches and bake once; stream-driven rebuilds belong to
+    // the interactive view model only. Subscribing a prime would fan
+    // resolution events into a cold state dictionary and bake shimmer
+    // items over the live timeline.
+    guard writerRole == .interactive else {
+      snapshotResolutionTask?.cancel()
+      snapshotResolutionTask = nil
+      dimensionResolutionTask?.cancel()
+      dimensionResolutionTask = nil
+      guard let dimensionsStore, let prefetchDataStore else {
+        prefetcher = nil
+        return
+      }
+      prefetcher = InlineImagePrefetcher(
+        imageCache: InlineImageCache.shared,
+        linkPreviewCache: linkPreviewCache,
+        dimensionsStore: dimensionsStore,
+        dataStore: prefetchDataStore
+      )
+      return
+    }
+
     // The snapshot-resolution stream is a process-lifetime singleton with no
     // dependency on per-connection services, so subscribe once regardless of
     // connection state: offline browse of cached coordinate messages still
@@ -564,7 +645,7 @@ final class ChatViewModel {
   private func startObservingDimensionResolutions(store: InlineImageDimensionsStore) {
     dimensionResolutionTask?.cancel()
     dimensionResolutionTask = Task { [weak self] in
-      for await resolvedURL in store.resolutionStream {
+      for await resolvedURL in store.resolutionUpdates() {
         guard !Task.isCancelled else { return }
         await self?.handleDimensionResolution(resolvedURL)
       }

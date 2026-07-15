@@ -109,15 +109,6 @@
 
 // MARK: - Scroll Buttons
 
-/* Location: ScrollToMentionButton.swift - Accessibility label for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityLabel" = "Перейти к самому старому непрочитанному упоминанию";
-
-/* Location: ScrollToMentionButton.swift - Accessibility hint for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityHint" = "Двойное нажатие для перехода к сообщению";
-
-/* Location: ScrollToMentionButton.swift - Accessibility value for unread mention count - %d is the number of unread mentions */
-"chats.scrollButton.scrollToMention.accessibilityValue" = "%d непрочитанных упоминаний";
-
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Перейти к последнему сообщению";
 
@@ -125,12 +116,6 @@
 "chats.scrollButton.scrollToBottom.accessibilityValue" = "%d непрочитанных сообщений";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
-
-/* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Прокрутить к новым сообщениям";
-
-/* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "Нажмите дважды, чтобы прокрутить к разделителю новых сообщений";
 
 // MARK: - Chat View (Direct Messages)
 
@@ -803,7 +788,6 @@
 /* Location: MessagePathSheet.swift - Section header for path */
 "chats.path.section.header" = "Путь";
 
-
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Карта пути";
 
@@ -906,7 +890,6 @@
 
 /* Location: Various - Done button (use L10n.Localizable.Common.done) */
 "chats.common.done" = "Готово";
-
 
 // MARK: - Message Path
 

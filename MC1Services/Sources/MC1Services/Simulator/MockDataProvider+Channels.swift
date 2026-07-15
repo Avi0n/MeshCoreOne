@@ -43,6 +43,22 @@ extension MockDataProvider {
         unreadCount: 0,
         notificationLevel: .muted,
         isFavorite: false
+      ),
+      // Long backlog whose unread count exceeds one page (pageSize is 50), so the
+      // first-unread message — where the "New Messages" divider belongs — only
+      // exists once the initial load is sized to cover all unread. Exercises both
+      // the jump-to-divider scroll and the all-unread-in-one-page load sizing.
+      ChannelDTO(
+        id: meshHQChannelID,
+        radioID: simulatorDeviceID,
+        index: meshHQChannelIndex,
+        name: "Mesh HQ",
+        secret: channelSecret(seed: 0xD0),
+        isEnabled: true,
+        lastMessageDate: now.addingTimeInterval(-90),
+        unreadCount: meshHQUnreadCount,
+        notificationLevel: .all,
+        isFavorite: false
       )
     ]
   }

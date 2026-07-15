@@ -106,7 +106,15 @@ extension ChatViewModel {
 
   /// Request preview fetch for a message (called when cell becomes visible)
   func requestPreviewFetch(for messageID: UUID) {
-    guard previewStates[messageID] == nil || previewStates[messageID] == .idle else { return }
+    recoverOrphanedLoadingState(for: messageID)
+    guard previewStates[messageID] == nil || previewStates[messageID] == .idle else {
+      // The cell asked for a fetch this view model considers settled: the
+      // render item desynced from this state dictionary. Rebake the row so
+      // it repairs in one frame instead of shimmering forever; loop-free
+      // because `updateRenderItem` no-ops when the rebaked item is equal.
+      rebuildDisplayItem(for: messageID)
+      return
+    }
     guard let url = cachedURLs[messageID].flatMap(\.self) else { return }
 
     let isChannel = currentChannel != nil
@@ -141,12 +149,14 @@ extension ChatViewModel {
     // Check if task was cancelled (message scrolled away or conversation changed)
     guard !Task.isCancelled else {
       previewFetchTasks.removeValue(forKey: messageID)
+      resetLoadingStateAfterCancellation(for: messageID)
       return
     }
 
     // Update state based on result
     switch result {
     case let .loaded(dto):
+      persistHeroAspect(from: dto, requestedURL: url)
       await decodeAndStorePreviewImages(from: dto, for: messageID)
       previewStates[messageID] = .loaded
       loadedPreviews[messageID] = dto
@@ -179,6 +189,7 @@ extension ChatViewModel {
 
     switch result {
     case let .loaded(dto):
+      persistHeroAspect(from: dto, requestedURL: url)
       await decodeAndStorePreviewImages(from: dto, for: messageID)
       previewStates[messageID] = .loaded
       loadedPreviews[messageID] = dto
@@ -189,6 +200,37 @@ extension ChatViewModel {
     }
 
     rebuildDisplayItem(for: messageID)
+  }
+
+  /// Persist the preview hero's aspect ratio keyed by the message's page URL
+  /// (the key `makeBuildInputs` looks up), so the next build's loading shimmer
+  /// reserves the final card footprint instead of guessing `fallbackAspect`.
+  private func persistHeroAspect(from dto: LinkPreviewDataDTO, requestedURL: URL) {
+    guard let width = dto.imageWidth, let height = dto.imageHeight,
+          let store = inlineImageDimensionsStore else { return }
+    Task {
+      await store.save(url: requestedURL, size: CGSize(width: width, height: height))
+    }
+  }
+
+  /// Warm link-preview metadata (and inline-image dimensions) for the newest
+  /// page rows, so a later open builds cards synchronously from the caches at
+  /// their final height. Called by the background prime paths (navigation
+  /// prefetch, arrival-time refresh); a no-op without a configured prefetcher
+  /// or with previews off. `LinkPreviewCache` dedups in-flight and cached
+  /// URLs, so repeat calls cost one dictionary hit per URL.
+  func prewarmRecentPreviews(limit: Int = 10) async {
+    guard let prefetcher, envInputs.previewsEnabled else { return }
+    let isChannel = currentChannel != nil
+    let allowImageProbes = linkPreviewPreferences.shouldAutoResolve(isChannelMessage: isChannel)
+    for message in messages.suffix(limit)
+      where !LinkPreviewService.extractAllURLs(in: message.text).isEmpty {
+      await prefetcher.prefetch(
+        urlsIn: message.text,
+        isChannelMessage: isChannel,
+        allowImageProbes: allowImageProbes
+      )
+    }
   }
 
   /// Decode preview hero image and icon off the main thread and store results
@@ -221,9 +263,9 @@ extension ChatViewModel {
 
   /// Update a message in place and rebuild its display item.
   func updateMessage(id: UUID, mutation: (inout MessageDTO) -> Void) {
-    guard let coordinator,
+    guard let coordinator, let timelineWriter,
           coordinator.messagesByID[id] != nil else { return }
-    coordinator.update(messageID: id, mutation)
+    timelineWriter.update(messageID: id, mutation)
     rebuildDisplayItem(for: id)
   }
 
@@ -236,9 +278,33 @@ extension ChatViewModel {
       return
     }
     let previous = previousMessage(for: messageID)
-    coordinator.updateRenderItem(id: messageID) { _ in
+    timelineWriter?.updateRenderItem(id: messageID) { _ in
       makeItem(for: message, previous: previous)
     }
+  }
+
+  /// A cancelled fetch that already wrote `.loading` must not leave it
+  /// behind: `.loading` bakes with a nil fetch-task id, so the cell's task
+  /// never re-fires and the row shimmers forever. Reset to `.idle` and
+  /// rebake so the row re-arms its fetch. After a conversation-switch clear
+  /// the state entry is already gone and this is a no-op; a switched-away
+  /// row must not be resurrected.
+  private func resetLoadingStateAfterCancellation(for messageID: UUID) {
+    guard previewStates[messageID] == .loading else { return }
+    previewStates[messageID] = .idle
+    rebuildDisplayItem(for: messageID)
+  }
+
+  /// A `.loading` state with no in-flight task in either fetch table is
+  /// orphaned: the task bailed on a path that never reset the state (a
+  /// dedup follower's `.loading` result, a cancellation between state write
+  /// and cleanup). Reset to `.idle` so the caller's fetch can re-fire; with
+  /// a task genuinely in flight this is a no-op.
+  private func recoverOrphanedLoadingState(for messageID: UUID) {
+    guard previewStates[messageID] == .loading,
+          previewFetchTasks[messageID] == nil,
+          imageFetchTasks[messageID] == nil else { return }
+    previewStates[messageID] = .idle
   }
 
   /// Cancel preview fetch for a message (called when cell scrolls away)
@@ -410,9 +476,17 @@ extension ChatViewModel {
   /// Request inline image fetch for a message (called when cell becomes visible)
   func requestImageFetch(for messageID: UUID) {
     guard envInputs.previewsEnabled else { return }
-    guard previewStates[messageID] == nil || previewStates[messageID] == .idle else { return }
+    recoverOrphanedLoadingState(for: messageID)
+    guard previewStates[messageID] == nil || previewStates[messageID] == .idle else {
+      // Same self-heal as `requestPreviewFetch`: repair a desynced row
+      // rather than leaving it shimmering.
+      rebuildDisplayItem(for: messageID)
+      return
+    }
     guard let url = cachedURLs[messageID].flatMap(\.self),
-          ImageURLClassifier.isImageURL(url) else { return }
+          ImageURLClassifier.isImageURL(url) else {
+      return
+    }
 
     // Master on but auto-resolve off for this conversation type: park the
     // state at `.disabled` so the cell renders the tap-to-load placeholder and
@@ -460,6 +534,7 @@ extension ChatViewModel {
 
     guard !Task.isCancelled else {
       imageFetchTasks.removeValue(forKey: messageID)
+      resetLoadingStateAfterCancellation(for: messageID)
       return
     }
     guard itemIndexByID[messageID] != nil else {
@@ -489,6 +564,15 @@ extension ChatViewModel {
       }
       guard !Task.isCancelled, let entry else {
         imageFetchTasks.removeValue(forKey: messageID)
+        if Task.isCancelled {
+          resetLoadingStateAfterCancellation(for: messageID)
+        } else if previewStates[messageID] == .loading {
+          // Undecodable bytes are terminal: retrying would loop on the
+          // same cached data. Settle the row instead of stranding the
+          // shimmer.
+          previewStates[messageID] = .noPreview
+          rebuildDisplayItem(for: messageID)
+        }
         return
       }
       guard itemIndexByID[messageID] != nil else {

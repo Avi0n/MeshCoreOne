@@ -25,6 +25,12 @@ public struct MessageBuildInputs: Sendable, Hashable {
   /// correct frame on first paint. `nil` for non-image URLs or when the
   /// dimensions store has not yet seen this URL.
   public let inlineImageAspect: Double?
+  /// Remembered width-over-height ratio of the link-preview hero image for
+  /// `cachedURL`, resolved at build time from the persisted dimensions store.
+  /// Lets the loading shimmer reserve the final card footprint so the cell
+  /// does not change height when the image arrives. `nil` when the URL's
+  /// hero size has never been seen.
+  public let previewHeroAspect: Double?
   /// Latitude of the first linkified coordinate in the message text, or nil.
   /// Drives the `.mapPreview` fragment. Stored as `Double` for `Hashable`.
   public let mapPreviewLatitude: Double?
@@ -55,6 +61,7 @@ public struct MessageBuildInputs: Sendable, Hashable {
     hasPreviewIconRef: Bool,
     imageIsGIF: Bool,
     inlineImageAspect: Double? = nil,
+    previewHeroAspect: Double? = nil,
     mapPreviewLatitude: Double? = nil,
     mapPreviewLongitude: Double? = nil,
     isMapPreviewReady: Bool = false,
@@ -78,6 +85,7 @@ public struct MessageBuildInputs: Sendable, Hashable {
     self.hasPreviewIconRef = hasPreviewIconRef
     self.imageIsGIF = imageIsGIF
     self.inlineImageAspect = inlineImageAspect
+    self.previewHeroAspect = previewHeroAspect
     self.mapPreviewLatitude = mapPreviewLatitude
     self.mapPreviewLongitude = mapPreviewLongitude
     self.isMapPreviewReady = isMapPreviewReady

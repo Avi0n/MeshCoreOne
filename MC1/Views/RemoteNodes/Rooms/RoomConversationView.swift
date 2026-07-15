@@ -35,20 +35,31 @@ struct RoomConversationView: View {
         shouldSuppressOpen: { selectedRoomMessage != nil }
       )
       .safeAreaInset(edge: .bottom, spacing: 0) {
-        if !session.isConnected {
-          makeDisconnectedBanner()
-        } else if session.canPost {
-          makeInputBar()
-        } else {
-          makeReadOnlyBanner()
+        Group {
+          if !session.isConnected {
+            makeDisconnectedBanner()
+          } else if session.canPost {
+            makeInputBar()
+          } else {
+            makeReadOnlyBanner()
+          }
         }
+        .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
       }
       .animation(.default, value: session.isConnected)
-      .navigationHeader(title: session.name, subtitle: connectionStatus)
+      .navigationHeader(
+        title: session.name,
+        subtitle: connectionStatus,
+        glassTitleCapsule: true,
+        titleIcon: AnyView(NodeAvatar(publicKey: session.publicKey, role: .roomServer, size: 30)),
+        onTitleTap: { showingRoomInfo = true }
+      )
       .toolbar {
-        ToolbarItem(placement: .primaryAction) {
-          Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
-            showingRoomInfo = true
+        if #unavailable(iOS 26) {
+          ToolbarItem(placement: .primaryAction) {
+            Button(L10n.RemoteNodes.RemoteNodes.Room.infoTitle, systemImage: "info.circle") {
+              showingRoomInfo = true
+            }
           }
         }
       }
@@ -196,7 +207,7 @@ struct RoomConversationView: View {
       messages: viewModel.messages,
       isAtBottom: $isAtBottom,
       unreadCount: $unreadCount,
-      scrollToBottomRequest: $scrollToBottomRequest,
+      scrollToBottomRequest: scrollToBottomRequest,
       session: session,
       theme: theme,
       onRetry: { id in
@@ -296,15 +307,12 @@ private struct MessagesView: View {
   let messages: [RoomMessageDTO]
   @Binding var isAtBottom: Bool
   @Binding var unreadCount: Int
-  @Binding var scrollToBottomRequest: Int
+  let scrollToBottomRequest: Int
   let session: RemoteNodeSessionDTO
   let theme: Theme
   let onRetry: (UUID) -> Void
   let onLongPress: (RoomMessageDTO) -> Void
 
-  @Environment(\.colorScheme) private var colorScheme
-  @Environment(\.colorSchemeContrast) private var colorSchemeContrast
-  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.openURL) private var openURL
 
   var body: some View {
@@ -316,7 +324,7 @@ private struct MessagesView: View {
         EmptyMessagesView(session: session)
       } else {
         let timestampVisibleIDs = Self.timestampVisibleIDs(in: messages)
-        ChatTableView(
+        ChatTiledView(
           items: messages,
           cellContent: { message in
             messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
@@ -324,30 +332,10 @@ private struct MessagesView: View {
               .environment(\.openURL, openURL)
           },
           contentBackground: theme.surfaces?.canvas,
-          themeID: theme.id,
-          appearanceToken: AppearanceToken.make(
-            colorScheme: colorScheme,
-            contrast: colorSchemeContrast,
-            dynamicTypeSize: dynamicTypeSize
-          ),
           isAtBottom: $isAtBottom,
           unreadCount: $unreadCount,
-          scrollToBottomRequest: $scrollToBottomRequest,
-          scrollToMentionRequest: .constant(0),
-          offscreenMentionIDs: .constant([]),
-          onSecondaryClick: onLongPress,
-          scrollToDividerRequest: .constant(0),
-          isDividerVisible: .constant(false)
+          scrollToBottomRequest: scrollToBottomRequest
         )
-        .overlay(alignment: .bottomTrailing) {
-          ScrollToBottomButton(
-            isVisible: !isAtBottom,
-            unreadCount: unreadCount,
-            onTap: { scrollToBottomRequest += 1 }
-          )
-          .padding(.trailing, 16)
-          .padding(.bottom, 8)
-        }
       }
     }
     .themedCanvas(theme)

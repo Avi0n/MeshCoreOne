@@ -12,8 +12,15 @@ public struct LinkPreviewFragmentState: Sendable, Hashable {
 
   public let mode: Mode
 
-  public init(mode: Mode) {
+  /// Remembered width-over-height ratio of the hero image for this URL, from
+  /// the persisted dimensions store. Lets the loading shimmer reserve the
+  /// final card footprint instead of guessing `fallbackAspect`, so the cell
+  /// keeps one height across the load. `nil` when the size was never seen.
+  public let heroAspectHint: Double?
+
+  public init(mode: Mode, heroAspectHint: Double? = nil) {
     self.mode = mode
+    self.heroAspectHint = heroAspectHint
   }
 
   /// The single openable URL the preview resolves to: the destination of a

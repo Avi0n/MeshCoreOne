@@ -11,9 +11,9 @@ struct ScrollToBottomButton: View {
       Image(systemName: "chevron.down")
         .font(.body.bold())
         .frame(width: 44, height: 44)
+        .contentShape(.circle)
     }
     .buttonStyle(.plain)
-    .contentShape(.circle)
     .liquidGlassInteractive(in: .circle)
     .overlay(alignment: .topTrailing) {
       UnreadBadge(count: unreadCount, tint: .blue)

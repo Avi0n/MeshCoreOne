@@ -105,12 +105,35 @@ enum ChatConversationType {
     }
   }
 
+  /// Key for the shared `ChatCoordinator` in `ChatCoordinatorRegistry`. Coincides
+  /// with `draftConversationID` today but is named separately so the coordinator
+  /// and draft namespaces can diverge without silently breaking either.
+  var coordinatorID: ChatConversationID {
+    switch self {
+    case let .dm(contact):
+      .dm(radioID: contact.radioID, contactID: contact.id)
+    case let .channel(channel):
+      .channel(radioID: channel.radioID, channelIndex: channel.index)
+    }
+  }
+
   var radioID: UUID {
     switch self {
     case let .dm(contact):
       contact.radioID
     case let .channel(channel):
       channel.radioID
+    }
+  }
+
+  /// Unread count carried by the navigated DTO. Gates the open-at-divider target
+  /// so a fully-read reopen (count 0) never positions to a stale baked divider.
+  var unreadCount: Int {
+    switch self {
+    case let .dm(contact):
+      contact.unreadCount
+    case let .channel(channel):
+      channel.unreadCount
     }
   }
 

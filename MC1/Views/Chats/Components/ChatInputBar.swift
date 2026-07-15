@@ -2,6 +2,11 @@ import MC1Services
 import SwiftUI
 import UIKit
 
+enum ChatInputMetrics {
+  /// Shared height for the compose field and its flanking glass buttons so the three controls align.
+  static let controlHeight: CGFloat = 36
+}
+
 /// Reusable chat input bar with configurable styling
 struct ChatInputBar<Leading: View>: View {
   @Environment(\.appState) private var appState
@@ -13,11 +18,13 @@ struct ChatInputBar<Leading: View>: View {
   let maxBytes: Int
   let isEncrypted: Bool
   @ViewBuilder let leading: () -> Leading
+  var onFocus: () -> Void = {}
   let onSend: (String) -> Void
 
   @State private var isCoolingDown = false
   @State private var sendInvocationCounter: Int = 0
   @State private var composerProxy = ChatComposerProxy()
+  @Namespace private var glassNamespace
 
   private var byteCount: Int {
     text.utf8.count
@@ -35,29 +42,40 @@ struct ChatInputBar<Leading: View>: View {
   var body: some View {
     HStack(alignment: .bottom, spacing: 12) {
       leading()
-      ChatInputTextField(
-        text: $text,
-        placeholder: placeholder,
-        focusRequest: focusRequest,
-        isEncrypted: isEncrypted,
-        proxy: composerProxy,
-        onSend: handleHardwareSend
-      )
-      ChatSendButtonWithCounter(
-        canSend: canSend,
-        isOverLimit: isOverLimit,
-        shouldShowCharacterCount: shouldShowCharacterCount,
-        byteCount: byteCount,
-        maxBytes: maxBytes,
-        sendAccessibilityLabel: sendAccessibilityLabel,
-        sendAccessibilityHint: sendAccessibilityHint,
-        onSend: send
-      )
+      LiquidGlassContainer(spacing: 12) {
+        HStack(alignment: .bottom, spacing: 12) {
+          ChatInputTextField(
+            text: $text,
+            placeholder: placeholder,
+            focusRequest: focusRequest,
+            isEncrypted: isEncrypted,
+            proxy: composerProxy,
+            onSend: handleHardwareSend,
+            onFocus: onFocus,
+            glassNamespace: glassNamespace
+          )
+          if canSend || shouldShowCharacterCount {
+            ChatSendButtonWithCounter(
+              canSend: canSend,
+              isOverLimit: isOverLimit,
+              shouldShowCharacterCount: shouldShowCharacterCount,
+              byteCount: byteCount,
+              maxBytes: maxBytes,
+              sendAccessibilityLabel: sendAccessibilityLabel,
+              sendAccessibilityHint: sendAccessibilityHint,
+              onSend: send,
+              glassNamespace: glassNamespace
+            )
+          }
+        }
+      }
     }
     .padding(.horizontal)
     .padding(.vertical, 8)
     .inputBarBackground(themedCanvas: theme.surfaces?.canvas)
     .sensoryFeedback(.start, trigger: sendInvocationCounter)
+    .animation(.smooth(duration: 0.28), value: canSend)
+    .animation(.smooth(duration: 0.28), value: shouldShowCharacterCount)
   }
 
   private var sendAccessibilityLabel: String {
@@ -144,6 +162,8 @@ private struct ChatInputTextField: View {
   let isEncrypted: Bool
   let proxy: ChatComposerProxy
   let onSend: () -> Bool
+  let onFocus: () -> Void
+  let glassNamespace: Namespace.ID
 
   var body: some View {
     ChatComposerTextView(
@@ -151,9 +171,10 @@ private struct ChatInputTextField: View {
       focusRequest: focusRequest,
       isEncrypted: isEncrypted,
       proxy: proxy,
-      onSend: onSend
+      onSend: onSend,
+      onFocus: onFocus
     )
-    .frame(maxWidth: .infinity)
+    .frame(maxWidth: .infinity, minHeight: ChatInputMetrics.controlHeight)
     .overlay(alignment: .topLeading) {
       if text.isEmpty {
         Text(placeholder)
@@ -174,6 +195,7 @@ private struct ChatInputTextField: View {
         .accessibilityHidden(true)
     }
     .textFieldBackground()
+    .liquidGlassID("chatComposer", in: glassNamespace)
   }
 }
 
@@ -186,15 +208,19 @@ private struct ChatSendButtonWithCounter: View {
   let sendAccessibilityLabel: String
   let sendAccessibilityHint: String
   let onSend: () -> Void
+  let glassNamespace: Namespace.ID
 
   var body: some View {
     VStack(spacing: 4) {
-      ChatSendButton(
-        canSend: canSend,
-        sendAccessibilityLabel: sendAccessibilityLabel,
-        sendAccessibilityHint: sendAccessibilityHint,
-        onSend: onSend
-      )
+      if canSend {
+        ChatSendButton(
+          sendAccessibilityLabel: sendAccessibilityLabel,
+          sendAccessibilityHint: sendAccessibilityHint,
+          onSend: onSend
+        )
+        .liquidGlassID("chatSend", in: glassNamespace)
+        .transition(chatSendButtonTransition)
+      }
       if shouldShowCharacterCount {
         ChatCharacterCountLabel(
           byteCount: byteCount,
@@ -203,6 +229,14 @@ private struct ChatSendButtonWithCounter: View {
         )
       }
     }
+  }
+}
+
+private var chatSendButtonTransition: AnyTransition {
+  if #available(iOS 26.0, *) {
+    .opacity
+  } else {
+    .scale(scale: 0.5, anchor: .trailing).combined(with: .opacity)
   }
 }
 
@@ -221,25 +255,20 @@ private struct ChatCharacterCountLabel: View {
 }
 
 private struct ChatSendButton: View {
-  let canSend: Bool
   let sendAccessibilityLabel: String
   let sendAccessibilityHint: String
   let onSend: () -> Void
 
-  @Environment(\.appTheme) private var theme
-
-  private var sendButtonFont: Font {
-    if #available(iOS 26.0, *) { .title2 } else { .title }
-  }
-
   var body: some View {
     Button(action: onSend) {
-      Image(systemName: "arrow.up.circle.fill")
-        .font(sendButtonFont)
-        .foregroundStyle(canSend ? theme.accentColor : .secondary)
+      Image(systemName: "arrow.up")
+        .font(.system(size: 18, weight: .semibold))
+        .foregroundStyle(.white)
+        .frame(width: ChatInputMetrics.controlHeight, height: ChatInputMetrics.controlHeight)
+        .sendButtonBackground()
+        .contentShape(Circle())
     }
-    .sendButtonStyle()
-    .disabled(!canSend)
+    .buttonStyle(.plain)
     .accessibilityLabel(sendAccessibilityLabel)
     .accessibilityHint(sendAccessibilityHint)
   }
@@ -249,11 +278,11 @@ private struct ChatSendButton: View {
 
 private extension View {
   @ViewBuilder
-  func sendButtonStyle() -> some View {
+  func sendButtonBackground() -> some View {
     if #available(iOS 26.0, *) {
-      buttonStyle(.glass)
+      glassEffect(.regular.tint(.blue), in: .circle)
     } else {
-      padding(.vertical, 4)
+      background(Color.blue, in: Circle())
     }
   }
 

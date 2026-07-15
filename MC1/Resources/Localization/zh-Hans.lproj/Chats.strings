@@ -110,15 +110,6 @@
 
 // MARK: - Scroll Buttons
 
-/* Location: ScrollToMentionButton.swift - Accessibility label for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityLabel" = "滚动到最早的未读提及";
-
-/* Location: ScrollToMentionButton.swift - Accessibility hint for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityHint" = "双击以导航到消息";
-
-/* Location: ScrollToMentionButton.swift - Accessibility value for unread mention count - %d is the number of unread mentions */
-"chats.scrollButton.scrollToMention.accessibilityValue" = "%d条未读提及";
-
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "滚动到最新消息";
 
@@ -126,12 +117,6 @@
 "chats.scrollButton.scrollToBottom.accessibilityValue" = "%d条未读消息";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
-
-/* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "滚动到新消息";
-
-/* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "双击以滚动到新消息分隔符";
 
 // MARK: - Chat View (Direct Messages)
 
@@ -903,7 +888,6 @@
 
 /* Location: MessagePathSheet.swift - Section header for path */
 "chats.path.section.header" = "路径";
-
 
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "路径地图";

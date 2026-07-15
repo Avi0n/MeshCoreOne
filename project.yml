@@ -28,6 +28,13 @@ packages:
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
     exactVersion: 6.25.1
+  MessagingUI:
+    url: https://github.com/bwees-forks/swiftui-messaging-ui
+    # Pinned to an exact revision: Package.resolved is gitignored (the whole
+    # generated .xcodeproj is), so branch tracking resolves to whatever each
+    # machine last fetched and different developers silently build different
+    # library code. Bump this hash deliberately when the fork advances.
+    revision: eab33977a91dee56ba6c8103af0966de0148457d
 
 targets:
   MC1:
@@ -43,6 +50,7 @@ targets:
       - package: MC1Services
       - package: Emojibase
       - package: MapLibre
+      - package: MessagingUI
       - target: MC1Widgets
     preBuildScripts:
       - name: SwiftGen

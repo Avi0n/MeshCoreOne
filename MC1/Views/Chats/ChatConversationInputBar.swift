@@ -9,6 +9,7 @@ struct ChatConversationInputBar: View {
   let nodeNameByteCount: Int
   let onSend: (String) async -> Void
   let onWillSend: () -> Void
+  let onFocus: () -> Void
 
   var body: some View {
     switch conversationType {
@@ -19,7 +20,8 @@ struct ChatConversationInputBar: View {
         placeholder: L10n.Chats.Chats.Input.Placeholder.directMessage,
         maxBytes: ProtocolLimits.maxDirectMessageLength,
         isEncrypted: true,
-        leading: { ChatShareMenu(onInsert: insertShared) }
+        leading: { ChatShareMenu(onInsert: insertShared) },
+        onFocus: onFocus
       ) { text in
         onWillSend()
         Task { await onSend(text) }
@@ -37,7 +39,8 @@ struct ChatConversationInputBar: View {
           : L10n.Chats.Chats.Channel.typePrivate,
         maxBytes: maxBytes,
         isEncrypted: channel.isEncryptedChannel,
-        leading: { ChatShareMenu(onInsert: insertShared) }
+        leading: { ChatShareMenu(onInsert: insertShared) },
+        onFocus: onFocus
       ) { text in
         onWillSend()
         Task { await onSend(text) }

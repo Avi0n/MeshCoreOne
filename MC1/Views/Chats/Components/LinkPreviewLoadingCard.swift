@@ -38,7 +38,9 @@ struct LinkPreviewLoadingCard: View {
   private func unknownImageCard(url: URL?) -> some View {
     let host = url?.host ?? ""
     VStack(alignment: .leading, spacing: 0) {
-      shimmerHero(aspect: CGFloat(RichPreviewMetrics.fallbackAspect))
+      // Prefer the remembered hero aspect for this URL so the shimmer reserves
+      // the final card footprint; the guess only applies to never-seen URLs.
+      shimmerHero(aspect: state.heroAspectHint.map { CGFloat($0) } ?? CGFloat(RichPreviewMetrics.fallbackAspect))
 
       VStack(alignment: .leading, spacing: Self.textRowSpacing) {
         shimmerRow(height: Self.titleRowHeight, widthFraction: Self.titleRowWidthFraction)

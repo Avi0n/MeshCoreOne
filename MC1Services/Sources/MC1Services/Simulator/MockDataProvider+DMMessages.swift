@@ -129,6 +129,19 @@ extension MockDataProvider {
         pathNodes: Data([0x10, 0xA3, 0x20, 0xB7]),
         senderKeyPrefix: key,
         isRead: false
+      ),
+      // 25-node path with 3-byte hop IDs to inspect the path chip layout with a long path.
+      MockMessageFactory.message(
+        id: UUID(uuidString: "10000000-0000-0000-0000-0000000000FF")!,
+        createdAt: now.addingTimeInterval(-600),
+        text: "Relayed all the way across the mesh to reach you",
+        direction: .incoming,
+        contactID: aliceChenID,
+        pathLength: encodePathLen(hashSize: 3, hopCount: 25),
+        snr: 3.2,
+        pathNodes: Data((0..<25).flatMap { [UInt8(0x10 + $0), 0xA3, 0xB7] }),
+        senderKeyPrefix: key,
+        isRead: false
       )
     ]
   }
