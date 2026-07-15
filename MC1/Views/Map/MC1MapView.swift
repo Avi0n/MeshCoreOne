@@ -158,6 +158,13 @@ struct MC1MapView: UIViewRepresentable {
   var cameraEdgePadding: UIEdgeInsets = .zero
   var cameraBottomSheetFraction: CGFloat?
 
+  // Programmatic selection: the id of the point to select, plus a version
+  // counter bumped to (re)fire it, mirroring the camera region + version idiom.
+  // The coordinator projects the point and routes it through `onPointTap`, so a
+  // programmatic selection is the same code path as a user tap.
+  var selectionRequestID: UUID?
+  var selectionRequestVersion: Int = 0
+
   // Output callbacks
   let onPointTap: ((MapPoint, CGPoint) -> Void)?
   let onMapTap: ((CLLocationCoordinate2D) -> Void)?
@@ -240,6 +247,9 @@ struct MC1MapView: UIViewRepresentable {
     coordinator.setIsCenteredOnUser = { isCenteredOnUser.wrappedValue = $0 }
     coordinator.currentPoints = points
     coordinator.currentLines = lines
+    // Set before the styleURL below: a theme switch changes the styleURL and triggers
+    // a reload, so didFinishLoading -> renderAll must already see the new theme.
+    coordinator.currentIsDarkMode = isDarkMode
 
     // Style URL change — compare against our tracked value, not mapView.styleURL
     // which MapLibre may transiently nil during layout/rotation.
@@ -288,6 +298,19 @@ struct MC1MapView: UIViewRepresentable {
 
     // Camera region (version-number pattern)
     updateCameraRegion(in: mapView, coordinator: coordinator)
+
+    // Programmatic selection (version-number pattern). Runs once per bump, after the
+    // camera update so the projection reads the just-applied camera. Dispatched async
+    // so it never mutates SwiftUI state during this representable update, matching how
+    // `onCameraRegionChange` defers its write-back.
+    if coordinator.isStyleLoaded,
+       coordinator.lastAppliedSelectionVersion != selectionRequestVersion {
+      coordinator.lastAppliedSelectionVersion = selectionRequestVersion
+      if let id = selectionRequestID,
+         let point = coordinator.currentPoints.first(where: { $0.id == id }) {
+        DispatchQueue.main.async { coordinator.selectPoint(point) }
+      }
+    }
   }
 
   /// Maximum absolute latitude MapLibre's `mbgl::LatLng` accepts; it throws an
@@ -398,8 +421,12 @@ extension MC1MapView {
     var isUpdatingFromSwiftUI = false
     var isStyleLoaded = false
     var lastAppliedRegionVersion = 0
+    var lastAppliedSelectionVersion = 0
     var pendingRegionTask: Task<Void, Never>?
     var currentShowLabels = true
+    /// The basemap theme in force, mirrored from the view so `renderAll` can pick the
+    /// location-dot recency palette at style-load time. Kept current by `updateUIView`.
+    var currentIsDarkMode = false
     var lastAppliedStyleURL: URL?
     var currentMapStyle: MapStyleSelection?
     var lastAppliedMapStyle: MapStyleSelection?
@@ -432,7 +459,7 @@ extension MC1MapView {
       lastAppliedMapStyle = nil
       currentShowLabels = true
 
-      PinSpriteRenderer.renderAll(into: style)
+      PinSpriteRenderer.renderAll(into: style, isDarkMode: currentIsDarkMode)
       setupRasterSources(style: style, mapView: mapView)
       setupLineLayers(style: style)
 
@@ -497,6 +524,18 @@ extension MC1MapView {
 
     // MARK: - Tap handling
 
+    /// Projects a point to its on-screen anchor (lifted above the pin by its style's
+    /// callout clearance) and routes it through `onPointTap`, so a programmatic
+    /// selection presents the callout exactly like a user tap.
+    func selectPoint(_ mapPoint: MapPoint) {
+      let pinScreenPos = mapView.convert(mapPoint.coordinate, toPointTo: mapView)
+      let calloutAnchor = CGPoint(
+        x: pinScreenPos.x,
+        y: pinScreenPos.y - PinSpriteRenderer.calloutLift(for: mapPoint.pinStyle)
+      )
+      onPointTap?(mapPoint, calloutAnchor)
+    }
+
     @objc func handleTap(_ sender: UITapGestureRecognizer) {
       guard sender.state == .ended else { return }
       let point = sender.location(in: mapView)
@@ -530,9 +569,7 @@ extension MC1MapView {
          let id = UUID(uuidString: idString),
          let mapPoint = currentPoints.first(where: { $0.id == id }) {
         logger.debug("Matched pin: \(mapPoint.label ?? "unnamed", privacy: .public)")
-        let pinScreenPos = mapView.convert(mapPoint.coordinate, toPointTo: mapView)
-        let calloutAnchor = CGPoint(x: pinScreenPos.x, y: pinScreenPos.y - PinSpriteRenderer.standardHeight)
-        onPointTap?(mapPoint, calloutAnchor)
+        selectPoint(mapPoint)
         return
       }
 

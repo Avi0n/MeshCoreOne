@@ -701,6 +701,9 @@
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Location section header */
 "remoteNodes.history.locationSection" = "Standort";
 
+/* Location: LocationHistorySection.swift - Purpose: Header for the location report list beneath the map preview */
+"remoteNodes.history.locationReportsHeader" = "Standortverlauf";
+
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when no snapshots exist */
 "remoteNodes.history.noSnapshotsMessage" = "Verbinde dich mindestens einmal mit diesem Knoten, um den Verlauf zu sehen.";
 

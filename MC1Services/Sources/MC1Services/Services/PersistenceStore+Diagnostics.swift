@@ -652,6 +652,7 @@ public extension PersistenceStore {
       if let location, latest.latitude == nil {
         latest.latitude = location.latitude
         latest.longitude = location.longitude
+        latest.altitude = location.altitude
       }
       try modelContext.save()
       return latest.id
@@ -670,6 +671,7 @@ public extension PersistenceStore {
     if let location {
       snapshot.latitude = location.latitude
       snapshot.longitude = location.longitude
+      snapshot.altitude = location.altitude
     }
     modelContext.insert(snapshot)
     try modelContext.save()

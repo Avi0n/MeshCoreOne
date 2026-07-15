@@ -1767,7 +1767,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         neighborSnapshots: neighbors,
         telemetryEntries: existing.telemetryEntries,
         latitude: existing.latitude,
-        longitude: existing.longitude
+        longitude: existing.longitude,
+        altitude: existing.altitude
       )
     }
   }
@@ -1793,7 +1794,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         neighborSnapshots: existing.neighborSnapshots,
         telemetryEntries: telemetry,
         latitude: existing.latitude,
-        longitude: existing.longitude
+        longitude: existing.longitude,
+        altitude: existing.altitude
       )
     }
   }
@@ -1867,7 +1869,8 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       neighborSnapshots: existing.neighborSnapshots,
       telemetryEntries: existing.telemetryEntries,
       latitude: location.latitude,
-      longitude: location.longitude
+      longitude: location.longitude,
+      altitude: location.altitude
     )
   }
 

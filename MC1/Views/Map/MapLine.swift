@@ -14,6 +14,9 @@ struct MapLine: Identifiable, Equatable {
     case traceMedium
     case traceGood
     case messagePath
+    /// A faint dashed connector threading location reports in time order. Not a
+    /// proven route; only visual continuity between sampled fixes.
+    case locationTrail
   }
 
   static func == (lhs: MapLine, rhs: MapLine) -> Bool {

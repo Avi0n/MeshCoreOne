@@ -3257,6 +3257,8 @@ public enum L10n {
         public static func lastSeen(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.history.lastSeen", String(describing: p1), fallback: "Last seen %@")
         }
+        /// Location: LocationHistorySection.swift - Purpose: Header for the location report list beneath the map preview
+        public static let locationReportsHeader = L10n.tr("RemoteNodes", "remoteNodes.history.locationReportsHeader", fallback: "Location History")
         /// Location: TelemetryHistoryOverviewView.swift - Purpose: Location section header
         public static let locationSection = L10n.tr("RemoteNodes", "remoteNodes.history.locationSection", fallback: "Location")
         /// Location: NodeStatusHistoryView.swift - Time range picker

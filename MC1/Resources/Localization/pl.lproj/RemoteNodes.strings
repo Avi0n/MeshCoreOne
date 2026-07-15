@@ -698,6 +698,9 @@
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Location section header */
 "remoteNodes.history.locationSection" = "Lokalizacja";
 
+/* Location: LocationHistorySection.swift - Purpose: Header for the location report list beneath the map preview */
+"remoteNodes.history.locationReportsHeader" = "Historia lokalizacji";
+
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when no snapshots exist */
 "remoteNodes.history.noSnapshotsMessage" = "Połącz się z tym węzłem co najmniej raz, aby zobaczyć historię.";
 

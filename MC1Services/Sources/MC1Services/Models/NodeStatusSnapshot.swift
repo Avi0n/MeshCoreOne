@@ -189,6 +189,10 @@ final class NodeStatusSnapshot {
   /// response can't erase a good fix.
   var latitude: Double?
   var longitude: Double?
+  /// Altitude in meters for the fix above, or nil when the node reported none.
+  /// Optional independently of latitude/longitude: a fix can lack a usable
+  /// altitude. Distinct from 0.0, which is a real sea-level reading.
+  var altitude: Double?
 
   init(
     id: UUID = UUID(),
@@ -214,7 +218,8 @@ final class NodeStatusSnapshot {
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
     telemetryEntries: [TelemetrySnapshotEntry]? = nil,
     latitude: Double? = nil,
-    longitude: Double? = nil
+    longitude: Double? = nil,
+    altitude: Double? = nil
   ) {
     self.id = id
     self.timestamp = timestamp
@@ -240,6 +245,7 @@ final class NodeStatusSnapshot {
     self.telemetryEntries = telemetryEntries
     self.latitude = latitude
     self.longitude = longitude
+    self.altitude = altitude
   }
 
   /// Apply captured status metrics onto this snapshot, leaving neighbor and
@@ -290,7 +296,8 @@ final class NodeStatusSnapshot {
       neighborSnapshots: dto.neighborSnapshots,
       telemetryEntries: dto.telemetryEntries,
       latitude: dto.latitude,
-      longitude: dto.longitude
+      longitude: dto.longitude,
+      altitude: dto.altitude
     )
   }
 }
@@ -325,6 +332,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
   public let telemetryEntries: [TelemetrySnapshotEntry]?
   public let latitude: Double?
   public let longitude: Double?
+  public let altitude: Double?
 
   init(from model: NodeStatusSnapshot) {
     id = model.id
@@ -351,6 +359,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     telemetryEntries = model.telemetryEntries
     latitude = model.latitude
     longitude = model.longitude
+    altitude = model.altitude
   }
 
   public init(
@@ -377,7 +386,8 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
     telemetryEntries: [TelemetrySnapshotEntry]? = nil,
     latitude: Double? = nil,
-    longitude: Double? = nil
+    longitude: Double? = nil,
+    altitude: Double? = nil
   ) {
     self.id = id
     self.timestamp = timestamp
@@ -403,6 +413,7 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     self.telemetryEntries = telemetryEntries
     self.latitude = latitude
     self.longitude = longitude
+    self.altitude = altitude
   }
 
   /// The snapshot's GPS fix as a plottable coordinate, or nil when either

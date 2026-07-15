@@ -34,14 +34,16 @@ extension View {
           points: [MapPoint(
             id: UUID(),
             coordinate: fix.coordinate,
-            pinStyle: .droppedPin,
+            pinStyle: .locationFixLatest,
             label: name,
             isClusterable: false,
             hopIndex: nil,
             badgeText: nil
           )],
-          line: nil,
-          title: L10n.RemoteNodes.RemoteNodes.Status.locationMapTitle
+          lines: [],
+          reports: [:],
+          title: L10n.RemoteNodes.RemoteNodes.Status.locationMapTitle,
+          initialSelectionID: nil
         )
       }
     }

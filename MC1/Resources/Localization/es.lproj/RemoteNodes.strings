@@ -701,6 +701,9 @@
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Location section header */
 "remoteNodes.history.locationSection" = "Ubicación";
 
+/* Location: LocationHistorySection.swift - Purpose: Header for the location report list beneath the map preview */
+"remoteNodes.history.locationReportsHeader" = "Historial de ubicación";
+
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when no snapshots exist */
 "remoteNodes.history.noSnapshotsMessage" = "Conéctate a este nodo al menos una vez para ver el historial.";
 

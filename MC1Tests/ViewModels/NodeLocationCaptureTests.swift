@@ -12,14 +12,15 @@ struct NodeLocationCaptureTests {
   /// Builds a raw LPP frame carrying one GPS point on a non-zero channel, and
   /// confirms it decodes as expected before feeding it to the view model, so the
   /// fixture is validated by the real decoder rather than trusted blindly.
-  private func gpsOnlyResponse(lat: Double, lon: Double) -> TelemetryResponse {
+  private func gpsOnlyResponse(lat: Double, lon: Double, alt: Double = 0) -> TelemetryResponse {
     func int24BE(_ scaled: Int32) -> [UInt8] {
       [UInt8((scaled >> 16) & 0xFF), UInt8((scaled >> 8) & 0xFF), UInt8(scaled & 0xFF)]
     }
     var bytes: [UInt8] = [0x01, LPPSensorType.gps.rawValue]
     bytes += int24BE(Int32((lat * 10000).rounded()))
     bytes += int24BE(Int32((lon * 10000).rounded()))
-    bytes += int24BE(0)
+    // Altitude on the wire is 0.01 m fixed point; the decoder returns meters.
+    bytes += int24BE(Int32((alt * 100).rounded()))
     let raw = Data(bytes)
     let decoded = LPPDecoder.decode(raw)
     #expect(decoded.contains { if case .gps = $0.value { true } else { false } })
@@ -56,6 +57,48 @@ struct NodeLocationCaptureTests {
     let snapshots = await service.fetchSnapshots(for: publicKey)
     #expect(snapshots.isEmpty, "A no-fix, no-telemetry response writes nothing")
   }
+
+  @Test
+  func `A plausible altitude is captured and persisted alongside the fix`() async {
+    let store = StoringSnapshotPersister()
+    let service = NodeSnapshotService(dataStore: store)
+    let viewModel = NodeStatusViewModel()
+    viewModel.configureForDirectTelemetry(publicKey: publicKey)
+    viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
+
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 42))
+
+    #expect(viewModel.currentLocationFix?.altitude == 42)
+    let snapshots = await service.fetchSnapshots(for: publicKey)
+    #expect(snapshots.first?.altitude == 42)
+  }
+
+  @Test
+  func `A sea-level altitude is retained, not dropped like null-island`() async {
+    let store = StoringSnapshotPersister()
+    let service = NodeSnapshotService(dataStore: store)
+    let viewModel = NodeStatusViewModel()
+    viewModel.configureForDirectTelemetry(publicKey: publicKey)
+    viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
+
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 0))
+
+    #expect(viewModel.currentLocationFix?.altitude == 0)
+  }
+
+  @Test
+  func `An implausible altitude is dropped but the fix survives`() async {
+    let store = StoringSnapshotPersister()
+    let service = NodeSnapshotService(dataStore: store)
+    let viewModel = NodeStatusViewModel()
+    viewModel.configureForDirectTelemetry(publicKey: publicKey)
+    viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
+
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 50000))
+
+    #expect(viewModel.currentLocationFix?.latitude == 37.7749)
+    #expect(viewModel.currentLocationFix?.altitude == nil, "Out-of-range altitude is dropped, not the fix")
+  }
 }
 
 /// Minimal in-memory `NodeSnapshotPersisting` double. The app test target's shared
@@ -77,7 +120,8 @@ private actor StoringSnapshotPersister: NodeSnapshotPersisting {
       neighborSnapshots: neighbors,
       telemetryEntries: telemetry,
       latitude: location?.latitude,
-      longitude: location?.longitude
+      longitude: location?.longitude,
+      altitude: location?.altitude
     )
     snapshots.append(dto)
     return dto.id

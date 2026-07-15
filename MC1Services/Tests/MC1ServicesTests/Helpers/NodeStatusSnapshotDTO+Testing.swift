@@ -30,7 +30,8 @@ extension NodeStatusSnapshotDTO {
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
     telemetryEntries: [TelemetrySnapshotEntry]? = nil,
     latitude: Double? = nil,
-    longitude: Double? = nil
+    longitude: Double? = nil,
+    altitude: Double? = nil
   ) -> NodeStatusSnapshotDTO {
     NodeStatusSnapshotDTO(
       id: id,
@@ -54,7 +55,8 @@ extension NodeStatusSnapshotDTO {
       neighborSnapshots: neighborSnapshots,
       telemetryEntries: telemetryEntries,
       latitude: latitude,
-      longitude: longitude
+      longitude: longitude,
+      altitude: altitude
     )
   }
 }

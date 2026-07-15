@@ -31,6 +31,9 @@ struct LocationHistorySection: View {
   /// Drives the full-screen map push. Owned by the host so its
   /// `navigationDestination` sits outside this lazy `List` row.
   @Binding var showsMap: Bool
+  /// The snapshot id to auto-select on the pushed map: set to a report's id on a
+  /// row tap, cleared on the expand button so it opens with nothing selected.
+  @Binding var pendingMapSelection: UUID?
 
   // Built once per coordinate set so re-renders (theme, connectivity, a telemetry
   // refresh behind the screen) can't re-mint MapPoint identities and churn the
@@ -56,29 +59,66 @@ struct LocationHistorySection: View {
     region(for: plottedCoordinates) ?? Self.fallbackRegion
   }
 
+  /// Every snapshot carrying a valid fix, newest first. Snapshots arrive in
+  /// ascending time order (the builder's precondition), so the latest is last.
+  /// Undecimated, unlike the 60-pin map cap; the list is the full record.
+  private var locationReports: [NodeStatusSnapshotDTO] {
+    snapshots.filter { $0.validCoordinate != nil }.reversed()
+  }
+
   var body: some View {
-    Section {
-      if plottedCoordinates.isEmpty {
-        Text(L10n.RemoteNodes.RemoteNodes.History.sectionNotCaptured(
-          L10n.RemoteNodes.RemoteNodes.History.locationSection
-        ))
-        .font(.subheadline)
-        .foregroundStyle(.secondary)
-      } else {
-        mapPreview
+    Group {
+      Section {
+        if plottedCoordinates.isEmpty {
+          Text(L10n.RemoteNodes.RemoteNodes.History.sectionNotCaptured(
+            L10n.RemoteNodes.RemoteNodes.History.locationSection
+          ))
+          .font(.subheadline)
+          .foregroundStyle(.secondary)
+        } else {
+          mapPreview
+        }
+      } header: {
+        Text(L10n.RemoteNodes.RemoteNodes.History.locationSection)
       }
-    } header: {
-      Text(L10n.RemoteNodes.RemoteNodes.History.locationSection)
+      .themedRowBackground(theme)
+      // Rebuild identity lives on the location Section, not the Group: a Group
+      // reapplies modifiers to each child, which would fire `rebuild()` twice.
+      .onChange(of: coordinateKey, initial: true) { _, _ in rebuild() }
+
+      reportsSection
     }
-    .themedRowBackground(theme)
-    .onChange(of: coordinateKey, initial: true) { _, _ in rebuild() }
+  }
+
+  /// The "History" list: one row per valid-coordinate report, newest first.
+  /// The source of truth for *when* a node was where; the map above is its
+  /// spatial companion. Rendered in both hosts regardless of `showsFullPath`.
+  @ViewBuilder
+  private var reportsSection: some View {
+    let reports = locationReports
+    if !reports.isEmpty {
+      Section {
+        ForEach(reports) { report in
+          LocationReportRow(
+            snapshot: report,
+            isLatest: report.id == reports.first?.id
+          ) {
+            pendingMapSelection = report.id
+            showsMap = true
+          }
+        }
+      } header: {
+        Text(L10n.RemoteNodes.RemoteNodes.History.locationReportsHeader)
+      }
+      .themedRowBackground(theme)
+    }
   }
 
   private var mapPreview: some View {
     ZStack(alignment: .topTrailing) {
       MC1MapView(
         points: path?.points ?? [],
-        lines: path?.line.map { [$0] } ?? [],
+        lines: path?.lines ?? [],
         mapStyle: .standard,
         isDarkMode: colorScheme == .dark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
@@ -97,6 +137,7 @@ struct LocationHistorySection: View {
       // MapLibre's attribution button works; only the expand button pushes the map.
 
       Button {
+        pendingMapSelection = nil
         showsMap = true
       } label: {
         Image(systemName: "arrow.up.left.and.arrow.down.right")
@@ -148,13 +189,14 @@ struct LocationHistorySection: View {
       points: [MapPoint(
         id: UUID(),
         coordinate: coordinate,
-        pinStyle: .droppedPin,
+        pinStyle: .locationFixLatest,
         label: nil,
         isClusterable: false,
         hopIndex: nil,
         badgeText: nil
       )],
-      line: nil
+      lines: [],
+      reports: [:]
     )
   }
 
@@ -167,13 +209,21 @@ struct LocationHistorySection: View {
 extension View {
   /// Registers the location history map push destination, building the path from
   /// the given snapshots. Shared so both telemetry history screens define it once.
-  func locationMapDestination(isPresented: Binding<Bool>, snapshots: [NodeStatusSnapshotDTO]) -> some View {
+  func locationMapDestination(
+    isPresented: Binding<Bool>,
+    snapshots: [NodeStatusSnapshotDTO],
+    initialSelection: UUID?
+  ) -> some View {
     navigationDestination(isPresented: isPresented) {
-      let built = LocationPathMapBuilder.build(from: snapshots)
+      // The full-screen map keeps every report as a tappable pin (no decimation),
+      // unlike the inline preview where dense sprites would be noise.
+      let built = LocationPathMapBuilder.build(from: snapshots, decimatePins: false)
       NodeLocationMapView(
         points: built.points,
-        line: built.line,
-        title: L10n.RemoteNodes.RemoteNodes.Status.locationMapTitle
+        lines: built.lines,
+        reports: built.reports,
+        title: L10n.RemoteNodes.RemoteNodes.Status.locationMapTitle,
+        initialSelectionID: initialSelection
       )
     }
   }
