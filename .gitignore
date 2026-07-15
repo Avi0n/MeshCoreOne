@@ -13,6 +13,7 @@ mc-ref/
 .ignore
 CLAUDE.md
 AGENTS.md
+CONTEXT.md
 thoughts/
 plans/
 specs/
