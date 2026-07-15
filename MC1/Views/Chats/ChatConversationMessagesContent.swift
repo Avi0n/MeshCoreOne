@@ -26,6 +26,10 @@ struct ChatConversationMessagesContent: View {
   /// Baked "New Messages" divider id the chat opens scrolled to; nil opens at the bottom.
   let openAtDividerItemID: UUID?
 
+  /// Fired once the tiled view has consumed `openAtDividerItemID`, so the owner
+  /// can retire it and a later `.id` rebuild won't re-jump to the divider.
+  let onDividerTargetConsumed: () -> Void
+
   // MARK: - Sheet State Bindings
 
   @Binding var selectedMessageForActions: MessageDTO?
@@ -67,7 +71,8 @@ struct ChatConversationMessagesContent: View {
       scrollToTargetRequest: scrollToTargetRequest,
       scrollTargetID: scrollToTargetID,
       initialScrollTargetID: openAtDividerItemID,
-      onLoadOlder: { await viewModel.loadOlderMessages() }
+      onLoadOlder: { await viewModel.loadOlderMessages() },
+      onInitialTargetConsumed: onDividerTargetConsumed
     )
     .onChange(of: envInputs) { _, new in
       viewModel.applyEnvInputs(new)
@@ -228,6 +233,7 @@ private struct ChannelEmptyMessagesView: View {
       scrollToTargetRequest: 0,
       scrollToTargetID: nil,
       openAtDividerItemID: nil,
+      onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
       onRetryMessage: { _ in }
@@ -254,6 +260,7 @@ private struct ChannelEmptyMessagesView: View {
       scrollToTargetRequest: 0,
       scrollToTargetID: nil,
       openAtDividerItemID: nil,
+      onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
       onRetryMessage: { _ in }

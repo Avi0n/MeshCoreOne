@@ -33,6 +33,12 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   /// Invoked when the top is reached, to page in older messages.
   var onLoadOlder: (@MainActor @Sendable () async -> Void)?
 
+  /// Invoked once, on the first post-positioning geometry report, when an
+  /// `initialScrollTargetID` was in effect — the point at which the library has
+  /// consumed the one-shot target. Lets the owner retire a divider target so a
+  /// later `.id` rebuild does not re-jump to it.
+  var onInitialTargetConsumed: (() -> Void)?
+
   @Environment(\.appTheme) private var appTheme
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
@@ -41,6 +47,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   @State private var scrollPosition: TiledScrollPosition
   @State private var host = CellContentHost<Item, Content>()
   @State private var newestID: Item.ID?
+  @State private var hasConsumedInitialGeometry = false
 
   init(
     items: [Item],
@@ -52,7 +59,8 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     scrollToTargetRequest: Int = 0,
     scrollTargetID: Item.ID? = nil,
     initialScrollTargetID: Item.ID? = nil,
-    onLoadOlder: (@MainActor @Sendable () async -> Void)? = nil
+    onLoadOlder: (@MainActor @Sendable () async -> Void)? = nil,
+    onInitialTargetConsumed: (() -> Void)? = nil
   ) {
     self.items = items
     self.cellContent = cellContent
@@ -64,6 +72,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     self.scrollTargetID = scrollTargetID
     self.initialScrollTargetID = initialScrollTargetID
     self.onLoadOlder = onLoadOlder
+    self.onInitialTargetConsumed = onInitialTargetConsumed
     // Open at the bottom by default; with an initial target present, hold off
     // append-follow until the geometry callback re-derives it from the resting
     // position, so an append during open does not fight the target.
@@ -90,8 +99,15 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       if atBottom != isAtBottom { isAtBottom = atBottom }
       if atBottom, unreadCount != 0 { unreadCount = 0 }
       // Only follow appends while near the bottom; otherwise new messages
-      // accumulate as unread (counted in the onChange below).
-      scrollPosition.autoScrollsToBottomOnAppend = atBottom
+      // accumulate as unread (counted in the onChange below). The first report
+      // after a target open reflects the resting position, not a user scroll, so
+      // it consumes the one-shot target instead of arming follow.
+      if hasConsumedInitialGeometry || initialScrollTargetID == nil {
+        scrollPosition.autoScrollsToBottomOnAppend = atBottom
+      } else {
+        onInitialTargetConsumed?()
+      }
+      hasConsumedInitialGeometry = true
     }
     .onDragIntoBottomSafeArea {
       UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)

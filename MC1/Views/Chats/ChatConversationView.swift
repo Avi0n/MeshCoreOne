@@ -32,6 +32,11 @@ struct ChatConversationView: View {
   /// tracking is involved.
   @State private var scrollToTargetRequest = 0
   @State private var scrollToTargetID: UUID?
+  /// Latches once the tiled view has positioned on the open-at-divider target.
+  /// Survives the tiled view's `.id` rebuild (theme / dynamic-type change) but
+  /// re-seeds with this view's identity on a real conversation navigation, so a
+  /// rebuild mid-conversation does not re-jump to a divider the user scrolled past.
+  @State private var hasConsumedDividerTarget = false
 
   /// Pending debounced draft persist; cancelled and restarted on each keystroke,
   /// cancelled-then-flushed synchronously on view teardown and app suspension.
@@ -125,8 +130,11 @@ struct ChatConversationView: View {
   /// fully-read warm coordinator (no baked flag) and a stale-unread DTO from a
   /// non-list entry point (no baked flag) each resolve to nil.
   private var openAtDividerItemID: UUID? {
-    guard conversationType.unreadCount > 0 else { return nil }
-    return chatViewModel.renderState.newMessagesDividerItemID
+    ChatInitialScrollPolicy.openAtDividerItemID(
+      hasConsumed: hasConsumedDividerTarget,
+      unreadCount: conversationType.unreadCount,
+      dividerItemID: chatViewModel.renderState.newMessagesDividerItemID
+    )
   }
 
   // MARK: - Body
@@ -154,6 +162,7 @@ struct ChatConversationView: View {
       scrollToTargetRequest: scrollToTargetRequest,
       scrollToTargetID: scrollToTargetID,
       openAtDividerItemID: openAtDividerItemID,
+      onDividerTargetConsumed: { hasConsumedDividerTarget = true },
       selectedMessageForActions: $selectedMessageForActions,
       imageViewerData: $imageViewerData,
       onRetryMessage: { retryMessage($0) }
