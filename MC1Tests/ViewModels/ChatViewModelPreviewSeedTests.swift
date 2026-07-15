@@ -47,7 +47,7 @@ struct ChatViewModelPreviewSeedTests {
     let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
 
     #expect(inputs.cachedURL == URL(string: "https://example.com/article"))
-    #expect(viewModel.cachedURLs[message.id] != nil,
+    #expect(viewModel.bake.cachedURLs[message.id] != nil,
             "detection must be recorded so later rebuilds skip the scan")
   }
 
@@ -73,7 +73,7 @@ struct ChatViewModelPreviewSeedTests {
 
     #expect(inputs.previewState == .loaded,
             "a decoded-cache hit must paint .loaded in the same build, skipping the shimmer")
-    #expect(viewModel.loadedPreviews[message.id]?.title == "Example")
+    #expect(viewModel.bake.loadedPreviews[message.id]?.title == "Example")
   }
 
   @Test
@@ -133,8 +133,8 @@ struct ChatViewModelPreviewSeedTests {
     // The dictionary is `[UUID: URL?]`, so a stored negative result is the double
     // optional `.some(nil)`: the key is present (outer `.some`) while the detected
     // URL is nil (inner `.none`). Rebuilds key on presence to skip re-scanning.
-    #expect(viewModel.cachedURLs[message.id] != nil,
+    #expect(viewModel.bake.cachedURLs[message.id] != nil,
             "the detected-no-URL sentinel must be stored so rebuilds skip re-scanning")
-    #expect(viewModel.cachedURLs[message.id] == .some(nil))
+    #expect(viewModel.bake.cachedURLs[message.id] == .some(nil))
   }
 }

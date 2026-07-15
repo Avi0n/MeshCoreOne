@@ -37,9 +37,8 @@ final class ChatPrewarmRefresher {
   struct Hooks {
     /// Registry holding the warm coordinators; nil while no store is available.
     var registry: @MainActor () -> ChatCoordinatorRegistry?
-    /// Dependency bundle for the throwaway priming view model; nil when the
-    /// owner is gone.
-    var dependencies: @MainActor () -> ChatViewModel.Dependencies?
+    /// Dependency bundle for the priming path; nil when the owner is gone.
+    var dependencies: @MainActor () -> ChatTimelinePrimer.Dependencies?
     /// Environment snapshot to bake items with; nil when no chat UI has
     /// rendered yet (nothing can be warm then, so skipping is safe).
     var envInputs: @MainActor (ChatConversationType) -> EnvInputs?
@@ -53,9 +52,9 @@ final class ChatPrewarmRefresher {
     /// at refresh time so the bake reads the post-increment unread count, not the
     /// pre-increment DTO captured when the event was dispatched.
     var contact: @MainActor (UUID, UUID) async -> ContactDTO?
-    /// Link-preview cache for the priming view model, so a refresh also warms
-    /// preview metadata and hero dimensions for the fresh tail; nil skips
-    /// preview warming.
+    /// Link-preview cache for the primer, so a refresh also warms preview
+    /// metadata and hero dimensions for the fresh tail; nil skips preview
+    /// warming.
     var linkPreviewCache: @MainActor () -> (any LinkPreviewCaching)?
   }
 
@@ -122,35 +121,13 @@ final class ChatPrewarmRefresher {
           let envInputs = hooks.envInputs(conversation)
     else { return }
 
-    // Same throwaway-view-model prime as `AppState.prefetchConversation`:
-    // only the shared coordinator (held by the registry) outlives it.
-    // `.prime` binds a revocable writer; if the user opens this chat
-    // mid-refresh, the live view's `.interactive` bind revokes it and every
-    // remaining write from this view model no-ops at the coordinator.
-    let viewModel = ChatViewModel()
-    viewModel.configure(
+    // A `.prime` bind is denied while an interactive owner is active (the
+    // denied bind aborts inside `prime`). A mid-refresh open revokes the
+    // writer and remaining writes no-op.
+    let primer = ChatTimelinePrimer(
       dependencies: dependencies,
-      onNavigateToMap: nil,
-      linkPreviewCache: hooks.linkPreviewCache(),
-      chatCoordinatorRegistry: registry,
-      conversation: conversation,
-      role: .prime
+      linkPreviewCache: hooks.linkPreviewCache()
     )
-    // A denied writer means an interactive owner appeared between the
-    // active-conversation check and the bind; nothing to refresh.
-    guard viewModel.timelineWriter != nil else { return }
-    viewModel.applyEnvInputs(envInputs)
-
-    switch conversation {
-    case let .dm(contact):
-      await viewModel.primeInitialMessages(for: contact)
-    case let .channel(channel):
-      // Contacts first so contactNameSet is populated before buildChannelSenders runs.
-      await viewModel.loadAllContacts(radioID: channel.radioID)
-      await viewModel.primeInitialChannelMessages(for: channel)
-    }
-    // Warm preview metadata and hero dimensions for the fresh tail so the
-    // next open builds cards synchronously at their final height.
-    await viewModel.prewarmRecentPreviews()
+    await primer.prime(conversation, envInputs: envInputs)
   }
 }

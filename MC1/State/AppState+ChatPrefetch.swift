@@ -37,6 +37,21 @@ extension AppState {
     )
   }
 
+  /// Builds the dependency bundle a `ChatTimelinePrimer` needs. Sourced from
+  /// the same `AppState` properties as `makeChatViewModelDependencies` so the
+  /// two cannot drift on wiring for the overlapping providers.
+  @MainActor
+  func makeChatTimelinePrimerDependencies() -> ChatTimelinePrimer.Dependencies {
+    ChatTimelinePrimer.Dependencies(
+      registry: { self.ensureChatCoordinatorRegistry() },
+      dataStore: { self.offlineDataStore },
+      reactionService: { self.services?.reactionService },
+      connectedDeviceNodeName: { self.connectedDevice?.nodeName },
+      inlineImageDimensionsStore: { self.services?.inlineImageDimensionsStore },
+      prefetchDataStore: { self.services?.dataStore }
+    )
+  }
+
   /// Builds the `EnvInputs` snapshot the chat view model bakes into `MessageItem`s.
   /// Reads the user-preference toggles from `UserDefaults.standard` (matching the
   /// `@AppStorage` reads at render time) and takes the four true-environment values
@@ -89,10 +104,11 @@ extension AppState {
   /// coordinator persists in the registry, so a re-open reuses the warm entry —
   /// this no-ops when it is already loaded.
   ///
-  /// Fire-and-forget on a throwaway view model: only the shared coordinator (held
-  /// by the registry) outlives the prime, and `ChatConversationView` rebinds it on
-  /// open. The prime deliberately skips notification suppression, unread clearing,
-  /// and flood-scope pushes — those belong to the real open, not a speculative warm.
+  /// Fire-and-forget on a `ChatTimelinePrimer`: only the shared coordinator
+  /// (held by the registry) outlives the prime, and `ChatConversationView`
+  /// rebinds it on open. The prime deliberately skips notification
+  /// suppression, unread clearing, and flood-scope pushes — those belong to
+  /// the real open, not a speculative warm.
   @MainActor
   func prefetchConversation(_ conversation: ChatConversationType, envInputs: EnvInputs) {
     guard let registry = ensureChatCoordinatorRegistry() else { return }
@@ -107,34 +123,14 @@ extension AppState {
       return
     }
 
-    let viewModel = ChatViewModel()
+    // A `.prime` bind is revoked if the user opens this chat mid-prime;
+    // remaining writes then no-op.
+    let primer = ChatTimelinePrimer(
+      dependencies: makeChatTimelinePrimerDependencies(),
+      linkPreviewCache: backgroundLinkPreviewCache
+    )
     Task { @MainActor in
-      // `.prime` binds a revocable writer: if the user opens this chat
-      // mid-prime, the live view's `.interactive` bind revokes it and every
-      // remaining write from this view model no-ops at the coordinator. A
-      // nil writer means the open already happened, so abort the prime.
-      viewModel.configure(
-        dependencies: self.makeChatViewModelDependencies(),
-        onNavigateToMap: nil,
-        linkPreviewCache: self.backgroundLinkPreviewCache,
-        chatCoordinatorRegistry: registry,
-        conversation: conversation,
-        role: .prime
-      )
-      guard viewModel.timelineWriter != nil else { return }
-      viewModel.applyEnvInputs(envInputs)
-
-      switch conversation {
-      case let .dm(contact):
-        await viewModel.primeInitialMessages(for: contact)
-      case let .channel(channel):
-        // Contacts first so contactNameSet is populated before buildChannelSenders runs.
-        await viewModel.loadAllContacts(radioID: channel.radioID)
-        await viewModel.primeInitialChannelMessages(for: channel)
-      }
-      // Warm preview metadata and hero dimensions for the primed tail so the
-      // open builds cards synchronously at their final height.
-      await viewModel.prewarmRecentPreviews()
+      await primer.prime(conversation, envInputs: envInputs)
     }
   }
 
@@ -164,7 +160,7 @@ extension AppState {
         self?.ensureChatCoordinatorRegistry()
       },
       dependencies: { [weak self] in
-        self?.makeChatViewModelDependencies()
+        self?.makeChatTimelinePrimerDependencies()
       },
       envInputs: { [weak self] conversation in
         guard let self, let snapshot = lastChatEnvSnapshot else { return nil }

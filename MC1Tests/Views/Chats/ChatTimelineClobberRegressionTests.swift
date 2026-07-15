@@ -82,7 +82,7 @@ struct ChatTimelineClobberRegressionTests {
     // Live view model appends the row and settles its preview state; the
     // baked item no longer carries the shimmer fragment.
     liveVM.appendMessageIfNew(message)
-    liveVM.previewStates[message.id] = .noPreview
+    liveVM.bake.previewStates[message.id] = .noPreview
     liveVM.rebuildDisplayItem(for: message.id)
     let settledItem = try #require(coordinator.renderState.items.first { $0.id == message.id })
     let renderStateIDAfterSettle = coordinator.renderStateID
@@ -142,7 +142,7 @@ struct ChatTimelineClobberRegressionTests {
 
     // State settles without the item being rebaked. The next fetch
     // request must repair the row instead of silently skipping.
-    liveVM.previewStates[message.id] = .noPreview
+    liveVM.bake.previewStates[message.id] = .noPreview
     liveVM.requestPreviewFetch(for: message.id)
 
     let repairedItem = try #require(coordinator.renderState.items.first { $0.id == message.id })
@@ -166,7 +166,7 @@ struct ChatTimelineClobberRegressionTests {
     // matching the open-time ordering: cells render from the warm
     // coordinator on the first frame, `performInitialLoad` runs afterwards.
     let message = makeLinkMessage(radioID: radioID, contactID: contactID)
-    viewModel.previewStates[message.id] = .loading
+    viewModel.bake.previewStates[message.id] = .loading
     let fetchStandIn = Task<Void, Never> {
       while !Task.isCancelled {
         try? await Task.sleep(nanoseconds: 20_000_000)
@@ -193,7 +193,7 @@ struct ChatTimelineClobberRegressionTests {
     _ = await viewModel.primeInitialMessages(for: contact)
 
     #expect(!fetchStandIn.isCancelled)
-    #expect(viewModel.previewStates[message.id] == .loading)
+    #expect(viewModel.bake.previewStates[message.id] == .loading)
     #expect(viewModel.previewFetchTasks[message.id] != nil)
     fetchStandIn.cancel()
 
@@ -214,7 +214,7 @@ struct ChatTimelineClobberRegressionTests {
       lastModified: 0
     ))
     _ = await viewModel.primeInitialMessages(for: otherContact)
-    #expect(viewModel.previewStates[message.id] == nil)
+    #expect(viewModel.bake.previewStates[message.id] == nil)
   }
 
   @Test
@@ -232,9 +232,9 @@ struct ChatTimelineClobberRegressionTests {
     // `.loading` with no in-flight task can be reached through in-flight
     // dedup stranding. The request path must treat it as orphaned rather
     // than deadlocking in shimmer.
-    liveVM.previewStates[message.id] = .loading
+    liveVM.bake.previewStates[message.id] = .loading
     liveVM.requestPreviewFetch(for: message.id)
 
-    #expect(liveVM.previewStates[message.id] != .loading)
+    #expect(liveVM.bake.previewStates[message.id] != .loading)
   }
 }

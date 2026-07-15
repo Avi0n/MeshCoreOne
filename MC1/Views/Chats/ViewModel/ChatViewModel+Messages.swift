@@ -52,16 +52,6 @@ extension ChatViewModel {
   /// effects on top. Returns true when the fetch succeeded.
   @discardableResult
   func primeInitialMessages(for contact: ContactDTO) async -> Bool {
-    // Close the per-conversation empty-state gate while the fetch is
-    // in flight. No-op when the coordinator is already past
-    // `.uninitialized` (warm rebind, refresh).
-    timelineWriter?.beginLoading()
-
-    guard let dataStore else {
-      timelineWriter?.markLoaded()
-      return false
-    }
-
     // Clear preview state only when switching away from a previously loaded
     // conversation. A fresh view model has nothing to clear, and its cells
     // may already be fetching previews for this same conversation (warm
@@ -71,8 +61,8 @@ extension ChatViewModel {
       || (currentContact != nil && currentContact?.id != contact.id)
     if isConversationSwitch {
       clearPreviewState()
-      newMessagesDividerMessageID = nil
-      dividerComputed = false
+      bake.newMessagesDividerMessageID = nil
+      bake.dividerComputed = false
     }
 
     currentContact = contact
@@ -84,50 +74,46 @@ extension ChatViewModel {
     errorMessage = nil
     errorBannerMessage = nil
 
-    // Reset pagination state for new conversation
-    timelineWriter?.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
-
-    var loaded = false
-    do {
-      // Size the first page to include every unread message so the divider target is loaded.
-      let initialLimit = ChatCoordinator.initialPageSize(unreadCount: contact.unreadCount)
-      var fetchedMessages = try await dataStore.fetchMessages(contactID: contact.id, limit: initialLimit, offset: 0)
-      let unfilteredCount = fetchedMessages.count
-      timelineWriter?.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
-
-      // Compute divider position before filtering, using unfiltered array
-      computeDividerPosition(from: fetchedMessages, unreadCount: contact.unreadCount, isDM: true)
-
-      // Hide sent reaction messages (unless failed)
-      fetchedMessages = filterOutgoingReactionMessages(fetchedMessages, isDM: true)
-
-      // A full page means more history may exist above (compare to what we requested).
-      timelineWriter?.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == initialLimit) }
-      timelineWriter?.replaceAll(fetchedMessages)
-
-      buildItems()
-
-      // Index loaded messages for reaction matching and process any pending reactions
-      if let reactionService = reactionServiceProvider() {
-        await indexMessagesForReactions(
-          fetchedMessages,
-          scope: .direct(contact),
-          reactionService: reactionService,
-          dataStore: dataStore
-        )
-      }
-      loaded = true
-    } catch is CancellationError {
-      // Benign cancellation; the superseding load will refetch.
-    } catch {
-      errorMessage = error.userFacingMessage
+    guard let timelineWriter else {
+      isLoading = false
+      return false
     }
 
-    // Ensures the empty-state gate opens even when the fetch threw —
-    // `replaceAll` is the success path; this catches the failure path.
-    timelineWriter?.markLoaded()
+    let reactions: ChatTimelinePopulator.ReactionIndexingContext? = {
+      guard let reactionService = reactionServiceProvider() else { return nil }
+      return ChatTimelinePopulator.ReactionIndexingContext(
+        reactionService: reactionService,
+        scope: .direct(contact),
+        rebakeRow: { [weak self] messageID in
+          self?.rebuildDisplayItem(for: messageID)
+        }
+      )
+    }()
+
+    let outcome = await ChatTimelinePopulator.populate(
+      .dm(contact),
+      writer: timelineWriter,
+      dataStore: dataStore,
+      bake: bake,
+      envInputs: envInputs,
+      senderTables: currentSenderTables(),
+      reactions: reactions,
+      postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
+    )
+
+    let didLoad: Bool
+    switch outcome {
+    case .loaded:
+      didLoad = true
+    case .cancelled, .unavailable:
+      didLoad = false
+    case let .failed(error):
+      errorMessage = error.userFacingMessage
+      didLoad = false
+    }
+
     isLoading = false
-    return loaded
+    return didLoad
   }
 
   // MARK: - Drafts

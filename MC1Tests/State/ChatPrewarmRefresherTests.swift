@@ -19,7 +19,7 @@ struct ChatPrewarmRefresherTests {
     return PersistenceStore(modelContainer: container)
   }
 
-  private func makeDependencies(dataStore: PersistenceStore) -> ChatViewModel.Dependencies {
+  private func makeViewModelDependencies(dataStore: PersistenceStore) -> ChatViewModel.Dependencies {
     ChatViewModel.Dependencies(
       dataStore: { dataStore },
       messageService: { nil },
@@ -39,6 +39,20 @@ struct ChatPrewarmRefresherTests {
     )
   }
 
+  private func makePrimerDependencies(
+    registry: ChatCoordinatorRegistry,
+    dataStore: PersistenceStore
+  ) -> ChatTimelinePrimer.Dependencies {
+    ChatTimelinePrimer.Dependencies(
+      registry: { registry },
+      dataStore: { dataStore },
+      reactionService: { nil },
+      connectedDeviceNodeName: { nil },
+      inlineImageDimensionsStore: { nil },
+      prefetchDataStore: { nil }
+    )
+  }
+
   private func makeHooks(
     registry: ChatCoordinatorRegistry,
     dataStore: PersistenceStore,
@@ -46,7 +60,7 @@ struct ChatPrewarmRefresherTests {
   ) -> ChatPrewarmRefresher.Hooks {
     ChatPrewarmRefresher.Hooks(
       registry: { registry },
-      dependencies: { [self] in makeDependencies(dataStore: dataStore) },
+      dependencies: { [self] in makePrimerDependencies(registry: registry, dataStore: dataStore) },
       envInputs: { _ in .default },
       isConversationActive: isActive,
       channel: { radioID, index in
@@ -150,8 +164,9 @@ struct ChatPrewarmRefresherTests {
     )
   }
 
-  /// Warms the shared coordinator the way `AppState.prefetchConversation` does:
-  /// a throwaway view model primes it, then is discarded.
+  /// Models a previously opened conversation: an interactive view model
+  /// populates the coordinator, then is discarded so the weak writer owner
+  /// frees the slot for a later prime.
   private func warmCoordinator(
     registry: ChatCoordinatorRegistry,
     dataStore: PersistenceStore,
@@ -159,7 +174,7 @@ struct ChatPrewarmRefresherTests {
   ) async {
     let viewModel = ChatViewModel()
     viewModel.configure(
-      dependencies: makeDependencies(dataStore: dataStore),
+      dependencies: makeViewModelDependencies(dataStore: dataStore),
       onNavigateToMap: nil,
       linkPreviewCache: nil,
       chatCoordinatorRegistry: registry,

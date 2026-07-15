@@ -118,7 +118,7 @@ struct ChatViewModelAdmissionTests {
     let url = try #require(URL(string: "https://example.com/cat.png"))
     let message = makeMessage(text: "look \(url.absoluteString)")
     viewModel.appendMessageIfNew(message)
-    viewModel.cachedURLs[message.id] = url
+    viewModel.bake.cachedURLs[message.id] = url
 
     let store = InlineImageDimensionsStore(fileURL: Self.makeTempDimensionsURL())
     bind(store, to: viewModel)
@@ -220,9 +220,9 @@ struct ChatViewModelAdmissionTests {
 
     // Re-entry state: the per-VM reroute set was cleared, but the loaded card is
     // restored from the surviving preview cache.
-    viewModel.cachedURLs[message.id] = url
-    viewModel.previewStates[message.id] = .loaded
-    viewModel.loadedPreviews[message.id] = LinkPreviewDataDTO(url: url.absoluteString, title: "Pasteboard")
+    viewModel.bake.cachedURLs[message.id] = url
+    viewModel.bake.previewStates[message.id] = .loaded
+    viewModel.bake.loadedPreviews[message.id] = LinkPreviewDataDTO(url: url.absoluteString, title: "Pasteboard")
     viewModel.rebuildDisplayItem(for: message.id)
 
     let item = try #require(viewModel.items.first { $0.id == message.id })
