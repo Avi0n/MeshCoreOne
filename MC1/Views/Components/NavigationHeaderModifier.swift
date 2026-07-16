@@ -11,20 +11,22 @@ struct NavigationHeaderModifier: ViewModifier {
 
   let title: String
   let subtitle: String
-  /// iOS 26 only: render the title/subtitle inside a Liquid Glass capsule as a principal toolbar
-  /// item, so the name stays legible above content that now scrolls edge-to-edge behind the bar.
-  let glassTitleCapsule: Bool
+  /// Set by screens whose content scrolls edge-to-edge beneath the navigation bar. iOS 26 keeps
+  /// the bar transparent and renders the title in a Liquid Glass capsule for legibility; earlier
+  /// versions have no capsule and take an opaque bar background instead.
+  let contentScrollsUnderBar: Bool
   /// iOS 26 capsule only: optional leading avatar and a tap action for the whole capsule
   /// (e.g. opening the conversation's info sheet).
   let titleIcon: AnyView?
   let onTitleTap: (() -> Void)?
 
+  @Environment(\.appTheme) private var theme
   @State private var showHeader = false
 
   func body(content: Content) -> some View {
     #if os(iOS)
       if #available(iOS 26, *) {
-        if glassTitleCapsule {
+        if contentScrollsUnderBar {
           content
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
@@ -49,6 +51,12 @@ struct NavigationHeaderModifier: ViewModifier {
             .navigationSubtitle(subtitle)
             .navigationBarTitleDisplayMode(.inline)
         }
+      } else if contentScrollsUnderBar {
+        // Without a tracked scroll view the bar would keep its transparent scroll-edge
+        // appearance, leaving the title unreadable over the content passing beneath it.
+        legacyHeader(content: content)
+          .toolbarBackground(theme.surfaces?.canvas ?? Color(.systemBackground), for: .navigationBar)
+          .toolbarBackgroundVisibility(.visible, for: .navigationBar)
       } else {
         legacyHeader(content: content)
       }
@@ -162,14 +170,14 @@ extension View {
   func navigationHeader(
     title: String,
     subtitle: String,
-    glassTitleCapsule: Bool = false,
+    contentScrollsUnderBar: Bool = false,
     titleIcon: AnyView? = nil,
     onTitleTap: (() -> Void)? = nil
   ) -> some View {
     modifier(NavigationHeaderModifier(
       title: title,
       subtitle: subtitle,
-      glassTitleCapsule: glassTitleCapsule,
+      contentScrollsUnderBar: contentScrollsUnderBar,
       titleIcon: titleIcon,
       onTitleTap: onTitleTap
     ))

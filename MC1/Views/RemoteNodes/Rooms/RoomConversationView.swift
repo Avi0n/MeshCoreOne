@@ -50,7 +50,7 @@ struct RoomConversationView: View {
       .navigationHeader(
         title: session.name,
         subtitle: connectionStatus,
-        glassTitleCapsule: true,
+        contentScrollsUnderBar: true,
         titleIcon: AnyView(NodeAvatar(publicKey: session.publicKey, role: .roomServer, size: 30)),
         onTitleTap: { showingRoomInfo = true }
       )

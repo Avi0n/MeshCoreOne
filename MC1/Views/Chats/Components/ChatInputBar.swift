@@ -5,6 +5,11 @@ import UIKit
 enum ChatInputMetrics {
   /// Shared height for the compose field and its flanking glass buttons so the three controls align.
   static let controlHeight: CGFloat = 36
+  /// Corner radius of the compose field, shared by its iOS 26 glass capsule and its outlined
+  /// legacy form.
+  static let fieldCornerRadius: CGFloat = 20
+  /// Hairline width for the legacy field's outline.
+  static let fieldBorderWidth: CGFloat = 1
 }
 
 /// Reusable chat input bar with configurable styling
@@ -289,10 +294,14 @@ private extension View {
   @ViewBuilder
   func textFieldBackground() -> some View {
     if #available(iOS 26.0, *) {
-      glassEffect(.regular.interactive(), in: .rect(cornerRadius: 20))
+      glassEffect(.regular.interactive(), in: .rect(cornerRadius: ChatInputMetrics.fieldCornerRadius))
     } else {
-      background(Color(.systemGray6))
-        .clipShape(.rect(cornerRadius: 20))
+      // Without the glass capsule the field would read as one fill on the bar's fill, so its edge
+      // carries the affordance. A clear centre keeps it legible against any theme canvas.
+      overlay {
+        RoundedRectangle(cornerRadius: ChatInputMetrics.fieldCornerRadius)
+          .strokeBorder(Color(.separator), lineWidth: ChatInputMetrics.fieldBorderWidth)
+      }
     }
   }
 
@@ -303,7 +312,7 @@ private extension View {
     } else if #available(iOS 26.0, *) {
       self
     } else {
-      background(.bar)
+      background(Color(.systemBackground))
     }
   }
 }
