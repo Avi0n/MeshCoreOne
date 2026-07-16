@@ -52,15 +52,18 @@ struct FirmwareSuggestedTimeoutTests {
   // MARK: - Flood (path discovery, user-built multi-hop traces)
 
   @Test
-  func `Flood honors a sane hint`() {
+  func `Flood adds return-leg grace on top of a sane hint`() {
+    // 5000ms × 1.2 = 6s, plus 5s grace for the multi-hop return leg the
+    // firmware's request-airtime estimate can't see.
     let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 5000, profile: .flood)
-    #expect(timeout == 6.0)
+    #expect(timeout == 11.0)
   }
 
   @Test
-  func `Flood floors a small hint rather than rejecting it`() {
+  func `Flood grace lifts a small hint above the floor`() {
+    // 3000ms × 1.2 = 3.6s + 5s grace = 8.6s; grace alone already clears the 5s floor.
     let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 3000, profile: .flood)
-    #expect(timeout == 5.0)
+    #expect(abs(timeout - 8.6) < tolerance)
   }
 
   @Test

@@ -124,6 +124,14 @@ final class PathManagementViewModel {
   /// Discovery cancellation
   private var discoveryTask: Task<Void, Never>?
 
+  /// Delayed re-present of the discovery alert after a late response;
+  /// see `handleDiscoveryResponse`.
+  private var alertRedisplayTask: Task<Void, Never>?
+
+  /// Long enough for the alert dismissal transition to finish; SwiftUI
+  /// ignores re-presenting a binding that flips back before it completes.
+  private static let alertRedisplayDelay: Duration = .milliseconds(600)
+
   // Discovery countdown state
   var discoverySecondsRemaining: Int?
   private var countdownTask: Task<Void, Never>?
@@ -456,6 +464,7 @@ final class PathManagementViewModel {
 
     // Cancel any existing discovery
     discoveryTask?.cancel()
+    alertRedisplayTask?.cancel()
 
     isDiscovering = true
     discoveryResult = nil
@@ -490,6 +499,11 @@ final class PathManagementViewModel {
         // AdvertisementService handler calls handleDiscoveryResponse()
         // which cancels this task early if a response arrives; sleep throws.
         try await Task.sleep(for: .seconds(timeoutSeconds))
+
+        // A response landing between sleep expiry and this resumption has
+        // already resolved state via handleDiscoveryResponse; its cancel()
+        // can't make a finished sleep throw, so re-check before writing.
+        guard !Task.isCancelled else { return }
 
         // Timeout: the remote node did not respond
         discoveryResult = .noPathFound
@@ -547,6 +561,8 @@ final class PathManagementViewModel {
   func cancelDiscovery() {
     discoveryTask?.cancel()
     discoveryTask = nil
+    alertRedisplayTask?.cancel()
+    alertRedisplayTask = nil
     isDiscovering = false
     cleanupCountdownState()
   }
@@ -566,7 +582,21 @@ final class PathManagementViewModel {
     } else {
       discoveryResult = .noPathFound
     }
-    showDiscoveryResult = true
+
+    if showDiscoveryResult {
+      // The timeout alert is already on screen and its message was captured
+      // at presentation, so a response landing now would stay hidden behind
+      // stale failure text. Dismiss and re-present with the fresh result.
+      showDiscoveryResult = false
+      alertRedisplayTask?.cancel()
+      alertRedisplayTask = Task {
+        try? await Task.sleep(for: Self.alertRedisplayDelay)
+        guard !Task.isCancelled else { return }
+        showDiscoveryResult = true
+      }
+    } else {
+      showDiscoveryResult = true
+    }
 
     // Signal that contact data should be refreshed to show new path
     onContactNeedsRefresh?()
