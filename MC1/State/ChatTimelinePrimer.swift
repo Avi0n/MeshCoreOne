@@ -3,14 +3,13 @@ import MC1Services
 import OSLog
 
 /// Speculative warm path for a closed conversation's shared `ChatCoordinator`.
-/// Claims a `.prime` writer, loads contacts before a channel bake, populates
-/// via `ChatTimelinePopulator`, and warms preview metadata for the primed
-/// tail. Not `@Observable` and not a stream subscriber — discarded when the
-/// prime task completes.
+/// Drives a `.prime`-role `ChatTimeline`: claims the writer, loads contacts
+/// before a channel bake, populates the first page, and warms preview
+/// metadata for the primed tail. Not `@Observable` and not a stream
+/// subscriber; discarded when the prime task completes.
 ///
-/// A prime skips `decodeLegacyPreviewImages` (`postApply: nil`) — the live open
-/// runs the legacy decode — and logs populate failures, having no error surface
-/// of its own.
+/// A prime runs no legacy preview decode (the live open owns that) and logs
+/// populate failures, having no error surface of its own.
 @MainActor
 final class ChatTimelinePrimer {
   /// Newest rows whose link/image URLs are warmed after a successful populate.
@@ -35,12 +34,8 @@ final class ChatTimelinePrimer {
 
   private let dependencies: Dependencies
   private let linkPreviewCache: (any LinkPreviewCaching)?
-  private let bake = ChatMessageBakeState()
+  private let timeline = ChatTimeline(role: .prime)
   private var prefetcher: InlineImagePrefetcher?
-  private var timelineWriter: ChatTimelineWriter?
-  private weak var coordinator: ChatCoordinator?
-  private var envInputs: EnvInputs = .default
-  private var primedConversation: ChatConversationType?
   private var senderTables: ChatSenderTables = .empty
 
   /// Scope preferences read by the image/card prewarm so channel vs DM
@@ -54,32 +49,27 @@ final class ChatTimelinePrimer {
   ) {
     self.dependencies = dependencies
     self.linkPreviewCache = linkPreviewCache
-    bake.bindInlineImageDimensionsStore(dependencies.inlineImageDimensionsStore)
+    timeline.bake.bindInlineImageDimensionsStore(dependencies.inlineImageDimensionsStore)
     configurePrefetcher()
   }
 
   /// Primes `conversation` into its registry coordinator. No-ops when a live
   /// interactive owner already holds the writer (bind denied).
   func prime(_ conversation: ChatConversationType, envInputs: EnvInputs) async {
-    self.envInputs = envInputs
-    primedConversation = conversation
+    timeline.envInputs = envInputs
 
     guard let registry = dependencies.registry() else { return }
     let resolved = registry.coordinator(for: conversation.coordinatorID)
-    // An invalidation arriving after `prime` returns cannot re-bake: the
-    // weak self hook has nilled out. The next open's full rebuild repairs it.
-    timelineWriter = resolved.bindWriter(
-      owner: self,
-      role: .prime,
-      renderItemRebuilder: { [weak self] messageID in
-        self?.rebakeRow(messageID)
-      },
-      renderStateInvalidated: { [weak self] in
-        self?.rebakeIfCurrent()
-      }
+    // The timeline's rebake hooks capture it weakly, so an invalidation
+    // arriving after this primer is discarded cannot re-bake; the next
+    // open's full rebuild repairs the items.
+    let bound = timeline.bind(
+      resolved,
+      dataStore: { [weak self] in self?.dependencies.dataStore() },
+      senderTables: { [weak self] in self?.senderTables ?? .empty },
+      postApply: nil
     )
-    coordinator = resolved
-    guard let timelineWriter else { return }
+    guard bound else { return }
 
     switch conversation {
     case .dm:
@@ -90,33 +80,17 @@ final class ChatTimelinePrimer {
       senderTables = await fetchSenderTables(radioID: channel.radioID)
     }
 
-    let reactions: ChatTimelinePopulator.ReactionIndexingContext? = {
-      guard let reactionService = dependencies.reactionService() else { return nil }
+    let reactions = dependencies.reactionService().map { service in
       let scope: ReactionIndexScope = switch conversation {
       case let .dm(contact):
         .direct(contact)
       case let .channel(channel):
         .channel(channel, localNodeName: dependencies.connectedDeviceNodeName())
       }
-      return ChatTimelinePopulator.ReactionIndexingContext(
-        reactionService: reactionService,
-        scope: scope,
-        rebakeRow: { [weak self] messageID in
-          self?.rebakeRow(messageID)
-        }
-      )
-    }()
+      return ChatTimeline.ReactionIndexing(service: service, scope: scope)
+    }
 
-    let outcome = await ChatTimelinePopulator.populate(
-      conversation,
-      writer: timelineWriter,
-      dataStore: dependencies.dataStore(),
-      bake: bake,
-      envInputs: envInputs,
-      senderTables: senderTables,
-      reactions: reactions,
-      postApply: nil
-    )
+    let outcome = await timeline.open(conversation, reactions: reactions)
 
     switch outcome {
     case .loaded:
@@ -168,9 +142,10 @@ final class ChatTimelinePrimer {
   /// This path reaches the network without a `MalwareDomainFilter` check; only
   /// the per-cell fetch paths consult it.
   private func prewarmRecentPreviews() async {
-    guard let prefetcher, envInputs.previewsEnabled,
-          let messages = coordinator?.messages else { return }
-    let isChannel = switch primedConversation {
+    guard let prefetcher, timeline.envInputs.previewsEnabled else { return }
+    let messages = timeline.messages
+    guard !messages.isEmpty else { return }
+    let isChannel = switch timeline.conversation {
     case .channel: true
     case .dm, nil: false
     }
@@ -181,42 +156,6 @@ final class ChatTimelinePrimer {
         urlsIn: message.text,
         isChannelMessage: isChannel,
         allowImageProbes: allowImageProbes
-      )
-    }
-  }
-
-  private func rebakeIfCurrent() {
-    guard let timelineWriter, timelineWriter.isCurrent,
-          let coordinator else { return }
-    bake.bakeAll(
-      messages: coordinator.messages,
-      writer: timelineWriter,
-      envInputs: envInputs,
-      senderTables: senderTables,
-      postApply: nil
-    )
-  }
-
-  private func rebakeRow(_ messageID: UUID) {
-    guard let timelineWriter, timelineWriter.isCurrent,
-          let coordinator,
-          let message = coordinator.messagesByID[messageID] else { return }
-    let previous: MessageDTO? = {
-      guard let index = coordinator.messages.firstIndex(where: { $0.id == messageID }),
-            index > 0 else { return nil }
-      return coordinator.messages[index - 1]
-    }()
-    let tables = senderTables
-    timelineWriter.updateRenderItem(id: messageID) { _ in
-      MessageFragmentBuilder.makeItem(
-        for: message,
-        inputs: bake.makeBuildInputs(
-          for: message,
-          previous: previous,
-          envInputs: envInputs,
-          senderTables: tables
-        ),
-        envInputs: envInputs
       )
     }
   }

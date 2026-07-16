@@ -164,14 +164,6 @@ extension ChatViewModel {
     }
   }
 
-  // MARK: - Reaction Filtering
-
-  /// Filter out outgoing reaction messages unless they failed to send.
-  /// Forwards to the bake pipeline (pure over message fields + `ReactionParser`).
-  func filterOutgoingReactionMessages(_ messages: [MessageDTO], isDM: Bool) -> [MessageDTO] {
-    bake.filterOutgoingReactionMessages(messages, isDM: isDM)
-  }
-
   // MARK: - Reaction Updates
 
   /// Update reaction summary for a specific message inline (O(1) update)

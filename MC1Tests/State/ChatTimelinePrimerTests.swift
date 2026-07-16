@@ -149,7 +149,7 @@ struct ChatTimelinePrimerTests {
     role: ChatWriterRole = .interactive
   ) {
     viewModel.attachCoordinator(coordinator)
-    viewModel.timelineWriter = coordinator.bindWriter(
+    let writer = coordinator.bindWriter(
       owner: viewModel,
       role: role,
       renderItemRebuilder: { [weak viewModel] messageID in
@@ -159,6 +159,7 @@ struct ChatTimelinePrimerTests {
         viewModel?.buildItems()
       }
     )
+    viewModel.timeline.adoptForTesting(coordinator: coordinator, writer: writer)
   }
 
   // MARK: - Tests

@@ -9,37 +9,22 @@ extension ChatViewModel {
   /// or hits its timeout, and from the outgoing send paths immediately
   /// after `createPendingMessage`. Preserves unread-counter math via the
   /// item-count delta observed by `ChatTiledView`.
+  ///
+  /// Synchronous: timeline admission and channel sender bookkeeping mutate
+  /// Observable state on the main actor in one call frame, so SwiftUI
+  /// invalidates dependent views once per change cycle without an explicit
+  /// transaction.
   func appendMessageIfNew(_ message: MessageDTO) {
-    guard coordinator != nil, let timelineWriter else { return }
-    let previous = messages.last
-
-    // Synchronous append: coordinator append, render item insertion, and
-    // channel sender bookkeeping all mutate Observable state on the main
-    // actor in one call frame, so SwiftUI already invalidates dependent
-    // views once per change cycle without an explicit transaction.
-    guard timelineWriter.append(message) else { return }
-    let newItem = makeItem(for: message, previous: previous)
-    timelineWriter.appendRenderItem(newItem)
+    guard timeline.admit(message) else { return }
     if let senderName = message.senderNodeName,
        let radioID = currentChannel?.radioID {
       addChannelSenderIfNew(senderName, radioID: radioID, timestamp: message.timestamp)
     }
-
-    // URL detection and cache rehydration happen synchronously inside
-    // `makeItem` (see `seedPreviewStateIfNeeded`), so the appended row is
-    // already carrying its preview fragment.
   }
 
   /// Build MessageItems with pre-computed properties via the shared bake pipeline.
   func buildItems() {
-    guard let coordinator, let timelineWriter else { return }
-    bake.bakeAll(
-      messages: coordinator.messages,
-      writer: timelineWriter,
-      envInputs: envInputs,
-      senderTables: currentSenderTables(),
-      postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
-    )
+    timeline.rebakeAll()
   }
 
   /// Get full message DTO for a MessageItem.

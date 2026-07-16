@@ -87,12 +87,19 @@ final class ChatViewModel {
   /// Tracks the last region scope sent to the device via setFloodScope.
   @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
 
+  /// Per-conversation assembly module owning the bake state, write
+  /// capability, and populate/bake ordering. Bound by `configure(...)` once
+  /// the conversation identity is known. Always present; inert (no
+  /// coordinator) for conversation-list usage.
+  @ObservationIgnored let timeline = ChatTimeline(role: .interactive)
+
   /// Per-(radio, conversation) coordinator that owns the canonical chat
-  /// state for this view model. Bound by `configure(...)` once the
-  /// conversation identity is known. Two `ChatViewModel`s on the same
+  /// state for this view model. Two `ChatViewModel`s on the same
   /// conversation share one coordinator via the registry, so an update
   /// applied from one view is visible to the other.
-  var coordinator: ChatCoordinator?
+  var coordinator: ChatCoordinator? {
+    timeline.coordinator
+  }
 
   /// Messages for the current conversation. Forwards to the bound
   /// coordinator; empty when no coordinator is bound (e.g., conversation
@@ -111,25 +118,15 @@ final class ChatViewModel {
   /// current user name) that feed `MessageItem` construction.
   /// `ChatConversationView` pushes via `applyEnvInputs(_:)` before
   /// `loadMessages` and on subsequent toggle changes.
-  var envInputs: EnvInputs = .default
+  var envInputs: EnvInputs {
+    get { timeline.envInputs }
+    set { timeline.envInputs = newValue }
+  }
 
   /// Update env-derived inputs and trigger a full rebuild when the value
   /// changes and there are messages to rebuild. Idempotent on no-change.
   func applyEnvInputs(_ new: EnvInputs) {
-    guard envInputs != new else { return }
-    // When the network transitions from unavailable to available, drop the
-    // sticky map-snapshot failures so renders that failed during the outage
-    // retry on the next rebuild. Without this, an offline-pack miss stays
-    // poisoned until a memory warning evicts the failed set.
-    if envInputs.isOffline, !new.isOffline {
-      MapSnapshotStore.shared.clearFailures()
-    }
-    envInputs = new
-    // The environment feeds every formatting input, so its cached output is
-    // now stale for all rows and must be rebuilt under the new appearance.
-    bake.formattedTextCache.removeAll()
-    guard !messages.isEmpty else { return }
-    buildItems()
+    timeline.applyEnvInputs(new)
   }
 
   /// Monotonic counter bumped when a `MessageEvent` indicates the current
@@ -161,10 +158,12 @@ final class ChatViewModel {
     coordinator?.messagesByID ?? [:]
   }
 
-  /// Current contact being chatted with
+  /// Current contact being chatted with. `timeline.conversation` is not
+  /// mirrored from here: the load paths assign it via `stageOpen`/`open`,
+  /// and DTO refreshes assign it directly alongside this property.
   var currentContact: ContactDTO?
 
-  /// Current channel being viewed
+  /// Current channel being viewed. Same contract as `currentContact`.
   var currentChannel: ChannelDTO?
 
   /// Loading state
@@ -219,13 +218,16 @@ final class ChatViewModel {
   var linkPreviewPreferences = LinkPreviewPreferences()
 
   /// Per-message bake state (preview/image caches, divider) and the item-build
-  /// pipeline reading it. Not observed: redraw is decided by `MessageItem`.
+  /// pipeline reading it. Owned by `timeline`; not observed, because redraw
+  /// is decided by `MessageItem`.
   ///
   /// Per-VM state, not shared across view models bound to the same
   /// `ChatCoordinator`. On iPad split view each rebuilds its own caches, so the
   /// two can diverge until the next rebuild on each side;
   /// `ChatCoordinatorRegistry.coordinator(for:)` carries the trade-off context.
-  @ObservationIgnored let bake = ChatMessageBakeState()
+  var bake: ChatMessageBakeState {
+    timeline.bake
+  }
 
   /// In-flight preview fetch tasks (prevents duplicate fetches)
   var previewFetchTasks: [UUID: Task<Void, Never>] = [:]
@@ -361,13 +363,15 @@ final class ChatViewModel {
   /// it to bound their wall-clock budget.
   @ObservationIgnored var prefetchTimeout: Duration = ChatViewModel.defaultPrefetchTimeout
 
-  /// Write capability for the bound coordinator, minted by `bindWriter` in
-  /// `bindCoordinator`. Every timeline mutation goes through this; when a
-  /// newer owner binds the same coordinator (live open superseding a prime,
-  /// BFU scene rebuild), this writer goes stale and its writes no-op, so a
-  /// cold view model can never bake its state over the live timeline.
+  /// Write capability for the bound coordinator, minted when `timeline`
+  /// binds. Every timeline mutation goes through this; when a newer owner
+  /// binds the same coordinator (live open superseding a prime, BFU scene
+  /// rebuild), this writer goes stale and its writes no-op, so a cold view
+  /// model can never bake its state over the live timeline.
   /// Reads keep using `coordinator` directly. `nil` when unbound.
-  @ObservationIgnored var timelineWriter: ChatTimelineWriter?
+  var timelineWriter: ChatTimelineWriter? {
+    timeline.writer
+  }
 
   /// Contact ID currently having its favorite status toggled (for loading UI)
   var togglingFavoriteID: UUID?
@@ -424,37 +428,31 @@ final class ChatViewModel {
 
   /// Eagerly attaches the shared coordinator so a warm (prefetched or previously
   /// opened) conversation renders its messages on the first frame, before the
-  /// load task runs. Sets only this view model's `coordinator` reference — never
+  /// load task runs. Sets only the timeline's `coordinator` reference, never
   /// the coordinator's rebuild hooks, which belong to the persistent view model
   /// and are installed by `configure`/`bindCoordinator`. That omission is what
   /// makes it safe to call from `init`, where transient view-model instances may
   /// be created and discarded.
   func attachCoordinator(_ coordinator: ChatCoordinator) {
-    self.coordinator = coordinator
+    timeline.attach(coordinator)
   }
 
   private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
     guard let conversation else { return }
     guard let registry else { return }
     let resolved = registry.coordinator(for: conversation.coordinatorID)
-    // The interactive view model owns both the rebuild hooks and the write
-    // capability; `bindWriter` installs them as one atomic act. An
-    // `.interactive` bind always succeeds and revokes any prior writer (a
-    // stale prime's in-flight bakes then no-op at the coordinator). With two
-    // observers on the same conversation the rendered state stays consistent
-    // because both read the shared coordinator's `renderState`; only the
-    // current writer bakes items.
-    timelineWriter = resolved.bindWriter(
-      owner: self,
-      role: .interactive,
-      renderItemRebuilder: { [weak self] messageID in
-        self?.rebuildDisplayItem(for: messageID)
-      },
-      renderStateInvalidated: { [weak self] in
-        self?.handleRenderStateInvalidated()
-      }
+    // The timeline owns both the rebuild hooks and the write capability,
+    // installed as one atomic act. An `.interactive` bind always succeeds
+    // and revokes any prior writer (a stale prime's in-flight bakes then
+    // no-op at the coordinator). With two observers on the same conversation
+    // the rendered state stays consistent because both read the shared
+    // coordinator's `renderState`; only the current writer bakes items.
+    timeline.bind(
+      resolved,
+      dataStore: { [weak self] in self?.dataStore },
+      senderTables: { [weak self] in self?.currentSenderTables() ?? .empty },
+      postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
     )
-    coordinator = resolved
   }
 
   /// Vacates the coordinator's writer slot so arrival-time prime refreshes
@@ -462,14 +460,7 @@ final class ChatViewModel {
   /// `configure` rebinds on the next appearance. Deallocation is not a
   /// substitute: SwiftUI can keep a popped destination's state alive.
   func releaseTimelineWriter() {
-    if let coordinator {
-      coordinator.releaseWriter(owner: self)
-    }
-    timelineWriter = nil
-  }
-
-  private func handleRenderStateInvalidated() {
-    buildItems()
+    timeline.releaseWriter()
   }
 
   #if DEBUG
@@ -478,17 +469,12 @@ final class ChatViewModel {
     /// installs the interactive writer and the rebuild hooks in one act,
     /// exactly like a live open.
     func bindCoordinatorForTesting(_ coordinator: ChatCoordinator) {
-      timelineWriter = coordinator.bindWriter(
-        owner: self,
-        role: .interactive,
-        renderItemRebuilder: { [weak self] messageID in
-          self?.rebuildDisplayItem(for: messageID)
-        },
-        renderStateInvalidated: { [weak self] in
-          self?.handleRenderStateInvalidated()
-        }
+      timeline.bind(
+        coordinator,
+        dataStore: { [weak self] in self?.dataStore },
+        senderTables: { [weak self] in self?.currentSenderTables() ?? .empty },
+        postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
       )
-      self.coordinator = coordinator
     }
   #endif
 

@@ -56,8 +56,7 @@ extension ChatViewModel {
       || (currentChannel != nil && currentChannel?.id != channel.id)
     if isConversationSwitch {
       clearPreviewState()
-      bake.newMessagesDividerMessageID = nil
-      bake.dividerComputed = false
+      timeline.stageOpen(.channel(channel))
       lastSetRegionScope = .unknown
     }
 
@@ -70,32 +69,14 @@ extension ChatViewModel {
     errorMessage = nil
     errorBannerMessage = nil
 
-    guard let timelineWriter else {
-      isLoading = false
-      return false
+    let reactions = reactionServiceProvider().map {
+      ChatTimeline.ReactionIndexing(
+        service: $0,
+        scope: .channel(channel, localNodeName: connectedDeviceProvider()?.nodeName)
+      )
     }
 
-    let reactions: ChatTimelinePopulator.ReactionIndexingContext? = {
-      guard let reactionService = reactionServiceProvider() else { return nil }
-      return ChatTimelinePopulator.ReactionIndexingContext(
-        reactionService: reactionService,
-        scope: .channel(channel, localNodeName: connectedDeviceProvider()?.nodeName),
-        rebakeRow: { [weak self] messageID in
-          self?.rebuildDisplayItem(for: messageID)
-        }
-      )
-    }()
-
-    let outcome = await ChatTimelinePopulator.populate(
-      .channel(channel),
-      writer: timelineWriter,
-      dataStore: dataStore,
-      bake: bake,
-      envInputs: envInputs,
-      senderTables: currentSenderTables(),
-      reactions: reactions,
-      postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
-    )
+    let outcome = await timeline.open(.channel(channel), reactions: reactions)
 
     let didLoad: Bool
     switch outcome {
@@ -186,7 +167,7 @@ extension ChatViewModel {
     } catch {
       logger.error("enqueueChannel failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
       _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      timelineWriter?.applyStatusUpdate(messageID: message.id, status: .failed)
+      timeline.applyStatusUpdate(messageID: message.id, status: .failed)
       sendErrorMessage = Self.copyForEnqueueFailure(error)
     }
   }
@@ -234,7 +215,7 @@ extension ChatViewModel {
     // and so a stray ACK landing doesn't get clobbered if a future
     // refactor introduces channel-side delivery.
     _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .pending)
-    timelineWriter?.applyStatusUpdate(messageID: message.id, status: .pending, userInitiated: true)
+    timeline.applyStatusUpdate(messageID: message.id, status: .pending, userInitiated: true)
 
     let envelope = ChannelMessageEnvelope(
       messageID: message.id,
@@ -249,7 +230,7 @@ extension ChatViewModel {
     } catch {
       logger.error("enqueueChannel retry failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
       _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      timelineWriter?.applyStatusUpdate(messageID: message.id, status: .failed)
+      timeline.applyStatusUpdate(messageID: message.id, status: .failed)
       sendErrorMessage = Self.copyForEnqueueFailure(error)
     }
   }

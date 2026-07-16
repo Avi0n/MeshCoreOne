@@ -33,7 +33,7 @@ extension ChatViewModel {
       // restarting on a fresh item identity. No DB fetch — the
       // dispatcher writes the DB row before firing this case.
       withAnimation {
-        timelineWriter?.applyStatusUpdate(
+        timeline.applyStatusUpdate(
           messageID: messageID,
           status: status,
           roundTripTime: roundTripTime
@@ -43,15 +43,15 @@ extension ChatViewModel {
     case let .messageRetrying(messageID, _, _):
       // Payload-bearing variant routed straight to the reload chokepoint;
       // not coalescer-eligible because attempt/maxAttempts are per-event.
-      timelineWriter?.enqueueReload(messageID: messageID)
+      timeline.enqueueReload(messageID: messageID)
 
     case let .messageResent(messageID),
          let .messageFailed(messageID):
-      timelineWriter?.enqueueReload(messageID: messageID)
+      timeline.enqueueReload(messageID: messageID)
 
     case let .heardRepeatRecorded(messageID, _),
          let .reactionReceived(messageID, _):
-      timelineWriter?.enqueueReload(messageID: messageID)
+      timeline.enqueueReload(messageID: messageID)
 
     case let .routingChanged(contactID, _):
       guard let current = currentContact, current.id == contactID else { return }

@@ -47,7 +47,7 @@ struct ChatTimelineClobberRegressionTests {
   /// writer and rebuild hooks installed as one act.
   private func bind(_ viewModel: ChatViewModel, to coordinator: ChatCoordinator, role: ChatWriterRole) {
     viewModel.attachCoordinator(coordinator)
-    viewModel.timelineWriter = coordinator.bindWriter(
+    let writer = coordinator.bindWriter(
       owner: viewModel,
       role: role,
       renderItemRebuilder: { [weak viewModel] messageID in
@@ -57,6 +57,7 @@ struct ChatTimelineClobberRegressionTests {
         viewModel?.buildItems()
       }
     )
+    viewModel.timeline.adoptForTesting(coordinator: coordinator, writer: writer)
   }
 
   @Test

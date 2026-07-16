@@ -32,15 +32,6 @@ struct ChatConversationView: View {
   /// tracking is involved.
   @State private var scrollToTargetRequest = 0
   @State private var scrollToTargetID: UUID?
-  /// Latches once the tiled view has positioned on the open-at-divider target.
-  /// Survives the tiled view's `.id` rebuild (theme / dynamic-type change) but
-  /// re-seeds with this view's identity on a real conversation navigation, so a
-  /// rebuild mid-conversation does not re-jump to a divider the user scrolled past.
-  @State private var hasConsumedDividerTarget = false
-  /// Latches once the initial populate has finished (any outcome), so a load
-  /// that produced no divider target — already read, failed fetch — presents
-  /// the timeline instead of withholding it forever.
-  @State private var initialLoadSettled = false
 
   /// Pending debounced draft persist; cancelled and restarted on each keystroke,
   /// cancelled-then-flushed synchronously on view teardown and app suspension.
@@ -124,23 +115,11 @@ struct ChatConversationView: View {
     if let coordinatorRegistry {
       viewModel.attachCoordinator(coordinatorRegistry.coordinator(for: conversationType.coordinatorID))
     }
+    // Stage before the first body evaluation: the anchor decision keys on
+    // this open's unread count, and a warm coordinator's items are already
+    // on screen in that first frame.
+    viewModel.timeline.stageOpen(conversationType)
     _chatViewModel = State(initialValue: viewModel)
-  }
-
-  // MARK: - Open-at-divider
-
-  /// First-snapshot decision for this open; see `ChatInitialScrollPolicy`.
-  /// `bake` is not observable, but its divider only moves alongside a
-  /// coordinator mutation, so the observable `itemIndexByID` read and the
-  /// `@State` inputs re-evaluate this whenever a decision input has changed.
-  private var firstSnapshotDecision: ChatInitialScrollPolicy.FirstSnapshotDecision {
-    ChatInitialScrollPolicy.firstSnapshotDecision(
-      hasConsumed: hasConsumedDividerTarget,
-      unreadCount: conversationType.unreadCount,
-      initialLoadSettled: initialLoadSettled,
-      dividerMessageID: chatViewModel.bake.newMessagesDividerMessageID,
-      itemIndexByID: chatViewModel.itemIndexByID
-    )
   }
 
   // MARK: - Body
@@ -167,8 +146,8 @@ struct ChatConversationView: View {
       scrollToBottomRequest: scrollToBottomRequest,
       scrollToTargetRequest: scrollToTargetRequest,
       scrollToTargetID: scrollToTargetID,
-      firstSnapshotDecision: firstSnapshotDecision,
-      onDividerTargetConsumed: { hasConsumedDividerTarget = true },
+      firstSnapshotDecision: chatViewModel.timeline.firstSnapshot,
+      onDividerTargetConsumed: { chatViewModel.timeline.consumeAnchor() },
       selectedMessageForActions: $selectedMessageForActions,
       imageViewerData: $imageViewerData,
       onRetryMessage: { retryMessage($0) }
@@ -374,7 +353,6 @@ struct ChatConversationView: View {
     switch conversationType {
     case let .dm(contact):
       await chatViewModel.loadMessages(for: contact)
-      initialLoadSettled = true
       await chatViewModel.loadConversations(radioID: contact.radioID)
       await chatViewModel.loadAllContacts(radioID: contact.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
@@ -383,7 +361,6 @@ struct ChatConversationView: View {
       // Load contacts first so contactNameSet is populated before buildChannelSenders runs
       await chatViewModel.loadAllContacts(radioID: channel.radioID)
       await chatViewModel.loadChannelMessages(for: channel)
-      initialLoadSettled = true
       await chatViewModel.loadConversations(radioID: channel.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
     }
@@ -487,6 +464,7 @@ struct ChatConversationView: View {
     if let updated = try? await appState.services?.dataStore.fetchContact(id: contact.id) {
       conversationType = conversationType.replacingContact(updated)
       chatViewModel.currentContact = updated
+      chatViewModel.timeline.conversation = .dm(updated)
     }
   }
 
@@ -494,6 +472,8 @@ struct ChatConversationView: View {
     guard case let .channel(channel) = conversationType else { return }
     if let updated = try? await appState.offlineDataStore?.fetchChannel(id: channel.id) {
       conversationType = conversationType.replacingChannel(updated)
+      chatViewModel.currentChannel = updated
+      chatViewModel.timeline.conversation = .channel(updated)
     }
   }
 

@@ -61,8 +61,7 @@ extension ChatViewModel {
       || (currentContact != nil && currentContact?.id != contact.id)
     if isConversationSwitch {
       clearPreviewState()
-      bake.newMessagesDividerMessageID = nil
-      bake.dividerComputed = false
+      timeline.stageOpen(.dm(contact))
     }
 
     currentContact = contact
@@ -74,32 +73,11 @@ extension ChatViewModel {
     errorMessage = nil
     errorBannerMessage = nil
 
-    guard let timelineWriter else {
-      isLoading = false
-      return false
+    let reactions = reactionServiceProvider().map {
+      ChatTimeline.ReactionIndexing(service: $0, scope: .direct(contact))
     }
 
-    let reactions: ChatTimelinePopulator.ReactionIndexingContext? = {
-      guard let reactionService = reactionServiceProvider() else { return nil }
-      return ChatTimelinePopulator.ReactionIndexingContext(
-        reactionService: reactionService,
-        scope: .direct(contact),
-        rebakeRow: { [weak self] messageID in
-          self?.rebuildDisplayItem(for: messageID)
-        }
-      )
-    }()
-
-    let outcome = await ChatTimelinePopulator.populate(
-      .dm(contact),
-      writer: timelineWriter,
-      dataStore: dataStore,
-      bake: bake,
-      envInputs: envInputs,
-      senderTables: currentSenderTables(),
-      reactions: reactions,
-      postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
-    )
+    let outcome = await timeline.open(.dm(contact), reactions: reactions)
 
     let didLoad: Bool
     switch outcome {
@@ -184,7 +162,7 @@ extension ChatViewModel {
     } catch {
       logger.error("enqueueDM failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
       _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      timelineWriter?.applyStatusUpdate(messageID: message.id, status: .failed)
+      timeline.applyStatusUpdate(messageID: message.id, status: .failed)
       sendErrorMessage = Self.copyForEnqueueFailure(error)
     }
   }
