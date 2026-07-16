@@ -466,6 +466,10 @@ struct ChatConversationView: View {
 
     // Refresh parent conversation list when leaving
     parentViewModel?.requestConversationReload()
+
+    // Vacate the coordinator's writer slot so arrival-time prime refreshes can
+    // service this closed conversation; the load task rebinds on reappearance.
+    chatViewModel.releaseTimelineWriter()
   }
 
   private func handleIncomingMentionIfNeeded(_ messageID: UUID) {

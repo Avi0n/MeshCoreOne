@@ -52,6 +52,38 @@ struct ChatTimelineWriterTests {
   }
 
   @Test
+  func `releaseWriter vacates the slot for a later prime bind`() throws {
+    let coordinator = ChatCoordinator.makeForTesting()
+    let owner = WriterOwner()
+    let primeOwner = WriterOwner()
+
+    let writer = try #require(coordinator.bindWriter(owner: owner, role: .interactive))
+    #expect(coordinator.bindWriter(owner: primeOwner, role: .prime) == nil)
+
+    coordinator.releaseWriter(owner: owner)
+
+    let primeWriter = try #require(coordinator.bindWriter(owner: primeOwner, role: .prime))
+    #expect(primeWriter.isCurrent)
+    #expect(!writer.isCurrent)
+  }
+
+  @Test
+  func `releaseWriter from a superseded owner does not evict the successor`() throws {
+    let coordinator = ChatCoordinator.makeForTesting()
+    let ownerA = WriterOwner()
+    let ownerB = WriterOwner()
+    let primeOwner = WriterOwner()
+
+    _ = try #require(coordinator.bindWriter(owner: ownerA, role: .interactive))
+    let writerB = try #require(coordinator.bindWriter(owner: ownerB, role: .interactive))
+
+    coordinator.releaseWriter(owner: ownerA)
+
+    #expect(coordinator.bindWriter(owner: primeOwner, role: .prime) == nil)
+    #expect(writerB.isCurrent)
+  }
+
+  @Test
   func `stale writer mutations all no-op`() throws {
     let coordinator = ChatCoordinator.makeForTesting()
     let ownerA = WriterOwner()

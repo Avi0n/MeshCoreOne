@@ -164,9 +164,10 @@ public final class ChatCoordinator {
   @ObservationIgnored
   private(set) var writerGeneration: UInt64 = 0
 
-  /// The object (view model) holding the current writer, kept weak so a
-  /// deallocated owner frees the slot for the next `.prime` bind without
-  /// any explicit unbind call.
+  /// The object (view model) holding the current writer. Owners vacate the
+  /// slot explicitly via `releaseWriter(owner:)` when their view leaves the
+  /// screen; the weak reference is the fallback, freeing the slot for the
+  /// next `.prime` bind when an owner deallocates without releasing.
   @ObservationIgnored
   private(set) weak var writerOwner: AnyObject?
 
@@ -202,6 +203,20 @@ public final class ChatCoordinator {
     self.renderItemRebuilder = renderItemRebuilder
     self.renderStateInvalidated = renderStateInvalidated
     return ChatTimelineWriter(coordinator: self, generation: writerGeneration, role: role)
+  }
+
+  /// Vacates the writer slot if `owner` still holds it, clearing the rebuild
+  /// hooks with it. Owner deallocation cannot free the slot reliably (SwiftUI
+  /// can keep a popped destination's state alive), and a slot that never
+  /// vacates starves every arrival-time `.prime` refresh. The identity check
+  /// keeps a stale view's teardown from evicting a successor that has already
+  /// bound; no generation bump, so the next bind revokes writers as usual.
+  public func releaseWriter(owner: AnyObject) {
+    guard writerOwner === owner else { return }
+    writerOwner = nil
+    writerRole = .prime
+    renderItemRebuilder = nil
+    renderStateInvalidated = nil
   }
 
   init(

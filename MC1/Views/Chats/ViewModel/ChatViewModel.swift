@@ -457,6 +457,17 @@ final class ChatViewModel {
     coordinator = resolved
   }
 
+  /// Vacates the coordinator's writer slot so arrival-time prime refreshes
+  /// can service this conversation while it is off screen; the load task's
+  /// `configure` rebinds on the next appearance. Deallocation is not a
+  /// substitute: SwiftUI can keep a popped destination's state alive.
+  func releaseTimelineWriter() {
+    if let coordinator {
+      coordinator.releaseWriter(owner: self)
+    }
+    timelineWriter = nil
+  }
+
   private func handleRenderStateInvalidated() {
     buildItems()
   }
