@@ -65,6 +65,10 @@ public enum L10n {
         public static func defaultName(_ p1: Int) -> String {
           return L10n.tr("Chats", "chats.channel.defaultName", p1, fallback: "Channel %d")
         }
+        /// Location: ChatConversationType.swift - Channel header subtitle when a flood region is active - %@ is the region name
+        public static func headerRegion(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.channel.headerRegion", String(describing: p1), fallback: "Region: %@")
+        }
         /// Location: ChatConversationView.swift - Header subtitle for private channels
         public static let typePrivate = L10n.tr("Chats", "chats.channel.typePrivate", fallback: "Private Channel")
         /// Location: ChatConversationView.swift - Header subtitle for public channels
@@ -140,10 +144,6 @@ public enum L10n {
           public static let addSelected = L10n.tr("Chats", "chats.channelInfo.region.addSelected", fallback: "Add")
           /// Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set
           public static let allRegions = L10n.tr("Chats", "chats.channelInfo.region.allRegions", fallback: "All Regions")
-          /// Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default
-          public static func defaultScopedAccessibility(_ p1: Any, _ p2: Any) -> String {
-            return L10n.tr("Chats", "chats.channelInfo.region.defaultScopedAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, scoped to %@ (default)")
-          }
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button
           public static let discover = L10n.tr("Chats", "chats.channelInfo.region.discover", fallback: "Discover Nearby Regions")
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button loading state
@@ -178,10 +178,6 @@ public enum L10n {
           public static let notConfigured = L10n.tr("Chats", "chats.channelInfo.region.notConfigured", fallback: "Not configured")
           /// Location: ChannelInfoSheet.swift - Purpose: Private region label
           public static let `private` = L10n.tr("Chats", "chats.channelInfo.region.private", fallback: "Private")
-          /// Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle
-          public static func scopedAccessibility(_ p1: Any, _ p2: Any) -> String {
-            return L10n.tr("Chats", "chats.channelInfo.region.scopedAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, scoped to %@")
-          }
           /// Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope
           public static func scopedDefault(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.channelInfo.region.scopedDefault", String(describing: p1), fallback: "%@ (default)")

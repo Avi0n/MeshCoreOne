@@ -206,9 +206,6 @@ struct ChatConversationView: View {
       subtitle: conversationType.navigationSubtitle(
         deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
       ),
-      subtitleAccessibilityLabel: conversationType.navigationSubtitleAccessibilityLabel(
-        deviceDefaultFloodScopeName: appState.connectedDevice?.defaultFloodScopeName
-      ),
       glassTitleCapsule: true,
       titleIcon: AnyView(titleAvatar),
       onTitleTap: { showingInfo = true }

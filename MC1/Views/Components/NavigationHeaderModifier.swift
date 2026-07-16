@@ -11,7 +11,6 @@ struct NavigationHeaderModifier: ViewModifier {
 
   let title: String
   let subtitle: String
-  let subtitleAccessibilityLabel: String?
   /// iOS 26 only: render the title/subtitle inside a Liquid Glass capsule as a principal toolbar
   /// item, so the name stays legible above content that now scrolls edge-to-edge behind the bar.
   let glassTitleCapsule: Bool
@@ -38,7 +37,6 @@ struct NavigationHeaderModifier: ViewModifier {
                 GlassCapsuleTitle(
                   title: title,
                   subtitle: subtitle,
-                  subtitleAccessibilityLabel: subtitleAccessibilityLabel,
                   minimumScaleFactor: Self.legacySubtitleMinimumScaleFactor,
                   icon: titleIcon,
                   onTap: onTitleTap
@@ -46,9 +44,6 @@ struct NavigationHeaderModifier: ViewModifier {
               }
             }
         } else {
-          // TODO: subtitleAccessibilityLabel is not applied here — .navigationSubtitle()
-          // renders in system chrome with no public API to override its accessibility label.
-          // VoiceOver may read separators (e.g. "·") literally. Verify with VoiceOver testing.
           content
             .navigationTitle(title)
             .navigationSubtitle(subtitle)
@@ -74,7 +69,6 @@ struct NavigationHeaderModifier: ViewModifier {
             HeaderTitleLabel(
               title: title,
               subtitle: subtitle,
-              subtitleAccessibilityLabel: subtitleAccessibilityLabel,
               minimumScaleFactor: Self.legacySubtitleMinimumScaleFactor,
               icon: titleIcon,
               onTap: onTitleTap
@@ -96,7 +90,6 @@ struct NavigationHeaderModifier: ViewModifier {
 private struct HeaderTitleLabel: View {
   let title: String
   let subtitle: String
-  let subtitleAccessibilityLabel: String?
   let minimumScaleFactor: CGFloat
   let icon: AnyView?
   let onTap: (() -> Void)?
@@ -115,7 +108,7 @@ private struct HeaderTitleLabel: View {
     HStack(spacing: 10) {
       icon
 
-      VStack(alignment: .leading, spacing: 0) {
+      VStack(alignment: .center, spacing: 0) {
         Text(title)
           .font(.headline)
 
@@ -126,7 +119,6 @@ private struct HeaderTitleLabel: View {
             .lineLimit(1)
             .minimumScaleFactor(minimumScaleFactor)
             .truncationMode(.tail)
-            .accessibilityLabel(subtitleAccessibilityLabel ?? subtitle)
         }
       }
     }
@@ -142,7 +134,6 @@ private struct HeaderTitleLabel: View {
 private struct GlassCapsuleTitle: View {
   let title: String
   let subtitle: String
-  let subtitleAccessibilityLabel: String?
   let minimumScaleFactor: CGFloat
   let icon: AnyView?
   let onTap: (() -> Void)?
@@ -153,7 +144,6 @@ private struct GlassCapsuleTitle: View {
     HeaderTitleLabel(
       title: title,
       subtitle: subtitle,
-      subtitleAccessibilityLabel: subtitleAccessibilityLabel,
       minimumScaleFactor: minimumScaleFactor,
       icon: icon,
       onTap: onTap
@@ -172,7 +162,6 @@ extension View {
   func navigationHeader(
     title: String,
     subtitle: String,
-    subtitleAccessibilityLabel: String? = nil,
     glassTitleCapsule: Bool = false,
     titleIcon: AnyView? = nil,
     onTitleTap: (() -> Void)? = nil
@@ -180,7 +169,6 @@ extension View {
     modifier(NavigationHeaderModifier(
       title: title,
       subtitle: subtitle,
-      subtitleAccessibilityLabel: subtitleAccessibilityLabel,
       glassTitleCapsule: glassTitleCapsule,
       titleIcon: titleIcon,
       onTitleTap: onTitleTap
