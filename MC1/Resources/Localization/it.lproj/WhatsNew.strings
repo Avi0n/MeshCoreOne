@@ -1,0 +1,28 @@
+/*
+  WhatsNew.strings
+  MC1
+
+  Italian translation of What's New sheet strings.
+  AI-translated - please verify with native speakers.
+*/
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Novità";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Continua";
+
+/* What's New v1.1 - Shortcuts feature, title */
+"whatsNew.siriShortcuts.title" = "Comandi";
+/* What's New v1.1 - Shortcuts feature, description */
+"whatsNew.siriShortcuts.description" = "Controlla lo stato della radio, invia messaggi e trasmetti advert.";
+
+/* What's New v1.1 - Clear Messages feature, title */
+"whatsNew.clearMessages.title" = "Cancella una conversazione DM";
+/* What's New v1.1 - Clear Messages feature, description */
+"whatsNew.clearMessages.description" = "Elimina la cronologia messaggi di qualsiasi DM.";
+
+/* What's New v1.1 - Inbound hop counts feature, title */
+"whatsNew.inboundHops.title" = "Ordina per salti";
+/* What's New v1.1 - Inbound hop counts feature, description */
+"whatsNew.inboundHops.description" = "La scheda Nodi ora correla i salti in ingresso dagli advert nel log RX.";

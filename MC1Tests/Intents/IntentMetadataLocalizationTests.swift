@@ -5,9 +5,9 @@ import Testing
 /// App Intents resolves every static metadata literal (`LocalizedStringResource`
 /// title, description, parameter title, short title, and `ParameterSummary`)
 /// against the `Tools` table in Siri's locale, so a key missing from any one of
-/// the 9 shipped `.lproj` bundles surfaces as the raw key in that language. These
+/// the 10 shipped `.lproj` bundles surfaces as the raw key in that language. These
 /// tests pin every metadata key the intents reference and confirm each resolves
-/// to real copy in all 9 locales, never the raw-key fallback.
+/// to real copy in all 10 locales, never the raw-key fallback.
 struct IntentMetadataLocalizationTests {
   /// The table backing every App Intents static metadata literal.
   private static let table = "Tools"
@@ -36,9 +36,9 @@ struct IntentMetadataLocalizationTests {
     "intent.advert.reach.flood",
   ]
 
-  /// The 9 shipped locales. A key missing from any one falls back to the raw
+  /// The 10 shipped locales. A key missing from any one falls back to the raw
   /// key string at runtime, so each must resolve real copy.
-  private static let locales = ["de", "en", "es", "fr", "nl", "pl", "ru", "uk", "zh-Hans"]
+  private static let locales = ["de", "en", "es", "fr", "it", "nl", "pl", "ru", "uk", "zh-Hans"]
 
   @Test func `every metadata key resolves in every locale`() throws {
     for locale in Self.locales {

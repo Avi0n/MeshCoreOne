@@ -14,6 +14,7 @@ MeshCore One supports multiple languages. You can help improve translations enti
 | Ukrainian             | uk      | AI-translated      |
 | Spanish               | es      | AI-translated      |
 | French                | fr      | AI-translated      |
+| Italian               | it      | AI-translated      |
 | Simplified Chinese    | zh-Hans | Verified by MGJ520 |
 
 Languages marked "AI-translated" were generated using AI and may contain errors. Native speaker verification is welcome.
