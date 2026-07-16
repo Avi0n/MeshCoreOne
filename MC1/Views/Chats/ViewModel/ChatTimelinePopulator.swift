@@ -47,7 +47,7 @@ enum ChatTimelinePopulator {
     writer.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
 
     do {
-      let unreadCount = conversation.unreadCount
+      let unreadCount = await currentUnreadCount(for: conversation, dataStore: dataStore)
       let isDM: Bool
       let initialLimit = ChatCoordinator.initialPageSize(unreadCount: unreadCount)
       var fetchedMessages: [MessageDTO]
@@ -108,6 +108,25 @@ enum ChatTimelinePopulator {
     } catch {
       writer.markLoaded()
       return .failed(error)
+    }
+  }
+
+  /// The pushed DTO's unread count can be stale by the time populate runs
+  /// (messages arriving during the push transition), which would misplace the
+  /// divider and undersize the first page. Read the store's current count,
+  /// falling back to the DTO's when the lookup misses. Safe on a live open:
+  /// `loadMessages` clears unread only after populate returns.
+  private static func currentUnreadCount(
+    for conversation: ChatConversationType,
+    dataStore: DataStore
+  ) async -> Int {
+    switch conversation {
+    case let .dm(contact):
+      let fresh = await (try? dataStore.fetchContact(id: contact.id)) ?? nil
+      return fresh?.unreadCount ?? contact.unreadCount
+    case let .channel(channel):
+      let fresh = await (try? dataStore.fetchChannel(radioID: channel.radioID, index: channel.index)) ?? nil
+      return fresh?.unreadCount ?? channel.unreadCount
     }
   }
 
