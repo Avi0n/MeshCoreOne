@@ -176,14 +176,10 @@
 "remoteNodes.settings.latitude" = "纬度";
 
 /* Location: RepeaterSettingsView.swift - Lat placeholder */
-"remoteNodes.settings.lat" = "纬";
-
 /* Location: RepeaterSettingsView.swift - Longitude label */
 "remoteNodes.settings.longitude" = "经度";
 
 /* Location: RepeaterSettingsView.swift - Lon placeholder */
-"remoteNodes.settings.lon" = "经";
-
 /* Location: RepeaterSettingsView.swift - Pick on map button */
 "remoteNodes.settings.pickOnMap" = "在地图上选择";
 
@@ -203,8 +199,6 @@
 "remoteNodes.settings.applyContactInfo" = "应用联系信息";
 
 /* Location: RepeaterSettingsView.swift - Contact info character count format */
-"remoteNodes.settings.contactInfoCharCount" = "%d/119";
-
 /* Location: RepeaterSettingsView.swift - Behavior section title */
 "remoteNodes.settings.behavior" = "行为";
 
@@ -282,7 +276,6 @@
 
 // MARK: - Repeater Settings ViewModel Messages
 
-
 /* Location: RepeaterSettingsViewModel.swift - Radio not loaded error */
 "remoteNodes.settings.radioNotLoaded" = "无线电设置未加载";
 
@@ -302,8 +295,6 @@
 "remoteNodes.settings.passwordMismatch" = "密码不匹配";
 
 /* Location: RepeaterSettingsViewModel.swift - Password changed success */
-"remoteNodes.settings.passwordChangedSuccess" = "密码已成功更改";
-
 /* Location: RepeaterSettingsViewModel.swift - Password change failure */
 "remoteNodes.settings.passwordChangeFailed" = "更改密码失败";
 
@@ -326,11 +317,7 @@
 "remoteNodes.settings.unexpectedResponse" = "意外响应：%@";
 
 /* Location: RepeaterSettingsViewModel.swift - Not connected error */
-"remoteNodes.settings.notConnected" = "未连接到转发节点";
-
 /* Location: RepeaterSettingsViewModel.swift - Timeout error */
-"remoteNodes.settings.timeout" = "命令超时";
-
 /* Location: NodeSettingsViewModel.swift - No service error */
 "remoteNodes.settings.noService" = "服务不可用";
 
@@ -370,11 +357,7 @@
 "remoteNodes.settings.regions.homeRegion" = "主区域";
 
 /* Location: RepeaterSettingsView.swift - No home region set */
-"remoteNodes.settings.regions.noHome" = "无";
-
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
-"remoteNodes.settings.regions.allowFlood" = "允许泛洪流量";
-
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
 "remoteNodes.settings.regions.floodToggleHint" = "关闭时，来自此区域的泛洪数据包将被丢弃";
 
@@ -391,8 +374,6 @@
 "remoteNodes.settings.regions.saveToDevice" = "保存到转发节点";
 
 /* Location: RepeaterSettingsViewModel.swift - Region save success */
-"remoteNodes.settings.regions.saveSuccess" = "区域已保存到设备";
-
 /* Location: RepeaterSettingsViewModel.swift - Region save failure */
 "remoteNodes.settings.regions.saveFailed" = "保存区域失败";
 
@@ -643,8 +624,6 @@
 "remoteNodes.history.noiseFloor" = "无线电底噪";
 
 /* Location: NodeStatusHistoryView.swift - Neighbor count chart title */
-"remoteNodes.history.neighborCount" = "邻居数量";
-
 /* Location: NodeStatusHistoryView.swift - Packets sent chart title */
 "remoteNodes.history.packetsSent" = "已发送";
 
@@ -660,14 +639,8 @@
 "remoteNodes.history.packets" = "数据包";
 
 /* Location: NeighborHistoryView.swift - Active status */
-"remoteNodes.history.active" = "活跃";
-
 /* Location: NeighborHistoryView.swift - Last seen status */
-"remoteNodes.history.lastSeen" = "最后出现 %@";
-
 /* Location: NeighborHistoryView.swift - Neighbors section title */
-"remoteNodes.history.neighbors" = "邻居";
-
 /* Location: StatusDeltaView.swift - Accessibility: metric increased */
 "remoteNodes.history.a11y.increased" = "增加";
 
@@ -830,8 +803,6 @@
 "remoteNodes.roomSettings.behaviorFooter" = "广播间隔和泛洪跳数。";
 
 /* Location: RoomSettingsView.swift - Identity section footer */
-"remoteNodes.roomSettings.identityFooter" = "房间名称和用于地图显示的 GPS 坐标。";
-
 /* Location: RoomSettingsView.swift - Reboot confirmation title */
 "remoteNodes.roomSettings.rebootConfirmTitle" = "重启聊天室？";
 
@@ -842,22 +813,12 @@
 "remoteNodes.roomSettings.radioRestartWarning" = "这些更改需重启房间后才会生效";
 
 /* Location: RoomSettingsView.swift - No service error */
-"remoteNodes.roomSettings.noService" = "聊天室服务不可用";
-
 /* Location: RoomSettingsView.swift - Not connected error */
-"remoteNodes.roomSettings.notConnected" = "未连接到房间";
-
 /* Location: RoomSettingsView.swift - Clock ahead error */
-"remoteNodes.roomSettings.clockAheadError" = "房间时钟早于手机时间。如果过远，请重启房间然后再次同步时间。";
-
 // MARK: - Room Info Sheet (additions)
 
 /* Location: RoomInfoSheet.swift - Telemetry button */
-"remoteNodes.room.telemetry" = "遥测";
-
 /* Location: RoomInfoSheet.swift - Management button */
-"remoteNodes.room.management" = "管理";
-
 // MARK: - Node CLI
 
 /* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */

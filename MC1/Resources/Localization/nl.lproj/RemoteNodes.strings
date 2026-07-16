@@ -176,14 +176,10 @@
 "remoteNodes.settings.latitude" = "Breedtegraad";
 
 /* Location: RepeaterSettingsView.swift - Lat placeholder */
-"remoteNodes.settings.lat" = "Breedte";
-
 /* Location: RepeaterSettingsView.swift - Longitude label */
 "remoteNodes.settings.longitude" = "Lengtegraad";
 
 /* Location: RepeaterSettingsView.swift - Lon placeholder */
-"remoteNodes.settings.lon" = "Lengte";
-
 /* Location: RepeaterSettingsView.swift - Pick on map button */
 "remoteNodes.settings.pickOnMap" = "Kies op kaart";
 
@@ -203,8 +199,6 @@
 "remoteNodes.settings.applyContactInfo" = "Contactgegevens toepassen";
 
 /* Location: RepeaterSettingsView.swift - Contact info character count format */
-"remoteNodes.settings.contactInfoCharCount" = "%d/119";
-
 /* Location: RepeaterSettingsView.swift - Behavior section title */
 "remoteNodes.settings.behavior" = "Gedrag";
 
@@ -282,7 +276,6 @@
 
 // MARK: - Repeater Settings ViewModel Messages
 
-
 /* Location: RepeaterSettingsViewModel.swift - Radio not loaded error */
 "remoteNodes.settings.radioNotLoaded" = "Radio-instellingen niet geladen";
 
@@ -302,8 +295,6 @@
 "remoteNodes.settings.passwordMismatch" = "Wachtwoorden komen niet overeen";
 
 /* Location: RepeaterSettingsViewModel.swift - Password changed success */
-"remoteNodes.settings.passwordChangedSuccess" = "Wachtwoord succesvol gewijzigd";
-
 /* Location: RepeaterSettingsViewModel.swift - Password change failure */
 "remoteNodes.settings.passwordChangeFailed" = "Kan wachtwoord niet wijzigen";
 
@@ -326,11 +317,7 @@
 "remoteNodes.settings.unexpectedResponse" = "Onverwacht antwoord: %@";
 
 /* Location: RepeaterSettingsViewModel.swift - Not connected error */
-"remoteNodes.settings.notConnected" = "Niet verbonden met repeater";
-
 /* Location: RepeaterSettingsViewModel.swift - Timeout error */
-"remoteNodes.settings.timeout" = "Opdracht time-out";
-
 /* Location: NodeSettingsViewModel.swift - No service error */
 "remoteNodes.settings.noService" = "Service niet beschikbaar";
 
@@ -370,11 +357,7 @@
 "remoteNodes.settings.regions.homeRegion" = "Thuisregio";
 
 /* Location: RepeaterSettingsView.swift - No home region set */
-"remoteNodes.settings.regions.noHome" = "Geen";
-
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
-"remoteNodes.settings.regions.allowFlood" = "Flood-verkeer toestaan";
-
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
 "remoteNodes.settings.regions.floodToggleHint" = "Indien uit, worden flood-pakketten uit deze regio genegeerd";
 
@@ -391,8 +374,6 @@
 "remoteNodes.settings.regions.saveToDevice" = "Opslaan op repeater";
 
 /* Location: RepeaterSettingsViewModel.swift - Region save success */
-"remoteNodes.settings.regions.saveSuccess" = "Regio's opgeslagen op apparaat";
-
 /* Location: RepeaterSettingsViewModel.swift - Region save failure */
 "remoteNodes.settings.regions.saveFailed" = "Kan regio's niet opslaan";
 
@@ -643,8 +624,6 @@
 "remoteNodes.history.noiseFloor" = "Ruisvloer";
 
 /* Location: NodeStatusHistoryView.swift - Neighbor count chart title */
-"remoteNodes.history.neighborCount" = "Aantal buren";
-
 /* Location: RadioMetricCharts.swift - Sent packets chart title, under the Packets group header */
 "remoteNodes.history.packetsSent" = "Verzonden";
 
@@ -660,14 +639,8 @@
 "remoteNodes.history.packets" = "Pakketten";
 
 /* Location: NeighborHistoryView.swift - Active status */
-"remoteNodes.history.active" = "Actief";
-
 /* Location: NeighborHistoryView.swift - Last seen status */
-"remoteNodes.history.lastSeen" = "Laatst gezien %@";
-
 /* Location: NeighborHistoryView.swift - Neighbors section title */
-"remoteNodes.history.neighbors" = "Buren";
-
 /* Location: StatusDeltaView.swift - Accessibility: metric increased */
 "remoteNodes.history.a11y.increased" = "gestegen";
 
@@ -830,8 +803,6 @@
 "remoteNodes.roomSettings.behaviorFooter" = "Advertentie-intervallen en flood-sprongen.";
 
 /* Location: RoomSettingsView.swift - Identity section footer */
-"remoteNodes.roomSettings.identityFooter" = "Kamernaam en GPS-coördinaten voor kaartweergave.";
-
 /* Location: RoomSettingsView.swift - Reboot confirmation title */
 "remoteNodes.roomSettings.rebootConfirmTitle" = "Room opnieuw opstarten?";
 
@@ -842,22 +813,12 @@
 "remoteNodes.roomSettings.radioRestartWarning" = "Deze wijzigingen worden pas van kracht nadat de kamer opnieuw is opgestart";
 
 /* Location: RoomSettingsView.swift - No service error */
-"remoteNodes.roomSettings.noService" = "Roomservice niet beschikbaar";
-
 /* Location: RoomSettingsView.swift - Not connected error */
-"remoteNodes.roomSettings.notConnected" = "Niet verbonden met kamer";
-
 /* Location: RoomSettingsView.swift - Clock ahead error */
-"remoteNodes.roomSettings.clockAheadError" = "De klok van de kamer loopt voor op de telefoontijd. Als deze te ver vooruit is, herstart de kamer en synchroniseer de tijd opnieuw.";
-
 // MARK: - Room Info Sheet (additions)
 
 /* Location: RoomInfoSheet.swift - Telemetry button */
-"remoteNodes.room.telemetry" = "Telemetrie";
-
 /* Location: RoomInfoSheet.swift - Management button */
-"remoteNodes.room.management" = "Beheer";
-
 // MARK: - Node CLI
 
 /* Location: NodeCliView.swift - Banner shown when connected to a node - %@ is node name */

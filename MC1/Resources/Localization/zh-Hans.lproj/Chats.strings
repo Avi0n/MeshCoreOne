@@ -100,11 +100,7 @@
 // MARK: - Message Timestamps
 
 /* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
-"chats.timestamp.today" = "今天";
-
 /* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
-"chats.timestamp.yesterday" = "昨天";
-
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
 "chats.timestamp.now" = "刚刚";
 
@@ -173,8 +169,6 @@
 // MARK: - Channel Info Sheet
 
 /* Location: ChannelInfoSheet.swift - Navigation title */
-"chats.channelInfo.title" = "频道信息";
-
 /* Location: ChannelInfoSheet.swift - Confirmation dialog title */
 "chats.channelInfo.deleteConfirm.title" = "删除频道";
 
@@ -191,11 +185,7 @@
 "chats.channelInfo.channelType.private" = "私人频道";
 
 /* Location: ChannelInfoSheet.swift - Label for channel slot */
-"chats.channelInfo.slot" = "频道槽位";
-
 /* Location: ChannelInfoSheet.swift - Label for last message date */
-"chats.channelInfo.lastMessage" = "最后消息";
-
 /* Location: ChannelInfoSheet.swift - QR code instruction text */
 "chats.channelInfo.scanToJoin" = "扫描二维码加入此频道";
 
@@ -324,8 +314,6 @@
 "chats.newChat.contactType.repeater" = "转发节点";
 
 /* Location: NewChatView.swift - Contact type label for rooms */
-"chats.newChat.contactType.room" = "房间";
-
 // MARK: - Conversation Row
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
@@ -402,11 +390,7 @@
 // MARK: - Conversation List Sections
 
 /* Location: ConversationListContent.swift - Section accessibility label for favorites */
-"chats.section.favorites" = "收藏";
-
 /* Location: ConversationListContent.swift - Section accessibility label for other conversations */
-"chats.section.conversations" = "对话";
-
 // MARK: - Mention Suggestions
 
 /* Location: MentionSuggestionRow.swift - Accessibility label for mention row - %@ is contact name */
@@ -584,8 +568,6 @@
 "chats.scanQR.error.invalidFormat" = "无效的二维码格式";
 
 /* Location: ScanChannelQRView.swift - Error for invalid channel data */
-"chats.scanQR.error.invalidData" = "二维码中包含无效的频道数据";
-
 // MARK: - Message Bubble
 
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
@@ -637,11 +619,7 @@
 "chats.message.info.adjusted" = "（已调整）";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for adjusted timestamp */
-"chats.message.info.adjustedAccessibility" = "由于发送方时钟错误，已调整发送时间";
-
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
-"chats.message.info.adjustedHint" = "发送方的时钟不正确";
-
 /* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
 "chats.message.info.originalSendTime" = "原始发送时间：%@";
 
@@ -745,8 +723,6 @@
 "chats.signal.poor" = "较差";
 
 /* Location: UnifiedMessageBubble.swift - SNR quality very poor */
-"chats.signal.veryPoor" = "很差";
-
 /* Location: UnifiedMessageBubble.swift - Hop count direct */
 "chats.message.hops.direct" = "直连";
 
@@ -756,11 +732,7 @@
 "chats.message.path.flood" = "泛洪";
 
 /* Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number */
-"chats.message.path.hops" = "%d 跳";
-
 /* Location: MessagePathFormatter.swift - Fallback when path nodes unavailable */
-"chats.message.path.unavailable" = "不可用";
-
 /* Location: UnifiedMessageBubble.swift - Accessibility label for routing path - %@ is the path */
 "chats.message.path.accessibilityLabel" = "路由路径：%@";
 
@@ -797,25 +769,13 @@
 "reactions.view_details" = "查看反应详情";
 
 /* Location: ReactionDetailsSheet.swift - Navigation title */
-"reactions.details_title" = "反应";
-
 /* Location: ChatViewModel.swift - Error message when reaction fails to send */
-"reactions.send_failed" = "无法发送反应";
-
 /* Location: MessageContextOverlay.swift - Reply action label */
-"reactions.reply" = "回复";
-
 /* Location: MessageContextOverlay.swift - Copy action label */
-"reactions.copy" = "复制";
-
 /* Location: MessageContextOverlay.swift - Delete action label */
-"reactions.delete" = "删除";
-
 // MARK: - Message Actions Sheet
 
 /* Location: MessageActionsSheet.swift - Sheet title */
-"chats.messageActions.title" = "消息";
-
 // MARK: - Chat Input Bar
 
 /* Location: ChatInputBar.swift - Accessibility label for text input */
@@ -890,8 +850,6 @@
 "chats.path.copyHint" = "以十六进制值复制节点ID";
 
 /* Location: MessagePathSheet.swift - Section header for path */
-"chats.path.section.header" = "路径";
-
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "路径地图";
 
@@ -942,8 +900,6 @@
 "chats.repeats.emptyState.description" = "转发节点将在您的消息通过Mesh网络传播时显示在此处";
 
 /* Location: RepeatDetailsSheet.swift - Navigation title */
-"chats.repeats.title" = "转发详情";
-
 // MARK: - Repeat Row View
 
 /* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
@@ -1063,8 +1019,6 @@
 "chats.inlineImage.imageAccessibility" = "图片";
 
 /* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
-"chats.inlineImage.loading" = "正在加载图片";
-
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "动态图片";
 

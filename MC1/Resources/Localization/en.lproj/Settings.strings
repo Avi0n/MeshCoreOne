@@ -6,7 +6,6 @@
   account settings, device configuration, and app information.
 */
 
-
 // MARK: - Main Settings View
 
 /* Navigation title for the main settings screen */
@@ -22,8 +21,6 @@
 "appSettings.header" = "App Settings";
 
 /* Footer text for the advanced settings row */
-"advancedSettings.footer" = "Radio tuning, telemetry, contact settings, and device management";
-
 /* Label for the advanced settings navigation row */
 "advancedSettings.title" = "Advanced Settings";
 
@@ -32,7 +29,6 @@
 
 /* Build number display with build number */
 "build" = "Build %@";
-
 
 // MARK: - Demo Mode Section
 
@@ -44,7 +40,6 @@
 
 /* Footer explaining what demo mode does */
 "demoMode.footer" = "Demo mode allows testing without hardware using mock data.";
-
 
 // MARK: - Device Section
 
@@ -59,7 +54,6 @@
 
 /* Button to connect a device */
 "device.connect" = "Connect Device";
-
 
 // MARK: - Device Info View
 
@@ -118,8 +112,6 @@
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
 /* Section header for identity information */
-"deviceInfo.identity.header" = "Identity";
-
 /* Label for public key */
 "deviceInfo.publicKey" = "Public Key";
 
@@ -135,7 +127,6 @@
 /* Fallback manufacturer name */
 "deviceInfo.defaultManufacturer" = "MeshCore Device";
 
-
 // MARK: - Public Key View
 
 /* Navigation title for public key screen */
@@ -146,7 +137,6 @@
 
 /* Footer explaining the public key's purpose */
 "publicKey.footer" = "This key uniquely identifies your device on the mesh network";
-
 
 // MARK: - Private Key View
 
@@ -159,21 +149,16 @@
 /* Button to copy key to clipboard */
 "publicKey.copy" = "Copy to Clipboard";
 
-
 // MARK: - Device Selection Sheet
 
 /* Navigation title for device selection */
 "deviceSelection.title" = "Connect Device";
 
 /* Button to connect to selected device */
-"deviceSelection.connect" = "Connect";
-
 /* Section header for previously paired devices */
 "deviceSelection.previouslyPaired" = "Previously Paired";
 
 /* Footer text prompting user to select a device */
-"deviceSelection.selectToReconnect" = "Select a device to reconnect";
-
 /* Button to connect via WiFi */
 "deviceSelection.connectViaWifi" = "Connect via WiFi";
 
@@ -210,15 +195,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
-
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
 "locationPicker.title" = "Set Location";
 
 /* Marker title for node location on map */
-"locationPicker.markerTitle" = "Node Location";
-
 /* Button to clear the selected location */
 "locationPicker.clearLocation" = "Clear Location";
 
@@ -230,7 +212,6 @@
 
 /* Label for longitude display */
 "locationPicker.longitude" = "Longitude:";
-
 
 // MARK: - Trusted Contacts Picker
 
@@ -258,7 +239,6 @@
 /* Apply button label */
 "trustedContacts.apply" = "Apply";
 
-
 // MARK: - About Section
 
 /* Section header for about links */
@@ -275,7 +255,6 @@
 
 /* Link to the privacy policy */
 "about.privacyPolicy" = "Privacy Policy";
-
 
 // MARK: - Advanced Radio Section
 
@@ -336,7 +315,6 @@
 /* Footer explaining repeat mode in advanced radio */
 "advancedRadio.repeatMode.footer" = "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.";
 
-
 // MARK: - Path Hash Mode Section
 
 /* Section header for path hash mode */
@@ -357,7 +335,6 @@
 /* Footer explaining path hash mode tradeoff */
 "pathHashMode.footer" = "Larger hashes reduce routing collisions but limit the maximum number of hops per path. Repeaters running firmware older than 1.14.0 will not repeat messages with a hash size greater than 1 byte.";
 
-
 // MARK: - Default Flood Scope Section
 
 /* Section header for default flood scope picker */
@@ -368,7 +345,6 @@
 
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "None";
-
 
 // MARK: - Battery Curve Section
 
@@ -404,7 +380,6 @@
 
 /* Unit label for millivolts */
 "batteryCurve.mV" = "mV";
-
 
 // MARK: - Bluetooth Section
 
@@ -462,19 +437,11 @@
 /* Error for invalid PIN format */
 "bluetooth.error.invalidPin" = "PIN must be a 6-digit number between 100000 and 999999";
 
-
 // MARK: - Contacts Settings Section
 
 /* Section header for nodes/contacts settings */
-"contacts.header" = "Nodes";
-
 /* Toggle label for auto-add nodes */
-"contacts.autoAdd" = "Auto-Add Nodes";
-
 /* Description for auto-add nodes toggle */
-"contacts.autoAddDescription" = "Automatically add nodes from received advertisements";
-
-
 // MARK: - Nodes Settings Section
 
 /* Section header for nodes settings */
@@ -502,8 +469,6 @@
 "nodes.autoAddMode.allDescription" = "Auto-add every discovered node";
 
 /* Section header for auto-add types */
-"nodes.autoAddTypes.header" = "Auto-Add Types";
-
 /* Toggle label for auto-add contacts */
 "nodes.autoAddContacts" = "Contacts";
 
@@ -514,8 +479,6 @@
 "nodes.autoAddRoomServers" = "Room Servers";
 
 /* Section header for storage settings */
-"nodes.storage.header" = "Storage";
-
 /* Toggle label for overwrite oldest */
 "nodes.overwriteOldest" = "Overwrite Oldest";
 
@@ -539,7 +502,6 @@
 
 /* Footer text when hop limit is active */
 "nodes.maxHops.footerActive" = "Nodes beyond the selected hop distance will not be auto-added.";
-
 
 // MARK: - Auto-Remove Old Nodes Section
 
@@ -570,7 +532,6 @@
 /* Last cleanup date row (%@ = relative date) */
 "nodes.staleCleanup.lastRun" = "Last checked %@";
 
-
 // MARK: - Device Actions Section
 
 /* Section header for device actions */
@@ -590,7 +551,6 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "The device will restart and temporarily disconnect.";
-
 
 // MARK: - Danger Zone Section
 
@@ -660,7 +620,6 @@
 /* Message when no non-favorite nodes to remove */
 "dangerZone.alert.removeUnfavorited.noneFound" = "No non-favorite nodes to remove.";
 
-
 // MARK: - Diagnostics Section
 
 /* Section header for diagnostics */
@@ -687,12 +646,10 @@
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Failed to create export file";
 
-
 // MARK: - Chat Settings
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Chats";
-
 
 // MARK: - Link Preview Settings Section
 
@@ -714,12 +671,10 @@
 /* Footer note shown when Reduce Motion is enabled */
 "linkPreviews.reduceMotionNote" = "Reduce Motion is on, so GIFs will not auto-play.";
 
-
 // MARK: - Inline Image Settings Section
 
 /* Toggle label for auto-play GIFs */
 "inlineImages.autoPlayGifs" = "Auto-play GIFs";
-
 
 // MARK: - Map Preview Settings Section
 
@@ -732,7 +687,6 @@
 /* Footer explaining map preview privacy implications */
 "mapPreviews.footer" = "Showing map thumbnails fetches map tiles for the coordinate from a third-party server, which may reveal your IP address.";
 
-
 // MARK: - Node Settings Section
 
 /* Section header for node settings */
@@ -742,11 +696,7 @@
 "node.name" = "Node Name";
 
 /* Default node name when unknown */
-"node.unknown" = "Unknown";
-
 /* Button text to copy */
-"node.copy" = "Copy";
-
 /* Label for set location button */
 "node.setLocation" = "Set Location";
 
@@ -765,7 +715,6 @@
 /* Alert title for editing node name */
 "node.alert.editName.title" = "Edit Node Name";
 
-
 // MARK: - Location Settings Section
 
 /* Section header for location settings */
@@ -776,7 +725,6 @@
 
 /* Toggle label for auto-update location */
 "location.autoUpdate" = "Auto-Update Location";
-
 
 /* Label for GPS source picker */
 "location.gpsSource" = "GPS Source";
@@ -801,7 +749,6 @@
 
 /* Detail text when location is not being shared */
 "location.notSharing" = "Not sharing";
-
 
 // MARK: - Notification Settings Section
 
@@ -845,12 +792,7 @@
 "notifications.openSettings" = "Open Settings";
 
 /* Message shown when device not connected */
-"notifications.connectDevice" = "Connect a device to configure notifications";
-
 /* Footer for notifications navigation row */
-"notifications.footer" = "Message alerts, contact discoveries, and low battery warnings.";
-
-
 // MARK: - Radio Preset Section
 
 /* Section header for radio settings */
@@ -885,7 +827,6 @@
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
 "radio.mismatchHint" = "Your radio is on %@, not the recommended preset for %@.";
-
 
 // MARK: - Telemetry Settings Section
 
@@ -922,7 +863,6 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "When enabled, other nodes can request your device's telemetry data.";
 
-
 // MARK: - WiFi Section
 
 /* Section header for WiFi settings */
@@ -940,7 +880,6 @@
 /* Footer explaining WiFi address */
 "wifi.footer" = "Your device's local network address";
 
-
 // MARK: - WiFi Edit Sheet
 
 /* Navigation title for WiFi edit sheet */
@@ -950,17 +889,9 @@
 "wifiEdit.connectionDetails" = "Connection Details";
 
 /* Placeholder for IP address field */
-"wifiEdit.ipPlaceholder" = "IP Address";
-
 /* Placeholder for port field */
-"wifiEdit.portPlaceholder" = "Port";
-
 /* Accessibility label for clear IP button */
-"wifiEdit.clearIp" = "Clear IP address";
-
 /* Accessibility label for clear port button */
-"wifiEdit.clearPort" = "Clear port";
-
 /* Footer explaining reconnection */
 "wifiEdit.footer" = "Changing these values will disconnect and reconnect to the new address.";
 
@@ -973,12 +904,10 @@
 /* Error for invalid port */
 "wifiEdit.error.invalidPort" = "Invalid port number";
 
-
 // MARK: - Error Alert
 
 /* Alert title for generic errors */
 "alert.error.title" = "Error";
-
 
 // MARK: - Retry Alert
 
@@ -997,7 +926,6 @@
 /* Fallback message for retry alerts when error description is unavailable */
 "alert.retry.fallbackMessage" = "Please ensure device is connected and try again.";
 
-
 // MARK: - Battery Curve Chart
 
 /* Chart X axis label */
@@ -1009,15 +937,12 @@
 /* Accessibility label for battery curve chart */
 "chart.accessibility" = "Battery discharge curve showing voltage at each percentage level";
 
-
 // MARK: - Messages Settings Section
 
 /* Section header for message info settings in chats */
 "messages.header" = "Message Info";
 
 /* Toggle label for showing the raw uncorrected wire send time on incoming messages */
-"messages.showIncomingSendTime" = "Incoming Send Time";
-
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Incoming Path";
 
@@ -1030,7 +955,6 @@
 /* Footer explaining what the message display options show */
 "messages.footer" = "Display routing and timing information inside incoming message bubbles.";
 
-
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
@@ -1041,7 +965,6 @@
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Number of acknowledgments sent per direct message. Use 2 for better delivery confirmation over unreliable links.";
-
 
 // MARK: - BLE Status Indicator
 
@@ -1111,8 +1034,6 @@
 "configExport.exportSelected" = "Export Selected Sections";
 
 /* Customize export disclosure label */
-"configExport.customize" = "Customize Export";
-
 /* Select all toggle label */
 "configExport.selectAll" = "Select All";
 
@@ -1129,7 +1050,6 @@
 "configExport.channels.description" = "All channels and their encryption keys";
 "configExport.contacts" = "Contacts";
 "configExport.contacts.description" = "Names, keys, and last known positions";
-
 
 // MARK: - Config Import
 
@@ -1280,7 +1200,6 @@
 /* Validation error: no empty channel slot left (param: channel name) */
 "configImport.error.noAvailableChannelSlot" = "No empty channel slot available for \"%@\"";
 
-
 // MARK: - Blocking Section
 
 /* Location: BlockingSection.swift - Purpose: Section header */
@@ -1302,23 +1221,15 @@
 "blocking.channelSenders.empty.description" = "Channel sender names you block will appear here.";
 
 /* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
-"blocking.channelSenders.unblock" = "Unblock";
-
-
 // MARK: - Language
 
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Language";
 
-
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */
-"region.title" = "Region";
-
 /* Location: SettingsView.swift - Detail row when region is unset */
-"region.notSet" = "Not set";
-
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "California";
 
@@ -1360,8 +1271,6 @@
 "regenerateIdentity.generate" = "Generate Key";
 
 /* Button to generate another key after the first */
-"regenerateIdentity.generateAnother" = "Generate Another";
-
 /* Progress label while generating */
 "regenerateIdentity.generating" = "Generating…";
 
@@ -1381,8 +1290,6 @@
 "regenerateIdentity.prefix.footer" = "Optionally specify up to 4 hex characters your public key should start with. Longer prefixes take more time.";
 
 /* Error when prefix is not 1–4 hex characters */
-"regenerateIdentity.prefix.error.invalidLength" = "Prefix must be 1–4 hex characters";
-
 /* Error when prefix is 00 or FF */
 "regenerateIdentity.prefix.error.reserved" = "00 and FF are reserved and cannot be used";
 
@@ -1476,14 +1383,8 @@
 "offlineMaps.cancel" = "Cancel";
 
 /* Delete confirmation title */
-"offlineMaps.deleteTitle" = "Delete Offline Map?";
-
 /* Delete confirmation message */
-"offlineMaps.deleteMessage" = "The downloaded map data will be removed.";
-
 /* Delete button */
-"offlineMaps.delete" = "Delete";
-
 /* Error: insufficient disk space */
 "offlineMaps.error.insufficientDiskSpace" = "Not enough storage space. At least 100 MB is required.";
 
@@ -1519,8 +1420,6 @@
 "offlineMaps.layers" = "Layers";
 
 /* Include layers prompt */
-"offlineMaps.includeLayers" = "Include additional layers for offline use.";
-
 /* No network available */
 "offlineMaps.noNetwork" = "An internet connection is required to download maps.";
 
@@ -1671,8 +1570,6 @@
 "settings.backup.import.cancelled.message" = "No data was changed.";
 
 /* File access error */
-"settings.backup.import.file_access_error" = "Could not access the selected file.";
-
 /* Import preview manifest label: blocked senders */
 "settings.backup.import.preview.blocked_senders" = "Blocked Senders";
 

@@ -100,11 +100,7 @@
 // MARK: - Message Timestamps
 
 /* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
-"chats.timestamp.today" = "Dzisiaj";
-
 /* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
-"chats.timestamp.yesterday" = "Wczoraj";
-
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
 "chats.timestamp.now" = "Teraz";
 
@@ -173,8 +169,6 @@
 // MARK: - Channel Info Sheet
 
 /* Location: ChannelInfoSheet.swift - Navigation title */
-"chats.channelInfo.title" = "Informacje o kanale";
-
 /* Location: ChannelInfoSheet.swift - Confirmation dialog title */
 "chats.channelInfo.deleteConfirm.title" = "Usuń kanał";
 
@@ -191,11 +185,7 @@
 "chats.channelInfo.channelType.private" = "Kanał prywatny";
 
 /* Location: ChannelInfoSheet.swift - Label for channel slot */
-"chats.channelInfo.slot" = "Slot";
-
 /* Location: ChannelInfoSheet.swift - Label for last message date */
-"chats.channelInfo.lastMessage" = "Ostatnia wiadomość";
-
 /* Location: ChannelInfoSheet.swift - QR code instruction text */
 "chats.channelInfo.scanToJoin" = "Zeskanuj, aby dołączyć do kanału";
 
@@ -324,8 +314,6 @@
 "chats.newChat.contactType.repeater" = "Przekaźnik";
 
 /* Location: NewChatView.swift - Contact type label for rooms */
-"chats.newChat.contactType.room" = "Pokój";
-
 // MARK: - Conversation Row
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
@@ -373,11 +361,7 @@
 // MARK: - Conversation List Sections
 
 /* Location: ConversationListContent.swift - Section accessibility label for favorites */
-"chats.section.favorites" = "Ulubione";
-
 /* Location: ConversationListContent.swift - Section accessibility label for other conversations */
-"chats.section.conversations" = "Rozmowy";
-
 // MARK: - Mention Suggestions
 
 "chats.mention.accessibility.label" = "Wspomnij %@";
@@ -550,8 +534,6 @@
 "chats.scanQR.error.invalidFormat" = "Nieprawidłowy format kodu QR";
 
 /* Location: ScanChannelQRView.swift - Error for invalid channel data */
-"chats.scanQR.error.invalidData" = "Nieprawidłowe dane kanału w kodzie QR";
-
 // MARK: - Message Bubble
 
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
@@ -603,11 +585,7 @@
 "chats.message.info.adjusted" = "(skorygowany)";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for adjusted timestamp */
-"chats.message.info.adjustedAccessibility" = "Czas wysłania skorygowany z powodu błędu zegara nadawcy";
-
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
-"chats.message.info.adjustedHint" = "Zegar nadawcy był nieprawidłowy";
-
 /* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
 "chats.message.info.originalSendTime" = "Pierwotny czas wysłania: %@";
 
@@ -711,8 +689,6 @@
 "chats.signal.poor" = "Słaby";
 
 /* Location: UnifiedMessageBubble.swift - SNR quality very poor */
-"chats.signal.veryPoor" = "Bardzo słaby";
-
 /* Location: UnifiedMessageBubble.swift - Hop count direct */
 "chats.message.hops.direct" = "Bezpośredni";
 
@@ -790,8 +766,6 @@
 "chats.path.copyHint" = "Kopiuje identyfikatory węzłów jako wartości szesnastkowe";
 
 /* Location: MessagePathSheet.swift - Section header for path */
-"chats.path.section.header" = "Ścieżka";
-
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Mapa trasy";
 
@@ -842,8 +816,6 @@
 "chats.repeats.emptyState.description" = "Powtórzenia pojawią się tutaj, gdy wiadomość będzie propagowana przez sieć mesh";
 
 /* Location: RepeatDetailsSheet.swift - Navigation title */
-"chats.repeats.title" = "Szczegóły powtórzeń";
-
 // MARK: - Repeat Row View
 
 /* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
@@ -903,11 +875,7 @@
 "chats.message.path.flood" = "Flood";
 
 /* Message path hop count */
-"chats.message.path.hops" = "%d skoków";
-
 /* Fallback when path nodes unavailable */
-"chats.message.path.unavailable" = "Niedostępne";
-
 /* Accessibility label for message path */
 "chats.message.path.accessibilityLabel" = "Ścieżka trasowania: %@";
 
@@ -986,8 +954,6 @@
 "chats.inlineImage.imageAccessibility" = "Obraz";
 
 /* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
-"chats.inlineImage.loading" = "Ładowanie obrazu";
-
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "Animowany obraz";
 
@@ -1057,8 +1023,6 @@
 // MARK: - Message Actions
 
 /* Location: MessageActionsSheet.swift - Purpose: Sheet title */
-"chats.messageActions.title" = "Wiadomość";
-
 // MARK: - Notification Level
 
 /* Location: NotificationLevelPicker.swift - Purpose: Picker label */
@@ -1109,20 +1073,10 @@
 "reactions.view_details" = "Zobacz szczegóły reakcji";
 
 /* Location: ReactionDetailsSheet.swift - Purpose: Details sheet title */
-"reactions.details_title" = "Reakcje";
-
 /* Location: ReactionBadgeView.swift - Purpose: Error message when reaction fails */
-"reactions.send_failed" = "Nie udało się wysłać reakcji";
-
 /* Location: MessageActionsSheet.swift - Purpose: Reply action */
-"reactions.reply" = "Odpowiedz";
-
 /* Location: MessageActionsSheet.swift - Purpose: Copy action */
-"reactions.copy" = "Kopiuj";
-
 /* Location: MessageActionsSheet.swift - Purpose: Delete action */
-"reactions.delete" = "Usuń";
-
 // MARK: - Malware Warning
 
 /* Location: MalwareWarningCard.swift - Warning title for flagged domains */

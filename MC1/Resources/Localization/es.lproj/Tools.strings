@@ -324,11 +324,7 @@
 // MARK: - Line of Sight View
 
 /* Location: LineOfSightView.swift - Map style: standard */
-"tools.lineOfSight.mapStyle.standard" = "Estándar";
-
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "Terreno";
-
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "Atrás";
 
@@ -450,14 +446,8 @@
 "tools.lineOfSight.droppedPin" = "Pin colocado";
 
 /* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
-"tools.lineOfSight.repeaterPin.accessibilityHint" = "Toca dos veces para seleccionar como punto de análisis";
-
 /* Location: LOSPointPinView.swift - Accessibility hint for point pins */
-"tools.lineOfSight.pointPin.accessibilityHint" = "Punto de análisis de línea de visión";
-
 /* Location: LOSRepeaterTargetPinView.swift - Accessibility hint for repeater target */
-"tools.lineOfSight.repeaterTarget.accessibilityHint" = "Marcador de ubicación del repetidor";
-
 // MARK: - Terrain Profile Canvas
 
 /* Location: TerrainProfileCanvas.swift - Empty state title */
@@ -555,8 +545,6 @@
 "tools.cli.promptSuffix" = ">";
 
 /* Location: CLIToolView.swift - Waiting indicator */
-"tools.cli.waiting" = "...";
-
 /* Location: CLIToolView.swift - Disconnected prompt */
 "tools.cli.disconnected" = "desconectado";
 
@@ -570,11 +558,7 @@
 "tools.cli.sessionLocal" = "local";
 
 /* Location: CLIToolView.swift - No sessions message */
-"tools.cli.noSessions" = "Sin sesiones activas";
-
 /* Location: CLIToolView.swift - History empty message */
-"tools.cli.historyEmpty" = "Sin historial de comandos";
-
 /* Location: CLIToolView.swift - Unknown command error */
 "tools.cli.unknownCommand" = "Comando desconocido:";
 
@@ -642,8 +626,6 @@
 "tools.cli.paste" = "Pegar";
 
 /* Location: CLIToolView.swift - Accessory button: clear */
-"tools.cli.clear" = "Borrar";
-
 /* Location: CLIToolView.swift - Accessory button: sessions */
 "tools.cli.sessions" = "Sesiones";
 
@@ -741,11 +723,7 @@
 "tools.cli.rebootSent" = "Comando de reinicio enviado";
 
 /* Accessibility label for completion suggestions container */
-"tools.cli.completionSuggestions" = "Sugerencias de autocompletado";
-
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
-"tools.cli.completionSuggestionsValue" = "%lld disponibles, %@ seleccionado";
-
 /* Confirmation prompt for a dangerous local command */
 "tools.cli.confirmPrompt" = "¿confirmar %@? (yes/no):";
 

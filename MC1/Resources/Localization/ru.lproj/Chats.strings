@@ -99,11 +99,7 @@
 // MARK: - Message Timestamps
 
 /* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
-"chats.timestamp.today" = "Сегодня";
-
 /* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
-"chats.timestamp.yesterday" = "Вчера";
-
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
 "chats.timestamp.now" = "Сейчас";
 
@@ -172,8 +168,6 @@
 // MARK: - Channel Info Sheet
 
 /* Location: ChannelInfoSheet.swift - Navigation title */
-"chats.channelInfo.title" = "Информация о канале";
-
 /* Location: ChannelInfoSheet.swift - Confirmation dialog title */
 "chats.channelInfo.deleteConfirm.title" = "Удалить канал";
 
@@ -190,11 +184,7 @@
 "chats.channelInfo.channelType.private" = "Приватный канал";
 
 /* Location: ChannelInfoSheet.swift - Label for channel slot */
-"chats.channelInfo.slot" = "Слот";
-
 /* Location: ChannelInfoSheet.swift - Label for last message date */
-"chats.channelInfo.lastMessage" = "Последнее сообщение";
-
 /* Location: ChannelInfoSheet.swift - QR code instruction text */
 "chats.channelInfo.scanToJoin" = "Отсканируй для присоединения к каналу";
 
@@ -323,8 +313,6 @@
 "chats.newChat.contactType.repeater" = "Ретранслятор";
 
 /* Location: NewChatView.swift - Contact type label for rooms */
-"chats.newChat.contactType.room" = "Комната";
-
 // MARK: - Conversation Row
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
@@ -372,11 +360,7 @@
 // MARK: - Conversation List Sections
 
 /* Location: ConversationListContent.swift - Section accessibility label for favorites */
-"chats.section.favorites" = "Избранные";
-
 /* Location: ConversationListContent.swift - Section accessibility label for other conversations */
-"chats.section.conversations" = "Разговоры";
-
 // MARK: - Mention Suggestions
 
 "chats.mention.accessibility.label" = "Упомянуть %@";
@@ -549,8 +533,6 @@
 "chats.scanQR.error.invalidFormat" = "Неверный формат QR-кода";
 
 /* Location: ScanChannelQRView.swift - Error for invalid channel data */
-"chats.scanQR.error.invalidData" = "Неверные данные канала в QR-коде";
-
 // MARK: - Message Bubble
 
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
@@ -602,11 +584,7 @@
 "chats.message.info.adjusted" = "(скорректировано)";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for adjusted timestamp */
-"chats.message.info.adjustedAccessibility" = "Время отправки скорректировано из-за ошибки часов отправителя";
-
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
-"chats.message.info.adjustedHint" = "Часы отправителя были неточны";
-
 /* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
 "chats.message.info.originalSendTime" = "Исходное время отправки: %@";
 
@@ -710,8 +688,6 @@
 "chats.signal.poor" = "Плохой";
 
 /* Location: UnifiedMessageBubble.swift - SNR quality very poor */
-"chats.signal.veryPoor" = "Очень плохой";
-
 /* Location: UnifiedMessageBubble.swift - Hop count direct */
 "chats.message.hops.direct" = "Прямой";
 
@@ -789,8 +765,6 @@
 "chats.path.copyHint" = "Копирует идентификаторы узлов в шестнадцатеричном формате";
 
 /* Location: MessagePathSheet.swift - Section header for path */
-"chats.path.section.header" = "Путь";
-
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Карта пути";
 
@@ -841,8 +815,6 @@
 "chats.repeats.emptyState.description" = "Повторы появятся здесь по мере распространения сообщения по сети mesh";
 
 /* Location: RepeatDetailsSheet.swift - Navigation title */
-"chats.repeats.title" = "Детали повторов";
-
 // MARK: - Repeat Row View
 
 /* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
@@ -902,11 +874,7 @@
 "chats.message.path.flood" = "Флуд";
 
 /* Message path hop count */
-"chats.message.path.hops" = "%d переходов";
-
 /* Fallback when path nodes unavailable */
-"chats.message.path.unavailable" = "Недоступно";
-
 /* Accessibility label for message path */
 "chats.message.path.accessibilityLabel" = "Путь маршрутизации: %@";
 
@@ -985,8 +953,6 @@
 "chats.inlineImage.imageAccessibility" = "Изображение";
 
 /* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
-"chats.inlineImage.loading" = "Загрузка изображения";
-
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "Анимированное изображение";
 
@@ -1056,8 +1022,6 @@
 // MARK: - Message Actions & Notification Level
 
 /* Location: MessageActionsSheet.swift - Purpose: Sheet title */
-"chats.messageActions.title" = "Сообщение";
-
 /* Location: NotificationLevelPicker - Purpose: Label for notification level picker */
 "chats.notificationLevel.label" = "Уровень уведомлений";
 
@@ -1106,20 +1070,10 @@
 "reactions.view_details" = "Подробности реакций";
 
 /* Location: ReactionDetailsSheet.swift - Details sheet title */
-"reactions.details_title" = "Реакции";
-
 /* Location: ReactionViewModel.swift - Send failed error */
-"reactions.send_failed" = "Не удалось отправить реакцию";
-
 /* Location: ReactionContextMenu.swift - Reply action */
-"reactions.reply" = "Ответить";
-
 /* Location: ReactionContextMenu.swift - Copy action */
-"reactions.copy" = "Копировать";
-
 /* Location: ReactionContextMenu.swift - Delete action */
-"reactions.delete" = "Удалить";
-
 // MARK: - Malware Warning
 
 /* Location: MalwareWarningCard.swift - Warning title for flagged domains */

@@ -324,11 +324,7 @@
 // MARK: - Line of Sight View
 
 /* Location: LineOfSightView.swift - Map style: standard */
-"tools.lineOfSight.mapStyle.standard" = "Standard";
-
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "Relief";
-
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "Retour";
 
@@ -450,14 +446,8 @@
 "tools.lineOfSight.droppedPin" = "Épingle placée";
 
 /* Location: LineOfSightView.swift - Accessibility hint for repeater pin */
-"tools.lineOfSight.repeaterPin.accessibilityHint" = "Touchez deux fois pour sélectionner comme point d'analyse";
-
 /* Location: LineOfSightView.swift - Accessibility hint for point pin */
-"tools.lineOfSight.pointPin.accessibilityHint" = "Point d'analyse de ligne de visée";
-
 /* Location: LineOfSightView.swift - Accessibility hint for repeater target */
-"tools.lineOfSight.repeaterTarget.accessibilityHint" = "Marqueur de placement du répéteur";
-
 // MARK: - Terrain Profile Canvas
 
 /* Location: TerrainProfileCanvas.swift - Empty state title */
@@ -555,8 +545,6 @@
 "tools.cli.promptSuffix" = ">";
 
 /* Location: CLIToolView.swift - Waiting indicator */
-"tools.cli.waiting" = "...";
-
 /* Location: CLIToolView.swift - Disconnected prompt */
 "tools.cli.disconnected" = "déconnecté";
 
@@ -570,11 +558,7 @@
 "tools.cli.sessionLocal" = "local";
 
 /* Location: CLIToolView.swift - No sessions message */
-"tools.cli.noSessions" = "Aucune session active";
-
 /* Location: CLIToolView.swift - History empty message */
-"tools.cli.historyEmpty" = "Aucun historique de commandes";
-
 /* Location: CLIToolView.swift - Unknown command error */
 "tools.cli.unknownCommand" = "Commande inconnue :";
 
@@ -642,8 +626,6 @@
 "tools.cli.paste" = "Coller";
 
 /* Location: CLIToolView.swift - Accessory button: clear */
-"tools.cli.clear" = "Effacer";
-
 /* Location: CLIToolView.swift - Accessory button: sessions */
 "tools.cli.sessions" = "Sessions";
 
@@ -741,11 +723,7 @@
 "tools.cli.rebootSent" = "Commande de redémarrage envoyée";
 
 /* Accessibility label for completion suggestions container */
-"tools.cli.completionSuggestions" = "Suggestions d'autocomplétion";
-
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
-"tools.cli.completionSuggestionsValue" = "%lld disponibles, %@ sélectionné";
-
 /* Confirmation prompt for a dangerous local command */
 "tools.cli.confirmPrompt" = "confirmer %@ ? (yes/no):";
 

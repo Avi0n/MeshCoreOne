@@ -38,8 +38,6 @@
 "contacts.nodeKind.chat" = "Czat";
 
 /* Location: Multiple files - Purpose: Chat contact full label */
-"contacts.nodeKind.chatContact" = "Kontakt czatu";
-
 /* Location: Multiple files - Purpose: Repeater contact type label */
 "contacts.nodeKind.repeater" = "Przekaźnik";
 
@@ -522,11 +520,7 @@
 "contacts.scan.error.invalidFormat" = "Nieprawidłowy format kodu QR";
 
 /* Location: ScanContactQRView.swift - Purpose: Missing name error */
-"contacts.scan.error.missingName" = "Nieprawidłowy kod QR: brak nazwy";
-
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
-"contacts.scan.error.invalidKey" = "Nieprawidłowy kod QR: nieprawidłowy klucz publiczny";
-
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "Nie udało się zaimportować kontaktu: %@";
 
@@ -551,8 +545,6 @@
 "contacts.discovery.addedAccessibility" = "Już dodano do kontaktów";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
-"contacts.discovery.error.servicesUnavailable" = "Usługi niedostępne";
-
 /* Location: DiscoveryView.swift - Purpose: Segment filter - All */
 "contacts.discovery.segment.all" = "Wszystkie";
 
@@ -826,16 +818,7 @@
 
 // MARK: - Trace Path Cluster View
 
-"contacts.trace.map.cluster.label" = "Repeaterów: %d";
-"contacts.trace.map.cluster.hint" = "Stuknij dwukrotnie, aby przybliżyć";
-
 // MARK: - Trace Path Repeater Pin View
-
-"contacts.trace.map.pin.inPathLabel" = "Repeater: %1$@, skok %2$d w ścieżce";
-"contacts.trace.map.pin.removableHint" = "Stuknij dwukrotnie, aby usunąć ze ścieżki";
-"contacts.trace.map.pin.notRemovableHint" = "Tego skoku nie można usunąć. Tylko ostatni skok może zostać usunięty.";
-"contacts.trace.map.pin.availableLabel" = "Repeater: %@";
-"contacts.trace.map.pin.addHint" = "Stuknij dwukrotnie, aby dodać do ścieżki";
 
 // MARK: - Saved Path Detail
 
@@ -1002,11 +985,7 @@
 "contacts.trace.map.clear" = "Wyczyść";
 
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
-"contacts.trace.map.hideLabels" = "Ukryj etykiety";
-
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
-"contacts.trace.map.showLabels" = "Pokaż etykiety";
-
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
 "contacts.trace.map.centerOnPath" = "Wyśrodkuj na ścieżce";
 
@@ -1164,8 +1143,6 @@
 // MARK: - Stats Badge Accessibility
 
 /* Location: StatsBadgeView.swift - Purpose: Distance and signal accessibility */
-"contacts.statsBadge.accessibility" = "Odległość: %@, Sygnał: %d decybeli";
-
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */

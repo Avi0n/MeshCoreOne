@@ -324,11 +324,7 @@
 // MARK: - Line of Sight View
 
 /* Location: LineOfSightView.swift - Map style: standard */
-"tools.lineOfSight.mapStyle.standard" = "Standardowa";
-
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "Terenowa";
-
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "Wstecz";
 
@@ -450,14 +446,8 @@
 "tools.lineOfSight.droppedPin" = "Upuszczona pinezka";
 
 /* Location: LineOfSightView.swift - Repeater pin accessibility hint */
-"tools.lineOfSight.repeaterPin.accessibilityHint" = "Dotknij dwukrotnie, aby wybrać jako punkt analizy";
-
 /* Location: LineOfSightView.swift - Point pin accessibility hint */
-"tools.lineOfSight.pointPin.accessibilityHint" = "Punkt analizy linii wzroku";
-
 /* Location: LineOfSightView.swift - Repeater target accessibility hint */
-"tools.lineOfSight.repeaterTarget.accessibilityHint" = "Znacznik umieszczenia przekaźnika";
-
 // MARK: - Terrain Profile Canvas
 
 /* Location: TerrainProfileCanvas.swift - Empty state title */
@@ -555,8 +545,6 @@
 "tools.cli.promptSuffix" = ">";
 
 /* Location: CLIToolView.swift - Waiting indicator */
-"tools.cli.waiting" = "...";
-
 /* Location: CLIToolView.swift - Disconnected prompt */
 "tools.cli.disconnected" = "rozłączony";
 
@@ -570,11 +558,7 @@
 "tools.cli.sessionLocal" = "lokalna";
 
 /* Location: CLIToolView.swift - No sessions message */
-"tools.cli.noSessions" = "Brak aktywnych sesji";
-
 /* Location: CLIToolView.swift - History empty message */
-"tools.cli.historyEmpty" = "Brak historii poleceń";
-
 /* Location: CLIToolView.swift - Unknown command error */
 "tools.cli.unknownCommand" = "Nieznane polecenie:";
 
@@ -642,8 +626,6 @@
 "tools.cli.paste" = "Wklej";
 
 /* Location: CLIToolView.swift - Accessory button: clear */
-"tools.cli.clear" = "Wyczyść";
-
 /* Location: CLIToolView.swift - Accessory button: sessions */
 "tools.cli.sessions" = "Sesje";
 
@@ -741,11 +723,7 @@
 "tools.cli.rebootSent" = "Polecenie restartu wysłane";
 
 /* Accessibility label for completion suggestions container */
-"tools.cli.completionSuggestions" = "Podpowiedzi autouzupełniania";
-
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
-"tools.cli.completionSuggestionsValue" = "%lld dostępnych, %@ wybrany";
-
 /* Confirmation prompt for a dangerous local command */
 "tools.cli.confirmPrompt" = "potwierdzić %@? (yes/no):";
 

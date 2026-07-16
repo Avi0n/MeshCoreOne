@@ -100,11 +100,7 @@
 // MARK: - Message Timestamps
 
 /* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
-"chats.timestamp.today" = "Today";
-
 /* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
-"chats.timestamp.yesterday" = "Yesterday";
-
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
 "chats.timestamp.now" = "Now";
 
@@ -173,8 +169,6 @@
 // MARK: - Channel Info Sheet
 
 /* Location: ChannelInfoSheet.swift - Navigation title */
-"chats.channelInfo.title" = "Channel Info";
-
 /* Location: ChannelInfoSheet.swift - Confirmation dialog title */
 "chats.channelInfo.deleteConfirm.title" = "Delete Channel";
 
@@ -191,11 +185,7 @@
 "chats.channelInfo.channelType.private" = "Private Channel";
 
 /* Location: ChannelInfoSheet.swift - Label for channel slot */
-"chats.channelInfo.slot" = "Slot";
-
 /* Location: ChannelInfoSheet.swift - Label for last message date */
-"chats.channelInfo.lastMessage" = "Last Message";
-
 /* Location: ChannelInfoSheet.swift - QR code instruction text */
 "chats.channelInfo.scanToJoin" = "Scan to join this channel";
 
@@ -324,8 +314,6 @@
 "chats.newChat.contactType.repeater" = "Repeater";
 
 /* Location: NewChatView.swift - Contact type label for rooms */
-"chats.newChat.contactType.room" = "Room";
-
 // MARK: - Conversation Row
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
@@ -402,11 +390,7 @@
 // MARK: - Conversation List Sections
 
 /* Location: ConversationListContent.swift - Section accessibility label for favorites */
-"chats.section.favorites" = "Favorites";
-
 /* Location: ConversationListContent.swift - Section accessibility label for other conversations */
-"chats.section.conversations" = "Conversations";
-
 // MARK: - Mention Suggestions
 
 /* Location: MentionSuggestionRow.swift - Accessibility label for mention row - %@ is contact name */
@@ -584,8 +568,6 @@
 "chats.scanQR.error.invalidFormat" = "Invalid QR code format";
 
 /* Location: ScanChannelQRView.swift - Error for invalid channel data */
-"chats.scanQR.error.invalidData" = "Invalid channel data in QR code";
-
 // MARK: - Message Bubble
 
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
@@ -637,11 +619,7 @@
 "chats.message.info.adjusted" = "(adjusted)";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for adjusted timestamp */
-"chats.message.info.adjustedAccessibility" = "Sent time adjusted due to sender clock error";
-
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
-"chats.message.info.adjustedHint" = "Sender's clock was incorrect";
-
 /* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
 "chats.message.info.originalSendTime" = "Original send time: %@";
 
@@ -745,8 +723,6 @@
 "chats.signal.poor" = "Poor";
 
 /* Location: UnifiedMessageBubble.swift - SNR quality very poor */
-"chats.signal.veryPoor" = "Very Poor";
-
 /* Location: UnifiedMessageBubble.swift - Hop count direct */
 "chats.message.hops.direct" = "Direct";
 
@@ -756,11 +732,7 @@
 "chats.message.path.flood" = "Flood";
 
 /* Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number */
-"chats.message.path.hops" = "%d hops";
-
 /* Location: MessagePathFormatter.swift - Fallback when path nodes unavailable */
-"chats.message.path.unavailable" = "Unavailable";
-
 /* Location: UnifiedMessageBubble.swift - Accessibility label for routing path - %@ is the path */
 "chats.message.path.accessibilityLabel" = "Routing path: %@";
 
@@ -797,25 +769,13 @@
 "reactions.view_details" = "View reaction details";
 
 /* Location: ReactionDetailsSheet.swift - Navigation title */
-"reactions.details_title" = "Reactions";
-
 /* Location: ChatViewModel.swift - Error message when reaction fails to send */
-"reactions.send_failed" = "Could not send reaction";
-
 /* Location: MessageContextOverlay.swift - Reply action label */
-"reactions.reply" = "Reply";
-
 /* Location: MessageContextOverlay.swift - Copy action label */
-"reactions.copy" = "Copy";
-
 /* Location: MessageContextOverlay.swift - Delete action label */
-"reactions.delete" = "Delete";
-
 // MARK: - Message Actions Sheet
 
 /* Location: MessageActionsSheet.swift - Sheet title */
-"chats.messageActions.title" = "Message";
-
 // MARK: - Chat Input Bar
 
 /* Location: ChatInputBar.swift - Accessibility label for text input */
@@ -894,8 +854,6 @@
 "chats.path.copyHint" = "Copies node IDs as hexadecimal values";
 
 /* Location: MessagePathSheet.swift - Section header for path */
-"chats.path.section.header" = "Path";
-
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Path Map";
 
@@ -946,8 +904,6 @@
 "chats.repeats.emptyState.description" = "Repeats will appear here as your message propagates through the mesh";
 
 /* Location: RepeatDetailsSheet.swift - Navigation title */
-"chats.repeats.title" = "Repeat Details";
-
 // MARK: - Repeat Row View
 
 /* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
@@ -999,8 +955,6 @@
 "chats.inlineImage.imageAccessibility" = "Image";
 
 /* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
-"chats.inlineImage.loading" = "Loading image";
-
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "Animated image";
 

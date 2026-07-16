@@ -6,7 +6,6 @@
   account settings, device configuration, and app information.
  */
 
-
 // MARK: - Main Settings View
 
 /* Navigation title for main settings screen */
@@ -22,8 +21,6 @@
 "appSettings.header" = "应用设置";
 
 /* Footer text for advanced settings row */
-"advancedSettings.footer" = "无线电、遥测数据、联系人设置和设备管理";
-
 /* Label for advanced settings navigation row */
 "advancedSettings.title" = "高级设置";
 
@@ -115,8 +112,6 @@
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
 /* Section header for identity information */
-"deviceInfo.identity.header" = "身份";
-
 /* Label for public key */
 "deviceInfo.publicKey" = "查看公钥";
 
@@ -149,7 +144,6 @@
 /* Button to copy key to clipboard */
 "publicKey.copy" = "复制到剪贴板";
 
-
 // MARK: - Private Key View
 
 /* Section header describing the key type */
@@ -161,14 +155,10 @@
 "deviceSelection.title" = "连接设备";
 
 /* Button to connect to selected device */
-"deviceSelection.connect" = "连接";
-
 /* Section header for previously paired devices */
 "deviceSelection.previouslyPaired" = "之前配对的设备";
 
 /* Footer text prompting user to select a device */
-"deviceSelection.selectToReconnect" = "选择设备以重新连接";
-
 /* Button to connect via WiFi */
 "deviceSelection.connectViaWifi" = "通过 WiFi 连接";
 
@@ -211,8 +201,6 @@
 "locationPicker.title" = "设置位置";
 
 /* Marker title for node location on map */
-"locationPicker.markerTitle" = "节点位置";
-
 /* Button to clear selected location */
 "locationPicker.clearLocation" = "清除位置";
 
@@ -348,7 +336,6 @@
 /* Footer explaining path hash mode tradeoff */
 "pathHashMode.footer" = "较大的哈希值可减少路由冲突，但会限制每条路径的最大跳数。固件版本低于 1.14.0 的中继器不会转发哈希大小超过 1 字节的消息。";
 
-
 // MARK: - Default Flood Scope Section
 
 /* Section header for default flood scope picker */
@@ -359,7 +346,6 @@
 
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "无";
-
 
 // MARK: - Battery Curve Section
 
@@ -455,14 +441,8 @@
 // MARK: - Contacts Settings Section
 
 /* Section header for nodes/contacts settings */
-"contacts.header" = "节点";
-
 /* Toggle label for auto-add nodes */
-"contacts.autoAdd" = "自动添加节点";
-
 /* Description for auto-add nodes toggle */
-"contacts.autoAddDescription" = "自动从接收的广播中添加节点";
-
 // MARK: - Nodes Settings Section
 
 /* Section header for nodes settings */
@@ -490,8 +470,6 @@
 "nodes.autoAddMode.allDescription" = "可允许自动添加每个发现的节点";
 
 /* Section header for auto-add types */
-"nodes.autoAddTypes.header" = "自动添加类型";
-
 /* Toggle label for auto-add contacts */
 "nodes.autoAddContacts" = "联系人";
 
@@ -502,8 +480,6 @@
 "nodes.autoAddRoomServers" = "房间服务器";
 
 /* Section header for storage settings */
-"nodes.storage.header" = "存储";
-
 /* Toggle label for overwrite oldest */
 "nodes.overwriteOldest" = "覆盖最旧的";
 
@@ -527,7 +503,6 @@
 
 /* Footer text when hop limit is active */
 "nodes.maxHops.footerActive" = "超出所选跳数距离的节点将不会被自动添加。";
-
 
 // MARK: - Auto-Remove Old Nodes Section
 
@@ -558,7 +533,6 @@
 /* Last cleanup date row (%@ = relative date) */
 "nodes.staleCleanup.lastRun" = "上次检查 %@";
 
-
 // MARK: - Device Actions Section
 
 /* Section header for device actions */
@@ -578,7 +552,6 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "设备将重新启动并暂时断开连接。";
-
 
 // MARK: - Danger Zone Section
 
@@ -679,7 +652,6 @@
 /* Navigation title for chat settings page */
 "chatSettings.title" = "聊天";
 
-
 // MARK: - Link Preview Settings Section
 
 /* Section header for link content settings */
@@ -709,11 +681,7 @@
 "node.name" = "节点名称";
 
 /* Default node name when unknown */
-"node.unknown" = "未知";
-
 /* Button text to copy */
-"node.copy" = "复制";
-
 /* Label for set location button */
 "node.setLocation" = "设置位置";
 
@@ -809,11 +777,7 @@
 "notifications.openSettings" = "打开设置";
 
 /* Message shown when device not connected */
-"notifications.connectDevice" = "连接设备以配置通知";
-
 /* Footer for notifications navigation row */
-"notifications.footer" = "消息提醒、联系人发现和低电量警告。";
-
 // MARK: - Radio Preset Section
 
 /* Section header for radio settings */
@@ -910,17 +874,9 @@
 "wifiEdit.connectionDetails" = "连接详情";
 
 /* Placeholder for IP address field */
-"wifiEdit.ipPlaceholder" = "IP 地址";
-
 /* Placeholder for port field */
-"wifiEdit.portPlaceholder" = "端口";
-
 /* Accessibility label for clear IP button */
-"wifiEdit.clearIp" = "清除 IP 地址";
-
 /* Accessibility label for clear port button */
-"wifiEdit.clearPort" = "清除端口";
-
 /* Footer explaining reconnection */
 "wifiEdit.footer" = "更改这些值将断开并重新连接到新地址。";
 
@@ -972,8 +928,6 @@
 "messages.header" = "消息信息";
 
 /* Toggle label for showing the raw uncorrected wire send time on incoming messages */
-"messages.showIncomingSendTime" = "传入发送时间";
-
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "传入路径";
 
@@ -986,7 +940,6 @@
 /* Footer explaining what message display options show */
 "messages.footer" = "在传入消息气泡内显示路由和时间信息。";
 
-
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
@@ -997,7 +950,6 @@
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "每条私信发送的确认数量。在不可靠的链路上使用 2 以获得更好的送达确认。";
-
 
 // MARK: - BLE Status Indicator
 
@@ -1067,8 +1019,6 @@
 "configExport.exportSelected" = "导出所选部分";
 
 /* Customize export disclosure label */
-"configExport.customize" = "自定义导出";
-
 /* Select all toggle label */
 "configExport.selectAll" = "全选";
 
@@ -1085,7 +1035,6 @@
 "configExport.channels.description" = "所有频道及其加密密钥";
 "configExport.contacts" = "联系人";
 "configExport.contacts.description" = "姓名、密钥和最后已知位置";
-
 
 // MARK: - Config Import
 
@@ -1274,23 +1223,15 @@
 "blocking.channelSenders.empty.description" = "您屏蔽的频道成员名称将显示在此处。";
 
 /* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
-"blocking.channelSenders.unblock" = "取消屏蔽";
-
-
 // MARK: - Language
 
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "语言";
 
-
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */
-"region.title" = "地区";
-
 /* Location: SettingsView.swift - Detail row when region is unset */
-"region.notSet" = "未设置";
-
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "加利福尼亚州";
 
@@ -1332,8 +1273,6 @@
 "regenerateIdentity.generate" = "生成密钥";
 
 /* Button to generate another key after the first */
-"regenerateIdentity.generateAnother" = "再次生成";
-
 /* Progress label while generating */
 "regenerateIdentity.generating" = "生成中…";
 
@@ -1353,8 +1292,6 @@
 "regenerateIdentity.prefix.footer" = "可选择指定公钥开头的 1–4 个十六进制字符。前缀越长，生成时间越久。";
 
 /* Error when prefix is not 1–4 hex characters */
-"regenerateIdentity.prefix.error.invalidLength" = "前缀必须为 1–4 个十六进制字符";
-
 /* Error when prefix is 00 or FF */
 "regenerateIdentity.prefix.error.reserved" = "00 和 FF 为保留值，不可使用";
 
@@ -1448,14 +1385,8 @@
 "offlineMaps.cancel" = "取消";
 
 /* Delete confirmation title */
-"offlineMaps.deleteTitle" = "删除离线地图？";
-
 /* Delete confirmation message */
-"offlineMaps.deleteMessage" = "已下载的地图数据将被删除。";
-
 /* Delete button */
-"offlineMaps.delete" = "删除";
-
 /* Error: insufficient disk space */
 "offlineMaps.error.insufficientDiskSpace" = "存储空间不足，至少需要 100 MB。";
 
@@ -1491,8 +1422,6 @@
 "offlineMaps.layers" = "图层";
 
 /* Include layers prompt */
-"offlineMaps.includeLayers" = "包含额外图层以供离线使用。";
-
 /* No network available */
 "offlineMaps.noNetwork" = "下载地图需要互联网连接。";
 
@@ -1643,8 +1572,6 @@
 "settings.backup.import.cancelled.message" = "未更改任何数据。";
 
 /* File access error */
-"settings.backup.import.file_access_error" = "无法访问所选文件。";
-
 /* Import preview manifest label: blocked senders */
 "settings.backup.import.preview.blocked_senders" = "已屏蔽的发送者";
 

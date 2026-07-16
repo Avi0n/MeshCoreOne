@@ -324,11 +324,7 @@
 // MARK: - Line of Sight View
 
 /* Location: LineOfSightView.swift - Map style: standard */
-"tools.lineOfSight.mapStyle.standard" = "标准";
-
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "地形";
-
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "返回";
 
@@ -450,14 +446,8 @@
 "tools.lineOfSight.droppedPin" = "已放置的图钉";
 
 /* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
-"tools.lineOfSight.repeaterPin.accessibilityHint" = "双击以选择为分析点";
-
 /* Location: LOSPointPinView.swift - Accessibility hint for point pins */
-"tools.lineOfSight.pointPin.accessibilityHint" = "视距分析点";
-
 /* Location: LOSRepeaterTargetPinView.swift - Accessibility hint for repeater target */
-"tools.lineOfSight.repeaterTarget.accessibilityHint" = "转发节点放置标记";
-
 // MARK: - Terrain Profile Canvas
 
 /* Location: TerrainProfileCanvas.swift - Empty state title */
@@ -555,8 +545,6 @@
 "tools.cli.promptSuffix" = ">";
 
 /* Location: CLIToolView.swift - Waiting indicator */
-"tools.cli.waiting" = "...";
-
 /* Location: CLIToolView.swift - Disconnected prompt */
 "tools.cli.disconnected" = "已断开";
 
@@ -570,11 +558,7 @@
 "tools.cli.sessionLocal" = "本地";
 
 /* Location: CLIToolView.swift - No sessions message */
-"tools.cli.noSessions" = "无活动会话";
-
 /* Location: CLIToolView.swift - History empty message */
-"tools.cli.historyEmpty" = "无命令历史";
-
 /* Location: CLIToolView.swift - Unknown command error */
 "tools.cli.unknownCommand" = "未知命令：";
 
@@ -642,8 +626,6 @@
 "tools.cli.paste" = "粘贴";
 
 /* Location: CLIToolView.swift - Accessory button: clear */
-"tools.cli.clear" = "清除";
-
 /* Location: CLIToolView.swift - Accessory button: sessions */
 "tools.cli.sessions" = "会话";
 
@@ -741,11 +723,7 @@
 "tools.cli.rebootSent" = "已发送重启命令";
 
 /* Accessibility label for completion suggestions container */
-"tools.cli.completionSuggestions" = "补全建议";
-
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
-"tools.cli.completionSuggestionsValue" = "%lld 个可用，%@ 已选择";
-
 /* Confirmation prompt for a dangerous local command */
 "tools.cli.confirmPrompt" = "确认 %@？(yes/no):";
 

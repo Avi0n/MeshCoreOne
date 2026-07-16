@@ -324,11 +324,7 @@
 // MARK: - Line of Sight View
 
 /* Location: LineOfSightView.swift - Map style: standard */
-"tools.lineOfSight.mapStyle.standard" = "Стандартна";
-
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "Рельєфна";
-
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "Назад";
 
@@ -450,14 +446,8 @@
 "tools.lineOfSight.droppedPin" = "Встановлена мітка";
 
 /* Location: LineOfSightViewModel.swift - Accessibility hint for repeater pin */
-"tools.lineOfSight.repeaterPin.accessibilityHint" = "Натисніть двічі, щоб вибрати як точку аналізу";
-
 /* Location: LineOfSightViewModel.swift - Accessibility hint for point pin */
-"tools.lineOfSight.pointPin.accessibilityHint" = "Точка аналізу прямої видимості";
-
 /* Location: LineOfSightViewModel.swift - Accessibility hint for repeater target */
-"tools.lineOfSight.repeaterTarget.accessibilityHint" = "Маркер розміщення ретранслятора";
-
 // MARK: - Terrain Profile Canvas
 
 /* Location: TerrainProfileCanvas.swift - Empty state title */
@@ -555,8 +545,6 @@
 "tools.cli.promptSuffix" = ">";
 
 /* Location: CLIToolView.swift - Waiting indicator */
-"tools.cli.waiting" = "...";
-
 /* Location: CLIToolView.swift - Disconnected prompt */
 "tools.cli.disconnected" = "відключено";
 
@@ -570,11 +558,7 @@
 "tools.cli.sessionLocal" = "локально";
 
 /* Location: CLIToolView.swift - No sessions message */
-"tools.cli.noSessions" = "Немає активних сесій";
-
 /* Location: CLIToolView.swift - History empty message */
-"tools.cli.historyEmpty" = "Історія команд порожня";
-
 /* Location: CLIToolView.swift - Unknown command error */
 "tools.cli.unknownCommand" = "Невідома команда:";
 
@@ -642,8 +626,6 @@
 "tools.cli.paste" = "Вставити";
 
 /* Location: CLIToolView.swift - Accessory button: clear */
-"tools.cli.clear" = "Очистити";
-
 /* Location: CLIToolView.swift - Accessory button: sessions */
 "tools.cli.sessions" = "Сесії";
 
@@ -741,11 +723,7 @@
 "tools.cli.rebootSent" = "Команду перезавантаження надіслано";
 
 /* Accessibility label for completion suggestions container */
-"tools.cli.completionSuggestions" = "Підказки автодоповнення";
-
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
-"tools.cli.completionSuggestionsValue" = "%lld доступно, %@ вибрано";
-
 /* Confirmation prompt for a dangerous local command */
 "tools.cli.confirmPrompt" = "підтвердити %@? (yes/no):";
 

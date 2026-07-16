@@ -38,8 +38,6 @@
 "contacts.nodeKind.chat" = "Discussion";
 
 /* Location: Multiple files - Purpose: Chat contact full label */
-"contacts.nodeKind.chatContact" = "Contact de discussion";
-
 /* Location: Multiple files - Purpose: Repeater contact type label */
 "contacts.nodeKind.repeater" = "Répéteur";
 
@@ -522,11 +520,7 @@
 "contacts.scan.error.invalidFormat" = "Format de code QR invalide";
 
 /* Location: ScanContactQRView.swift - Purpose: Missing name error */
-"contacts.scan.error.missingName" = "Code QR invalide : nom manquant";
-
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
-"contacts.scan.error.invalidKey" = "Code QR invalide : clé publique invalide";
-
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "Échec de l'importation du contact : %@";
 
@@ -551,8 +545,6 @@
 "contacts.discovery.addedAccessibility" = "Déjà ajouté aux contacts";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
-"contacts.discovery.error.servicesUnavailable" = "Services non disponibles";
-
 /* Location: DiscoveryView.swift - Purpose: Segment filter - All */
 "contacts.discovery.segment.all" = "Tous";
 
@@ -828,28 +820,14 @@
 // MARK: - Trace Path Cluster View
 
 /* Location: TracePathClusterView.swift - Accessibility label for cluster annotation */
-"contacts.trace.map.cluster.label" = "%d répéteurs";
-
 /* Location: TracePathClusterView.swift - Accessibility hint for cluster annotation */
-"contacts.trace.map.cluster.hint" = "Touchez deux fois pour zoomer";
-
 // MARK: - Trace Path Repeater Pin View
 
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for repeater in path */
-"contacts.trace.map.pin.inPathLabel" = "Répéteur : %1$@, saut %2$d dans le chemin";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for removable last hop */
-"contacts.trace.map.pin.removableHint" = "Touchez deux fois pour retirer du chemin";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for non-removable hop */
-"contacts.trace.map.pin.notRemovableHint" = "Ce saut ne peut pas être retiré. Seul le dernier saut peut être retiré.";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for available repeater */
-"contacts.trace.map.pin.availableLabel" = "Répéteur : %@";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for adding repeater to path */
-"contacts.trace.map.pin.addHint" = "Touchez deux fois pour ajouter au chemin";
-
 // MARK: - Saved Path Detail
 
 /* Location: SavedPathDetailView.swift - Purpose: Path section header */
@@ -1015,11 +993,7 @@
 "contacts.trace.map.clear" = "Effacer";
 
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
-"contacts.trace.map.hideLabels" = "Masquer les étiquettes";
-
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
-"contacts.trace.map.showLabels" = "Afficher les étiquettes";
-
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
 "contacts.trace.map.centerOnPath" = "Centrer sur le chemin";
 
@@ -1177,8 +1151,6 @@
 // MARK: - Stats Badge Accessibility
 
 /* Location: StatsBadgeView.swift - Purpose: Distance and signal accessibility */
-"contacts.statsBadge.accessibility" = "Distance : %@, Signal : %d décibels";
-
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
