@@ -2,46 +2,76 @@ import Foundation
 @testable import MC1
 import Testing
 
-/// Covers the consume-once divider target decision so a mid-conversation rebuild
-/// cannot re-jump to a divider the reader already scrolled past.
+/// Covers the pure first-snapshot decision table: resolve-in-items gating,
+/// the consume-once latch, and the settled-load escape hatch.
 @Suite("ChatInitialScrollPolicy")
 struct ChatInitialScrollPolicyTests {
-  // MARK: - Consume-once divider target
-
   @Test
-  func `divider target resolves on a fresh unread conversation`() {
+  func `divider target presents when it resolves in the current items`() {
     let divider = UUID()
-    #expect(ChatInitialScrollPolicy.openAtDividerItemID(
+    #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
       hasConsumed: false,
       unreadCount: 3,
-      dividerItemID: divider
-    ) == divider)
+      initialLoadSettled: true,
+      dividerMessageID: divider,
+      itemIndexByID: [divider: 4]
+    ) == .present(target: divider))
   }
 
   @Test
-  func `divider target is nil once consumed`() {
-    #expect(ChatInitialScrollPolicy.openAtDividerItemID(
+  func `an unresolved divider target withholds, even after the load settles`() {
+    #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
+      hasConsumed: false,
+      unreadCount: 3,
+      initialLoadSettled: true,
+      dividerMessageID: UUID(),
+      itemIndexByID: [UUID(): 0]
+    ) == .withhold)
+  }
+
+  @Test
+  func `no divider target withholds until the load settles`() {
+    #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
+      hasConsumed: false,
+      unreadCount: 3,
+      initialLoadSettled: false,
+      dividerMessageID: nil,
+      itemIndexByID: [:]
+    ) == .withhold)
+  }
+
+  @Test
+  func `a settled load with no divider target presents at the bottom`() {
+    #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
+      hasConsumed: false,
+      unreadCount: 3,
+      initialLoadSettled: true,
+      dividerMessageID: nil,
+      itemIndexByID: [:]
+    ) == .present(target: nil))
+  }
+
+  @Test
+  func `the target is retired once consumed`() {
+    let divider = UUID()
+    #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
       hasConsumed: true,
       unreadCount: 3,
-      dividerItemID: UUID()
-    ) == nil)
+      initialLoadSettled: true,
+      dividerMessageID: divider,
+      itemIndexByID: [divider: 4]
+    ) == .present(target: nil))
   }
 
   @Test
-  func `divider target is nil without an unread backlog`() {
-    #expect(ChatInitialScrollPolicy.openAtDividerItemID(
+  func `no unread backlog presents immediately with no target`() {
+    let divider = UUID()
+    #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
       hasConsumed: false,
       unreadCount: 0,
-      dividerItemID: UUID()
-    ) == nil)
-  }
-
-  @Test
-  func `divider target is nil when no item carries the divider`() {
-    #expect(ChatInitialScrollPolicy.openAtDividerItemID(
-      hasConsumed: false,
-      unreadCount: 3,
-      dividerItemID: nil
-    ) == nil)
+      initialLoadSettled: false,
+      dividerMessageID: divider,
+      itemIndexByID: [divider: 4]
+    ) == .present(target: nil))
   }
 }

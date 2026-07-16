@@ -23,13 +23,6 @@ public struct ChatRenderState: Sendable, Equatable {
   public let totalFetchedCount: Int
   public let phase: LoadPhase
 
-  /// Message ID of the first item baked with the "New Messages" divider, or nil
-  /// when no item carries it. Derived from the baked grouping flags so a warm
-  /// coordinator exposes the open-at-divider target on the first frame.
-  public var newMessagesDividerItemID: UUID? {
-    items.first { $0.grouping.showNewMessagesDivider }?.id
-  }
-
   public init(
     items: [MessageItem],
     itemIndexByID: [UUID: Int],

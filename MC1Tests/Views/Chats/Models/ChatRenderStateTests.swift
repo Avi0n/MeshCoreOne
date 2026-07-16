@@ -186,28 +186,6 @@ struct ChatRenderStateTests {
   }
 
   @Test
-  func `newMessagesDividerItemID resolves to the first divider-flagged item`() {
-    let plain = makeFakeMessageItem(id: UUID(), senderName: "a")
-    let flagged = makeFakeMessageItem(id: UUID(), senderName: "b", showNewMessagesDivider: true)
-    let trailing = makeFakeMessageItem(id: UUID(), senderName: "c")
-    let state = ChatRenderState.empty
-      .appendingItem(plain)
-      .appendingItem(flagged)
-      .appendingItem(trailing)
-
-    #expect(state.newMessagesDividerItemID == flagged.id)
-  }
-
-  @Test
-  func `newMessagesDividerItemID is nil when no item carries the divider`() {
-    let state = ChatRenderState.empty
-      .appendingItem(makeFakeMessageItem(id: UUID(), senderName: "a"))
-      .appendingItem(makeFakeMessageItem(id: UUID(), senderName: "b"))
-
-    #expect(state.newMessagesDividerItemID == nil)
-  }
-
-  @Test
   func `appendingItem appends and updates totalFetchedCount`() {
     let initial = ChatRenderState.empty
     let item = makeFakeMessageItem(id: UUID(), senderName: "sender")
@@ -239,8 +217,7 @@ private func makeChatSetup(messages: [MessageDTO]) async -> (ChatViewModel, Chat
 @MainActor
 private func makeFakeMessageItem(
   id: UUID,
-  senderName: String,
-  showNewMessagesDivider: Bool = false
+  senderName: String
 ) -> MessageItem {
   MessageItem(
     id: id,
@@ -275,7 +252,7 @@ private func makeFakeMessageItem(
       showTimestamp: false,
       showDirectionGap: false,
       showSenderName: false,
-      showNewMessagesDivider: showNewMessagesDivider
+      showNewMessagesDivider: false
     ),
     shouldRequestPreviewFetch: false
   )

@@ -37,6 +37,10 @@ struct ChatConversationView: View {
   /// re-seeds with this view's identity on a real conversation navigation, so a
   /// rebuild mid-conversation does not re-jump to a divider the user scrolled past.
   @State private var hasConsumedDividerTarget = false
+  /// Latches once the initial populate has finished (any outcome), so a load
+  /// that produced no divider target — already read, failed fetch — presents
+  /// the timeline instead of withholding it forever.
+  @State private var initialLoadSettled = false
 
   /// Pending debounced draft persist; cancelled and restarted on each keystroke,
   /// cancelled-then-flushed synchronously on view teardown and app suspension.
@@ -125,15 +129,17 @@ struct ChatConversationView: View {
 
   // MARK: - Open-at-divider
 
-  /// Item the chat opens scrolled to: the baked "New Messages" divider, gated on
-  /// the navigated DTO still carrying unread. Both conditions must hold, so a
-  /// fully-read warm coordinator (no baked flag) and a stale-unread DTO from a
-  /// non-list entry point (no baked flag) each resolve to nil.
-  private var openAtDividerItemID: UUID? {
-    ChatInitialScrollPolicy.openAtDividerItemID(
+  /// First-snapshot decision for this open; see `ChatInitialScrollPolicy`.
+  /// `bake` is not observable, but its divider only moves alongside a
+  /// coordinator mutation, so the observable `itemIndexByID` read and the
+  /// `@State` inputs re-evaluate this whenever a decision input has changed.
+  private var firstSnapshotDecision: ChatInitialScrollPolicy.FirstSnapshotDecision {
+    ChatInitialScrollPolicy.firstSnapshotDecision(
       hasConsumed: hasConsumedDividerTarget,
       unreadCount: conversationType.unreadCount,
-      dividerItemID: chatViewModel.renderState.newMessagesDividerItemID
+      initialLoadSettled: initialLoadSettled,
+      dividerMessageID: chatViewModel.bake.newMessagesDividerMessageID,
+      itemIndexByID: chatViewModel.itemIndexByID
     )
   }
 
@@ -161,7 +167,7 @@ struct ChatConversationView: View {
       scrollToBottomRequest: scrollToBottomRequest,
       scrollToTargetRequest: scrollToTargetRequest,
       scrollToTargetID: scrollToTargetID,
-      openAtDividerItemID: openAtDividerItemID,
+      firstSnapshotDecision: firstSnapshotDecision,
       onDividerTargetConsumed: { hasConsumedDividerTarget = true },
       selectedMessageForActions: $selectedMessageForActions,
       imageViewerData: $imageViewerData,
@@ -368,6 +374,7 @@ struct ChatConversationView: View {
     switch conversationType {
     case let .dm(contact):
       await chatViewModel.loadMessages(for: contact)
+      initialLoadSettled = true
       await chatViewModel.loadConversations(radioID: contact.radioID)
       await chatViewModel.loadAllContacts(radioID: contact.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
@@ -376,6 +383,7 @@ struct ChatConversationView: View {
       // Load contacts first so contactNameSet is populated before buildChannelSenders runs
       await chatViewModel.loadAllContacts(radioID: channel.radioID)
       await chatViewModel.loadChannelMessages(for: channel)
+      initialLoadSettled = true
       await chatViewModel.loadConversations(radioID: channel.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
     }

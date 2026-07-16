@@ -1,14 +1,39 @@
 import Foundation
 
-/// Pure decisions governing how the chat list treats its first geometry report
-/// after opening at an initial scroll target (the "New Messages" divider).
+/// Pure decisions governing the chat list's first snapshot when a conversation
+/// opens: whether to hand the library its first items yet, and which item to
+/// open scrolled to (the "New Messages" divider).
 enum ChatInitialScrollPolicy {
-  /// The divider id the conversation opens scrolled to: nil once consumed, when
-  /// there is no unread backlog, or when no item carries the baked divider — so
-  /// a list rebuild mid-conversation does not re-jump to a divider the reader
-  /// scrolled past.
-  static func openAtDividerItemID(hasConsumed: Bool, unreadCount: Int, dividerItemID: UUID?) -> UUID? {
-    guard !hasConsumed, unreadCount > 0 else { return nil }
-    return dividerItemID
+  /// The library's one-shot initial positioning is spent by the first non-empty
+  /// snapshot it receives, so the timeline must stay withheld until the snapshot
+  /// on screen is the one it should position on.
+  enum FirstSnapshotDecision: Equatable {
+    /// Keep the timeline off screen; a divider target is expected but does not
+    /// yet resolve against the current items.
+    case withhold
+    /// Show the timeline, opening scrolled to `target` (nil opens at the bottom).
+    case present(target: UUID?)
+  }
+
+  /// Decides the first snapshot for a conversation open. The divider target
+  /// comes from the per-session bake, never from state a shared coordinator
+  /// carries over from a previous open, and presents only once it resolves in
+  /// the items currently on screen — a stale warm page therefore withholds.
+  /// `initialLoadSettled` is the escape hatch: a populate that finished (any
+  /// outcome) without a divider target has nothing to wait for.
+  static func firstSnapshotDecision(
+    hasConsumed: Bool,
+    unreadCount: Int,
+    initialLoadSettled: Bool,
+    dividerMessageID: UUID?,
+    itemIndexByID: [UUID: Int]
+  ) -> FirstSnapshotDecision {
+    guard !hasConsumed, unreadCount > 0 else { return .present(target: nil) }
+    if let dividerMessageID {
+      return itemIndexByID[dividerMessageID] != nil
+        ? .present(target: dividerMessageID)
+        : .withhold
+    }
+    return initialLoadSettled ? .present(target: nil) : .withhold
   }
 }

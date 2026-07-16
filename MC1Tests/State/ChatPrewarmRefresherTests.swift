@@ -271,7 +271,7 @@ struct ChatPrewarmRefresherTests {
     let id = ChatConversationID.dm(radioID: radioID, contactID: contactID)
     let coordinator = try #require(registry.existingCoordinator(for: id))
     await coordinator.buildItemsTask?.value
-    #expect(coordinator.renderState.newMessagesDividerItemID == nil)
+    #expect(coordinator.renderState.items.allSatisfy { !$0.grouping.showNewMessagesDivider })
 
     // A message arrives while the chat is closed; the store now records one
     // unread for the contact, later than the event-time DTO.
@@ -293,7 +293,8 @@ struct ChatPrewarmRefresherTests {
     #expect(coordinator.messages.count == 2)
     // The divider bakes from the store's fresh count (1), landing on the new
     // message, rather than the event-time DTO's zero which shows no divider.
-    #expect(coordinator.renderState.newMessagesDividerItemID == newMessage.id)
+    let dividerItemID = coordinator.renderState.items.first { $0.grouping.showNewMessagesDivider }?.id
+    #expect(dividerItemID == newMessage.id)
   }
 
   @Test

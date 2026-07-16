@@ -23,11 +23,12 @@ struct ChatConversationMessagesContent: View {
   let scrollToTargetRequest: Int
   let scrollToTargetID: UUID?
 
-  /// Baked "New Messages" divider id the chat opens scrolled to; nil opens at the bottom.
-  let openAtDividerItemID: UUID?
+  /// Whether the timeline is ready to show and, if so, the "New Messages"
+  /// divider id it opens scrolled to (nil opens at the bottom).
+  let firstSnapshotDecision: ChatInitialScrollPolicy.FirstSnapshotDecision
 
-  /// Fired once the tiled view has consumed `openAtDividerItemID`, so the owner
-  /// can retire it and a later `.id` rebuild won't re-jump to the divider.
+  /// Fired once the tiled view has consumed the presented divider target, so the
+  /// owner can retire it and a later `.id` rebuild won't re-jump to the divider.
   let onDividerTargetConsumed: () -> Void
 
   // MARK: - Sheet State Bindings
@@ -50,6 +51,11 @@ struct ChatConversationMessagesContent: View {
         emptyState
       } else if viewModel.messages.isEmpty {
         Color.clear
+      } else if case .withhold = firstSnapshotDecision {
+        // Same blank canvas a cold open shows while its fetch is in flight: a
+        // warm page from a previous open must not become the list's first
+        // snapshot, or the one-shot divider positioning is spent on it.
+        Color.clear
       } else {
         messagesList
       }
@@ -57,6 +63,12 @@ struct ChatConversationMessagesContent: View {
   }
 
   // MARK: - Messages List
+
+  /// Presented divider target the list opens scrolled to; nil opens at the bottom.
+  private var initialScrollTargetID: UUID? {
+    if case let .present(target) = firstSnapshotDecision { return target }
+    return nil
+  }
 
   /// The messages list bound to the current view model. When the conversation has an unread
   /// backlog it opens scrolled to the baked "New Messages" divider.
@@ -70,7 +82,7 @@ struct ChatConversationMessagesContent: View {
       scrollToBottomRequest: scrollToBottomRequest,
       scrollToTargetRequest: scrollToTargetRequest,
       scrollTargetID: scrollToTargetID,
-      initialScrollTargetID: openAtDividerItemID,
+      initialScrollTargetID: initialScrollTargetID,
       onLoadOlder: { await viewModel.loadOlderMessages() },
       onInitialTargetConsumed: onDividerTargetConsumed
     )
@@ -232,7 +244,7 @@ private struct ChannelEmptyMessagesView: View {
       scrollToBottomRequest: 0,
       scrollToTargetRequest: 0,
       scrollToTargetID: nil,
-      openAtDividerItemID: nil,
+      firstSnapshotDecision: .present(target: nil),
       onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
@@ -259,7 +271,7 @@ private struct ChannelEmptyMessagesView: View {
       scrollToBottomRequest: 0,
       scrollToTargetRequest: 0,
       scrollToTargetID: nil,
-      openAtDividerItemID: nil,
+      firstSnapshotDecision: .present(target: nil),
       onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
