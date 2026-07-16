@@ -29,7 +29,7 @@ struct BLEStateMachineFringeEncryptionGraceTests {
       recorder.append(deviceID: deviceID, error: error)
     }
     if let bondVerified {
-      await sm.setBondVerificationDateProvider { _ in bondVerified }
+      await sm.recordBondVerification(deviceID: FringeTestPeripheral.uuid, at: bondVerified)
     }
     await sm.primeFringeAutoReconnecting(peripheral: peripheral)
     return (sm, peripheral, recorder)
@@ -41,7 +41,7 @@ struct BLEStateMachineFringeEncryptionGraceTests {
   func `exhausted encryption-timeout budget with a recently verified bond stays transient`() async {
     let (sm, peripheral, recorder) = await makeMachine(bondVerified: Date().addingTimeInterval(-60))
 
-    for _ in 1..<BLEStateMachine.maxAutoReconnectConnectFailures {
+    for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
       await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
     }
     #expect(await sm.currentPhase.name == "autoReconnecting")
@@ -61,10 +61,10 @@ struct BLEStateMachineFringeEncryptionGraceTests {
   func `a didConnect mid-episode is adopted cleanly and clears the failure tally`() async {
     let (sm, peripheral, recorder) = await makeMachine(bondVerified: Date().addingTimeInterval(-60))
 
-    for _ in 1..<BLEStateMachine.maxAutoReconnectConnectFailures {
+    for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
       await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
     }
-    #expect(await sm.currentAutoReconnectConnectFailures == BLEStateMachine.maxAutoReconnectConnectFailures - 1)
+    #expect(await sm.currentAutoReconnectConnectFailures == ReconnectPolicy.maxAutoReconnectConnectFailures - 1)
 
     await sm.handleDidConnect(peripheral)
 
@@ -103,10 +103,10 @@ struct BLEStateMachineFringeEncryptionGraceTests {
   /// `didFailToConnect` deliveries — exactly as before the grace existed.
   @Test
   func `exhausted budget with a stale bond verification escalates within one episode`() async {
-    let stale = Date().addingTimeInterval(-BLEStateMachine.bondVerificationGraceInterval - 60)
+    let stale = Date().addingTimeInterval(-ReconnectPolicy.bondVerificationGraceInterval - 60)
     let (sm, peripheral, recorder) = await makeMachine(bondVerified: stale)
 
-    for _ in 1...BLEStateMachine.maxAutoReconnectConnectFailures {
+    for _ in 1...ReconnectPolicy.maxAutoReconnectConnectFailures {
       await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
     }
 
@@ -122,7 +122,7 @@ struct BLEStateMachineFringeEncryptionGraceTests {
   func `exhausted budget with no bond verification record escalates within one episode`() async {
     let (sm, peripheral, recorder) = await makeMachine(bondVerified: nil)
 
-    for _ in 1...BLEStateMachine.maxAutoReconnectConnectFailures {
+    for _ in 1...ReconnectPolicy.maxAutoReconnectConnectFailures {
       await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
     }
 
@@ -149,21 +149,6 @@ struct BLEStateMachineFringeEncryptionGraceTests {
       Issue.record("Expected .authenticationFailed, got \(String(describing: recorder.events.first?.error))")
       return
     }
-  }
-
-  // MARK: - Grace predicate
-
-  @Test
-  func `bond verification recency predicate`() {
-    let now = Date()
-    let grace = BLEStateMachine.bondVerificationGraceInterval
-
-    #expect(!BLEStateMachine.isBondRecentlyVerified(lastVerified: nil, now: now))
-    #expect(BLEStateMachine.isBondRecentlyVerified(lastVerified: now.addingTimeInterval(-1), now: now))
-    #expect(BLEStateMachine.isBondRecentlyVerified(lastVerified: now.addingTimeInterval(-grace + 1), now: now))
-    #expect(!BLEStateMachine.isBondRecentlyVerified(lastVerified: now.addingTimeInterval(-grace), now: now))
-    // A clock set backward yields a future verification; err non-destructive.
-    #expect(BLEStateMachine.isBondRecentlyVerified(lastVerified: now.addingTimeInterval(60), now: now))
   }
 }
 

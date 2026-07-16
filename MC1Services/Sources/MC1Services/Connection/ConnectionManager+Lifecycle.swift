@@ -27,8 +27,9 @@ public extension ConnectionManager {
     )
     await stateMachine.appDidEnterBackground()
     stopReconnectionWatchdog()
-    let bleState = await stateMachine.centralManagerStateName
-    let blePhase = await stateMachine.currentPhaseName
+    let diagnostics = await stateMachine.linkDiagnostics
+    let bleState = diagnostics.centralState
+    let blePhase = diagnostics.phase
     logger.info(
       "[BLE] Lifecycle transition complete: backgrounded, " +
         "bleState: \(bleState), " +
@@ -52,8 +53,9 @@ public extension ConnectionManager {
     )
     await stateMachine.appDidBecomeActive()
     await checkBLEConnectionHealth()
-    let bleState = await stateMachine.centralManagerStateName
-    let blePhase = await stateMachine.currentPhaseName
+    let diagnostics = await stateMachine.linkDiagnostics
+    let bleState = diagnostics.centralState
+    let blePhase = diagnostics.phase
     logger.info(
       "[BLE] Lifecycle transition complete: active health check finished, " +
         "connectionState: \(String(describing: connectionState)), " +
@@ -113,7 +115,7 @@ public extension ConnectionManager {
     await wireTransportHandlers()
 
     let lastDeviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
-    let bleState = await stateMachine.centralManagerStateName
+    let bleState = await stateMachine.linkDiagnostics.centralState
     logger.info("""
     Activating ConnectionManager - \
     connectionIntent: \(connectionIntent), \
@@ -234,8 +236,9 @@ public extension ConnectionManager {
         // If state machine is already auto-reconnecting (from state restoration),
         // let it complete rather than fighting with it
         if await stateMachine.isAutoReconnecting {
-          let blePhase = await stateMachine.currentPhaseName
-          let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+          let diagnostics = await stateMachine.linkDiagnostics
+          let blePhase = diagnostics.phase
+          let blePeripheralState = diagnostics.peripheralState ?? "none"
           logger.info(
             "State restoration in progress - blePhase: \(blePhase), blePeripheralState: \(blePeripheralState), waiting for auto-reconnect"
           )
@@ -260,9 +263,10 @@ public extension ConnectionManager {
         // Silently skip per HIG: minimize interruptions on app launch
         if await isDeviceConnectedToOtherApp(lastDeviceID) {
           logger.info("Auto-reconnect skipped: device connected to another app")
-          let bleState = await stateMachine.centralManagerStateName
-          let blePhase = await stateMachine.currentPhaseName
-          let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+          let diagnostics = await stateMachine.linkDiagnostics
+          let bleState = diagnostics.centralState
+          let blePhase = diagnostics.phase
+          let blePeripheralState = diagnostics.peripheralState ?? "none"
           persistDisconnectDiagnostic(
             "source=activate.autoReconnectSkippedOtherApp, " +
               "device=\(lastDeviceID.uuidString.prefix(8)), " +
@@ -282,9 +286,10 @@ public extension ConnectionManager {
           try await connect(to: lastDeviceID)
         } catch {
           logger.warning("Auto-reconnect failed: \(error.localizedDescription)")
-          let bleState = await stateMachine.centralManagerStateName
-          let blePhase = await stateMachine.currentPhaseName
-          let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+          let diagnostics = await stateMachine.linkDiagnostics
+          let bleState = diagnostics.centralState
+          let blePhase = diagnostics.phase
+          let blePeripheralState = diagnostics.peripheralState ?? "none"
           persistDisconnectDiagnostic(
             "source=activate.autoReconnectFailed, " +
               "device=\(lastDeviceID.uuidString.prefix(8)), " +
@@ -409,8 +414,9 @@ public extension ConnectionManager {
     guard connectingDeviceID == deviceID else { throw CancellationError() }
     if transportAutoReconnecting {
       let restoringDeviceID = await stateMachine.connectedDeviceID
-      let blePhase = await stateMachine.currentPhaseName
-      let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+      let diagnostics = await stateMachine.linkDiagnostics
+      let blePhase = diagnostics.phase
+      let blePeripheralState = diagnostics.peripheralState ?? "none"
       guard connectingDeviceID == deviceID else { throw CancellationError() }
 
       if restoringDeviceID != deviceID {

@@ -13,9 +13,10 @@ extension ConnectionManager {
 
   /// Returns a best-effort snapshot of the BLE state machine for debug exports.
   public func currentBLEDiagnosticsSummary() async -> String {
-    let bleState = await stateMachine.centralManagerStateName
-    let blePhase = await stateMachine.currentPhaseName
-    let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+    let diagnostics = await stateMachine.linkDiagnostics
+    let bleState = diagnostics.centralState
+    let blePhase = diagnostics.phase
+    let blePeripheralState = diagnostics.peripheralState ?? "none"
     let isConnected = await stateMachine.isConnected
     let isAutoReconnecting = await stateMachine.isAutoReconnecting
     let connectedDeviceShort = await stateMachine.connectedDeviceID?.uuidString.prefix(8) ?? "none"
@@ -109,14 +110,15 @@ extension ConnectionManager {
 
     // Adoption is only valid from an idle BLE state machine. If restoration or another
     // discovery chain is already in progress, let that flow own the reconnect.
-    let blePhase = await stateMachine.currentPhaseName
-    guard blePhase == "idle" else { return false }
+    let diagnostics = await stateMachine.linkDiagnostics
+    guard diagnostics.phase == .idle else { return false }
+    let blePhase = diagnostics.phase
 
     // Avoid doing teardown/UI transitions when there is no system-level link.
     guard await stateMachine.isDeviceConnectedToSystem(deviceID) else { return false }
 
-    let bleState = await stateMachine.centralManagerStateName
-    let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+    let bleState = diagnostics.centralState
+    let blePeripheralState = diagnostics.peripheralState ?? "none"
     logger.warning(
       "[BLE] \(context): device appears system-connected while disconnected; attempting adoption - " +
         "device=\(deviceID.uuidString.prefix(8)), " +
@@ -270,8 +272,9 @@ extension ConnectionManager {
     }
 
     let deviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
-    let bleState = await stateMachine.centralManagerStateName
-    let blePhase = await stateMachine.currentPhaseName
+    let diagnostics = await stateMachine.linkDiagnostics
+    let bleState = diagnostics.centralState
+    let blePhase = diagnostics.phase
     logger.info("""
     [BLE] Foreground health check - \
     connectionIntent: \(connectionIntent), \
@@ -328,7 +331,7 @@ extension ConnectionManager {
 
     // Don't reconnect if device is connected to another app
     if await isDeviceConnectedToOtherApp(deviceID) {
-      let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+      let blePeripheralState = await stateMachine.linkDiagnostics.peripheralState ?? "none"
       persistDisconnectDiagnostic(
         "source=checkBLEConnectionHealth.otherAppConnected, " +
           "device=\(deviceID.uuidString.prefix(8)), " +
@@ -479,8 +482,9 @@ extension ConnectionManager {
         }
 
         // Diagnostic: Log BLE state on each failed attempt
-        let blePhase = await stateMachine.currentPhaseName
-        let blePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+        let diagnostics = await stateMachine.linkDiagnostics
+        let blePhase = diagnostics.phase
+        let blePeripheralState = diagnostics.peripheralState ?? "none"
         let backoffDelay = attempt < maxAttempts ? 0.3 * pow(2.0, Double(attempt - 1)) : 0.0
         let backoffStr = backoffDelay.formatted(.number.precision(.fractionLength(2)))
         logger.warning(
@@ -504,8 +508,9 @@ extension ConnectionManager {
     recordConnectionFailure()
 
     // Diagnostic: Log final failure state
-    let finalBlePhase = await stateMachine.currentPhaseName
-    let finalBlePeripheralState = await stateMachine.currentPeripheralState ?? "none"
+    let finalDiagnostics = await stateMachine.linkDiagnostics
+    let finalBlePhase = finalDiagnostics.phase
+    let finalBlePeripheralState = finalDiagnostics.peripheralState ?? "none"
     logger.error(
       "[BLE] All \(maxAttempts) reconnection attempts exhausted - lastError: \(lastError.localizedDescription), blePhase: \(finalBlePhase), blePeripheralState: \(finalBlePeripheralState)"
     )
@@ -576,8 +581,9 @@ extension ConnectionManager {
   // MARK: - BLE Diagnostics Helpers
 
   func logDeviceNotFoundDiagnostics(deviceID: UUID, context: String) async {
-    let bleState = await stateMachine.centralManagerStateName
-    let blePhase = await stateMachine.currentPhaseName
+    let diagnostics = await stateMachine.linkDiagnostics
+    let bleState = diagnostics.centralState
+    let blePhase = diagnostics.phase
     let lastDeviceShort = lastConnectedDeviceID?.uuidString.prefix(8) ?? "none"
     let registeredDevices = pairing.registeredDeviceInfos()
     let pairedSummary = registeredDevices.prefix(5).map { info in

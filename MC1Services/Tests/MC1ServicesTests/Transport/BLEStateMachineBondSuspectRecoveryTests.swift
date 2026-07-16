@@ -40,7 +40,7 @@ struct BLEStateMachineBondSuspectRecoveryTests {
     #expect(notified, "The wedged connected auto-reconnect watchdog must tear down and notify")
     #expect(await sm.currentPhase.name == "idle")
     // The extension budget stays bounded at its ceiling; teardown never pushes past it.
-    #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
+    #expect(await sm.currentDiscoveryTimeoutExtensions == ReconnectPolicy.maxDiscoveryTimeoutExtensions)
     #expect(recorder.events.count == 1)
     #expect(recorder.events.first?.deviceID == peripheral.identifier)
     guard case .authenticationFailed = recorder.events.first?.error as? BLEError else {
@@ -152,7 +152,7 @@ private extension BLEStateMachine {
   func primeAutoReconnectTeardown(peripheral: CBPeripheral) {
     phase = .autoReconnecting(peripheral: peripheral, tx: nil, rx: nil)
     phaseStartTime = Date()
-    discoveryTimeoutExtensions = BLEStateMachine.maxDiscoveryTimeoutExtensions
+    reconnectPolicy.discoveryTimeoutExtensions = ReconnectPolicy.maxDiscoveryTimeoutExtensions
     armAutoReconnectDiscoveryTimeout(for: peripheral, generation: connectionGeneration)
   }
 

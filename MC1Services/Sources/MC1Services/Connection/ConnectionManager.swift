@@ -456,10 +456,18 @@ public final class ConnectionManager {
   /// proves the bond. Never called on the WiFi path, which bypasses the bond.
   func recordBondVerification(deviceID: UUID) {
     lastConnectionStore.persistBondVerification(deviceID: deviceID)
+    let stateMachine = stateMachine
+    Task { await stateMachine.recordBondVerification(deviceID: deviceID, at: Date()) }
   }
 
-  /// Clears the persisted connection
+  /// Clears the persisted connection, including the in-memory
+  /// bond-verification record, so a forget/re-pair cannot inherit stale
+  /// grace evidence within the same process lifetime.
   func clearPersistedConnection() {
+    if let deviceID = lastConnectionStore.bondVerifiedDeviceID {
+      let stateMachine = stateMachine
+      Task { await stateMachine.clearBondVerification(deviceID: deviceID) }
+    }
     lastConnectionStore.clear()
   }
 
@@ -567,12 +575,14 @@ public final class ConnectionManager {
       }
     }
 
-    // Let the state machine distinguish a recently verified bond from a
-    // suspect one when an auto-reconnect encryption-timeout budget exhausts.
-    // Read lazily at decision time; UserDefaults is thread-safe.
-    let bondStore = lastConnectionStore
-    await stateMachine.setBondVerificationDateProvider { deviceID in
-      bondStore.bondVerificationDate(for: deviceID)
+    // A bond verified in a previous launch must still shield an exhausted
+    // encryption-timeout budget, so seed the persisted verification before
+    // any teardown classification can run. Keyed off the bond slot, not the
+    // connection slot: a WiFi connection overwrites the latter without
+    // touching the bond.
+    if let deviceID = lastConnectionStore.bondVerifiedDeviceID,
+       let verified = lastConnectionStore.bondVerificationDate(for: deviceID) {
+      await stateMachine.recordBondVerification(deviceID: deviceID, at: verified)
     }
 
     // Handle entering auto-reconnecting phase
@@ -626,9 +636,10 @@ public final class ConnectionManager {
         // drop the completion since reconnectingDeviceID is still nil.
         await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
 
-        let bleState = await self.stateMachine.centralManagerStateName
-        let blePhase = await self.stateMachine.currentPhaseName
-        let blePeripheralState = await self.stateMachine.currentPeripheralState ?? "none"
+        let diagnostics = await self.stateMachine.linkDiagnostics
+        let bleState = diagnostics.centralState
+        let blePhase = diagnostics.phase
+        let blePeripheralState = diagnostics.peripheralState ?? "none"
 
         self.persistDisconnectDiagnostic(
           "source=bleStateMachine.autoReconnectingHandler, " +
@@ -667,9 +678,9 @@ public final class ConnectionManager {
           return
         }
 
-        let blePhase = await self.stateMachine.currentPhaseName
+        let blePhase = await self.stateMachine.linkDiagnostics.phase
         let bleConnectedDeviceID = await self.stateMachine.connectedDeviceID
-        if blePhase != "idle" || bleConnectedDeviceID == deviceID {
+        if blePhase != .idle || bleConnectedDeviceID == deviceID {
           self.logger.info(
             "[BLE] Bluetooth powered on: BLE already owns reconnect flow for \(deviceID.uuidString.prefix(8)) " +
               "(phase: \(blePhase), bleConnectedDevice: \(bleConnectedDeviceID?.uuidString.prefix(8) ?? "none"))"

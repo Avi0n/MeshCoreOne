@@ -37,10 +37,10 @@ struct BLEStateMachineTests {
   }
 
   @Test
-  func `currentPhaseName returns idle when idle`() async {
+  func `linkDiagnostics reports the idle phase when idle`() async {
     let sm = BLEStateMachine()
-    let name = await sm.currentPhaseName
-    #expect(name == "idle")
+    let diagnostics = await sm.linkDiagnostics
+    #expect(diagnostics.phase == .idle)
   }
 
   // MARK: - Disconnect Tests
@@ -163,43 +163,10 @@ struct BLEStateMachineTests {
   // MARK: - Discovery Timeout Extension Tests
 
   @Test
-  func `extend predicate allows extension while connected and within budget`() {
-    let shouldExtend = BLEStateMachine.shouldExtendDiscoveryTimeout(
-      peripheralState: .connected,
-      extensions: 0,
-      maxExtensions: BLEStateMachine.maxDiscoveryTimeoutExtensions
-    )
-
-    #expect(shouldExtend) // link is up; a didConnect/discovery callback is in flight
-  }
-
-  @Test
-  func `extend predicate rejects extension when peripheral is not connected`() {
-    for state in [CBPeripheralState.connecting, .disconnected, .disconnecting] {
-      let shouldExtend = BLEStateMachine.shouldExtendDiscoveryTimeout(
-        peripheralState: state,
-        extensions: 0,
-        maxExtensions: BLEStateMachine.maxDiscoveryTimeoutExtensions
-      )
-
-      #expect(!shouldExtend, "state \(state.rawValue) should tear down, not extend")
-    }
-  }
-
-  @Test
-  func `extend predicate rejects extension once the budget is spent`() {
-    let max = BLEStateMachine.maxDiscoveryTimeoutExtensions
-
-    #expect(BLEStateMachine.shouldExtendDiscoveryTimeout(peripheralState: .connected, extensions: max - 1, maxExtensions: max))
-    #expect(!BLEStateMachine.shouldExtendDiscoveryTimeout(peripheralState: .connected, extensions: max, maxExtensions: max))
-  }
-
-  @Test
   func `advancing the connection generation resets the discovery-extension budget`() async {
     let sm = BLEStateMachine()
-    await sm.recordDiscoveryTimeoutExtension()
-    await sm.recordDiscoveryTimeoutExtension()
-    #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
+    await sm.primeDiscoveryExtensions(ReconnectPolicy.maxDiscoveryTimeoutExtensions)
+    #expect(await sm.currentDiscoveryTimeoutExtensions == ReconnectPolicy.maxDiscoveryTimeoutExtensions)
 
     await sm.advanceConnectionGeneration()
 
@@ -293,11 +260,15 @@ extension BLEStateMachine {
     centralManager = CBCentralManager(delegate: nil, queue: nil)
   }
 
+  func primeDiscoveryExtensions(_ count: Int) {
+    reconnectPolicy.discoveryTimeoutExtensions = count
+  }
+
   fileprivate func primeDiscoveringServices(peripheral: CBPeripheral, box: WatchdogContinuationBox, extensionsUsed: Int) {
     guard let continuation = box.continuation else { return }
     phase = .discoveringServices(peripheral: peripheral, continuation: continuation)
     phaseStartTime = Date()
-    discoveryTimeoutExtensions = extensionsUsed
+    reconnectPolicy.discoveryTimeoutExtensions = extensionsUsed
     serviceDiscoveryTimeoutTask = Task {}
   }
 
@@ -402,14 +373,14 @@ struct BLEStateMachineDiscoveryWatchdogTests {
     await sm.primeDiscoveringServices(
       peripheral: peripheral,
       box: box,
-      extensionsUsed: BLEStateMachine.maxDiscoveryTimeoutExtensions
+      extensionsUsed: ReconnectPolicy.maxDiscoveryTimeoutExtensions
     )
     await sm.fireServiceDiscoveryTimeout(for: peripheral)
     await driver.value
 
     #expect(await sm.currentPhase.name == "idle")
     // The extension budget stays bounded: it is never pushed past its ceiling.
-    #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
+    #expect(await sm.currentDiscoveryTimeoutExtensions == ReconnectPolicy.maxDiscoveryTimeoutExtensions)
     #expect(isAuthenticationFailed(box.outcome))
   }
 
@@ -427,7 +398,7 @@ struct BLEStateMachineDiscoveryWatchdogTests {
     await sm.primeDiscoveringServices(
       peripheral: peripheral,
       box: box,
-      extensionsUsed: BLEStateMachine.maxDiscoveryTimeoutExtensions - 1
+      extensionsUsed: ReconnectPolicy.maxDiscoveryTimeoutExtensions - 1
     )
     await sm.fireServiceDiscoveryTimeout(for: peripheral)
 
@@ -436,7 +407,7 @@ struct BLEStateMachineDiscoveryWatchdogTests {
 
     if tornDown {
       #expect(await sm.currentPhase.name == "idle")
-      #expect(await sm.currentDiscoveryTimeoutExtensions == BLEStateMachine.maxDiscoveryTimeoutExtensions)
+      #expect(await sm.currentDiscoveryTimeoutExtensions == ReconnectPolicy.maxDiscoveryTimeoutExtensions)
       #expect(isAuthenticationFailed(box.outcome))
     } else {
       // Release the still-suspended continuation so the driver task can finish.
