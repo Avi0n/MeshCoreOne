@@ -171,7 +171,6 @@ public actor ContactService {
         for localContact in orphans {
           let keyPrefix = localContact.publicKey.prefix(4).map { String(format: "%02x", $0) }.joined()
           logger.notice("Full sync prune: deleting '\(localContact.name)' [\(keyPrefix)…] (favorite=\(localContact.isFavorite), type=\(localContact.typeRawValue), lastModified=\(localContact.lastModified))")
-          try await dataStore.deleteMessagesForContact(contactID: localContact.id)
           try await dataStore.deleteContact(id: localContact.id)
           await cleanupCoordinator?.handleCleanup(
             contactID: localContact.id, reason: .deleted, publicKey: localContact.publicKey
@@ -246,10 +245,6 @@ public actor ContactService {
       if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
         let contactID = contact.id
 
-        // Delete associated messages first
-        try await dataStore.deleteMessagesForContact(contactID: contactID)
-
-        // Delete the contact
         try await dataStore.deleteContact(id: contactID)
 
         // Trigger cleanup (notifications, badge, session)
@@ -280,7 +275,6 @@ public actor ContactService {
       return
     }
 
-    try await dataStore.deleteMessagesForContact(contactID: contactID)
     try await dataStore.deleteContact(id: contactID)
     await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .deleted, publicKey: publicKey)
     eventBroadcaster.yield(.nodeDeleted)

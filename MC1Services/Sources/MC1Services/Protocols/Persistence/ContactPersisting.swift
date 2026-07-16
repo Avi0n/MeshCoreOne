@@ -45,7 +45,10 @@ public protocol ContactPersisting: Actor {
   @discardableResult
   func batchSaveContacts(radioID: UUID, from frames: [ContactFrame]) async throws -> Int
 
-  /// Delete a contact
+  /// Delete a contact and everything scoped to it (messages, reactions,
+  /// message repeats, pending sends). The cascade is keyed by the contact ID
+  /// value, so orphaned local data is removed even when the Contact row is
+  /// already gone.
   func deleteContact(id: UUID) async throws
 
   /// Update contact's last message info (nil clears the date, removing from conversations list)

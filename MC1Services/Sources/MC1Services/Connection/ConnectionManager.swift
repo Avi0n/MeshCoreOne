@@ -1025,7 +1025,6 @@ public final class ConnectionManager {
       guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: oldVKey) else {
         return
       }
-      try await dataStore.deleteMessagesForContact(contactID: contact.id)
       try await dataStore.deleteContact(id: contact.id)
       logger.info("Dropped stale ZephCore V-contact after identity rotation")
     } catch {

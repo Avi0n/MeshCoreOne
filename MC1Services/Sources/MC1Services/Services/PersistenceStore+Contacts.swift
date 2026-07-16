@@ -154,16 +154,19 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
-  /// Delete a contact
+  /// Delete a contact and everything scoped to it in a single transactional
+  /// save. The cascade is keyed by the contact ID value, not the Contact row,
+  /// so orphaned local data is removed even when the row is already gone.
   func deleteContact(id: UUID) throws {
+    try _deleteMessagesForContactWithoutSaving(contactID: id)
     let targetID = id
     let predicate = #Predicate<Contact> { contact in
       contact.id == targetID
     }
     if let contact = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
       modelContext.delete(contact)
-      try modelContext.save()
     }
+    try modelContext.save()
   }
 
   /// Fetch all blocked contacts for a device
@@ -306,8 +309,14 @@ public extension PersistenceStore {
   }
 
   /// Delete all messages, reactions, message repeats, and pending sends for a contact
-  /// in a single transactional save.
+  /// in a single transactional save. Leaves the Contact row in place ("Clear");
+  /// `deleteContact` runs the same cascade before removing the row ("Remove").
   func deleteMessagesForContact(contactID: UUID) throws {
+    try _deleteMessagesForContactWithoutSaving(contactID: contactID)
+    try modelContext.save()
+  }
+
+  private func _deleteMessagesForContactWithoutSaving(contactID: UUID) throws {
     let targetContactID: UUID? = contactID
     let messagePredicate = #Predicate<Message> { message in
       message.contactID == targetContactID
@@ -334,7 +343,6 @@ public extension PersistenceStore {
       }
     }
     try modelContext.delete(model: Message.self, where: messagePredicate)
-    try modelContext.save()
   }
 
   // MARK: - Contact Helper Methods

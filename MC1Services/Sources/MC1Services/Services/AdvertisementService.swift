@@ -473,13 +473,8 @@ public actor AdvertisementService {
 
       let contactID = contact.id
 
-      // Delete associated messages
-      try await dataStore.deleteMessagesForContact(contactID: contactID)
-      logger.info("Overwrite oldest: deleted messages for contact '\(contactName)'")
-
-      // Delete the contact
       try await dataStore.deleteContact(id: contactID)
-      logger.info("Overwrite oldest: deleted contact '\(contactName)' from local database")
+      logger.info("Overwrite oldest: deleted contact '\(contactName)' and its messages from local database")
 
       // Trigger cleanup (notifications, badge, session)
       eventBroadcaster.yield(.contactDeletedCleanup(contactID: contactID, publicKey: publicKey))

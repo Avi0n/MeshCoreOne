@@ -1911,6 +1911,90 @@ struct PersistenceStoreTests {
   }
 
   @Test
+  func `deleteContact cascades messages, reactions, repeats, and pending sends`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame(name: "Doomed"))
+    let survivorID = try await store.saveContact(radioID: device.id, from: createTestContactFrame(name: "Survivor"))
+
+    let message = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: contactID,
+      text: "cascade me",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(message)
+    try await store.upsertPendingSend(makePendingSendDTO(
+      messageID: message.id, radioID: device.id, attemptCount: 0, sequence: 1
+    ))
+    try await store.saveReaction(ReactionDTO(
+      messageID: message.id,
+      emoji: "👍",
+      senderName: "Doomed",
+      messageHash: "hash",
+      rawText: "👍",
+      contactID: contactID,
+      radioID: device.id
+    ))
+    try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
+
+    let survivorMessage = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: survivorID,
+      text: "keep me",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(survivorMessage)
+
+    try await store.deleteContact(id: contactID)
+
+    #expect(try await store.fetchContact(id: contactID) == nil,
+            "Contact row must be deleted")
+    #expect(try await store.fetchMessages(contactID: contactID).isEmpty,
+            "messages must die with the contact")
+    #expect(try await store.fetchReactions(for: message.id).isEmpty,
+            "reactions must die with the contact")
+    #expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty,
+            "message repeats must die with the contact")
+    #expect(try await store.fetchPendingSends(radioID: device.id).isEmpty,
+            "pending sends must die with the contact")
+    #expect(try await store.fetchContact(id: survivorID) != nil,
+            "unrelated contact must be preserved")
+    #expect(try await store.fetchMessages(contactID: survivorID).count == 1,
+            "unrelated contact's messages must be preserved")
+  }
+
+  @Test
+  func `deleteContact removes local data when the contact row is already gone`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    // No Contact row exists for this ID — the removeLocalContact scenario,
+    // where the radio no longer knows the contact but local data remains.
+    let ghostContactID = UUID()
+    let message = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: ghostContactID,
+      text: "orphaned",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(message)
+    try await store.upsertPendingSend(makePendingSendDTO(
+      messageID: message.id, radioID: device.id, attemptCount: 0, sequence: 1
+    ))
+
+    try await store.deleteContact(id: ghostContactID)
+
+    #expect(try await store.fetchMessages(contactID: ghostContactID).isEmpty,
+            "local messages must be removed even without a Contact row")
+    #expect(try await store.fetchPendingSends(radioID: device.id).isEmpty,
+            "pending sends must be removed even without a Contact row")
+  }
+
+  @Test
   func `deleteMessagesForChannel cascades PendingSends and spares other channels`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()

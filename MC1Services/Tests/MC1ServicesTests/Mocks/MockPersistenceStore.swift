@@ -559,7 +559,21 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     if let error = stubbedDeleteContactError {
       throw error
     }
+    cascadeDeleteContactData(contactID: id)
     contacts.removeValue(forKey: id)
+  }
+
+  /// Mirrors the real store's cascade: messages, their pending sends, and
+  /// reactions scoped to the contact die together, keyed by the contact ID
+  /// value rather than the contact row.
+  private func cascadeDeleteContactData(contactID: UUID) {
+    let messageIDs = Set(messages.values.filter { $0.contactID == contactID }.map(\.id))
+    messages = messages.filter { !messageIDs.contains($0.key) }
+    pendingSends = pendingSends.filter { !messageIDs.contains($0.value.messageID) }
+    reactions = reactions.compactMapValues { list in
+      let kept = list.filter { $0.contactID != contactID }
+      return kept.isEmpty ? nil : kept
+    }
   }
 
   public func updateContactLastMessage(contactID: UUID, date: Date?) async throws {
@@ -826,7 +840,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func deleteMessagesForContact(contactID: UUID) async throws {
     deletedMessagesForContactIDs.append(contactID)
-    messages = messages.filter { $0.value.contactID != contactID }
+    cascadeDeleteContactData(contactID: contactID)
   }
 
   public func fetchBlockedContacts(radioID: UUID) async throws -> [ContactDTO] {
