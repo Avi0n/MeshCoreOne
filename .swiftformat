@@ -47,6 +47,9 @@
 --disable trailingCommas   # matches SwiftLint disabling trailing_comma
 --disable wrapMultilineStatementBraces
 --disable redundantSelf    # bugged: https://github.com/nicklockwood/SwiftFormat/issues/1732
+--disable wrapIfStatementBodies   # single-line early returns and `if case` checks stay on one line
+--disable wrapIfExpressionBodies  # same, for if-expression branches
+--disable redundantSwiftUIGroup   # mis-parses Group(subviews:) into uncompilable code, and strips Groups whose modifiers must not reapply per-child
 
 # Leave file headers untouched
 --header ignore
