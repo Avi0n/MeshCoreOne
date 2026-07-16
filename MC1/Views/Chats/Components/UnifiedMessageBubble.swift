@@ -14,6 +14,11 @@ private let liftAmbientShadowYOffset: CGFloat = 4
 /// spans the full row width and its alignment stays legible.
 private let bubbleRowOppositeEdgeMinInset: CGFloat = 40
 
+/// Spacing between the bubble and its sibling fragments: reactions, link and
+/// map previews. It also separates the sender name from the bubble, which is
+/// why `senderNamePlacement` subtracts it from the name's own gap.
+private let bubbleStackSpacing: CGFloat = 2
+
 /// Unified message bubble for both direct and channel messages.
 ///
 /// Conforms to `Equatable` with comparison on `item` alone. Closures
@@ -83,15 +88,12 @@ struct UnifiedMessageBubble: View, Equatable {
           Spacer(minLength: bubbleRowOppositeEdgeMinInset)
         }
 
-        VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 2) {
+        VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: bubbleStackSpacing) {
           if !item.envelope.isOutgoing,
              configuration.showSenderName,
              item.grouping.showSenderName {
             SenderNameLabel(resolution: item.envelope.senderResolution, nameColor: senderColor)
-              // Indent the name to clear the bubble's rounded corner and
-              // leave breathing room above the bubble it labels.
-              .padding(.leading, 4)
-              .padding(.bottom, 3)
+              .senderNamePlacement(enclosingStackSpacing: bubbleStackSpacing)
           }
 
           bubbleActionsLongPress(
