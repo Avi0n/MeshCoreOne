@@ -272,7 +272,10 @@ struct ContactDetailView: View {
       // can subscribe concurrently.
       guard let advertisementService = appState.services?.advertisementService else { return }
       for await event in advertisementService.events() {
-        if case let .pathDiscoveryResponse(response) = event {
+        // Only a response for this contact may resolve this view's discovery;
+        // a straggler from a discovery started on another contact must not.
+        if case let .pathDiscoveryResponse(response) = event,
+           response.matches(publicKey: currentContact.publicKey) {
           pathViewModel.handleDiscoveryResponse(hopCount: response.outHopCount)
         }
       }
