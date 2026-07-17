@@ -15,6 +15,13 @@ final class NodeStatusViewModel {
   /// Current session
   var session: RemoteNodeSessionDTO?
 
+  /// A salvaged late response can arrive while a different node's screen is
+  /// open; only the session this screen shows may consume it.
+  func matchesSession(_ publicKeyPrefix: Data) -> Bool {
+    guard !publicKeyPrefix.isEmpty, let publicKey = session?.publicKey else { return false }
+    return publicKey.prefix(publicKeyPrefix.count) == publicKeyPrefix
+  }
+
   /// Public key for direct telemetry (no remote session).
   /// Used for chat nodes that don't require login.
   private var directPublicKey: Data?
