@@ -99,10 +99,12 @@ final class RepeaterSettingsViewModel {
       await self?.fetchNodeInfo()
     }
 
+    registerBehaviorLateRecovery()
+
     // Register CLI handler for late responses
     await repeaterAdminService.setCLIHandler { [weak self] message, _ in
       await MainActor.run {
-        self?.handleLateResponse(message.text)
+        self?.helper.handleCommonLateResponse(message.text)
       }
     }
 
@@ -144,58 +146,37 @@ final class RepeaterSettingsViewModel {
     }
   }
 
-  // MARK: - Late Response Handling
+  // MARK: - Late Reply Recovery
 
-  private func handleLateResponse(_ response: String) {
-    // Try shared sections first
-    if helper.handleCommonLateResponse(response) { return }
+  private var behaviorSectionComplete: Bool {
+    originalRepeaterEnabled != nil && originalAdvertIntervalMinutes != nil
+      && originalFloodAdvertIntervalHours != nil && originalFloodMaxHops != nil
+  }
 
-    // Behavior settings
-    if !isLoadingBehavior, behaviorError {
-      if originalRepeaterEnabled == nil {
-        if case let .repeatMode(enabled) = CLIResponse.parse(response, forQuery: "get repeat") {
-          repeaterEnabled = enabled
-          originalRepeaterEnabled = enabled
-          behaviorError = false
-          logger.info("Late response: received repeat mode")
-          return
-        }
-      }
-
-      if let result = NodeSettingsResponseParser.behaviorLateResponse(
-        response,
-        hasAdvertInterval: originalAdvertIntervalMinutes != nil,
-        hasFloodInterval: originalFloodAdvertIntervalHours != nil,
-        hasFloodMaxHops: originalFloodMaxHops != nil
-      ) {
-        switch result {
-        case let .advertInterval(interval):
-          advertIntervalMinutes = interval
-          originalAdvertIntervalMinutes = interval
-        case let .floodAdvertInterval(interval):
-          floodAdvertIntervalHours = interval
-          originalFloodAdvertIntervalHours = interval
-        case let .floodMax(hops):
-          floodMaxHops = hops
-          originalFloodMaxHops = hops
-        }
-        behaviorError = false
-        return
-      }
+  private func registerBehaviorLateRecovery() {
+    helper.registerLateRecovery(query: "get repeat") { [weak self] value in
+      guard let self, case let .repeatMode(enabled) = value else { return }
+      repeaterEnabled = enabled
+      originalRepeaterEnabled = enabled
+      behaviorError = !behaviorSectionComplete
     }
-
-    // Regions
-    if !isLoadingRegions, regionsError {
-      if originalRegions == nil {
-        let parsed = Self.parseRegionTree(response)
-        if !parsed.isEmpty {
-          regions = parsed
-          originalRegions = parsed
-          regionsError = false
-          logger.info("Late response: received region tree (\(parsed.count) regions)")
-          return
-        }
-      }
+    helper.registerLateRecovery(query: "get advert.interval") { [weak self] value in
+      guard let self, case let .advertInterval(minutes) = value else { return }
+      advertIntervalMinutes = minutes
+      originalAdvertIntervalMinutes = minutes
+      behaviorError = !behaviorSectionComplete
+    }
+    helper.registerLateRecovery(query: "get flood.advert.interval") { [weak self] value in
+      guard let self, case let .floodAdvertInterval(hours) = value else { return }
+      floodAdvertIntervalHours = hours
+      originalFloodAdvertIntervalHours = hours
+      behaviorError = !behaviorSectionComplete
+    }
+    helper.registerLateRecovery(query: "get flood.max") { [weak self] value in
+      guard let self, case let .floodMax(hops) = value else { return }
+      floodMaxHops = hops
+      originalFloodMaxHops = hops
+      behaviorError = !behaviorSectionComplete
     }
   }
 

@@ -61,6 +61,8 @@
 
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Routing flood";
+"remoteNodes.auth.floodRetryStatus" = "Brak odpowiedzi znaną trasą. Ponawianie z routingiem flood.";
+"remoteNodes.auth.floodFooter" = "Routing flood jest wolniejszy i zużywa więcej czasu antenowego sieci. Użyj go, gdy znana trasa nie działa w Twojej obecnej lokalizacji. Po zalogowaniu nowa trasa zostanie zapamiętana automatycznie.";
 
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
 "remoteNodes.auth.pathFooter" = "Użyj znanej trasy do tego węzła lub przełącz na routing flood, aby sieć sama znalazła ścieżkę.";
@@ -396,6 +398,8 @@
 
 /* Location: RepeaterStatusView.swift - Guest mode badge in header */
 "remoteNodes.status.guestMode" = "Tryb gościa";
+"remoteNodes.status.clockAhead" = "Zegar tego węzła spieszy się o %@ względem radia. Węzeł z niedokładnym zegarem może ignorować polecenia lub pokazywać błędne godziny wiadomości.";
+"remoteNodes.status.clockBehind" = "Zegar tego węzła spóźnia się o %@ względem radia. Węzeł z niedokładnym zegarem może ignorować polecenia lub pokazywać błędne godziny wiadomości.";
 
 /* Location: RepeaterStatusView.swift - Owner info section label */
 "remoteNodes.status.ownerInfo" = "Informacje kontaktowe";

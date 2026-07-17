@@ -1043,8 +1043,15 @@ public final class ConnectionManager {
     }
   }
 
-  /// Syncs the device clock if it drifts more than 60 seconds from the phone.
-  /// Safe to call after sync — only affects future device-originated timestamps.
+  /// Setting the radio clock backward makes its request timestamps fall below
+  /// the `last_timestamp` remote repeaters recorded for it, and their replay
+  /// protection then silently drops every packet until the clock re-passes the
+  /// stored value. A tight tolerance keeps each backward step, and therefore
+  /// each deaf window, no longer than the tolerance itself, while still
+  /// recovering radios whose clocks are stuck far in the future.
+  private static let deviceClockDriftTolerance: TimeInterval = 5
+
+  /// Syncs the device clock when it drifts beyond `deviceClockDriftTolerance`.
   func syncDeviceTimeIfNeeded() async {
     guard let session else { return }
     do {
@@ -1052,7 +1059,7 @@ public final class ConnectionManager {
         try await session.getTime()
       }
       let timeDifference = abs(deviceTime.timeIntervalSinceNow)
-      if timeDifference > 60 {
+      if timeDifference > Self.deviceClockDriftTolerance {
         try await withTimeout(.seconds(5), operationName: "setTime") {
           try await session.setTime(Date())
         }

@@ -44,7 +44,8 @@ public actor RoomAdminService {
   // MARK: - CLI Commands
 
   /// Send a CLI command to a room server and wait for response (admin only).
-  /// Uses content-based matching for structured CLI responses.
+  /// One command is in flight per node; replies to structured gets must parse
+  /// to their expected shape or they are dropped.
   public func sendCommand(
     sessionID: UUID,
     command: String,
@@ -57,7 +58,7 @@ public actor RoomAdminService {
     )
   }
 
-  /// Send a raw CLI command using FIFO response matching (admin only).
+  /// Send a raw CLI command; the next reply is delivered verbatim (admin only).
   public func sendRawCommand(
     sessionID: UUID,
     command: String,

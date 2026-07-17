@@ -97,10 +97,12 @@ final class RoomSettingsViewModel {
     // Room doesn't have binary protocol for node info — firmware fetched via CLI
     helper.onPreFetchNodeInfo = nil
 
+    registerBehaviorLateRecovery()
+
     // Register CLI handler for late responses
     await roomAdminService.setCLIHandler { [weak self] message, _ in
       await MainActor.run {
-        self?.handleLateResponse(message.text)
+        self?.helper.handleCommonLateResponse(message.text)
       }
     }
 
@@ -121,34 +123,31 @@ final class RoomSettingsViewModel {
     }
   }
 
-  // MARK: - Late Response Handling
+  // MARK: - Late Reply Recovery
 
-  private func handleLateResponse(_ response: String) {
-    // Try shared sections first
-    if helper.handleCommonLateResponse(response) { return }
+  private var behaviorSectionComplete: Bool {
+    originalAdvertIntervalMinutes != nil && originalFloodAdvertIntervalHours != nil
+      && originalFloodMaxHops != nil
+  }
 
-    // Behavior settings
-    if !isLoadingBehavior, behaviorError {
-      if let result = NodeSettingsResponseParser.behaviorLateResponse(
-        response,
-        hasAdvertInterval: originalAdvertIntervalMinutes != nil,
-        hasFloodInterval: originalFloodAdvertIntervalHours != nil,
-        hasFloodMaxHops: originalFloodMaxHops != nil
-      ) {
-        switch result {
-        case let .advertInterval(interval):
-          advertIntervalMinutes = interval
-          originalAdvertIntervalMinutes = interval
-        case let .floodAdvertInterval(interval):
-          floodAdvertIntervalHours = interval
-          originalFloodAdvertIntervalHours = interval
-        case let .floodMax(hops):
-          floodMaxHops = hops
-          originalFloodMaxHops = hops
-        }
-        behaviorError = false
-        return
-      }
+  private func registerBehaviorLateRecovery() {
+    helper.registerLateRecovery(query: "get advert.interval") { [weak self] value in
+      guard let self, case let .advertInterval(minutes) = value else { return }
+      advertIntervalMinutes = minutes
+      originalAdvertIntervalMinutes = minutes
+      behaviorError = !behaviorSectionComplete
+    }
+    helper.registerLateRecovery(query: "get flood.advert.interval") { [weak self] value in
+      guard let self, case let .floodAdvertInterval(hours) = value else { return }
+      floodAdvertIntervalHours = hours
+      originalFloodAdvertIntervalHours = hours
+      behaviorError = !behaviorSectionComplete
+    }
+    helper.registerLateRecovery(query: "get flood.max") { [weak self] value in
+      guard let self, case let .floodMax(hops) = value else { return }
+      floodMaxHops = hops
+      originalFloodMaxHops = hops
+      behaviorError = !behaviorSectionComplete
     }
   }
 

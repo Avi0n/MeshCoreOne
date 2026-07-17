@@ -61,6 +61,8 @@
 
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "泛洪路由";
+"remoteNodes.auth.floodRetryStatus" = "已知路由无响应。正在改用泛洪路由重试。";
+"remoteNodes.auth.floodFooter" = "泛洪路由速度更慢，且占用更多网络空中时间。当已知路由在当前位置不可用时再使用。登录后会自动学习新路由。";
 
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
 "remoteNodes.auth.pathFooter" = "使用已知路由到此节点，或切换到泛洪路由让网络自动寻找路径。";
@@ -399,6 +401,8 @@
 
 /* Location: RepeaterStatusView.swift - Guest mode badge in header */
 "remoteNodes.status.guestMode" = "访客模式";
+"remoteNodes.status.clockAhead" = "此节点的时钟比你的电台快 %@。时钟不准的节点可能会忽略命令或显示错误的消息时间。";
+"remoteNodes.status.clockBehind" = "此节点的时钟比你的电台慢 %@。时钟不准的节点可能会忽略命令或显示错误的消息时间。";
 
 /* Location: RepeaterStatusView.swift - Owner info section label */
 "remoteNodes.status.ownerInfo" = "联系信息";

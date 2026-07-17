@@ -51,6 +51,12 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     eventSubscriptions[id] = nil
   }
 
+  /// Number of active `events()` subscriptions; lets tests wait until a
+  /// consumer has subscribed before yielding events.
+  public var eventSubscriptionCount: Int {
+    eventSubscriptions.count
+  }
+
   /// Yields an event to every active `events()` subscriber whose filter matches.
   public func yieldEvent(_ event: MeshEvent) {
     for subscription in eventSubscriptions.values where subscription.filter?.matches(event) != false {
@@ -123,6 +129,16 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
   /// Results to return from successive `sendLogin` calls, consumed FIFO.
   public var stubbedSendLoginResults: [Result<MessageSentInfo, Error>] = []
 
+  /// Result to return from `sendCommand`. The short suggested timeout keeps
+  /// CLI polling loops in tests brief.
+  public var stubbedSendCommandResult: Result<MessageSentInfo, Error> = .success(
+    MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
+  )
+
+  /// Result to return from `requestStatus`.
+  public var stubbedRequestStatusResult: Result<StatusResponse, Error> =
+    .failure(NotStubbed.method("requestStatus"))
+
   // MARK: - Recorded Invocations
 
   public struct SendMessageInvocation: Sendable, Equatable {
@@ -147,6 +163,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     public let password: String
   }
 
+  public struct SendCommandInvocation: Sendable, Equatable {
+    public let destination: Data
+    public let command: String
+  }
+
   public struct SetChannelInvocation: Sendable, Equatable {
     public let index: UInt8
     public let name: String
@@ -164,6 +185,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
   public private(set) var getContactPublicKeys: [Data] = []
   public private(set) var addContactInvocations: [AddContactInvocation] = []
   public private(set) var sendLoginInvocations: [SendLoginInvocation] = []
+  public private(set) var sendCommandInvocations: [SendCommandInvocation] = []
   public private(set) var removeContactPublicKeys: [Data] = []
   public private(set) var resetPathPublicKeys: [Data] = []
   public private(set) var sendPathDiscoveryDestinations: [Data] = []
@@ -195,6 +217,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
   /// Sets the results returned by successive `sendLogin` calls (isolated setter).
   public func setSendLoginResults(_ results: [Result<MessageSentInfo, Error>]) {
     stubbedSendLoginResults = results
+  }
+
+  /// Sets the result returned by `requestStatus` (isolated setter).
+  public func setRequestStatusResult(_ result: Result<StatusResponse, Error>) {
+    stubbedRequestStatusResult = result
   }
 
   /// Sets the error thrown by `addContact` (isolated setter).
@@ -352,6 +379,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     getContactPublicKeys = []
     addContactInvocations = []
     sendLoginInvocations = []
+    sendCommandInvocations = []
     removeContactPublicKeys = []
     resetPathPublicKeys = []
     sendPathDiscoveryDestinations = []
@@ -379,7 +407,11 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   public func sendLogout(to destination: Data) async throws {}
 
   public func sendCommand(to destination: Data, command: String, timestamp: Date) async throws -> MessageSentInfo {
-    throw NotStubbed.method("sendCommand")
+    sendCommandInvocations.append(SendCommandInvocation(destination: destination, command: command))
+    switch stubbedSendCommandResult {
+    case let .success(info): return info
+    case let .failure(error): throw error
+    }
   }
 
   public func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
@@ -391,7 +423,10 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   }
 
   public func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse {
-    throw NotStubbed.method("requestStatus")
+    switch stubbedRequestStatusResult {
+    case let .success(response): return response
+    case let .failure(error): throw error
+    }
   }
 
   public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {

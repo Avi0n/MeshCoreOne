@@ -20,10 +20,12 @@ struct RepeaterStatusContent: View {
   let connectedDeviceID: UUID?
   /// Contact whose login route is shown at the bottom; nil hides the route section.
   var routePathContact: ContactDTO?
+  /// Clock drift measured at login; nil when no login carried the node's clock.
+  var clockDrift: TimeInterval?
 
   var body: some View {
     List {
-      NodeStatusHeaderSection(session: session)
+      NodeStatusHeaderSection(session: session, clockDrift: clockDrift)
       StatusSection(viewModel: viewModel, session: session, connectionState: connectionState)
       NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: connectionState) {
         await viewModel.requestTelemetry(for: session)

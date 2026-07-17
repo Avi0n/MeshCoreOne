@@ -61,6 +61,8 @@
 
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Routage Flood";
+"remoteNodes.auth.floodRetryStatus" = "Aucune réponse par le chemin connu. Nouvelle tentative en routage flood.";
+"remoteNodes.auth.floodFooter" = "Le routage flood est plus lent et consomme plus de temps d'antenne sur le réseau. Utilisez-le lorsque le chemin connu ne fonctionne pas depuis votre position actuelle. Un nouveau chemin est appris automatiquement après la connexion.";
 
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
 "remoteNodes.auth.pathFooter" = "Utilisez le chemin connu vers ce nœud ou activez le routage flood pour laisser le réseau trouver un chemin.";
@@ -399,6 +401,8 @@
 
 /* Location: RepeaterStatusView.swift - Guest mode badge in header */
 "remoteNodes.status.guestMode" = "Mode invité";
+"remoteNodes.status.clockAhead" = "L'horloge de ce nœud avance de %@ par rapport à votre radio. Un nœud dont l'horloge est inexacte peut ignorer des commandes ou afficher des heures de message erronées.";
+"remoteNodes.status.clockBehind" = "L'horloge de ce nœud retarde de %@ par rapport à votre radio. Un nœud dont l'horloge est inexacte peut ignorer des commandes ou afficher des heures de message erronées.";
 
 /* Location: RepeaterStatusView.swift - Owner info section label */
 "remoteNodes.status.ownerInfo" = "Informations de contact";

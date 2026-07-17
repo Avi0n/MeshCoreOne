@@ -21,8 +21,12 @@ public extension RemoteNodeService {
         return try await self.session.requestStatus(from: remoteSession.publicKey, type: contactType)
       }
     } catch is TimeoutError {
+      recordSalvageableTimeout(.status, publicKey: remoteSession.publicKey)
       throw RemoteNodeError.timeout
     } catch let error as MeshCoreError {
+      if case .timeout = error {
+        recordSalvageableTimeout(.status, publicKey: remoteSession.publicKey)
+      }
       throw RemoteNodeError.sessionError(error)
     }
   }
@@ -45,8 +49,12 @@ public extension RemoteNodeService {
         try await self.session.requestTelemetry(from: remoteSession.publicKey)
       }
     } catch is TimeoutError {
+      recordSalvageableTimeout(.telemetry, publicKey: remoteSession.publicKey)
       throw RemoteNodeError.timeout
     } catch let error as MeshCoreError {
+      if case .timeout = error {
+        recordSalvageableTimeout(.telemetry, publicKey: remoteSession.publicKey)
+      }
       throw RemoteNodeError.sessionError(error)
     }
   }

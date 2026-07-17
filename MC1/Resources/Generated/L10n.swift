@@ -3061,6 +3061,10 @@ public enum L10n {
         public static func errorPrefix(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.auth.errorPrefix", String(describing: p1), fallback: "Error: %@")
         }
+        /// Flood routing is slower and uses more network airtime. Use it when the known route does not work from your current location. A new route is learned automatically after login.
+        public static let floodFooter = L10n.tr("RemoteNodes", "remoteNodes.auth.floodFooter", fallback: "Flood routing is slower and uses more network airtime. Use it when the known route does not work from your current location. A new route is learned automatically after login.")
+        /// No reply over the known route. Retrying with flood routing.
+        public static let floodRetryStatus = L10n.tr("RemoteNodes", "remoteNodes.auth.floodRetryStatus", fallback: "No reply over the known route. Retrying with flood routing.")
         /// Location: NodeAuthenticationSheet.swift - Flood routing toggle
         public static let floodRouting = L10n.tr("RemoteNodes", "remoteNodes.auth.floodRouting", fallback: "Flood Routing")
         /// Location: NodeAuthenticationSheet.swift - Navigation title for room authentication
@@ -3542,6 +3546,14 @@ public enum L10n {
         /// Location: RepeaterStatusView.swift - Channel header for grouped telemetry
         public static func channel(_ p1: Int) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.status.channel", p1, fallback: "Channel %d")
+        }
+        /// This node's clock is %@ ahead of your radio. A node with an inaccurate clock may ignore commands or show wrong message times.
+        public static func clockAhead(_ p1: Any) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.status.clockAhead", String(describing: p1), fallback: "This node's clock is %@ ahead of your radio. A node with an inaccurate clock may ignore commands or show wrong message times.")
+        }
+        /// This node's clock is %@ behind your radio. A node with an inaccurate clock may ignore commands or show wrong message times.
+        public static func clockBehind(_ p1: Any) -> String {
+          return L10n.tr("RemoteNodes", "remoteNodes.status.clockBehind", String(describing: p1), fallback: "This node's clock is %@ behind your radio. A node with an inaccurate clock may ignore commands or show wrong message times.")
         }
         /// Location: RepeaterStatusView.swift - Discovery in progress with countdown
         public static func discoveringSeconds(_ p1: Int) -> String {

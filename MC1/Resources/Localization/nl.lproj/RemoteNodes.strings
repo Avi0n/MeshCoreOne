@@ -61,6 +61,8 @@
 
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
 "remoteNodes.auth.floodRouting" = "Flood-routing";
+"remoteNodes.auth.floodRetryStatus" = "Geen antwoord via de bekende route. Nieuwe poging met flood-routing.";
+"remoteNodes.auth.floodFooter" = "Flood-routing is trager en gebruikt meer zendtijd op het netwerk. Gebruik het wanneer de bekende route op je huidige locatie niet werkt. Na het inloggen wordt automatisch een nieuwe route geleerd.";
 
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
 "remoteNodes.auth.pathFooter" = "Gebruik de bekende route naar dit knooppunt of schakel over naar flood-routing om het netwerk een pad te laten vinden.";
@@ -399,6 +401,8 @@
 
 /* Location: RepeaterStatusView.swift - Guest mode badge in header */
 "remoteNodes.status.guestMode" = "Gastmodus";
+"remoteNodes.status.clockAhead" = "De klok van dit knooppunt loopt %@ voor op je radio. Een knooppunt met een onnauwkeurige klok kan opdrachten negeren of verkeerde berichttijden tonen.";
+"remoteNodes.status.clockBehind" = "De klok van dit knooppunt loopt %@ achter op je radio. Een knooppunt met een onnauwkeurige klok kan opdrachten negeren of verkeerde berichttijden tonen.";
 
 /* Location: RepeaterStatusView.swift - Owner info section label */
 "remoteNodes.status.ownerInfo" = "Contactinfo";

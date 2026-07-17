@@ -89,16 +89,26 @@ final class RepeaterStatusViewModel {
     guard let repeaterAdminService else { return }
 
     await repeaterAdminService.setStatusHandler { [weak self] status in
+      guard await self?.matchesSession(status.publicKeyPrefix) == true else { return }
       await self?.handleStatusResponse(status)
     }
 
     await repeaterAdminService.setNeighboursHandler { [weak self] response in
+      guard await self?.matchesSession(response.publicKeyPrefix) == true else { return }
       await self?.handleNeighboursResponse(response)
     }
 
     await repeaterAdminService.setTelemetryHandler { [weak self] response in
+      guard await self?.matchesSession(response.publicKeyPrefix) == true else { return }
       await self?.helper.handleTelemetryResponse(response)
     }
+  }
+
+  /// A salvaged late response can arrive while a different node's screen is
+  /// open; only the session this screen shows may consume it.
+  private func matchesSession(_ publicKeyPrefix: Data) -> Bool {
+    guard !publicKeyPrefix.isEmpty, let publicKey = helper.session?.publicKey else { return false }
+    return publicKey.prefix(publicKeyPrefix.count) == publicKeyPrefix
   }
 
   /// Clear every handler slot on the shared admin service. Only for true

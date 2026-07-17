@@ -13,10 +13,12 @@ struct RoomStatusContent: View {
   let session: RemoteNodeSessionDTO
   let connectionState: DeviceConnectionState
   let connectedDeviceID: UUID?
+  /// Clock drift measured at login; nil when no login carried the node's clock.
+  var clockDrift: TimeInterval?
 
   var body: some View {
     List {
-      NodeStatusHeaderSection(session: session)
+      NodeStatusHeaderSection(session: session, clockDrift: clockDrift)
       RoomStatusSection(viewModel: viewModel, session: session, connectionState: connectionState)
       NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: connectionState) {
         await viewModel.requestTelemetry(for: session)
