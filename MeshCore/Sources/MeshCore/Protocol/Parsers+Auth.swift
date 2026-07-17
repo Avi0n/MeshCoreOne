@@ -18,7 +18,7 @@ extension Parsers {
   ///           (`0` / `1` / `2`) where `2` signals guest for downstream role awareness;
   ///           clients must treat `2` as non-admin. Only `== 1` is a safe admin test.
   /// - bytes 1–6: pubkey prefix.
-  /// - bytes 7–10: server timestamp (not parsed).
+  /// - bytes 7–10: server timestamp (LE uint32 epoch seconds, the node's RTC at login).
   /// - byte 11: full ACL permissions byte. Encoding is firmware-specific:
   ///            - Official C++ firmware: `0 = guest`, `1 = read-only`, `2 = read-write`,
   ///              `3 = admin`.
@@ -53,10 +53,14 @@ extension Parsers {
           0x00 // RoomPermissionLevel.guest (read-only / unknowns)
         }
 
+        let serverEpoch = data.readUInt32LE(at: 7)
+        let serverTime = serverEpoch == 0 ? nil : Date(timeIntervalSince1970: TimeInterval(serverEpoch))
+
         return .loginSuccess(LoginInfo(
           permissions: normalizedPermissions,
           isAdmin: isAdmin,
-          publicKeyPrefix: pubkeyPrefix
+          publicKeyPrefix: pubkeyPrefix,
+          serverTime: serverTime
         ))
       }
 
