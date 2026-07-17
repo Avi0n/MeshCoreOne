@@ -147,7 +147,7 @@ public extension MeshCoreSession {
     return try await withThrowingTaskGroup(of: Response?.self) { group in
       let (timeoutStream, timeoutContinuation) = AsyncStream<TimeInterval>.makeStream()
 
-      group.addTask { [logger] in
+      group.addTask { [logger, configuration] in
         var expectedAck: Data?
 
         for await event in events {
@@ -158,9 +158,9 @@ public extension MeshCoreSession {
             // Capture the expectedAck from firmware's MSG_SENT response
             // and signal the dynamic timeout to the timeout task.
             expectedAck = info.expectedAck
-            let timeout = TimeInterval(info.suggestedTimeoutMs)
-              / SessionConfiguration.millisecondsPerSecond
-              * SessionConfiguration.binaryRequestTimeoutMultiplier
+            let timeout = configuration.binaryRequestTimeout(
+              suggestedTimeoutMs: info.suggestedTimeoutMs
+            )
             logger.info("\(operation) request to \(prefixHex): messageSent received, suggestedTimeoutMs=\(info.suggestedTimeoutMs), effective timeout=\(String(format: "%.1f", timeout))s")
             timeoutContinuation.yield(timeout)
             timeoutContinuation.finish()

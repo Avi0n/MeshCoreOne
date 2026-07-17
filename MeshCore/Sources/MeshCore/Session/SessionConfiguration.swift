@@ -8,6 +8,12 @@ public struct SessionConfiguration: Sendable {
   /// The client identifier sent to the device during session startup.
   public let clientIdentifier: String
 
+  /// Minimum wait for a binary-protocol response. Firmware's suggested timeout
+  /// models the direct-path round trip, but a remote node that lacks a return
+  /// path replies via flood, which can far exceed that estimate; the suggestion
+  /// may extend, never shorten, this floor.
+  public let binaryRequestMinimumTimeout: TimeInterval
+
   /// Maximum idle gap allowed between contact stream events.
   public let contactStreamInactivityTimeout: TimeInterval
 
@@ -34,6 +40,7 @@ public struct SessionConfiguration: Sendable {
   /// - Parameters:
   ///   - defaultTimeout: The timeout for operations. Defaults to 5.0 seconds.
   ///   - clientIdentifier: The identifier for this client. Defaults to "MeshCore-Swift".
+  ///   - binaryRequestMinimumTimeout: Floor for binary-protocol response waits.
   ///   - contactStreamInactivityTimeout: The idle timeout for contact list progress.
   ///   - contactStreamHardTimeout: The total timeout for a contact list response.
   ///   - channelPipelineWindow: Max outstanding pipelined channel reads.
@@ -43,6 +50,7 @@ public struct SessionConfiguration: Sendable {
   public init(
     defaultTimeout: TimeInterval = 5.0,
     clientIdentifier: String = "MeshCore-Swift",
+    binaryRequestMinimumTimeout: TimeInterval = 12.0,
     contactStreamInactivityTimeout: TimeInterval = 15.0,
     contactStreamHardTimeout: TimeInterval = 180.0,
     channelPipelineWindow: Int = 8,
@@ -52,6 +60,7 @@ public struct SessionConfiguration: Sendable {
   ) {
     self.defaultTimeout = defaultTimeout
     self.clientIdentifier = clientIdentifier
+    self.binaryRequestMinimumTimeout = binaryRequestMinimumTimeout
     self.contactStreamInactivityTimeout = contactStreamInactivityTimeout
     self.contactStreamHardTimeout = contactStreamHardTimeout
     self.channelPipelineWindow = channelPipelineWindow
@@ -69,6 +78,15 @@ public struct SessionConfiguration: Sendable {
   /// Headroom multiplier applied to the firmware-suggested round-trip time when
   /// deriving the effective wait for a binary-protocol response.
   static let binaryRequestTimeoutMultiplier: Double = 2.0
+
+  /// Effective wait for a binary-protocol response given the firmware's
+  /// suggested round-trip time.
+  func binaryRequestTimeout(suggestedTimeoutMs: UInt32) -> TimeInterval {
+    max(
+      TimeInterval(suggestedTimeoutMs) / Self.millisecondsPerSecond * Self.binaryRequestTimeoutMultiplier,
+      binaryRequestMinimumTimeout
+    )
+  }
 
   /// Headroom multiplier applied to the firmware-suggested round-trip time when
   /// waiting for a delivery acknowledgement during retry sends.
