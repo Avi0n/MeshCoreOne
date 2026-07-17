@@ -528,12 +528,6 @@ extension SyncCoordinator {
             contactType: contactType
           )
           await notifyContactsChanged()
-        case .contactSyncRequested:
-          // Auto-add mode: AdvertisementService already fetched and
-          // saved the contact, so only a UI refresh is needed
-          PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
-            .info("B4 relay contactSyncRequested -> notifyContactsChanged")
-          await notifyContactsChanged()
         case .contactUpdated, .nodeStorageFullChanged, .contactDeletedCleanup,
              .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:
           break

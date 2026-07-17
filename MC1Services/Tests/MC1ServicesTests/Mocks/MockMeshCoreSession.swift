@@ -5,7 +5,10 @@ import MeshCore
 ///
 /// Configure the mock by setting the stub properties before calling methods.
 /// Track method calls by examining the recorded invocations.
-public actor MockMeshCoreSession: MeshCoreSessionProtocol {
+///
+/// Also conforms to ``AdvertisingSessionOps`` so services such as
+/// `AdvertisementService` can be exercised without a second fake session type.
+public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps {
   // MARK: - Connection State
 
   public var connectionState: AsyncStream<ConnectionState> {
@@ -91,11 +94,21 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
   /// Error to throw from getContacts
   public var stubbedGetContactsError: Error?
 
-  /// Contact to return from getContact (by public key)
+  /// Contact to return from getContact (by public key) when no per-key stub is set.
   public var stubbedContact: MeshContact?
 
-  /// Error to throw from getContact
+  /// Error to throw from getContact when no per-key error is set.
   public var stubbedGetContactError: Error?
+
+  /// Per-key contact results for `getContact`. Takes precedence over `stubbedContact`.
+  public var stubbedContactsByKey: [Data: MeshContact?] = [:]
+
+  /// Per-key errors for `getContact`. Takes precedence over `stubbedGetContactError`.
+  public var stubbedGetContactErrorsByKey: [Data: Error] = [:]
+
+  /// Per-key hold gates: when present, `getContact` suspends until the continuation is resumed.
+  private var getContactHoldContinuations: [Data: CheckedContinuation<Void, Never>] = [:]
+  private var getContactHoldRequested: Set<Data> = []
 
   /// Error to throw from addContact
   public var stubbedAddContactError: Error?
@@ -229,6 +242,38 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     stubbedAddContactError = error
   }
 
+  /// Sets the contact returned by `getContact` for a specific public key.
+  public func setStubbedContact(_ contact: MeshContact?, for publicKey: Data) {
+    stubbedContactsByKey[publicKey] = contact
+  }
+
+  /// Sets the error thrown by `getContact` for a specific public key.
+  public func setGetContactError(_ error: Error?, for publicKey: Data) {
+    if let error {
+      stubbedGetContactErrorsByKey[publicKey] = error
+    } else {
+      stubbedGetContactErrorsByKey.removeValue(forKey: publicKey)
+    }
+  }
+
+  /// Causes the next `getContact` for `publicKey` to suspend until `releaseGetContact(for:)` is called.
+  public func holdNextGetContact(for publicKey: Data) {
+    getContactHoldRequested.insert(publicKey)
+  }
+
+  /// Releases a held `getContact` for `publicKey`.
+  /// Does not clear a pending `holdNextGetContact` for a *future* call on the same key.
+  public func releaseGetContact(for publicKey: Data) {
+    if let continuation = getContactHoldContinuations.removeValue(forKey: publicKey) {
+      continuation.resume()
+    }
+  }
+
+  /// Whether a `getContact` for `publicKey` is currently suspended on a hold gate.
+  public func isGetContactHeld(for publicKey: Data) -> Bool {
+    getContactHoldContinuations[publicKey] != nil
+  }
+
   // MARK: - Protocol Methods
 
   public func sendMessage(to destination: Data, text: String, timestamp: Date, attempt: UInt8) async throws -> MessageSentInfo {
@@ -258,11 +303,33 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
   public func getContact(publicKey: Data) async throws -> MeshContact? {
     getContactPublicKeys.append(publicKey)
+
+    if getContactHoldRequested.contains(publicKey) {
+      getContactHoldRequested.remove(publicKey)
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        getContactHoldContinuations[publicKey] = continuation
+      }
+    }
+
+    if let error = stubbedGetContactErrorsByKey[publicKey] {
+      throw error
+    }
     if let error = stubbedGetContactError {
       throw error
     }
+    if let keyed = stubbedContactsByKey[publicKey] {
+      return keyed
+    }
     return stubbedContact
   }
+
+  // MARK: - AdvertisingSessionOps
+
+  public func sendAdvertisement(flood: Bool) async throws {}
+
+  public func setName(_ name: String) async throws {}
+
+  public func setCoordinates(latitude: Double, longitude: Double) async throws {}
 
   public func addContact(_ contact: MeshContact) async throws {
     addContactInvocations.append(AddContactInvocation(contact: contact))

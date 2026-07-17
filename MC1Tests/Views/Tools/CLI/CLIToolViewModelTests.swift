@@ -536,8 +536,8 @@ actor ParkingContactStore: PersistenceStoreProtocol {
     nil
   }
 
-  @discardableResult func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID {
-    UUID()
+  @discardableResult func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> (id: UUID, isNew: Bool) {
+    (id: UUID(), isNew: true)
   }
 
   func saveContact(_ dto: ContactDTO) async throws {}

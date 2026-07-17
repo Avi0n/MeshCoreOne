@@ -511,14 +511,48 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return contacts.values.first { $0.publicKey == publicKey }
   }
 
+  /// When true, the next `saveContact(radioID:from:)` suspends until `releaseSaveContact()`.
+  private var saveContactHoldRequested = false
+  private var saveContactHoldContinuation: CheckedContinuation<Void, Never>?
+
+  /// Number of completed `saveContact(radioID:from:)` calls (post-hold). Tests wait on
+  /// this after `releaseSaveContact()` so commit/rollback assertions are not racy.
+  public private(set) var saveContactCompletedCount = 0
+
+  /// Causes the next frame `saveContact` to suspend until `releaseSaveContact()`.
+  public func holdNextSaveContact() {
+    saveContactHoldRequested = true
+  }
+
+  /// Releases a held `saveContact(radioID:from:)`.
+  public func releaseSaveContact() {
+    if let continuation = saveContactHoldContinuation {
+      saveContactHoldContinuation = nil
+      continuation.resume()
+    }
+    saveContactHoldRequested = false
+  }
+
+  /// Whether a frame `saveContact` is currently suspended on the hold gate.
+  public var isSaveContactHeld: Bool {
+    saveContactHoldContinuation != nil
+  }
+
   @discardableResult
-  public func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID {
+  public func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> (id: UUID, isNew: Bool) {
+    if saveContactHoldRequested {
+      saveContactHoldRequested = false
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        saveContactHoldContinuation = continuation
+      }
+    }
+    defer { saveContactCompletedCount += 1 }
     if let error = stubbedSaveContactError {
       throw error
     }
     // Check if contact already exists
     if let existing = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == frame.publicKey }) {
-      return existing.id
+      return (id: existing.id, isNew: false)
     }
     let id = UUID()
     let dto = ContactDTO(
@@ -543,7 +577,15 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     )
     contacts[id] = dto
     savedContacts.append(dto)
-    return id
+    return (id: id, isNew: true)
+  }
+
+  public func deleteContactIfUnreferenced(id: UUID) async throws {
+    // Same actor region as the message map: probe and delete with no suspension between.
+    if messages.values.contains(where: { $0.contactID == id }) {
+      return
+    }
+    try await deleteContact(id: id)
   }
 
   public func saveContact(_ dto: ContactDTO) async throws {

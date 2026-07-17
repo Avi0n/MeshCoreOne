@@ -33,9 +33,10 @@ public protocol ContactPersisting: Actor {
   /// for routing hints where the contact may exist under another device's ID.
   func findContactByPublicKey(_ publicKey: Data) async throws -> ContactDTO?
 
-  /// Save or update a contact from a ContactFrame
+  /// Save or update a contact from a ContactFrame.
+  /// Returns the contact id and whether the row was newly inserted (`isNew`).
   @discardableResult
-  func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID
+  func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> (id: UUID, isNew: Bool)
 
   /// Save or update a contact from DTO
   func saveContact(_ dto: ContactDTO) async throws
@@ -50,6 +51,13 @@ public protocol ContactPersisting: Actor {
   /// value, so orphaned local data is removed even when the Contact row is
   /// already gone.
   func deleteContact(id: UUID) async throws
+
+  /// Deletes the contact only when no messages reference it. Insert-only
+  /// rollback of cancelled advert fetches: prefer an orphan contact over
+  /// cascade-wiping a concurrent DM. Implementations that share a ModelActor
+  /// with message storage must keep probe and delete in one isolation region
+  /// with no suspension between them.
+  func deleteContactIfUnreferenced(id: UUID) async throws
 
   /// Update contact's last message info (nil clears the date, removing from conversations list)
   func updateContactLastMessage(contactID: UUID, date: Date?) async throws
@@ -110,5 +118,21 @@ extension ContactPersisting {
       _ = try await saveContact(radioID: radioID, from: frame)
     }
     return frames.count
+  }
+}
+
+public extension ContactPersisting where Self: MessagePersisting {
+  /// Default: skip delete when the message probe throws or finds rows.
+  /// `PersistenceStore` overrides with a single-actor probe+delete (no race window).
+  func deleteContactIfUnreferenced(id: UUID) async throws {
+    let messages: [MessageDTO]
+    do {
+      messages = try await fetchMessages(contactID: id, limit: 1, offset: 0)
+    } catch {
+      // Prefer an orphan contact over cascade-wiping history on probe failure.
+      return
+    }
+    guard messages.isEmpty else { return }
+    try await deleteContact(id: id)
   }
 }
