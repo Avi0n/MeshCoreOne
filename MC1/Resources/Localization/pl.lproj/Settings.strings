@@ -1556,6 +1556,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Te kanały nie miały wolnego miejsca w tym radiu, więc one i ich wiadomości nie zostały zaimportowane. Zwolnij miejsce na kanał i zaimportuj ponownie, aby je przywrócić.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Tych odkrytych węzłów nie udało się przywrócić, ponieważ lista odkryć tego radia jest pełna (%d węzłów). Istniejące lokalne węzły zostały zachowane; sieć mesh ponownie ogłosi brakujące.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Niektórych elementów nie udało się przywrócić: kanałów bez wolnego miejsca w radiu oraz odkrytych węzłów, które przekroczyły pojemność listy odkryć (%d węzłów). Zwolnij miejsce na kanał i zaimportuj kanały ponownie; sieć mesh ponownie ogłosi brakujące odkryte węzły.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Gotowe";
 
@@ -1577,6 +1583,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Migawki węzłów";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Odkryte węzły";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Powtórzenia wiadomości";

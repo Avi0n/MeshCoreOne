@@ -1554,6 +1554,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Questi canali non avevano uno slot libero su questa radio, quindi non sono stati importati con i loro messaggi. Libera uno slot canale e importa di nuovo per ripristinarli.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Questi nodi scoperti non sono stati ripristinati perché l’elenco di scoperta di questa radio è pieno (%d nodi). I nodi locali esistenti sono stati conservati; la mesh ri-annuncerà quelli mancanti.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Alcuni elementi non sono stati ripristinati: canali senza slot libero sulla radio e nodi scoperti che superano la capacità dell’elenco di scoperta (%d nodi). Libera uno slot canale e reimporta i canali; la mesh ri-annuncerà i nodi scoperti mancanti.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Fine";
 
@@ -1575,6 +1581,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Snapshot dei nodi";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Nodi scoperti";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Ripetizioni dei messaggi";

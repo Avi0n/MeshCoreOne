@@ -3391,6 +3391,468 @@ struct BackupIntegrationTests {
     #expect(mergedContact.isFavorite == true)
     #expect(mergedContact.nickname == "Field Ops")
   }
+
+  // MARK: - Discovered nodes backup
+
+  @Test
+  func `Discovered nodes import into fresh store, dedup on re-import`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0x11, count: 32)
+    let dto = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Node-A",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1,
+      latitude: 1.0, longitude: 2.0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    // A Device row must exist so the radioID is a known partition.
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let envelope = AppBackupEnvelope.test(devices: [device], discoveredNodes: [dto])
+
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let service = AppBackupService()
+
+    let first = try await service.importBackup(envelope: envelope, into: store)
+    #expect(first.discoveredNodesInserted == 1)
+
+    let persisted = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(persisted.count == 1)
+    #expect(persisted.first?.name == "Node-A")
+
+    // Re-import the same backup: the node is skipped, not duplicated.
+    let second = try await service.importBackup(envelope: envelope, into: store)
+    #expect(second.discoveredNodesInserted == 0)
+    #expect(second.discoveredNodesSkipped == 1)
+    #expect(try await store.fetchDiscoveredNodes(radioID: radioID).count == 1)
+
+    // Divergent payload for the same business key must not refresh local state.
+    let updated = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Node-A-UPDATED",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_800_000_000),
+      lastAdvertTimestamp: 99,
+      latitude: 9.0, longitude: 9.0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: 3, inboundHopAdvertTimestamp: 99
+    )
+    let third = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [updated]),
+      into: store
+    )
+    #expect(third.discoveredNodesInserted == 0)
+    #expect(third.discoveredNodesSkipped == 1)
+    let afterUpdate = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(afterUpdate.count == 1)
+    #expect(afterUpdate.first?.name == "Node-A")
+    #expect(afterUpdate.first?.lastAdvertTimestamp == 1)
+  }
+
+  @Test
+  func `Discovered nodes survive full export → import into fresh store`() async throws {
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0x22, count: 32)
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let path = Data([0xAA, 0xBB, 0xCC])
+    let frame = ContactFrame(
+      publicKey: publicKey,
+      type: .repeater,
+      flags: 0,
+      outPathLength: 3,
+      outPath: path,
+      name: "Discovered-Repeater",
+      lastAdvertTimestamp: 7,
+      latitude: 51.5, longitude: -0.12,
+      lastModified: 7
+    )
+    _ = try await sourceStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+    try await sourceStore.setInboundHopCount(
+      radioID: radioID,
+      publicKey: publicKey,
+      hopCount: 2,
+      advertTimestamp: 7
+    )
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+    #expect(envelope.discoveredNodes.count == 1)
+    #expect(envelope.manifest.validate(against: envelope))
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(result.discoveredNodesInserted == 1)
+
+    let restored = try #require(try await destStore.fetchDiscoveredNodes(radioID: radioID).first)
+    #expect(restored.name == "Discovered-Repeater")
+    #expect(restored.publicKey == publicKey)
+    #expect(restored.typeRawValue == ContactType.repeater.rawValue)
+    #expect(restored.latitude == 51.5)
+    #expect(restored.longitude == -0.12)
+    #expect(restored.lastAdvertTimestamp == 7)
+    #expect(restored.outPathLength == 3)
+    #expect(restored.outPath == path)
+    #expect(restored.inboundHopCount == 2)
+    #expect(restored.inboundHopAdvertTimestamp == 7)
+  }
+
+  @Test
+  func `Discovered nodes remap to local radioID when device publicKey matches`() async throws {
+    let backupRadioID = UUID()
+    let localRadioID = UUID()
+    let devicePublicKey = Data(repeating: 0xEE, count: 32)
+
+    // Local store already knows this radio under a different radioID.
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: localRadioID)
+    let localDevice = DeviceDTO.testDevice(radioID: localRadioID, publicKey: devicePublicKey)
+    try await destStore.saveDevice(localDevice)
+
+    // Backup carries the same physical radio (same publicKey) under backupRadioID,
+    // with a discovered node scoped to backupRadioID.
+    let backupDevice = DeviceDTO.testDevice(radioID: backupRadioID, publicKey: devicePublicKey)
+    let node = DiscoveredNodeDTO(
+      id: UUID(), radioID: backupRadioID,
+      publicKey: Data(repeating: 0x33, count: 32),
+      name: "Foreign-Node", typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 0, longitude: 0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let envelope = AppBackupEnvelope.test(devices: [backupDevice], discoveredNodes: [node])
+
+    let service = AppBackupService()
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // The node must land under the local radioID, not the backup's.
+    #expect(try await destStore.fetchDiscoveredNodes(radioID: localRadioID).count == 1)
+    #expect(try await destStore.fetchDiscoveredNodes(radioID: backupRadioID).isEmpty)
+  }
+
+  @Test
+  func `Discovered nodes skip after remap when local already has the business key`() async throws {
+    let backupRadioID = UUID()
+    let localRadioID = UUID()
+    let devicePublicKey = Data(repeating: 0xEF, count: 32)
+    let nodePublicKey = Data(repeating: 0x44, count: 32)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: localRadioID)
+    let localDevice = DeviceDTO.testDevice(radioID: localRadioID, publicKey: devicePublicKey)
+    try await destStore.saveDevice(localDevice)
+
+    // Seed local node under the remapped radio + key.
+    let localNode = DiscoveredNodeDTO(
+      id: UUID(), radioID: localRadioID, publicKey: nodePublicKey,
+      name: "Local-Keep", typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 1, longitude: 1,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let service = AppBackupService()
+    _ = try await service.importBackup(
+      envelope: .test(devices: [localDevice], discoveredNodes: [localNode]),
+      into: destStore
+    )
+
+    let backupDevice = DeviceDTO.testDevice(radioID: backupRadioID, publicKey: devicePublicKey)
+    let foreign = DiscoveredNodeDTO(
+      id: UUID(), radioID: backupRadioID, publicKey: nodePublicKey,
+      name: "Foreign-Overwrite", typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_800_000_000),
+      lastAdvertTimestamp: 9, latitude: 9, longitude: 9,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: 4, inboundHopAdvertTimestamp: 9
+    )
+    let result = try await service.importBackup(
+      envelope: .test(devices: [backupDevice], discoveredNodes: [foreign]),
+      into: destStore
+    )
+    #expect(result.discoveredNodesInserted == 0)
+    #expect(result.discoveredNodesSkipped == 1)
+
+    let local = try await destStore.fetchDiscoveredNodes(radioID: localRadioID)
+    #expect(local.count == 1)
+    #expect(local.first?.name == "Local-Keep")
+    #expect(try await destStore.fetchDiscoveredNodes(radioID: backupRadioID).isEmpty)
+  }
+
+  @Test
+  func `Import trims discovered nodes over the per-radio cap`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let cap = PersistenceStore.maxDiscoveredNodes
+    // cap+1 distinct nodes with increasing lastHeard; the oldest must be dropped.
+    let nodes: [DiscoveredNodeDTO] = (0..<(cap + 1)).map { i in
+      var key = Data(count: 32)
+      key[0] = UInt8(i & 0xFF)
+      key[1] = UInt8((i >> 8) & 0xFF)
+      return DiscoveredNodeDTO(
+        id: UUID(), radioID: radioID, publicKey: key,
+        name: "N\(i)", typeRawValue: 0x01,
+        lastHeard: Date(timeIntervalSince1970: 1_700_000_000 + Double(i)),
+        lastAdvertTimestamp: UInt32(i), latitude: 0, longitude: 0,
+        outPathLength: 0xFF, outPath: Data(),
+        inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+      )
+    }
+    let envelope = AppBackupEnvelope.test(devices: [device], discoveredNodes: nodes)
+
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let result = try await AppBackupService().importBackup(envelope: envelope, into: store)
+    #expect(result.discoveredNodesInserted == cap)
+    #expect(result.discoveredNodesSkipped == 0)
+    #expect(result.discoveredNodesDropped == 1)
+    #expect(
+      result.discoveredNodesInserted
+        + result.discoveredNodesSkipped
+        + result.discoveredNodesDropped
+        == cap + 1
+    )
+
+    let restored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(restored.count == cap)
+    // The oldest node (N0) was dropped; the newest survives.
+    #expect(!restored.contains { $0.name == "N0" })
+    #expect(restored.contains { $0.name == "N\(cap)" })
+  }
+
+  @Test
+  func `Import into at-cap store keeps committed nodes and drops the incoming overflow`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let cap = PersistenceStore.maxDiscoveredNodes
+    func node(_ i: Int, name: String, lastHeard: Double) -> DiscoveredNodeDTO {
+      var key = Data(count: 32)
+      key[0] = UInt8(i & 0xFF)
+      key[1] = UInt8((i >> 8) & 0xFF)
+      return DiscoveredNodeDTO(
+        id: UUID(), radioID: radioID, publicKey: key,
+        name: name, typeRawValue: 0x01,
+        lastHeard: Date(timeIntervalSince1970: lastHeard),
+        lastAdvertTimestamp: UInt32(i), latitude: 0, longitude: 0,
+        outPathLength: 0xFF, outPath: Data(),
+        inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+      )
+    }
+
+    // First import fills the radio to exactly the cap and commits.
+    let seed = (0..<cap).map { node($0, name: "Old\($0)", lastHeard: 1_700_000_000 + Double($0)) }
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let service = AppBackupService()
+    _ = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: seed),
+      into: store
+    )
+
+    // Second import carries 5 newer nodes (distinct keys, later lastHeard).
+    let fresh = (2000..<2005).map { node($0, name: "New\($0)", lastHeard: 1_800_000_000 + Double($0)) }
+    let second = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: fresh),
+      into: store
+    )
+    #expect(second.discoveredNodesInserted == 0)
+    #expect(second.discoveredNodesDropped == 5)
+
+    // Every committed node survives; none of the incoming ones landed.
+    let restored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(restored.count == cap)
+    #expect(!restored.contains { $0.name.hasPrefix("New") })
+  }
+
+  @Test
+  func `Import fills partial room under the per-radio cap`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let cap = PersistenceStore.maxDiscoveredNodes
+    let seedCount = cap - 2
+    func node(_ i: Int, name: String, lastHeard: Double) -> DiscoveredNodeDTO {
+      var key = Data(count: 32)
+      key[0] = UInt8(i & 0xFF)
+      key[1] = UInt8((i >> 8) & 0xFF)
+      return DiscoveredNodeDTO(
+        id: UUID(), radioID: radioID, publicKey: key,
+        name: name, typeRawValue: 0x01,
+        lastHeard: Date(timeIntervalSince1970: lastHeard),
+        lastAdvertTimestamp: UInt32(i), latitude: 0, longitude: 0,
+        outPathLength: 0xFF, outPath: Data(),
+        inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+      )
+    }
+
+    let seed = (0..<seedCount).map {
+      node($0, name: "Seed\($0)", lastHeard: 1_700_000_000 + Double($0))
+    }
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let service = AppBackupService()
+    _ = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: seed),
+      into: store
+    )
+
+    // 5 newer nodes, only 2 room remaining → insert 2 newest, drop 3 oldest of the batch.
+    let fresh = (2000..<2005).map {
+      node($0, name: "New\($0)", lastHeard: 1_800_000_000 + Double($0))
+    }
+    let second = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: fresh),
+      into: store
+    )
+    #expect(second.discoveredNodesInserted == 2)
+    #expect(second.discoveredNodesDropped == 3)
+
+    let restored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(restored.count == cap)
+    #expect(restored.filter { $0.name.hasPrefix("Seed") }.count == seedCount)
+    #expect(restored.contains { $0.name == "New2003" })
+    #expect(restored.contains { $0.name == "New2004" })
+    #expect(!restored.contains { $0.name == "New2000" })
+    #expect(!restored.contains { $0.name == "New2001" })
+    #expect(!restored.contains { $0.name == "New2002" })
+  }
+
+  @Test
+  func `Import skips discovered nodes with invalid public key size`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let invalid = DiscoveredNodeDTO(
+      id: UUID(), radioID: radioID,
+      publicKey: Data(repeating: 0x11, count: 16),
+      name: "Bad-Key", typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 0, longitude: 0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let valid = DiscoveredNodeDTO(
+      id: UUID(), radioID: radioID,
+      publicKey: Data(repeating: 0x22, count: 32),
+      name: "Good-Key", typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1, latitude: 0, longitude: 0,
+      outPathLength: 0xFF, outPath: Data(),
+      inboundHopCount: nil, inboundHopAdvertTimestamp: nil
+    )
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [invalid, valid]),
+      into: PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    )
+    #expect(result.discoveredNodesInserted == 1)
+    #expect(result.discoveredNodesSkipped == 1)
+  }
+
+  @Test
+  func `Import assigns fresh DiscoveredNode.id so an id collision cannot upsert the local row`() async throws {
+    // Without re-mint, SwiftData upserts on @Attribute(.unique) DiscoveredNode.id when a
+    // backup reuses that id under a different publicKey. Seed via upsertDiscoveredNode so the
+    // local surrogate is a real stored id. Dedup is (radioID, publicKey); both rows land.
+    let radioID = UUID()
+    let localPublicKey = Data(repeating: 0xA1, count: 32)
+    let backupPublicKey = Data(repeating: 0xB1, count: 32)
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let service = AppBackupService()
+
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    try await store.saveDevice(device)
+
+    let localFrame = ContactFrame(
+      publicKey: localPublicKey,
+      type: .chat,
+      flags: 0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      name: "Local-Node",
+      lastAdvertTimestamp: 1,
+      latitude: 1.0,
+      longitude: 1.0,
+      lastModified: 1
+    )
+    let (localSeed, _) = try await store.upsertDiscoveredNode(radioID: radioID, from: localFrame)
+    let collidingID = localSeed.id
+
+    let collidingBackup = DiscoveredNodeDTO(
+      id: collidingID,
+      radioID: radioID,
+      publicKey: backupPublicKey,
+      name: "Backup-Node",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_800_000_000),
+      lastAdvertTimestamp: 2,
+      latitude: 2.0,
+      longitude: 2.0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      inboundHopCount: nil,
+      inboundHopAdvertTimestamp: nil
+    )
+    let result = try await service.importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [collidingBackup]),
+      into: store
+    )
+    #expect(result.discoveredNodesInserted == 1)
+
+    let stored = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(stored.count == 2)
+
+    let localAfter = try #require(stored.first { $0.publicKey == localPublicKey })
+    #expect(localAfter.id == collidingID)
+    #expect(localAfter.name == "Local-Node")
+
+    let backupAfter = try #require(stored.first { $0.publicKey == backupPublicKey })
+    #expect(backupAfter.id != collidingID)
+    #expect(backupAfter.name == "Backup-Node")
+  }
+
+  @Test
+  func `Import truncates oversized discovered node name and outPath to protocol limits`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let longName = String(repeating: "N", count: ProtocolLimits.maxUsableNameBytes + 20)
+    let longPath = Data(repeating: 0xAB, count: ProtocolLimits.maxPathSize + 16)
+    let dto = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: Data(repeating: 0x33, count: 32),
+      name: longName,
+      typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1,
+      latitude: 0,
+      longitude: 0,
+      outPathLength: 0xFF,
+      outPath: longPath,
+      inboundHopCount: nil,
+      inboundHopAdvertTimestamp: nil
+    )
+
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [dto]),
+      into: store
+    )
+    #expect(result.discoveredNodesInserted == 1)
+    #expect(result.discoveredNodesSkipped == 0)
+
+    let restored = try #require(try await store.fetchDiscoveredNodes(radioID: radioID).first)
+    #expect(restored.name.utf8.count <= ProtocolLimits.maxUsableNameBytes)
+    #expect(restored.name == longName.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes))
+    #expect(restored.outPath.count == ProtocolLimits.maxPathSize)
+    #expect(restored.outPath == Data(longPath.prefix(ProtocolLimits.maxPathSize)))
+  }
 }
 
 private enum InjectedImportFailure: Error {

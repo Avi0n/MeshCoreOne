@@ -1556,6 +1556,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Deze kanalen hadden geen vrije sleuf op deze radio, dus zij en hun berichten zijn niet geïmporteerd. Maak een kanaalsleuf vrij en importeer opnieuw om ze te herstellen.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Deze ontdekte nodes konden niet worden hersteld omdat de ontdeklijst van deze radio vol is (%d nodes). Bestaande lokale nodes zijn behouden; het mesh-netwerk zal ontbrekende opnieuw aankondigen.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Sommige items konden niet worden hersteld: kanalen zonder vrije radiosleuf en ontdekte nodes die de capaciteit van de ontdeklijst overschreden (%d nodes). Maak een kanaalsleuf vrij en importeer kanalen opnieuw; het mesh-netwerk zal ontbrekende ontdekte nodes opnieuw aankondigen.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Gereed";
 
@@ -1577,6 +1583,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Knooppunt-momentopnamen";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Ontdekte nodes";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Berichtherhalingen";

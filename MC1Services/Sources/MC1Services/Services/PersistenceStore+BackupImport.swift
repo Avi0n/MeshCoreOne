@@ -90,6 +90,15 @@ public extension PersistenceStore {
       nodeStatusSnapshotKey(nodePublicKey: $0.nodePublicKey, timestamp: $0.timestamp)
     })
   }
+
+  func existingDiscoveredNodeKeys(radioIDs: Set<UUID>) throws -> Set<String> {
+    let radioIDArray = Array(radioIDs)
+    guard !radioIDArray.isEmpty else { return [] }
+    let predicate = #Predicate<DiscoveredNode> { radioIDArray.contains($0.radioID) }
+    let descriptor = FetchDescriptor<DiscoveredNode>(predicate: predicate)
+    let nodes = try modelContext.fetch(descriptor)
+    return Set(nodes.map { discoveredNodeKey(radioID: $0.radioID, publicKey: $0.publicKey) })
+  }
 }
 
 // MARK: - Import
@@ -145,9 +154,10 @@ public extension PersistenceStore {
     var blockedSenders = envelope.blockedChannelSenders
     var messageRepeats = envelope.messageRepeats
     var roomMessages = envelope.roomMessages
+    var discoveredNodes = envelope.discoveredNodes
 
     // Skip the rewrite when every mapping entry is identity (same-device restore),
-    // avoiding seven copy-on-write copies.
+    // avoiding copy-on-write copies of every remapped array.
     if radioMap.mapping.contains(where: { $0.key != $0.value }) {
       applyRadioIDMapping(radioMap.mapping, to: &contacts, keyPath: \.radioID)
       applyRadioIDMapping(radioMap.mapping, to: &channels, keyPath: \.radioID)
@@ -156,6 +166,7 @@ public extension PersistenceStore {
       applyRadioIDMapping(radioMap.mapping, to: &sessions, keyPath: \.radioID)
       applyRadioIDMapping(radioMap.mapping, to: &tracePaths, keyPath: \.radioID)
       applyRadioIDMapping(radioMap.mapping, to: &blockedSenders, keyPath: \.radioID)
+      applyRadioIDMapping(radioMap.mapping, to: &discoveredNodes, keyPath: \.radioID)
     }
 
     try Task.checkCancellation()
@@ -173,6 +184,7 @@ public extension PersistenceStore {
     allRadioIDs.formUnion(sessions.map(\.radioID))
     allRadioIDs.formUnion(tracePaths.map(\.radioID))
     allRadioIDs.formUnion(blockedSenders.map(\.radioID))
+    allRadioIDs.formUnion(discoveredNodes.map(\.radioID))
 
     let contactResult = try batchInsertContacts(contacts, radioIDs: allRadioIDs)
     result.record(
@@ -304,6 +316,19 @@ public extension PersistenceStore {
       existingKeys: existingSnapshotKeys
     )
     result.record(.nodeStatusSnapshots, inserted: snapshotResult.inserted, skipped: snapshotResult.skipped)
+
+    try Task.checkCancellation()
+    let existingDiscoveredKeys = try existingDiscoveredNodeKeys(radioIDs: allRadioIDs)
+    let discoveredResult = try batchInsertDiscoveredNodes(
+      discoveredNodes,
+      existingKeys: existingDiscoveredKeys
+    )
+    result.record(
+      .discoveredNodes,
+      inserted: discoveredResult.inserted,
+      skipped: discoveredResult.skipped,
+      dropped: discoveredResult.dropped
+    )
 
     try reconcileLastMessageDates(
       messages: messages,

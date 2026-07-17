@@ -1556,6 +1556,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Ces canaux n'avaient aucun emplacement libre sur cette radio ; ils n'ont donc pas été importés avec leurs messages. Libérez un emplacement de canal et réimportez pour les restaurer.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Ces nœuds découverts n’ont pas pu être restaurés car la liste de découverte de cette radio est pleine (%d nœuds). Les nœuds locaux existants ont été conservés ; le maillage réannoncera ceux qui manquent.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Certains éléments n’ont pas pu être restaurés : canaux sans emplacement libre sur la radio, et nœuds découverts ayant dépassé la capacité de la liste de découverte (%d nœuds). Libérez un emplacement de canal et réimportez les canaux ; le maillage réannoncera les nœuds découverts manquants.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Terminé";
 
@@ -1577,6 +1583,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Instantanés de nœuds";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Nœuds découverts";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Répétitions de messages";

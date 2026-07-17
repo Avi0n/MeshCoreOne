@@ -5175,6 +5175,8 @@ public enum L10n {
             public static let details = L10n.tr("Settings", "settings.backup.import.preview.details", fallback: "Backup Details")
             /// Import preview manifest label: devices
             public static let devices = L10n.tr("Settings", "settings.backup.import.preview.devices", fallback: "Devices")
+            /// Import preview manifest label: discovered nodes
+            public static let discoveredNodes = L10n.tr("Settings", "settings.backup.import.preview.discovered_nodes", fallback: "Discovered Nodes")
             /// Import preview label: export date
             public static let exported = L10n.tr("Settings", "settings.backup.import.preview.exported", fallback: "Export Date")
             /// Import preview info text
@@ -5215,6 +5217,14 @@ public enum L10n {
             public static let done = L10n.tr("Settings", "settings.backup.import.success.done", fallback: "Done")
             /// Import success footer explaining why some channels couldn't be restored and how to recover them
             public static let droppedFooter = L10n.tr("Settings", "settings.backup.import.success.dropped_footer", fallback: "These channels had no free slot on this radio, so they and their messages were not imported. Free a channel slot and import again to restore them.")
+            /// Import success footer when only discovered nodes exceeded the per-radio discover-list cap
+            public static func droppedFooterDiscoveredNodes(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.dropped_footer_discovered_nodes", p1, fallback: "These discovered nodes could not be restored because this radio’s discover list is full (%d nodes). Existing local nodes were kept; the mesh will re-advertise missing ones.")
+            }
+            /// Import success footer when both channel slots and the discover-list cap caused drops
+            public static func droppedFooterMixed(_ p1: Int) -> String {
+              return L10n.tr("Settings", "settings.backup.import.success.dropped_footer_mixed", p1, fallback: "Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (%d nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.")
+            }
             /// Import success section header: channels that had no free local slot and couldn't be restored
             public static let droppedSection = L10n.tr("Settings", "settings.backup.import.success.dropped_section", fallback: "Couldn't be restored")
             /// Import success disclosure row summary for the "Couldn't be restored" section

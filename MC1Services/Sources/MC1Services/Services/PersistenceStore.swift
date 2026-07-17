@@ -139,7 +139,8 @@ public actor PersistenceStore: PersistenceStoreProtocol {
 
   // MARK: - Discovered Nodes
 
-  private let maxDiscoveredNodes = 1000
+  /// Per-radio cap for the discover list. Public so UI copy and import trim share one source of truth.
+  public static let maxDiscoveredNodes = 1000
 
   /// Inbound advert hop counts heard via the RX log before the matching node row exists.
   /// The firmware emits the 0x88 RX packet before the 0x80 advert push that creates the row,
@@ -273,12 +274,12 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     let countDescriptor = FetchDescriptor<DiscoveredNode>(predicate: countPredicate)
     let count = try modelContext.fetchCount(countDescriptor)
 
-    if count > maxDiscoveredNodes {
+    if count > Self.maxDiscoveredNodes {
       var oldestDescriptor = FetchDescriptor<DiscoveredNode>(
         predicate: countPredicate,
         sortBy: [SortDescriptor(\.lastHeard, order: .forward)]
       )
-      oldestDescriptor.fetchLimit = count - maxDiscoveredNodes
+      oldestDescriptor.fetchLimit = count - Self.maxDiscoveredNodes
       let toDelete = try modelContext.fetch(oldestDescriptor)
       for node in toDelete {
         modelContext.delete(node)

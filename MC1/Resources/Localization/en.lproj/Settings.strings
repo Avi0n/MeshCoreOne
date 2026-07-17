@@ -1554,6 +1554,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "These channels had no free slot on this radio, so they and their messages were not imported. Free a channel slot and import again to restore them.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "These discovered nodes could not be restored because this radio’s discover list is full (%d nodes). Existing local nodes were kept; the mesh will re-advertise missing ones.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Some items couldn’t be restored: channels with no free radio slot, and discovered nodes that exceeded this radio’s discover-list capacity (%d nodes). Free a channel slot and re-import for channels; the mesh will re-advertise missing discovered nodes.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Done";
 
@@ -1575,6 +1581,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Node Snapshots";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Discovered Nodes";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Message Repeats";

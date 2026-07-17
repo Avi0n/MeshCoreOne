@@ -1556,6 +1556,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Для этих каналов не было свободного слота на этой рации, поэтому они и их сообщения не были импортированы. Освободите слот канала и выполните импорт снова, чтобы восстановить их.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Эти обнаруженные узлы не удалось восстановить, потому что список обнаружения этой рации заполнен (%d узлов). Существующие локальные узлы сохранены; сеть mesh повторно объявит отсутствующие.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Некоторые элементы не удалось восстановить: каналы без свободного слота на рации и обнаруженные узлы, превысившие ёмкость списка обнаружения (%d узлов). Освободите слот канала и повторно импортируйте каналы; сеть mesh повторно объявит отсутствующие обнаруженные узлы.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Готово";
 
@@ -1577,6 +1583,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Снимки состояния узлов";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Обнаруженные узлы";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Повторы сообщений";

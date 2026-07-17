@@ -1556,6 +1556,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "这些频道在此设备上没有空闲的频道位，因此它们及其消息未被导入。请腾出一个频道位后重新导入以恢复它们。";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "这些发现的节点无法恢复，因为此设备的发现列表已满（%d 个节点）。已保留现有本地节点；Mesh网络将重新通告缺失的节点。";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "部分项目无法恢复：没有空闲频道位的频道，以及超出此设备发现列表容量（%d 个节点）的发现的节点。请腾出一个频道位后重新导入频道；Mesh网络将重新通告缺失的发现的节点。";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "完成";
 
@@ -1577,6 +1583,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "节点快照";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "发现的节点";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "消息转发次数";

@@ -95,6 +95,10 @@ extension PersistenceStore {
     "\(radioID)-\(publicKey.base64EncodedString())"
   }
 
+  func discoveredNodeKey(radioID: UUID, publicKey: Data) -> String {
+    "\(radioID)-\(publicKey.base64EncodedString())"
+  }
+
   func nodeStatusSnapshotKey(nodePublicKey: Data, timestamp: Date) -> String {
     // Use milliseconds (Int) to stay stable across JSON `.secondsSince1970`
     // encode/decode roundtrips — Double.bitPattern can drift on roundtrip

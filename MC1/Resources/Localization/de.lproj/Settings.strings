@@ -1556,6 +1556,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Diese Kanäle hatten auf diesem Funkgerät keinen freien Steckplatz, daher wurden sie und ihre Nachrichten nicht importiert. Gib einen Kanal-Steckplatz frei und importiere erneut, um sie wiederherzustellen.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Diese entdeckten Knoten konnten nicht wiederhergestellt werden, weil die Entdecken-Liste dieses Funkgeräts voll ist (%d Knoten). Vorhandene lokale Knoten wurden beibehalten; das Mesh wird fehlende Knoten erneut ankündigen.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Einige Elemente konnten nicht wiederhergestellt werden: Kanäle ohne freien Steckplatz auf dem Funkgerät und entdeckte Knoten, die die Kapazität der Entdecken-Liste überschritten (%d Knoten). Gib einen Kanal-Steckplatz frei und importiere Kanäle erneut; das Mesh wird fehlende entdeckte Knoten erneut ankündigen.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Fertig";
 
@@ -1577,6 +1583,9 @@
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Knoten-Momentaufnahmen";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Entdeckte Knoten";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Nachrichtenwiederholungen";
