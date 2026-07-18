@@ -178,23 +178,28 @@ struct ChatViewModelPaginationTests {
   /// source-level review at PR time; `ReactionService` is a concrete
   /// actor without a protocol surface, so an injectable continuation-
   /// blocking stub is not available.
+  ///
+  /// `ChatTimeline.loadOlder` pages only an open conversation, so the test
+  /// opens via `primeInitialMessages` first and seeds more than one page so
+  /// the pagination call has an older page left to prepend.
   @Test
   func `loadOlderMessages clears isLoadingOlder on the success path`() async throws {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let dataStore = PersistenceStore(modelContainer: container)
     let radioID = UUID()
     let contactID = UUID()
+    let contact = createTestContact(id: contactID, radioID: radioID)
 
     let viewModel = ChatViewModel()
     viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
-    viewModel.currentContact = createTestContact(id: contactID, radioID: radioID)
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.bindCoordinatorForTesting(coordinator)
 
-    // Seed the database with a page worth of messages so the
-    // pagination fetch returns rows and proceeds past the
-    // prepend/buildItems block where the early-clear lives.
-    for index in 0..<10 {
+    // Seed one full initial page plus an older remainder so the pagination
+    // fetch returns rows and proceeds past the prepend/buildItems block
+    // where the early-clear lives.
+    let total = ChatCoordinator.pageSize + 10
+    for index in 0..<total {
       let message = createTestMessage(
         contactID: contactID,
         radioID: radioID,
@@ -203,6 +208,8 @@ struct ChatViewModelPaginationTests {
       try await dataStore.saveMessage(message)
     }
 
+    #expect(await viewModel.primeInitialMessages(for: contact), "Initial open must succeed")
+    #expect(viewModel.messages.count == ChatCoordinator.pageSize)
     #expect(viewModel.isLoadingOlder == false)
 
     await viewModel.loadOlderMessages()
@@ -210,7 +217,7 @@ struct ChatViewModelPaginationTests {
     #expect(viewModel.isLoadingOlder == false, "Pagination must release the spinner before returning")
     #expect(viewModel.errorMessage == nil)
     #expect(viewModel.errorBannerMessage == nil)
-    #expect(viewModel.messages.count == 10, "Pagination should have prepended fetched messages")
+    #expect(viewModel.messages.count == total, "Pagination should have prepended the older page")
   }
 }
 
