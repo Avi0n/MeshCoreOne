@@ -1,5 +1,6 @@
 import MC1Services
 import SwiftUI
+import UIKit
 
 struct ContactAvatar: View {
   @Environment(\.appTheme) private var theme
@@ -7,23 +8,34 @@ struct ContactAvatar: View {
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
   let name: String
   let size: CGFloat
+  let imageData: Data?
 
   init(contact: ContactDTO, size: CGFloat) {
     name = contact.displayName
     self.size = size
+    imageData = contact.avatarImageData
   }
 
   init(name: String, size: CGFloat) {
     self.name = name
     self.size = size
+    imageData = nil
   }
 
   var body: some View {
-    Text(initials)
-      .font(.system(size: size * 0.4, weight: .semibold))
-      .foregroundStyle(glyphColor)
-      .frame(width: size, height: size)
-      .background(avatarColor, in: .circle)
+    if let imageData, let uiImage = UIImage(data: imageData) {
+      Image(uiImage: uiImage)
+        .resizable()
+        .scaledToFill()
+        .frame(width: size, height: size)
+        .clipShape(.circle)
+    } else {
+      Text(initials)
+        .font(.system(size: size * 0.4, weight: .semibold))
+        .foregroundStyle(glyphColor)
+        .frame(width: size, height: size)
+        .background(avatarColor, in: .circle)
+    }
   }
 
   private var initials: String {

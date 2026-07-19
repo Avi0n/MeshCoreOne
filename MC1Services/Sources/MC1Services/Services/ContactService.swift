@@ -565,6 +565,18 @@ public actor ContactService {
     try await dataStore.saveContact(updated)
   }
 
+  /// Updates a contact's locally stored profile picture.
+  /// - Parameters:
+  ///   - contactID: The contact's ID
+  ///   - imageData: Compressed JPEG data for the new avatar, or `nil` to remove it
+  public func updateContactAvatar(contactID: UUID, imageData: Data?) async throws {
+    guard let existing = try await dataStore.fetchContact(id: contactID) else {
+      throw ContactServiceError.contactNotFound
+    }
+
+    try await dataStore.saveContact(existing.with(avatarImageData: imageData))
+  }
+
   // MARK: - Device Favorite Sync
 
   /// Sets a contact's favorite status on the device and updates local storage.
