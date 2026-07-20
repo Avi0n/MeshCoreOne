@@ -178,14 +178,20 @@ struct ChatConversationView: View {
         onWillSend: { scrollToBottomRequest += 1 },
         onFocus: { scrollToBottomRequest += 1 }
       )
+      .chatKeyboardLiftPadding()
       .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
     }
+    // Overlay before `chatKeyboardOwnedLift`: environment does not reach overlays
+    // applied after the modifier that publishes `chatKeyboardLift`.
     .overlay(alignment: .bottom) {
       ChatConversationMentionOverlay(
         suggestions: mentionSuggestions,
         onSelectMention: { insertMention(for: $0) }
       )
     }
+    // Owned lift: residual system keyboard safe area can park the compose bar
+    // mid-screen after an interrupted hide (app switch, notification activation).
+    .chatKeyboardOwnedLift()
     .navigationHeader(
       title: conversationType.navigationTitle,
       subtitle: conversationType.navigationSubtitle(

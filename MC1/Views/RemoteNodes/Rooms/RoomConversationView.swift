@@ -44,8 +44,12 @@ struct RoomConversationView: View {
             makeReadOnlyBanner()
           }
         }
+        .chatKeyboardLiftPadding()
         .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
       }
+      // Owned lift: residual system keyboard safe area can park the compose bar
+      // mid-screen after an interrupted hide (app switch, notification activation).
+      .chatKeyboardOwnedLift()
       .animation(.default, value: session.isConnected)
       .navigationHeader(
         title: session.name,

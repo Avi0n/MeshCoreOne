@@ -3,6 +3,9 @@ import SwiftUI
 
 /// Floating mention suggestions overlay for the chat input.
 struct ChatConversationMentionOverlay: View {
+  /// Clearance above the compose bar when the keyboard is down (bar ~height).
+  private static let composeBarClearance: CGFloat = 60
+
   let suggestions: [ContactDTO]
   let onSelectMention: (ContactDTO) -> Void
 
@@ -14,7 +17,9 @@ struct ChatConversationMentionOverlay: View {
           onSelectMention(contact)
         }
         .padding(.horizontal)
-        .padding(.bottom, 60)
+        // Clearance above the compose bar, then `chatKeyboardLift` for the keyboard.
+        .padding(.bottom, Self.composeBarClearance)
+        .chatKeyboardLiftPadding()
         .transition(
           .asymmetric(
             insertion: .move(edge: .bottom)
