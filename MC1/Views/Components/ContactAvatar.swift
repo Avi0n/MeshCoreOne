@@ -5,8 +5,8 @@ import UIKit
 /// Process-lifetime cache of decoded avatar images, keyed by the raw JPEG data.
 /// Avoids re-running `UIImage(data:)` on every cell redraw while scrolling a contact list.
 private enum AvatarImageCache {
-  // NSCache is internally thread-safe; its lack of Sendable conformance is a
-  // missing annotation in Foundation, not an actual data race risk here.
+  /// NSCache is internally thread-safe; its lack of Sendable conformance is a
+  /// missing annotation in Foundation, not an actual data race risk here.
   nonisolated(unsafe) static let shared = NSCache<NSData, UIImage>()
 }
 

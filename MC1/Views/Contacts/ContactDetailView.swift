@@ -592,7 +592,7 @@ struct ContactDetailView: View {
 
   /// Downscales to a max 512pt dimension and re-encodes as JPEG so avatars stay small in the store.
   /// `nonisolated` so it can run on a background thread via `Task.detached` in `saveAvatar`.
-  private static nonisolated func processAvatarImage(data: Data) -> Data? {
+  private nonisolated static func processAvatarImage(data: Data) -> Data? {
     guard let image = UIImage(data: data) else { return nil }
     let maxDimension: CGFloat = 512
     let scale = min(1, maxDimension / max(image.size.width, image.size.height))
