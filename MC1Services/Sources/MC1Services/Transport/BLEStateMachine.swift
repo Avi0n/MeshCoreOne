@@ -48,43 +48,10 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Disconnect callbacks older than this belong to a previous generation.
   var connectionGenerationStartTime: CFAbsoluteTime = CFAbsoluteTimeGetCurrent()
 
-  /// Number of times a discovery watchdog has deferred teardown within the
-  /// current generation because the peripheral was already connected. Reset
-  /// per generation in `advanceConnectionGeneration()`.
-  var discoveryTimeoutExtensions = 0
-
-  /// Max times a discovery watchdog defers teardown while the peripheral is
-  /// already connected, before forcing a reconnect. Bounds recovery so a
-  /// genuinely wedged-but-connected link still tears down eventually.
-  static let maxDiscoveryTimeoutExtensions = 2
-
-  /// Max consecutive `didFailToConnect` callbacks tolerated within one
-  /// auto-reconnect episode before the machine gives up and notifies loss.
-  /// Bounds re-arming so a radio that fast-rejects every connect cannot spin here.
-  static let maxAutoReconnectConnectFailures = 5
-
-  /// Consecutive `didFailToConnect` callbacks in the current auto-reconnect
-  /// episode. Reset when a link is re-established and when the episode ends.
-  var autoReconnectConnectFailures = 0
-
-  /// How many of `autoReconnectConnectFailures` carried `CBError.encryptionTimedOut`.
-  /// A majority routes an exhausted episode to guided re-pair, since repeated
-  /// encryption timeouts are the ambiguous in-app signature of an invalidated bond.
-  var encryptionTimedOutConnectFailures = 0
-
-  /// How long after a verified encrypted session an exhausted encryption-timeout
-  /// budget is still treated as transient rather than a suspect bond. Encryption
-  /// timeouts at the edge of BLE range are indistinguishable from an invalidated
-  /// bond attempt-by-attempt; a bond that completed an encrypted session this
-  /// recently is near-certainly healthy, while a genuinely dead bond can never
-  /// refresh the verification and escalates once the grace elapses.
-  static let bondVerificationGraceInterval: TimeInterval = 6 * 60 * 60
-
-  /// Returns when the given device's bond last completed a verified encrypted
-  /// session, or nil if it never has. Installed by `ConnectionManager`; consulted
-  /// lazily at teardown-classification time so suspension can't skew it the way
-  /// an armed timer would. A nil provider means no verification evidence exists.
-  var bondVerificationDateProvider: (@Sendable (UUID) -> Date?)?
+  /// Classifies link failures as transient or escalating. Owns the failure
+  /// tallies, the discovery-extension budget, and bond-verification recency;
+  /// this actor executes its decisions.
+  var reconnectPolicy = ReconnectPolicy()
 
   /// Expose current phase for testing
   var currentPhase: BLEPhase {
@@ -98,12 +65,12 @@ actor BLEStateMachine: BLEStateMachineProtocol {
 
   /// Expose the per-generation discovery-extension count for testing
   var currentDiscoveryTimeoutExtensions: Int {
-    discoveryTimeoutExtensions
+    reconnectPolicy.discoveryTimeoutExtensions
   }
 
   /// Expose the auto-reconnect connect-failure tally for testing
   var currentAutoReconnectConnectFailures: Int {
-    autoReconnectConnectFailures
+    reconnectPolicy.autoReconnectConnectFailures
   }
 
   // MARK: - CoreBluetooth
@@ -311,28 +278,8 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   func advanceConnectionGeneration() {
     connectionGeneration &+= 1
     connectionGenerationStartTime = CFAbsoluteTimeGetCurrent()
-    discoveryTimeoutExtensions = 0
+    reconnectPolicy.generationAdvanced()
     discoveryCompleteTeardownError = nil
-  }
-
-  /// Clears the auto-reconnect connect-failure tally. Called when a link is
-  /// re-established and when an episode ends, so the next episode starts fresh.
-  func resetAutoReconnectFailureTracking() {
-    autoReconnectConnectFailures = 0
-    encryptionTimedOutConnectFailures = 0
-  }
-
-  /// Whether a bond verification is recent enough to shield an exhausted
-  /// encryption-timeout budget from bond-suspect escalation. A missing date
-  /// (never verified, or no provider installed) gives no shield. A future date
-  /// (clock set backward) counts as recent — the non-destructive direction.
-  static func isBondRecentlyVerified(
-    lastVerified: Date?,
-    now: Date,
-    grace: TimeInterval = bondVerificationGraceInterval
-  ) -> Bool {
-    guard let lastVerified else { return false }
-    return now.timeIntervalSince(lastVerified) < grace
   }
 
   /// Returns true when a disconnect callback's timestamp predates the current generation boundary.
@@ -375,15 +322,14 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     centralManager?.state ?? .unknown
   }
 
-  /// Current phase name for diagnostic logging
-  var currentPhaseName: String {
-    phase.name
-  }
-
-  /// Current peripheral state for diagnostic logging (nil if no peripheral)
-  var currentPeripheralState: String? {
-    guard let peripheral = phase.peripheral else { return nil }
-    return peripheralStateString(peripheral.state)
+  /// One consistent snapshot of central state, phase, and peripheral state,
+  /// read in a single actor hop.
+  var linkDiagnostics: BLELinkDiagnostics {
+    BLELinkDiagnostics(
+      centralState: centralManagerStateName,
+      phase: phase.kind,
+      peripheralState: phase.peripheral.map { peripheralStateString($0.state) }
+    )
   }
 
   /// Whether the Bluetooth central manager is in the powered-off state.
@@ -392,7 +338,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   }
 
   /// Current CBCentralManager state name for diagnostic logging
-  var centralManagerStateName: String {
+  private var centralManagerStateName: String {
     guard let manager = centralManager else { return "notActivated" }
     switch manager.state {
     case .unknown: return "unknown"
@@ -481,10 +427,18 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     onAutoReconnecting = handler
   }
 
-  /// Sets the provider consulted for a device's last verified encrypted session
-  /// when classifying an exhausted encryption-timeout budget.
-  func setBondVerificationDateProvider(_ provider: @escaping @Sendable (UUID) -> Date?) {
-    bondVerificationDateProvider = provider
+  /// Records that a device's bond completed a verified encrypted session, so an
+  /// exhausted encryption-timeout budget within the grace window classifies as
+  /// transient. `ConnectionManager` seeds the persisted date at wiring time and
+  /// pushes a fresh one after every verified session.
+  func recordBondVerification(deviceID: UUID, at date: Date) {
+    reconnectPolicy.recordBondVerification(deviceID: deviceID, at: date)
+  }
+
+  /// Clears a device's bond-verification record when its pairing is
+  /// forgotten, so a stale verification cannot shield the next episode.
+  func clearBondVerification(deviceID: UUID) {
+    reconnectPolicy.clearBondVerification(deviceID: deviceID)
   }
 
   // MARK: - BLE Scanning
@@ -1183,7 +1137,7 @@ extension BLEStateMachine {
       // Continuation already consumed; connect() is between discovery and
       // adopting .connected. Record why the phase was torn down so connect()
       // surfaces the real classification instead of a generic failure.
-      discoveryCompleteTeardownError = error as? BLEError ?? Self.makeConnectionError(error)
+      discoveryCompleteTeardownError = error as? BLEError ?? ReconnectPolicy.makeConnectionError(error)
 
     case .idle, .autoReconnecting, .restoringState, .disconnecting:
       break
@@ -1196,67 +1150,6 @@ extension BLEStateMachine {
   func cancelUnexpectedPeripheral(_ peripheral: CBPeripheral) {
     logger.warning("Cancelling unexpected peripheral: \(peripheral.identifier)")
     centralManager.cancelPeripheralConnection(peripheral)
-  }
-
-  /// Decides whether a discovery-phase watchdog should extend its window
-  /// rather than tear the link down. When the peripheral is already
-  /// `.connected` the BLE link is up and a `didConnect`/discovery callback is
-  /// in flight or merely slow; tearing it down kills a working reconnection.
-  /// Extend a bounded number of times so a genuinely wedged link still
-  /// recovers via reconnect.
-  static func shouldExtendDiscoveryTimeout(
-    peripheralState: CBPeripheralState,
-    extensions: Int,
-    maxExtensions: Int
-  ) -> Bool {
-    peripheralState == .connected && extensions < maxExtensions
-  }
-
-  /// Classifies how a discovery/subscribe watchdog teardown surfaces. A
-  /// peripheral that reached link-layer `.connected` yet never completed
-  /// discovery across the full extension budget is the strongest in-app signal
-  /// of a silently invalidated bond: CoreBluetooth delivers no error, so
-  /// nothing else distinguishes it from a healthy-but-slow link. Surfacing it
-  /// as `.authenticationFailed` routes it into the same guided re-pair recovery
-  /// as a delivered bond-invalidation error, instead of the generic timeout
-  /// retry loop that would keep re-trying the dead bond. A link that never
-  /// reached `.connected` is a plain connection timeout.
-  static func discoveryTimeoutError(
-    peripheralState: CBPeripheralState,
-    extensions: Int,
-    maxExtensions: Int
-  ) -> BLEError {
-    if peripheralState == .connected, extensions >= maxExtensions {
-      return .authenticationFailed
-    }
-    return .connectionTimeout
-  }
-
-  /// What the auto-reconnect discovery watchdog does when its window elapses.
-  enum AutoReconnectTimeoutAction {
-    case waitForPendingConnect
-    case extendWindow
-    case tearDown
-  }
-
-  /// Unlike service discovery (an established link, where a stall means tear
-  /// down), a peripheral that is not `.connected` here is backed by an OS
-  /// pending connect that never expires; cancelling it abandons a reconnection
-  /// iOS would complete once the radio is back in range, so the watchdog
-  /// waits. Waiting consumes no extension budget — the bounded extensions
-  /// exist only for a connected-but-wedged discovery.
-  static func autoReconnectTimeoutAction(
-    peripheralState: CBPeripheralState,
-    extensions: Int,
-    maxExtensions: Int
-  ) -> AutoReconnectTimeoutAction {
-    guard peripheralState == .connected else { return .waitForPendingConnect }
-    return extensions < maxExtensions ? .extendWindow : .tearDown
-  }
-
-  /// Counts one watchdog deferral against the current generation's budget.
-  func recordDiscoveryTimeoutExtension() {
-    discoveryTimeoutExtensions += 1
   }
 
   func armServiceDiscoveryTimeout(for peripheral: CBPeripheral) {
@@ -1282,25 +1175,16 @@ extension BLEStateMachine {
       let elapsed = Date().timeIntervalSince(phaseStartTime)
       logger.warning("[BLE] Service discovery timeout: \(peripheral.identifier.uuidString.prefix(8)), phase: \(phase.name), peripheralState: \(pState), elapsed: \(elapsed.formatted(.number.precision(.fractionLength(2))))s")
 
-      if Self.shouldExtendDiscoveryTimeout(
-        peripheralState: peripheral.state,
-        extensions: discoveryTimeoutExtensions,
-        maxExtensions: Self.maxDiscoveryTimeoutExtensions
-      ) {
-        recordDiscoveryTimeoutExtension()
-        logger.warning("[BLE] Peripheral still connected; extending service discovery window (\(discoveryTimeoutExtensions)/\(Self.maxDiscoveryTimeoutExtensions)) instead of failing")
+      switch reconnectPolicy.resolveServiceDiscoveryStall(peripheralConnected: peripheral.state == .connected) {
+      case let .extendDiscoveryWindow(extensionCount, budget):
+        logger.warning("[BLE] Peripheral still connected; extending service discovery window (\(extensionCount)/\(budget)) instead of failing")
         armServiceDiscoveryTimeout(for: peripheral)
-        return
-      }
 
-      let teardownError = Self.discoveryTimeoutError(
-        peripheralState: peripheral.state,
-        extensions: discoveryTimeoutExtensions,
-        maxExtensions: Self.maxDiscoveryTimeoutExtensions
-      )
-      centralManager.cancelPeripheralConnection(peripheral)
-      transition(to: .idle)
-      c.resume(throwing: teardownError)
+      case let .tearDown(teardownError):
+        centralManager.cancelPeripheralConnection(peripheral)
+        transition(to: .idle)
+        c.resume(throwing: teardownError)
+      }
     default:
       break
     }
@@ -1331,34 +1215,24 @@ extension BLEStateMachine {
     let pState = peripheralStateString(peripheral.state)
     let elapsed = Date().timeIntervalSince(phaseStartTime)
 
-    switch Self.autoReconnectTimeoutAction(
-      peripheralState: peripheral.state,
-      extensions: discoveryTimeoutExtensions,
-      maxExtensions: Self.maxDiscoveryTimeoutExtensions
-    ) {
+    switch reconnectPolicy.resolveAutoReconnectStall(peripheralConnected: peripheral.state == .connected) {
     case .waitForPendingConnect:
       logger.info(
         "[BLE] Auto-reconnect window elapsed while link down: \(peripheral.identifier.uuidString.prefix(8)), peripheralState: \(pState), elapsed: \(elapsed.formatted(.number.precision(.fractionLength(2))))s; waiting for pending connect"
       )
       armAutoReconnectDiscoveryTimeout(for: peripheral, generation: generation)
 
-    case .extendWindow:
+    case let .extendDiscoveryWindow(extensionCount, budget):
       // iOS may flip the peripheral to .connected before delivering didConnect.
       // Tearing the link down here cancels a reconnection that actually
       // succeeded, after which the late didConnect lands in .idle and is
       // rejected. Give discovery another window instead of destroying it.
-      recordDiscoveryTimeoutExtension()
-      logger.warning("[BLE] Peripheral still connected; extending auto-reconnect discovery window (\(discoveryTimeoutExtensions)/\(Self.maxDiscoveryTimeoutExtensions)) instead of tearing down")
+      logger.warning("[BLE] Peripheral still connected; extending auto-reconnect discovery window (\(extensionCount)/\(budget)) instead of tearing down")
       armAutoReconnectDiscoveryTimeout(for: peripheral, generation: generation)
 
-    case .tearDown:
+    case let .tearDown(teardownError):
       logger.warning(
         "[BLE] Auto-reconnect discovery timeout: \(peripheral.identifier.uuidString.prefix(8)), peripheralState: \(pState), elapsed: \(elapsed.formatted(.number.precision(.fractionLength(2))))s"
-      )
-      let teardownError = Self.discoveryTimeoutError(
-        peripheralState: peripheral.state,
-        extensions: discoveryTimeoutExtensions,
-        maxExtensions: Self.maxDiscoveryTimeoutExtensions
       )
       centralManager.cancelPeripheralConnection(peripheral)
       transition(to: .idle)

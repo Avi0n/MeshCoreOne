@@ -105,7 +105,7 @@ struct PersistenceStoreTests {
   func `updateMessageRetryStatus does not resurrect a .failed row`() async throws {
     let store = try await createTestStore()
     let radioID = UUID()
-    let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame())
+    let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame()).id
 
     let message = MessageDTO(from: Message(
       radioID: radioID,
@@ -130,7 +130,7 @@ struct PersistenceStoreTests {
   func `updateMessageRetryStatus still advances a non-terminal row`() async throws {
     let store = try await createTestStore()
     let radioID = UUID()
-    let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame())
+    let contactID = try await store.saveContact(radioID: radioID, from: createTestContactFrame()).id
 
     let message = MessageDTO(from: Message(
       radioID: radioID,
@@ -152,7 +152,7 @@ struct PersistenceStoreTests {
     contactID: UUID, messageID: UUID, channelID: UUID, sessionID: UUID
   ) {
     let contactFrame = createTestContactFrame(name: "TestContact")
-    let contactID = try await store.saveContact(radioID: radioID, from: contactFrame)
+    let contactID = try await store.saveContact(radioID: radioID, from: contactFrame).id
 
     let message = MessageDTO(from: Message(
       radioID: radioID,
@@ -309,7 +309,7 @@ struct PersistenceStoreTests {
     let device = createTestDevice()
     try await store.saveDevice(device)
 
-    let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame())
+    let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame()).id
     let message = MessageDTO(from: Message(
       radioID: device.id,
       contactID: contactID,
@@ -336,7 +336,7 @@ struct PersistenceStoreTests {
     let device = createTestDevice()
     try await store.saveDevice(device)
 
-    let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame())
+    let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame()).id
     let message = MessageDTO(from: Message(
       radioID: device.id,
       contactID: contactID,
@@ -467,7 +467,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame(name: "Alice")
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     let contact = try await store.fetchContact(id: contactID)
     #expect(contact != nil)
@@ -496,7 +496,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame()
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     let now = Date()
     try await store.updateContactLastMessage(contactID: contactID, date: now)
@@ -521,7 +521,7 @@ struct PersistenceStoreTests {
 
     // Create first contact
     let frame1 = createTestContactFrame(name: "Contact1")
-    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1)
+    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1).id
 
     // Create multiple messages for this contact
     for i in 0..<5 {
@@ -536,7 +536,7 @@ struct PersistenceStoreTests {
 
     // Create a second contact with a message (should not be deleted)
     let frame2 = createTestContactFrame(name: "Contact2")
-    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2)
+    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2).id
     let otherMessage = MessageDTO(from: Message(
       radioID: device.id,
       contactID: contact2ID,
@@ -571,7 +571,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame(name: "Conversation")
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     let base = Date(timeIntervalSince1970: 1_700_000_000)
     let messages = (0..<3).map { i in
@@ -643,7 +643,7 @@ struct PersistenceStoreTests {
 
     // Create a contact message (should not be deleted)
     let frame = createTestContactFrame(name: "Contact1")
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
     let contactMessage = MessageDTO(from: Message(
       radioID: device.id,
       contactID: contactID,
@@ -687,7 +687,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame()
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     // Save multiple messages
     for i in 0..<5 {
@@ -714,7 +714,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame()
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     // Backlog drains in a scrambled receive order: rows arrive (createdAt)
     // in the order 2, 0, 3, 1 but their send times (sortDate) are 0..<4.
@@ -745,7 +745,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame()
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     // A live row: sortDate == createdAt == now.
     let now = Date(timeIntervalSince1970: 3_000_000)
@@ -786,7 +786,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame()
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     // All three rows share an identical sortDate (primary key, e.g. un-backfilled
     // rows that all defaulted to the same value) and an identical timestamp (secondary
@@ -980,7 +980,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame()
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     let message = MessageDTO(from: Message(
       radioID: device.id,
@@ -1492,12 +1492,12 @@ struct PersistenceStoreTests {
 
     // Create contacts with unread messages
     let frame1 = createTestContactFrame(name: "Contact1")
-    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1)
+    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1).id
     try await store.incrementUnreadCount(contactID: contact1ID)
     try await store.incrementUnreadCount(contactID: contact1ID)
 
     let frame2 = createTestContactFrame(name: "Contact2")
-    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2)
+    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2).id
     try await store.incrementUnreadCount(contactID: contact2ID)
 
     // Create channel with unread messages
@@ -1521,7 +1521,7 @@ struct PersistenceStoreTests {
 
     // Create a regular contact with unread messages
     let frame1 = createTestContactFrame(name: "RegularContact")
-    let regularContactID = try await store.saveContact(radioID: device.id, from: frame1)
+    let regularContactID = try await store.saveContact(radioID: device.id, from: frame1).id
     try await store.incrementUnreadCount(contactID: regularContactID)
     try await store.incrementUnreadCount(contactID: regularContactID)
 
@@ -1563,7 +1563,7 @@ struct PersistenceStoreTests {
 
     // Regular chat contact: visible in the chats list, contributes to badge
     let chatFrame = createTestContactFrame(name: "ChatContact")
-    let chatContactID = try await store.saveContact(radioID: device.id, from: chatFrame)
+    let chatContactID = try await store.saveContact(radioID: device.id, from: chatFrame).id
     try await store.incrementUnreadCount(contactID: chatContactID)
     try await store.incrementUnreadCount(contactID: chatContactID)
 
@@ -1580,7 +1580,7 @@ struct PersistenceStoreTests {
       longitude: 0,
       lastModified: UInt32(Date().timeIntervalSince1970)
     )
-    let repeaterID = try await store.saveContact(radioID: device.id, from: repeaterFrame)
+    let repeaterID = try await store.saveContact(radioID: device.id, from: repeaterFrame).id
     try await store.incrementUnreadCount(contactID: repeaterID)
     try await store.incrementUnreadCount(contactID: repeaterID)
     try await store.incrementUnreadCount(contactID: repeaterID)
@@ -1863,9 +1863,9 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame1 = createTestContactFrame(name: "Contact1")
-    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1)
+    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1).id
     let frame2 = createTestContactFrame(name: "Contact2")
-    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2)
+    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2).id
 
     var contact1MessageIDs: [UUID] = []
     for i in 0..<3 {
@@ -1908,6 +1908,90 @@ struct PersistenceStoreTests {
     let contact2Messages = try await store.fetchMessages(contactID: contact2ID)
     #expect(contact2Messages.count == 1,
             "unrelated contact's Message row must be preserved")
+  }
+
+  @Test
+  func `deleteContact cascades messages, reactions, repeats, and pending sends`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame(name: "Doomed")).id
+    let survivorID = try await store.saveContact(radioID: device.id, from: createTestContactFrame(name: "Survivor")).id
+
+    let message = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: contactID,
+      text: "cascade me",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(message)
+    try await store.upsertPendingSend(makePendingSendDTO(
+      messageID: message.id, radioID: device.id, attemptCount: 0, sequence: 1
+    ))
+    try await store.saveReaction(ReactionDTO(
+      messageID: message.id,
+      emoji: "👍",
+      senderName: "Doomed",
+      messageHash: "hash",
+      rawText: "👍",
+      contactID: contactID,
+      radioID: device.id
+    ))
+    try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
+
+    let survivorMessage = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: survivorID,
+      text: "keep me",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(survivorMessage)
+
+    try await store.deleteContact(id: contactID)
+
+    #expect(try await store.fetchContact(id: contactID) == nil,
+            "Contact row must be deleted")
+    #expect(try await store.fetchMessages(contactID: contactID).isEmpty,
+            "messages must die with the contact")
+    #expect(try await store.fetchReactions(for: message.id).isEmpty,
+            "reactions must die with the contact")
+    #expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty,
+            "message repeats must die with the contact")
+    #expect(try await store.fetchPendingSends(radioID: device.id).isEmpty,
+            "pending sends must die with the contact")
+    #expect(try await store.fetchContact(id: survivorID) != nil,
+            "unrelated contact must be preserved")
+    #expect(try await store.fetchMessages(contactID: survivorID).count == 1,
+            "unrelated contact's messages must be preserved")
+  }
+
+  @Test
+  func `deleteContact removes local data when the contact row is already gone`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    // No Contact row exists for this ID — the removeLocalContact scenario,
+    // where the radio no longer knows the contact but local data remains.
+    let ghostContactID = UUID()
+    let message = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: ghostContactID,
+      text: "orphaned",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(message)
+    try await store.upsertPendingSend(makePendingSendDTO(
+      messageID: message.id, radioID: device.id, attemptCount: 0, sequence: 1
+    ))
+
+    try await store.deleteContact(id: ghostContactID)
+
+    #expect(try await store.fetchMessages(contactID: ghostContactID).isEmpty,
+            "local messages must be removed even without a Contact row")
+    #expect(try await store.fetchPendingSends(radioID: device.id).isEmpty,
+            "pending sends must be removed even without a Contact row")
   }
 
   @Test
@@ -2405,6 +2489,61 @@ struct PersistenceStoreTests {
     #expect(bobSaved.first?.regionScope == nil)
   }
 
+  // MARK: - saveContact isNew / deleteContactIfUnreferenced
+
+  @Test
+  func `saveContact from frame returns isNew true then false with stable id`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let frame = createTestContactFrame(name: "Stable")
+    let first = try await store.saveContact(radioID: device.id, from: frame)
+    #expect(first.isNew == true)
+
+    let updated = ContactFrame(
+      publicKey: frame.publicKey,
+      type: frame.type,
+      flags: frame.flags,
+      outPathLength: frame.outPathLength,
+      outPath: frame.outPath,
+      name: "Renamed",
+      lastAdvertTimestamp: frame.lastAdvertTimestamp &+ 1,
+      latitude: frame.latitude,
+      longitude: frame.longitude,
+      lastModified: frame.lastModified &+ 1
+    )
+    let second = try await store.saveContact(radioID: device.id, from: updated)
+    #expect(second.isNew == false)
+    #expect(second.id == first.id)
+
+    let fetched = try await store.fetchContact(id: first.id)
+    #expect(fetched?.name == "Renamed")
+  }
+
+  @Test
+  func `deleteContactIfUnreferenced skips when messages exist and deletes when none`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let withMessagesID = try await store.saveContact(
+      radioID: device.id, from: createTestContactFrame(name: "WithMsgs")
+    ).id
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: device.id, contactID: withMessagesID, text: "keep")
+    )
+    try await store.deleteContactIfUnreferenced(id: withMessagesID)
+    #expect(try await store.fetchContact(id: withMessagesID) != nil)
+    #expect(try await store.fetchMessages(contactID: withMessagesID, limit: 10, offset: 0).count == 1)
+
+    let bareID = try await store.saveContact(
+      radioID: device.id, from: createTestContactFrame(name: "Bare")
+    ).id
+    try await store.deleteContactIfUnreferenced(id: bareID)
+    #expect(try await store.fetchContact(id: bareID) == nil)
+  }
+
   // MARK: - Mute Tests
 
   @Test
@@ -2414,7 +2553,7 @@ struct PersistenceStoreTests {
     try await store.saveDevice(device)
 
     let frame = createTestContactFrame(name: "Alice")
-    let contactID = try await store.saveContact(radioID: device.id, from: frame)
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
 
     // Initially not muted
     var contact = try await store.fetchContact(id: contactID)
@@ -2439,13 +2578,13 @@ struct PersistenceStoreTests {
 
     // Create contact with unreads
     let frame1 = createTestContactFrame(name: "Alice")
-    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1)
+    let contact1ID = try await store.saveContact(radioID: device.id, from: frame1).id
     try await store.incrementUnreadCount(contactID: contact1ID)
     try await store.incrementUnreadCount(contactID: contact1ID)
 
     // Create muted contact with unreads
     let frame2 = createTestContactFrame(name: "Bob")
-    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2)
+    let contact2ID = try await store.saveContact(radioID: device.id, from: frame2).id
     try await store.incrementUnreadCount(contactID: contact2ID)
     try await store.setContactMuted(contact2ID, isMuted: true)
 

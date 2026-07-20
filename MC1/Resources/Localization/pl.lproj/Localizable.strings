@@ -6,7 +6,6 @@
   AI-translated - please verify with native speakers.
 */
 
-
 // MARK: - Generic Buttons
 
 /* Standard confirmation button for dialogs */
@@ -28,8 +27,6 @@
 "common.edit" = "Edytuj";
 
 /* Standard close button for dismissing views */
-"common.close" = "Zamknij";
-
 /* Button to retry a failed operation */
 "common.tryAgain" = "Spróbuj ponownie";
 
@@ -49,9 +46,6 @@
 "common.error.noElevationData" = "Nie zwrócono danych o wysokości";
 
 /* Standard remove button for removing items from a list or group */
-"common.remove" = "Usuń";
-
-
 // MARK: - Connection Status
 
 /* Location: SyncingPillView.swift - Status shown when syncing data */
@@ -65,7 +59,6 @@
 
 /* Location: SyncingPillView.swift - Status shown when device is disconnected */
 "common.status.disconnected" = "Rozłączono";
-
 
 // MARK: - Tab Bar
 
@@ -86,7 +79,6 @@
 
 /* Tab bar title for the app settings screen */
 "tabs.settings" = "Ustawienia";
-
 
 // MARK: - Connection Alerts
 
@@ -111,42 +103,24 @@
 /* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
 "accessibility.alert.connectionFailed.removeAndRetry" = "Usuń sparowanie urządzenia i spróbuj ponownie";
 
-
 // MARK: - Accessibility
 
 "common.accessibility.connectHint" = "Stuknij dwukrotnie, aby połączyć urządzenie";
 
 /* VoiceOver announcement when viewing cached data while disconnected from device */
-"accessibility.viewingCachedData" = "Wyświetlanie danych z pamięci podręcznej. Połącz z urządzeniem, aby uzyskać aktualizacje.";
-
 /* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
 "accessibility.requiresRadioConnection" = "Wymaga połączenia radiowego";
-
 
 // MARK: - Node Types
 
 /* Node type for a person or contact */
-"nodeType.contact" = "Kontakt";
-
 /* Node type for a mesh network repeater device */
-"nodeType.repeater" = "Przekaźnik";
-
 /* Node type for a group chat room */
-"nodeType.room" = "Pokój";
-
-
 // MARK: - Permission Levels
 
 /* Permission level with limited access */
-"permission.guest" = "Gość";
-
 /* Permission level with standard access */
-"permission.member" = "Członek";
-
 /* Permission level with full administrative access */
-"permission.admin" = "Administrator";
-
-
 // MARK: - Discovery Notifications
 
 /* Notification title when a new contact is discovered on the mesh network */
@@ -157,7 +131,6 @@
 
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Odkryto nowy pokój";
-
 
 // MARK: - Notification Actions
 
@@ -172,7 +145,6 @@
 
 /* Notification action button to mark a message as read */
 "notifications.action.markAsRead" = "Oznacz jako przeczytane";
-
 
 // MARK: - Low Battery Notifications
 
@@ -191,7 +163,6 @@
 /* Fallback display name for a discovered contact with no advertised name */
 "notifications.discovery.unknownContact" = "Nieznany kontakt";
 
-
 // MARK: - Connection VoiceOver Announcements
 
 /* VoiceOver announcement when sync fails and device is disconnecting */
@@ -208,12 +179,10 @@
 "accessibility.signalStrength.medium" = "Średni sygnał";
 "accessibility.signalStrength.strong" = "Silny sygnał";
 
-
 // MARK: - Status Pill
 
 /* Status pill message when sync has failed */
 "statusPill.syncFailed" = "Sync nieudany";
-
 
 // MARK: - Additional Accessibility
 
@@ -223,18 +192,15 @@
 /* Accessibility label for on state */
 "accessibility.on" = "Wł.";
 
-
 // MARK: - Rate Limiting
 
 /* Error message when rate limited */
 "common.error.rateLimited" = "Zbyt wiele żądań. Spróbuj ponownie za chwilę.";
 
-
 // MARK: - Reaction Notifications
 
 /* Notification body for a reaction - %1$@ is emoji, %2$@ is message text */
 "notifications.reaction.body" = "Zareagował(a) %1$@ na Twoją wiadomość: \"%2$@\"";
-
 
 // MARK: - Error Messages
 

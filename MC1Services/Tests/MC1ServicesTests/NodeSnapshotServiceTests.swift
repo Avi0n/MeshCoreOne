@@ -132,6 +132,82 @@ struct NodeSnapshotServiceTests {
     #expect(latest?.telemetryEntries?.first?.value == 32.5)
   }
 
+  private let testFix = NodeLocationFix(latitude: 37.7749, longitude: -122.4194)
+
+  @Test
+  func `A location fix persists on capture`() async throws {
+    let (service, store) = try await createTestService()
+    _ = await service.recordSnapshot(
+      nodePublicKey: testPublicKey,
+      status: metrics(battery: 3850, uptime: 3600),
+      location: testFix
+    )
+    let latest = try await store.fetchLatestNodeStatusSnapshot(nodePublicKey: testPublicKey)
+    #expect(latest?.latitude == 37.7749)
+    #expect(latest?.longitude == -122.4194)
+  }
+
+  @Test
+  func `A capture without a fix leaves location nil`() async throws {
+    let (service, store) = try await createTestService()
+    _ = await service.recordSnapshot(
+      nodePublicKey: testPublicKey,
+      status: metrics(battery: 3850, uptime: 3600)
+    )
+    let latest = try await store.fetchLatestNodeStatusSnapshot(nodePublicKey: testPublicKey)
+    #expect(latest?.latitude == nil)
+    #expect(latest?.longitude == nil)
+  }
+
+  @Test
+  func `A GPS-only capture persists the fix on a fresh row`() async throws {
+    let (service, store) = try await createTestService()
+    let id = await service.recordSnapshot(nodePublicKey: testPublicKey, location: testFix)
+    #expect(id != nil)
+    let latest = try await store.fetchLatestNodeStatusSnapshot(nodePublicKey: testPublicKey)
+    #expect(latest?.latitude == 37.7749)
+    #expect(latest?.uptimeSeconds == nil, "A GPS-only row carries no status")
+  }
+
+  @Test
+  func `An in-window fix is first-wins`() async throws {
+    let (service, _) = try await createTestService()
+    _ = await service.recordSnapshot(nodePublicKey: testPublicKey, location: testFix)
+    let later = NodeLocationFix(latitude: 40.0, longitude: -100.0)
+    _ = await service.recordSnapshot(nodePublicKey: testPublicKey, location: later)
+    let snapshots = await service.fetchSnapshots(for: testPublicKey)
+    #expect(snapshots.count == 1)
+    #expect(snapshots[0].latitude == 37.7749, "The first-captured fix is not overwritten")
+  }
+
+  @Test
+  func `An in-window no-fix response does not erase an existing fix`() async throws {
+    let (service, store) = try await createTestService()
+    _ = await service.recordSnapshot(nodePublicKey: testPublicKey, location: testFix)
+    _ = await service.recordSnapshot(
+      nodePublicKey: testPublicKey,
+      status: metrics(battery: 3850, uptime: 3600)
+    )
+    let latest = try await store.fetchLatestNodeStatusSnapshot(nodePublicKey: testPublicKey)
+    #expect(latest?.latitude == 37.7749, "A later no-fix response preserves the good fix")
+  }
+
+  @Test
+  func `An in-window fix enriches a row that had none`() async throws {
+    let (service, store) = try await createTestService()
+    _ = await service.recordSnapshot(
+      nodePublicKey: testPublicKey,
+      status: metrics(battery: 3850, uptime: 3600)
+    )
+    _ = await service.recordSnapshot(nodePublicKey: testPublicKey, location: testFix)
+
+    let snapshots = await service.fetchSnapshots(for: testPublicKey)
+    #expect(snapshots.count == 1, "The fix lands on the existing in-window row, not a new one")
+    let latest = try await store.fetchLatestNodeStatusSnapshot(nodePublicKey: testPublicKey)
+    #expect(latest?.latitude == 37.7749, "A fix enriches the previously fix-less row")
+    #expect(latest?.longitude == -122.4194)
+  }
+
   @Test
   func `Fetch snapshots returns ascending order`() async throws {
     let (service, store) = try await createTestService()

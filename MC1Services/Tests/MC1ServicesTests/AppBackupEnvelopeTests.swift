@@ -32,6 +32,8 @@ struct AppBackupEnvelopeTests {
     #expect(decoded.savedTracePaths.count == envelope.savedTracePaths.count)
     #expect(decoded.blockedChannelSenders.count == envelope.blockedChannelSenders.count)
     #expect(decoded.nodeStatusSnapshots.count == envelope.nodeStatusSnapshots.count)
+    #expect(decoded.discoveredNodes.count == envelope.discoveredNodes.count)
+    #expect(decoded.discoveredNodes == envelope.discoveredNodes)
     #expect(decoded.userDefaults == envelope.userDefaults)
   }
 
@@ -192,6 +194,59 @@ struct AppBackupEnvelopeTests {
     #expect(throws: AppBackupError.self) {
       try parseBackup(data: compressed)
     }
+  }
+
+  @Test
+  func `DiscoveredNodeDTO survives JSON encode → decode round-trip`() throws {
+    let dto = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data(repeating: 0xAB, count: 32),
+      name: "Repeater-7",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 42,
+      latitude: 37.3349,
+      longitude: -122.009,
+      outPathLength: 3,
+      outPath: Data([0x01, 0x02, 0x03]),
+      inboundHopCount: 2,
+      inboundHopAdvertTimestamp: 99
+    )
+    let encoded = try makeBackupJSONEncoder().encode(dto)
+    let decoded = try makeBackupJSONDecoder().decode(DiscoveredNodeDTO.self, from: encoded)
+    #expect(decoded == dto)
+  }
+
+  @Test
+  func `Legacy envelope without discoveredNodes decodes to empty array`() throws {
+    // Legacy envelope JSON: no `discoveredNodes` key, and a manifest with no
+    // `discoveredNodeCount` key.
+    let legacyJSON = """
+    {
+      "version": 1,
+      "exportDate": 1700000000,
+      "appVersion": "1.0",
+      "appBuild": "1",
+      "manifest": {
+        "deviceCount": 0, "contactCount": 0, "channelCount": 0,
+        "messageCount": 0, "messageRepeatCount": 0, "reactionCount": 0,
+        "roomMessageCount": 0, "remoteNodeSessionCount": 0,
+        "savedTracePathCount": 0, "blockedChannelSenderCount": 0,
+        "nodeStatusSnapshotCount": 0
+      },
+      "devices": [], "contacts": [], "channels": [], "messages": [],
+      "messageRepeats": [], "reactions": [], "roomMessages": [],
+      "remoteNodeSessions": [], "savedTracePaths": [],
+      "blockedChannelSenders": [], "nodeStatusSnapshots": []
+    }
+    """
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .secondsSince1970
+    let envelope = try decoder.decode(AppBackupEnvelope.self, from: Data(legacyJSON.utf8))
+    #expect(envelope.discoveredNodes.isEmpty)
+    #expect(envelope.manifest.discoveredNodeCount == 0)
+    #expect(envelope.manifest.validate(against: envelope))
   }
 
   // MARK: - BackupManifest validation
@@ -362,6 +417,21 @@ struct AppBackupEnvelopeTests {
       nodePublicKey: Data(repeating: 0xAA, count: 32),
       neighborSnapshots: []
     )
+    let discovered = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: Data(repeating: 0x55, count: 32),
+      name: "Discovered-Test",
+      typeRawValue: 0x02,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 9,
+      latitude: 1.0,
+      longitude: 2.0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      inboundHopCount: 1,
+      inboundHopAdvertTimestamp: 9
+    )
 
     var prefs = BackupUserDefaults()
     prefs.hasCompletedOnboarding = true
@@ -378,7 +448,8 @@ struct AppBackupEnvelopeTests {
       remoteNodeSessionCount: 1,
       savedTracePathCount: 1,
       blockedChannelSenderCount: 1,
-      nodeStatusSnapshotCount: 1
+      nodeStatusSnapshotCount: 1,
+      discoveredNodeCount: 1
     )
 
     return AppBackupEnvelope(
@@ -396,6 +467,7 @@ struct AppBackupEnvelopeTests {
       savedTracePaths: [tracePath],
       blockedChannelSenders: [blocked],
       nodeStatusSnapshots: [snapshot],
+      discoveredNodes: [discovered],
       userDefaults: prefs
     )
   }

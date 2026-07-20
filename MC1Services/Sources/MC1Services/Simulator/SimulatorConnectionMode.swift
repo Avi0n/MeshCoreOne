@@ -88,9 +88,28 @@ final class SimulatorConnectionMode {
       }
     }
 
+    try await seedNodeStatusSnapshots(dataStore)
+
     logger.info(
       "Simulator: seeded \(MockDataProvider.contacts.count) contacts and " +
         "\(MockDataProvider.channels.count) channels with messages"
+    )
+  }
+
+  /// Seeds a node's GPS track once so the location History list and map have
+  /// content to render. Skipped when the node already has a snapshot, so the
+  /// now-relative timestamps aren't restacked into a duplicate track on every
+  /// reconnect. Unlike the message seed, snapshot rows carry no deterministic id
+  /// (their unique key is nodePublicKey + timestamp), so re-seeding would append.
+  private func seedNodeStatusSnapshots(_ dataStore: PersistenceStore) async throws {
+    let nodeKey = MockDataProvider.locationHistoryNodePublicKey
+    guard try await dataStore.fetchLatestNodeStatusSnapshot(nodePublicKey: nodeKey) == nil else {
+      return
+    }
+    let existingKeys = try await dataStore.existingNodeStatusSnapshotKeys()
+    try await dataStore.batchInsertNodeStatusSnapshots(
+      MockDataProvider.nodeStatusSnapshots,
+      existingKeys: existingKeys
     )
   }
 }

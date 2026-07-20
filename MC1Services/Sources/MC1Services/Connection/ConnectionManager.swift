@@ -456,10 +456,18 @@ public final class ConnectionManager {
   /// proves the bond. Never called on the WiFi path, which bypasses the bond.
   func recordBondVerification(deviceID: UUID) {
     lastConnectionStore.persistBondVerification(deviceID: deviceID)
+    let stateMachine = stateMachine
+    Task { await stateMachine.recordBondVerification(deviceID: deviceID, at: Date()) }
   }
 
-  /// Clears the persisted connection
+  /// Clears the persisted connection, including the in-memory
+  /// bond-verification record, so a forget/re-pair cannot inherit stale
+  /// grace evidence within the same process lifetime.
   func clearPersistedConnection() {
+    if let deviceID = lastConnectionStore.bondVerifiedDeviceID {
+      let stateMachine = stateMachine
+      Task { await stateMachine.clearBondVerification(deviceID: deviceID) }
+    }
     lastConnectionStore.clear()
   }
 
@@ -567,12 +575,14 @@ public final class ConnectionManager {
       }
     }
 
-    // Let the state machine distinguish a recently verified bond from a
-    // suspect one when an auto-reconnect encryption-timeout budget exhausts.
-    // Read lazily at decision time; UserDefaults is thread-safe.
-    let bondStore = lastConnectionStore
-    await stateMachine.setBondVerificationDateProvider { deviceID in
-      bondStore.bondVerificationDate(for: deviceID)
+    // A bond verified in a previous launch must still shield an exhausted
+    // encryption-timeout budget, so seed the persisted verification before
+    // any teardown classification can run. Keyed off the bond slot, not the
+    // connection slot: a WiFi connection overwrites the latter without
+    // touching the bond.
+    if let deviceID = lastConnectionStore.bondVerifiedDeviceID,
+       let verified = lastConnectionStore.bondVerificationDate(for: deviceID) {
+      await stateMachine.recordBondVerification(deviceID: deviceID, at: verified)
     }
 
     // Handle entering auto-reconnecting phase
@@ -626,9 +636,10 @@ public final class ConnectionManager {
         // drop the completion since reconnectingDeviceID is still nil.
         await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
 
-        let bleState = await self.stateMachine.centralManagerStateName
-        let blePhase = await self.stateMachine.currentPhaseName
-        let blePeripheralState = await self.stateMachine.currentPeripheralState ?? "none"
+        let diagnostics = await self.stateMachine.linkDiagnostics
+        let bleState = diagnostics.centralState
+        let blePhase = diagnostics.phase
+        let blePeripheralState = diagnostics.peripheralState ?? "none"
 
         self.persistDisconnectDiagnostic(
           "source=bleStateMachine.autoReconnectingHandler, " +
@@ -667,9 +678,9 @@ public final class ConnectionManager {
           return
         }
 
-        let blePhase = await self.stateMachine.currentPhaseName
+        let blePhase = await self.stateMachine.linkDiagnostics.phase
         let bleConnectedDeviceID = await self.stateMachine.connectedDeviceID
-        if blePhase != "idle" || bleConnectedDeviceID == deviceID {
+        if blePhase != .idle || bleConnectedDeviceID == deviceID {
           self.logger.info(
             "[BLE] Bluetooth powered on: BLE already owns reconnect flow for \(deviceID.uuidString.prefix(8)) " +
               "(phase: \(blePhase), bleConnectedDevice: \(bleConnectedDeviceID?.uuidString.prefix(8) ?? "none"))"
@@ -935,6 +946,8 @@ public final class ConnectionManager {
       logger.info("reconcileIdentity skipped: connectedDevice changed before currentSelfInfo")
       return nil
     }
+    let previousSelfPublicKey = preDevice.publicKey
+    let previousRadioID = preDevice.radioID
 
     let selfInfo: MeshCore.SelfInfo
     do {
@@ -973,6 +986,18 @@ public final class ConnectionManager {
       return nil
     }
 
+    // Drop the local ZephCore V-contact derived from the previous self key when
+    // identity rotates; the new V-key arrives on the next contact sync. It was synced
+    // under the pre-reconcile partition, and ghost reconciliation re-keys only the
+    // Device row, never contacts, so it always lives under previousRadioID.
+    if previousSelfPublicKey != selfInfo.publicKey {
+      await dropStaleVContact(
+        dataStore: expectedServices.dataStore,
+        radioID: previousRadioID,
+        oldSelfPublicKey: previousSelfPublicKey
+      )
+    }
+
     guard let newRadioID else {
       logger.info("reconcileIdentity: publicKey changed but no ghost matched")
       return nil
@@ -1000,8 +1025,33 @@ public final class ConnectionManager {
     return newRadioID
   }
 
-  /// Syncs the device clock if it drifts more than 60 seconds from the phone.
-  /// Safe to call after sync — only affects future device-originated timestamps.
+  /// Removes a local contact row for the V-contact derived from a retired self public key.
+  private func dropStaleVContact(
+    dataStore: PersistenceStore,
+    radioID: UUID,
+    oldSelfPublicKey: Data
+  ) async {
+    guard let oldVKey = VContactIdentity.publicKey(forSelfPublicKey: oldSelfPublicKey) else { return }
+    do {
+      guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: oldVKey) else {
+        return
+      }
+      try await dataStore.deleteContact(id: contact.id)
+      logger.info("Dropped stale ZephCore V-contact after identity rotation")
+    } catch {
+      logger.warning("Failed to drop stale V-contact after identity rotation: \(error.localizedDescription)")
+    }
+  }
+
+  /// Setting the radio clock backward makes its request timestamps fall below
+  /// the `last_timestamp` remote repeaters recorded for it, and their replay
+  /// protection then silently drops every packet until the clock re-passes the
+  /// stored value. A tight tolerance keeps each backward step, and therefore
+  /// each deaf window, no longer than the tolerance itself, while still
+  /// recovering radios whose clocks are stuck far in the future.
+  private static let deviceClockDriftTolerance: TimeInterval = 5
+
+  /// Syncs the device clock when it drifts beyond `deviceClockDriftTolerance`.
   func syncDeviceTimeIfNeeded() async {
     guard let session else { return }
     do {
@@ -1009,7 +1059,7 @@ public final class ConnectionManager {
         try await session.getTime()
       }
       let timeDifference = abs(deviceTime.timeIntervalSinceNow)
-      if timeDifference > 60 {
+      if timeDifference > Self.deviceClockDriftTolerance {
         try await withTimeout(.seconds(5), operationName: "setTime") {
           try await session.setTime(Date())
         }

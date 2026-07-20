@@ -217,4 +217,29 @@ struct RepeaterStatusViewModelTests {
     #expect(enriched?.uptimeSeconds == status.uptimeSeconds, "Status uptime should be backfilled")
     #expect(enriched?.batteryMillivolts == status.batteryMillivolts, "Status battery should be backfilled")
   }
+
+  // MARK: - Owner info firmware capture
+
+  @Test
+  func `Owner info response exposes the firmware version`() {
+    let viewModel = RepeaterStatusViewModel()
+
+    viewModel.applyOwnerInfo(
+      OwnerInfoResponse(firmwareVersion: "v1.16.0", nodeName: "Test Repeater", ownerInfo: "Hello")
+    )
+
+    #expect(viewModel.firmwareVersion == "v1.16.0", "Firmware version should be captured from owner info")
+    #expect(viewModel.ownerInfo == "Hello", "Owner info text should still be captured")
+  }
+
+  @Test
+  func `Empty firmware string maps to nil so the row stays hidden`() {
+    let viewModel = RepeaterStatusViewModel()
+
+    viewModel.applyOwnerInfo(
+      OwnerInfoResponse(firmwareVersion: "", nodeName: "Test Repeater", ownerInfo: "")
+    )
+
+    #expect(viewModel.firmwareVersion == nil, "Nodes predating owner-info return an empty firmware string, which must map to nil")
+  }
 }

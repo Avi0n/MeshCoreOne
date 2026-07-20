@@ -574,18 +574,16 @@ func startDiscoveryEventMonitoring(dependencies: SyncDependencies, radioID: UUID
             guard let self else { return }
             switch event {
             case .newContactDiscovered(let name, let contactID, let contactType):
-                // Manual-add mode: a new contact was discovered via advertisement
+                // New contact discovered via advertisement (manual-add 0x8A or
+                // auto-add 0x80 getContact save). UI refresh + optional notification.
                 await dependencies.notificationService.postNewContactNotification(
                     contactName: name,
                     contactID: contactID,
                     contactType: contactType
                 )
                 await self.notifyContactsChanged()
-            case .contactSyncRequested:
-                // Auto-add mode: AdvertisementService already fetched and saved
-                // the contact, so only a UI refresh is needed
-                await self.notifyContactsChanged()
-            default:
+            case .contactUpdated, .nodeStorageFullChanged, .contactDeletedCleanup,
+                 .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:
                 break
             }
         }

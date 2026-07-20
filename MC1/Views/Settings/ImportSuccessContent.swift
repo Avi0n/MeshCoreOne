@@ -145,8 +145,22 @@ struct ImportSuccessContent: View {
     } header: {
       Text(L10n.Settings.Settings.Backup.Import.Success.droppedSection)
     } footer: {
-      Text(L10n.Settings.Settings.Backup.Import.Success.droppedFooter)
+      Text(Self.droppedFooterText(for: result))
     }
+  }
+
+  /// Footer copy for the dropped-items section based on which kinds were dropped.
+  static func droppedFooterText(for result: ImportResult) -> String {
+    let channelDropped = (result.counts[.channels]?.dropped ?? 0) > 0
+    let discoverDropped = (result.counts[.discoveredNodes]?.dropped ?? 0) > 0
+    let cap = PersistenceStore.maxDiscoveredNodes
+    if channelDropped, discoverDropped {
+      return L10n.Settings.Settings.Backup.Import.Success.droppedFooterMixed(cap)
+    }
+    if discoverDropped {
+      return L10n.Settings.Settings.Backup.Import.Success.droppedFooterDiscoveredNodes(cap)
+    }
+    return L10n.Settings.Settings.Backup.Import.Success.droppedFooter
   }
 
   private var doneSection: some View {

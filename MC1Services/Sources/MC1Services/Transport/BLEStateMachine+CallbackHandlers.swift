@@ -130,7 +130,7 @@ extension BLEStateMachine {
     // Start timeout for auto-reconnect discovery
     armAutoReconnectDiscoveryTimeout(for: peripheral, generation: connectionGeneration)
 
-    resetAutoReconnectFailureTracking()
+    reconnectPolicy.episodeBegan()
     transition(to: .autoReconnecting(peripheral: peripheral, tx: nil, rx: nil))
 
     // State-restoration paths claim the reconnect cycle here so the coordinator's
@@ -194,7 +194,7 @@ extension BLEStateMachine {
        peripheral.identifier == expected.identifier {
       logger.info("[BLE] Auto-reconnect: peripheral connected, discovering services")
       // The link re-established, so the transient connect-failure streak is broken.
-      resetAutoReconnectFailureTracking()
+      reconnectPolicy.linkReestablished()
       peripheral.delegate = delegateHandler
       peripheral.discoverServices([nordicUARTServiceUUID])
 
@@ -239,63 +239,36 @@ extension BLEStateMachine {
 
     // didFailToConnect consumes the OS pending connect, and a suspended app's
     // watchdog cannot retry, so a transient failure re-issues the connect and
-    // stays in the episode. Only a definitive bond failure tears down at once;
-    // exhausting the bounded budget on encryption timeouts escalates to auth
-    // failure — unless the bond verified an encrypted session recently — so an
-    // invalidated bond still reaches guided re-pair.
+    // stays in the episode; the reconnect policy owns the transient-vs-escalate
+    // classification, including the encryption-timeout grace.
     if case let .autoReconnecting(expected, _, _) = phase,
        expected.identifier == peripheral.identifier {
-      if Self.isDefinitiveAuthFailure(error) {
-        logger.warning("Auto-reconnect failed with definitive auth error for \(peripheral.identifier) - transitioning to idle")
-        resetAutoReconnectFailureTracking()
-        transition(to: .idle)
-        onDisconnection?(peripheral.identifier, BLEError.authenticationFailed)
-        return
-      }
-
-      autoReconnectConnectFailures += 1
-      if Self.isEncryptionTimedOut(error) {
-        encryptionTimedOutConnectFailures += 1
-      }
-
-      if autoReconnectConnectFailures < Self.maxAutoReconnectConnectFailures {
-        logger.info("[BLE] Transient auto-reconnect connect failure (\(autoReconnectConnectFailures)/\(Self.maxAutoReconnectConnectFailures)) for \(peripheral.identifier.uuidString.prefix(8)); re-issuing pending connect")
+      switch reconnectPolicy.resolveConnectFailure(deviceID: peripheral.identifier, error: error, now: Date()) {
+      case let .retryPendingConnect(failureCount, budget):
+        logger.info("[BLE] Transient auto-reconnect connect failure (\(failureCount)/\(budget)) for \(peripheral.identifier.uuidString.prefix(8)); re-issuing pending connect")
         let options: [String: Any] = [
           CBConnectPeripheralOptionNotifyOnDisconnectionKey: true,
           CBConnectPeripheralOptionEnableAutoReconnect: true
         ]
         centralManager.connect(peripheral, options: options)
-        return
-      }
 
-      // An encryption-timeout majority is the ambiguous signature of an
-      // invalidated bond, but it is also what a healthy bond produces when the
-      // user lingers at the edge of BLE range. A recently verified bond tears
-      // down as transient (the watchdog keeps retrying); a dead bond can never
-      // refresh its verification, so it still escalates once the grace elapses.
-      let majorityEncryptionTimeouts = encryptionTimedOutConnectFailures * 2 > autoReconnectConnectFailures
-      let now = Date()
-      let lastVerified = bondVerificationDateProvider?(peripheral.identifier)
-      let bondRecentlyVerified = Self.isBondRecentlyVerified(lastVerified: lastVerified, now: now)
-      // The verification age in these lines lets a later debug-log export
-      // distinguish a graced fringe episode from a graced dead bond.
-      let verifiedAge = lastVerified.map {
-        "\((now.timeIntervalSince($0) / 60).formatted(.number.precision(.fractionLength(1))))m ago"
-      } ?? "never"
-      let teardownError: BLEError
-      if majorityEncryptionTimeouts, bondRecentlyVerified {
-        logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(verifiedAge), within grace; classifying as transient")
-        teardownError = .connectionFailed("Encryption timed out repeatedly near range limit")
-      } else if majorityEncryptionTimeouts {
-        logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(verifiedAge), outside grace; escalating to bond-suspect")
-        teardownError = .authenticationFailed
-      } else {
-        teardownError = Self.makeConnectionError(error)
+      case let .tearDown(teardownError, reason):
+        switch reason {
+        case .definitiveBondFailure:
+          logger.warning("Auto-reconnect failed with definitive auth error for \(peripheral.identifier) - transitioning to idle")
+        case let .fringeEncryptionGraced(verifiedAge):
+          logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(Self.verifiedAgeDescription(verifiedAge)), within grace; classifying as transient")
+        case let .bondSuspect(verifiedAge):
+          logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(Self.verifiedAgeDescription(verifiedAge)), outside grace; escalating to bond-suspect")
+        case .retryBudgetExhausted:
+          break
+        }
+        if case .definitiveBondFailure = reason {} else {
+          logger.warning("Auto-reconnect connect failures exhausted budget for \(peripheral.identifier) - transitioning to idle")
+        }
+        transition(to: .idle)
+        onDisconnection?(peripheral.identifier, teardownError)
       }
-      logger.warning("Auto-reconnect connect failures exhausted budget for \(peripheral.identifier) - transitioning to idle")
-      resetAutoReconnectFailureTracking()
-      transition(to: .idle)
-      onDisconnection?(peripheral.identifier, teardownError)
       return
     }
 
@@ -307,48 +280,13 @@ extension BLEStateMachine {
 
     timeoutTask.cancel()
     transition(to: .idle)
-    continuation.resume(throwing: Self.makeConnectionError(error))
+    continuation.resume(throwing: ReconnectPolicy.makeConnectionError(error))
   }
 
-  /// Maps a CoreBluetooth error to a typed BLEError. The CBATTError auth/encryption
-  /// family and `CBError.peerRemovedPairingInformation` are definitive bond failures
-  /// mapped to `.authenticationFailed`, so detection survives iOS localizing the
-  /// description. A lone `CBError.encryptionTimedOut` is transient and stays
-  /// `.connectionFailed`; `handleDidFailToConnect` escalates it only when it
-  /// dominates an exhausted auto-reconnect retry budget.
-  static func makeConnectionError(_ error: Error?, fallback: String = "Unknown error") -> BLEError {
-    if let nsError = error as NSError? {
-      if nsError.domain == CBATTErrorDomain {
-        switch nsError.code {
-        case CBATTError.insufficientAuthentication.rawValue,
-             CBATTError.insufficientAuthorization.rawValue,
-             CBATTError.insufficientEncryption.rawValue,
-             CBATTError.insufficientEncryptionKeySize.rawValue:
-          return .authenticationFailed
-        default:
-          break
-        }
-      }
-      if nsError.domain == CBErrorDomain,
-         nsError.code == CBError.peerRemovedPairingInformation.rawValue {
-        return .authenticationFailed
-      }
-    }
-    return .connectionFailed(error?.localizedDescription ?? fallback)
-  }
-
-  /// Whether an error is a definitive bond failure that must not be retried:
-  /// any error `makeConnectionError` classifies as `.authenticationFailed`.
-  static func isDefinitiveAuthFailure(_ error: Error?) -> Bool {
-    if case .authenticationFailed = makeConnectionError(error) { return true }
-    return false
-  }
-
-  /// Whether an error is `CBError.encryptionTimedOut` — transient on its own, but
-  /// the ambiguous signature of an invalidated bond when it recurs.
-  static func isEncryptionTimedOut(_ error: Error?) -> Bool {
-    guard let nsError = error as NSError? else { return false }
-    return nsError.domain == CBErrorDomain && nsError.code == CBError.encryptionTimedOut.rawValue
+  /// Renders a bond-verification age for debug-log export, so a later export
+  /// can distinguish a graced fringe episode from a graced dead bond.
+  static func verifiedAgeDescription(_ age: TimeInterval?) -> String {
+    age.map { "\(($0 / 60).formatted(.number.precision(.fractionLength(1))))m ago" } ?? "never"
   }
 
   func handleDidDisconnect(_ peripheral: CBPeripheral, timestamp: CFAbsoluteTime, isReconnecting: Bool, error: Error?) {
@@ -459,7 +397,7 @@ extension BLEStateMachine {
     // transition() handles dataContinuation cleanup when leaving .connected.
     // Note: We handle phase continuations manually below since cancelCurrentOperation
     // would transition to .idle, but we need to go to .autoReconnecting.
-    let setupError = Self.makeConnectionError(error, fallback: "Disconnected during setup")
+    let setupError = ReconnectPolicy.makeConnectionError(error, fallback: "Disconnected during setup")
     switch phase {
     case let .connecting(_, continuation, timeoutTask):
       timeoutTask.cancel()
@@ -477,7 +415,7 @@ extension BLEStateMachine {
     // Advance generation for the auto-reconnect cycle
     advanceConnectionGeneration()
 
-    resetAutoReconnectFailureTracking()
+    reconnectPolicy.episodeBegan()
     transition(to: .autoReconnecting(peripheral: peripheral, tx: nil, rx: nil))
 
     // C5: Arm the auto-reconnect discovery timeout (same as restoration path)
@@ -500,11 +438,11 @@ extension BLEStateMachine {
       // surfaces as the typed BLEError.authenticationFailed; nil stays nil to
       // keep a clean disconnect distinguishable from a failure.
       cancelCurrentOperation(with: BLEError.notConnected)
-      onDisconnection?(deviceID, error.map { Self.makeConnectionError($0) })
+      onDisconnection?(deviceID, error.map { ReconnectPolicy.makeConnectionError($0) })
 
     default:
       // Disconnection during connection attempt
-      cancelCurrentOperation(with: Self.makeConnectionError(error, fallback: "Disconnected during setup"))
+      cancelCurrentOperation(with: ReconnectPolicy.makeConnectionError(error, fallback: "Disconnected during setup"))
     }
   }
 
@@ -519,7 +457,7 @@ extension BLEStateMachine {
       if let error {
         logger.warning("Auto-reconnect service discovery failed: \(error.localizedDescription)")
         transition(to: .idle)
-        onDisconnection?(expected.identifier, Self.makeConnectionError(error))
+        onDisconnection?(expected.identifier, ReconnectPolicy.makeConnectionError(error))
         return
       }
 
@@ -545,7 +483,7 @@ extension BLEStateMachine {
 
     if let error {
       transition(to: .idle)
-      continuation.resume(throwing: Self.makeConnectionError(error))
+      continuation.resume(throwing: ReconnectPolicy.makeConnectionError(error))
       return
     }
 
@@ -576,7 +514,7 @@ extension BLEStateMachine {
       if let error {
         logger.warning("Auto-reconnect characteristic discovery failed: \(error.localizedDescription)")
         transition(to: .idle)
-        onDisconnection?(expected.identifier, Self.makeConnectionError(error))
+        onDisconnection?(expected.identifier, ReconnectPolicy.makeConnectionError(error))
         return
       }
 
@@ -609,7 +547,7 @@ extension BLEStateMachine {
 
     if let error {
       transition(to: .idle)
-      continuation.resume(throwing: Self.makeConnectionError(error))
+      continuation.resume(throwing: ReconnectPolicy.makeConnectionError(error))
       return
     }
 
@@ -647,7 +585,7 @@ extension BLEStateMachine {
     if let error {
       centralManager.cancelPeripheralConnection(expected)
       transition(to: .idle)
-      continuation.resume(throwing: Self.makeConnectionError(error))
+      continuation.resume(throwing: ReconnectPolicy.makeConnectionError(error))
       return
     }
 
@@ -686,7 +624,7 @@ extension BLEStateMachine {
     if let error {
       logger.warning("Auto-reconnect notification subscription failed: \(error.localizedDescription)")
       transition(to: .idle)
-      onDisconnection?(peripheral.identifier, Self.makeConnectionError(error))
+      onDisconnection?(peripheral.identifier, ReconnectPolicy.makeConnectionError(error))
       return
     }
 
@@ -757,7 +695,7 @@ extension BLEStateMachine {
       // Map through makeConnectionError like the sibling handlers so an ATT
       // auth/encryption code on a write still routes to guided re-pair;
       // everything else stays the typed write error.
-      let mapped = Self.makeConnectionError(error)
+      let mapped = ReconnectPolicy.makeConnectionError(error)
       if case .authenticationFailed = mapped {
         continuation.resume(throwing: mapped)
       } else {

@@ -26,6 +26,7 @@ public struct AppBackupEnvelope: Codable, Sendable {
   public var savedTracePaths: [SavedTracePathDTO]
   public var blockedChannelSenders: [BlockedChannelSenderDTO]
   public var nodeStatusSnapshots: [NodeStatusSnapshotDTO]
+  public var discoveredNodes: [DiscoveredNodeDTO]
 
   /// Non-SwiftData
   public var userDefaults: BackupUserDefaults?
@@ -47,6 +48,7 @@ public struct AppBackupEnvelope: Codable, Sendable {
     savedTracePaths: [SavedTracePathDTO] = [],
     blockedChannelSenders: [BlockedChannelSenderDTO] = [],
     nodeStatusSnapshots: [NodeStatusSnapshotDTO] = [],
+    discoveredNodes: [DiscoveredNodeDTO] = [],
     userDefaults: BackupUserDefaults? = nil
   ) {
     self.version = version
@@ -65,7 +67,39 @@ public struct AppBackupEnvelope: Codable, Sendable {
     self.savedTracePaths = savedTracePaths
     self.blockedChannelSenders = blockedChannelSenders
     self.nodeStatusSnapshots = nodeStatusSnapshots
+    self.discoveredNodes = discoveredNodes
     self.userDefaults = userDefaults
+  }
+
+  private enum CodingKeys: String, CodingKey {
+    case version, exportDate, appVersion, appBuild, manifest
+    case devices, contacts, channels, messages, messageRepeats, reactions
+    case roomMessages, remoteNodeSessions, savedTracePaths
+    case blockedChannelSenders, nodeStatusSnapshots, discoveredNodes
+    case userDefaults
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    version = try container.decode(Int.self, forKey: .version)
+    exportDate = try container.decode(Date.self, forKey: .exportDate)
+    appVersion = try container.decode(String.self, forKey: .appVersion)
+    appBuild = try container.decode(String.self, forKey: .appBuild)
+    manifest = try container.decode(BackupManifest.self, forKey: .manifest)
+    devices = try container.decode([DeviceDTO].self, forKey: .devices)
+    contacts = try container.decode([ContactDTO].self, forKey: .contacts)
+    channels = try container.decode([ChannelDTO].self, forKey: .channels)
+    messages = try container.decode([MessageDTO].self, forKey: .messages)
+    messageRepeats = try container.decode([MessageRepeatDTO].self, forKey: .messageRepeats)
+    reactions = try container.decode([ReactionDTO].self, forKey: .reactions)
+    roomMessages = try container.decode([RoomMessageDTO].self, forKey: .roomMessages)
+    remoteNodeSessions = try container.decode([RemoteNodeSessionDTO].self, forKey: .remoteNodeSessions)
+    savedTracePaths = try container.decode([SavedTracePathDTO].self, forKey: .savedTracePaths)
+    blockedChannelSenders = try container.decode([BlockedChannelSenderDTO].self, forKey: .blockedChannelSenders)
+    nodeStatusSnapshots = try container.decode([NodeStatusSnapshotDTO].self, forKey: .nodeStatusSnapshots)
+    // Legacy envelopes omit this key; default to empty.
+    discoveredNodes = try container.decodeIfPresent([DiscoveredNodeDTO].self, forKey: .discoveredNodes) ?? []
+    userDefaults = try container.decodeIfPresent(BackupUserDefaults.self, forKey: .userDefaults)
   }
 }
 
@@ -85,14 +119,15 @@ public enum BackupModelKind: String, CaseIterable, Sendable {
   case remoteNodeSessions
   case blockedChannelSenders
   case nodeStatusSnapshots
+  case discoveredNodes
 }
 
 // MARK: - PerTypeCounts
 
 /// Insert/merge/skip/dropped counts for a single model type during backup import.
 /// `dropped` rows could not be restored at all (e.g. a channel with no free local
-/// slot, and its messages/reactions) — distinct from `skipped`, which means the row
-/// was already present locally.
+/// slot and its messages/reactions, or discover-list rows past the per-radio cap) —
+/// distinct from `skipped`, which means the row was already present locally.
 public struct PerTypeCounts: Sendable, Equatable {
   public var inserted: Int
   public var merged: Int
@@ -124,6 +159,7 @@ public struct BackupManifest: Codable, Sendable, Equatable {
   public var savedTracePathCount: Int
   public var blockedChannelSenderCount: Int
   public var nodeStatusSnapshotCount: Int
+  public var discoveredNodeCount: Int
 
   public init(
     deviceCount: Int = 0,
@@ -136,7 +172,8 @@ public struct BackupManifest: Codable, Sendable, Equatable {
     remoteNodeSessionCount: Int = 0,
     savedTracePathCount: Int = 0,
     blockedChannelSenderCount: Int = 0,
-    nodeStatusSnapshotCount: Int = 0
+    nodeStatusSnapshotCount: Int = 0,
+    discoveredNodeCount: Int = 0
   ) {
     self.deviceCount = deviceCount
     self.contactCount = contactCount
@@ -149,6 +186,31 @@ public struct BackupManifest: Codable, Sendable, Equatable {
     self.savedTracePathCount = savedTracePathCount
     self.blockedChannelSenderCount = blockedChannelSenderCount
     self.nodeStatusSnapshotCount = nodeStatusSnapshotCount
+    self.discoveredNodeCount = discoveredNodeCount
+  }
+
+  private enum CodingKeys: String, CodingKey {
+    case deviceCount, contactCount, channelCount, messageCount
+    case messageRepeatCount, reactionCount, roomMessageCount
+    case remoteNodeSessionCount, savedTracePathCount
+    case blockedChannelSenderCount, nodeStatusSnapshotCount, discoveredNodeCount
+  }
+
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    deviceCount = try container.decode(Int.self, forKey: .deviceCount)
+    contactCount = try container.decode(Int.self, forKey: .contactCount)
+    channelCount = try container.decode(Int.self, forKey: .channelCount)
+    messageCount = try container.decode(Int.self, forKey: .messageCount)
+    messageRepeatCount = try container.decode(Int.self, forKey: .messageRepeatCount)
+    reactionCount = try container.decode(Int.self, forKey: .reactionCount)
+    roomMessageCount = try container.decode(Int.self, forKey: .roomMessageCount)
+    remoteNodeSessionCount = try container.decode(Int.self, forKey: .remoteNodeSessionCount)
+    savedTracePathCount = try container.decode(Int.self, forKey: .savedTracePathCount)
+    blockedChannelSenderCount = try container.decode(Int.self, forKey: .blockedChannelSenderCount)
+    nodeStatusSnapshotCount = try container.decode(Int.self, forKey: .nodeStatusSnapshotCount)
+    // Legacy manifests omit this key; default to 0 so validate() matches an empty discoveredNodes array.
+    discoveredNodeCount = try container.decodeIfPresent(Int.self, forKey: .discoveredNodeCount) ?? 0
   }
 
   /// Build a manifest from an envelope's actual array counts.
@@ -164,6 +226,7 @@ public struct BackupManifest: Codable, Sendable, Equatable {
     savedTracePathCount = envelope.savedTracePaths.count
     blockedChannelSenderCount = envelope.blockedChannelSenders.count
     nodeStatusSnapshotCount = envelope.nodeStatusSnapshots.count
+    discoveredNodeCount = envelope.discoveredNodes.count
   }
 
   /// Returns the declared count for `kind`. Backs `BackupModelKind`-driven UI iteration.
@@ -180,6 +243,7 @@ public struct BackupManifest: Codable, Sendable, Equatable {
     case .remoteNodeSessions: remoteNodeSessionCount
     case .blockedChannelSenders: blockedChannelSenderCount
     case .nodeStatusSnapshots: nodeStatusSnapshotCount
+    case .discoveredNodes: discoveredNodeCount
     }
   }
 

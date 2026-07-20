@@ -2,7 +2,17 @@ import SwiftUI
 
 /// Displays a relative timestamp using Apple's localized relative date formatting
 struct RelativeTimestampText: View {
-  let timestamp: UInt32
+  let date: Date
+
+  /// Wire-format unix seconds (contact/message timestamps from the radio).
+  init(timestamp: UInt32) {
+    self.date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+  }
+
+  /// Receiver-clock or other already-resolved `Date` values.
+  init(date: Date) {
+    self.date = date
+  }
 
   private static let relativeFormatter: RelativeDateTimeFormatter = {
     let formatter = RelativeDateTimeFormatter()
@@ -15,15 +25,14 @@ struct RelativeTimestampText: View {
 
   var body: some View {
     TimelineView(.everyMinute) { context in
-      Text(Self.format(timestamp: timestamp, relativeTo: context.date))
+      Text(Self.format(date: date, relativeTo: context.date))
         .font(.caption2)
         .foregroundStyle(.secondary)
     }
   }
 
-  /// Formats a timestamp relative to the given date. Exposed for testing.
-  static func format(timestamp: UInt32, relativeTo now: Date) -> String {
-    let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
+  /// Formats a date relative to the given reference. Exposed for testing.
+  static func format(date: Date, relativeTo now: Date) -> String {
     let interval = now.timeIntervalSince(date)
 
     if interval < nowThreshold {
@@ -36,15 +45,20 @@ struct RelativeTimestampText: View {
 
     return relativeFormatter.localizedString(for: date, relativeTo: now)
   }
+
+  /// Formats a wire-format unix timestamp relative to the given date. Exposed for testing.
+  static func format(timestamp: UInt32, relativeTo now: Date) -> String {
+    format(date: Date(timeIntervalSince1970: TimeInterval(timestamp)), relativeTo: now)
+  }
 }
 
 #Preview {
   VStack(alignment: .trailing, spacing: 8) {
-    RelativeTimestampText(timestamp: UInt32(Date().timeIntervalSince1970))
-    RelativeTimestampText(timestamp: UInt32(Date().addingTimeInterval(-120).timeIntervalSince1970))
-    RelativeTimestampText(timestamp: UInt32(Date().addingTimeInterval(-3600).timeIntervalSince1970))
-    RelativeTimestampText(timestamp: UInt32(Date().addingTimeInterval(-86400).timeIntervalSince1970))
-    RelativeTimestampText(timestamp: UInt32(Date().addingTimeInterval(-259_200).timeIntervalSince1970))
+    RelativeTimestampText(date: Date())
+    RelativeTimestampText(date: Date().addingTimeInterval(-120))
+    RelativeTimestampText(date: Date().addingTimeInterval(-3600))
+    RelativeTimestampText(date: Date().addingTimeInterval(-86400))
+    RelativeTimestampText(date: Date().addingTimeInterval(-259_200))
   }
   .padding()
 }

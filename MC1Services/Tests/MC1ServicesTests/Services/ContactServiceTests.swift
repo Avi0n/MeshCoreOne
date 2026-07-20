@@ -457,12 +457,23 @@ struct ContactServiceTests {
       cleanupCoordinator: RecordingCleanupCoordinator(tracker: tracker)
     )
 
+    // Seed a message so the delete cascade is observable
+    let message = MessageDTO(from: Message(
+      radioID: radioID,
+      contactID: contactID,
+      text: "cascade",
+      timestamp: 0
+    ))
+    try await mockStore.saveMessage(message)
+
     // Remove the contact
     try await service.removeContact(radioID: radioID, publicKey: testPublicKey)
 
-    // Verify messages were deleted
-    let deletedForContacts = await mockStore.deletedMessagesForContactIDs
-    #expect(deletedForContacts == [contactID])
+    // Verify the contact was deleted and its messages died with it
+    let deletedContacts = await mockStore.deletedContactIDs
+    #expect(deletedContacts == [contactID])
+    let remainingMessages = await mockStore.messages
+    #expect(remainingMessages.isEmpty)
 
     // Verify cleanup handler was called with reason=.deleted
     let invocations = await tracker.invocations

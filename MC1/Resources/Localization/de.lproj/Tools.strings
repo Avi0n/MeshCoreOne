@@ -324,11 +324,7 @@
 // MARK: - Line of Sight View
 
 /* Location: LineOfSightView.swift - Map style: standard */
-"tools.lineOfSight.mapStyle.standard" = "Standard";
-
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "Gelände";
-
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "Zurück";
 
@@ -450,14 +446,8 @@
 "tools.lineOfSight.droppedPin" = "Gesetzte Stecknadel";
 
 /* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
-"tools.lineOfSight.repeaterPin.accessibilityHint" = "Doppeltippen, um als Analysepunkt auszuwählen";
-
 /* Location: LOSPointPinView.swift - Accessibility hint for point pins */
-"tools.lineOfSight.pointPin.accessibilityHint" = "Sichtlinien-Analysepunkt";
-
 /* Location: LOSRepeaterTargetPinView.swift - Accessibility hint for repeater target */
-"tools.lineOfSight.repeaterTarget.accessibilityHint" = "Repeater-Platzierungsmarker";
-
 // MARK: - Terrain Profile Canvas
 
 /* Location: TerrainProfileCanvas.swift - Empty state title */
@@ -555,8 +545,6 @@
 "tools.cli.promptSuffix" = ">";
 
 /* Location: CLIToolView.swift - Waiting indicator */
-"tools.cli.waiting" = "...";
-
 /* Location: CLIToolView.swift - Disconnected prompt */
 "tools.cli.disconnected" = "getrennt";
 
@@ -570,11 +558,7 @@
 "tools.cli.sessionLocal" = "lokal";
 
 /* Location: CLIToolView.swift - No sessions message */
-"tools.cli.noSessions" = "Keine aktiven Sitzungen";
-
 /* Location: CLIToolView.swift - History empty message */
-"tools.cli.historyEmpty" = "Kein Befehlsverlauf";
-
 /* Location: CLIToolView.swift - Unknown command error */
 "tools.cli.unknownCommand" = "Unbekannter Befehl:";
 
@@ -642,8 +626,6 @@
 "tools.cli.paste" = "Einfügen";
 
 /* Location: CLIToolView.swift - Accessory button: clear */
-"tools.cli.clear" = "Löschen";
-
 /* Location: CLIToolView.swift - Accessory button: sessions */
 "tools.cli.sessions" = "Sitzungen";
 
@@ -741,10 +723,42 @@
 "tools.cli.rebootSent" = "Neustart-Befehl gesendet";
 
 /* Accessibility label for completion suggestions container */
-"tools.cli.completionSuggestions" = "Vervollständigungsvorschläge";
-
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
-"tools.cli.completionSuggestionsValue" = "%lld verfügbar, %@ ausgewählt";
+/* Confirmation prompt for a dangerous local command */
+"tools.cli.confirmPrompt" = "%@ bestätigen? (yes/no):";
+
+/* Usage for the get command */
+"tools.cli.usageGet" = "Verwendung: get <key>";
+
+/* Usage for the set command */
+"tools.cli.usageSet" = "Verwendung: set <key> <value>";
+
+/* Usage for set radio */
+"tools.cli.usageSetRadio" = "Verwendung: set radio <freq>,<bw>,<sf>,<cr>";
+
+/* Invalid value error */
+"tools.cli.invalidValue" = "Ungültiger Wert";
+
+/* Custom var key/value contains a reserved character */
+"tools.cli.invalidCustomVarToken" = "Schlüssel dürfen kein ':' oder ',' enthalten; Werte kein ','";
+
+/* Local radio commands help header */
+"tools.cli.helpLocalHeader" = "Lokale Funkbefehle:";
+
+/* Local radio commands help line 1 */
+"tools.cli.helpLocalList1" = "  clock [sync], ver, board";
+
+/* Local radio commands help line 2 */
+"tools.cli.helpLocalList2" = "  advert (zero-hop), floodadv (flood), reboot";
+
+/* Local radio commands help line 3 */
+"tools.cli.helpLocalList3" = "  get <key>, set <key> <value>";
+
+/* Local radio commands help line 4 */
+"tools.cli.helpLocalList4" = "    keys: name, lat, lon, tx, radio, freq, multi.acks, path.hash.mode, public.key, bat";
+
+/* Local radio commands help line 5 */
+"tools.cli.helpLocalList5" = "  get custom  (all custom firmware vars); unknown get/set keys route to custom vars";
 
 // MARK: - Saved Paths
 

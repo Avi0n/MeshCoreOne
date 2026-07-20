@@ -13,6 +13,7 @@ struct RepeaterStatusView: View {
   /// The node's contact, kept live so the route section reflects the path the firmware learns after
   /// a flood login (delivered asynchronously as a contact update).
   @State private var routeContact: ContactDTO?
+  @State private var clockDrift: TimeInterval?
 
   var body: some View {
     NavigationStack {
@@ -24,7 +25,8 @@ struct RepeaterStatusView: View {
         discoveredNodes: discoveredNodes,
         userLocation: appState.bestAvailableLocation,
         connectedDeviceID: appState.connectedDevice?.radioID,
-        routePathContact: routeContact
+        routePathContact: routeContact,
+        clockDrift: clockDrift
       )
       .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.title)
       .navigationBarTitleDisplayMode(.inline)
@@ -62,6 +64,7 @@ struct RepeaterStatusView: View {
           }
         }
         await refreshRouteContact()
+        clockDrift = await appState.services?.remoteNodeService.loginClockDrift(sessionID: session.id)
       }
       .onChange(of: appState.contactsVersion) {
         Task { await refreshRouteContact() }

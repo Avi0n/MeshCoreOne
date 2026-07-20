@@ -203,6 +203,13 @@ public extension RemoteNodeService {
         eventBroadcaster.yield(.sessionStateChanged(sessionID: remoteSession.id, isConnected: true))
 
         keepAliveIntervals[remoteSession.id] = Self.defaultKeepAliveInterval
+        // Detached from the login path: reading the radio clock is a BLE
+        // round trip that must not delay the login continuation.
+        let sessionID = remoteSession.id
+        let serverTime = result.serverTime
+        Task { [weak self] in
+          await self?.recordLoginClockDrift(sessionID: sessionID, serverTime: serverTime)
+        }
       } catch {
         logger.error("handleLoginResult: failed to update session state: \(error)")
       }

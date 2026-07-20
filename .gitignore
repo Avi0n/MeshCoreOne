@@ -5,7 +5,7 @@
 .DS_Store
 
 # MeshCore references
-MeshCore-references/
+mc-ref/
 
 # AI
 .claude
@@ -13,6 +13,7 @@ MeshCore-references/
 .ignore
 CLAUDE.md
 AGENTS.md
+CONTEXT.md
 thoughts/
 plans/
 specs/

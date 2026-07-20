@@ -1,6 +1,9 @@
 import Foundation
 
-public extension ChatCoordinator {
+/// Internal: reached from app code only via `ChatTimelineWriter.rebuildItems`,
+/// because scheduling a bake is a write (last-scheduled-wins) and must be
+/// owner-gated.
+extension ChatCoordinator {
   /// Rebuild `renderState` from a snapshot of inputs already assembled on
   /// the main actor. Runs the per-message builder loop off the main actor
   /// inside a `Task { @concurrent }` hop, then applies the result on main

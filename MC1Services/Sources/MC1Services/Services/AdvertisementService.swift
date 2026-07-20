@@ -29,26 +29,39 @@ extension AdvertisementError: LocalizedError {
 public actor AdvertisementService {
   // MARK: - Properties
 
-  private let logger = PersistentLogger(subsystem: "com.mc1", category: "Advertisement")
+  let logger = PersistentLogger(subsystem: "com.mc1", category: "Advertisement")
 
-  /// Temporary end-to-end Discover trace. Filter by category "discover-trace"
-  /// to follow a single advert from push receipt through persistence to the
-  /// view reload. Remove once the "no new nodes after clear" report is closed.
-  private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+  /// End-to-end Discover trace (Logger category `discover-trace`).
+  let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
 
-  private let session: any AdvertisingSessionOps & SessionEventStreaming
-  private let dataStore: any PersistenceStoreProtocol
+  let session: any AdvertisingSessionOps & SessionEventStreaming
+  let dataStore: any PersistenceStoreProtocol
 
-  /// Task monitoring for events
   private var eventMonitorTask: Task<Void, Never>?
   private var currentRadioID: UUID?
 
-  /// Whether contact fetches should be deferred (during sync)
-  private var isSyncingContacts = false
-  private var pendingUnknownContactKeys: Set<Data> = []
+  /// When true, the contact-fetch worker is paused (e.g. during contact sync).
+  var isSyncingContacts = false
 
-  /// Tracks the last overwrite-oldest deletion for correlating with the replacement contact.
-  /// The device sends 0x8F (deleted) then shortly after an advert for the new contact.
+  /// Pending `getContact` work, deduped by key. Advert reason wins on merge
+  /// because its post-fetch work is a superset of pathUpdate's.
+  var contactFetchQueue: [Data: ContactFetchEntry] = [:]
+  var contactFetchWorker: Task<Void, Never>?
+  /// Bumped when a worker starts; an exiting worker nils the ref only when
+  /// generations match so it cannot clobber a newly started worker.
+  var contactFetchWorkerGeneration: UInt64 = 0
+
+  /// Key currently being fetched, and whether 0x8F or teardown cancelled it
+  /// mid-flight. A cancelled fetch must not commit.
+  var inFlightKey: Data?
+  var inFlightCancelled = false
+
+  /// Waiters for the current snapshotted worker pass. Concurrent
+  /// `setSyncingContacts(false)` callers share one pass; late joiners wait
+  /// for the next pass only — never drain-until-empty under live enqueues.
+  var barrierWaiters: [CheckedContinuation<Void, Never>] = []
+
+  /// Last overwrite-oldest deletion, used to correlate the replacement advert (0x8F then new contact).
   private var lastOverwriteDeletion: (name: String, pubKeyHex: String, time: Date)?
 
   /// Multicast broadcaster for advertisement and discovery events.
@@ -62,8 +75,13 @@ public actor AdvertisementService {
     self.dataStore = dataStore
   }
 
+  /// Cancels outstanding tasks only. Full queue and barrier teardown is
+  /// ``stopEventMonitoring`` (`ServiceContainer.tearDown`); deinit cannot
+  /// safely resume waiters. Commit paths also treat `Task.isCancelled` as
+  /// cancel eligibility so work does not land after teardown begins.
   deinit {
     eventMonitorTask?.cancel()
+    contactFetchWorker?.cancel()
   }
 
   // MARK: - Events
@@ -112,18 +130,32 @@ public actor AdvertisementService {
     }
   }
 
-  /// Stop monitoring events
+  /// Stops event monitoring and tears down the contact-fetch worker
+  /// (queue, in-flight cancel, barrier waiters). Sole full teardown path.
   public func stopEventMonitoring() {
     eventMonitorTask?.cancel()
     eventMonitorTask = nil
     currentRadioID = nil
+    cancelContactFetchWorkerAndClearQueue()
   }
 
   /// Toggle deferred contact fetching during sync.
+  ///
+  /// When `false`, starts the single contact-fetch worker (if idle) and awaits
+  /// one snapshotted pass — not drain-until-empty. Concurrent callers share the
+  /// same in-flight pass; callers that join after a pass boundary wait for the
+  /// next snapshotted pass only.
   public func setSyncingContacts(_ isSyncing: Bool) async {
     isSyncingContacts = isSyncing
     if !isSyncing {
-      await fetchPendingUnknownContacts()
+      startContactFetchWorkerIfNeeded()
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        barrierWaiters.append(continuation)
+        // Idle worker means no pass is running; resume immediately.
+        if contactFetchWorker == nil {
+          resumeBarrierWaiters()
+        }
+      }
     }
   }
 
@@ -208,7 +240,7 @@ public actor AdvertisementService {
 
   /// Handle advertisement event - Existing contact updated
   private func handleAdvertEvent(publicKey: Data, radioID: UUID) async {
-    let pubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
+    let pubKeyHex = publicKey.uppercaseHexString()
     logger.debug("Advert event for \(pubKeyHex)")
     discoverTrace.info("B1 0x80 ADVERT received key=\(pubKeyHex)")
 
@@ -216,7 +248,6 @@ public actor AdvertisementService {
 
     do {
       if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
-        // Create a modified version with updated timestamp
         let frame = ContactFrame(
           publicKey: contact.publicKey,
           type: contact.type,
@@ -231,7 +262,7 @@ public actor AdvertisementService {
         )
         _ = try await dataStore.saveContact(radioID: radioID, from: frame)
 
-        // Also track in DiscoveredNode for Discover page visibility
+        // Keep DiscoveredNode in sync so Discover stays visible for known contacts.
         do {
           let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
           discoverTrace.info("B2 0x80 known-contact upsert key=\(pubKeyHex) isNew=\(isNew)")
@@ -239,113 +270,36 @@ public actor AdvertisementService {
           discoverTrace.error("B2 0x80 known-contact upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
         }
 
-        // Notify UI of contact update
         eventBroadcaster.yield(.contactUpdated)
       } else {
         discoverTrace.info("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
-        if isSyncingContacts {
-          pendingUnknownContactKeys.insert(publicKey)
-          logger.info("ADVERT received for unknown contact during sync - deferring fetch")
-        } else {
-          // Unknown contact - device has it but we don't (auto-add mode)
-          // Fetch just this contact from device and notify
-          logger.info("ADVERT received for unknown contact - fetching from device")
-          do {
-            if let meshContact = try await session.getContact(publicKey: publicKey) {
-              let frame = meshContact.toContactFrame()
-              let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
-
-              // Also track in DiscoveredNode for Discover page visibility
-              do {
-                let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-                discoverTrace.info("B2 0x80 getContact OK upsert key=\(pubKeyHex) isNew=\(isNew)")
-              } catch {
-                discoverTrace.error("B2 0x80 getContact-path upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
-              }
-
-              // Empty names pass through raw; NotificationService substitutes a localized fallback.
-              let contactName = meshContact.advertisedName
-              let contactType = meshContact.type
-              eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: contactID, contactType: contactType))
-
-              // Correlate with recent overwrite-oldest deletion
-              logOverwriteReplacementIfRecent(
-                newContactName: contactName.isEmpty ? "Unknown Contact" : contactName,
-                newContactType: contactType
-              )
-            } else {
-              discoverTrace.notice("B2 0x80 getContact returned nil key=\(pubKeyHex)")
-            }
-          } catch {
-            logger.error("Failed to fetch new contact: \(error.localizedDescription)")
-            discoverTrace.error("B2 0x80 getContact THREW key=\(pubKeyHex): \(error.localizedDescription)")
-          }
-          eventBroadcaster.yield(.contactSyncRequested(radioID: radioID))
-        }
+        // Device has the contact, local store does not (auto-add). Enqueue
+        // getContact; never await BLE on the event-handler path.
+        logger.info("ADVERT received for unknown contact - enqueueing fetch")
+        enqueueContactFetch(publicKey, reason: .advert, radioID: radioID)
       }
     } catch {
       logger.error("Error handling advert event: \(error.localizedDescription)")
     }
   }
 
-  private func fetchPendingUnknownContacts() async {
-    guard !pendingUnknownContactKeys.isEmpty else { return }
-    guard let radioID = currentRadioID else {
-      logger.warning("No device ID available to fetch pending contacts")
-      return
-    }
-
-    let pendingKeys = pendingUnknownContactKeys
-    pendingUnknownContactKeys.removeAll()
-
-    for publicKey in pendingKeys {
-      do {
-        let pubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
-        if let meshContact = try await session.getContact(publicKey: publicKey) {
-          let frame = meshContact.toContactFrame()
-          let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
-
-          // Also track in DiscoveredNode for Discover page visibility
-          do {
-            let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-            discoverTrace.info("B2 deferred-drain upsert key=\(pubKeyHex) isNew=\(isNew)")
-          } catch {
-            discoverTrace.error("B2 deferred-drain upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
-          }
-
-          // Empty names pass through raw; NotificationService substitutes a localized fallback.
-          let contactName = meshContact.advertisedName
-          let contactType = meshContact.type
-          eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: contactID, contactType: contactType))
-          eventBroadcaster.yield(.contactSyncRequested(radioID: radioID))
-        }
-      } catch {
-        pendingUnknownContactKeys.insert(publicKey)
-        logger.error("Failed to fetch deferred contact: \(error.localizedDescription)")
-      }
-    }
-  }
-
   /// Handle new advertisement event - New contact discovered (manual add mode)
   private func handleNewAdvertEvent(contact: MeshContact, radioID: UUID) async {
     let contactFrame = contact.toContactFrame()
-    let pubKeyHex = contactFrame.publicKey.map { String(format: "%02X", $0) }.joined()
+    let pubKeyHex = contactFrame.publicKey.uppercaseHexString()
     discoverTrace.info("B1 0x8A NEW_ADVERT received key=\(pubKeyHex)")
 
     do {
       let (node, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: contactFrame)
       discoverTrace.info("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
 
-      // Notify UI of discovered node update
       eventBroadcaster.yield(.contactUpdated)
 
-      // Only post notification for NEW discoveries (not repeat adverts from same contact)
+      // Notify only first-time discoveries, not repeat adverts for the same contact.
       if isNew {
         let contactName = node.name
         let contactType = node.nodeType
         eventBroadcaster.yield(.newContactDiscovered(name: contactName, contactID: node.id, contactType: contactType))
-
-        // Correlate with recent overwrite-oldest deletion
         logOverwriteReplacementIfRecent(newContactName: contactName, newContactType: contactType)
       }
     } catch {
@@ -354,30 +308,12 @@ public actor AdvertisementService {
     }
   }
 
-  /// Handle path updated event - Contact path changed
+  /// Path changed: enqueue getContact rather than awaiting BLE on the event path.
+  /// Shared worker defers while `isSyncingContacts` is true.
   private func handlePathUpdatedEvent(publicKey: Data, radioID: UUID) async {
-    let pubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
+    let pubKeyHex = publicKey.uppercaseHexString()
     logger.debug("Path updated event for \(pubKeyHex)")
-
-    do {
-      // Fetch fresh contact from device (includes updated path)
-      guard let meshContact = try await session.getContact(publicKey: publicKey) else {
-        logger.warning("Contact not found on device for public key \(pubKeyHex)")
-        return
-      }
-
-      // Persist updated routing info
-      let frame = meshContact.toContactFrame()
-      _ = try await dataStore.saveContact(radioID: radioID, from: frame)
-
-      logger.debug("Refreshed contact path: \(meshContact.advertisedName.isEmpty ? "unnamed" : meshContact.advertisedName)")
-
-      // Notify UI of contact update
-      eventBroadcaster.yield(.contactUpdated)
-
-    } catch {
-      logger.error("Error refreshing contact path: \(error.localizedDescription)")
-    }
+    enqueueContactFetch(publicKey, reason: .pathUpdate, radioID: radioID)
   }
 
   /// Handle path discovery response event
@@ -388,21 +324,20 @@ public actor AdvertisementService {
     let outHashSize = decodePathLen(result.outPathLength)?.hashSize ?? 1
     let inHashSize = decodePathLen(result.inPathLength)?.hashSize ?? 1
     let outHops = stride(from: 0, to: result.outPath.count, by: outHashSize).map { start in
-      result.outPath[start..<min(start + outHashSize, result.outPath.count)].map { String(format: "%02X", $0) }.joined()
+      result.outPath[start..<min(start + outHashSize, result.outPath.count)].uppercaseHexString()
     }
     let inHops = stride(from: 0, to: result.inPath.count, by: inHashSize).map { start in
-      result.inPath[start..<min(start + inHashSize, result.inPath.count)].map { String(format: "%02X", $0) }.joined()
+      result.inPath[start..<min(start + inHashSize, result.inPath.count)].uppercaseHexString()
     }
-    let pubKeyHex = result.publicKeyPrefix.prefix(3).map { String(format: "%02X", $0) }.joined()
+    let pubKeyHex = result.publicKeyPrefix.prefix(3).uppercaseHexString()
     let outDisplay = outHops.isEmpty ? "direct" : outHops.joined(separator: " → ")
     let inDisplay = inHops.isEmpty ? "direct" : inHops.joined(separator: " → ")
     logger.info("Path discovery for \(pubKeyHex)... - Out: \(outHops.count) hops (\(outDisplay)), In: \(inHops.count) hops (\(inDisplay))")
 
     do {
-      // Update contact with discovered outbound path (inbound is handled by firmware)
       if let contact = try await dataStore.fetchContact(radioID: radioID, publicKeyPrefix: result.publicKeyPrefix) {
-        // Trust the wire's self-describing length byte over the device's
-        // cached hashSize — the response's own encoding is authoritative.
+        // Prefer the response's self-describing length byte over the device's
+        // cached hashSize — the wire encoding is authoritative for this path.
         let frame = ContactFrame(
           publicKey: contact.publicKey,
           type: contact.type,
@@ -432,12 +367,31 @@ public actor AdvertisementService {
 
   /// Handle contact deleted event (0x8F) - device auto-deleted a contact via overwrite oldest
   private func handleContactDeletedEvent(publicKey: Data, radioID: UUID) async {
-    let fullPubKeyHex = publicKey.map { String(format: "%02X", $0) }.joined()
-    let pubKeyPrefix = publicKey.prefix(6).map { String(format: "%02X", $0) }.joined()
+    let fullPubKeyHex = publicKey.uppercaseHexString()
+    let pubKeyPrefix = publicKey.prefix(6).uppercaseHexString()
+
+    // ZephCore CLI `set v.contact off` also pushes 0x8F for the V-key. That is
+    // not overwrite-oldest (no slot freed). Keep the local V row and leave
+    // storage-full bookkeeping unchanged.
+    if let selfPublicKey = try? await dataStore.fetchDevice(radioID: radioID)?.publicKey,
+       VContactIdentity.isVContact(publicKey: publicKey, selfPublicKey: selfPublicKey) {
+      logger.info(
+        "Contact deleted push for ZephCore V-contact (\(pubKeyPrefix)...); preserving local row, not clearing storage-full"
+      )
+      return
+    }
+
+    // Cancel in-flight / queued fetches for this key before the local-row guard.
+    // Unknown-key fetches have no local row; without cancel a late save can
+    // resurrect the contact after 0x8F.
+    contactFetchQueue.removeValue(forKey: publicKey)
+    if inFlightKey == publicKey {
+      inFlightCancelled = true
+    }
+
     logger.info("Overwrite oldest: device deleted contact with key \(pubKeyPrefix)...")
 
     do {
-      // Fetch contact by publicKey to get its UUID and details before deleting
       guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
         logger.warning("Overwrite oldest: contact not found in local database for key \(pubKeyPrefix)... (may have been deleted already)")
         return
@@ -456,35 +410,24 @@ public actor AdvertisementService {
         """
       )
 
-      // Store deletion info for correlation with the replacement contact
       lastOverwriteDeletion = (name: contactName, pubKeyHex: pubKeyPrefix, time: Date())
 
       let contactID = contact.id
 
-      // Delete associated messages
-      try await dataStore.deleteMessagesForContact(contactID: contactID)
-      logger.info("Overwrite oldest: deleted messages for contact '\(contactName)'")
-
-      // Delete the contact
       try await dataStore.deleteContact(id: contactID)
-      logger.info("Overwrite oldest: deleted contact '\(contactName)' from local database")
+      logger.info("Overwrite oldest: deleted contact '\(contactName)' and its messages from local database")
 
-      // Trigger cleanup (notifications, badge, session)
       eventBroadcaster.yield(.contactDeletedCleanup(contactID: contactID, publicKey: publicKey))
-
-      // Storage now has room - clear the full flag
       eventBroadcaster.yield(.nodeStorageFullChanged(isFull: false))
       logger.info("Overwrite oldest: cleanup complete for '\(contactName)', storage full flag cleared")
-
-      // Notify UI to refresh contacts list
       eventBroadcaster.yield(.contactUpdated)
     } catch {
       logger.error("Overwrite oldest: failed to delete contact \(pubKeyPrefix)...: \(error.localizedDescription)")
     }
   }
 
-  /// Log a correlation between an overwrite-oldest deletion and the new contact that replaced it.
-  private func logOverwriteReplacementIfRecent(newContactName: String, newContactType: ContactType) {
+  /// Correlates an overwrite-oldest deletion with a replacement contact seen soon after.
+  func logOverwriteReplacementIfRecent(newContactName: String, newContactType: ContactType) {
     guard let deletion = lastOverwriteDeletion,
           Date().timeIntervalSince(deletion.time) < 60 else { return }
 

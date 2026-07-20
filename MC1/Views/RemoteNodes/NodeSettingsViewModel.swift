@@ -149,6 +149,7 @@ final class NodeSettingsViewModel {
     self.session = session
     sendCommandClosure = sendCommand
     sendRawCommandClosure = sendRawCommand
+    registerSharedLateRecovery()
   }
 
   /// Set name and owner info from an external source (e.g., binary protocol pre-fetch)
@@ -168,22 +169,34 @@ final class NodeSettingsViewModel {
     sendCommandClosure = nil
     sendRawCommandClosure = nil
     onPreFetchNodeInfo = nil
+    unansweredQueries.removeAll()
+    recentResponses.removeAll()
+    lateRecoveryAppliers.removeAll()
   }
 
   // MARK: - CLI Transport
 
   func sendAndWait(
     _ command: String,
-    timeout: Duration = .seconds(5),
+    timeout: Duration = RemoteOperationTimeoutPolicy.defaultCLITimeout,
     rawMatching: Bool = false
   ) async throws -> String {
     guard let session, let sendCmd = rawMatching ? sendRawCommandClosure : sendCommandClosure else {
       throw NodeSettingsError.noService
     }
 
-    let response = try await sendCmd(session.id, command, timeout)
-    logger.debug("Command '\(command)' response: \(response.prefix(50))")
-    return response
+    do {
+      let response = try await sendCmd(session.id, command, timeout)
+      logger.debug("Command '\(command)' response: \(response.prefix(50))")
+      rememberSeenResponse(response)
+      unansweredQueries.remove(command)
+      return response
+    } catch RemoteNodeError.timeout {
+      if CLIResponse.isStructuredQuery(command) {
+        unansweredQueries.insert(command)
+      }
+      throw RemoteNodeError.timeout
+    }
   }
 
   // MARK: - Fetch Methods
@@ -526,8 +539,12 @@ final class NodeSettingsViewModel {
     isRebooting = true
     errorMessage = nil
 
+    // Firmware reboots without replying, so a timeout is the expected outcome.
     do {
-      _ = try await sendAndWait("reboot")
+      _ = try await sendAndWait("reboot", timeout: RemoteOperationTimeoutPolicy.fireAndForgetCLI)
+      successMessage = L10n.RemoteNodes.RemoteNodes.Settings.rebootSent
+      showSuccessAlert = true
+    } catch RemoteNodeError.timeout {
       successMessage = L10n.RemoteNodes.RemoteNodes.Settings.rebootSent
       showSuccessAlert = true
     } catch {
@@ -638,82 +655,82 @@ final class NodeSettingsViewModel {
     return errors
   }
 
-  // MARK: - Late Response Handling
+  // MARK: - Late Reply Recovery
 
-  /// The settings fields a late response may still fill, ordered so numeric
-  /// fields are tried before the free-form name (which matches any text).
-  private var missingLateResponseFields: [NodeSettingsResponseParser.SettingsField] {
-    var fields: [NodeSettingsResponseParser.SettingsField] = []
-    if !isLoadingRadio, radioError {
-      if frequency == nil { fields.append(.radio) }
-      if txPower == nil { fields.append(.txPower) }
-    }
-    if !isLoadingDeviceInfo, deviceInfoError {
-      if firmwareVersion == nil { fields.append(.firmwareVersion) }
-      if deviceTimeUTC == nil { fields.append(.deviceTime) }
-    }
-    if !isLoadingIdentity, identityError {
-      if originalLatitude == nil { fields.append(.latitude) }
-      if originalLongitude == nil { fields.append(.longitude) }
-      if originalName == nil { fields.append(.name) }
-    }
-    if !isLoadingContactInfo, contactInfoError {
-      if originalOwnerInfo == nil { fields.append(.ownerInfo) }
-    }
-    return fields
+  /// Structured queries this screen sent that timed out unanswered.
+  private var unansweredQueries: Set<String> = []
+
+  /// Recently observed reply texts; a mesh duplicate of an already-answered
+  /// command must not be recovered for a different query.
+  private var recentResponses: [String] = []
+  private static let recentResponsesLimit = 16
+
+  /// Appliers for recovered late replies, keyed by query.
+  private var lateRecoveryAppliers: [String: (CLIResponse) -> Void] = [:]
+
+  /// Registers a field applier for a recoverable query. Repeater and room
+  /// view models add their own section fields on top of the shared ones.
+  func registerLateRecovery(query: String, apply: @escaping (CLIResponse) -> Void) {
+    lateRecoveryAppliers[query] = apply
   }
 
-  /// Handle late CLI responses for shared sections.
-  /// Returns `true` if the response was consumed.
-  func handleCommonLateResponse(_ response: String) -> Bool {
-    let value = NodeSettingsResponseParser.firstSettingsValue(
-      in: response,
-      checking: missingLateResponseFields
-    )
-    guard let value else { return false }
+  private func rememberSeenResponse(_ response: String) {
+    recentResponses.append(response)
+    if recentResponses.count > Self.recentResponsesLimit {
+      recentResponses.removeFirst()
+    }
+  }
 
-    switch value {
-    case let .radio(frequency, bandwidth, spreadingFactor, codingRate):
+  /// Adopt an out-of-band CLI reply for the one unanswered query it can only
+  /// belong to. The reply already spent its airtime, so recovering it beats
+  /// refetching; ambiguous or duplicate replies are ignored.
+  func handleCommonLateResponse(_ response: String) {
+    guard !recentResponses.contains(response) else { return }
+    guard let recovered = NodeSettingsResponseParser.recoveredResponse(
+      response,
+      unansweredQueries: unansweredQueries
+    ), let apply = lateRecoveryAppliers[recovered.query] else { return }
+
+    unansweredQueries.remove(recovered.query)
+    rememberSeenResponse(response)
+    apply(recovered.value)
+    logger.info("Recovered late response for '\(recovered.query)'")
+  }
+
+  private var identitySectionComplete: Bool {
+    originalName != nil && originalLatitude != nil && originalLongitude != nil
+  }
+
+  private func registerSharedLateRecovery() {
+    registerLateRecovery(query: "get tx") { [weak self] value in
+      guard let self, case let .txPower(power) = value else { return }
+      txPower = power
+      radioError = frequency == nil
+    }
+    registerLateRecovery(query: "get radio") { [weak self] value in
+      guard let self, case let .radio(frequency, bandwidth, spreadingFactor, codingRate) = value else { return }
       self.frequency = frequency
       self.bandwidth = bandwidth
       self.spreadingFactor = spreadingFactor
       self.codingRate = codingRate
-      radioError = false
-      logger.info("Late response: received radio settings")
-    case let .txPower(power):
-      txPower = power
-      radioError = false
-      logger.info("Late response: received TX power")
-    case let .firmwareVersion(version):
-      firmwareVersion = version
-      deviceInfoError = false
-      logger.info("Late response: received firmware version")
-    case let .deviceTime(time):
-      deviceTimeUTC = time
-      deviceInfoError = false
-      logger.info("Late response: received device time")
-    case let .latitude(latitude):
+      radioError = txPower == nil
+    }
+    registerLateRecovery(query: "get lat") { [weak self] value in
+      guard let self, case let .latitude(latitude) = value else { return }
       self.latitude = latitude
       originalLatitude = latitude
-      identityError = false
-      logger.info("Late response: received latitude")
-    case let .longitude(longitude):
+      identityError = !identitySectionComplete
+    }
+    registerLateRecovery(query: "get lon") { [weak self] value in
+      guard let self, case let .longitude(longitude) = value else { return }
       self.longitude = longitude
       originalLongitude = longitude
-      identityError = false
-      logger.info("Late response: received longitude")
-    case let .name(name):
-      self.name = name
-      originalName = name
-      identityError = false
-      logger.info("Late response: received name")
-    case let .ownerInfo(info):
-      let displayText = NodeSettingsResponseParser.displayOwnerInfo(fromWire: info)
-      ownerInfo = displayText
-      originalOwnerInfo = displayText
-      contactInfoError = false
-      logger.info("Late response: received owner info")
+      identityError = !identitySectionComplete
     }
-    return true
+    registerLateRecovery(query: "clock") { [weak self] value in
+      guard let self, case let .deviceTime(time) = value else { return }
+      deviceTimeUTC = time
+      deviceInfoError = firmwareVersion == nil
+    }
   }
 }

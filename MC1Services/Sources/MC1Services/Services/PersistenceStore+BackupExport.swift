@@ -13,6 +13,7 @@ struct BackupExportSnapshot {
   let savedTracePaths: [SavedTracePathDTO]
   let blockedChannelSenders: [BlockedChannelSenderDTO]
   let nodeStatusSnapshots: [NodeStatusSnapshotDTO]
+  let discoveredNodes: [DiscoveredNodeDTO]
 }
 
 // MARK: - Export (fetchAll)
@@ -103,6 +104,11 @@ public extension PersistenceStore {
     return try modelContext.fetch(descriptor).map { NodeStatusSnapshotDTO(from: $0) }
   }
 
+  func fetchAllDiscoveredNodes() throws -> [DiscoveredNodeDTO] {
+    let descriptor = FetchDescriptor<DiscoveredNode>()
+    return try modelContext.fetch(descriptor).map { DiscoveredNodeDTO(from: $0) }
+  }
+
   /// Fetches all backup-relevant model data in a single store-actor turn.
   ///
   /// This keeps the export parent/child relationships aligned with the same
@@ -120,6 +126,7 @@ public extension PersistenceStore {
     let messageRepeats = try fetchAllMessageRepeats(messageIDs: Set(messages.map(\.id)))
     let roomMessages = try fetchAllRoomMessages(sessionIDs: Set(sessions.map(\.id)))
     let nodeSnapshots = try fetchAllNodeStatusSnapshots()
+    let discoveredNodes = try fetchAllDiscoveredNodes()
 
     return BackupExportSnapshot(
       devices: devices,
@@ -132,7 +139,8 @@ public extension PersistenceStore {
       remoteNodeSessions: sessions,
       savedTracePaths: tracePaths,
       blockedChannelSenders: blockedSenders,
-      nodeStatusSnapshots: nodeSnapshots
+      nodeStatusSnapshots: nodeSnapshots,
+      discoveredNodes: discoveredNodes
     )
   }
 }

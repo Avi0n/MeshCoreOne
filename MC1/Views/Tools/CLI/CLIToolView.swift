@@ -57,11 +57,18 @@ private struct CLIToolContent: View {
     .liquidGlassToolbarBackground()
     .task(id: appState.servicesVersion) {
       viewModel.configure(
-        repeaterAdminService: { [appState] in appState.services?.repeaterAdminService },
-        remoteNodeService: { [appState] in appState.services?.remoteNodeService },
-        dataStore: { [appState] in appState.services?.dataStore },
-        radioID: { [appState] in appState.connectedDevice?.radioID },
-        localDeviceName: appState.connectedDevice?.nodeName ?? L10n.Tools.Tools.Cli.defaultDevice
+        dependencies: CLIToolViewModel.Dependencies(
+          repeaterAdminService: { [appState] in appState.services?.repeaterAdminService },
+          remoteNodeService: { [appState] in appState.services?.remoteNodeService },
+          settingsService: { [appState] in appState.services?.settingsService },
+          dataStore: { [appState] in appState.services?.dataStore },
+          radioID: { [appState] in appState.connectedDevice?.radioID },
+          connectedDevice: { [appState] in appState.connectedDevice }
+        ),
+        localDeviceName: appState.connectedDevice?.nodeName ?? L10n.Tools.Tools.Cli.defaultDevice,
+        sendSelfAdvert: { [appState] flood in
+          try await appState.sendSelfAdvert(flood: flood, allowLocationPrompt: false)
+        }
       )
     }
   }

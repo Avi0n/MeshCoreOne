@@ -10,8 +10,77 @@ extension MockDataProvider {
     case publicChannelIndex: return publicChannelMessages(now: now)
     case bayAreaChannelIndex: return bayAreaChannelMessages(now: now)
     case trailCrewChannelIndex: return trailCrewChannelMessages(now: now)
+    case meshHQChannelIndex: return meshHQChannelMessages(now: now)
     default: return []
     }
+  }
+
+  /// Mesh HQ: a long, multi-sender backlog. Its unread count exceeds one page
+  /// (pageSize is 50), so the first-unread message — where the "New Messages"
+  /// divider belongs — only loads when the initial page is sized to cover all
+  /// unread. Exercises the jump-to-divider scroll and all-unread-in-one-page load.
+  static let meshHQTotalMessages = 80
+  static let meshHQUnreadCount = 60
+
+  private static func meshHQChannelMessages(now: Date) -> [MessageDTO] {
+    let path = encodePathLen(hashSize: 1, hopCount: 2)
+    let senders: [(name: String, seed: UInt8)] = [
+      ("Alice Chen", 10), ("Bob Martinez", 20), ("Carol Diaz", 90),
+      ("Frank Wilson", 60), ("Hannah Lee", 80)
+    ]
+    let lines = [
+      "Morning net check — who's on frequency?",
+      "Copy, strong signal from the east ridge.",
+      "Repeater 3 is back online after the firmware push.",
+      "Battery bank held through the night, 82% remaining.",
+      "Anyone have eyes on the weather coming over the pass?",
+      "Rain expected this afternoon, plan accordingly.",
+      "Trace route to the summit node looks clean, 3 hops.",
+      "Lost the link to node 7 for a bit, back now.",
+      "New antenna mount is up, gaining about 4 dB.",
+      "Field team checking in from the trailhead.",
+      "Packet loss down to under 2% since the reroute.",
+      "Reminder: monthly maintenance window is Sunday.",
+      "Great turnout on the group trace test today."
+    ]
+
+    return (0..<meshHQTotalMessages).map { i in
+      let createdAt = now.addingTimeInterval(Double(-(meshHQTotalMessages - i) * 120))
+      let isRead = i < (meshHQTotalMessages - meshHQUnreadCount)
+
+      if i % 8 == 7 {
+        return MockMessageFactory.message(
+          id: meshHQMessageID(i),
+          createdAt: createdAt,
+          text: "Copy that, thanks for the update.",
+          direction: .outgoing,
+          status: .sent,
+          channelIndex: meshHQChannelIndex,
+          ackCode: UInt32(52000 + i),
+          pathLength: path,
+          isRead: isRead
+        )
+      }
+
+      let sender = senders[i % senders.count]
+      return MockMessageFactory.message(
+        id: meshHQMessageID(i),
+        createdAt: createdAt,
+        text: lines[i % lines.count],
+        direction: .incoming,
+        channelIndex: meshHQChannelIndex,
+        pathLength: path,
+        snr: 6.5 + Double(i % 5) * 0.4,
+        senderKeyPrefix: mockPublicKey(seed: sender.seed).prefix(6),
+        senderNodeName: sender.name,
+        isRead: isRead
+      )
+    }
+  }
+
+  /// Deterministic per-index UUID for the Mesh HQ backlog (`C3…` prefix).
+  private static func meshHQMessageID(_ i: Int) -> UUID {
+    UUID(uuidString: "C3000000-0000-0000-0000-\(String(format: "%012X", i))")!
   }
 
   /// Public: multi-sender chatter with a same-sender cluster, plus our own reply.

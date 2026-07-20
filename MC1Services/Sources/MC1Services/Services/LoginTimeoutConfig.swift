@@ -14,10 +14,11 @@ enum LoginTimeoutConfig {
 
   /// Calculate appropriate timeout based on path length
   static func timeout(forPathLength pathLength: UInt8) -> Duration {
-    let base = directTimeout
-    let hopCount = decodePathLen(pathLength)?.hopCount ?? 0
-    let additional = perHopTimeout * hopCount
-    let total = base + additional
+    // An undecodable byte (mode 3, notably the 0xFF flood sentinel) means no
+    // known path: the login floods both ways, so budget for the worst case
+    // rather than pricing it as a zero-hop direct exchange.
+    guard let decoded = decodePathLen(pathLength) else { return maximumTimeout }
+    let total = directTimeout + perHopTimeout * decoded.hopCount
     return min(total, maximumTimeout)
   }
 }

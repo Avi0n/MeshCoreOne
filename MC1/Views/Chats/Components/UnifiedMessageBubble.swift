@@ -14,6 +14,11 @@ private let liftAmbientShadowYOffset: CGFloat = 4
 /// spans the full row width and its alignment stays legible.
 private let bubbleRowOppositeEdgeMinInset: CGFloat = 40
 
+/// Spacing between the bubble and its sibling fragments: reactions, link and
+/// map previews. It also separates the sender name from the bubble, which is
+/// why `senderNamePlacement` subtracts it from the name's own gap.
+private let bubbleStackSpacing: CGFloat = 2
+
 /// Unified message bubble for both direct and channel messages.
 ///
 /// Conforms to `Equatable` with comparison on `item` alone. Closures
@@ -78,22 +83,17 @@ struct UnifiedMessageBubble: View, Equatable {
         MessageDayDividerView(date: item.envelope.date)
       }
 
-      // The day divider already anchors the cluster in time, so a time-only
-      // marker directly beneath it would be redundant; suppress it there.
-      if item.grouping.showTimestamp, !item.grouping.showDayDivider {
-        MessageTimestampView(date: item.envelope.date)
-      }
-
       HStack(alignment: .bottom, spacing: 4) {
         if item.envelope.isOutgoing {
           Spacer(minLength: bubbleRowOppositeEdgeMinInset)
         }
 
-        VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 0) {
+        VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: bubbleStackSpacing) {
           if !item.envelope.isOutgoing,
              configuration.showSenderName,
              item.grouping.showSenderName {
             SenderNameLabel(resolution: item.envelope.senderResolution, nameColor: senderColor)
+              .senderNamePlacement(enclosingStackSpacing: bubbleStackSpacing)
           }
 
           bubbleActionsLongPress(
@@ -101,6 +101,7 @@ struct UnifiedMessageBubble: View, Equatable {
               item: item,
               layout: layout,
               bubbleColor: resolvedBubbleColor,
+              timeColor: footerTimeColor,
               callbacks: callbacks,
               imageResolver: imageResolver
             )
@@ -120,10 +121,6 @@ struct UnifiedMessageBubble: View, Equatable {
 
           ForEach(Array(layout.siblings.enumerated()), id: \.offset) { _, fragment in
             siblingFragmentView(fragment)
-          }
-
-          if item.footer.showStatusRow {
-            BubbleStatusRow(item: item, onRetry: callbacks.onRetry)
           }
         }
         .accessibilityElement(children: .combine)
@@ -282,9 +279,19 @@ struct UnifiedMessageBubble: View, Equatable {
     )
   }
 
+  /// Color for the send time rendered inside the bubble. `.secondary` reads
+  /// well on the gray incoming bubble; on the accent-colored outgoing bubble it
+  /// would wash out, so use a translucent outgoing-text color instead.
+  private var footerTimeColor: Color {
+    item.envelope.isOutgoing ? theme.outgoingTextColor.opacity(0.7) : .secondary
+  }
+
   private var paddingTop: CGFloat {
-    if item.grouping.showDirectionGap { return 6 }
-    if item.grouping.showSenderName { return 4 }
+    // A direction switch (someone else replying) is the strongest visual
+    // break, then a new named sender within a channel. Same-sender follow-ups
+    // stay tightly stacked.
+    if item.grouping.showDirectionGap { return 14 }
+    if item.grouping.showSenderName { return 8 }
     return item.envelope.isOutgoing ? 1 : 2
   }
 
@@ -305,7 +312,7 @@ struct UnifiedMessageBubble: View, Equatable {
     }
     label += message.text
     if item.envelope.isOutgoing {
-      label += ", \(BubbleStatusRow.statusText(for: item))"
+      label += ", \(MessageStatusText.text(for: item.footer))"
     }
     if !item.envelope.isOutgoing {
       if item.footer.showHop {

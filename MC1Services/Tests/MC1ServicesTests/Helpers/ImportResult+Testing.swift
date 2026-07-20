@@ -109,4 +109,16 @@ extension ImportResult {
   var nodeStatusSnapshotsSkipped: Int {
     counts[.nodeStatusSnapshots]?.skipped ?? 0
   }
+
+  var discoveredNodesInserted: Int {
+    counts[.discoveredNodes]?.inserted ?? 0
+  }
+
+  var discoveredNodesSkipped: Int {
+    counts[.discoveredNodes]?.skipped ?? 0
+  }
+
+  var discoveredNodesDropped: Int {
+    counts[.discoveredNodes]?.dropped ?? 0
+  }
 }

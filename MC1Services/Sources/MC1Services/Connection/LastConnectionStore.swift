@@ -11,8 +11,7 @@ import Foundation
 /// "does the user want to be connected" axis, not last-device state.
 ///
 /// `@unchecked Sendable`: the only stored property is a `UserDefaults`
-/// reference, which Apple documents as thread-safe; the bond-verification
-/// provider reads it from the BLE actor.
+/// reference, which Apple documents as thread-safe.
 struct LastConnectionStore: @unchecked Sendable {
   private let defaults: UserDefaults
 
@@ -64,6 +63,17 @@ struct LastConnectionStore: @unchecked Sendable {
   func persistBondVerification(deviceID: UUID) {
     defaults.set(deviceID.uuidString, forKey: PersistenceKeys.lastBondVerifiedDeviceID)
     defaults.set(Date(), forKey: PersistenceKeys.lastBondVerifiedDate)
+  }
+
+  /// The device holding the bond-verification slot, or nil when no bond has
+  /// verified. Distinct from `deviceID`: a WiFi connection overwrites the
+  /// connection slot without touching the bond slot, so cross-launch grace
+  /// seeding must key off this value.
+  var bondVerifiedDeviceID: UUID? {
+    guard let uuidString = defaults.string(forKey: PersistenceKeys.lastBondVerifiedDeviceID) else {
+      return nil
+    }
+    return UUID(uuidString: uuidString)
   }
 
   /// When the given device's bond last completed a verified encrypted session,

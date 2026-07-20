@@ -6,7 +6,6 @@
   AI-translated - please verify with native speakers.
 */
 
-
 // MARK: - Main Settings View
 
 /* Navigation title for the main settings screen */
@@ -22,8 +21,6 @@
 "appSettings.header" = "Ustawienia aplikacji";
 
 /* Footer text for the advanced settings row */
-"advancedSettings.footer" = "Strojenie radia, telemetria, ustawienia kontaktów i zarządzanie urządzeniem";
-
 /* Label for the advanced settings navigation row */
 "advancedSettings.title" = "Ustawienia zaawansowane";
 
@@ -32,7 +29,6 @@
 
 /* Build number display with build number */
 "build" = "Kompilacja %@";
-
 
 // MARK: - Demo Mode Section
 
@@ -44,7 +40,6 @@
 
 /* Footer explaining what demo mode does */
 "demoMode.footer" = "Tryb demo umożliwia testowanie bez sprzętu przy użyciu danych testowych.";
-
 
 // MARK: - Device Section
 
@@ -59,7 +54,6 @@
 
 /* Button to connect a device */
 "device.connect" = "Połącz urządzenie";
-
 
 // MARK: - Device Info View
 
@@ -118,8 +112,6 @@
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
 /* Section header for identity information */
-"deviceInfo.identity.header" = "Tożsamość";
-
 /* Label for public key */
 "deviceInfo.publicKey" = "Klucz publiczny";
 
@@ -134,7 +126,6 @@
 
 /* Fallback manufacturer name */
 "deviceInfo.defaultManufacturer" = "Urządzenie MeshCore";
-
 
 // MARK: - Public Key View
 
@@ -153,12 +144,10 @@
 /* Button to copy key to clipboard */
 "publicKey.copy" = "Kopiuj do schowka";
 
-
 // MARK: - Private Key View
 
 /* Section header describing the key type */
 "privateKey.header" = "64-bajtowy klucz prywatny Ed25519";
-
 
 // MARK: - Device Selection Sheet
 
@@ -166,14 +155,10 @@
 "deviceSelection.title" = "Połącz urządzenie";
 
 /* Button to connect to selected device */
-"deviceSelection.connect" = "Połącz";
-
 /* Section header for previously paired devices */
 "deviceSelection.previouslyPaired" = "Wcześniej sparowane";
 
 /* Footer text prompting user to select a device */
-"deviceSelection.selectToReconnect" = "Wybierz urządzenie, aby połączyć ponownie";
-
 /* Button to connect via WiFi */
 "deviceSelection.connectViaWifi" = "Połącz przez WiFi";
 
@@ -210,15 +195,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
-
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
 "locationPicker.title" = "Ustaw lokalizację";
 
 /* Marker title for node location on map */
-"locationPicker.markerTitle" = "Lokalizacja węzła";
-
 /* Button to clear the selected location */
 "locationPicker.clearLocation" = "Wyczyść lokalizację";
 
@@ -230,7 +212,6 @@
 
 /* Label for longitude display */
 "locationPicker.longitude" = "Długość:";
-
 
 // MARK: - Trusted Contacts Picker
 
@@ -258,7 +239,6 @@
 /* Apply button label */
 "trustedContacts.apply" = "Zastosuj";
 
-
 // MARK: - About Section
 
 /* Section header for about links */
@@ -276,7 +256,6 @@
 /* Link to the privacy policy */
 /* AI-translated - please verify with native speakers. */
 "about.privacyPolicy" = "Polityka prywatności";
-
 
 // MARK: - Advanced Radio Section
 
@@ -337,7 +316,6 @@
 /* Footer explaining repeat mode in advanced radio */
 "advancedRadio.repeatMode.footer" = "Tworzy lokalny repeater na wydzielonej częstotliwości. Przydatny podczas pieszych wędrówek i w odległych obszarach. Prawidłowe częstotliwości: 433, 869.495, 918 MHz.";
 
-
 // MARK: - Path Hash Mode Section
 
 /* Section header for path hash mode */
@@ -358,7 +336,6 @@
 /* Footer explaining path hash mode tradeoff */
 "pathHashMode.footer" = "Większe hashe zmniejszają kolizje routingu, ale ograniczają maksymalną liczbę skoków na ścieżce. Repeatery z firmware starszym niż 1.14.0 nie będą przekazywać wiadomości z rozmiarem hasha większym niż 1 bajt.";
 
-
 // MARK: - Default Flood Scope Section
 
 /* Section header for default flood scope picker */
@@ -369,7 +346,6 @@
 
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "Brak";
-
 
 // MARK: - Battery Curve Section
 
@@ -405,7 +381,6 @@
 
 /* Unit label for millivolts */
 "batteryCurve.mV" = "mV";
-
 
 // MARK: - Bluetooth Section
 
@@ -463,19 +438,11 @@
 /* Error for invalid PIN format */
 "bluetooth.error.invalidPin" = "PIN musi być 6-cyfrową liczbą między 100000 a 999999";
 
-
 // MARK: - Contacts Settings Section
 
 /* Section header for nodes/contacts settings */
-"contacts.header" = "Węzły";
-
 /* Toggle label for auto-add nodes */
-"contacts.autoAdd" = "Automatycznie dodawaj węzły";
-
 /* Description for auto-add nodes toggle */
-"contacts.autoAddDescription" = "Automatycznie dodawaj węzły z otrzymanych ogłoszeń";
-
-
 // MARK: - Nodes Settings Section
 
 /* Section header for nodes settings */
@@ -503,8 +470,6 @@
 "nodes.autoAddMode.allDescription" = "Automatycznie dodawaj każdy odkryty węzeł";
 
 /* Section header for auto-add types */
-"nodes.autoAddTypes.header" = "Typy automatycznego dodawania";
-
 /* Toggle label for auto-add contacts */
 "nodes.autoAddContacts" = "Kontakty";
 
@@ -515,8 +480,6 @@
 "nodes.autoAddRoomServers" = "Serwery pokojów";
 
 /* Section header for storage settings */
-"nodes.storage.header" = "Pamięć";
-
 /* Toggle label for overwrite oldest */
 "nodes.overwriteOldest" = "Nadpisz najstarsze";
 
@@ -540,7 +503,6 @@
 
 /* Footer text when hop limit is active */
 "nodes.maxHops.footerActive" = "Węzły przekraczające wybraną odległość skoków nie zostaną automatycznie dodane.";
-
 
 // MARK: - Auto-Remove Old Nodes Section
 
@@ -571,7 +533,6 @@
 /* Last cleanup date row (%@ = relative date) */
 "nodes.staleCleanup.lastRun" = "Ostatnio sprawdzono %@";
 
-
 // MARK: - Device Actions Section
 
 /* Section header for device actions */
@@ -591,7 +552,6 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "Urządzenie zostanie ponownie uruchomione i tymczasowo rozłączone.";
-
 
 // MARK: - Danger Zone Section
 
@@ -661,7 +621,6 @@
 /* Message when no non-favorite nodes to remove */
 "dangerZone.alert.removeUnfavorited.noneFound" = "Brak niefaworyzowanych węzłów do usunięcia.";
 
-
 // MARK: - Diagnostics Section
 
 /* Section header for diagnostics */
@@ -688,12 +647,10 @@
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Nie udało się utworzyć pliku eksportu";
 
-
 // MARK: - Chat Settings
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Czaty";
-
 
 // MARK: - Link Preview Settings Section
 
@@ -715,7 +672,6 @@
 /* Footer note shown when Reduce Motion is enabled */
 "linkPreviews.reduceMotionNote" = "Ograniczanie ruchu jest włączone, więc GIF-y nie będą odtwarzane automatycznie.";
 
-
 // MARK: - Node Settings Section
 
 /* Section header for node settings */
@@ -725,11 +681,7 @@
 "node.name" = "Nazwa węzła";
 
 /* Default node name when unknown */
-"node.unknown" = "Nieznany";
-
 /* Button text to copy */
-"node.copy" = "Kopiuj";
-
 /* Label for set location button */
 "node.setLocation" = "Ustaw lokalizację";
 
@@ -747,7 +699,6 @@
 
 /* Alert title for editing node name */
 "node.alert.editName.title" = "Edytuj nazwę węzła";
-
 
 // MARK: - Notification Settings Section
 
@@ -791,12 +742,7 @@
 "notifications.openSettings" = "Otwórz Ustawienia";
 
 /* Message shown when device not connected */
-"notifications.connectDevice" = "Połącz urządzenie, aby skonfigurować powiadomienia";
-
 /* Footer for notifications navigation row */
-"notifications.footer" = "Powiadomienia o wiadomościach, odkryciach kontaktów i niskim poziomie baterii.";
-
-
 // MARK: - Radio Preset Section
 
 /* Section header for radio settings */
@@ -831,7 +777,6 @@
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
 "radio.mismatchHint" = "Twoje radio używa %@, a nie zalecanego presetu dla %@.";
-
 
 // MARK: - Telemetry Settings Section
 
@@ -868,7 +813,6 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "Gdy włączone, inne węzły mogą żądać danych telemetrii Twojego urządzenia.";
 
-
 // MARK: - WiFi Section
 
 /* Section header for WiFi settings */
@@ -886,7 +830,6 @@
 /* Footer explaining WiFi address */
 "wifi.footer" = "Adres sieci lokalnej Twojego urządzenia";
 
-
 // MARK: - WiFi Edit Sheet
 
 /* Navigation title for WiFi edit sheet */
@@ -896,17 +839,9 @@
 "wifiEdit.connectionDetails" = "Szczegóły połączenia";
 
 /* Placeholder for IP address field */
-"wifiEdit.ipPlaceholder" = "Adres IP";
-
 /* Placeholder for port field */
-"wifiEdit.portPlaceholder" = "Port";
-
 /* Accessibility label for clear IP button */
-"wifiEdit.clearIp" = "Wyczyść adres IP";
-
 /* Accessibility label for clear port button */
-"wifiEdit.clearPort" = "Wyczyść port";
-
 /* Footer explaining reconnection */
 "wifiEdit.footer" = "Zmiana tych wartości rozłączy i ponownie połączy z nowym adresem.";
 
@@ -919,12 +854,10 @@
 /* Error for invalid port */
 "wifiEdit.error.invalidPort" = "Nieprawidłowy numer portu";
 
-
 // MARK: - Error Alert
 
 /* Alert title for generic errors */
 "alert.error.title" = "Błąd";
-
 
 // MARK: - Retry Alert
 
@@ -943,7 +876,6 @@
 /* Fallback message for retry alerts when error description is unavailable */
 "alert.retry.fallbackMessage" = "Upewnij się, że urządzenie jest połączone i spróbuj ponownie.";
 
-
 // MARK: - Battery Curve Chart
 
 /* Chart X axis label */
@@ -955,15 +887,12 @@
 /* Accessibility label for battery curve chart */
 "chart.accessibility" = "Krzywa rozładowania baterii pokazująca napięcie na każdym poziomie procentowym";
 
-
 // MARK: - Messages Settings Section
 
 /* Section header for message info settings in chats */
 "messages.header" = "Info o wiadomości";
 
 /* Toggle label for showing the raw uncorrected wire send time on incoming messages */
-"messages.showIncomingSendTime" = "Czas wysłania przychodzący";
-
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Ścieżka przychodząca";
 
@@ -976,7 +905,6 @@
 /* Footer explaining what the message display options show */
 "messages.footer" = "Wyświetlaj informacje o trasowaniu i czasie w dymkach wiadomości przychodzących.";
 
-
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
@@ -987,7 +915,6 @@
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Liczba potwierdzeń wysyłanych na wiadomość bezpośrednią. Użyj 2 dla lepszego potwierdzenia dostarczenia przez zawodne łącza.";
-
 
 // MARK: - BLE Status Indicator
 
@@ -1035,7 +962,6 @@
 
 /* Label shown in BLE status menu when repeat mode is active */
 "bleStatus.repeatModeActive" = "Tryb repeatera aktywny";
-
 
 // MARK: - Location Settings Section
 
@@ -1093,8 +1019,6 @@
 "configExport.exportSelected" = "Eksportuj wybrane sekcje";
 
 /* Customize export disclosure label */
-"configExport.customize" = "Dostosuj eksport";
-
 /* Select all toggle label */
 "configExport.selectAll" = "Zaznacz wszystko";
 
@@ -1111,7 +1035,6 @@
 "configExport.channels.description" = "Wszystkie kanały i ich klucze szyfrowania";
 "configExport.contacts" = "Kontakty";
 "configExport.contacts.description" = "Nazwy, klucze i ostatnie znane pozycje";
-
 
 // MARK: - Config Import
 
@@ -1300,23 +1223,15 @@
 "blocking.channelSenders.empty.description" = "Zablokowane nazwy nadawców kanałów pojawią się tutaj.";
 
 /* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
-"blocking.channelSenders.unblock" = "Odblokuj";
-
-
 // MARK: - Language
 
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Język";
 
-
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */
-"region.title" = "Region";
-
 /* Location: SettingsView.swift - Detail row when region is unset */
-"region.notSet" = "Nie ustawiono";
-
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "Kalifornia";
 
@@ -1358,8 +1273,6 @@
 "regenerateIdentity.generate" = "Generuj klucz";
 
 /* Button to generate another key after the first */
-"regenerateIdentity.generateAnother" = "Generuj kolejny";
-
 /* Progress label while generating */
 "regenerateIdentity.generating" = "Generowanie…";
 
@@ -1379,8 +1292,6 @@
 "regenerateIdentity.prefix.footer" = "Opcjonalnie podaj do 4 znaków szesnastkowych, od których powinien zaczynać się twój klucz publiczny. Dłuższe prefiksy wymagają więcej czasu.";
 
 /* Error when prefix is not 1–4 hex characters */
-"regenerateIdentity.prefix.error.invalidLength" = "Prefiks musi mieć od 1 do 4 znaków szesnastkowych";
-
 /* Error when prefix is 00 or FF */
 "regenerateIdentity.prefix.error.reserved" = "00 i FF są zarezerwowane i nie mogą być używane";
 
@@ -1474,14 +1385,8 @@
 "offlineMaps.cancel" = "Anuluj";
 
 /* Delete confirmation title */
-"offlineMaps.deleteTitle" = "Usunąć mapę offline?";
-
 /* Delete confirmation message */
-"offlineMaps.deleteMessage" = "Pobrane dane mapy zostaną usunięte.";
-
 /* Delete button */
-"offlineMaps.delete" = "Usuń";
-
 /* Error: insufficient disk space */
 "offlineMaps.error.insufficientDiskSpace" = "Za mało miejsca na dysku. Wymagane jest co najmniej 100 MB.";
 
@@ -1517,8 +1422,6 @@
 "offlineMaps.layers" = "Warstwy";
 
 /* Include layers prompt */
-"offlineMaps.includeLayers" = "Dołącz dodatkowe warstwy do użytku offline.";
-
 /* No network available */
 "offlineMaps.noNetwork" = "Do pobrania map wymagane jest połączenie z internetem.";
 
@@ -1653,6 +1556,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Te kanały nie miały wolnego miejsca w tym radiu, więc one i ich wiadomości nie zostały zaimportowane. Zwolnij miejsce na kanał i zaimportuj ponownie, aby je przywrócić.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Tych odkrytych węzłów nie udało się przywrócić, ponieważ lista odkryć tego radia jest pełna (%d węzłów). Istniejące lokalne węzły zostały zachowane; sieć mesh ponownie ogłosi brakujące.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Niektórych elementów nie udało się przywrócić: kanałów bez wolnego miejsca w radiu oraz odkrytych węzłów, które przekroczyły pojemność listy odkryć (%d węzłów). Zwolnij miejsce na kanał i zaimportuj kanały ponownie; sieć mesh ponownie ogłosi brakujące odkryte węzły.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Gotowe";
 
@@ -1669,13 +1578,14 @@
 "settings.backup.import.cancelled.message" = "Żadne dane nie zostały zmienione.";
 
 /* File access error */
-"settings.backup.import.file_access_error" = "Nie można uzyskać dostępu do wybranego pliku.";
-
 /* Import preview manifest label: blocked senders */
 "settings.backup.import.preview.blocked_senders" = "Zablokowani nadawcy";
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Migawki węzłów";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Odkryte węzły";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Powtórzenia wiadomości";

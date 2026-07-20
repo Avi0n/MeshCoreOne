@@ -46,6 +46,12 @@ struct ContactDetailSheet: View {
   @State private var isTogglingFavorite = false
   @State private var errorMessage: String?
 
+  /// ZephCore V-contact remove is disabled (would turn off firmware admin CLI).
+  private var isVContact: Bool {
+    guard let selfKey = appState.connectedDevice?.publicKey else { return false }
+    return VContactIdentity.isVContact(publicKey: contact.publicKey, selfPublicKey: selfKey)
+  }
+
   var body: some View {
     NavigationStack {
       List {
@@ -169,21 +175,23 @@ struct ContactDetailSheet: View {
           .radioDisabled(for: appState.connectionState)
         }
 
-        // Delete section
-        Section {
-          Button(role: .destructive) {
-            showingDeleteAlert = true
-          } label: {
-            HStack {
-              Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
-              if isDeleting {
-                Spacer()
-                ProgressView()
+        // Delete section, hidden for the ZephCore V-contact whose remove is disabled.
+        if !isVContact {
+          Section {
+            Button(role: .destructive) {
+              showingDeleteAlert = true
+            } label: {
+              HStack {
+                Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
+                if isDeleting {
+                  Spacer()
+                  ProgressView()
+                }
               }
             }
+            .disabled(isDeleting)
+            .radioDisabled(for: appState.connectionState)
           }
-          .disabled(isDeleting)
-          .radioDisabled(for: appState.connectionState)
         }
       }
       .navigationTitle(contact.displayName)

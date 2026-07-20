@@ -100,24 +100,11 @@
 // MARK: - Message Timestamps
 
 /* Location: MessageDayDividerView.swift - Label for today's date in the chat day separator */
-"chats.timestamp.today" = "Vandaag";
-
 /* Location: MessageDayDividerView.swift - Label for yesterday's date in the chat day separator */
-"chats.timestamp.yesterday" = "Gisteren";
-
 /* Location: RelativeTimestampText.swift - Timestamp for messages under 1 minute old */
 "chats.timestamp.now" = "Nu";
 
 // MARK: - Scroll Buttons
-
-/* Location: ScrollToMentionButton.swift - Accessibility label for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityLabel" = "Scroll naar je oudste ongelezen vermelding";
-
-/* Location: ScrollToMentionButton.swift - Accessibility hint for scroll to mention button */
-"chats.scrollButton.scrollToMention.accessibilityHint" = "Dubbeltik om naar het bericht te navigeren";
-
-/* Location: ScrollToMentionButton.swift - Accessibility value for unread mention count - %d is the number of unread mentions */
-"chats.scrollButton.scrollToMention.accessibilityValue" = "%d ongelezen vermeldingen";
 
 /* Location: ScrollToBottomButton.swift - Accessibility label for scroll to bottom button */
 "chats.scrollButton.scrollToBottom.accessibilityLabel" = "Scroll naar nieuwste bericht";
@@ -126,12 +113,6 @@
 "chats.scrollButton.scrollToBottom.accessibilityValue" = "%d ongelezen berichten";
 /* Location: ScrollToMentionButton.swift, ScrollToBottomButton.swift - Badge text for 99+ unread */
 "chats.scrollButton.badge.overflow" = "99+";
-
-/* Location: ScrollToDividerButton.swift - Accessibility label for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityLabel" = "Scroll naar nieuwe berichten";
-
-/* Location: ScrollToDividerButton.swift - Accessibility hint for scroll to divider button */
-"chats.scrollButton.scrollToDivider.accessibilityHint" = "Dubbeltik om naar de scheidingslijn voor nieuwe berichten te scrollen";
 
 // MARK: - Chat View (Direct Messages)
 
@@ -173,6 +154,9 @@
 /* Location: ChatConversationView.swift - Header subtitle for private channels */
 "chats.channel.typePrivate" = "Privékanaal";
 
+/* Location: ChatConversationType.swift - Channel header subtitle when a flood region is active - %@ is the region name */
+"chats.channel.headerRegion" = "Regio: %@";
+
 /* Location: ChatConversationView.swift - Empty state message */
 "chats.channel.emptyState.noMessages" = "Nog geen berichten";
 
@@ -185,8 +169,6 @@
 // MARK: - Channel Info Sheet
 
 /* Location: ChannelInfoSheet.swift - Navigation title */
-"chats.channelInfo.title" = "Kanaalinfo";
-
 /* Location: ChannelInfoSheet.swift - Confirmation dialog title */
 "chats.channelInfo.deleteConfirm.title" = "Kanaal verwijderen";
 
@@ -203,11 +185,7 @@
 "chats.channelInfo.channelType.private" = "Privékanaal";
 
 /* Location: ChannelInfoSheet.swift - Label for channel slot */
-"chats.channelInfo.slot" = "Slot";
-
 /* Location: ChannelInfoSheet.swift - Label for last message date */
-"chats.channelInfo.lastMessage" = "Laatste bericht";
-
 /* Location: ChannelInfoSheet.swift - QR code instruction text */
 "chats.channelInfo.scanToJoin" = "Scan om deel te nemen aan dit kanaal";
 
@@ -336,8 +314,6 @@
 "chats.newChat.contactType.repeater" = "Repeater";
 
 /* Location: NewChatView.swift - Contact type label for rooms */
-"chats.newChat.contactType.room" = "Kamer";
-
 // MARK: - Conversation Row
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
@@ -385,11 +361,7 @@
 // MARK: - Conversation List Sections
 
 /* Location: ConversationListContent.swift - Section accessibility label for favorites */
-"chats.section.favorites" = "Favorieten";
-
 /* Location: ConversationListContent.swift - Section accessibility label for other conversations */
-"chats.section.conversations" = "Gesprekken";
-
 // MARK: - Mention Suggestions
 
 /* Location: MentionSuggestionRow.swift - Accessibility label for mention suggestion - %@ is user name */
@@ -567,8 +539,6 @@
 "chats.scanQR.error.invalidFormat" = "Ongeldig QR-codeformaat";
 
 /* Location: ScanChannelQRView.swift - Error for invalid channel data */
-"chats.scanQR.error.invalidData" = "Ongeldige kanaalgegevens in QR-code";
-
 // MARK: - Message Bubble
 
 /* Location: UnifiedMessageBubble.swift - Fallback sender name */
@@ -620,11 +590,7 @@
 "chats.message.info.adjusted" = "(aangepast)";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for adjusted timestamp */
-"chats.message.info.adjustedAccessibility" = "Verzendtijd aangepast vanwege klokfout afzender";
-
 /* Location: UnifiedMessageBubble.swift - Accessibility hint for adjusted timestamp */
-"chats.message.info.adjustedHint" = "Klok van afzender was onjuist";
-
 /* Location: ActionsDetailsSection.swift - Info row showing the raw uncorrected wire send time when the timestamp was corrected - %@ is formatted date */
 "chats.message.info.originalSendTime" = "Oorspronkelijke verzendtijd: %@";
 
@@ -728,8 +694,6 @@
 "chats.signal.poor" = "Slecht";
 
 /* Location: UnifiedMessageBubble.swift - SNR quality very poor */
-"chats.signal.veryPoor" = "Zeer slecht";
-
 /* Location: UnifiedMessageBubble.swift - Hop count direct */
 "chats.message.hops.direct" = "Direct";
 
@@ -807,9 +771,6 @@
 "chats.path.copyHint" = "Kopieert node-ID's als hexadecimale waarden";
 
 /* Location: MessagePathSheet.swift - Section header for path */
-"chats.path.section.header" = "Pad";
-
-
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Padkaart";
 
@@ -860,8 +821,6 @@
 "chats.repeats.emptyState.description" = "Herhalingen verschijnen hier terwijl je bericht door het mesh verspreidt";
 
 /* Location: RepeatDetailsSheet.swift - Navigation title */
-"chats.repeats.title" = "Herhalingsdetails";
-
 // MARK: - Repeat Row View
 
 /* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
@@ -916,7 +875,6 @@
 /* Location: Various - Done button */
 "chats.common.done" = "Klaar";
 
-
 // MARK: - Message Path
 
 /* Direct message path (no hops) */
@@ -925,11 +883,7 @@
 "chats.message.path.flood" = "Flood";
 
 /* Message path hop count */
-"chats.message.path.hops" = "%d sprongen";
-
 /* Fallback when path nodes unavailable */
-"chats.message.path.unavailable" = "Niet beschikbaar";
-
 /* Accessibility label for message path */
 "chats.message.path.accessibilityLabel" = "Routeringspad: %@";
 
@@ -1008,8 +962,6 @@
 "chats.inlineImage.imageAccessibility" = "Afbeelding";
 
 /* Location: InlineImageFragmentView.swift - Accessibility label for loading state */
-"chats.inlineImage.loading" = "Afbeelding wordt geladen";
-
 /* Location: InlineImageView.swift - Accessibility label for animated image */
 "chats.inlineImage.animatedAccessibility" = "Geanimeerde afbeelding";
 
@@ -1079,8 +1031,6 @@
 // MARK: - Message Actions & Notification Level
 
 /* Location: MessageActionsSheet.swift - Purpose: Sheet title */
-"chats.messageActions.title" = "Bericht";
-
 /* Location: NotificationLevelPicker.swift - Purpose: Label for notification level */
 "chats.notificationLevel.label" = "Meldingsniveau";
 
@@ -1129,20 +1079,10 @@
 "reactions.view_details" = "Reactiedetails bekijken";
 
 /* Location: ReactionDetailsSheet.swift - Details sheet title */
-"reactions.details_title" = "Reacties";
-
 /* Location: ReactionSendError.swift - Send failed message */
-"reactions.send_failed" = "Reactie kon niet worden verzonden";
-
 /* Location: MessageActionsSheet.swift - Reply action */
-"reactions.reply" = "Beantwoorden";
-
 /* Location: MessageActionsSheet.swift - Copy action */
-"reactions.copy" = "Kopiëren";
-
 /* Location: MessageActionsSheet.swift - Delete action */
-"reactions.delete" = "Verwijderen";
-
 // MARK: - Malware Warning
 
 /* Location: MalwareWarningCard.swift - Warning title for flagged domains */
@@ -1222,14 +1162,8 @@
 /* Location: ChannelInfoSheet.swift - Purpose: Private region label */
 "chats.channelInfo.region.private" = "Privé";
 
-/* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle */
-"chats.channelInfo.region.scopedAccessibility" = "%@, beperkt tot %@";
-
 /* Location: ChatConversationType.swift - Purpose: Subtitle suffix when channel region matches the device default flood scope */
 "chats.channelInfo.region.scopedDefault" = "%@ (standaard)";
-
-/* Location: ChatConversationType.swift - Purpose: Accessibility label for scoped subtitle when region matches the device default */
-"chats.channelInfo.region.defaultScopedAccessibility" = "%@, beperkt tot %@ (standaard)";
 
 // MARK: - Common
 

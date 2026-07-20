@@ -91,6 +91,13 @@ public struct PathInfo: Sendable, Equatable {
     decodePathLen(inPathLength)?.hopCount
   }
 
+  /// Whether this response refers to the node with `publicKey`. The wire
+  /// carries only a key prefix; an empty prefix never matches rather than
+  /// matching every key.
+  public func matches(publicKey: Data) -> Bool {
+    !publicKeyPrefix.isEmpty && publicKey.starts(with: publicKeyPrefix)
+  }
+
   /// Initializes a new path information object.
   ///
   /// - Parameters:

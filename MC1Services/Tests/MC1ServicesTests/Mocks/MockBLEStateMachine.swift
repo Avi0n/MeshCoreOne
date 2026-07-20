@@ -10,9 +10,9 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   public var stubbedIsConnected: Bool = false
   public var stubbedIsAutoReconnecting: Bool = false
   public var stubbedConnectedDeviceID: UUID?
-  public var stubbedCurrentPhaseName: String = "idle"
-  public var stubbedCurrentPeripheralState: String?
-  public var stubbedCentralManagerStateName: String = "poweredOn"
+  public var stubbedLinkDiagnostics = BLELinkDiagnostics(
+    centralState: "poweredOn", phase: .idle, peripheralState: nil
+  )
   public var stubbedIsBluetoothPoweredOff: Bool = false
   public var stubbedIsDeviceConnectedToSystem: Bool = false
   public var isDeviceConnectedToSystemHandler: (@Sendable (UUID) -> Bool)?
@@ -32,16 +32,8 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     stubbedConnectedDeviceID
   }
 
-  public var currentPhaseName: String {
-    stubbedCurrentPhaseName
-  }
-
-  public var currentPeripheralState: String? {
-    stubbedCurrentPeripheralState
-  }
-
-  public var centralManagerStateName: String {
-    stubbedCentralManagerStateName
+  public var linkDiagnostics: BLELinkDiagnostics {
+    stubbedLinkDiagnostics
   }
 
   public var isBluetoothPoweredOff: Bool {
@@ -67,7 +59,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   private var bluetoothPoweredOnHandler: (@Sendable () -> Void)?
   private var bluetoothStateChangeHandler: (@Sendable (CBManagerState) -> Void)?
   private var deviceDiscoveredHandler: (@Sendable (UUID, String?, Int) -> Void)?
-  private var bondVerificationDateProvider: (@Sendable (UUID) -> Date?)?
+  public private(set) var recordedBondVerifications: [UUID: Date] = [:]
 
   // MARK: - Initialization
 
@@ -104,8 +96,12 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     bluetoothPoweredOnHandler = handler
   }
 
-  public func setBondVerificationDateProvider(_ provider: @escaping @Sendable (UUID) -> Date?) {
-    bondVerificationDateProvider = provider
+  public func recordBondVerification(deviceID: UUID, at date: Date) {
+    recordedBondVerifications[deviceID] = date
+  }
+
+  public func clearBondVerification(deviceID: UUID) {
+    recordedBondVerifications[deviceID] = nil
   }
 
   public func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void) {
@@ -153,9 +149,9 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     stubbedIsConnected = false
     stubbedIsAutoReconnecting = false
     stubbedConnectedDeviceID = nil
-    stubbedCurrentPhaseName = "idle"
-    stubbedCurrentPeripheralState = nil
-    stubbedCentralManagerStateName = "poweredOn"
+    stubbedLinkDiagnostics = BLELinkDiagnostics(
+      centralState: "poweredOn", phase: .idle, peripheralState: nil
+    )
     stubbedIsBluetoothPoweredOff = false
     stubbedIsDeviceConnectedToSystem = false
     isDeviceConnectedToSystemHandler = nil
@@ -172,7 +168,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     bluetoothPoweredOnHandler = nil
     bluetoothStateChangeHandler = nil
     deviceDiscoveredHandler = nil
-    bondVerificationDateProvider = nil
+    recordedBondVerifications = [:]
   }
 
   /// Simulates auto-reconnecting event
@@ -223,8 +219,12 @@ extension MockBLEStateMachine {
     stubbedDidStartAdoptingSystemConnectedPeripheral = value
   }
 
-  func setStubbedCurrentPhaseName(_ value: String) {
-    stubbedCurrentPhaseName = value
+  func setStubbedPhase(_ value: BLEPhaseKind) {
+    stubbedLinkDiagnostics = BLELinkDiagnostics(
+      centralState: stubbedLinkDiagnostics.centralState,
+      phase: value,
+      peripheralState: stubbedLinkDiagnostics.peripheralState
+    )
   }
 
   func setStubbedConnectedDeviceID(_ value: UUID?) {

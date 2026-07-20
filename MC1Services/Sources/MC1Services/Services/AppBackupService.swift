@@ -49,6 +49,7 @@ public actor AppBackupService {
         savedTracePaths: snapshot.savedTracePaths,
         blockedChannelSenders: snapshot.blockedChannelSenders,
         nodeStatusSnapshots: snapshot.nodeStatusSnapshots,
+        discoveredNodes: snapshot.discoveredNodes,
         userDefaults: userDefaultsSnapshot
       )
       envelope.manifest = BackupManifest(from: envelope)

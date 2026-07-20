@@ -27,7 +27,7 @@ public enum PairingError: LocalizedError {
   }
 
   /// True when the underlying BLE failure is an auth/encryption error.
-  /// Detection is locale-independent: `BLEStateMachine.makeConnectionError` is
+  /// Detection is locale-independent: `ReconnectPolicy.makeConnectionError` is
   /// the single source of truth for which CoreBluetooth codes map to
   /// `BLEError.authenticationFailed` at the throw site.
   public var isAuthenticationFailure: Bool {

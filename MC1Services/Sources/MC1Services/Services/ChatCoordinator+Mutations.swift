@@ -1,6 +1,9 @@
 import Foundation
 
-public extension ChatCoordinator {
+/// Mutation methods are internal: app code mutates a timeline only through
+/// a `ChatTimelineWriter` minted by `bindWriter(owner:role:...)`, which
+/// closes the stale-writer clobber class at the module boundary.
+extension ChatCoordinator {
   /// Replace the entire canonical messages list. Rebuilds the lookup
   /// dictionary and bumps `renderStateID` so any in-flight off-main
   /// build discards on apply. Settles `renderState.phase` to `.loaded`,

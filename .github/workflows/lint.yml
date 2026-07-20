@@ -29,11 +29,25 @@ jobs:
       - name: Install dependencies
         run: command -v swiftlint >/dev/null 2>&1 || brew install swiftlint
 
+      - name: Install SwiftFormat
+        env:
+          SWIFTFORMAT_VERSION: 0.62.1
+        run: |
+          # Pinned rather than using the runner image's preinstalled build, so an
+          # image update cannot change the lint result without a commit here.
+          curl -sSL --fail -o /tmp/swiftformat.zip \
+            "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat.zip"
+          unzip -o -q /tmp/swiftformat.zip -d /tmp/swiftformat-bin
+          chmod +x /tmp/swiftformat-bin/swiftformat
+          echo "/tmp/swiftformat-bin" >> "$GITHUB_PATH"
+
       - name: Lint
         run: swiftlint lint --strict
 
       - name: Format
-        run: swiftformat --lint --strict .
+        run: |
+          swiftformat --version
+          swiftformat --lint --strict .
 
   codegen:
     name: Code Generation Checks

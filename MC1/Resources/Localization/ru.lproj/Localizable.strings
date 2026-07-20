@@ -5,7 +5,6 @@
   Russian translation of common and shared strings used across the application.
 */
 
-
 // MARK: - Generic Buttons
 
 /* Standard confirmation button for dialogs */
@@ -27,8 +26,6 @@
 "common.edit" = "Изменить";
 
 /* Standard close button for dismissing views */
-"common.close" = "Закрыть";
-
 /* Button to retry a failed operation */
 "common.tryAgain" = "Попробовать снова";
 
@@ -48,10 +45,7 @@
 "common.error.noElevationData" = "Данные о высоте не получены";
 
 /* Standard remove button for removing items from a list or group */
-"common.remove" = "Удалить";
-
 "common.accessibility.connectHint" = "Нажмите дважды, чтобы подключить устройство";
-
 
 // MARK: - Connection Status
 
@@ -66,7 +60,6 @@
 
 /* Location: SyncingPillView.swift - Status shown when device is disconnected */
 "common.status.disconnected" = "Отключено";
-
 
 // MARK: - Tab Bar
 
@@ -87,7 +80,6 @@
 
 /* Tab bar title for the app settings screen */
 "tabs.settings" = "Настройки";
-
 
 // MARK: - Connection Alerts
 
@@ -112,40 +104,22 @@
 /* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
 "accessibility.alert.connectionFailed.removeAndRetry" = "Удалить сопряжение устройства и попробовать снова";
 
-
 // MARK: - Accessibility
 
 /* VoiceOver announcement when viewing cached data while disconnected from device */
-"accessibility.viewingCachedData" = "Просмотр кэшированных данных. Подключись к устройству для обновления.";
-
 /* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
 "accessibility.requiresRadioConnection" = "Требуется подключение к радио";
-
 
 // MARK: - Node Types
 
 /* Node type for a person or contact */
-"nodeType.contact" = "Контакт";
-
 /* Node type for a mesh network repeater device */
-"nodeType.repeater" = "Ретранслятор";
-
 /* Node type for a group chat room */
-"nodeType.room" = "Комната";
-
-
 // MARK: - Permission Levels
 
 /* Permission level with limited access */
-"permission.guest" = "Гость";
-
 /* Permission level with standard access */
-"permission.member" = "Участник";
-
 /* Permission level with full administrative access */
-"permission.admin" = "Администратор";
-
-
 // MARK: - Discovery Notifications
 
 /* Notification title when a new contact is discovered on the mesh network */
@@ -156,7 +130,6 @@
 
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "Обнаружена новая комната";
-
 
 // MARK: - Notification Actions
 
@@ -171,7 +144,6 @@
 
 /* Notification action button to mark a message as read */
 "notifications.action.markAsRead" = "Отметить как прочитанное";
-
 
 // MARK: - Low Battery Notifications
 
@@ -190,7 +162,6 @@
 /* Fallback display name for a discovered contact with no advertised name */
 "notifications.discovery.unknownContact" = "Неизвестный контакт";
 
-
 // MARK: - Connection VoiceOver Announcements
 
 /* VoiceOver announcement when sync fails and device is disconnecting */
@@ -207,12 +178,10 @@
 "accessibility.signalStrength.medium" = "Средний сигнал";
 "accessibility.signalStrength.strong" = "Сильный сигнал";
 
-
 // MARK: - Status Pill
 
 /* Status pill message when sync has failed */
 "statusPill.syncFailed" = "Ошибка синхронизации";
-
 
 // MARK: - Accessibility Toggle States
 
@@ -222,18 +191,15 @@
 /* Accessibility value for on state */
 "accessibility.on" = "Вкл.";
 
-
 // MARK: - Rate Limiting
 
 /* Error message when user hits rate limit */
 "common.error.rateLimited" = "Слишком много запросов. Попробуйте позже.";
 
-
 // MARK: - Reaction Notifications
 
 /* Notification body when someone reacts to your message - %1$@ is emoji, %2$@ is message text */
 "notifications.reaction.body" = "Отреагировал(а) %1$@ на ваше сообщение: «%2$@»";
-
 
 // MARK: - Error Messages
 

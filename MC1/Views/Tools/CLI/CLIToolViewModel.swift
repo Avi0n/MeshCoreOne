@@ -25,11 +25,19 @@ final class CLIToolViewModel {
   var remainingSeconds: Int?
   var pendingLoginContact: ContactDTO?
 
+  /// A parsed dangerous local command awaiting a yes/no confirmation line.
+  var pendingConfirmation: CLILocalCommand?
+
   // MARK: - Completion State
 
   let completionEngine = CLICompletionEngine()
   var ghostText: String = ""
   private var nodeNamesTask: Task<Void, Never>?
+
+  /// Prefetches custom-var completion keys once per connection. Kept separate
+  /// from `nodeNamesTask` because `configure` re-runs on every view appearance
+  /// and would otherwise cancel an in-flight session command each time.
+  private var customVarKeysTask: Task<Void, Never>?
 
   /// Current tab completion suggestions (nil when hidden)
   var tabSuggestions: [String]?
@@ -43,10 +51,26 @@ final class CLIToolViewModel {
 
   // MARK: - Dependencies
 
+  /// Per-connection dependencies, each read live at every call site so a nil read
+  /// means disconnected. `connectedDevice` reads the synchronously-updated live
+  /// DTO on `AppState`, deliberately not the persisted row (written by an
+  /// error-swallowed detached task, so it can lag).
+  struct Dependencies {
+    let repeaterAdminService: @MainActor () -> RepeaterAdminService?
+    let remoteNodeService: @MainActor () -> RemoteNodeService?
+    let settingsService: @MainActor () -> SettingsService?
+    let dataStore: @MainActor () -> PersistenceStoreProtocol?
+    let radioID: @MainActor () -> UUID?
+    let connectedDevice: @MainActor () -> DeviceDTO?
+  }
+
   private var repeaterAdminServiceProvider: @MainActor () -> RepeaterAdminService? = { nil }
   private var remoteNodeServiceProvider: @MainActor () -> RemoteNodeService? = { nil }
+  private var settingsServiceProvider: @MainActor () -> SettingsService? = { nil }
   private var dataStoreProvider: @MainActor () -> PersistenceStoreProtocol? = { nil }
   private var radioIDProvider: @MainActor () -> UUID? = { nil }
+  private var connectedDeviceProvider: @MainActor () -> DeviceDTO? = { nil }
+  private var sendSelfAdvertAction: @MainActor (_ flood: Bool) async throws -> Void = { _ in }
 
   /// Both old and new providers read the same live state, so change detection
   /// needs the instance seen at the previous configure. Weak, so a torn-down
@@ -61,12 +85,24 @@ final class CLIToolViewModel {
     remoteNodeServiceProvider()
   }
 
+  var settingsService: SettingsService? {
+    settingsServiceProvider()
+  }
+
   var dataStore: PersistenceStoreProtocol? {
     dataStoreProvider()
   }
 
   var radioID: UUID? {
     radioIDProvider()
+  }
+
+  var connectedDevice: DeviceDTO? {
+    connectedDeviceProvider()
+  }
+
+  func sendSelfAdvert(_ flood: Bool) async throws {
+    try await sendSelfAdvertAction(flood)
   }
 
   var localDeviceName: String = ""
@@ -80,6 +116,10 @@ final class CLIToolViewModel {
 
     if isWaitingForResponse {
       return ""
+    }
+
+    if let pendingConfirmation {
+      return "\(L10n.Tools.Tools.Cli.confirmPrompt(pendingConfirmation.displayName)) "
     }
 
     if pendingLoginContact != nil {
@@ -100,27 +140,37 @@ final class CLIToolViewModel {
   // MARK: - Setup
 
   func configure(
-    repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService?,
-    remoteNodeService: @escaping @MainActor () -> RemoteNodeService?,
-    dataStore: @escaping @MainActor () -> PersistenceStoreProtocol?,
-    radioID: @escaping @MainActor () -> UUID?,
-    localDeviceName: String
+    dependencies: Dependencies,
+    localDeviceName: String,
+    sendSelfAdvert: @escaping @MainActor (_ flood: Bool) async throws -> Void
   ) {
     self.localDeviceName = localDeviceName
-    remoteNodeServiceProvider = remoteNodeService
-    dataStoreProvider = dataStore
-    radioIDProvider = radioID
+    remoteNodeServiceProvider = dependencies.remoteNodeService
+    settingsServiceProvider = dependencies.settingsService
+    dataStoreProvider = dependencies.dataStore
+    radioIDProvider = dependencies.radioID
+    connectedDeviceProvider = dependencies.connectedDevice
+    sendSelfAdvertAction = sendSelfAdvert
 
-    let incomingService = repeaterAdminService()
-    repeaterAdminServiceProvider = repeaterAdminService
+    let incomingService = dependencies.repeaterAdminService()
+    repeaterAdminServiceProvider = dependencies.repeaterAdminService
 
     if lastConfiguredAdminService !== incomingService {
-      if incomingService != nil, activeSession == nil {
-        activeSession = .local(deviceName: localDeviceName)
-        showWelcomeBanner()
-      } else if incomingService == nil {
+      if incomingService != nil {
+        if activeSession == nil {
+          activeSession = .local(deviceName: localDeviceName)
+          showWelcomeBanner()
+        }
+        customVarKeysTask?.cancel()
+        customVarKeysTask = Task {
+          await updateCustomVarKeysForCompletion()
+        }
+      } else {
         activeSession = nil
         remoteSessions.removeAll()
+        customVarKeysTask?.cancel()
+        customVarKeysTask = nil
+        completionEngine.updateCustomVarKeys([])
       }
     }
     lastConfiguredAdminService = incomingService
@@ -137,6 +187,8 @@ final class CLIToolViewModel {
     currentCommandTask = nil
     nodeNamesTask?.cancel()
     nodeNamesTask = nil
+    customVarKeysTask?.cancel()
+    customVarKeysTask = nil
     stopCountdown()
   }
 
@@ -150,6 +202,7 @@ final class CLIToolViewModel {
     remoteSessions = []
     isWaitingForResponse = false
     pendingLoginContact = nil
+    pendingConfirmation = nil
     hasShownWelcome = false
     clearTabState()
   }
@@ -216,6 +269,29 @@ final class CLIToolViewModel {
       return
     }
 
+    // Handle yes/no answer for a pending dangerous command
+    if let command = pendingConfirmation {
+      appendOutput("\(promptPrefix) \(trimmed)", type: .command)
+      pendingConfirmation = nil
+      currentInput = ""
+
+      let answer = trimmed.lowercased()
+      guard answer == "yes" || answer == "y" else {
+        appendOutput(L10n.Tools.Tools.Cli.cancelled, type: .error)
+        return
+      }
+
+      // Claim the busy state synchronously, matching the login path.
+      isWaitingForResponse = true
+      var task: Task<Void, Never>!
+      task = Task {
+        defer { clearWaitingIfCurrent(task) }
+        await executeLocal(command)
+      }
+      currentCommandTask = task
+      return
+    }
+
     // Echo prompt when empty input is submitted, matching terminal behavior
     guard !trimmed.isEmpty else {
       appendOutput(promptPrefix, type: .command)
@@ -246,6 +322,13 @@ final class CLIToolViewModel {
   func cancelCurrentCommand() {
     currentCommandTask?.cancel()
     currentCommandTask = nil
+    // A pending confirmation has no running task and leaves isWaitingForResponse
+    // false, so it must be cleared here or the confirm prompt would wedge.
+    if pendingConfirmation != nil {
+      pendingConfirmation = nil
+      appendOutput(L10n.Tools.Tools.Cli.cancelled, type: .error)
+      return
+    }
     if isWaitingForResponse {
       isWaitingForResponse = false
       appendOutput(L10n.Tools.Tools.Cli.cancelled, type: .error)
@@ -273,6 +356,25 @@ final class CLIToolViewModel {
     if let number = parseSessionShortcut(cmd) {
       handleSessionCommand(String(number))
       return
+    }
+
+    // Local radio commands are interpreted app-side; the same words keep passing
+    // through to repeaters on remote sessions.
+    if activeSession?.isLocal == true {
+      switch CLILocalCommandParser.parse(raw) {
+      case let .command(command):
+        if command.requiresConfirmation {
+          pendingConfirmation = command
+        } else {
+          await executeLocal(command)
+        }
+        return
+      case let .invalid(error):
+        renderParseError(error)
+        return
+      case .notLocal:
+        break
+      }
     }
 
     switch cmd {
@@ -318,6 +420,13 @@ final class CLIToolViewModel {
     if activeSession?.isLocal == true {
       appendOutput(L10n.Tools.Tools.Cli.helpNodes, type: .response)
       appendOutput(L10n.Tools.Tools.Cli.helpChannels, type: .response)
+      appendOutput("", type: .response)
+      appendOutput(L10n.Tools.Tools.Cli.helpLocalHeader, type: .response)
+      appendOutput(L10n.Tools.Tools.Cli.helpLocalList1, type: .response)
+      appendOutput(L10n.Tools.Tools.Cli.helpLocalList2, type: .response)
+      appendOutput(L10n.Tools.Tools.Cli.helpLocalList3, type: .response)
+      appendOutput(L10n.Tools.Tools.Cli.helpLocalList4, type: .response)
+      appendOutput(L10n.Tools.Tools.Cli.helpLocalList5, type: .response)
     } else if activeSession != nil {
       appendOutput("", type: .response)
       appendOutput(L10n.Tools.Tools.Cli.helpRepeaterHeader, type: .response)

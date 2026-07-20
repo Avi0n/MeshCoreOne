@@ -130,6 +130,30 @@ struct LoginSuccessParserTests {
     #expect(info?.publicKeyPrefix.isEmpty == true)
   }
 
+  // MARK: - Server time
+
+  @Test
+  func `Extended-format server timestamp parses as serverTime`() {
+    let epoch: UInt32 = 1_784_300_000
+    let payload = Self.extendedPayload(isAdminByte: 1, timestamp: epoch, aclPermissions: 0x03)
+    let info = Self.extractLogin(Parsers.LoginSuccess.parse(payload))
+    #expect(info?.serverTime == Date(timeIntervalSince1970: TimeInterval(epoch)))
+  }
+
+  @Test
+  func `Zero server timestamp yields nil serverTime`() {
+    let payload = Self.extendedPayload(isAdminByte: 1, timestamp: 0, aclPermissions: 0x03)
+    let info = Self.extractLogin(Parsers.LoginSuccess.parse(payload))
+    #expect(info?.serverTime == nil)
+  }
+
+  @Test
+  func `Legacy 7-byte payload yields nil serverTime`() {
+    let payload = Data([0x00, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF])
+    let info = Self.extractLogin(Parsers.LoginSuccess.parse(payload))
+    #expect(info?.serverTime == nil)
+  }
+
   // MARK: - Pubkey prefix propagation
 
   @Test

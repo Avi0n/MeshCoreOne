@@ -32,6 +32,8 @@ struct ChatComposerTextView: UIViewRepresentable {
   /// consumed and focus retained), `false` when gated off (Return inserts a
   /// newline instead).
   let onSend: () -> Bool
+  /// Called when the field becomes first responder.
+  let onFocus: () -> Void
 
   func makeUIView(context: Context) -> ChatComposerUITextView {
     let textView = ChatComposerUITextView(usingTextLayoutManager: false)
@@ -115,6 +117,10 @@ struct ChatComposerTextView: UIViewRepresentable {
     init(_ parent: ChatComposerTextView) {
       self.parent = parent
       lastFocusRequest = parent.focusRequest
+    }
+
+    func textViewDidBeginEditing(_: UITextView) {
+      parent.onFocus()
     }
 
     func textViewDidChange(_ textView: UITextView) {

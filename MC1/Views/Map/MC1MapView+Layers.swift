@@ -30,6 +30,8 @@ enum MapLayerID {
   static let lineTraceGoodCasing = "line-trace-good-casing"
   static let lineMessagePath = "line-message-path"
   static let lineMessagePathCasing = "line-message-path-casing"
+  static let lineLocationTrail = "line-location-trail"
+  static let lineLocationTrailCasing = "line-location-trail-casing"
   static let satelliteLayer = "satellite-layer"
   static let topoLayer = "topo-layer"
 }
@@ -308,6 +310,28 @@ extension MC1MapView.Coordinator {
     messagePathLayer.lineJoin = roundJoin
     messagePathLayer.lineCap = roundCap
     style.addLayer(messagePathLayer)
+
+    // Location trail: a faint dashed connector threading location reports in time
+    // order, neutral and de-emphasized, since it is not a proven route. A long
+    // silence is left unbridged by the builder, so no segment spans a real gap.
+    let locationTrailCasing = MLNLineStyleLayer(identifier: MapLayerID.lineLocationTrailCasing, source: source)
+    locationTrailCasing.predicate = NSPredicate(format: "lineStyle == %@", MapLine.LineStyle.locationTrail.rawValue)
+    locationTrailCasing.lineColor = white
+    locationTrailCasing.lineOpacity = casingOpacity
+    locationTrailCasing.lineWidth = NSExpression(forConstantValue: 5)
+    locationTrailCasing.lineDashPattern = NSExpression(forConstantValue: [0.8, 1.4])
+    locationTrailCasing.lineJoin = roundJoin
+    locationTrailCasing.lineCap = roundCap
+    style.addLayer(locationTrailCasing)
+
+    let locationTrailLayer = MLNLineStyleLayer(identifier: MapLayerID.lineLocationTrail, source: source)
+    locationTrailLayer.predicate = NSPredicate(format: "lineStyle == %@", MapLine.LineStyle.locationTrail.rawValue)
+    locationTrailLayer.lineColor = NSExpression(forConstantValue: UIColor.systemGray)
+    locationTrailLayer.lineWidth = NSExpression(forConstantValue: 2.5)
+    locationTrailLayer.lineDashPattern = NSExpression(forConstantValue: [1.6, 2.8])
+    locationTrailLayer.lineJoin = roundJoin
+    locationTrailLayer.lineCap = roundCap
+    style.addLayer(locationTrailLayer)
   }
 
   func updateLineSource(mapView: MLNMapView) {
@@ -413,7 +437,7 @@ extension MC1MapView.Coordinator {
 
   private func iconAnchor(for point: MapPoint) -> String {
     switch point.pinStyle {
-    case .crosshair, .obstruction: "center"
+    case .crosshair, .obstruction, .locationFix: "center"
     default: "bottom"
     }
   }
@@ -443,6 +467,8 @@ extension MC1MapView.Coordinator {
     case .crosshair: "pin-crosshair"
     case .obstruction: "pin-obstruction"
     case .droppedPin: "pin-dropped"
+    case .locationFix: PinSpriteRenderer.locationDotSpriteName(bucket: point.hopIndex ?? 0)
+    case .locationFixLatest: "pin-location-latest"
     case .badge: "pin-badge"
     }
   }

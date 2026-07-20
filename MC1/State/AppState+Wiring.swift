@@ -96,7 +96,7 @@ extension AppState {
           logger.info("Overwrite oldest: running cleanup for deleted contact \(contactID) - removing notifications and updating badge")
           await self.services?.notificationService.removeDeliveredNotifications(forContactID: contactID)
           await self.services?.notificationService.updateBadgeCount()
-        case .newContactDiscovered, .contactSyncRequested, .nodeStorageFullChanged,
+        case .newContactDiscovered, .nodeStorageFullChanged,
              .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:
           break
         }

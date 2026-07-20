@@ -24,11 +24,13 @@ public enum MockDataProvider {
   public static let publicChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000000")!
   public static let bayAreaChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000001")!
   public static let trailCrewChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000002")!
+  public static let meshHQChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000003")!
 
   /// Channel slot indices (mirror firmware slot positions)
   public static let publicChannelIndex: UInt8 = 0
   public static let bayAreaChannelIndex: UInt8 = 1
   public static let trailCrewChannelIndex: UInt8 = 2
+  public static let meshHQChannelIndex: UInt8 = 3
 
   /// Message IDs referenced by more than one seed helper (reaction / repeat /
   /// link-preview targets) so the builders and the post-save mutators agree.

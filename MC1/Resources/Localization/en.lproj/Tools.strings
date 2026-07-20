@@ -324,11 +324,7 @@
 // MARK: - Line of Sight View
 
 /* Location: LineOfSightView.swift - Map style: standard */
-"tools.lineOfSight.mapStyle.standard" = "Standard";
-
 /* Location: LineOfSightView.swift - Map style: terrain */
-"tools.lineOfSight.mapStyle.terrain" = "Terrain";
-
 /* Location: LineOfSightView.swift - Back button label */
 "tools.lineOfSight.back" = "Back";
 
@@ -450,14 +446,8 @@
 "tools.lineOfSight.droppedPin" = "Dropped pin";
 
 /* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
-"tools.lineOfSight.repeaterPin.accessibilityHint" = "Double tap to select as analysis point";
-
 /* Location: LOSPointPinView.swift - Accessibility hint for point pins */
-"tools.lineOfSight.pointPin.accessibilityHint" = "Line of sight analysis point";
-
 /* Location: LOSRepeaterTargetPinView.swift - Accessibility hint for repeater target */
-"tools.lineOfSight.repeaterTarget.accessibilityHint" = "Repeater placement marker";
-
 // MARK: - Terrain Profile Canvas
 
 /* Location: TerrainProfileCanvas.swift - Empty state title */
@@ -555,8 +545,6 @@
 "tools.cli.promptSuffix" = ">";
 
 /* Location: CLIToolView.swift - Waiting indicator */
-"tools.cli.waiting" = "...";
-
 /* Location: CLIToolView.swift - Disconnected prompt */
 "tools.cli.disconnected" = "disconnected";
 
@@ -570,11 +558,7 @@
 "tools.cli.sessionLocal" = "local";
 
 /* Location: CLIToolView.swift - No sessions message */
-"tools.cli.noSessions" = "No active sessions";
-
 /* Location: CLIToolView.swift - History empty message */
-"tools.cli.historyEmpty" = "No command history";
-
 /* Location: CLIToolView.swift - Unknown command error */
 "tools.cli.unknownCommand" = "Unknown command:";
 
@@ -642,8 +626,6 @@
 "tools.cli.paste" = "Paste";
 
 /* Location: CLIToolView.swift - Accessory button: clear */
-"tools.cli.clear" = "Clear";
-
 /* Location: CLIToolView.swift - Accessory button: sessions */
 "tools.cli.sessions" = "Sessions";
 
@@ -741,10 +723,42 @@
 "tools.cli.rebootSent" = "Reboot command sent";
 
 /* Accessibility label for completion suggestions container */
-"tools.cli.completionSuggestions" = "Completion suggestions";
-
 /* Accessibility value for completion suggestions - %lld is count, %@ is selected */
-"tools.cli.completionSuggestionsValue" = "%lld available, %@ selected";
+/* Location: CLIToolViewModel.swift - Confirmation prompt for a dangerous local command; %@ is the command name */
+"tools.cli.confirmPrompt" = "confirm %@? (yes/no):";
+
+/* Location: CLIToolViewModel+LocalCommands.swift - Usage for the get command */
+"tools.cli.usageGet" = "Usage: get <key>";
+
+/* Location: CLIToolViewModel+LocalCommands.swift - Usage for the set command */
+"tools.cli.usageSet" = "Usage: set <key> <value>";
+
+/* Location: CLIToolViewModel+LocalCommands.swift - Usage for set radio */
+"tools.cli.usageSetRadio" = "Usage: set radio <freq>,<bw>,<sf>,<cr>";
+
+/* Location: CLIToolViewModel+LocalCommands.swift - Invalid value error */
+"tools.cli.invalidValue" = "Invalid value";
+
+/* Location: CLIToolViewModel+LocalCommands.swift - Custom var key/value contains a reserved character */
+"tools.cli.invalidCustomVarToken" = "Keys can't contain ':' or ','; values can't contain ','";
+
+/* Location: CLIToolViewModel.swift - Local radio commands help header */
+"tools.cli.helpLocalHeader" = "Local radio commands:";
+
+/* Location: CLIToolViewModel.swift - Local radio commands help line 1 */
+"tools.cli.helpLocalList1" = "  clock [sync], ver, board";
+
+/* Location: CLIToolViewModel.swift - Local radio commands help line 2 */
+"tools.cli.helpLocalList2" = "  advert (zero-hop), floodadv (flood), reboot";
+
+/* Location: CLIToolViewModel.swift - Local radio commands help line 3 */
+"tools.cli.helpLocalList3" = "  get <key>, set <key> <value>";
+
+/* Location: CLIToolViewModel.swift - Local radio commands help line 4 */
+"tools.cli.helpLocalList4" = "    keys: name, lat, lon, tx, radio, freq, multi.acks, path.hash.mode, public.key, bat";
+
+/* Location: CLIToolViewModel.swift - Local radio commands help line 5 */
+"tools.cli.helpLocalList5" = "  get custom  (all custom firmware vars); unknown get/set keys route to custom vars";
 
 // MARK: - Saved Paths
 

@@ -887,7 +887,7 @@ public enum PacketBuilder: Sendable {
   /// - Remaining: Payload bytes (clamped to 163 bytes)
   ///
   /// `pathLength` is the **encoded** path-length byte used by firmware's packet format
-  /// (see `Packet::isValidPathLen` at `MeshCore-references/MeshCore/src/Packet.cpp:13-18`):
+  /// (see `Packet::isValidPathLen` at `mc-ref/MeshCore/src/Packet.cpp:13-18`):
   /// - Upper 2 bits (6–7): hash size mode (0 = 1 byte, 1 = 2 bytes, 2 = 3 bytes, 3 = reserved).
   /// - Lower 6 bits (0–5): hop count (0–63).
   /// - Special value `0xFF`: flood routing (no path bytes follow).

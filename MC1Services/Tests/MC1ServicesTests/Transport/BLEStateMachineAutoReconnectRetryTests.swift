@@ -55,7 +55,7 @@ struct BLEStateMachineAutoReconnectRetryTests {
     await sm.primeAutoReconnecting(peripheral: peripheral)
 
     // Every failure below the cap re-arms silently and stays in the episode.
-    for _ in 1..<BLEStateMachine.maxAutoReconnectConnectFailures {
+    for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
       await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
     }
     #expect(await sm.currentPhase.name == "autoReconnecting")
@@ -81,7 +81,7 @@ struct BLEStateMachineAutoReconnectRetryTests {
     let recorder = await makeRecorder(on: sm)
     await sm.primeAutoReconnecting(peripheral: peripheral)
 
-    for _ in 1..<BLEStateMachine.maxAutoReconnectConnectFailures {
+    for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
       await sm.handleDidFailToConnect(peripheral, error: genericTransient)
     }
     #expect(await sm.currentPhase.name == "autoReconnecting")

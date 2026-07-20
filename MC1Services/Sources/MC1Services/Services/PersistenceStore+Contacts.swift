@@ -84,8 +84,9 @@ public extension PersistenceStore {
     return result
   }
 
-  /// Save or update a contact from a ContactFrame
-  func saveContact(radioID: UUID, from frame: ContactFrame) throws -> UUID {
+  /// Save or update a contact from a ContactFrame.
+  /// Returns the contact id and whether the row was newly inserted (`isNew`).
+  func saveContact(radioID: UUID, from frame: ContactFrame) throws -> (id: UUID, isNew: Bool) {
     let targetRadioID = radioID
     let targetKey = frame.publicKey
     let predicate = #Predicate<Contact> { contact in
@@ -95,16 +96,19 @@ public extension PersistenceStore {
     descriptor.fetchLimit = 1
 
     let contact: Contact
+    let isNew: Bool
     if let existing = try modelContext.fetch(descriptor).first {
       existing.update(from: frame)
       contact = existing
+      isNew = false
     } else {
       contact = Contact(radioID: radioID, from: frame)
       modelContext.insert(contact)
+      isNew = true
     }
 
     try modelContext.save()
-    return contact.id
+    return (id: contact.id, isNew: isNew)
   }
 
   /// Upserts contacts from frames in a single transaction, matching local rows by
@@ -154,16 +158,34 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
-  /// Delete a contact
+  /// Delete a contact and everything scoped to it in a single transactional
+  /// save. The cascade is keyed by the contact ID value, not the Contact row,
+  /// so orphaned local data is removed even when the row is already gone.
   func deleteContact(id: UUID) throws {
+    try _deleteMessagesForContactWithoutSaving(contactID: id)
     let targetID = id
     let predicate = #Predicate<Contact> { contact in
       contact.id == targetID
     }
     if let contact = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
       modelContext.delete(contact)
-      try modelContext.save()
     }
+    try modelContext.save()
+  }
+
+  /// Insert-only rollback: probe for messages and delete in one ModelActor
+  /// region with no suspension between them.
+  func deleteContactIfUnreferenced(id: UUID) throws {
+    let targetID = id
+    let messagePredicate = #Predicate<Message> { message in
+      message.contactID == targetID
+    }
+    var messageDescriptor = FetchDescriptor<Message>(predicate: messagePredicate)
+    messageDescriptor.fetchLimit = 1
+    if try modelContext.fetch(messageDescriptor).first != nil {
+      return
+    }
+    try deleteContact(id: id)
   }
 
   /// Fetch all blocked contacts for a device
@@ -306,8 +328,14 @@ public extension PersistenceStore {
   }
 
   /// Delete all messages, reactions, message repeats, and pending sends for a contact
-  /// in a single transactional save.
+  /// in a single transactional save. Leaves the Contact row in place ("Clear");
+  /// `deleteContact` runs the same cascade before removing the row ("Remove").
   func deleteMessagesForContact(contactID: UUID) throws {
+    try _deleteMessagesForContactWithoutSaving(contactID: contactID)
+    try modelContext.save()
+  }
+
+  private func _deleteMessagesForContactWithoutSaving(contactID: UUID) throws {
     let targetContactID: UUID? = contactID
     let messagePredicate = #Predicate<Message> { message in
       message.contactID == targetContactID
@@ -334,7 +362,6 @@ public extension PersistenceStore {
       }
     }
     try modelContext.delete(model: Message.self, where: messagePredicate)
-    try modelContext.save()
   }
 
   // MARK: - Contact Helper Methods

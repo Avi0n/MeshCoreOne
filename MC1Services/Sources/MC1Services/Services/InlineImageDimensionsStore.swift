@@ -26,8 +26,11 @@ public actor InlineImageDimensionsStore {
   private let fileURL: URL
   private var entries: [String: Entry] = [:]
   private let aspectMirror: OSAllocatedUnfairLock<[String: Double]>
-  private let streamContinuation: AsyncStream<URL>.Continuation
-  private let stream: AsyncStream<URL>
+
+  /// Multicast source for resolution events: every subscriber receives
+  /// every saved URL, so coexisting consumers (iPad split view) never
+  /// steal each other's events.
+  private let resolutionBroadcaster = EventBroadcaster<URL>()
 
   /// Production initializer using the default Application Support path.
   public init() {
@@ -39,13 +42,6 @@ public actor InlineImageDimensionsStore {
   public init(fileURL: URL?) {
     let resolvedURL = fileURL ?? Self.defaultFileURL()
     self.fileURL = resolvedURL
-
-    let (stream, continuation) = AsyncStream.makeStream(
-      of: URL.self,
-      bufferingPolicy: .bufferingOldest(Self.resolutionStreamBufferDepth)
-    )
-    self.stream = stream
-    streamContinuation = continuation
 
     let directory = resolvedURL.deletingLastPathComponent()
     do {
@@ -79,7 +75,7 @@ public actor InlineImageDimensionsStore {
 
     entries[key] = entry
     aspectMirror.withLock { $0[key] = aspect }
-    streamContinuation.yield(url)
+    resolutionBroadcaster.yield(url)
 
     persist()
   }
@@ -89,16 +85,20 @@ public actor InlineImageDimensionsStore {
     aspectMirror.withLock { $0[url.absoluteString] }
   }
 
-  /// Broadcast stream of URLs whose aspect was just (re)saved. Emits on every
-  /// save call, including idempotent re-saves where the aspect did not change.
-  ///
-  /// Single-consumer by design; `ChatViewModel` owns this in non-split-view
-  /// contexts. In iPad split view (multiple `ChatViewModel`s alive at once),
-  /// events are delivered to whichever subscriber happens to be iterating
-  /// first; affected bubbles still rebuild via other triggers (visible-cell
-  /// reload, retry, manual `rebuildDisplayItem`).
-  public nonisolated var resolutionStream: AsyncStream<URL> {
-    stream
+  /// Returns a fresh multicast stream of URLs whose aspect was just
+  /// (re)saved. Emits on every save call, including idempotent re-saves
+  /// where the aspect did not change. Every subscriber receives every
+  /// event yielded after it subscribes, so two live view models (iPad
+  /// split view) never split the event stream between them. Per-subscriber
+  /// buffering keeps the newest events when a consumer stalls.
+  public nonisolated func resolutionUpdates() -> AsyncStream<URL> {
+    resolutionBroadcaster.subscribe(
+      bufferingPolicy: .bufferingNewest(Self.resolutionStreamBufferDepth)
+    )
+  }
+
+  deinit {
+    resolutionBroadcaster.finish()
   }
 
   private func persist() {

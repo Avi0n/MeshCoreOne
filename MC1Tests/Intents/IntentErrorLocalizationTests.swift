@@ -6,7 +6,7 @@ import Testing
 /// `IntentError.errorDescription` is the localization seam Siri and Shortcuts
 /// read, so it must route through `L10n` in every locale, never an English
 /// fallback. These tests pin every shipped case to its `L10n` key and confirm
-/// the raw key resolves to real copy in all 9 locales.
+/// the raw key resolves to real copy in all 10 locales.
 struct IntentErrorLocalizationTests {
   /// The localizable table backing the `error.intent.*` keys.
   private static let table = "Localizable"
@@ -23,9 +23,9 @@ struct IntentErrorLocalizationTests {
     (.advertFailed, "error.advertisement.sendFailed", L10n.Localizable.Error.Advertisement.sendFailed),
   ]
 
-  /// The 9 shipped locales. A key missing from any one would fall back to the
+  /// The 10 shipped locales. A key missing from any one would fall back to the
   /// raw key string at runtime, so each must resolve real copy.
-  private static let locales = ["de", "en", "es", "fr", "nl", "pl", "ru", "uk", "zh-Hans"]
+  private static let locales = ["de", "en", "es", "fr", "it", "nl", "pl", "ru", "uk", "zh-Hans"]
 
   // MARK: - Generated accessor agreement
 
@@ -56,7 +56,7 @@ struct IntentErrorLocalizationTests {
     #expect(resolved?.isEmpty == false)
   }
 
-  // MARK: - No raw-key fallback across all 9 locales
+  // MARK: - No raw-key fallback across all 10 locales
 
   @Test func `every intent key resolves in every locale`() throws {
     for locale in Self.locales {

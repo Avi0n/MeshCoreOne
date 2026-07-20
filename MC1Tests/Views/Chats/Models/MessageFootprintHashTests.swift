@@ -23,7 +23,7 @@ struct MessageFootprintHashTests {
     let bumpedItem = MessageFragmentBuilder.makeItem(for: bumped, inputs: inputs, envInputs: envInputs)
 
     #expect(baseItem != bumpedItem,
-            "sendCount must be encoded into MessageItem; otherwise BubbleStatusRow can't refresh after channel resend")
+            "sendCount must be encoded into MessageItem; otherwise the status footer can't refresh after channel resend")
     #expect(baseItem.hashValue != bumpedItem.hashValue)
   }
 

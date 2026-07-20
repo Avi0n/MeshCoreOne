@@ -4,124 +4,56 @@ import Testing
 
 @Suite("NodeSettingsResponseParser")
 struct NodeSettingsResponseParserTests {
-  // MARK: - Settings Field Matching
+  // MARK: - Late Reply Recovery
 
   @Test
-  func `Radio response matches the radio field through the prompt prefix`() {
-    let value = NodeSettingsResponseParser.firstSettingsValue(
-      in: "> 915.000,250.0,10,5",
-      checking: [.radio, .txPower]
+  func `late reply recovers for the single unanswered query it parses for`() {
+    let recovered = NodeSettingsResponseParser.recoveredResponse(
+      "> 22", unansweredQueries: ["get tx"]
     )
-    #expect(value == .radio(frequency: 915.0, bandwidth: 250.0, spreadingFactor: 10, codingRate: 5))
-  }
+    #expect(recovered?.query == "get tx")
+    #expect(recovered?.value == .txPower(22))
 
-  @Test
-  func `Integer response matches TX power`() {
-    let value = NodeSettingsResponseParser.firstSettingsValue(in: "22", checking: [.txPower])
-    #expect(value == .txPower(22))
-  }
-
-  @Test
-  func `Version response matches firmware version with and without MeshCore prefix`() {
-    let prefixed = NodeSettingsResponseParser.firstSettingsValue(
-      in: "MeshCore v1.11.0 (2025-04-18)",
-      checking: [.firmwareVersion]
+    let radio = NodeSettingsResponseParser.recoveredResponse(
+      "> 915.000,250.0,10,5", unansweredQueries: ["get tx", "get radio"]
     )
-    #expect(prefixed == .firmwareVersion("MeshCore v1.11.0 (2025-04-18)"))
-
-    let bare = NodeSettingsResponseParser.firstSettingsValue(
-      in: "v1.10.0 (2025-03-02)",
-      checking: [.firmwareVersion]
-    )
-    #expect(bare == .firmwareVersion("v1.10.0 (2025-03-02)"))
+    #expect(radio?.query == "get radio")
+    #expect(radio?.value == .radio(frequency: 915.0, bandwidth: 250.0, spreadingFactor: 10, codingRate: 5))
   }
 
   @Test
-  func `Clock response matches device time`() {
-    let value = NodeSettingsResponseParser.firstSettingsValue(
-      in: "06:40 - 18/4/2025 UTC",
-      checking: [.deviceTime]
-    )
-    #expect(value == .deviceTime("06:40 - 18/4/2025 UTC"))
-  }
-
-  @Test
-  func `Numeric responses match latitude and longitude`() {
-    let lat = NodeSettingsResponseParser.firstSettingsValue(in: "-36.8485", checking: [.latitude])
-    #expect(lat == .latitude(-36.8485))
-
-    let lon = NodeSettingsResponseParser.firstSettingsValue(in: "174.7633", checking: [.longitude])
-    #expect(lon == .longitude(174.7633))
-  }
-
-  @Test
-  func `Free-form text falls through numeric fields to name`() {
-    let value = NodeSettingsResponseParser.firstSettingsValue(
-      in: "Alpha Repeater",
-      checking: [.latitude, .longitude, .name]
-    )
-    #expect(value == .name("Alpha Repeater"))
-  }
-
-  @Test
-  func `A bare number is captured by latitude before name`() {
-    let value = NodeSettingsResponseParser.firstSettingsValue(
-      in: "12.5",
-      checking: [.latitude, .name]
-    )
-    #expect(value == .latitude(12.5))
-  }
-
-  @Test
-  func `Owner info keeps the wire pipe separator`() {
-    let value = NodeSettingsResponseParser.firstSettingsValue(
-      in: "Contact: KD7ABC|ch 31",
-      checking: [.ownerInfo]
-    )
-    #expect(value == .ownerInfo("Contact: KD7ABC|ch 31"))
-  }
-
-  @Test
-  func `OK and error responses match no settings field`() {
-    let fields: [NodeSettingsResponseParser.SettingsField] = [
-      .radio, .txPower, .firmwareVersion, .latitude, .longitude, .name, .ownerInfo,
-    ]
-    #expect(NodeSettingsResponseParser.firstSettingsValue(in: "OK", checking: fields) == nil)
-    #expect(NodeSettingsResponseParser.firstSettingsValue(in: "ERR: no such setting", checking: fields) == nil)
-  }
-
-  @Test
-  func `Empty field list never matches`() {
-    #expect(NodeSettingsResponseParser.firstSettingsValue(in: "22", checking: []) == nil)
-  }
-
-  // MARK: - Behavior Fields
-
-  @Test
-  func `Integer fills the first missing behavior field in fixed order`() {
-    let advert = NodeSettingsResponseParser.behaviorLateResponse(
-      "90", hasAdvertInterval: false, hasFloodInterval: false, hasFloodMaxHops: false
-    )
-    #expect(advert == .advertInterval(90))
-
-    let flood = NodeSettingsResponseParser.behaviorLateResponse(
-      "24", hasAdvertInterval: true, hasFloodInterval: false, hasFloodMaxHops: false
-    )
-    #expect(flood == .floodAdvertInterval(24))
-
-    let hops = NodeSettingsResponseParser.behaviorLateResponse(
-      "8", hasAdvertInterval: true, hasFloodInterval: true, hasFloodMaxHops: false
-    )
-    #expect(hops == .floodMax(8))
-  }
-
-  @Test
-  func `Behavior matching returns nil when all fields are present or text is non-numeric`() {
-    #expect(NodeSettingsResponseParser.behaviorLateResponse(
-      "90", hasAdvertInterval: true, hasFloodInterval: true, hasFloodMaxHops: true
+  func `a bare double is ambiguous when both coordinates are unanswered`() {
+    #expect(NodeSettingsResponseParser.recoveredResponse(
+      "38.5", unansweredQueries: ["get lat", "get lon"]
     ) == nil)
-    #expect(NodeSettingsResponseParser.behaviorLateResponse(
-      "Alpha Repeater", hasAdvertInterval: false, hasFloodInterval: false, hasFloodMaxHops: false
+
+    let single = NodeSettingsResponseParser.recoveredResponse(
+      "38.5", unansweredQueries: ["get lon"]
+    )
+    #expect(single?.value == .longitude(38.5))
+  }
+
+  @Test
+  func `query-independent shapes are never recovered`() {
+    for response in ["OK", "ERR: not allowed", "MeshCore v1.11.0 (2025-04-18)"] {
+      #expect(NodeSettingsResponseParser.recoveredResponse(
+        response, unansweredQueries: ["get tx"]
+      ) == nil)
+    }
+  }
+
+  @Test
+  func `radio CSV never recovers as TX power`() {
+    #expect(NodeSettingsResponseParser.recoveredResponse(
+      "> 910.525,62.500,7,7", unansweredQueries: ["get tx"]
+    ) == nil)
+  }
+
+  @Test
+  func `empty and free-form query sets recover nothing`() {
+    #expect(NodeSettingsResponseParser.recoveredResponse("22", unansweredQueries: []) == nil)
+    #expect(NodeSettingsResponseParser.recoveredResponse(
+      "Alpha Repeater", unansweredQueries: ["get name"]
     ) == nil)
   }
 

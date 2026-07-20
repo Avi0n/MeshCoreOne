@@ -106,6 +106,12 @@ struct ContactDetailView: View {
     _isFavorite = State(initialValue: contact.isFavorite)
   }
 
+  /// ZephCore V-contact remove is disabled (would turn off firmware admin CLI).
+  private var isVContact: Bool {
+    guard let selfKey = appState.connectedDevice?.publicKey else { return false }
+    return VContactIdentity.isVContact(publicKey: currentContact.publicKey, selfPublicKey: selfKey)
+  }
+
   var body: some View {
     List {
       // Profile header
@@ -181,6 +187,7 @@ struct ContactDetailView: View {
         currentContact: currentContact,
         contactTypeLabel: contactTypeLabel,
         isClearingMessages: isClearingMessages,
+        isVContact: isVContact,
         onClearMessages: { showingClearMessagesAlert = true },
         onToggleBlock: {
           if currentContact.isBlocked {
@@ -265,7 +272,10 @@ struct ContactDetailView: View {
       // can subscribe concurrently.
       guard let advertisementService = appState.services?.advertisementService else { return }
       for await event in advertisementService.events() {
-        if case let .pathDiscoveryResponse(response) = event {
+        // Only a response for this contact may resolve this view's discovery;
+        // a straggler from a discovery started on another contact must not.
+        if case let .pathDiscoveryResponse(response) = event,
+           response.matches(publicKey: currentContact.publicKey) {
           pathViewModel.handleDiscoveryResponse(hopCount: response.outHopCount)
         }
       }
@@ -1137,6 +1147,7 @@ private struct ContactDangerSection: View {
   let currentContact: ContactDTO
   let contactTypeLabel: String
   let isClearingMessages: Bool
+  let isVContact: Bool
   let onClearMessages: () -> Void
   let onToggleBlock: () -> Void
   let onDelete: () -> Void
@@ -1164,10 +1175,12 @@ private struct ContactDangerSection: View {
         .disabled(isClearingMessages)
       }
 
-      Button(role: .destructive, action: onDelete) {
-        Label(L10n.Contacts.Contacts.Detail.deleteType(contactTypeLabel), systemImage: "trash")
+      if !isVContact {
+        Button(role: .destructive, action: onDelete) {
+          Label(L10n.Contacts.Contacts.Detail.deleteType(contactTypeLabel), systemImage: "trash")
+        }
+        .radioDisabled(for: appState.connectionState)
       }
-      .radioDisabled(for: appState.connectionState)
     } header: {
       Text(L10n.Contacts.Contacts.Detail.dangerZone)
     }

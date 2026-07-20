@@ -71,6 +71,17 @@ struct SimulatorSeedTests {
   }
 
   @Test
+  func `node status snapshots seed a GPS track for the location-history node`() async throws {
+    let store = try await seededStore()
+    let snapshots = try await store.fetchNodeStatusSnapshots(
+      nodePublicKey: MockDataProvider.locationHistoryNodePublicKey,
+      since: nil
+    )
+    #expect(snapshots.count == MockDataProvider.nodeStatusSnapshots.count)
+    #expect(snapshots.contains { $0.latitude != nil && $0.longitude != nil })
+  }
+
+  @Test
   func `reseeding is idempotent`() async throws {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let store = PersistenceStore(modelContainer: container)
@@ -80,7 +91,7 @@ struct SimulatorSeedTests {
 
     // Unique-id upsert means a second pass does not duplicate rows.
     let channels = try await store.fetchChannels(radioID: radioID)
-    #expect(channels.count == 3)
+    #expect(channels.count == 4)
     let repeats = try await store.fetchMessageRepeats(messageID: MockDataProvider.frankRepeatMessageID)
     #expect(repeats.count == 3)
     let reactions = try await store.fetchReactions(for: MockDataProvider.aliceReactedMessageID)

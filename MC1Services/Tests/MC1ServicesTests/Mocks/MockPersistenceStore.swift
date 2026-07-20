@@ -511,14 +511,48 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return contacts.values.first { $0.publicKey == publicKey }
   }
 
+  /// When true, the next `saveContact(radioID:from:)` suspends until `releaseSaveContact()`.
+  private var saveContactHoldRequested = false
+  private var saveContactHoldContinuation: CheckedContinuation<Void, Never>?
+
+  /// Number of completed `saveContact(radioID:from:)` calls (post-hold). Tests wait on
+  /// this after `releaseSaveContact()` so commit/rollback assertions are not racy.
+  public private(set) var saveContactCompletedCount = 0
+
+  /// Causes the next frame `saveContact` to suspend until `releaseSaveContact()`.
+  public func holdNextSaveContact() {
+    saveContactHoldRequested = true
+  }
+
+  /// Releases a held `saveContact(radioID:from:)`.
+  public func releaseSaveContact() {
+    if let continuation = saveContactHoldContinuation {
+      saveContactHoldContinuation = nil
+      continuation.resume()
+    }
+    saveContactHoldRequested = false
+  }
+
+  /// Whether a frame `saveContact` is currently suspended on the hold gate.
+  public var isSaveContactHeld: Bool {
+    saveContactHoldContinuation != nil
+  }
+
   @discardableResult
-  public func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID {
+  public func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> (id: UUID, isNew: Bool) {
+    if saveContactHoldRequested {
+      saveContactHoldRequested = false
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        saveContactHoldContinuation = continuation
+      }
+    }
+    defer { saveContactCompletedCount += 1 }
     if let error = stubbedSaveContactError {
       throw error
     }
     // Check if contact already exists
     if let existing = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == frame.publicKey }) {
-      return existing.id
+      return (id: existing.id, isNew: false)
     }
     let id = UUID()
     let dto = ContactDTO(
@@ -543,7 +577,15 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     )
     contacts[id] = dto
     savedContacts.append(dto)
-    return id
+    return (id: id, isNew: true)
+  }
+
+  public func deleteContactIfUnreferenced(id: UUID) async throws {
+    // Same actor region as the message map: probe and delete with no suspension between.
+    if messages.values.contains(where: { $0.contactID == id }) {
+      return
+    }
+    try await deleteContact(id: id)
   }
 
   public func saveContact(_ dto: ContactDTO) async throws {
@@ -559,7 +601,21 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     if let error = stubbedDeleteContactError {
       throw error
     }
+    cascadeDeleteContactData(contactID: id)
     contacts.removeValue(forKey: id)
+  }
+
+  /// Mirrors the real store's cascade: messages, their pending sends, and
+  /// reactions scoped to the contact die together, keyed by the contact ID
+  /// value rather than the contact row.
+  private func cascadeDeleteContactData(contactID: UUID) {
+    let messageIDs = Set(messages.values.filter { $0.contactID == contactID }.map(\.id))
+    messages = messages.filter { !messageIDs.contains($0.key) }
+    pendingSends = pendingSends.filter { !messageIDs.contains($0.value.messageID) }
+    reactions = reactions.compactMapValues { list in
+      let kept = list.filter { $0.contactID != contactID }
+      return kept.isEmpty ? nil : kept
+    }
   }
 
   public func updateContactLastMessage(contactID: UUID, date: Date?) async throws {
@@ -826,7 +882,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func deleteMessagesForContact(contactID: UUID) async throws {
     deletedMessagesForContactIDs.append(contactID)
-    messages = messages.filter { $0.value.contactID != contactID }
+    cascadeDeleteContactData(contactID: contactID)
   }
 
   public func fetchBlockedContacts(radioID: UUID) async throws -> [ContactDTO] {
@@ -1765,7 +1821,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         postedCount: existing.postedCount,
         postPushCount: existing.postPushCount,
         neighborSnapshots: neighbors,
-        telemetryEntries: existing.telemetryEntries
+        telemetryEntries: existing.telemetryEntries,
+        latitude: existing.latitude,
+        longitude: existing.longitude,
+        altitude: existing.altitude
       )
     }
   }
@@ -1789,7 +1848,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         postedCount: existing.postedCount,
         postPushCount: existing.postPushCount,
         neighborSnapshots: existing.neighborSnapshots,
-        telemetryEntries: telemetry
+        telemetryEntries: telemetry,
+        latitude: existing.latitude,
+        longitude: existing.longitude,
+        altitude: existing.altitude
       )
     }
   }
@@ -1797,21 +1859,25 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   /// Non-atomic in-memory stand-in for the concrete store's atomic override.
   /// This double is never driven concurrently, so it enriches the latest
   /// in-window row or inserts a new one without the single-turn guarantee.
+  /// A location fix is first-wins, mirroring `PersistenceStore`: it is written
+  /// only when the target row doesn't already have one.
   public func recordNodeStatusSnapshot(
     nodePublicKey: Data,
     status: NodeStatusMetrics?,
     telemetry: [TelemetrySnapshotEntry]?,
-    neighbors: [NeighborSnapshotEntry]?
+    neighbors: [NeighborSnapshotEntry]?,
+    location: NodeLocationFix?
   ) async throws -> UUID {
     if let latest = try await fetchLatestNodeStatusSnapshot(nodePublicKey: nodePublicKey),
        latest.timestamp.distance(to: .now) < NodeSnapshotPolicy.minimumInterval {
       if let telemetry { try await updateSnapshotTelemetry(id: latest.id, telemetry: telemetry) }
       if let neighbors { try await updateSnapshotNeighbors(id: latest.id, neighbors: neighbors) }
+      if let location, latest.latitude == nil { applyLocation(location, to: latest.id) }
       return latest.id
     }
 
-    if let status {
-      return try await saveNodeStatusSnapshot(
+    let id: UUID = if let status {
+      try await saveNodeStatusSnapshot(
         nodePublicKey: nodePublicKey,
         batteryMillivolts: status.batteryMillivolts,
         lastSNR: status.lastSNR,
@@ -1825,14 +1891,43 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         postedCount: status.postedCount,
         postPushCount: status.postPushCount
       )
+    } else {
+      try await saveTelemetryOnlySnapshot(
+        nodePublicKey: nodePublicKey,
+        telemetryEntries: telemetry ?? []
+      )
     }
-
-    let id = try await saveTelemetryOnlySnapshot(
-      nodePublicKey: nodePublicKey,
-      telemetryEntries: telemetry ?? []
-    )
     if let neighbors { try await updateSnapshotNeighbors(id: id, neighbors: neighbors) }
+    if let location { applyLocation(location, to: id) }
     return id
+  }
+
+  /// Rewrites the stored DTO's location by index. The DTO is a value type, so an
+  /// in-place mutation is a full rebuild; the mock keeps this in one helper.
+  private func applyLocation(_ location: NodeLocationFix, to id: UUID) {
+    guard let index = nodeStatusSnapshots.firstIndex(where: { $0.id == id }) else { return }
+    let existing = nodeStatusSnapshots[index]
+    nodeStatusSnapshots[index] = NodeStatusSnapshotDTO(
+      id: existing.id,
+      timestamp: existing.timestamp,
+      nodePublicKey: existing.nodePublicKey,
+      batteryMillivolts: existing.batteryMillivolts,
+      lastSNR: existing.lastSNR,
+      lastRSSI: existing.lastRSSI,
+      noiseFloor: existing.noiseFloor,
+      uptimeSeconds: existing.uptimeSeconds,
+      rxAirtimeSeconds: existing.rxAirtimeSeconds,
+      packetsSent: existing.packetsSent,
+      packetsReceived: existing.packetsReceived,
+      receiveErrors: existing.receiveErrors,
+      postedCount: existing.postedCount,
+      postPushCount: existing.postPushCount,
+      neighborSnapshots: existing.neighborSnapshots,
+      telemetryEntries: existing.telemetryEntries,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      altitude: location.altitude
+    )
   }
 
   public func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {

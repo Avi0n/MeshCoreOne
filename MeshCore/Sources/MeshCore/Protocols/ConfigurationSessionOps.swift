@@ -27,6 +27,18 @@ public protocol ConfigurationSessionOps: Actor {
   /// - Throws: `MeshCoreError` if the device doesn't emit battery info.
   func getBattery() async throws -> BatteryInfo
 
+  /// Reads the device's real-time clock.
+  ///
+  /// - Returns: The device's current time.
+  /// - Throws: `MeshCoreError` on timeout or device error.
+  func getTime() async throws -> Date
+
+  /// Sets the device's real-time clock. Firmware rejects backwards moves.
+  ///
+  /// - Parameter date: The time to set on the device.
+  /// - Throws: `MeshCoreError` on timeout or device error.
+  func setTime(_ date: Date) async throws
+
   // MARK: - Device Configuration
 
   /// Sets the device's advertised name.
@@ -54,7 +66,7 @@ public protocol ConfigurationSessionOps: Actor {
   /// - Parameters:
   ///   - frequency: Center frequency in MHz (e.g., 915.0).
   ///   - bandwidth: Signal bandwidth in kHz (e.g., 125.0, 250.0, 500.0).
-  ///   - spreadingFactor: LoRa spreading factor (7-12, higher = longer range but slower).
+  ///   - spreadingFactor: LoRa spreading factor (5-12, higher = longer range but slower).
   ///   - codingRate: Error correction coding rate (5-8).
   ///   - clientRepeat: Whether to enable client repeat mode (v9+ firmware, omitted if nil).
   /// - Throws: `MeshCoreError` on timeout or device error.

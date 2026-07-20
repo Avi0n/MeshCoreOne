@@ -71,9 +71,8 @@ struct ChatShareMenu: View {
     return Self.canShareMyInfo(publicKey: device.publicKey, nodeName: device.nodeName)
   }
 
-  /// Matches the send button's font so the two input-bar buttons are the same height.
-  private var plusButtonFont: Font {
-    if #available(iOS 26.0, *) { .title2 } else { .title }
+  private var plusIconColor: Color {
+    if #available(iOS 26.0, *) { .primary } else { Color(.systemGray) }
   }
 
   var body: some View {
@@ -98,10 +97,13 @@ struct ChatShareMenu: View {
       }
       .disabled(!canShareMyInfo)
     } label: {
-      Image(systemName: "plus.circle.fill")
-        .font(plusButtonFont)
+      Image(systemName: "plus")
+        .font(.system(size: 18, weight: .semibold))
+        .foregroundStyle(plusIconColor)
+        .frame(width: ChatInputMetrics.controlHeight, height: ChatInputMetrics.controlHeight)
+        .plusButtonBackground()
     }
-    .shareButtonStyle()
+    .buttonStyle(.plain)
     .accessibilityLabel(L10n.Chats.Chats.Input.ShareButton.accessibilityLabel)
     .sheet(isPresented: $isShowingContactPicker) {
       ShareContactPickerSheet(onInsert: onInsert)
@@ -142,14 +144,12 @@ struct ChatShareMenu: View {
 // MARK: - Platform-Conditional Styling
 
 private extension View {
-  /// Mirrors the chat send button's treatment for visual parity: a glass button
-  /// on iOS 26+, and the same plain vertical padding fallback on earlier versions.
   @ViewBuilder
-  func shareButtonStyle() -> some View {
+  func plusButtonBackground() -> some View {
     if #available(iOS 26.0, *) {
-      buttonStyle(.glass)
+      glassEffect(.regular.interactive(), in: .circle)
     } else {
-      padding(.vertical, 4)
+      background(Color(.systemGray5), in: Circle())
     }
   }
 }

@@ -129,8 +129,12 @@ public actor RepeaterAdminService {
         )
       }
     } catch is TimeoutError {
+      await remoteNodeService.recordSalvageableTimeout(.neighbours, publicKey: remoteSession.publicKey)
       throw RemoteNodeError.timeout
     } catch let error as MeshCoreError {
+      if case .timeout = error {
+        await remoteNodeService.recordSalvageableTimeout(.neighbours, publicKey: remoteSession.publicKey)
+      }
       throw RemoteNodeError.sessionError(error)
     }
   }
@@ -188,7 +192,8 @@ public actor RepeaterAdminService {
   // MARK: - CLI Commands
 
   /// Send a CLI command to a repeater and wait for response (admin only).
-  /// Uses content-based matching for structured CLI responses.
+  /// One command is in flight per node; replies to structured gets must parse
+  /// to their expected shape or they are dropped.
   public func sendCommand(
     sessionID: UUID,
     command: String,
@@ -201,8 +206,8 @@ public actor RepeaterAdminService {
     )
   }
 
-  /// Send a raw CLI command using FIFO response matching (admin only).
-  /// Used by CLI tool for passthrough where any response is accepted.
+  /// Send a raw CLI command; the next reply is delivered verbatim (admin only).
+  /// Used by CLI terminals where any response is accepted.
   public func sendRawCommand(
     sessionID: UUID,
     command: String,

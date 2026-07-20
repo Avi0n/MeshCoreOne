@@ -1,6 +1,9 @@
 import Foundation
 
-public extension ChatCoordinator {
+/// Internal: reload scheduling is reached from app code only via
+/// `ChatTimelineWriter.enqueueReload`; `hardReset`/`cancelInFlight` are
+/// coordinator/registry internals.
+extension ChatCoordinator {
   /// Single chokepoint for ack / retry / fail / heard-repeat / reaction
   /// events. Unions IDs into `pendingReloadIDs` and schedules a coalesced
   /// load if one is not already in flight. The load takes an atomic

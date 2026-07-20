@@ -17,14 +17,9 @@ public protocol BLEStateMachineProtocol: Actor {
   /// UUID of the currently connected device, or nil if not connected
   var connectedDeviceID: UUID? { get }
 
-  /// Current phase name for diagnostic logging
-  var currentPhaseName: String { get }
-
-  /// Current peripheral state for diagnostic logging (nil if no peripheral)
-  var currentPeripheralState: String? { get }
-
-  /// Current CBCentralManager state name for diagnostic logging
-  var centralManagerStateName: String { get }
+  /// One consistent snapshot of central state, phase, and peripheral state
+  /// for branching and diagnostic logging, read in a single actor hop.
+  var linkDiagnostics: BLELinkDiagnostics { get }
 
   /// Whether the Bluetooth central manager is in the powered-off state.
   var isBluetoothPoweredOff: Bool { get }
@@ -63,9 +58,15 @@ public protocol BLEStateMachineProtocol: Actor {
   /// Sets a handler called when Bluetooth powers on
   func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void)
 
-  /// Sets the provider consulted for a device's last verified encrypted session
-  /// when classifying an exhausted encryption-timeout retry budget.
-  func setBondVerificationDateProvider(_ provider: @escaping @Sendable (UUID) -> Date?)
+  /// Records that a device's bond completed a verified encrypted session at
+  /// `date`, consulted when classifying an exhausted encryption-timeout retry
+  /// budget. Seeded from persistence at wiring time and refreshed after every
+  /// verified session.
+  func recordBondVerification(deviceID: UUID, at date: Date)
+
+  /// Clears a device's bond-verification record when its pairing is
+  /// forgotten, so a stale verification cannot shield the next episode.
+  func clearBondVerification(deviceID: UUID)
 
   /// Sets a handler for Bluetooth state changes
   func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void)

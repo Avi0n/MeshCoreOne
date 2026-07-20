@@ -17,11 +17,11 @@ extension PersistenceStore {
   /// unreachable on any normal path. We deliberately do not re-mint ids here: re-minting a
   /// child's `id` would orphan its inbound foreign keys (`Reaction.messageID`/
   /// `MessageRepeat.messageID` key on `Message.id`; `replyToID` is rewritten only for
-  /// duplicate parents). Only Device (recurring CBPeripheral id) and Channel (children key by
-  /// slot/`channelIndex`, never `Channel.id`) are safe to re-mint, and both already do
-  /// (`batchInsertDevices`, `batchInsertChannels`). If a future change ever makes an `id`
-  /// content-derived or reused across rows, revisit this — a colliding insert would upsert the
-  /// local row.
+  /// duplicate parents). Only Device (recurring CBPeripheral id), Channel (children key by
+  /// slot/`channelIndex`, never `Channel.id`), and DiscoveredNode (no inbound FKs) re-mint,
+  /// via `batchInsertDevices`, `batchInsertChannels`, and `batchInsertDiscoveredNodes`.
+  /// If an `id` ever becomes content-derived or reused across rows, revisit this — a
+  /// colliding insert would upsert the local row.
   @discardableResult
   private func insertUnique<DTO, Key: Hashable>(
     _ dtos: [DTO],
@@ -531,5 +531,112 @@ extension PersistenceStore {
       key: { nodeStatusSnapshotKey(nodePublicKey: $0.nodePublicKey, timestamp: $0.timestamp) },
       construct: NodeStatusSnapshot.init(dto:)
     )
+  }
+
+  @discardableResult
+  func batchInsertDiscoveredNodes(
+    _ dtos: [DiscoveredNodeDTO],
+    existingKeys: Set<String>
+  ) throws -> (inserted: Int, skipped: Int, dropped: Int) {
+    // Sanitize first so oversized/corrupt rows never consume cap room or land in the store.
+    var valid: [DiscoveredNodeDTO] = []
+    var invalidSkipped = 0
+    valid.reserveCapacity(dtos.count)
+    for dto in dtos {
+      guard let sanitized = sanitizeDiscoveredNodeForImport(dto) else {
+        invalidSkipped += 1
+        continue
+      }
+      valid.append(sanitized)
+    }
+
+    let (trimmed, dropped) = try trimDiscoveredNodesToCap(valid, existingKeys: existingKeys)
+    var knownKeys = existingKeys
+    var inserted = 0
+    var skipped = invalidSkipped
+    for dto in trimmed {
+      let key = discoveredNodeKey(radioID: dto.radioID, publicKey: dto.publicKey)
+      if !knownKeys.insert(key).inserted {
+        skipped += 1
+        continue
+      }
+      // Re-mint the surrogate id. Dedup is (radioID, publicKey); a backup id that collides
+      // with a local row under a different publicKey would upsert via @Attribute(.unique).
+      // No inbound foreign keys depend on DiscoveredNode.id.
+      modelContext.insert(
+        DiscoveredNode(
+          id: UUID(),
+          radioID: dto.radioID,
+          publicKey: dto.publicKey,
+          name: dto.name,
+          typeRawValue: dto.typeRawValue,
+          lastHeard: dto.lastHeard,
+          lastAdvertTimestamp: dto.lastAdvertTimestamp,
+          latitude: dto.latitude,
+          longitude: dto.longitude,
+          outPathLength: dto.outPathLength,
+          outPath: dto.outPath,
+          inboundHopCount: dto.inboundHopCount,
+          inboundHopAdvertTimestamp: dto.inboundHopAdvertTimestamp
+        )
+      )
+      inserted += 1
+    }
+    return (inserted, skipped, dropped)
+  }
+
+  /// Rejects rows whose public key is not protocol-sized; truncates name and out-path
+  /// to protocol bounds so a crafted envelope cannot bloat the store under the row-count cap.
+  private func sanitizeDiscoveredNodeForImport(_ dto: DiscoveredNodeDTO) -> DiscoveredNodeDTO? {
+    guard dto.publicKey.count == ProtocolLimits.publicKeySize else { return nil }
+    let name = dto.name.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)
+    let outPath: Data = if dto.outPath.count > ProtocolLimits.maxPathSize {
+      Data(dto.outPath.prefix(ProtocolLimits.maxPathSize))
+    } else {
+      dto.outPath
+    }
+    guard name != dto.name || outPath != dto.outPath else { return dto }
+    return DiscoveredNodeDTO(
+      id: dto.id,
+      radioID: dto.radioID,
+      publicKey: dto.publicKey,
+      name: name,
+      typeRawValue: dto.typeRawValue,
+      lastHeard: dto.lastHeard,
+      lastAdvertTimestamp: dto.lastAdvertTimestamp,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      outPathLength: dto.outPathLength,
+      outPath: outPath,
+      inboundHopCount: dto.inboundHopCount,
+      inboundHopAdvertTimestamp: dto.inboundHopAdvertTimestamp
+    )
+  }
+
+  /// Drops oldest-by-`lastHeard` incoming nodes past the per-radio cap. In-memory because
+  /// the import batch is unsaved and `enforceDiscoveredNodeCap` cannot count pending inserts.
+  /// Local committed rows always win. Duplicate keys may over-drop (safe: cap never exceeded).
+  private func trimDiscoveredNodesToCap(
+    _ dtos: [DiscoveredNodeDTO],
+    existingKeys: Set<String>
+  ) throws -> (trimmed: [DiscoveredNodeDTO], dropped: Int) {
+    var newByRadio: [UUID: [DiscoveredNodeDTO]] = [:]
+    for dto in dtos
+      where !existingKeys.contains(discoveredNodeKey(radioID: dto.radioID, publicKey: dto.publicKey)) {
+      newByRadio[dto.radioID, default: []].append(dto)
+    }
+    var dropped: Set<UUID> = []
+    for (radioID, incoming) in newByRadio {
+      let targetRadioID = radioID
+      let committed = try modelContext.fetchCount(
+        FetchDescriptor<DiscoveredNode>(predicate: #Predicate { $0.radioID == targetRadioID })
+      )
+      let room = max(0, Self.maxDiscoveredNodes - committed)
+      guard incoming.count > room else { continue }
+      let overflow = incoming.sorted { $0.lastHeard > $1.lastHeard }.dropFirst(room)
+      dropped.formUnion(overflow.map(\.id))
+    }
+    guard !dropped.isEmpty else { return (dtos, 0) }
+    return (dtos.filter { !dropped.contains($0.id) }, dropped.count)
   }
 }

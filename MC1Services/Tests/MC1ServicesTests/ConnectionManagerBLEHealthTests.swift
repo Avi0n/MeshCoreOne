@@ -295,7 +295,7 @@ struct ConnectionManagerBLEHealthTests {
 
     await mock.setStubbedIsConnected(false)
     await mock.setStubbedIsAutoReconnecting(false)
-    await mock.setStubbedCurrentPhaseName("restoringState")
+    await mock.setStubbedPhase(.restoringState)
     await mock.setStubbedIsDeviceConnectedToSystem(true)
 
     manager.setTestState(

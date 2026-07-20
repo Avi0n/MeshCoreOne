@@ -31,6 +31,9 @@ final class DiscoveryViewModel {
   /// Public keys of contacts that have been added
   var addedPublicKeys: Set<Data> = []
 
+  /// Nodes matching the current search/segment/sort, recomputed once per input or data change.
+  private(set) var visibleNodes: [DiscoveredNodeDTO] = []
+
   /// Loading state
   var isLoading = false
 
@@ -40,6 +43,14 @@ final class DiscoveryViewModel {
   /// Error message to display
   var errorMessage: String?
 
+  // MARK: - Last Filter Inputs
+
+  /// Last filter inputs, re-applied whenever the underlying data changes.
+  private var lastSearchText: String = ""
+  private var lastSegment: DiscoverSegment = .all
+  private var lastSortOrder: NodeSortOrder = .lastHeard
+  private var lastUserLocation: CLLocation?
+
   // MARK: - Dependencies
 
   private var dataStoreProvider: @MainActor () -> DataStore? = { nil }
@@ -47,23 +58,35 @@ final class DiscoveryViewModel {
     dataStoreProvider()
   }
 
-  /// Temporary Discover trace; filter by category "discover-trace". Remove
-  /// once the "no new nodes after clear" report is closed.
+  private var radioIDProvider: @MainActor () -> UUID? = { nil }
+  private var radioID: UUID? {
+    radioIDProvider()
+  }
+
+  /// Discover reload trace (Logger category `discover-trace`).
   private let discoverTrace = PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
+
+  private static let reloadDebounce: Duration = .milliseconds(50)
+  private var reloadTask: Task<Void, Never>?
 
   // MARK: - Initialization
 
   init() {}
 
-  /// Configure with the data store this view model uses; a provider returning nil mirrors a disconnected state.
-  func configure(dataStore: @escaping @MainActor () -> DataStore?) {
+  /// Configure with the data store and connected radio this view model uses;
+  /// providers returning nil mirror a disconnected state.
+  func configure(
+    dataStore: @escaping @MainActor () -> DataStore?,
+    radioID: @escaping @MainActor () -> UUID?
+  ) {
     dataStoreProvider = dataStore
+    radioIDProvider = radioID
   }
 
   // MARK: - Load Nodes
 
-  func loadDiscoveredNodes(radioID: UUID) async {
-    guard let dataStore else { return }
+  func loadDiscoveredNodes() async {
+    guard let dataStore, let radioID else { return }
 
     isLoading = true
     errorMessage = nil
@@ -71,7 +94,7 @@ final class DiscoveryViewModel {
     do {
       let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
 
-      // Single batch query for all contact public keys (O(1) vs O(N))
+      // One batch query for all contact public keys (not one round-trip per node).
       let addedKeys = try await dataStore.fetchContactPublicKeys(radioID: radioID)
 
       discoveredNodes = nodes
@@ -84,6 +107,19 @@ final class DiscoveryViewModel {
 
     hasLoadedOnce = true
     isLoading = false
+    applyFilter()
+  }
+
+  /// Schedules a debounced reload so bursts of contactsVersion bumps trigger
+  /// one load instead of one per event. No-ops if a reload is already pending.
+  func scheduleCoalescedReload() {
+    guard reloadTask == nil else { return }
+    reloadTask = Task { @MainActor [weak self] in
+      try? await Task.sleep(for: Self.reloadDebounce)
+      guard let self else { return }
+      reloadTask = nil
+      await loadDiscoveredNodes()
+    }
   }
 
   // MARK: - Added State
@@ -98,8 +134,8 @@ final class DiscoveryViewModel {
   func deleteDiscoveredNode(_ node: DiscoveredNodeDTO) async {
     guard let dataStore else { return }
 
-    // Remove from UI immediately
     discoveredNodes.removeAll { $0.id == node.id }
+    applyFilter()
 
     do {
       try await dataStore.deleteDiscoveredNode(id: node.id)
@@ -108,18 +144,42 @@ final class DiscoveryViewModel {
     }
   }
 
-  func clearAllDiscoveredNodes(radioID: UUID) async {
-    guard let dataStore else { return }
+  func clearAllDiscoveredNodes() async {
+    guard let dataStore, let radioID else { return }
 
     do {
       try await dataStore.clearDiscoveredNodes(radioID: radioID)
       discoveredNodes = []
+      applyFilter()
     } catch {
       errorMessage = error.userFacingMessage
     }
   }
 
   // MARK: - Filtering
+
+  /// Recomputes `visibleNodes` from the given filter inputs. Called by the view on input changes only.
+  func updateVisibleNodes(
+    searchText: String,
+    segment: DiscoverSegment,
+    sortOrder: NodeSortOrder,
+    userLocation: CLLocation?
+  ) {
+    lastSearchText = searchText
+    lastSegment = segment
+    lastSortOrder = sortOrder
+    lastUserLocation = userLocation
+    applyFilter()
+  }
+
+  private func applyFilter() {
+    visibleNodes = filteredNodes(
+      searchText: lastSearchText,
+      segment: lastSegment,
+      sortOrder: lastSortOrder,
+      userLocation: lastUserLocation
+    )
+  }
 
   func filteredNodes(
     searchText: String,
@@ -141,9 +201,10 @@ final class DiscoveryViewModel {
         result = result.filter { $0.nodeType == .room }
       }
     } else {
+      let query = searchText.lowercased()
       result = result.filter { node in
         node.name.localizedStandardContains(searchText)
-          || node.publicKey.uppercaseHexString().hasPrefix(searchText.uppercased())
+          || node.publicKey.hexString.hasPrefix(query)
       }
     }
 
@@ -159,48 +220,90 @@ final class DiscoveryViewModel {
   ) -> [DiscoveredNodeDTO] {
     switch order {
     case .lastHeard:
-      nodes.sorted { $0.lastAdvertTimestamp > $1.lastAdvertTimestamp }
+      nodes.sorted { $0.lastHeard > $1.lastHeard }
     case .name:
       nodes.sorted {
         $0.name.localizedCompare($1.name) == .orderedAscending
       }
     case .distance:
-      nodes.sorted { orderedByDistanceThenName($0, $1, from: userLocation) }
+      sortedByDistanceThenName(nodes, from: userLocation)
     case .hops:
-      nodes.sorted { lhs, rhs in
+      sortedByHopsThenDistance(nodes, from: userLocation)
+    }
+  }
+
+  /// Precomputes distances once (decorate-sort-undecorate) so the comparator does not
+  /// allocate two `CLLocation`s per comparison.
+  private func sortedByDistanceThenName(
+    _ nodes: [DiscoveredNodeDTO],
+    from userLocation: CLLocation?
+  ) -> [DiscoveredNodeDTO] {
+    guard let userLocation else {
+      return nodes.sorted { $0.name.localizedCompare($1.name) == .orderedAscending }
+    }
+
+    // Located nodes first (distance finite), unlocated last (distance infinite).
+    let decorated: [(node: DiscoveredNodeDTO, distance: Double)] = nodes.map { node in
+      if node.hasLocation {
+        let distance = CLLocation(latitude: node.latitude, longitude: node.longitude)
+          .distance(from: userLocation)
+        return (node, distance)
+      }
+      return (node, .infinity)
+    }
+
+    return decorated
+      .sorted { lhs, rhs in
+        if lhs.distance != rhs.distance {
+          return lhs.distance < rhs.distance
+        }
+        return lhs.node.name.localizedCompare(rhs.node.name) == .orderedAscending
+      }
+      .map(\.node)
+  }
+
+  private func sortedByHopsThenDistance(
+    _ nodes: [DiscoveredNodeDTO],
+    from userLocation: CLLocation?
+  ) -> [DiscoveredNodeDTO] {
+    guard let userLocation else {
+      return nodes.sorted { lhs, rhs in
         let lhsHops = lhs.displayedHopCount
         let rhsHops = rhs.displayedHopCount
-        // A nil hop count (flood-routed and never heard via advert) sorts to the bottom.
         if (lhsHops == nil) != (rhsHops == nil) {
           return lhsHops != nil
         }
         if let lhsHops, let rhsHops, lhsHops != rhsHops {
           return lhsHops < rhsHops
         }
-        return orderedByDistanceThenName(lhs, rhs, from: userLocation)
+        return lhs.name.localizedCompare(rhs.name) == .orderedAscending
       }
     }
-  }
 
-  /// Located nodes first, then nearest to `userLocation`, then by name. Falls back to name when
-  /// there is no user location, neither node has coordinates, or the distances tie.
-  private func orderedByDistanceThenName(
-    _ lhs: DiscoveredNodeDTO,
-    _ rhs: DiscoveredNodeDTO,
-    from userLocation: CLLocation?
-  ) -> Bool {
-    if let userLocation {
-      if lhs.hasLocation != rhs.hasLocation {
-        return lhs.hasLocation
+    let decorated: [(node: DiscoveredNodeDTO, hops: Int?, distance: Double)] = nodes.map { node in
+      let distance: Double = if node.hasLocation {
+        CLLocation(latitude: node.latitude, longitude: node.longitude)
+          .distance(from: userLocation)
+      } else {
+        .infinity
       }
-      if lhs.hasLocation {
-        let lhsDistance = CLLocation(latitude: lhs.latitude, longitude: lhs.longitude).distance(from: userLocation)
-        let rhsDistance = CLLocation(latitude: rhs.latitude, longitude: rhs.longitude).distance(from: userLocation)
-        if lhsDistance != rhsDistance {
-          return lhsDistance < rhsDistance
-        }
-      }
+      return (node, node.displayedHopCount, distance)
     }
-    return lhs.name.localizedCompare(rhs.name) == .orderedAscending
+
+    return decorated
+      .sorted { lhs, rhs in
+        // A nil hop count (flood-routed and never heard via advert) sorts to the bottom.
+        if (lhs.hops == nil) != (rhs.hops == nil) {
+          return lhs.hops != nil
+        }
+        if let lhsHops = lhs.hops, let rhsHops = rhs.hops, lhsHops != rhsHops {
+          return lhsHops < rhsHops
+        }
+        if lhs.distance != rhs.distance {
+          return lhs.distance < rhs.distance
+        }
+        return lhs.node.name.localizedCompare(rhs.node.name) == .orderedAscending
+      }
+      .map(\.node)
   }
 }

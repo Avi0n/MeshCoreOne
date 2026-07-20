@@ -31,6 +31,15 @@ extension View {
   /// `onFire`, drives the shared press state, and bumps the haptic trigger.
   /// Apply to every sub-view that should open the actions sheet; the visual
   /// response is rendered once by `messageBubbleLongPressEffect`.
+  ///
+  /// Built on `onLongPressGesture` rather than a hand-rolled `LongPressGesture`:
+  /// SwiftUI's modifier is scroll-aware, so a drag yields to the enclosing list's
+  /// pan and a quick tap falls through to a native `Text` link. A raw gesture
+  /// (`.gesture`/`.simultaneousGesture`/`.highPriorityGesture`) reserves the touch
+  /// and breaks either scrolling or link taps.
+  ///
+  /// On Mac a secondary (right) click fires the same action, since the tiled-view
+  /// backend no longer supplies a context-menu interaction to route it through.
   func messageBubbleLongPressGesture(
     isPressing: Binding<Bool>,
     trigger: Binding<Int>,
@@ -44,6 +53,7 @@ extension View {
       },
       onPressingChanged: { isPressing.wrappedValue = $0 }
     )
+    .onSecondaryClick(perform: onFire)
   }
 
   /// Renders the press-in shrink and haptic for a message bubble. Apply once to

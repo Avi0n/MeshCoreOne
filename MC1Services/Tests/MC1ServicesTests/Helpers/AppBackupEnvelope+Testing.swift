@@ -20,6 +20,7 @@ extension AppBackupEnvelope {
     savedTracePaths: [SavedTracePathDTO] = [],
     blockedChannelSenders: [BlockedChannelSenderDTO] = [],
     nodeStatusSnapshots: [NodeStatusSnapshotDTO] = [],
+    discoveredNodes: [DiscoveredNodeDTO] = [],
     userDefaults: BackupUserDefaults? = nil
   ) -> AppBackupEnvelope {
     var envelope = AppBackupEnvelope(
@@ -37,6 +38,7 @@ extension AppBackupEnvelope {
       savedTracePaths: savedTracePaths,
       blockedChannelSenders: blockedChannelSenders,
       nodeStatusSnapshots: nodeStatusSnapshots,
+      discoveredNodes: discoveredNodes,
       userDefaults: userDefaults
     )
     envelope.manifest = BackupManifest(from: envelope)

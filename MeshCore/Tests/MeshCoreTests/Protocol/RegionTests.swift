@@ -310,9 +310,13 @@ struct RequestRegionsIntegrationTests {
   @Test
   func `timeout when no binaryResponse arrives`() async throws {
     let transport = MockTransport()
+    // Zero floor keeps the firmware-suggested timeout in charge so the test
+    // observes the timeout without waiting out the flood-return floor.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
+      configuration: SessionConfiguration(
+        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestMinimumTimeout: 0
+      )
     )
     try await startSession(session, transport: transport)
 
@@ -387,9 +391,13 @@ struct RequestRegionsIntegrationTests {
   @Test
   func `temporarily sets zero-hop before sending for flood-routed contact`() async throws {
     let transport = MockTransport()
+    // Zero floor: the test drives the exchange to a fast timeout to observe
+    // the path restore.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
+      configuration: SessionConfiguration(
+        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestMinimumTimeout: 0
+      )
     )
     try await startSession(session, transport: transport)
 
@@ -443,9 +451,13 @@ struct RequestRegionsIntegrationTests {
   @Test
   func `requestRegions preserves an unmodeled raw type byte in the temp write`() async throws {
     let transport = MockTransport()
+    // Zero floor: the test drives the exchange to a fast timeout to observe
+    // the temp contact write.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
+      configuration: SessionConfiguration(
+        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestMinimumTimeout: 0
+      )
     )
     try await startSession(session, transport: transport)
 

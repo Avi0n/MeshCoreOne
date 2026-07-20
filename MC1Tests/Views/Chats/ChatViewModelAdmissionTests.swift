@@ -118,7 +118,7 @@ struct ChatViewModelAdmissionTests {
     let url = try #require(URL(string: "https://example.com/cat.png"))
     let message = makeMessage(text: "look \(url.absoluteString)")
     viewModel.appendMessageIfNew(message)
-    viewModel.cachedURLs[message.id] = url
+    viewModel.bake.cachedURLs[message.id] = url
 
     let store = InlineImageDimensionsStore(fileURL: Self.makeTempDimensionsURL())
     bind(store, to: viewModel)
@@ -220,9 +220,9 @@ struct ChatViewModelAdmissionTests {
 
     // Re-entry state: the per-VM reroute set was cleared, but the loaded card is
     // restored from the surviving preview cache.
-    viewModel.cachedURLs[message.id] = url
-    viewModel.previewStates[message.id] = .loaded
-    viewModel.loadedPreviews[message.id] = LinkPreviewDataDTO(url: url.absoluteString, title: "Pasteboard")
+    viewModel.bake.cachedURLs[message.id] = url
+    viewModel.bake.previewStates[message.id] = .loaded
+    viewModel.bake.loadedPreviews[message.id] = LinkPreviewDataDTO(url: url.absoluteString, title: "Pasteboard")
     viewModel.rebuildDisplayItem(for: message.id)
 
     let item = try #require(viewModel.items.first { $0.id == message.id })
@@ -279,7 +279,7 @@ struct ChatViewModelAdmissionTests {
   private func makeBoundViewModel() -> ChatViewModel {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     return viewModel
   }
 
@@ -479,8 +479,8 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
     nil
   }
 
-  @discardableResult func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> UUID {
-    UUID()
+  @discardableResult func saveContact(radioID: UUID, from frame: ContactFrame) async throws -> (id: UUID, isNew: Bool) {
+    (id: UUID(), isNew: true)
   }
 
   func saveContact(_ dto: ContactDTO) async throws {}
@@ -779,7 +779,7 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
 
   func updateSnapshotNeighbors(id: UUID, neighbors: [NeighborSnapshotEntry]) async throws {}
   func updateSnapshotTelemetry(id: UUID, telemetry: [TelemetrySnapshotEntry]) async throws {}
-  func recordNodeStatusSnapshot(nodePublicKey: Data, status: NodeStatusMetrics?, telemetry: [TelemetrySnapshotEntry]?, neighbors: [NeighborSnapshotEntry]?) async throws -> UUID {
+  func recordNodeStatusSnapshot(nodePublicKey: Data, status: NodeStatusMetrics?, telemetry: [TelemetrySnapshotEntry]?, neighbors: [NeighborSnapshotEntry]?, location: NodeLocationFix?) async throws -> UUID {
     UUID()
   }
 

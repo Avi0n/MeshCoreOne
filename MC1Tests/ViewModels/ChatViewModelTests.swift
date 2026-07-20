@@ -115,7 +115,7 @@ struct ChatViewModelTests {
       createTestMessage(timestamp: 1000)
     ]
 
-    let flags = ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil)
+    let flags = ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil)
     #expect(flags.showTimestamp == true)
   }
 
@@ -131,13 +131,13 @@ struct ChatViewModelTests {
     ]
 
     // First message always shows timestamp
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
 
     // Messages 1-4 shouldn't show timestamp (within 5 min of previous)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[2], previous: messages[1]).showTimestamp == false)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[3], previous: messages[2]).showTimestamp == false)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[4], previous: messages[3]).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[3], previous: messages[2]).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[4], previous: messages[3]).showTimestamp == false)
   }
 
   @Test
@@ -148,8 +148,8 @@ struct ChatViewModelTests {
       createTestMessage(timestamp: baseTime + 301) // 5 min 1 sec later
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == true)
   }
 
   @Test
@@ -160,8 +160,8 @@ struct ChatViewModelTests {
       createTestMessage(timestamp: baseTime + 300) // Exactly 5 minutes
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false) // 300 is not > 300
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false) // 300 is not > 300
   }
 
   @Test
@@ -172,7 +172,7 @@ struct ChatViewModelTests {
     let anchor = Date(timeIntervalSince1970: 5_000_000)
     let earlier = createTestMessage(timestamp: 1000, sortDate: anchor)
     let later = createTestMessage(timestamp: 1600, sortDate: anchor) // +10 min send time
-    #expect(ChatViewModel.computeDisplayFlags(for: later, previous: earlier).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: later, previous: earlier).showTimestamp == true)
   }
 
   @Test
@@ -204,9 +204,9 @@ struct ChatViewModelTests {
     }
     let firstUnread = messages[readCount]
 
-    vm.computeDividerPosition(from: messages, unreadCount: unreadCount, isDM: true)
+    vm.bake.computeDividerPosition(from: messages, unreadCount: unreadCount, isDM: true)
 
-    #expect(vm.newMessagesDividerMessageID == firstUnread.id)
+    #expect(vm.bake.newMessagesDividerMessageID == firstUnread.id)
   }
 
   @Test
@@ -231,11 +231,11 @@ struct ChatViewModelTests {
       messages.append(createTestMessage(timestamp: UInt32(1004 + i), text: "unread \(i)"))
     }
     // Guard the fixture: the boundary row must actually be a hidden outgoing reaction.
-    #expect(vm.isHiddenOutgoingReaction(reaction, isDM: true))
+    #expect(vm.bake.isHiddenOutgoingReaction(reaction, isDM: true))
 
-    vm.computeDividerPosition(from: messages, unreadCount: unreadCount, isDM: true)
+    vm.bake.computeDividerPosition(from: messages, unreadCount: unreadCount, isDM: true)
 
-    #expect(vm.newMessagesDividerMessageID == firstVisibleUnread.id)
+    #expect(vm.bake.newMessagesDividerMessageID == firstVisibleUnread.id)
   }
 
   @Test
@@ -247,9 +247,34 @@ struct ChatViewModelTests {
     let vm = ChatViewModel()
     let messages = (0..<30).map { createTestMessage(timestamp: UInt32(1000 + $0), text: "m\($0)") }
 
-    vm.computeDividerPosition(from: messages, unreadCount: 50, isDM: true)
+    vm.bake.computeDividerPosition(from: messages, unreadCount: 50, isDM: true)
 
-    #expect(vm.newMessagesDividerMessageID == messages[0].id)
+    #expect(vm.bake.newMessagesDividerMessageID == messages[0].id)
+  }
+
+  @Test
+  @MainActor
+  func `Divider shows for a single unread message`() {
+    // Threshold is zero: any unread backlog gets a divider. The one-unread case
+    // lands the divider on the last row (count - 1).
+    let vm = ChatViewModel()
+    let messages = (0..<5).map { createTestMessage(timestamp: UInt32(1000 + $0), text: "m\($0)") }
+
+    vm.bake.computeDividerPosition(from: messages, unreadCount: 1, isDM: true)
+
+    #expect(vm.bake.newMessagesDividerMessageID == messages[4].id)
+  }
+
+  @Test
+  @MainActor
+  func `Divider absent when there are no unread messages`() {
+    // Zero unread must not produce a divider even at the zero threshold.
+    let vm = ChatViewModel()
+    let messages = (0..<5).map { createTestMessage(timestamp: UInt32(1000 + $0), text: "m\($0)") }
+
+    vm.bake.computeDividerPosition(from: messages, unreadCount: 0, isDM: true)
+
+    #expect(vm.bake.newMessagesDividerMessageID == nil)
   }
 
   @Test
@@ -264,20 +289,20 @@ struct ChatViewModelTests {
       createTestMessage(timestamp: baseTime + 920) // 5: 20 sec - no show
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[2], previous: messages[1]).showTimestamp == true) // 360s gap
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[3], previous: messages[2]).showTimestamp == false)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[4], previous: messages[3]).showTimestamp == true) // 420s gap
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[5], previous: messages[4]).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showTimestamp == true) // 360s gap
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[3], previous: messages[2]).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[4], previous: messages[3]).showTimestamp == true) // 420s gap
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[5], previous: messages[4]).showTimestamp == false)
   }
 
   @Test
   func `buildItems with empty messages produces empty output`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
-    coordinator.replaceAll([])
+    viewModel.bindCoordinatorForTesting(coordinator)
+    coordinator.replaceAllForTesting([])
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -290,14 +315,14 @@ struct ChatViewModelTests {
   func `buildItems clears stale mapPreviewRequestIndex so theme-toggle keys do not leak`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // Outgoing message so coordinate-text path runs without sender-name resolution.
     let message = createTestMessage(timestamp: 1000, text: "see 37.7749, -122.4194")
     viewModel.appendMessageIfNew(message)
 
     let lightOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: false, isOffline: false)
-    #expect(viewModel.mapPreviewRequestIndex[lightOnline]?.contains(message.id) == true)
+    #expect(viewModel.bake.mapPreviewRequestIndex[lightOnline]?.contains(message.id) == true)
 
     let darkEnv = EnvInputs(
       autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
@@ -318,16 +343,16 @@ struct ChatViewModelTests {
     await coordinator.buildItemsTask?.value
 
     // Stale light-mode key must be gone after the rebuild.
-    #expect(viewModel.mapPreviewRequestIndex[lightOnline] == nil)
+    #expect(viewModel.bake.mapPreviewRequestIndex[lightOnline] == nil)
     let darkOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: true, isOffline: false)
-    #expect(viewModel.mapPreviewRequestIndex[darkOnline]?.contains(message.id) == true)
+    #expect(viewModel.bake.mapPreviewRequestIndex[darkOnline]?.contains(message.id) == true)
   }
 
   @Test
   func `a themeID-only EnvInputs change rebuilds items with newly baked theme colors`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     // The hashtag run bakes hashtagColor, which differs between default and ember, so a
     // themeID change must produce a different MessageItem. This guards the deliberate baking of
@@ -366,7 +391,7 @@ struct ChatViewModelTests {
     let first = createTestMessage(timestamp: baseTime, text: "Hello")
     let second = createTestMessage(timestamp: baseTime, text: "World")
 
-    let flags = ChatViewModel.computeDisplayFlags(for: second, previous: first)
+    let flags = ChatMessageBakeState.computeDisplayFlags(for: second, previous: first)
     #expect(flags.showTimestamp == false)
     #expect(flags.showDirectionGap == false)
   }
@@ -377,7 +402,7 @@ struct ChatViewModelTests {
       createTestMessage(timestamp: 1000)
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
   }
 
   @Test
@@ -386,7 +411,7 @@ struct ChatViewModelTests {
     // sessions, so distinct anchors). Grouping follows send time, so no header appears.
     let msg1 = createTestMessage(timestamp: 1000, sortDate: Date(timeIntervalSince1970: 1_000_000))
     let msg2 = createTestMessage(timestamp: 1001, sortDate: Date(timeIntervalSince1970: 1_000_600))
-    #expect(ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
   }
 
   @Test
@@ -395,7 +420,7 @@ struct ChatViewModelTests {
     // follow send time, not drain time, so the rows stay grouped with no header.
     let msg1 = createTestMessage(timestamp: 1000, createdAt: Date(timeIntervalSince1970: 2_000_000))
     let msg2 = createTestMessage(timestamp: 1001, createdAt: Date(timeIntervalSince1970: 2_000_600))
-    #expect(ChatViewModel.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: msg2, previous: msg1).showTimestamp == false)
   }
 
   @Test
@@ -406,8 +431,8 @@ struct ChatViewModelTests {
       createTestMessage(timestamp: baseTime + 86400) // 24 hours later
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showTimestamp == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showTimestamp == true)
   }
 
   // MARK: - Conversation Filtering Tests
@@ -484,9 +509,9 @@ struct ChatViewModelTests {
   func `renderState.phase is .loaded after replaceAll on bound coordinator`() {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
-    coordinator.replaceAll([])
+    coordinator.replaceAllForTesting([])
 
     #expect(viewModel.renderState.phase == .loaded)
     #expect(viewModel.messages.isEmpty)
@@ -496,7 +521,7 @@ struct ChatViewModelTests {
   func `loadMessages settles phase to .loaded when dataStore is nil`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     await viewModel.loadMessages(for: createTestContact())
 
@@ -507,7 +532,7 @@ struct ChatViewModelTests {
   func `loadChannelMessages settles phase to .loaded when dataStore is nil`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
 
     let channel = ChannelDTO(from: Channel(
       radioID: UUID(),
@@ -533,7 +558,7 @@ struct ChatViewModelTests {
       senderName: "Alice"
     )
 
-    let resolution = viewModel.senderResolutionFor(channelMessage)
+    let resolution = viewModel.bake.senderResolutionFor(channelMessage, senderTables: viewModel.currentSenderTables())
 
     #expect(resolution.displayName == "Alice")
     #expect(resolution.matchKind == .exact)
@@ -569,7 +594,7 @@ struct ChatViewModelTests {
       maxRetryAttempts: 0
     )
 
-    let resolution = viewModel.senderResolutionFor(message)
+    let resolution = viewModel.bake.senderResolutionFor(message, senderTables: viewModel.currentSenderTables())
 
     #expect(resolution.displayName == "ABCD")
     #expect(resolution.matchKind == .unresolved)
@@ -582,7 +607,7 @@ struct ChatViewModelTests {
     let viewModel = ChatViewModel()
     let message = createTestMessage(timestamp: 1000)
     let imageURL = try #require(URL(string: "https://example.com/photo.png"))
-    viewModel.cachedURLs[message.id] = imageURL
+    viewModel.bake.cachedURLs[message.id] = imageURL
 
     let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
 
@@ -597,8 +622,8 @@ struct ChatViewModelTests {
     let viewModel = ChatViewModel()
     let message = createTestMessage(timestamp: 1000)
     let pageURL = try #require(URL(string: "https://example.com/photo.png"))
-    viewModel.cachedURLs[message.id] = pageURL
-    viewModel.imageURLsServingPages.insert(pageURL.absoluteString)
+    viewModel.bake.cachedURLs[message.id] = pageURL
+    viewModel.bake.imageURLsServingPages.insert(pageURL.absoluteString)
 
     let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
 
@@ -610,7 +635,7 @@ struct ChatViewModelTests {
     let viewModel = ChatViewModel()
     let dmMessage = createTestMessage(timestamp: 1_700_000_000)
 
-    let resolution = viewModel.senderResolutionFor(dmMessage)
+    let resolution = viewModel.bake.senderResolutionFor(dmMessage, senderTables: viewModel.currentSenderTables())
 
     #expect(resolution.displayName == L10n.Chats.Chats.Message.Sender.unknown)
     #expect(resolution.matchKind == .unresolved)
@@ -703,7 +728,7 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1000, senderName: "Alice")
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
   }
 
   @Test
@@ -714,9 +739,9 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1120, senderName: "Alice") // 2 min later
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == false)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == false)
   }
 
   @Test
@@ -726,8 +751,8 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1060, senderName: "Bob")
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
   }
 
   @Test
@@ -737,8 +762,8 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1301, senderName: "Alice") // 5 min 1 sec later
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
   }
 
   @Test
@@ -748,8 +773,8 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1300, senderName: "Alice") // Exactly 5 min
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == false)
   }
 
   @Test
@@ -760,9 +785,9 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1120, senderName: "Alice")
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true) // outgoing
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == true) // after outgoing
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true) // outgoing
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == true) // after outgoing
   }
 
   @Test
@@ -773,9 +798,9 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1120, senderName: "Alice")
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == true)
   }
 
   @Test
@@ -785,8 +810,8 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1060, senderName: nil) // malformed message
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
   }
 
   @Test
@@ -796,8 +821,8 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1060, senderName: "")
     ]
 
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true)
   }
 
   @Test
@@ -814,7 +839,7 @@ struct DisplayFlagsTests {
     )
     let dto = MessageDTO(from: message)
 
-    #expect(ChatViewModel.computeDisplayFlags(for: dto, previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: dto, previous: nil).showSenderName == true)
   }
 
   @Test
@@ -824,9 +849,9 @@ struct DisplayFlagsTests {
       createChannelMessage(timestamp: 1060, senderName: "Alice", isOutgoing: true),
       createChannelMessage(timestamp: 1120, senderName: "Alice")
     ]
-    let flags0 = ChatViewModel.computeDisplayFlags(for: messages[0], previous: nil)
-    let flags1 = ChatViewModel.computeDisplayFlags(for: messages[1], previous: messages[0])
-    let flags2 = ChatViewModel.computeDisplayFlags(for: messages[2], previous: messages[1])
+    let flags0 = ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil)
+    let flags1 = ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0])
+    let flags2 = ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1])
     #expect(flags0.showDirectionGap == false)
     #expect(flags1.showDirectionGap == true)
     #expect(flags2.showDirectionGap == true)
@@ -837,21 +862,21 @@ struct DisplayFlagsTests {
   @Test
   func `First message always shows day divider`() {
     let message = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10))
-    #expect(ChatViewModel.computeDisplayFlags(for: message, previous: nil).showDayDivider == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: message, previous: nil).showDayDivider == true)
   }
 
   @Test
   func `Same calendar day hides day divider`() {
     let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10, 0))
     let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10, 1))
-    #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: m1, previous: m0).showDayDivider == false)
   }
 
   @Test
   func `Calendar day change shows day divider`() {
     let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10))
     let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 10))
-    #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
   }
 
   @Test
@@ -861,7 +886,7 @@ struct DisplayFlagsTests {
     let receiveDay = makeDate(2024, 6, 2, 14)
     let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 10), createdAt: receiveDay)
     let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 10), createdAt: receiveDay)
-    #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
   }
 
   @Test
@@ -870,7 +895,7 @@ struct DisplayFlagsTests {
     // messages straddle midnight, so the day divider must still show.
     let m0 = createTestMessage(timestamp: makeTimestamp(2024, 5, 1, 23, 58))
     let m1 = createTestMessage(timestamp: makeTimestamp(2024, 5, 2, 0, 1))
-    #expect(ChatViewModel.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: m1, previous: m0).showDayDivider == true)
   }
 }
 
@@ -915,9 +940,9 @@ struct ChatViewModelImageGatingTests {
   ) -> ChatViewModel {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
-    viewModel.coordinator = coordinator
+    viewModel.bindCoordinatorForTesting(coordinator)
     viewModel.appendMessageIfNew(message)
-    viewModel.cachedURLs[message.id] = imageURL
+    viewModel.bake.cachedURLs[message.id] = imageURL
     viewModel.envInputs = makeEnv(previewsEnabled: previewsEnabled)
     viewModel.linkPreviewPreferences = scratchPreferences(enabled: previewsEnabled, autoResolveDM: scopeOn)
     return viewModel
@@ -931,7 +956,7 @@ struct ChatViewModelImageGatingTests {
 
     viewModel.requestImageFetch(for: message.id)
 
-    #expect(viewModel.previewStates[message.id] == .disabled)
+    #expect(viewModel.bake.previewStates[message.id] == .disabled)
     #expect(viewModel.imageFetchTasks[message.id] == nil)
   }
 
@@ -944,7 +969,7 @@ struct ChatViewModelImageGatingTests {
     viewModel.requestImageFetch(for: message.id)
 
     #expect(viewModel.imageFetchTasks[message.id] != nil)
-    #expect(viewModel.previewStates[message.id] != .disabled)
+    #expect(viewModel.bake.previewStates[message.id] != .disabled)
     viewModel.cancelImageFetch(for: message.id)
   }
 
@@ -956,7 +981,7 @@ struct ChatViewModelImageGatingTests {
 
     viewModel.requestImageFetch(for: message.id)
 
-    #expect(viewModel.previewStates[message.id] == nil)
+    #expect(viewModel.bake.previewStates[message.id] == nil)
     #expect(viewModel.imageFetchTasks[message.id] == nil)
   }
 
@@ -986,7 +1011,7 @@ struct ChatViewModelImageGatingTests {
 
     // Scope-off parks the state at the tap-to-load placeholder.
     viewModel.requestImageFetch(for: message.id)
-    #expect(viewModel.previewStates[message.id] == .disabled)
+    #expect(viewModel.bake.previewStates[message.id] == .disabled)
 
     // The tap fires the fetch despite scope being off.
     viewModel.manualFetchImage(for: message.id)
@@ -1027,7 +1052,7 @@ struct ChatViewModelImageGatingTests {
     await viewModel.retryImageFetch(for: message.id)
 
     #expect(viewModel.imageFetchTasks[message.id] != nil)
-    #expect(viewModel.previewStates[message.id] != .disabled)
+    #expect(viewModel.bake.previewStates[message.id] != .disabled)
     viewModel.cancelImageFetch(for: message.id)
   }
 
@@ -1036,11 +1061,77 @@ struct ChatViewModelImageGatingTests {
     let message = createTestMessage(timestamp: 1000, text: "see https://example.com/cat.png")
     let url = try #require(URL(string: "https://example.com/cat.png"))
     let viewModel = makeViewModel(message: message, imageURL: url, previewsEnabled: true, scopeOn: true)
-    viewModel.previewStates[message.id] = .malwareWarning
+    viewModel.bake.previewStates[message.id] = .malwareWarning
 
     await viewModel.retryImageFetch(for: message.id)
 
     #expect(viewModel.imageFetchTasks[message.id] == nil)
-    #expect(viewModel.previewStates[message.id] == .malwareWarning)
+    #expect(viewModel.bake.previewStates[message.id] == .malwareWarning)
+  }
+}
+
+// MARK: - Orphaned Loading Recovery
+
+@Suite("ChatViewModel orphaned loading recovery")
+@MainActor
+struct ChatViewModelOrphanRecoveryTests {
+  private func makeEnv() -> EnvInputs {
+    EnvInputs(
+      autoPlayGIFs: true,
+      showIncomingPath: false,
+      showIncomingHopCount: false,
+      showIncomingRegion: false,
+      showIncomingSendTime: false,
+      previewsEnabled: true,
+      isHighContrast: false,
+      isDark: false,
+      showMapPreviews: false,
+      isOffline: false,
+      currentUserName: "Me",
+      themeID: EnvInputs.defaultThemeID,
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+    )
+  }
+
+  private func item(_ coordinator: ChatCoordinator, _ messageID: UUID) -> MessageItem? {
+    coordinator.renderState.items.first { $0.id == messageID }
+  }
+
+  @Test
+  func `recovering an orphaned loading row rearms the cell's fetch`() async throws {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(coordinator)
+    viewModel.envInputs = makeEnv()
+
+    let message = createTestMessage(
+      timestamp: 1000,
+      text: "see https://example.com/\(UUID().uuidString)"
+    )
+    let writer = try #require(viewModel.timelineWriter)
+    writer.replaceAll([message])
+    viewModel.buildItems()
+    await coordinator.buildItemsTask?.value
+
+    // Orphan the row the way a bailed fetch does: `.loading` with no task in
+    // either fetch table. A `.loading` bake carries no fetch-task id, so the
+    // cell cannot re-fire on its own.
+    viewModel.bake.previewStates[message.id] = .loading
+    viewModel.rebuildDisplayItem(for: message.id)
+    let orphaned = try #require(item(coordinator, message.id))
+    #expect(orphaned.previewFetchTaskID == nil)
+
+    // No data store and no preview cache, so `fetchPreview` returns before it
+    // can write a state of its own: recovery is the last write the row sees,
+    // and the item must reflect it.
+    viewModel.requestPreviewFetch(for: message.id)
+    await viewModel.previewFetchTasks[message.id]?.value
+
+    #expect(viewModel.bake.previewStates[message.id] == .idle)
+    let recovered = try #require(item(coordinator, message.id))
+    #expect(
+      recovered.previewFetchTaskID == message.id,
+      "a row recovered to `.idle` must rebake so its cell re-arms the fetch"
+    )
   }
 }

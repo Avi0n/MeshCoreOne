@@ -50,6 +50,14 @@ public final class ChatCoordinatorRegistry {
     return coordinator
   }
 
+  /// Returns the coordinator already tracked for `id`, or nil if none exists.
+  /// A pure lookup: it neither creates an entry nor promotes LRU order, so the
+  /// navigation-time prefetch can check whether a conversation is already warm
+  /// without polluting the cache.
+  public func existingCoordinator(for id: ChatConversationID) -> ChatCoordinator? {
+    entries.first(where: { $0.id == id })?.coordinator
+  }
+
   public func rebind(dataStore: PersistenceStore) {
     tearDown()
     self.dataStore = dataStore

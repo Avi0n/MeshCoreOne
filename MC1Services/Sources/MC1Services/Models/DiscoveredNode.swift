@@ -89,9 +89,10 @@ final class DiscoveredNode {
 // MARK: - Sendable DTO
 
 /// A sendable snapshot of DiscoveredNode for cross-actor transfers
-public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, RepeaterResolvable {
+public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, Codable, RepeaterResolvable {
   public let id: UUID
-  public let radioID: UUID
+  /// Mutable so backup import can remap a foreign radio's nodes onto the local radioID.
+  public var radioID: UUID
   public let publicKey: Data
   public let name: String
   public let typeRawValue: UInt8
