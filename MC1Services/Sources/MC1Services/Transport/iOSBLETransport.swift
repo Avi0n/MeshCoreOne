@@ -131,6 +131,23 @@ actor iOSBLETransport: MeshTransport {
     dataStreamLock.withLock { $0 = nil }
   }
 
+  /// Replaces the stored data stream with a fresh one from the state machine.
+  ///
+  /// Call before constructing a session over an existing link whose previous
+  /// session was stopped: the stop cancelled the old stream's shared storage,
+  /// and this slot is otherwise rewritten only on connect, switchDevice, and
+  /// auto-reconnect completion. A declined renewal (not connected) leaves the
+  /// slot untouched and is logged so a failing rebuild is attributable.
+  func refreshDataStream() async {
+    guard let stream = await stateMachine.renewDataStream() else {
+      let phaseName = await stateMachine.currentPhase.name
+      logger.warning("[BLE] Data stream refresh declined, phase: \(phaseName)")
+      return
+    }
+    logger.info("[BLE] Data stream refreshed for session rebuild")
+    dataStreamLock.withLock { $0 = stream }
+  }
+
   /// Sends data to the connected device.
   ///
   /// - Parameter data: The data to send.

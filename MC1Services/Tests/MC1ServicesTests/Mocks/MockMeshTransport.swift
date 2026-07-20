@@ -76,6 +76,10 @@ public actor MockMeshTransport: iOSMeshTransport {
     reconnectionHandler = handler
   }
 
+  /// Protocol stub only. This fixture's contract is that it never yields
+  /// session bytes, so there is no stream to re-vend.
+  public func refreshDataStream() {}
+
   // MARK: - Test Helpers
 
   /// When set, `connect()` records the invocation then throws this error on every attempt,

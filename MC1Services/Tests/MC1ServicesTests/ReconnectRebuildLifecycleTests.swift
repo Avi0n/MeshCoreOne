@@ -1,6 +1,8 @@
+import CoreBluetooth
 import Foundation
 @testable import MC1Services
 import MeshCore
+import ObjectiveC
 import Testing
 
 /// Covers the iOS auto-reconnect rebuild window: the presentation state it
@@ -137,6 +139,113 @@ struct ReconnectRebuildLifecycleTests {
 
     manager.reconnectionCoordinator.cancelTimeout()
   }
+
+  // MARK: - Data stream renewal across rebuild
+
+  /// The rebuild regression gate: stopping the predecessor session cancels its
+  /// receive loop, and that cancellation terminates the vended stream's shared
+  /// storage. A rebuild over the still-live link must consume a renewed stream,
+  /// or its appStart handshake iterates a dead stream and times out. Pins the
+  /// `refreshDataStream` call in `rebuildSession`.
+  @Test
+  func `rebuild after a stopped predecessor completes its handshake over a refreshed stream`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { UserDefaults().removePersistentDomain(forName: suiteName) }
+
+    let transport = RevendingHandshakeTransport()
+    let manager = ConnectionManager(
+      modelContainer: container,
+      defaults: defaults,
+      stateMachine: MockBLEStateMachine(),
+      transport: transport
+    )
+
+    // The predecessor completes a real handshake over the vended stream, so its
+    // stop inside rebuildSession kills that stream's storage.
+    let predecessor = MeshCoreSession(transport: transport)
+    try await predecessor.start()
+
+    // Intent does not want a connection (.none, not .userDisconnected, whose
+    // invariant requires .disconnected state), so the rebuild returns right
+    // after its handshake instead of driving device query and sync; the gate
+    // only needs the handshake to complete over the renewed stream.
+    manager.setTestState(
+      connectionState: .connected,
+      session: predecessor,
+      currentTransportType: .bluetooth,
+      connectionIntent: ConnectionIntent.none
+    )
+
+    try? await manager.rebuildSession(deviceID: UUID())
+
+    let selfInfo = await manager.session?.currentSelfInfo
+    #expect(
+      selfInfo != nil,
+      "the rebuilt session must complete its appStart handshake over a refreshed stream"
+    )
+  }
+
+  /// A renewal outside `.connected` is declined: the slot owner keeps its
+  /// stream and the transport logs the declined phase instead of vending a
+  /// stream no link feeds.
+  @Test
+  func `renewDataStream declines when the machine is not connected`() async {
+    let sm = BLEStateMachine()
+
+    let renewed = await sm.renewDataStream()
+
+    #expect(renewed == nil)
+    #expect(await sm.currentPhase.name == "idle")
+  }
+
+  /// Renewal keeps the phase `.connected` and must not tear down the RSSI
+  /// keepalive the phase owns: a `transition(to:)`-based renewal would cancel
+  /// it, since `cleanupPhaseResources` cancels the keepalive whenever it
+  /// leaves `.connected`.
+  @Test
+  func `RSSI keepalive survives a data stream renewal`() async {
+    let sm = BLEStateMachine()
+    let peripheral = makeRebuildLeakedPeripheral()
+    await sm.primeConnectedForRebuild(peripheral: peripheral)
+    #expect(await sm.isRSSIKeepaliveActive)
+
+    let renewed = await sm.renewDataStream()
+
+    #expect(renewed != nil)
+    #expect(await sm.isRSSIKeepaliveActive)
+    #expect(await sm.currentPhase.name == "connected")
+
+    await sm.shutdown()
+  }
+
+  /// The renewed stream is the one the `.connected` phase's continuation
+  /// feeds, and data yielded after the swap arrives in yield order.
+  @Test
+  func `a renewed stream delivers subsequent data in order`() async throws {
+    let sm = BLEStateMachine()
+    let peripheral = makeRebuildLeakedPeripheral()
+    await sm.primeConnectedForRebuild(peripheral: peripheral)
+
+    let renewed = try #require(await sm.renewDataStream())
+    guard case let .connected(_, _, _, continuation) = await sm.currentPhase else {
+      Issue.record("expected .connected after renewal")
+      return
+    }
+    continuation.yield(Data([1]))
+    continuation.yield(Data([2]))
+    continuation.yield(Data([3]))
+
+    var received: [Data] = []
+    for await chunk in renewed {
+      received.append(chunk)
+      if received.count == 3 { break }
+    }
+    #expect(received == [Data([1]), Data([2]), Data([3])])
+
+    await sm.shutdown()
+  }
 }
 
 /// Transport that lets the BLE link "connect" but pins the appStart handshake
@@ -195,4 +304,139 @@ private actor PinnedHandshakeTransport: iOSMeshTransport {
   func switchDevice(to deviceID: UUID) async throws {}
   func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) {}
   func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) {}
+
+  /// Protocol stub only. The pinned handshake never completes, so a rebuilt
+  /// session never consumes a renewed stream.
+  func refreshDataStream() {}
+}
+
+/// Single-slot transport with an appStart responder. Models the production
+/// slot shape (the vended stream dies with its consumer and is rewritten
+/// only on fresh connect or refresh) while letting a session complete a real
+/// handshake. Hosts the rebuild regression gate; neither existing double can:
+/// `PinnedHandshakeTransport` is structurally unable to complete a handshake,
+/// and `MockMeshTransport`'s contract is that it never yields session bytes.
+private actor RevendingHandshakeTransport: iOSMeshTransport {
+  private var slot: AsyncStream<Data>?
+  private var slotContinuation: AsyncStream<Data>.Continuation?
+  private var connected = false
+
+  var receivedData: AsyncStream<Data> {
+    slot ?? AsyncStream { $0.finish() }
+  }
+
+  var isConnected: Bool {
+    connected
+  }
+
+  func connect() async throws {
+    connected = true
+    if slot == nil {
+      vendStream()
+    }
+  }
+
+  func disconnect() async {
+    connected = false
+    slotContinuation?.finish()
+    slot = nil
+    slotContinuation = nil
+  }
+
+  func send(_ data: Data) async throws {
+    // Answer the handshake only: the rebuild gate asserts appStart completion,
+    // and an unanswered later command surfaces as its own timeout.
+    if data.first == CommandCode.appStart.rawValue {
+      slotContinuation?.yield(Self.selfInfoPacket())
+    }
+  }
+
+  func refreshDataStream() {
+    vendStream()
+  }
+
+  func setDeviceID(_ id: UUID) {}
+  func switchDevice(to deviceID: UUID) async throws {}
+  func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) {}
+  func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) {}
+
+  private func vendStream() {
+    let (stream, continuation) = AsyncStream.makeStream(
+      of: Data.self,
+      bufferingPolicy: .bufferingOldest(512)
+    )
+    slot = stream
+    slotContinuation = continuation
+  }
+
+  private static func selfInfoPacket() -> Data {
+    var payload = Data([ResponseCode.selfInfo.rawValue])
+    payload.append(1) // adv type
+    payload.append(UInt8(bitPattern: 22)) // tx power
+    payload.append(UInt8(bitPattern: 22)) // max tx power
+    payload.append(Data(repeating: 0x01, count: 32)) // pubkey
+    payload.append(contentsOf: withUnsafeBytes(of: Int32(0).littleEndian) { Array($0) }) // lat
+    payload.append(contentsOf: withUnsafeBytes(of: Int32(0).littleEndian) { Array($0) }) // lon
+    payload.append(0) // multi acks
+    payload.append(0) // adv loc policy
+    payload.append(0) // telemetry mode
+    payload.append(0) // manual add
+    payload.append(contentsOf: withUnsafeBytes(of: UInt32(869_525).littleEndian) { Array($0) }) // freq
+    payload.append(contentsOf: withUnsafeBytes(of: UInt32(250_000).littleEndian) { Array($0) }) // bw
+    payload.append(11) // sf
+    payload.append(5) // cr
+    return payload
+  }
+}
+
+/// A `CBPeripheral` double with a stable identity and `.connected` state.
+private final class RebuildConnectedPeripheral: CBPeripheral, @unchecked Sendable {
+  static let uuid = UUID()
+  override var identifier: UUID {
+    Self.uuid
+  }
+
+  override var state: CBPeripheralState {
+    .connected
+  }
+}
+
+/// Keeps raw-allocated peripheral doubles alive for the process lifetime so
+/// CoreBluetooth teardown never runs on an instance that skipped its
+/// designated initializer.
+private enum RebuildPeripheralStore {
+  nonisolated(unsafe) static var retained: [CBPeripheral] = []
+}
+
+/// Allocates a mock peripheral without invoking `CBPeripheral`'s unavailable
+/// initializer and keeps it alive so it is never deallocated.
+private func makeRebuildLeakedPeripheral() -> CBPeripheral {
+  // swiftlint:disable:next force_cast
+  let peripheral = class_createInstance(RebuildConnectedPeripheral.self, 0) as! CBPeripheral
+  RebuildPeripheralStore.retained.append(peripheral)
+  return peripheral
+}
+
+/// Installs `.connected` with a live keepalive on the real actor, mirroring
+/// the restoration suite's prime seam, so renewal behavior is exercised on
+/// the code under test rather than a mock.
+private extension BLEStateMachine {
+  func primeConnectedForRebuild(peripheral: CBPeripheral) {
+    let tx = CBMutableCharacteristic(
+      type: CBUUID(string: BLEServiceUUID.txCharacteristic),
+      properties: [.write],
+      value: nil,
+      permissions: [.writeable]
+    )
+    let rx = CBMutableCharacteristic(
+      type: CBUUID(string: BLEServiceUUID.rxCharacteristic),
+      properties: [.notify],
+      value: nil,
+      permissions: [.readable]
+    )
+    let (_, continuation) = AsyncStream.makeStream(of: Data.self)
+    phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
+    phaseStartTime = Date()
+    startRSSIKeepalive(for: peripheral)
+  }
 }

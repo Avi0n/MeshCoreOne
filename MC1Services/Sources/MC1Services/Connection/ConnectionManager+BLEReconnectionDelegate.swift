@@ -81,6 +81,12 @@ extension ConnectionManager: BLEReconnectionDelegate {
     await session?.stop(disconnectTransport: false)
     session = nil
 
+    // The stopped session's receive-loop cancellation terminated the vended
+    // stream's shared storage, so the transport must re-vend before the new
+    // session reads receivedData. Ordered after the stop above so the stop
+    // cannot finish the fresh stream.
+    await transport.refreshDataStream()
+
     let newSession = MeshCoreSession(transport: transport)
     session = newSession
 

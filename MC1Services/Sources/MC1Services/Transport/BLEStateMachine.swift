@@ -1043,6 +1043,32 @@ extension BLEStateMachine {
     }
   }
 
+  /// Replaces the connected phase's data stream with a fresh one and returns it,
+  /// or returns nil when not `.connected`.
+  ///
+  /// A stopped session's receive-loop cancellation terminates the stream's
+  /// shared storage, so every later iteration of the old stream ends
+  /// immediately; a session rebuild over the still-live link must consume a
+  /// renewed stream or its handshake times out.
+  ///
+  /// The direct phase write below bypasses cleanupPhaseResources, the same
+  /// convention as shutdown(), but unlike shutdown() it deliberately
+  /// replicates none of the skipped cleanup: the phase stays `.connected`, so
+  /// the RSSI keepalive must keep running (cancelling it would silently kill
+  /// background keepalive on every rebuild), and the outgoing continuation is
+  /// dropped without finish() because its consumer is already cancelled and
+  /// continuation deinit terminates the dead storage.
+  func renewDataStream() -> AsyncStream<Data>? {
+    guard case let .connected(peripheral, tx, rx, _) = phase else { return nil }
+    let (stream, continuation) = AsyncStream.makeStream(
+      of: Data.self,
+      bufferingPolicy: .bufferingOldest(512)
+    )
+    phase = .connected(peripheral: peripheral, tx: tx, rx: rx, dataContinuation: continuation)
+    delegateHandler.setDataContinuation(continuation)
+    return stream
+  }
+
   /// Cleans up non-continuation resources owned by a phase.
   ///
   /// Timeout cancellation is phase-aware:

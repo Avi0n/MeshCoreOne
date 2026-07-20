@@ -10,6 +10,12 @@ public protocol iOSMeshTransport: MeshTransport {
   func switchDevice(to deviceID: UUID) async throws
   func setDisconnectionHandler(_ handler: @escaping @Sendable (UUID, Error?) -> Void) async
   func setReconnectionHandler(_ handler: @escaping @Sendable (UUID) -> Void) async
+
+  /// Re-vends `receivedData` for a session rebuild over the existing link.
+  /// A stopped predecessor session's receive-loop cancellation terminates the
+  /// vended stream's shared storage, so without a refresh the next session
+  /// iterates a dead stream and its handshake times out.
+  func refreshDataStream() async
 }
 
 extension iOSBLETransport: iOSMeshTransport {}
