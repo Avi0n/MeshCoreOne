@@ -66,6 +66,22 @@
 			<key>Type</key>
 			<string>PSChildPaneSpecifier</string>
 		</dict>
+		<dict>
+			<key>File</key>
+			<string>Packages/MessagingUI</string>
+			<key>Title</key>
+			<string>MessagingUI</string>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+		</dict>
+		<dict>
+			<key>File</key>
+			<string>Packages/MapLibre</string>
+			<key>Title</key>
+			<string>MapLibre</string>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+		</dict>
 	</array>
 	<key>StringsTable</key>
 	<string>Acknowledgements</string>
