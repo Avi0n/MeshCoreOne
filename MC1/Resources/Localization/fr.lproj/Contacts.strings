@@ -270,22 +270,22 @@
 "contacts.detail.info" = "Infos";
 
 /* Location: ContactDetailView.swift - Purpose: Avatar edit menu title */
-"contacts.detail.avatar.chooseSource" = "Change Profile Picture";
+"contacts.detail.avatar.chooseSource" = "Modifier la photo de profil";
 
 /* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library */
-"contacts.detail.avatar.choosePhoto" = "Choose Photo";
+"contacts.detail.avatar.choosePhoto" = "Choisir une photo";
 
 /* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file */
-"contacts.detail.avatar.chooseFile" = "Choose File...";
+"contacts.detail.avatar.chooseFile" = "Choisir un fichier...";
 
 /* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo */
-"contacts.detail.avatar.removePhoto" = "Remove Photo";
+"contacts.detail.avatar.removePhoto" = "Supprimer la photo";
 
 /* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
-"contacts.detail.avatar.savingAnnouncement" = "Saving photo";
+"contacts.detail.avatar.savingAnnouncement" = "Enregistrement de la photo";
 
 /* Location: ContactDetailView.swift - Purpose: Error shown when the picked file is not a valid image */
-"contacts.detail.avatar.invalidImage" = "That file could not be used as a profile picture.";
+"contacts.detail.avatar.invalidImage" = "Ce fichier n'a pas pu être utilisé comme photo de profil.";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Surnom";
