@@ -331,6 +331,20 @@ public final class ConnectionManager {
   static let defaultConnectAttempts = 4
   static let unverifiedConnectAttempts = 2
 
+  /// Consecutive entries into `handleReconnectionFailure` while intent still wants a
+  /// connection that are allowed to preserve a live link (not radio handshakes — on the
+  /// auto-reconnect path the coordinator's first failed rebuild retries once before
+  /// reaching this funnel, so one unit can already cover two handshakes). Uses `<=`
+  /// comparison: N preserve attempts then sever on the (N+1)th wanting entry.
+  /// Exhaustion severs the link and leaves recovery to the ContinuousClock watchdog
+  /// (which only completes when the process is awake), so recovery waits until the
+  /// user foregrounds or another wake arrives — do not tighten lightly.
+  static let maxRebuildFailuresPreservingLink = 3
+
+  /// Count of consecutive intent-wanting rebuild failures into `handleReconnectionFailure`.
+  /// Reset on every operational session via `recordConnectionSuccess`.
+  var consecutiveRebuildFailures = 0
+
   /// Checks whether a connection attempt should proceed.
   /// Returns `true` if the circuit breaker allows it.
   /// - Parameter force: When `true`, bypasses the circuit breaker (user-initiated reconnect)
@@ -368,17 +382,34 @@ public final class ConnectionManager {
     }
   }
 
-  /// Records a successful connection, resetting the circuit breaker.
+  /// Records a successful connection, resetting the circuit breaker and the
+  /// rebuild-preserve budget. The counter reset sits above the `.closed` early
+  /// return so a healthy connection still refills the preserve budget.
   func recordConnectionSuccess() {
+    consecutiveRebuildFailures = 0
     if case .closed = circuitBreaker { return }
     circuitBreaker = .closed
     logger.info("[BLE] Circuit breaker: → closed (connection succeeded)")
   }
 
+  /// Refills the rebuild-preserve budget after a successful device switch.
+  /// Sole production call site: `switchDevice` after `promoteToReady`.
+  func resetPreserveBudgetAfterDeviceSwitch() {
+    recordConnectionSuccess()
+  }
+
+  /// Epoch bumped by every `clearPersistedConnection` so a queued bond-refresh
+  /// persist hop that already passed `shouldPersistBondRefresh` cannot write
+  /// after a forget clears the shield.
+  var bondRefreshPersistEpoch: UInt64 = 0
+
   // MARK: - Reconnection Watchdog
 
   /// Task managing the reconnection watchdog (retries when stuck disconnected)
   var reconnectionWatchdogTask: Task<Void, Never>?
+
+  /// Generation token so a finishing watchdog Task cannot nil a replacement task.
+  var reconnectionWatchdogGeneration = 0
 
   /// Session IDs that need re-authentication after BLE reconnect.
   /// Populated by `handleBLEDisconnection()`, consumed by `rebuildSession()`.
@@ -406,6 +437,14 @@ public final class ConnectionManager {
   #if DEBUG
     /// Test override for lastConnectedDeviceID
     var testLastConnectedDeviceID: UUID?
+
+    /// When set, the first watchdog sleep uses this instead of 30s so natural-exit
+    /// tests can complete without waiting on production backoff.
+    var testWatchdogInitialDelay: Duration?
+
+    /// Runs after `shouldPersistBondRefresh` returns true and before the epoch
+    /// check in `persistBondRefreshIfStillValid` — tests force clear in that window.
+    var bondRefreshPersistAfterShouldPersistHook: (@MainActor () async -> Void)?
 
     /// True when the BLE reconnection watchdog task is active.
     var isReconnectionWatchdogRunning: Bool {
@@ -454,21 +493,42 @@ public final class ConnectionManager {
   /// link (fresh connect, device switch, auto-reconnect rebuild); the radio
   /// gates that link behind MITM-bonded encryption, so any successful exchange
   /// proves the bond. Never called on the WiFi path, which bypasses the bond.
-  func recordBondVerification(deviceID: UUID) {
+  /// Also marks the app session live for RSSI bond-shield refresh (awaited).
+  func recordBondVerification(deviceID: UUID) async {
     lastConnectionStore.persistBondVerification(deviceID: deviceID)
-    let stateMachine = stateMachine
-    Task { await stateMachine.recordBondVerification(deviceID: deviceID, at: Date()) }
+    await stateMachine.recordBondVerification(deviceID: deviceID, at: Date())
+    await stateMachine.setAppSessionLive(deviceID: deviceID)
   }
 
-  /// Clears the persisted connection, including the in-memory
-  /// bond-verification record, so a forget/re-pair cannot inherit stale
-  /// grace evidence within the same process lifetime.
-  func clearPersistedConnection() {
-    if let deviceID = lastConnectionStore.bondVerifiedDeviceID {
-      let stateMachine = stateMachine
-      Task { await stateMachine.clearBondVerification(deviceID: deviceID) }
+  /// Clears persisted last-connection / bond-verification state for the forgotten
+  /// device. Always clears that device's in-memory bond verification (not the
+  /// current bond-slot holder), and holder-matches the store keys so forgetting
+  /// A cannot destroy B's shield. Also clears session-live when it matches so a
+  /// queued `onBondRefreshed` hop cannot re-persist after the map clear.
+  /// Bumps `bondRefreshPersistEpoch` first so an in-flight persist hop that
+  /// already observed a true `shouldPersistBondRefresh` still no-ops.
+  func clearPersistedConnection(for deviceID: UUID) async {
+    bondRefreshPersistEpoch &+= 1
+    await stateMachine.clearBondVerification(deviceID: deviceID)
+    if await stateMachine.isAppSessionLive(deviceID: deviceID) {
+      await stateMachine.setAppSessionLive(deviceID: nil)
     }
-    lastConnectionStore.clear()
+    lastConnectionStore.clear(for: deviceID)
+  }
+
+  /// Persist path for RSSI bond refresh: snapshot epoch, re-validate on the SM,
+  /// then require the same epoch before writing UserDefaults so a clear that
+  /// landed during the await cannot resurrect the cross-launch shield.
+  func persistBondRefreshIfStillValid(deviceID: UUID) async {
+    let epoch = bondRefreshPersistEpoch
+    guard await stateMachine.shouldPersistBondRefresh(deviceID: deviceID) else { return }
+    #if DEBUG
+      if let bondRefreshPersistAfterShouldPersistHook {
+        await bondRefreshPersistAfterShouldPersistHook()
+      }
+    #endif
+    guard epoch == bondRefreshPersistEpoch else { return }
+    lastConnectionStore.persistBondVerification(deviceID: deviceID)
   }
 
   /// Whether the disconnected pill should be suppressed (user explicitly disconnected)
@@ -662,6 +722,16 @@ public final class ConnectionManager {
       Task { @MainActor in
         guard let self else { return }
         await self.reconnectionCoordinator.handleReconnectionComplete(deviceID: deviceID)
+      }
+    }
+
+    // RSSI bond refresh runs on the state-machine actor; persist on MainActor
+    // via epoch-gated re-validation so a clear between shouldPersist and the
+    // UserDefaults write cannot resurrect a forgotten cross-launch shield.
+    await stateMachine.setBondRefreshedHandler { [weak self] deviceID in
+      Task { @MainActor in
+        guard let self else { return }
+        await self.persistBondRefreshIfStillValid(deviceID: deviceID)
       }
     }
 

@@ -76,6 +76,18 @@ struct ReconnectPolicy {
     bondVerificationDates[deviceID] = date
   }
 
+  /// Refreshes an existing verification's timestamp; never creates one. Only a
+  /// completed app-layer handshake is evidence that a bond verified, so a
+  /// forgotten pairing has no entry and a keepalive tick cannot re-shield it,
+  /// whichever order the clear and the tick reach the actor in.
+  /// - Returns: `true` when an existing stamp was updated.
+  @discardableResult
+  mutating func refreshBondVerification(deviceID: UUID, at date: Date) -> Bool {
+    guard bondVerificationDates[deviceID] != nil else { return false }
+    bondVerificationDates[deviceID] = date
+    return true
+  }
+
   /// The device's pairing was forgotten; its verification must stop shielding.
   mutating func clearBondVerification(deviceID: UUID) {
     bondVerificationDates[deviceID] = nil

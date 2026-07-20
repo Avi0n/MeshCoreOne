@@ -119,10 +119,11 @@ struct StatusQueryIntentTests {
 
   // MARK: - Connecting and disconnected rungs (offline name, no throw)
 
-  @Test func `connecting speaks connecting`() {
+  @Test func `connecting speaks connecting`() async {
     let appState = AppState()
+    let deviceID = UUID()
     appState.connectionManager.persistConnection(
-      deviceID: UUID(), radioID: Self.radioID, deviceName: "Field Radio"
+      deviceID: deviceID, radioID: Self.radioID, deviceName: "Field Radio"
     )
     appState.connectionManager.setTestState(connectionState: .connecting, connectedDevice: .some(nil))
 
@@ -130,13 +131,14 @@ struct StatusQueryIntentTests {
       StatusQueryIntent.dialogText(for: appState)
         == L10n.Tools.Intent.Status.Dialog.connecting("Field Radio")
     )
-    appState.connectionManager.clearPersistedConnection()
+    await appState.connectionManager.clearPersistedConnection(for: deviceID)
   }
 
-  @Test func `disconnected with known radio speaks offline name`() {
+  @Test func `disconnected with known radio speaks offline name`() async {
     let appState = AppState()
+    let deviceID = UUID()
     appState.connectionManager.persistConnection(
-      deviceID: UUID(), radioID: Self.radioID, deviceName: "Last Radio"
+      deviceID: deviceID, radioID: Self.radioID, deviceName: "Last Radio"
     )
     appState.connectionManager.setTestState(connectionState: .disconnected, connectedDevice: .some(nil))
 
@@ -144,12 +146,14 @@ struct StatusQueryIntentTests {
       StatusQueryIntent.dialogText(for: appState)
         == L10n.Tools.Intent.Status.Dialog.disconnectedNamed("Last Radio")
     )
-    appState.connectionManager.clearPersistedConnection()
+    await appState.connectionManager.clearPersistedConnection(for: deviceID)
   }
 
-  @Test func `never connected reports no radio`() {
+  @Test func `never connected reports no radio`() async {
     let appState = AppState()
-    appState.connectionManager.clearPersistedConnection()
+    if let deviceID = appState.connectionManager.lastConnectedDeviceID {
+      await appState.connectionManager.clearPersistedConnection(for: deviceID)
+    }
     appState.connectionManager.setTestState(connectionState: .disconnected, connectedDevice: .some(nil))
 
     #expect(

@@ -68,6 +68,27 @@ public protocol BLEStateMachineProtocol: Actor {
   /// forgotten, so a stale verification cannot shield the next episode.
   func clearBondVerification(deviceID: UUID)
 
+  /// Tells the state machine whether a completed app-layer session is live for
+  /// `deviceID` (non-nil) or that no session is live (nil). Awaited from
+  /// ConnectionManager so RSSI bond refresh cannot race a stale flag.
+  func setAppSessionLive(deviceID: UUID?)
+
+  /// Whether the given device currently has a bond-verification stamp. Used by
+  /// ConnectionManager to re-validate before persisting an RSSI bond refresh.
+  func hasBondVerification(deviceID: UUID) -> Bool
+
+  /// Whether the session-live signal currently matches `deviceID`.
+  func isAppSessionLive(deviceID: UUID) -> Bool
+
+  /// Single-hop check: map has a stamp and session-live matches `deviceID`.
+  /// Used by the MainActor persist hop so a clear between two awaits cannot
+  /// re-persist a forgotten shield.
+  func shouldPersistBondRefresh(deviceID: UUID) -> Bool
+
+  /// Sets a handler called when an existing bond verification was refreshed
+  /// (never created) while a live app session is present — typically from RSSI.
+  func setBondRefreshedHandler(_ handler: (@Sendable (UUID) -> Void)?)
+
   /// Sets a handler for Bluetooth state changes
   func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void)
 

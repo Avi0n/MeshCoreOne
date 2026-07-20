@@ -53,6 +53,12 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// this actor executes its decisions.
   var reconnectPolicy = ReconnectPolicy()
 
+  /// Device ID for which ConnectionManager reports a live app-layer session.
+  /// RSSI bond refresh requires this match so a preserved dead stack cannot
+  /// extend the bond shield. Cleared in cleanupPhaseResources on exit from
+  /// `.connected` and explicitly on preserve-path stack teardown.
+  var appSessionLiveDeviceID: UUID?
+
   /// Expose current phase for testing
   var currentPhase: BLEPhase {
     phase
@@ -71,6 +77,16 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Expose the auto-reconnect connect-failure tally for testing
   var currentAutoReconnectConnectFailures: Int {
     reconnectPolicy.autoReconnectConnectFailures
+  }
+
+  /// Expose bond-verification stamps for testing.
+  func bondVerificationDate(for deviceID: UUID) -> Date? {
+    reconnectPolicy.bondVerificationDates[deviceID]
+  }
+
+  /// Expose the session-live signal for testing.
+  var currentAppSessionLiveDeviceID: UUID? {
+    appSessionLiveDeviceID
   }
 
   // MARK: - CoreBluetooth
@@ -193,6 +209,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Installed by `ConnectionManager.init` (via `iOSBLETransport.setReconnectionHandler`,
   /// which wraps it to capture the data stream before the handler runs).
   var onReconnection: (@Sendable (UUID, AsyncStream<Data>) -> Void)?
+  /// Fired when an existing bond verification was refreshed while a live app
+  /// session is present. Installed by `ConnectionManager.wireTransportHandlers`.
+  var onBondRefreshed: (@Sendable (UUID) -> Void)?
   /// Installed by `ConnectionManager.init`.
   var onBluetoothStateChange: (@Sendable (CBManagerState) -> Void)?
   /// Installed by `ConnectionManager.init`.
@@ -439,6 +458,27 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// forgotten, so a stale verification cannot shield the next episode.
   func clearBondVerification(deviceID: UUID) {
     reconnectPolicy.clearBondVerification(deviceID: deviceID)
+  }
+
+  func setAppSessionLive(deviceID: UUID?) {
+    appSessionLiveDeviceID = deviceID
+  }
+
+  func hasBondVerification(deviceID: UUID) -> Bool {
+    reconnectPolicy.bondVerificationDates[deviceID] != nil
+  }
+
+  func isAppSessionLive(deviceID: UUID) -> Bool {
+    appSessionLiveDeviceID == deviceID
+  }
+
+  func shouldPersistBondRefresh(deviceID: UUID) -> Bool {
+    reconnectPolicy.bondVerificationDates[deviceID] != nil
+      && appSessionLiveDeviceID == deviceID
+  }
+
+  func setBondRefreshedHandler(_ handler: (@Sendable (UUID) -> Void)?) {
+    onBondRefreshed = handler
   }
 
   // MARK: - BLE Scanning
@@ -1097,6 +1137,11 @@ extension BLEStateMachine {
       rssiKeepaliveTask?.cancel()
       rssiKeepaliveTask = nil
       consecutiveRSSIFailures = 0
+      // Phase exit from `.connected` must drop the session-live signal so a
+      // same-device reconnect's pre-handshake keepalive window cannot refresh
+      // a stale stamp. Preserve-path stack teardown clears explicitly too
+      // because that path keeps the phase `.connected`.
+      appSessionLiveDeviceID = nil
       // Clear delegate handler's continuation first to stop data flow
       delegateHandler.setDataContinuation(nil)
       dataContinuation.finish()

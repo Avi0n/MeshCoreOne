@@ -755,6 +755,7 @@ public extension ConnectionManager {
       // connect ceremony installs its replacement.
       services = nil
       await session?.stop()
+      await stateMachine.setAppSessionLive(deviceID: nil)
 
       // Switch transport
       logger.info("[BLE] switchDevice: state → .connecting for device: \(deviceID.uuidString.prefix(8))")
@@ -770,8 +771,8 @@ public extension ConnectionManager {
       let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
 
       // Session traffic flowed over the encrypted UART link, so the bond is
-      // proven healthy as of now.
-      recordBondVerification(deviceID: deviceID)
+      // proven healthy as of now. Also marks the app session live for RSSI refresh.
+      await recordBondVerification(deviceID: deviceID)
 
       // Configure BLE write pacing based on device platform
       await configureBLEPacing(for: deviceCapabilities)
@@ -793,6 +794,9 @@ public extension ConnectionManager {
 
       guard await promoteToReady(syncSucceeded: syncSucceeded, expectedServices: newServices, transportType: .bluetooth) else { return }
 
+      // Refill the rebuild-preserve budget so a spent counter on radio A cannot
+      // force radio B's first rebuild failure to sever.
+      resetPreserveBudgetAfterDeviceSwitch()
       stopReconnectionWatchdog()
       logger.info("Device switch complete - device ready")
     } catch {

@@ -208,8 +208,22 @@ extension ConnectionManager {
   func startReconnectionWatchdog() {
     stopReconnectionWatchdog()
 
+    reconnectionWatchdogGeneration += 1
+    let generation = reconnectionWatchdogGeneration
     reconnectionWatchdogTask = Task {
-      var delay: Duration = .seconds(30)
+      // Nil the property on every natural exit so "arm if nil" cannot see a
+      // finished Task as live. Generation fence avoids nilling a replacement.
+      defer {
+        if reconnectionWatchdogGeneration == generation {
+          reconnectionWatchdogTask = nil
+        }
+      }
+
+      #if DEBUG
+        var delay: Duration = testWatchdogInitialDelay ?? .seconds(30)
+      #else
+        var delay: Duration = .seconds(30)
+      #endif
       let maxDelay: Duration = .seconds(120)
 
       while !Task.isCancelled {
@@ -244,6 +258,7 @@ extension ConnectionManager {
 
   /// Stops the reconnection watchdog
   func stopReconnectionWatchdog() {
+    reconnectionWatchdogGeneration += 1
     reconnectionWatchdogTask?.cancel()
     reconnectionWatchdogTask = nil
   }
@@ -390,6 +405,22 @@ extension ConnectionManager {
   }
 
   private func rebuildConnectedBLEAppStack(deviceID: UUID) async {
+    // Claim before any further await so concurrent health Tasks (watchdog +
+    // foreground after preserve) cannot both observe connected and enter rebuild.
+    // Same structural single-flight the coordinator retry gap requires.
+    guard activeReconnectDeviceID == nil else {
+      logger.info(
+        "[BLE] Skipping connected-transport rebuild: reconnect/session rebuild already in progress for \(activeReconnectDeviceID?.uuidString.prefix(8) ?? "nil")"
+      )
+      return
+    }
+    sessionRebuildDeviceID = deviceID
+    defer {
+      if sessionRebuildDeviceID == deviceID {
+        sessionRebuildDeviceID = nil
+      }
+    }
+
     logger.warning(
       "[BLE] Connected BLE transport has missing app stack; rebuilding session for \(deviceID.uuidString.prefix(8))"
     )
@@ -540,8 +571,8 @@ extension ConnectionManager {
     let (meshCoreSelfInfo, deviceCapabilities) = try await initializeSession(newSession)
 
     // Session traffic flowed over the encrypted UART link, so the bond is
-    // proven healthy as of now.
-    recordBondVerification(deviceID: deviceID)
+    // proven healthy as of now. Also marks the app session live for RSSI refresh.
+    await recordBondVerification(deviceID: deviceID)
 
     // Configure BLE write pacing based on device platform
     await configureBLEPacing(for: deviceCapabilities)

@@ -353,6 +353,29 @@ struct ReconnectPolicyConnectFailureTests {
   }
 
   @Test
+  func `refreshBondVerification updates an existing stamp and never creates`() {
+    var policy = ReconnectPolicy()
+    let deviceID = UUID()
+    let other = UUID()
+
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: Date()) == false)
+    #expect(policy.bondVerificationDates[deviceID] == nil)
+
+    let original = Date().addingTimeInterval(-3600)
+    policy.recordBondVerification(deviceID: deviceID, at: original)
+    let refreshed = Date()
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: refreshed) == true)
+    #expect(policy.bondVerificationDates[deviceID] == refreshed)
+
+    #expect(policy.refreshBondVerification(deviceID: other, at: Date()) == false)
+    #expect(policy.bondVerificationDates[other] == nil)
+
+    policy.clearBondVerification(deviceID: deviceID)
+    #expect(policy.refreshBondVerification(deviceID: deviceID, at: Date()) == false)
+    #expect(policy.bondVerificationDates[deviceID] == nil)
+  }
+
+  @Test
   func `an exhausted budget without an encryption-timeout majority surfaces the mapped error`() {
     var policy = makePolicy(bondVerified: nil)
     let genericTimeout = NSError(domain: CBErrorDomain, code: CBError.connectionTimeout.rawValue)

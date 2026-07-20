@@ -60,6 +60,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
   private var bluetoothStateChangeHandler: (@Sendable (CBManagerState) -> Void)?
   private var deviceDiscoveredHandler: (@Sendable (UUID, String?, Int) -> Void)?
   public private(set) var recordedBondVerifications: [UUID: Date] = [:]
+  public private(set) var appSessionLiveDeviceID: UUID?
 
   // MARK: - Initialization
 
@@ -102,6 +103,26 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
 
   public func clearBondVerification(deviceID: UUID) {
     recordedBondVerifications[deviceID] = nil
+  }
+
+  public func setAppSessionLive(deviceID: UUID?) {
+    appSessionLiveDeviceID = deviceID
+  }
+
+  public func hasBondVerification(deviceID: UUID) -> Bool {
+    recordedBondVerifications[deviceID] != nil
+  }
+
+  public func isAppSessionLive(deviceID: UUID) -> Bool {
+    appSessionLiveDeviceID == deviceID
+  }
+
+  public func shouldPersistBondRefresh(deviceID: UUID) -> Bool {
+    recordedBondVerifications[deviceID] != nil && appSessionLiveDeviceID == deviceID
+  }
+
+  public func setBondRefreshedHandler(_ handler: (@Sendable (UUID) -> Void)?) {
+    // Empty stub — RSSI bond-refresh tests use the real BLEStateMachine actor.
   }
 
   public func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void) {
@@ -169,6 +190,7 @@ public actor MockBLEStateMachine: BLEStateMachineProtocol {
     bluetoothStateChangeHandler = nil
     deviceDiscoveredHandler = nil
     recordedBondVerifications = [:]
+    appSessionLiveDeviceID = nil
   }
 
   /// Simulates auto-reconnecting event

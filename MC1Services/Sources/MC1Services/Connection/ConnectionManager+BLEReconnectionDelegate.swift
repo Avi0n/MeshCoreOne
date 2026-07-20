@@ -40,6 +40,10 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // so its receive and auto-fetch loops end now instead of parking on the
     // finished dispatcher stream until the object deallocates.
     await oldSession?.stop(disconnectTransport: false)
+    // Symmetry with other stack teardowns: drop session-live so RSSI cannot
+    // refresh a bond stamp while the app stack is gone (phase may still be
+    // `.connected` briefly during auto-reconnect entry).
+    await stateMachine.setAppSessionLive(deviceID: nil)
 
     if let oldServices {
       sessionsAwaitingReauth = await oldServices.remoteNodeService.handleBLEDisconnection()
@@ -59,9 +63,19 @@ extension ConnectionManager: BLEReconnectionDelegate {
   func rebuildSession(deviceID: UUID) async throws {
     logger.info("[BLE] Rebuilding session for auto-reconnect: \(deviceID.uuidString.prefix(8))")
     let expectedGeneration = reconnectionCoordinator.reconnectGeneration
-    sessionRebuildDeviceID = deviceID
+    // Nested claim: health-check rebuild may already hold sessionRebuildDeviceID;
+    // only clear on exit when this call installed the claim.
+    let claimedHere = sessionRebuildDeviceID == nil
+    if claimedHere {
+      sessionRebuildDeviceID = deviceID
+    } else {
+      assert(
+        sessionRebuildDeviceID == deviceID,
+        "Nested rebuildSession claim must match outer sessionRebuildDeviceID"
+      )
+    }
     defer {
-      if sessionRebuildDeviceID == deviceID {
+      if claimedHere, sessionRebuildDeviceID == deviceID {
         sessionRebuildDeviceID = nil
       }
     }
@@ -80,6 +94,9 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // Stop any existing session to prevent multiple receive loops racing for transport data
     await session?.stop(disconnectTransport: false)
     session = nil
+    // App stack is down until handshake succeeds; prevent RSSI from refreshing
+    // the bond shield over a dead stack.
+    await stateMachine.setAppSessionLive(deviceID: nil)
 
     // The stopped session's receive-loop cancellation terminated the vended
     // stream's shared storage, so the transport must re-vend before the new
@@ -100,19 +117,21 @@ extension ConnectionManager: BLEReconnectionDelegate {
     }
 
     // Session traffic flowed over the encrypted UART link, so the bond is
-    // proven healthy as of now.
-    recordBondVerification(deviceID: deviceID)
+    // proven healthy as of now. Also marks the app session live for RSSI refresh.
+    await recordBondVerification(deviceID: deviceID)
 
     // Check after await — user may have disconnected or a new reconnect cycle may have started
     guard connectionIntent.wantsConnection else {
       logger.info("User disconnected during session setup")
-      await newSession.stop(disconnectTransport: false)
-      connectionState = .disconnected
+      await abandonRebuildAfterHandshake(
+        session: newSession,
+        setDisconnected: true
+      )
       return
     }
     guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
       logger.info("[BLE] rebuildSession superseded by new reconnect cycle during session setup")
-      await newSession.stop(disconnectTransport: false)
+      await abandonRebuildAfterHandshake(session: newSession)
       return
     }
 
@@ -136,13 +155,15 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // Check after await
     guard connectionIntent.wantsConnection else {
       logger.info("User disconnected during device query")
-      await newSession.stop(disconnectTransport: false)
-      connectionState = .disconnected
+      await abandonRebuildAfterHandshake(
+        session: newSession,
+        setDisconnected: true
+      )
       return
     }
     guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
       logger.info("[BLE] rebuildSession superseded by new reconnect cycle during device query")
-      await newSession.stop(disconnectTransport: false)
+      await abandonRebuildAfterHandshake(session: newSession)
       return
     }
 
@@ -156,21 +177,16 @@ extension ConnectionManager: BLEReconnectionDelegate {
     // Check after await — user may have disconnected or new reconnect cycle started
     guard connectionIntent.wantsConnection else {
       logger.info("User disconnected during service wiring")
-      await newSession.stop(disconnectTransport: false)
-      await newServices.tearDown()
-      services = nil
-      connectedDevice = nil
-      allowedRepeatFreqRanges = []
-      connectionState = .disconnected
+      await abandonRebuildAfterHandshake(
+        session: newSession,
+        services: newServices,
+        setDisconnected: true
+      )
       return
     }
     guard reconnectionCoordinator.reconnectGeneration == expectedGeneration else {
       logger.info("[BLE] rebuildSession superseded by new reconnect cycle during service wiring")
-      await newSession.stop(disconnectTransport: false)
-      await newServices.tearDown()
-      services = nil
-      connectedDevice = nil
-      allowedRepeatFreqRanges = []
+      await abandonRebuildAfterHandshake(session: newSession, services: newServices)
       return
     }
 
@@ -186,11 +202,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
           connectedDevice != nil
     else {
       logger.info("[BLE] rebuildSession aborted after onConnectionReady: reconnect state changed")
-      await newSession.stop(disconnectTransport: false)
-      await newServices.tearDown()
-      services = nil
-      connectedDevice = nil
-      allowedRepeatFreqRanges = []
+      await abandonRebuildAfterHandshake(session: newSession, services: newServices)
       return
     }
     let syncSucceeded = await performInitialSync(radioID: radioID, services: newServices, context: "[BLE] iOS auto-reconnect")
@@ -200,7 +212,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
           reconnectionCoordinator.reconnectGeneration == expectedGeneration,
           services === newServices
     else {
-      await newSession.stop(disconnectTransport: false)
+      await abandonRebuildAfterHandshake(session: newSession, services: newServices)
       return
     }
 
@@ -215,7 +227,7 @@ extension ConnectionManager: BLEReconnectionDelegate {
       else {
         // IDs preserved for next reconnect cycle — new IDs may have
         // arrived during handleBLEReconnection if BLE dropped mid-reauth.
-        await newSession.stop(disconnectTransport: false)
+        await abandonRebuildAfterHandshake(session: newSession, services: newServices)
         return
       }
 
@@ -232,13 +244,40 @@ extension ConnectionManager: BLEReconnectionDelegate {
         reconnectionCoordinator.reconnectGeneration == expectedGeneration
       }
     ) else {
-      await newSession.stop(disconnectTransport: false)
+      await abandonRebuildAfterHandshake(session: newSession, services: newServices)
       return
     }
 
     recordConnectionSuccess()
     stopReconnectionWatchdog()
     logger.info("[BLE] iOS auto-reconnect: session ready, device: \(deviceID.uuidString.prefix(8))")
+  }
+
+  /// Stops a mid-rebuild session that already completed the handshake (session-live
+  /// may be set), nils the stored session/services when they match, and clears
+  /// session-live so RSSI cannot refresh over a dead stack while phase stays
+  /// `.connected`.
+  private func abandonRebuildAfterHandshake(
+    session rebuildSession: MeshCoreSession,
+    services rebuildServices: ServiceContainer? = nil,
+    setDisconnected: Bool = false
+  ) async {
+    await rebuildSession.stop(disconnectTransport: false)
+    if let rebuildServices {
+      await rebuildServices.tearDown()
+      if services === rebuildServices {
+        services = nil
+      }
+    }
+    if session === rebuildSession {
+      session = nil
+    }
+    await stateMachine.setAppSessionLive(deviceID: nil)
+    if setDisconnected {
+      connectionState = .disconnected
+      connectedDevice = nil
+      allowedRepeatFreqRanges = []
+    }
   }
 
   func disconnectTransport() async {
@@ -269,10 +308,20 @@ extension ConnectionManager: BLEReconnectionDelegate {
   func handleReconnectionFailure() async {
     logger.error("[BLE] Auto-reconnect session rebuild failed")
 
-    // Capture and clear synchronously, mirroring teardownSessionForReconnect:
-    // a concurrent rebuild can install a new session and container during the
-    // awaits below, and re-reading self.session / self.services would tear
-    // the replacements down.
+    // Budget only advances when intent still wants a connection. The user-disconnect
+    // path (coordinator retry under .userDisconnected) reaches here with
+    // wantsConnection == false; burning the counter on that path would exhaust
+    // preserve budget after a few disconnect-during-retry events so a later real
+    // failure severs early.
+    if connectionIntent.wantsConnection {
+      consecutiveRebuildFailures += 1
+    }
+
+    // Capture and clear synchronously *before* any await so a concurrent rebuild
+    // that installs session/services during SM queries cannot be torn down by
+    // re-reading self. Coordinator claim is held through this entire method
+    // (cleared only after return) so health-check should not start a rebuild
+    // under us either.
     let oldSession = session
     let oldServices = services
     session = nil
@@ -281,15 +330,53 @@ extension ConnectionManager: BLEReconnectionDelegate {
     connectedDevice = nil
     allowedRepeatFreqRanges = []
 
-    await oldSession?.stop()
-    await oldServices?.tearDown()
-    await transport.disconnect()
+    // A rebuild failure is an app-layer failure. Severing the link cancels the OS
+    // pending connect and the live GATT subscription, the only wake sources that
+    // survive process suspension, and discards a link the health-check ladder can
+    // rebuild in place.
+    let isConnected = await stateMachine.isConnected
+    let isAutoReconnecting = await stateMachine.isAutoReconnecting
+    let holdsLink = isConnected || isAutoReconnecting
+    let preserveLink = connectionIntent.wantsConnection
+      && holdsLink
+      && consecutiveRebuildFailures <= Self.maxRebuildFailuresPreservingLink
 
-    // Same callback contract as handleConnectionLoss and the UI-timeout
-    // path in BLEReconnectionCoordinator: route through notifyConnectionLost()
-    // so AppState tears down its observers and the Live Activity transitions
-    // to disconnected, and the watchdog restarts while intent wants a
-    // connection. Without this the LA stays in stale "connected" state.
-    await notifyConnectionLost()
+    // Session-live bond refresh must stop while the app stack is dead.
+    // Clear on both branches — preserve keeps phase `.connected`, so phase cleanup
+    // never clears the signal there.
+    await stateMachine.setAppSessionLive(deviceID: nil)
+
+    await oldSession?.stop(disconnectTransport: false)
+    await oldServices?.tearDown()
+
+    if preserveLink {
+      // n of N still preserving; sever is on the (N+1)th wanting entry.
+      logger.warning(
+        "[BLE] Rebuild failure \(consecutiveRebuildFailures) of \(Self.maxRebuildFailuresPreservingLink) still preserving link (sever on next)"
+      )
+      // Preserve-only: arm if none is running. Natural exit paths inside the
+      // watchdog Task nil reconnectionWatchdogTask (a finished Task is not
+      // isCancelled — non-nil alone is not "live"). Do not call
+      // startReconnectionWatchdog when a live task is running (that always
+      // cancel+restarts at 30s).
+      if reconnectionWatchdogTask == nil {
+        startReconnectionWatchdog()
+      }
+      await onConnectionLost?()
+    } else {
+      if connectionIntent.wantsConnection, holdsLink {
+        logger.error(
+          "[BLE] Rebuild preserve budget exhausted after \(consecutiveRebuildFailures) failures; severing link"
+        )
+        persistDisconnectDiagnostic(
+          "source=handleReconnectionFailure.preserveBudgetExhausted, " +
+            "failures=\(consecutiveRebuildFailures), " +
+            "intent=\(connectionIntent)"
+        )
+      }
+      await transport.disconnect()
+      // Exhaustion / no-link / user-disconnect: full path (cancel+restart 30s).
+      await notifyConnectionLost()
+    }
   }
 }

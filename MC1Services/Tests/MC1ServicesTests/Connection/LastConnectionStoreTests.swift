@@ -29,16 +29,31 @@ struct LastConnectionStoreTests {
   }
 
   @Test
-  func `clear removes all three persisted values`() throws {
+  func `clear removes all three persisted values for the holder`() throws {
     try withIsolatedDefaults { defaults in
       let store = LastConnectionStore(defaults: defaults)
-      store.persist(deviceID: UUID(), radioID: UUID(), deviceName: "Test Radio")
+      let deviceID = UUID()
+      store.persist(deviceID: deviceID, radioID: UUID(), deviceName: "Test Radio")
 
-      store.clear()
+      store.clear(for: deviceID)
 
       #expect(store.deviceID == nil)
       #expect(store.radioID == nil)
       #expect(defaults.string(forKey: PersistenceKeys.lastConnectedDeviceName) == nil)
+    }
+  }
+
+  @Test
+  func `clear for a non-holder leaves last-connection keys intact`() throws {
+    try withIsolatedDefaults { defaults in
+      let store = LastConnectionStore(defaults: defaults)
+      let holder = UUID()
+      store.persist(deviceID: holder, radioID: UUID(), deviceName: "Holder Radio")
+
+      store.clear(for: UUID())
+
+      #expect(store.deviceID == holder)
+      #expect(defaults.string(forKey: PersistenceKeys.lastConnectedDeviceName) == "Holder Radio")
     }
   }
 
@@ -101,15 +116,20 @@ struct LastConnectionStoreTests {
   }
 
   @Test
-  func `clear removes the bond verification`() {
+  func `clear removes the bond verification only for the bond-slot holder`() {
     withIsolatedDefaults { defaults in
       let store = LastConnectionStore(defaults: defaults)
-      let deviceID = UUID()
-      store.persistBondVerification(deviceID: deviceID)
+      let holder = UUID()
+      let other = UUID()
+      store.persistBondVerification(deviceID: holder)
 
-      store.clear()
+      store.clear(for: other)
 
-      #expect(store.bondVerificationDate(for: deviceID) == nil)
+      #expect(store.bondVerificationDate(for: holder) != nil)
+
+      store.clear(for: holder)
+
+      #expect(store.bondVerificationDate(for: holder) == nil)
     }
   }
 

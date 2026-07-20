@@ -718,11 +718,26 @@ extension BLEStateMachine {
           "[BLE] RSSI read failed (\(consecutiveRSSIFailures) consecutive): \(error.localizedDescription)"
         )
       }
-    } else {
-      if consecutiveRSSIFailures > 0 {
-        logger.info("[BLE] RSSI read recovered after \(consecutiveRSSIFailures) failures, RSSI: \(RSSI)")
-      }
-      consecutiveRSSIFailures = 0
+      return
+    }
+
+    if consecutiveRSSIFailures > 0 {
+      logger.info("[BLE] RSSI read recovered after \(consecutiveRSSIFailures) failures, RSSI: \(RSSI)")
+    }
+    consecutiveRSSIFailures = 0
+
+    // Refresh an existing bond stamp only while `.connected` with a live
+    // app-layer session. GATT liveness alone is not bond proof — combined with
+    // a preserved dead stack, ticks would otherwise suppress `.bondSuspect`.
+    guard case .connected = phase,
+          let deviceID = connectedDeviceID,
+          deviceID == appSessionLiveDeviceID,
+          reconnectPolicy.bondVerificationDates[deviceID] != nil
+    else { return }
+
+    let now = Date()
+    if reconnectPolicy.refreshBondVerification(deviceID: deviceID, at: now) {
+      onBondRefreshed?(deviceID)
     }
   }
 }

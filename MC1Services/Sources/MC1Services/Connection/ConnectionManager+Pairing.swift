@@ -155,9 +155,8 @@ public extension ConnectionManager {
     let dataStore = PersistenceStore(modelContainer: modelContainer)
     try? await dataStore.demoteDeviceToGhost(id: deviceID)
 
-    if lastConnectedDeviceID == deviceID {
-      clearPersistedConnection()
-    }
+    // Always clear this device's bond verification; store keys are holder-matched.
+    await clearPersistedConnection(for: deviceID)
   }
 
   // MARK: - Other-App Detection
@@ -233,7 +232,7 @@ public extension ConnectionManager {
       logger.warning("Failed to demote device in SwiftData: \(error.localizedDescription)")
     }
 
-    clearPersistedConnection()
+    await clearPersistedConnection(for: deviceID)
     logger.info("Device forgotten")
   }
 
@@ -258,11 +257,9 @@ public extension ConnectionManager {
       logger.warning("Failed to delete device data from SwiftData: \(error.localizedDescription)")
     }
 
-    // Drop the auto-reconnect / resume signal if we just forgot the device this install
-    // last connected to, so it can't trigger a phantom reconnect or onboarding resume.
-    if lastConnectedDeviceID == id {
-      clearPersistedConnection()
-    }
+    // Always clear this device's bond verification; store keys are holder-matched
+    // so a non-last-connected forget still drops its in-memory/persistent shield.
+    await clearPersistedConnection(for: id)
 
     logger.info("Device forgotten by ID: \(id)")
   }
@@ -548,13 +545,10 @@ public extension ConnectionManager {
     let dataStore = PersistenceStore(modelContainer: modelContainer)
     try await dataStore.demoteDeviceToGhost(id: id)
 
-    // Drop the auto-reconnect / onboarding-resume signal when the deleted row is the one
-    // this install last connected to, mirroring the sibling forget paths. Without this the
-    // macOS no-validation connect path grinds the full retry budget toward a device the
-    // user removed, and `OnboardingState.suggestedStartingPath` still resumes onto it.
-    if lastConnectedDeviceID == id {
-      clearPersistedConnection()
-    }
+    // Always clear this device's bond verification; store keys are holder-matched
+    // so removing a non-last-connected device still drops its shield and, when it
+    // is last-connected, still drops the auto-reconnect / onboarding-resume signal.
+    await clearPersistedConnection(for: id)
 
     logger.info("deleteDevice completed for device: \(id)")
   }
@@ -590,7 +584,12 @@ extension ConnectionManager: DevicePairingDelegate {
   ) {
     logger.info("Device removed from pairing registry: \(bluetoothID)")
 
+    // DevicePairingDelegate is non-async, so bond clear cannot be awaited at the
+    // callback signature. Ordered first in the Task so it runs before reconnect-
+    // adjacent work; residual race with concurrent classify is accepted here.
     Task {
+      await clearPersistedConnection(for: bluetoothID)
+
       if connectedDevice?.id == bluetoothID {
         await disconnect(reason: .deviceRemovedFromSettings)
       }
@@ -603,11 +602,6 @@ extension ConnectionManager: DevicePairingDelegate {
         logger.warning("Failed to demote device in SwiftData: \(error.localizedDescription)")
       }
     }
-
-    // Clear persisted connection if it was this device
-    if lastConnectedDeviceID == bluetoothID {
-      clearPersistedConnection()
-    }
   }
 
   public func devicePairing(
@@ -618,7 +612,10 @@ extension ConnectionManager: DevicePairingDelegate {
     // No data cascade — failed pairings have no associated data.
     logger.info("Pairing failed for device: \(bluetoothID)")
 
+    // DevicePairingDelegate is non-async; bond clear is ordered first in the Task.
     Task {
+      await clearPersistedConnection(for: bluetoothID)
+
       if connectedDevice?.id == bluetoothID {
         await disconnect(reason: .pairingFailed)
       }
@@ -631,11 +628,6 @@ extension ConnectionManager: DevicePairingDelegate {
       } catch {
         logger.info("No device record to delete: \(error.localizedDescription)")
       }
-    }
-
-    // Clear persisted connection if it was this device
-    if lastConnectedDeviceID == bluetoothID {
-      clearPersistedConnection()
     }
   }
 }
