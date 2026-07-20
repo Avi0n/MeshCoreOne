@@ -98,8 +98,8 @@ struct MessageActionsSheet: View {
     .presentationBackground(Color(.systemBackground))
     .sensoryFeedback(.warning, trigger: destructiveHapticTrigger)
     .task {
-      guard let services = appState.services else { return }
       if availability.canShowRepeatDetails {
+        guard let services = appState.services else { return }
         // The three loads share no data, so run them concurrently rather
         // than stacking three actor round-trips while the detail rows are blank.
         async let fetchedRepeats = services.heardRepeatsService.refreshRepeats(for: message.id)
@@ -114,7 +114,7 @@ struct MessageActionsSheet: View {
         }
         repeats = await fetchedRepeats
       } else if availability.canViewPath {
-        await pathViewModel.loadContacts(services: services, radioID: message.radioID)
+        await pathViewModel.loadContacts(dataStore: appState.offlineDataStore, radioID: message.radioID)
       }
     }
   }
