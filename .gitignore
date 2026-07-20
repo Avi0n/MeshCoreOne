@@ -10,6 +10,7 @@ mc-ref/
 # AI
 .claude
 .agent*
+.grok
 .ignore
 CLAUDE.md
 AGENTS.md
