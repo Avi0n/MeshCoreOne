@@ -106,12 +106,15 @@ final class RoomConversationViewModel {
     isLoading = false
   }
 
-  /// Optimistically append a message if not already present.
-  /// Called synchronously before async reload so the message list
-  /// sees the new count immediately for unread tracking.
+  /// Insert in server-timestamp order, deduped by id, so the view and
+  /// `shouldShowTimestamp` stay chronological before the debounced reload
+  /// re-sorts. Live arrivals can be older than the tail (routine on LoRa and
+  /// during history sync); ties keep arrival order to match the store's
+  /// `[timestamp, createdAt]` sort.
   func appendMessageIfNew(_ message: RoomMessageDTO) {
     guard !messages.contains(where: { $0.id == message.id }) else { return }
-    messages.append(message)
+    let index = messages.firstIndex { $0.timestamp > message.timestamp } ?? messages.endIndex
+    messages.insert(message, at: index)
   }
 
   /// Send a message to the current room
@@ -128,9 +131,7 @@ final class RoomConversationViewModel {
 
     do {
       let message = try await roomServerService.postMessage(sessionID: session.id, text: text)
-
-      // Add to local array
-      messages.append(message)
+      appendMessageIfNew(message)
     } catch {
       errorMessage = error.userFacingMessage
     }
