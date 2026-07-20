@@ -531,7 +531,10 @@ struct ContactDetailView: View {
     defer { avatarPickerItem = nil }
     guard let item else { return }
     do {
-      guard let data = try await item.loadTransferable(type: Data.self) else { return }
+      guard let data = try await item.loadTransferable(type: Data.self) else {
+        errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
+        return
+      }
       await saveAvatar(data: data)
     } catch {
       errorMessage = error.userFacingMessage
@@ -555,11 +558,15 @@ struct ContactDetailView: View {
   }
 
   private func saveAvatar(data: Data) async {
-    guard let processed = Self.processAvatarImage(data: data) else {
+    isSavingAvatar = true
+    let processed = await Task.detached(priority: .userInitiated) {
+      Self.processAvatarImage(data: data)
+    }.value
+    guard let processed else {
       errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
+      isSavingAvatar = false
       return
     }
-    isSavingAvatar = true
     do {
       try await appState.services?.contactService.updateContactAvatar(
         contactID: currentContact.id,
@@ -584,12 +591,15 @@ struct ContactDetailView: View {
   }
 
   /// Downscales to a max 512pt dimension and re-encodes as JPEG so avatars stay small in the store.
-  private static func processAvatarImage(data: Data) -> Data? {
+  /// `nonisolated` so it can run on a background thread via `Task.detached` in `saveAvatar`.
+  private static nonisolated func processAvatarImage(data: Data) -> Data? {
     guard let image = UIImage(data: data) else { return nil }
     let maxDimension: CGFloat = 512
     let scale = min(1, maxDimension / max(image.size.width, image.size.height))
     let targetSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-    let renderer = UIGraphicsImageRenderer(size: targetSize)
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1
+    let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
     let resized = renderer.image { _ in
       image.draw(in: CGRect(origin: .zero, size: targetSize))
     }
@@ -641,7 +651,8 @@ private struct ContactDetailAvatarView: View {
         }
       }
       .buttonStyle(.plain)
-      .accessibilityLabel(L10n.Contacts.Contacts.Detail.Avatar.chooseSource)
+      .disabled(isSavingAvatar)
+      .accessibilityLabel(accessibilityLabel)
     } else {
       switch contact.type {
       case .repeater:
@@ -652,6 +663,13 @@ private struct ContactDetailAvatarView: View {
         EmptyView()
       }
     }
+  }
+
+  private var accessibilityLabel: String {
+    guard isSavingAvatar else {
+      return "\(contact.displayName), \(L10n.Contacts.Contacts.Detail.Avatar.chooseSource)"
+    }
+    return "\(contact.displayName), \(L10n.Contacts.Contacts.Detail.Avatar.savingAnnouncement)"
   }
 
   private var editBadge: some View {

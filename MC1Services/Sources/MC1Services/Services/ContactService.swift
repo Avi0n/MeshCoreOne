@@ -510,7 +510,8 @@ public actor ContactService {
         unreadCount: isBeingBlocked ? 0 : existing.unreadCount,
         unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 
@@ -554,11 +555,14 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: existing.isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: preset,
-        customOCVArrayString: customArray
+        customOCVArrayString: customArray,
+        avatarImageData: existing.avatarImageData
       )
     )
 
@@ -637,11 +641,14 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 
@@ -712,11 +719,14 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: existing.isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 

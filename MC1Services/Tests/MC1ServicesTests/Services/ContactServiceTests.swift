@@ -669,6 +669,100 @@ struct ContactServiceTests {
   }
 
   @Test
+  func `avatarImageData survives updateContactPreferences`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+
+    let radioID = UUID()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: radioID,
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    let imageData = Data([0xDE, 0xAD, 0xBE, 0xEF])
+    try await service.updateContactAvatar(contactID: contactID, imageData: imageData)
+
+    try await service.updateContactPreferences(contactID: contactID, nickname: "Field Ops")
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.nickname == "Field Ops")
+    #expect(updated?.avatarImageData == imageData)
+  }
+
+  @Test
+  func `avatarImageData survives setContactFavorite`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+
+    let radioID = UUID()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: radioID,
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    let imageData = Data([0xDE, 0xAD, 0xBE, 0xEF])
+    try await service.updateContactAvatar(contactID: contactID, imageData: imageData)
+
+    try await service.setContactFavorite(contactID, isFavorite: true)
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.isFavorite == true)
+    #expect(updated?.avatarImageData == imageData)
+  }
+
+  @Test
   func `updateContactPreferences does not trigger cleanup when not blocking`() async throws {
     let mockSession = MockMeshCoreSession()
     let mockStore = MockPersistenceStore()

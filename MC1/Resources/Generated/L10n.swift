@@ -1338,6 +1338,8 @@ public enum L10n {
           public static let invalidImage = L10n.tr("Contacts", "contacts.detail.avatar.invalidImage", fallback: "That file couldn't be used as a profile picture.")
           /// Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo
           public static let removePhoto = L10n.tr("Contacts", "contacts.detail.avatar.removePhoto", fallback: "Remove Photo")
+          /// Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved
+          public static let savingAnnouncement = L10n.tr("Contacts", "contacts.detail.avatar.savingAnnouncement", fallback: "Saving photo")
         }
         public enum Error {
           /// Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error

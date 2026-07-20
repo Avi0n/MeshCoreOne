@@ -2,6 +2,14 @@ import MC1Services
 import SwiftUI
 import UIKit
 
+/// Process-lifetime cache of decoded avatar images, keyed by the raw JPEG data.
+/// Avoids re-running `UIImage(data:)` on every cell redraw while scrolling a contact list.
+private enum AvatarImageCache {
+  // NSCache is internally thread-safe; its lack of Sendable conformance is a
+  // missing annotation in Foundation, not an actual data race risk here.
+  nonisolated(unsafe) static let shared = NSCache<NSData, UIImage>()
+}
+
 struct ContactAvatar: View {
   @Environment(\.appTheme) private var theme
   @Environment(\.colorScheme) private var colorScheme
@@ -23,7 +31,7 @@ struct ContactAvatar: View {
   }
 
   var body: some View {
-    if let imageData, let uiImage = UIImage(data: imageData) {
+    if let imageData, let uiImage = cachedImage(for: imageData) {
       Image(uiImage: uiImage)
         .resizable()
         .scaledToFill()
@@ -36,6 +44,16 @@ struct ContactAvatar: View {
         .frame(width: size, height: size)
         .background(avatarColor, in: .circle)
     }
+  }
+
+  private func cachedImage(for data: Data) -> UIImage? {
+    let key = data as NSData
+    if let cached = AvatarImageCache.shared.object(forKey: key) {
+      return cached
+    }
+    guard let decoded = UIImage(data: data) else { return nil }
+    AvatarImageCache.shared.setObject(decoded, forKey: key, cost: data.count)
+    return decoded
   }
 
   private var initials: String {

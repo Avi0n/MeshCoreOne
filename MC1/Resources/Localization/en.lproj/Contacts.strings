@@ -284,6 +284,9 @@
 /* Location: ContactDetailView.swift - Purpose: Error shown when the picked file isn't a valid image */
 "contacts.detail.avatar.invalidImage" = "That file couldn't be used as a profile picture.";
 
+/* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
+"contacts.detail.avatar.savingAnnouncement" = "Saving photo";
+
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Nickname";
 
