@@ -145,7 +145,7 @@
 "notifications.discovery.repeater" = "Nuovo ripetitore scoperto";
 
 /* Notification title when a new room is discovered on the mesh network */
-"notifications.discovery.room" = "Nuova sala scoperta";
+"notifications.discovery.room" = "Nuova stanza scoperta";
 
 // MARK: - Notification Actions
 
@@ -238,7 +238,7 @@
 "error.meshCore.bluetoothUnauthorized" = "È richiesta l'autorizzazione Bluetooth. Attivala in Impostazioni.";
 
 /* Location: MeshCoreError+UserFacingMessage.swift - Bluetooth radio is off */
-"error.meshCore.bluetoothPoweredOff" = "Bluetooth è disattivato. Attiva Bluetooth per connetterti.";
+"error.meshCore.bluetoothPoweredOff" = "Il bluetooth è disattivato. Attivalo per connetterti.";
 
 /* Location: MeshCoreError+UserFacingMessage.swift - Connection lost with detail - %@ is the underlying error message */
 "error.meshCore.connectionLost" = "La connessione al dispositivo è stata persa: %@";
@@ -250,7 +250,7 @@
 "error.meshCore.sessionNotStarted" = "La sessione non è stata avviata.";
 
 /* Location: MeshCoreError+UserFacingMessage.swift - Feature disabled in device firmware */
-"error.meshCore.featureDisabled" = "Questa funzione è disabilitata sul dispositivo.";
+"error.meshCore.featureDisabled" = "Funzione è disabilitata sul dispositivo.";
 
 /* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: command unsupported */
 "error.device.unsupportedCommand" = "Comando non supportato dal firmware del dispositivo.";
@@ -277,13 +277,13 @@
 "error.timeout.operationTimedOut" = "Operazione scaduta. Riprova.";
 
 /* Location: BLEError+UserFacingMessage.swift - Bluetooth hardware unavailable */
-"error.ble.bluetoothUnavailable" = "Bluetooth non è disponibile su questo dispositivo.";
+"error.ble.bluetoothUnavailable" = "Il bluetooth non è disponibile su questo dispositivo.";
 
 /* Location: BLEError+UserFacingMessage.swift - Bluetooth permission denied */
 "error.ble.bluetoothUnauthorized" = "È richiesta l'autorizzazione Bluetooth. Attivala in Impostazioni.";
 
 /* Location: BLEError+UserFacingMessage.swift - Bluetooth radio is off */
-"error.ble.bluetoothPoweredOff" = "Bluetooth è disattivato. Attiva Bluetooth per connetterti.";
+"error.ble.bluetoothPoweredOff" = "Il bluetooth è disattivato. Attivalo per connetterti.";
 
 /* Location: BLEError+UserFacingMessage.swift - Scanned device could not be found */
 "error.ble.deviceNotFound" = "Dispositivo non trovato. Assicurati che sia acceso e nelle vicinanze.";
@@ -334,7 +334,7 @@
 "error.wifi.connectionFailed" = "Connessione non riuscita: %@";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
-"error.wifi.connectionTimeout" = "Connessione scaduta. Controlla l'indirizzo IP e assicurati che il dispositivo sia sulla stessa rete.";
+"error.wifi.connectionTimeout" = "Connessione scaduta. Controlla l'indirizzo IP e assicurati che il dispositivo sia nella stessa rete.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
 "error.wifi.notConnected" = "Non connesso al dispositivo.";
@@ -355,7 +355,7 @@
 "error.wifi.notConfigured" = "Connessione non configurata.";
 
 /* Location: AccessorySetupKitError+UserFacingMessage.swift - AccessorySetupKit session not active */
-"error.accessorySetup.sessionNotActive" = "Bluetooth non è pronto. Assicurati che Bluetooth sia attivo e riprova.";
+"error.accessorySetup.sessionNotActive" = "Il bluetooth non è pronto. Assicurati che Bluetooth sia attivo e riprova.";
 
 /* Location: AccessorySetupKitError+UserFacingMessage.swift - AccessorySetupKit session invalidated */
 "error.accessorySetup.sessionInvalidated" = "La sessione Bluetooth è terminata in modo imprevisto. Riavvia l'app.";
@@ -364,7 +364,7 @@
 "error.accessorySetup.pickerDismissed" = "Selezione del dispositivo annullata.";
 
 /* Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory picker could not be shown */
-"error.accessorySetup.pickerRestricted" = "Impossibile mostrare il selettore dispositivi. Verifica che Bluetooth sia attivo, attendi un momento e riprova.";
+"error.accessorySetup.pickerRestricted" = "Impossibile mostrare il selettore dispositivi. Verifica che il bluetooth sia attivo, attendi un momento e riprova.";
 
 /* Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory picker already on screen */
 "error.accessorySetup.pickerAlreadyActive" = "Il selettore dispositivi è già visualizzato.";
@@ -523,7 +523,7 @@
 "error.roomServer.notConnected" = "Non connesso al dispositivo.";
 
 /* Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server */
-"error.roomServer.sessionNotFound" = "Sessione della sala non trovata.";
+"error.roomServer.sessionNotFound" = "Sessione della  non trovata.";
 
 /* Location: RoomServerError+UserFacingMessage.swift - Room message send failed */
 "error.roomServer.sendFailed" = "Invio non riuscito.";
@@ -619,7 +619,7 @@
 "error.keyGeneration.maxAttemptsExceeded" = "Impossibile generare una chiave con quel prefisso. Prova con un altro.";
 
 /* Location: KeyGenerationError+UserFacingMessage.swift - Requested prefix byte is reserved by firmware */
-"error.keyGeneration.reservedPrefix" = "Quel prefisso è riservato e non può essere usato.";
+"error.keyGeneration.reservedPrefix" = "Il prefisso è riservato e non può essere usato.";
 
 /* Location: KeyGenerationError+UserFacingMessage.swift - System random number generator failed */
 "error.keyGeneration.randomGenerationFailed" = "Generazione sicura di numeri casuali non riuscita. Riprova.";

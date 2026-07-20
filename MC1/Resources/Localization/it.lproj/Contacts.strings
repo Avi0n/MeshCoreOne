@@ -42,7 +42,7 @@
 "contacts.nodeKind.repeater" = "Ripetitore";
 
 /* Location: Multiple files - Purpose: Room contact type label */
-"contacts.nodeKind.room" = "Sala";
+"contacts.nodeKind.room" = "Stanza";
 
 /* Location: TracePathListView.swift, PathEditingSheet.swift - Purpose: Badge label for discovered nodes */
 "contacts.nodeKind.discovered" = "Scoperto";
@@ -73,7 +73,7 @@
 "contacts.segment.repeaters" = "Ripetitori";
 
 /* Location: ContactsViewModel.swift - Purpose: Rooms segment */
-"contacts.segment.rooms" = "Sale";
+"contacts.segment.rooms" = "Stanze";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
 "contacts.segment.pickerLabel" = "Filtra nodi";
@@ -148,7 +148,7 @@
 // MARK: - Contacts List Empty States
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty title */
-"contacts.list.empty.favorites.title" = "Nessun preferito ancora";
+"contacts.list.empty.favorites.title" = "Ancora nessun preferito";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
 "contacts.list.empty.favorites.description" = "Tieni premuto un qualsiasi nodo per aggiungerlo ai preferiti.";
@@ -157,7 +157,7 @@
 "contacts.list.empty.contacts.title" = "Nessun contatto";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty description */
-"contacts.list.empty.contacts.description" = "I contatti compaiono quando vengono scoperti sulla rete mesh. Se l'aggiunta automatica dei contatti è disattivata, controlla Scopri nel menu in alto a destra.";
+"contacts.list.empty.contacts.description" = "I contatti compariranno quando vengono scoperti sulla rete mesh. Se l'aggiunta automatica dei contatti è disattivata, controlla Scopri nel menu in alto a destra.";
 
 /* Location: ContactsListView.swift - Purpose: No repeaters empty title */
 "contacts.list.empty.repeaters.title" = "Nessun ripetitore";
@@ -166,10 +166,10 @@
 "contacts.list.empty.repeaters.description" = "I ripetitori estendono la portata della tua mesh. Compariranno qui quando verranno scoperti.";
 
 /* Location: ContactsListView.swift - Purpose: No rooms empty title */
-"contacts.list.empty.rooms.title" = "Nessuna sala";
+"contacts.list.empty.rooms.title" = "Non ci sono stanze";
 
 /* Location: ContactsListView.swift - Purpose: No rooms empty description */
-"contacts.list.empty.rooms.description" = "Le sale sono server di chat pubblici sulla mesh. Compariranno qui quando verranno scoperte.";
+"contacts.list.empty.rooms.description" = "Le stanze sono server di chat pubblici sulla mesh. Compariranno qui quando verranno scoperte.";
 
 /* Location: ContactsListView.swift - Purpose: No search results title */
 "contacts.list.empty.search.title" = "Nessun risultato";
@@ -214,7 +214,7 @@
 "contacts.detail.hasLocation" = "Ha una posizione";
 
 /* Location: ContactDetailView.swift - Purpose: Join room button */
-"contacts.detail.joinRoom" = "Unisciti alla sala";
+"contacts.detail.joinRoom" = "Entra nella stanza";
 
 /* Location: ContactDetailView.swift - Purpose: Telemetry button */
 "contacts.detail.telemetry" = "Telemetria";
@@ -288,7 +288,7 @@
 "contacts.detail.avatar.savingAnnouncement" = "Salvataggio foto";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
-"contacts.detail.nickname" = "Soprannome";
+"contacts.detail.nickname" = "Nickname";
 
 /* Location: ContactDetailView.swift - Purpose: No nickname placeholder */
 "contacts.detail.nicknameNone" = "Nessuno";
@@ -394,7 +394,7 @@
 "contacts.detail.alert.block.title" = "Blocca contatto";
 
 /* Location: ContactDetailView.swift - Purpose: Block contact alert message */
-"contacts.detail.alert.block.message" = "Non riceverai messaggi da %@. Le sue conversazioni verranno nascoste dall'elenco Chat e i nuovi messaggi di canale verranno scartati. Sbloccando potrai ricevere nuovi messaggi, ma i messaggi scartati non possono essere recuperati.";
+"contacts.detail.alert.block.message" = "Non riceverai messaggi da %@. Le sue conversazioni verranno nascoste dall'elenco Chat e i nuovi messaggi nel canale verranno scartati. Sbloccando potrai ricevere i nuovi messaggi, ma i messaggi scartati non possono essere recuperati.";
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert title */
 "contacts.detail.alert.delete.title" = "Elimina %@";
@@ -520,7 +520,7 @@
 "contacts.scan.unavailable.title" = "Scanner non disponibile";
 
 /* Location: ScanContactQRView.swift - Purpose: Scanner not available description */
-"contacts.scan.unavailable.description" = "La scansione QR non è supportata su questo dispositivo";
+"contacts.scan.unavailable.description" = "La scansione di codici QR non è supportata su questo dispositivo";
 
 /* Location: ScanContactQRView.swift - Purpose: Importing progress */
 "contacts.scan.importing" = "Importazione del contatto...";
@@ -551,7 +551,7 @@
 "contacts.discovery.empty.title" = "Nessun nodo scoperto";
 
 /* Location: DiscoveryView.swift - Purpose: Empty state description */
-"contacts.discovery.empty.description" = "I nodi compariranno qui man mano che i loro annunci vengono scoperti.";
+"contacts.discovery.empty.description" = "I nodi compariranno qui man mano che i loro annunci verranno scoperti.";
 
 /* Location: DiscoveryView.swift - Purpose: Add button */
 "contacts.discovery.add" = "Aggiungi";
@@ -573,7 +573,7 @@
 "contacts.discovery.segment.repeaters" = "Ripetitori";
 
 /* Location: DiscoveryView.swift - Purpose: Segment filter: Rooms */
-"contacts.discovery.segment.rooms" = "Sale";
+"contacts.discovery.segment.rooms" = "Stanze";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
 "contacts.discovery.segment.pickerLabel" = "Filtra nodi scoperti";
@@ -597,7 +597,7 @@
 "contacts.discovery.clear.confirm" = "Cancella";
 
 /* Location: DiscoveryView.swift - Purpose: VoiceOver announcement when searching */
-"contacts.discovery.searchingAllTypes" = "Ricerca di tutti i tipi";
+"contacts.discovery.searchingAllTypes" = "Ricerca tutti i tipi";
 
 /* Location: DiscoveryView.swift - Purpose: Sort menu accessibility label */
 "contacts.discovery.sortMenu" = "Opzioni di ordinamento";
@@ -606,7 +606,7 @@
 "contacts.discovery.sortMenuHint" = "Scegli come ordinare i nodi scoperti";
 
 /* Location: DiscoveryView.swift - Purpose: VoiceOver announcement after clearing */
-"contacts.discovery.clearedAllNodes" = "Tutti i nodi scoperti cancellati";
+"contacts.discovery.clearedAllNodes" = "Cancellati tutti i nodi scoperti";
 
 /* Location: DiscoveryView.swift - Purpose: Swipe action to remove discovered node */
 "contacts.discovery.remove" = "Rimuovi";
@@ -632,13 +632,13 @@
 "contacts.pathEdit.noRepeaters.title" = "Nessun ripetitore disponibile";
 
 /* Location: AddHopPickerView.swift - Purpose: No repeaters empty description */
-"contacts.pathEdit.noRepeaters.description" = "I ripetitori compaiono qui una volta scoperti nella tua rete mesh.";
+"contacts.pathEdit.noRepeaters.description" = "I ripetitori compariranno qui una volta scoperti nella tua rete mesh.";
 
 /* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty title */
 "contacts.pathEdit.noFavorites.title" = "Nessun ripetitore preferito";
 
 /* Location: AddHopPickerView.swift - Purpose: No favorite repeaters empty description */
-"contacts.pathEdit.noFavorites.description" = "I ripetitori che segni come preferiti compaiono qui.";
+"contacts.pathEdit.noFavorites.description" = "I ripetitori che imposterai come preferiti compariranno qui.";
 
 /* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty title */
 "contacts.pathEdit.noRecent.title" = "Nessun ripetitore recente";
@@ -722,13 +722,13 @@
 "contacts.pathEdit.sections.discovered" = "Scoperti";
 
 /* Location: AddHopPickerView.swift - Purpose: Rooms section header */
-"contacts.pathEdit.sections.rooms" = "Sale";
+"contacts.pathEdit.sections.rooms" = "Stanze";
 
 /* Location: AddHopPickerView.swift - Purpose: No-match search description */
 "contacts.pathEdit.search.noMatches.description" = "Prova un nome o un prefisso esadecimale come 'a3'.";
 
 /* Location: AddHopPickerView.swift - Purpose: No-match description when a filter other than All is selected and a matching room exists */
-"contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "Prova un nome o un prefisso esadecimale come 'a3'. Le sale compaiono solo con il filtro Tutti.";
+"contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "Prova un nome o un prefisso esadecimale come 'a3'. Le stanze compaiono solo con il filtro Tutti.";
 
 /* Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number */
 "contacts.pathEdit.addToPathAsHop" = "Aggiungi %1$@ al percorso come salto %2$d";
@@ -845,7 +845,7 @@
 "contacts.pathDetail.performance" = "Prestazioni";
 
 /* Location: SavedPathDetailView.swift - Purpose: Chart Y axis label */
-"contacts.pathDetail.roundTripMs" = "Andata e ritorno (ms)";
+"contacts.pathDetail.roundTripMs" = "Round Trip (ms)";
 
 /* Location: SavedPathDetailView.swift - Purpose: Average stat label */
 "contacts.pathDetail.avg" = "Media";
@@ -872,7 +872,7 @@
 "contacts.pathDetail.date" = "Data";
 
 /* Location: SavedPathDetailView.swift - Purpose: Round trip label */
-"contacts.pathDetail.roundTrip" = "Andata e ritorno";
+"contacts.pathDetail.roundTrip" = "Round Trip";
 
 /* Location: SavedPathDetailView.swift - Purpose: Status label */
 "contacts.pathDetail.status" = "Stato";
@@ -1198,7 +1198,7 @@
 "contacts.pathManagement.error.hopResizeRequired" = "Dimensione hash del percorso modificata — rimuovi e riaggiungi i salti per salvare.";
 
 /* Location: PathManagementViewModel.swift - Purpose: Shown when the existing path has more hops than the current hash mode supports */
-"contacts.pathManagement.error.tooManyHops" = "Troppi salti. La modalità hash attuale supporta al massimo %d.";
+"contacts.pathManagement.error.tooManyHops" = "Troppi salti. La modalità hash attuale ne supporta al massimo %d.";
 
 // MARK: - Code Input Result
 
@@ -1209,7 +1209,7 @@
 "contacts.codeInput.error.notFound" = "%@ non trovato";
 
 /* Location: TracePathViewModel.swift - Purpose: Already in path error */
-"contacts.codeInput.error.alreadyInPath" = "%@ già nel percorso";
+"contacts.codeInput.error.alreadyInPath" = "%@ è già nel percorso";
 
 // MARK: - Path Name Generation
 

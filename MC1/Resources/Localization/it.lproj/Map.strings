@@ -114,7 +114,7 @@
 "map.detail.action.management" = "Gestione";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Button to join a room */
-"map.detail.action.joinRoom" = "Entra nella sala";
+"map.detail.action.joinRoom" = "Entra nella stanza";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Button to send a message */
 "map.detail.action.sendMessage" = "Invia messaggio";
@@ -128,7 +128,7 @@
 "map.nodeKind.repeater" = "Ripetitore";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Display name for room type */
-"map.nodeKind.room" = "Sala";
+"map.nodeKind.room" = "Stanza";
 
 // MARK: - Contact Callout
 
@@ -145,7 +145,7 @@
 "map.callout.nodeKind.repeater" = "Ripetitore";
 
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
-"map.callout.nodeKind.room" = "Sala";
+"map.callout.nodeKind.room" = "Stanza";
 
 // MARK: - Contact Annotation
 

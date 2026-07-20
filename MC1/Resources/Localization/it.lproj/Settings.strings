@@ -476,7 +476,7 @@
 "nodes.autoAddRepeaters" = "Ripetitori";
 
 /* Toggle label for auto-add room servers */
-"nodes.autoAddRoomServers" = "Server di sala";
+"nodes.autoAddRoomServers" = "Server stanza";
 
 /* Section header for storage settings */
 /* Toggle label for overwrite oldest */
@@ -567,7 +567,7 @@
 "dangerZone.resetting" = "Ripristino…";
 
 /* Footer explaining factory reset */
-"dangerZone.footer" = "Il ripristino di fabbrica cancella tutti i contatti, i messaggi e le impostazioni sul dispositivo.";
+"dangerZone.footer" = "Il ripristino ai dati di fabbrica cancella tutti i contatti, i messaggi e le impostazioni sul dispositivo.";
 
 /* Confirmation dialog title for forget device */
 "dangerZone.dialog.forget.title" = "Dimentica dispositivo";
@@ -582,7 +582,7 @@
 "dangerZone.dialog.forget.deleteAll" = "Dimentica dispositivo ed elimina i dati";
 
 /* Alert title for factory reset confirmation */
-"dangerZone.alert.reset.title" = "Ripristino di fabbrica";
+"dangerZone.alert.reset.title" = "Ripristino ai dati fabbrica";
 
 /* Button to confirm reset */
 "dangerZone.alert.reset.confirm" = "Ripristina";
@@ -685,7 +685,7 @@
 "mapPreviews.toggle" = "Mostra miniature mappa";
 
 /* Footer explaining map preview privacy implications */
-"mapPreviews.footer" = "Mostrare le miniature mappa recupera le tessere cartografiche delle coordinate da un server di terze parti, che può rivelare il tuo indirizzo IP.";
+"mapPreviews.footer" = "Mostrare le miniature mappa recupera le tessere cartografiche delle coordinate da un server di terze parti. Può rivelare il tuo indirizzo IP.";
 
 // MARK: - Node Settings Section
 
@@ -748,7 +748,7 @@
 "location.sharingPublicly" = "Condivisione pubblica";
 
 /* Detail text when location is not being shared */
-"location.notSharing" = "Non in condivisione";
+"location.notSharing" = "Non condiviso";
 
 // MARK: - Notification Settings Section
 
@@ -756,13 +756,13 @@
 "notifications.header" = "Notifiche";
 
 /* Toggle label for contact messages notifications */
-"notifications.contactMessages" = "Messaggi dei contatti";
+"notifications.contactMessages" = "Messaggi dai contatti";
 
 /* Toggle label for channel messages notifications */
 "notifications.channelMessages" = "Messaggi dei canali";
 
 /* Toggle label for room messages notifications */
-"notifications.roomMessages" = "Messaggi delle sale";
+"notifications.roomMessages" = "Messaggi delle stanze";
 
 /* Toggle label for new contact discovered notifications */
 "notifications.newContactDiscovered" = "Nuovo contatto scoperto";
@@ -774,7 +774,7 @@
 "notifications.discoveryRepeater" = "Ripetitore";
 
 /* Toggle label for room discovery notifications */
-"notifications.discoveryRoom" = "Sala";
+"notifications.discoveryRoom" = "Stanza";
 
 /* Toggle label for low battery warnings */
 "notifications.lowBattery" = "Avvisi batteria scarica";
@@ -950,7 +950,7 @@
 "messages.showIncomingHopCount" = "Numero di salti in arrivo";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Regione in arrivo";
+"messages.showIncomingRegion" = "Region in arrivo";
 
 /* Footer explaining what the message display options show */
 "messages.footer" = "Mostra informazioni di routing e timing nelle bolle dei messaggi in arrivo.";
@@ -1353,7 +1353,7 @@
 "offlineMaps.emptyDescription" = "Scarica regioni della mappa per usarle senza internet.";
 
 /* Button to download a new offline region */
-"offlineMaps.downloadRegion" = "Scarica regione";
+"offlineMaps.downloadRegion" = "Scarica region";
 
 /* Section header for storage info */
 "offlineMaps.storage" = "Archiviazione";
@@ -1362,7 +1362,7 @@
 "offlineMaps.storageUsed" = "Spazio usato";
 
 /* Fallback name for unknown region */
-"offlineMaps.unknownRegion" = "Regione sconosciuta";
+"offlineMaps.unknownRegion" = "Region sconosciuta";
 
 /* Status when pack download is complete */
 "offlineMaps.complete" = "Scaricata";
@@ -1371,10 +1371,10 @@
 "offlineMaps.downloading" = "Download…";
 
 /* Navigation title for region picker sheet */
-"offlineMaps.pickRegion" = "Seleziona regione";
+"offlineMaps.pickRegion" = "Seleziona region";
 
 /* Placeholder for region name text field */
-"offlineMaps.regionName" = "Nome regione";
+"offlineMaps.regionName" = "Nome region";
 
 /* Button to start download */
 "offlineMaps.download" = "Scarica";
@@ -1495,7 +1495,7 @@
 "settings.backup.import.preview.devices" = "Dispositivi";
 
 /* Import preview manifest label: room messages */
-"settings.backup.import.preview.room_messages" = "Messaggi di sala";
+"settings.backup.import.preview.room_messages" = "Messaggi della stanza";
 
 /* Import preview manifest label: reactions */
 "settings.backup.import.preview.reactions" = "Reazioni";

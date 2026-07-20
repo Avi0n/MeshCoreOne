@@ -125,13 +125,13 @@
 "troubleshooting.basicChecks.moveCloser" = "Avvicina il dispositivo al telefono";
 
 /* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
-"troubleshooting.basicChecks.notConnectedElsewhere" = "Assicurati che la radio non sia connessa a un altro telefono o a un'altra app";
+"troubleshooting.basicChecks.notConnectedElsewhere" = "Assicurati che la radio non sia connessa ad un altro telefono o ad un'altra app";
 
 /* Location: DeviceScanView.swift - Check to restart the device */
 "troubleshooting.basicChecks.restart" = "Riavvia il dispositivo MeshCore";
 
 /* Location: DeviceScanView.swift - Section header for factory reset help */
-"troubleshooting.factoryReset.header" = "Ripristino di fabbrica del dispositivo?";
+"troubleshooting.factoryReset.header" = "Ripristino alle impostazioni di fabbrica del dispositivo?";
 
 /* Location: DeviceScanView.swift - Explanation about stale pairings */
 "troubleshooting.factoryReset.explanation" = "Se hai ripristinato il dispositivo MeshCore alle impostazioni di fabbrica, iOS potrebbe avere ancora la vecchia associazione memorizzata. Cancellarla nelle Impostazioni di sistema permette al dispositivo di riapparire.";
@@ -167,7 +167,7 @@
 "troubleshooting.stillNotAppearing.header" = "Ancora non compare?";
 
 /* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
-"troubleshooting.stillNotAppearing.body" = "Se hai già provato tutto quanto sopra, fai il backup della configurazione della radio nell'app MeshCore di Liam Cottle, poi cancella e riflashala sul computer su https://flasher.meshcore.io";
+"troubleshooting.stillNotAppearing.body" = "Se hai già provato tutto quanto sopra, fai il backup della configurazione della radio nell'app MeshCore di Liam Cottle, poi cancella e riflashala dal computer su https://flasher.meshcore.io";
 
 
 // MARK: - Mesh Animation View
@@ -182,7 +182,7 @@
 "noDevice.sheet.title" = "Dai un'occhiata";
 
 /* Location: NoDeviceSheet.swift - Sheet body */
-"noDevice.sheet.body" = "Ti serve una radio associata per inviare e ricevere messaggi. Esplora l'app per ora e associala quando vuoi da Impostazioni.";
+"noDevice.sheet.body" = "Ti serve una radio associata per inviare e ricevere messaggi. Esplora l'app per ora. Associa una radio quando vuoi da Impostazioni.";
 
 /* Location: NoDeviceSheet.swift - Primary CTA */
 "noDevice.sheet.confirm" = "Continua";
@@ -274,7 +274,7 @@
 "region.continue" = "Continua";
 
 /* Location: RegionStepView.swift - Title (both states) */
-"region.title" = "Scegli la tua regione";
+"region.title" = "Scegli la tua region";
 
 /* Location: RegionStepView.swift - Subtitle for the region step */
 "region.subtitle" = "Mostreremo i preset che funzionano nella tua zona.";
@@ -286,7 +286,7 @@
 "region.detected.source" = "Dalla tua posizione";
 
 /* Location: RegionStepView.swift - Primary CTA in detected state */
-"region.useThisRegion" = "Usa questa regione";
+"region.useThisRegion" = "Usa questa region";
 
 /* Location: RegionStepView.swift - "Choose another" link */
 "region.chooseAnother" = "Scegline un'altra";
@@ -295,10 +295,10 @@
 "region.useMyLocation" = "Usa la mia posizione";
 
 /* Location: RegionStepView.swift - "Finding your region…" */
-"region.resolving" = "Ricerca della tua regione…";
+"region.resolving" = "Ricerca della tua region…";
 
 /* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
-"region.useMyLocation.failure" = "La ricerca della posizione non ha restituito una regione. Sceglila manualmente qui sotto.";
+"region.useMyLocation.failure" = "La ricerca della posizione non ha restituito una region. Sceglila manualmente qui sotto.";
 
 
 // MARK: - Device Scanner Sheet (macOS)
