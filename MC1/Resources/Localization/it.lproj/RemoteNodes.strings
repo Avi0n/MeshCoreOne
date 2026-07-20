@@ -9,7 +9,7 @@
 // MARK: - Node Authentication Sheet
 
 /* Location: NodeAuthenticationSheet.swift - Navigation title for room authentication */
-"remoteNodes.auth.joinRoom" = "Unisciti alla sala";
+"remoteNodes.auth.joinRoom" = "Unisciti alla stanza";
 
 /* Location: NodeAuthenticationSheet.swift - Navigation title for repeater management */
 "remoteNodes.auth.management" = "Gestione";
@@ -27,7 +27,7 @@
 "remoteNodes.auth.type" = "Tipo";
 
 /* Location: NodeAuthenticationSheet.swift - Room type value */
-"remoteNodes.auth.typeRoom" = "Sala";
+"remoteNodes.auth.typeRoom" = "stanza";
 
 /* Location: NodeAuthenticationSheet.swift - Repeater type value */
 "remoteNodes.auth.typeRepeater" = "Ripetitore";
@@ -48,7 +48,7 @@
 "remoteNodes.auth.passwordTooLongRepeaters" = "I ripetitori MeshCore accettano solo password fino a %d caratteri. I caratteri in eccesso verranno ignorati.";
 
 /* Location: NodeAuthenticationSheet.swift - Password too long warning for rooms */
-"remoteNodes.auth.passwordTooLongRooms" = "Le sale MeshCore accettano solo password fino a %d caratteri. I caratteri in eccesso verranno ignorati.";
+"remoteNodes.auth.passwordTooLongRooms" = "Le stanze MeshCore accettano solo password fino a %d caratteri. I caratteri in eccesso verranno ignorati.";
 
 /* Location: NodeAuthenticationSheet.swift - Countdown text showing seconds remaining */
 "remoteNodes.auth.secondsRemaining" = "Fino a %d secondi rimanenti";
@@ -342,7 +342,7 @@
 // MARK: - Repeater Settings: Regions
 
 /* Location: RepeaterSettingsView.swift - Regions section title */
-"remoteNodes.settings.regions" = "Regioni";
+"remoteNodes.settings.regions" = "region";
 
 /* Location: RepeaterSettingsView.swift - Regions section footer */
 "remoteNodes.settings.regionsFooter" = "Salva sul ripetitore per mantenere le modifiche tra i riavvii.";
@@ -354,43 +354,43 @@
 "remoteNodes.settings.regions.allTrafficWildcard" = "* (Tutto il traffico)";
 
 /* Location: RepeaterSettingsView.swift - Home region picker label */
-"remoteNodes.settings.regions.homeRegion" = "Regione principale";
+"remoteNodes.settings.regions.homeRegion" = "region principale";
 
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
-"remoteNodes.settings.regions.floodToggleHint" = "Se disattivato, i pacchetti flood di questa regione vengono scartati";
+"remoteNodes.settings.regions.floodToggleHint" = "Se disattivato, i pacchetti flood di questa region vengono scartati";
 
 /* Location: RepeaterSettingsView.swift - Add region button */
-"remoteNodes.settings.regions.addRegion" = "Aggiungi regione";
+"remoteNodes.settings.regions.addRegion" = "Aggiungi region";
 
 /* Location: RepeaterSettingsView.swift - Add region alert title */
-"remoteNodes.settings.regions.addRegionTitle" = "Aggiungi regione";
+"remoteNodes.settings.regions.addRegionTitle" = "Aggiungi region";
 
 /* Location: RepeaterSettingsView.swift - Region name placeholder */
-"remoteNodes.settings.regions.regionName" = "Nome regione";
+"remoteNodes.settings.regions.regionName" = "Nome region";
 
 /* Location: RepeaterSettingsView.swift - Save regions to device button */
 "remoteNodes.settings.regions.saveToDevice" = "Salva sul ripetitore";
 
 /* Location: RepeaterSettingsViewModel.swift - Region save success */
 /* Location: RepeaterSettingsViewModel.swift - Region save failure */
-"remoteNodes.settings.regions.saveFailed" = "Salvataggio delle regioni non riuscito";
+"remoteNodes.settings.regions.saveFailed" = "Salvataggio delle region non riuscito";
 
 /* Location: RepeaterSettingsViewModel.swift - Region not found error */
-"remoteNodes.settings.regions.unknownRegion" = "Regione sconosciuta";
+"remoteNodes.settings.regions.unknownRegion" = "region sconosciuta";
 
 /* Location: RepeaterSettingsViewModel.swift - Region has children error */
-"remoteNodes.settings.regions.notEmpty" = "Rimuovi prima le regioni figlie";
+"remoteNodes.settings.regions.notEmpty" = "Rimuovi prima le region figlie";
 
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
-"remoteNodes.settings.regions.addFailed" = "Aggiunta della regione non riuscita";
+"remoteNodes.settings.regions.addFailed" = "Aggiunta della region non riuscita";
 
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
-"remoteNodes.settings.regions.removeFailed" = "Rimozione della regione non riuscita";
+"remoteNodes.settings.regions.removeFailed" = "Rimozione della region non riuscita";
 
 /* Location: RepeaterSettingsViewModel.swift - No regions on device */
-"remoteNodes.settings.regions.empty" = "Nessuna regione configurata";
+"remoteNodes.settings.regions.empty" = "Nessuna region configurata";
 
 // MARK: - Repeater Status
 
@@ -744,7 +744,7 @@
 "remoteNodes.room.viewOnlyHint" = "Tocca per accedere";
 
 /* Location: RoomConversationView.swift - Room info sheet title */
-"remoteNodes.room.infoTitle" = "Info sala";
+"remoteNodes.room.infoTitle" = "Info stanza";
 
 /* Location: RoomConversationView.swift - Details section header */
 "remoteNodes.room.details" = "Dettagli";
@@ -786,7 +786,7 @@
 "remoteNodes.room.disconnectedHint" = "Tocca per riconnetterti";
 
 /* Location: RoomConversationView.swift - VoiceOver announcement when room reconnects */
-"remoteNodes.room.reconnected" = "Sala riconnessa";
+"remoteNodes.room.reconnected" = "stanza riconnessa";
 
 // MARK: - Room Message Bubble
 
@@ -805,7 +805,7 @@
 // MARK: - Room Status
 
 /* Location: RoomStatusView.swift - Navigation title */
-"remoteNodes.roomStatus.title" = "Stato della sala";
+"remoteNodes.roomStatus.title" = "Stato della stanza";
 
 /* Location: RoomStatusView.swift - Posts received label */
 "remoteNodes.roomStatus.postsReceived" = "Post ricevuti";
@@ -816,10 +816,10 @@
 // MARK: - Room Settings
 
 /* Location: RoomSettingsView.swift - Navigation title */
-"remoteNodes.roomSettings.title" = "Impostazioni sala";
+"remoteNodes.roomSettings.title" = "Impostazioni stanza";
 
 /* Location: RoomSettingsView.swift - Room settings section header */
-"remoteNodes.roomSettings.roomSettingsSection" = "Impostazioni sala";
+"remoteNodes.roomSettings.roomSettingsSection" = "Impostazioni stanza";
 
 /* Location: RoomSettingsView.swift - Room settings section footer */
 "remoteNodes.roomSettings.roomSettingsFooter" = "Password ospite e accesso in sola lettura.";
@@ -834,20 +834,20 @@
 "remoteNodes.roomSettings.allowReadOnlyFooter" = "Consenti agli utenti senza password di connettersi in modalità sola lettura.";
 
 /* Location: RoomSettingsView.swift - Apply room settings button */
-"remoteNodes.roomSettings.applyRoomSettings" = "Applica impostazioni sala";
+"remoteNodes.roomSettings.applyRoomSettings" = "Applica impostazioni stanza";
 
 /* Location: RoomSettingsView.swift - Room behavior section footer */
 "remoteNodes.roomSettings.behaviorFooter" = "Intervalli di annuncio e salti flood.";
 
 /* Location: RoomSettingsView.swift - Identity section footer */
 /* Location: RoomSettingsView.swift - Reboot confirmation title */
-"remoteNodes.roomSettings.rebootConfirmTitle" = "Riavviare la sala?";
+"remoteNodes.roomSettings.rebootConfirmTitle" = "Riavviare la stanza?";
 
 /* Location: RoomSettingsView.swift - Reboot confirmation message */
-"remoteNodes.roomSettings.rebootMessage" = "La sala si riavvierà e sarà temporaneamente non disponibile.";
+"remoteNodes.roomSettings.rebootMessage" = "La stanza si riavvierà e sarà temporaneamente non disponibile.";
 
 /* Location: RoomSettingsView.swift - Radio restart warning */
-"remoteNodes.roomSettings.radioRestartWarning" = "Queste modifiche non avranno effetto finché la sala non viene riavviata";
+"remoteNodes.roomSettings.radioRestartWarning" = "Queste modifiche non avranno effetto finché la stanza non viene riavviata";
 
 /* Location: RoomSettingsView.swift - No service error */
 /* Location: RoomSettingsView.swift - Not connected error */

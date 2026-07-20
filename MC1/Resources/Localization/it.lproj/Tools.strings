@@ -660,7 +660,7 @@
 "tools.cli.helpHelp" = "  help\n    Mostra questo aiuto";
 
 /* Location: CLIToolViewModel.swift - Help: nodes command */
-"tools.cli.helpNodes" = "  nodes\n    Mostra elenco di ripetitori e sale";
+"tools.cli.helpNodes" = "  nodes\n    Mostra elenco di ripetitori e stanze";
 
 /* Location: CLIToolViewModel.swift - Help: channels command */
 "tools.cli.helpChannels" = "  channels\n    Mostra elenco di canali con numeri di slot del dispositivo";
