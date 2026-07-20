@@ -2,19 +2,19 @@ import Foundation
 @testable import MC1
 import Testing
 
-/// Covers the pure first-snapshot decision table: resolve-in-items gating,
-/// the consume-once latch, and the settled-load escape hatch.
+/// Covers the pure first-snapshot decision table: divider-row-on-screen
+/// gating, the consume-once latch, and the settled-load escape hatch.
 @Suite("ChatInitialScrollPolicy")
 struct ChatInitialScrollPolicyTests {
   @Test
-  func `divider target presents when it resolves in the current items`() {
+  func `divider target presents when its baked row is on screen`() {
     let divider = UUID()
     #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
       hasConsumed: false,
       unreadCount: 3,
       initialLoadSettled: true,
       dividerMessageID: divider,
-      itemIndexByID: [divider: 4]
+      dividerRowOnScreen: true
     ) == .present(target: divider))
   }
 
@@ -25,7 +25,19 @@ struct ChatInitialScrollPolicyTests {
       unreadCount: 3,
       initialLoadSettled: true,
       dividerMessageID: UUID(),
-      itemIndexByID: [UUID(): 0]
+      dividerRowOnScreen: false
+    ) == .withhold)
+  }
+
+  @Test
+  func `a resolved divider target whose item lacks the divider row withholds`() {
+    let divider = UUID()
+    #expect(ChatInitialScrollPolicy.firstSnapshotDecision(
+      hasConsumed: false,
+      unreadCount: 3,
+      initialLoadSettled: true,
+      dividerMessageID: divider,
+      dividerRowOnScreen: false
     ) == .withhold)
   }
 
@@ -36,7 +48,7 @@ struct ChatInitialScrollPolicyTests {
       unreadCount: 3,
       initialLoadSettled: false,
       dividerMessageID: nil,
-      itemIndexByID: [:]
+      dividerRowOnScreen: false
     ) == .withhold)
   }
 
@@ -47,7 +59,7 @@ struct ChatInitialScrollPolicyTests {
       unreadCount: 3,
       initialLoadSettled: true,
       dividerMessageID: nil,
-      itemIndexByID: [:]
+      dividerRowOnScreen: false
     ) == .present(target: nil))
   }
 
@@ -59,7 +71,7 @@ struct ChatInitialScrollPolicyTests {
       unreadCount: 3,
       initialLoadSettled: true,
       dividerMessageID: divider,
-      itemIndexByID: [divider: 4]
+      dividerRowOnScreen: true
     ) == .present(target: nil))
   }
 
@@ -71,7 +83,7 @@ struct ChatInitialScrollPolicyTests {
       unreadCount: 0,
       initialLoadSettled: false,
       dividerMessageID: divider,
-      itemIndexByID: [divider: 4]
+      dividerRowOnScreen: true
     ) == .present(target: nil))
   }
 }

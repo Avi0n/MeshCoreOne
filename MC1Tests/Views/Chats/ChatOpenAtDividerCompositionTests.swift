@@ -9,8 +9,8 @@ import Testing
 /// A `ChatCoordinator` outlives the push, so on reopen a fresh `ChatViewModel`
 /// reads state baked by the previous session. The open target must come from
 /// the current session's unread position — never a divider the previous
-/// session baked — and the timeline must stay withheld until that target
-/// resolves in the items actually on screen.
+/// session baked — and the timeline must stay withheld until the flag-bearing
+/// divider item is among the items actually on screen.
 @Suite("Open-at-divider composition")
 @MainActor
 struct ChatOpenAtDividerCompositionTests {
@@ -100,6 +100,27 @@ struct ChatOpenAtDividerCompositionTests {
   }
 
   @Test
+  func `a warm page containing the divider message but baked without the divider withholds`() async {
+    // Prior bake had no unread backlog, so items carry no divider flag even
+    // though this open treats those messages as unread.
+    let staleMessages = (0..<50).map { makeMessage(index: $0) }
+    let coordinator = await makeWarmCoordinator(staleMessages: staleMessages, staleUnreadCount: 0)
+    #expect(!coordinator.renderState.items.contains { $0.grouping.showNewMessagesDivider })
+
+    let reopenedViewModel = ChatViewModel()
+    reopenedViewModel.attachCoordinator(coordinator)
+    reopenedViewModel.bake.computeDividerPosition(from: staleMessages, unreadCount: 8, isDM: false)
+    #expect(reopenedViewModel.bake.newMessagesDividerMessageID == staleMessages[42].id)
+
+    let decision = firstSnapshotDecision(for: reopenedViewModel, unreadCount: 8)
+
+    // Id is on screen without the divider flag: presenting would spend the
+    // one-shot, and the later flag-bearing rebake would push content under
+    // the input bar.
+    #expect(decision == .withhold)
+  }
+
+  @Test
   func `a fully read conversation presents immediately with no target`() async {
     let staleMessages = (0..<50).map { makeMessage(index: $0) }
     let coordinator = await makeWarmCoordinator(staleMessages: staleMessages, staleUnreadCount: 20)
@@ -133,8 +154,8 @@ struct ChatOpenAtDividerCompositionTests {
   }
 }
 
-/// Resolve the decision exactly as `ChatConversationView.firstSnapshotDecision`
-/// does, so these tests exercise the production read against real composed state.
+/// Resolve the decision the same way `ChatTimeline.firstSnapshot` does, so
+/// these tests exercise the production readiness fact against real composed state.
 @MainActor
 private func firstSnapshotDecision(
   for viewModel: ChatViewModel,
@@ -142,12 +163,19 @@ private func firstSnapshotDecision(
   initialLoadSettled: Bool = false,
   hasConsumed: Bool = false
 ) -> ChatInitialScrollPolicy.FirstSnapshotDecision {
-  ChatInitialScrollPolicy.firstSnapshotDecision(
+  let dividerMessageID = viewModel.bake.newMessagesDividerMessageID
+  let items = viewModel.items
+  let itemIndexByID = viewModel.itemIndexByID
+  let dividerRowOnScreen = dividerMessageID.flatMap { id -> Bool? in
+    guard let index = itemIndexByID[id], items.indices.contains(index) else { return nil }
+    return items[index].grouping.showNewMessagesDivider
+  } ?? false
+  return ChatInitialScrollPolicy.firstSnapshotDecision(
     hasConsumed: hasConsumed,
     unreadCount: unreadCount,
     initialLoadSettled: initialLoadSettled,
-    dividerMessageID: viewModel.bake.newMessagesDividerMessageID,
-    itemIndexByID: viewModel.itemIndexByID
+    dividerMessageID: dividerMessageID,
+    dividerRowOnScreen: dividerRowOnScreen
   )
 }
 

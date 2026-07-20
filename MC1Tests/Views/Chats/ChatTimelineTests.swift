@@ -367,6 +367,39 @@ struct ChatTimelineTests {
     #expect(timeline.firstSnapshot == .present(target: nil))
   }
 
+  @Test
+  func `an open staged with no unread backlog never bakes a late divider`() async throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contactID = UUID()
+    for offset in 0..<5 {
+      try await dataStore.saveMessage(makeDirectMessage(
+        radioID: radioID, contactID: contactID,
+        timestamp: UInt32(1000 + offset), text: "m\(offset)"
+      ))
+    }
+    // Store reports three unread; pushed DTO reads zero, so the gate presents
+    // at the bottom before populate runs.
+    try await dataStore.saveContact(makeContact(radioID: radioID, id: contactID, unreadCount: 3))
+    let staleContact = makeContact(radioID: radioID, id: contactID, unreadCount: 0)
+
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contactID)
+    )
+    timeline.stageOpen(.dm(staleContact))
+    #expect(timeline.firstSnapshot == .present(target: nil))
+
+    _ = await timeline.open(.dm(staleContact), reactions: nil)
+    await timeline.coordinator?.buildItemsTask?.value
+
+    // A late divider from the store's fresher count would only grow a row
+    // already presented, so this open stays divider-free.
+    #expect(timeline.bake.newMessagesDividerMessageID == nil)
+    #expect(!timeline.items.contains { $0.grouping.showNewMessagesDivider })
+    #expect(timeline.firstSnapshot == .present(target: nil))
+  }
+
   // MARK: - Bake updates
 
   @Test

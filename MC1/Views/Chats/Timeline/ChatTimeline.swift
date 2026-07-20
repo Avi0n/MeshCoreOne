@@ -210,12 +210,17 @@ final class ChatTimeline {
   /// `itemIndexByID` read and the latch properties re-evaluate this whenever
   /// a decision input has changed.
   var firstSnapshot: ChatInitialScrollPolicy.FirstSnapshotDecision {
-    ChatInitialScrollPolicy.firstSnapshotDecision(
+    let dividerMessageID = bake.newMessagesDividerMessageID
+    let dividerRowOnScreen = dividerMessageID.flatMap { id -> Bool? in
+      guard let index = itemIndexByID[id], items.indices.contains(index) else { return nil }
+      return items[index].grouping.showNewMessagesDivider
+    } ?? false
+    return ChatInitialScrollPolicy.firstSnapshotDecision(
       hasConsumed: anchorConsumed,
       unreadCount: openUnreadCount,
       initialLoadSettled: initialLoadSettled,
-      dividerMessageID: bake.newMessagesDividerMessageID,
-      itemIndexByID: itemIndexByID
+      dividerMessageID: dividerMessageID,
+      dividerRowOnScreen: dividerRowOnScreen
     )
   }
 

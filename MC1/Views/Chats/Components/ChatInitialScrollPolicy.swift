@@ -8,8 +8,8 @@ enum ChatInitialScrollPolicy {
   /// snapshot it receives, so the timeline must stay withheld until the snapshot
   /// on screen is the one it should position on.
   enum FirstSnapshotDecision: Equatable {
-    /// Keep the timeline off screen; a divider target is expected but does not
-    /// yet resolve against the current items.
+    /// Keep the timeline off screen; a divider target is expected but its
+    /// flag-bearing item is not yet among the current items.
     case withhold
     /// Show the timeline, opening scrolled to `target` (nil opens at the bottom).
     case present(target: UUID?)
@@ -17,22 +17,25 @@ enum ChatInitialScrollPolicy {
 
   /// Decides the first snapshot for a conversation open. The divider target
   /// comes from the per-session bake, never from state a shared coordinator
-  /// carries over from a previous open, and presents only once it resolves in
-  /// the items currently on screen — a stale warm page therefore withholds.
-  /// `initialLoadSettled` is the escape hatch: a populate that finished (any
-  /// outcome) without a divider target has nothing to wait for.
+  /// carries over from a previous open, and presents only once the item baked
+  /// with the divider row is among the items currently on screen — a stale warm
+  /// page therefore withholds. `dividerRowOnScreen` is that readiness fact,
+  /// computed by the caller from the current items. `initialLoadSettled` is the
+  /// escape hatch: a populate that finished (any outcome) without a divider
+  /// target has nothing to wait for.
   static func firstSnapshotDecision(
     hasConsumed: Bool,
     unreadCount: Int,
     initialLoadSettled: Bool,
     dividerMessageID: UUID?,
-    itemIndexByID: [UUID: Int]
+    dividerRowOnScreen: Bool
   ) -> FirstSnapshotDecision {
     guard !hasConsumed, unreadCount > 0 else { return .present(target: nil) }
     if let dividerMessageID {
-      return itemIndexByID[dividerMessageID] != nil
-        ? .present(target: dividerMessageID)
-        : .withhold
+      // Present only when the flag-bearing row is on screen: id membership
+      // alone can be a prior bake without the flag, and presenting that spends
+      // the one-shot before a later rebake grows a row under the input bar.
+      return dividerRowOnScreen ? .present(target: dividerMessageID) : .withhold
     }
     return initialLoadSettled ? .present(target: nil) : .withhold
   }

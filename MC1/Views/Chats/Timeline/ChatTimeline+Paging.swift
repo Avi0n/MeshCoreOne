@@ -16,6 +16,12 @@ extension ChatTimeline {
     // coming, so the anchor decision must stop waiting for one.
     defer { initialLoadSettled = true }
     guard let writer else { return .unavailable }
+    // Interactive opens staged with no unread have already presented at the
+    // bottom; pre-latch so a fresher store unread count cannot bake a late
+    // divider that grows a presented row. Primes carry no anchor and skip it.
+    if role == .interactive, openUnreadCount == 0 {
+      bake.dividerComputed = true
+    }
     let context = reactions.map { indexing in
       ChatTimelinePopulator.ReactionIndexingContext(
         reactionService: indexing.service,

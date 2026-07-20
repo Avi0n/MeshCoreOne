@@ -164,24 +164,12 @@ struct ChatViewModelPaginationTests {
     #expect(viewModel.messages.isEmpty)
   }
 
-  /// Verifies that `loadOlderMessages` clears `isLoadingOlder` before
-  /// entering the reaction-indexing loop, so the pagination spinner is not
-  /// held open by a slow `ReactionService.indexMessage` actor hop on a
-  /// busy channel. The structural ordering is enforced in
-  /// `ChatViewModel.loadOlderMessages`: the spinner is cleared immediately
-  /// after `buildItems()` and before the channel/DM reaction-indexing
-  /// blocks. This test exercises the success path with the reaction-service
-  /// provider at its nil default (so the indexing loops are skipped) and asserts the post-return
-  /// state matches the documented contract — `isLoadingOlder == false`,
-  /// older messages prepended, no error surfaced. The deeper "spinner
-  /// already false while indexing still running" property is verified by
-  /// source-level review at PR time; `ReactionService` is a concrete
-  /// actor without a protocol surface, so an injectable continuation-
-  /// blocking stub is not available.
-  ///
-  /// `ChatTimeline.loadOlder` pages only an open conversation, so the test
-  /// opens via `primeInitialMessages` first and seeds more than one page so
-  /// the pagination call has an older page left to prepend.
+  /// Asserts `loadOlderMessages` returns with `isLoadingOlder == false` after
+  /// prepending older messages. Production clears the spinner in
+  /// `ChatTimeline.loadOlder` before reaction indexing; this path skips
+  /// indexing because the reaction-service provider is nil. Seeds more than
+  /// one page via `primeInitialMessages` so the pagination call has an older
+  /// page left to prepend.
   @Test
   func `loadOlderMessages clears isLoadingOlder on the success path`() async throws {
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -274,6 +262,10 @@ struct ChatViewModelChannelPaginationTests {
     viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
     viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
 
+    // Match `ChatConversationView` init: the pushed DTO stages the open before
+    // the load task runs; an unstaged open reads as already presented at the
+    // bottom and bakes no divider.
+    viewModel.timeline.stageOpen(.channel(channel))
     await viewModel.loadChannelMessages(for: channel)
 
     #expect(viewModel.messages.count == ChatCoordinator.initialPageSize(unreadCount: unread),
