@@ -112,6 +112,7 @@ struct JoinChannelConfirmationSheet: View {
     }
 
     isJoining = true
+    defer { isJoining = false }
     errorMessage = nil
 
     do {
@@ -122,19 +123,27 @@ struct JoinChannelConfirmationSheet: View {
         secret: channelResult.secret
       )
 
-      if let newChannel = try await dataStore.fetchChannel(radioID: radioID, index: selectedSlot) {
-        successTrigger += 1
-        onComplete(newChannel)
-        dismiss()
-      } else {
+      guard let newChannel = try await dataStore.fetchChannel(radioID: radioID, index: selectedSlot) else {
         errorMessage = L10n.Chats.Chats.JoinFromMessage.Error.loadFailed
+        return
       }
+
+      let completed = await ChannelJoinFloodScopeApplier.applyIfNeeded(
+        channel: newChannel,
+        regionScope: channelResult.regionScope,
+        setFloodScope: { channelID, scope in
+          try await dataStore.setChannelFloodScope(channelID, floodScope: scope)
+        },
+        logger: logger
+      )
+
+      successTrigger += 1
+      onComplete(completed)
+      dismiss()
     } catch {
       logger.error("Failed to join channel from link: \(error)")
       errorMessage = error.userFacingMessage
     }
-
-    isJoining = false
   }
 }
 
@@ -209,6 +218,20 @@ private struct ChannelJoinConfirmationContent: View {
           .font(.caption)
           .monospaced()
           .foregroundStyle(.tertiary)
+
+        if let regionScope = channelResult.regionScope {
+          Text(L10n.Chats.Chats.JoinFromMessage.regionScope(regionScope))
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
+
+        if channelResult.hasHashtagSecretMismatch {
+          Text(L10n.Chats.Chats.JoinFromMessage.hashtagSecretMismatch)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal)
+        }
       }
 
       if let errorMessage {
@@ -236,7 +259,8 @@ private struct ChannelJoinConfirmationContent: View {
 #Preview {
   let result = MeshCoreURLParser.ChannelResult(
     name: "EmergencyOps",
-    secret: Data(repeating: 0xBB, count: 16)
+    secret: Data(repeating: 0xBB, count: 16),
+    regionScope: "testregion"
   )
   JoinChannelConfirmationSheet(channelResult: result) { _ in }
     .environment(\.appState, AppState())

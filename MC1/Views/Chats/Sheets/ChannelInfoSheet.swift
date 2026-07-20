@@ -90,7 +90,7 @@ struct ChannelInfoSheet: View {
 
         // QR Code Section (only for private channels with secrets)
         if channel.hasSecret, !channel.isPublicChannel {
-          ChannelInfoQRCodeSection(channel: channel)
+          ChannelInfoQRCodeSection(channel: channel, floodScope: selectedFloodScope)
         }
 
         // Secret Key Section (only for private channels)
@@ -392,6 +392,7 @@ private struct ChannelInfoHeaderSection: View {
 private struct ChannelInfoQRCodeSection: View {
   @Environment(\.appTheme) private var theme
   let channel: ChannelDTO
+  let floodScope: ChannelFloodScope
 
   @State private var qrImage: UIImage?
 
@@ -419,15 +420,17 @@ private struct ChannelInfoQRCodeSection: View {
       Text(L10n.Chats.Chats.ChannelInfo.shareChannel)
     }
     .themedRowBackground(theme)
-    .task {
+    .task(id: floodScope) {
       qrImage = generateQRCode()
     }
   }
 
   private func generateQRCode() -> UIImage? {
-    // Format: meshcore://channel/add?name=<name>&secret=<hex>
-    let urlString = "meshcore://channel/add?name=\(channel.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&secret=\(channel.secret.uppercaseHexString())"
-
+    let urlString = ChannelService.exportChannelURI(
+      name: channel.name,
+      secret: channel.secret,
+      floodScope: floodScope
+    )
     return QRCodeGenerator.generate(from: urlString)
   }
 }

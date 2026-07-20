@@ -6,13 +6,34 @@ import MC1Services
 enum MeshCoreURLParser {
   static let scheme = "meshcore"
 
+  private static let channelHost = "channel"
+  private static let channelPath = "/add"
+  private static let channelNameKey = "name"
+  private static let channelSecretKey = "secret"
+  private static let channelRegionScopeKey = "region_scope"
+  private static let hashtagPrefix: Character = "#"
+
   /// Parsed channel data from a meshcore://channel/add URL
   struct ChannelResult: Identifiable {
     let name: String
     let secret: Data
+    /// Optional app-side flood-scope region name from `region_scope`. Not a radio field.
+    let regionScope: String?
 
     var id: String {
       secret.uppercaseHexString()
+    }
+
+    /// True when `name` is a valid hashtag shape but `secret` is not the public name-hash.
+    /// Callers may warn; they must not refuse the join on this alone.
+    var hasHashtagSecretMismatch: Bool {
+      MeshCoreURLParser.hasHashtagSecretMismatch(name: name, secret: secret)
+    }
+
+    init(name: String, secret: Data, regionScope: String? = nil) {
+      self.name = name
+      self.secret = secret
+      self.regionScope = regionScope
     }
   }
 
@@ -22,26 +43,56 @@ enum MeshCoreURLParser {
 
   /// Parses a meshcore://channel/add URL string.
   /// Returns nil if the string is not a valid channel URL.
+  ///
+  /// Secret rules (explicit secret always wins over name-hash):
+  /// - Valid 32-char hex `secret`: use bytes as-is; never re-derive from name.
+  /// - Missing/empty `secret` with `#` name: normalize hashtag and derive
+  ///   `ChannelService.hashSecret(name)`. Reject invalid hashtag bodies.
+  /// - Missing/empty `secret` without leading `#`: fail (bare names are not hashtags).
+  /// - Present but invalid `secret`: fail; do not fall back to name-hash.
   static func parseChannelURL(_ string: String) -> ChannelResult? {
     guard let url = URL(string: string),
-          url.scheme == "meshcore",
-          url.host() == "channel",
-          url.path() == "/add",
+          url.scheme == scheme,
+          url.host() == channelHost,
+          url.path() == channelPath,
           let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
           let queryItems = components.queryItems else {
       return nil
     }
 
-    let name = queryItems.first(where: { $0.name == "name" })?.value ?? ""
-    let secretHex = queryItems.first(where: { $0.name == "secret" })?.value ?? ""
+    let name = queryItems.first(where: { $0.name == channelNameKey })?.value ?? ""
+    guard !name.isEmpty else { return nil }
 
-    guard !name.isEmpty,
-          let secretData = Data(hexString: secretHex),
-          secretData.count == 16 else {
-      return nil
+    let secretRaw = queryItems.first(where: { $0.name == channelSecretKey })?.value
+    let regionScope = normalizedRegionScope(
+      queryItems.first(where: { $0.name == channelRegionScopeKey })?.value
+    )
+
+    if let secretRaw, !secretRaw.isEmpty {
+      guard let secretData = Data(hexString: secretRaw),
+            secretData.count == ProtocolLimits.channelSecretSize else {
+        return nil
+      }
+      return ChannelResult(name: name, secret: secretData, regionScope: regionScope)
     }
 
-    return ChannelResult(name: name, secret: secretData)
+    guard name.first == hashtagPrefix else { return nil }
+
+    let body = String(name.dropFirst())
+    guard HashtagUtilities.isValidHashtagName(body) else { return nil }
+
+    let normalizedName = String(hashtagPrefix) + body.lowercased()
+    let secret = ChannelService.hashSecret(normalizedName)
+    return ChannelResult(name: normalizedName, secret: secret, regionScope: regionScope)
+  }
+
+  /// True when `name` is a valid hashtag shape and `secret` is not the public name-hash.
+  static func hasHashtagSecretMismatch(name: String, secret: Data) -> Bool {
+    guard name.first == hashtagPrefix else { return false }
+    let body = String(name.dropFirst())
+    guard HashtagUtilities.isValidHashtagName(body) else { return false }
+    let expected = ChannelService.hashSecret(String(hashtagPrefix) + body.lowercased())
+    return secret != expected
   }
 
   /// Parses a meshcore://contact/add URL string.
@@ -103,5 +154,15 @@ enum MeshCoreURLParser {
       return nil
     }
     return Double(value)
+  }
+
+  /// Trims whitespace and caps to the flood-scope name byte limit. Empty after
+  /// trim/cap becomes nil so join never persists a blank region preference.
+  static func normalizedRegionScope(_ value: String?) -> String? {
+    guard let value else { return nil }
+    let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return nil }
+    let capped = trimmed.utf8Prefix(maxBytes: ProtocolLimits.maxDefaultFloodScopeNameBytes)
+    return capped.isEmpty ? nil : capped
   }
 }

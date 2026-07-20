@@ -78,7 +78,9 @@ struct ChatLinkRouterTests {
     let appState = makeAppState()
     appState.navigation.selectedTab = AppTab.nodes.rawValue
     let secret = String(repeating: "ab", count: 16) // 32 hex chars = 16-byte channel secret
-    let url = try #require(URL(string: "meshcore://channel/add?name=Test&secret=\(secret)"))
+    let url = try #require(
+      URL(string: "meshcore://channel/add?name=Test&secret=\(secret)&region_scope=testregion")
+    )
 
     let handled = ChatLinkRouter.routeExternalOpen(url, appState: appState)
 
@@ -86,6 +88,53 @@ struct ChatLinkRouterTests {
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
     try await Task.sleep(for: .milliseconds(50))
     #expect(appState.navigation.pendingChannelLink?.name == "Test")
+    #expect(appState.navigation.pendingChannelLink?.regionScope == "testregion")
+  }
+
+  @Test
+  func `Existing channel match navigates without applying URL region_scope`() async throws {
+    let appState = makeAppState()
+    let radioID = UUID()
+    let deviceID = UUID()
+    let secret = Data(repeating: 0xCD, count: ProtocolLimits.channelSecretSize)
+    let existing = ChannelDTO(
+      id: UUID(),
+      radioID: radioID,
+      index: 1,
+      name: "Ops",
+      secret: secret,
+      isEnabled: true,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      floodScope: .region("Germany")
+    )
+
+    appState.connectionManager.persistConnection(
+      deviceID: deviceID,
+      radioID: radioID,
+      deviceName: "TestRadio"
+    )
+    #if DEBUG
+      appState.connectionManager.testLastConnectedDeviceID = deviceID
+    #endif
+
+    let store = try #require(appState.offlineDataStore)
+    try await store.saveChannel(existing)
+
+    let secretHex = secret.uppercaseHexString()
+    let url = try #require(
+      URL(string: "meshcore://channel/add?name=Ops&secret=\(secretHex)&region_scope=attacker")
+    )
+    let handled = ChatLinkRouter.route(url, appState: appState)
+    #expect(handled)
+    try await Task.sleep(for: .milliseconds(80))
+
+    #expect(appState.navigation.pendingChannelLink == nil)
+    #expect(appState.navigation.pendingChannel?.id == existing.id)
+    #expect(appState.navigation.pendingChannel?.floodScope == .region("Germany"))
+
+    let fetched = try await store.fetchChannel(id: existing.id)
+    #expect(fetched?.floodScope == .region("Germany"))
   }
 
   @Test

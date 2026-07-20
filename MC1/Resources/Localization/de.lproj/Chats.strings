@@ -509,6 +509,12 @@
 /* Location: JoinHashtagFromMessageView.swift - Error when channel created but couldn't be loaded */
 "chats.joinFromMessage.error.loadFailed" = "Kanal erstellt, konnte aber nicht geladen werden.";
 
+/* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
+"chats.joinFromMessage.regionScope" = "Region: %@";
+
+/* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
+"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+
 // MARK: - Scan Channel QR View
 
 /* Location: ScanChannelQRView.swift - Navigation title */

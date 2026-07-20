@@ -1,5 +1,6 @@
 import AudioToolbox
 import MC1Services
+import OSLog
 import SwiftUI
 import VisionKit
 
@@ -82,11 +83,22 @@ struct ScanChannelQRView: View {
       )
 
       // Fetch the joined channel to return it
-      var joinedChannel: ChannelDTO?
-      if let channels = try? await appState.services?.dataStore.fetchChannels(radioID: radioID) {
-        joinedChannel = channels.first { $0.index == selectedSlot }
+      guard let dataStore = appState.services?.dataStore,
+            let channels = try? await dataStore.fetchChannels(radioID: radioID),
+            let joined = channels.first(where: { $0.index == selectedSlot }) else {
+        onComplete(nil)
+        return
       }
-      onComplete(joinedChannel)
+
+      let completed = await ChannelJoinFloodScopeApplier.applyIfNeeded(
+        channel: joined,
+        regionScope: channel.regionScope,
+        setFloodScope: { channelID, scope in
+          try await dataStore.setChannelFloodScope(channelID, floodScope: scope)
+        },
+        logger: Logger(subsystem: "com.mc1", category: "ScanChannelQRView")
+      )
+      onComplete(completed)
     } catch {
       errorMessage = error.userFacingMessage
     }
@@ -157,8 +169,16 @@ private struct ScanConfirmationContent: View {
             .font(.system(.caption, design: .monospaced))
             .foregroundStyle(.secondary)
         }
+
+        if let regionScope = scannedChannel.regionScope {
+          LabeledContent(L10n.Chats.Chats.ChannelInfo.region, value: regionScope)
+        }
       } header: {
         Text(L10n.Chats.Chats.CreatePrivate.Section.details)
+      } footer: {
+        if scannedChannel.hasHashtagSecretMismatch {
+          Text(L10n.Chats.Chats.JoinFromMessage.hashtagSecretMismatch)
+        }
       }
       .themedRowBackground(theme)
 

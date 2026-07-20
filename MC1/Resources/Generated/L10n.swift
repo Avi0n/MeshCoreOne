@@ -439,12 +439,18 @@ public enum L10n {
       public enum JoinFromMessage {
         /// Location: JoinHashtagFromMessageView.swift - Description of hashtag channels
         public static let description = L10n.tr("Chats", "chats.joinFromMessage.description", fallback: "Hashtag channels are public. Anyone can join by entering the same name.")
+        /// Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret
+        public static let hashtagSecretMismatch = L10n.tr("Chats", "chats.joinFromMessage.hashtagSecretMismatch", fallback: "This secret does not match the public hashtag key. You will join a private channel that uses this name.")
         /// Location: JoinHashtagFromMessageView.swift - Button to join channel - %@ is channel name
         public static func joinButton(_ p1: Any) -> String {
           return L10n.tr("Chats", "chats.joinFromMessage.joinButton", String(describing: p1), fallback: "Join %@")
         }
         /// Location: JoinHashtagFromMessageView.swift - Loading text
         public static let loading = L10n.tr("Chats", "chats.joinFromMessage.loading", fallback: "Loading...")
+        /// Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name
+        public static func regionScope(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.joinFromMessage.regionScope", String(describing: p1), fallback: "Region: %@")
+        }
         /// Location: JoinHashtagFromMessageView.swift - Navigation title
         public static let title = L10n.tr("Chats", "chats.joinFromMessage.title", fallback: "Join Channel")
         public enum Error {

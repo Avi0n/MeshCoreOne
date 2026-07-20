@@ -238,9 +238,11 @@ private struct ShareChannelContent: View {
   private func generateQRCode() -> UIImage? {
     guard let secret = generatedSecret else { return nil }
 
-    // Format: meshcore://channel/add?name=<name>&secret=<hex>
-    let urlString = "meshcore://channel/add?name=\(channelName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")&secret=\(secret.uppercaseHexString())"
-
+    let urlString = ChannelService.exportChannelURI(
+      name: channelName,
+      secret: secret,
+      floodScope: .inherit
+    )
     return QRCodeGenerator.generate(from: urlString)
   }
 }
