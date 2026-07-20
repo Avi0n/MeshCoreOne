@@ -1,7 +1,9 @@
 import MapKit
 import MC1Services
+import PhotosUI
 import SwiftUI
 import UIKit
+import UniformTypeIdentifiers
 
 /// Result of a ping operation
 enum PingResult {
@@ -97,6 +99,12 @@ struct ContactDetailView: View {
   @State private var isSharing = false
   @State private var showShareSuccess = false
   @State private var headerHeight: CGFloat = 150
+  // Avatar picking state
+  @State private var showAvatarSourceMenu = false
+  @State private var showAvatarPhotosPicker = false
+  @State private var showAvatarFileImporter = false
+  @State private var avatarPickerItem: PhotosPickerItem?
+  @State private var isSavingAvatar = false
 
   init(contact: ContactDTO, showFromDirectChat: Bool = false, onClearMessages: @escaping () -> Void = {}) {
     self.contact = contact
@@ -118,7 +126,9 @@ struct ContactDetailView: View {
       ContactProfileSection(
         currentContact: currentContact,
         contactTypeLabel: contactTypeLabel,
-        measuredHeight: $headerHeight
+        measuredHeight: $headerHeight,
+        isSavingAvatar: isSavingAvatar,
+        onEditAvatar: { showAvatarSourceMenu = true }
       )
 
       // Quick actions
@@ -244,6 +254,27 @@ struct ContactDetailView: View {
     }
     .onAppear {
       nickname = currentContact.nickname ?? ""
+    }
+    .confirmationDialog(
+      L10n.Contacts.Contacts.Detail.Avatar.chooseSource,
+      isPresented: $showAvatarSourceMenu,
+      titleVisibility: .visible
+    ) {
+      Button(L10n.Contacts.Contacts.Detail.Avatar.choosePhoto) { showAvatarPhotosPicker = true }
+      Button(L10n.Contacts.Contacts.Detail.Avatar.chooseFile) { showAvatarFileImporter = true }
+      if currentContact.avatarImageData != nil {
+        Button(L10n.Contacts.Contacts.Detail.Avatar.removePhoto, role: .destructive) {
+          Task { await removeAvatar() }
+        }
+      }
+      Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
+    }
+    .photosPicker(isPresented: $showAvatarPhotosPicker, selection: $avatarPickerItem, matching: .images)
+    .onChange(of: avatarPickerItem) { _, newItem in
+      Task { await loadPickedAvatarPhoto(newItem) }
+    }
+    .fileImporter(isPresented: $showAvatarFileImporter, allowedContentTypes: [.image]) { result in
+      Task { await handleAvatarFileImport(result) }
     }
     .task {
       pathViewModel.configure(
@@ -496,6 +527,85 @@ struct ContactDetailView: View {
     }
   }
 
+  private func loadPickedAvatarPhoto(_ item: PhotosPickerItem?) async {
+    defer { avatarPickerItem = nil }
+    guard let item else { return }
+    do {
+      guard let data = try await item.loadTransferable(type: Data.self) else {
+        errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
+        return
+      }
+      await saveAvatar(data: data)
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  private func handleAvatarFileImport(_ result: Result<URL, Error>) async {
+    switch result {
+    case let .success(url):
+      let didAccess = url.startAccessingSecurityScopedResource()
+      defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
+      do {
+        let data = try Data(contentsOf: url)
+        await saveAvatar(data: data)
+      } catch {
+        errorMessage = error.userFacingMessage
+      }
+    case let .failure(error):
+      errorMessage = error.userFacingMessage
+    }
+  }
+
+  private func saveAvatar(data: Data) async {
+    isSavingAvatar = true
+    let processed = await Task.detached(priority: .userInitiated) {
+      Self.processAvatarImage(data: data)
+    }.value
+    guard let processed else {
+      errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
+      isSavingAvatar = false
+      return
+    }
+    do {
+      try await appState.services?.contactService.updateContactAvatar(
+        contactID: currentContact.id,
+        imageData: processed
+      )
+      await refreshContact()
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+    isSavingAvatar = false
+  }
+
+  private func removeAvatar() async {
+    isSavingAvatar = true
+    do {
+      try await appState.services?.contactService.updateContactAvatar(contactID: currentContact.id, imageData: nil)
+      await refreshContact()
+    } catch {
+      errorMessage = error.userFacingMessage
+    }
+    isSavingAvatar = false
+  }
+
+  /// Downscales to a max 512pt dimension and re-encodes as JPEG so avatars stay small in the store.
+  /// `nonisolated` so it can run on a background thread via `Task.detached` in `saveAvatar`.
+  private nonisolated static func processAvatarImage(data: Data) -> Data? {
+    guard let image = UIImage(data: data) else { return nil }
+    let maxDimension: CGFloat = 512
+    let scale = min(1, maxDimension / max(image.size.width, image.size.height))
+    let targetSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1
+    let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+    let resized = renderer.image { _ in
+      image.draw(in: CGRect(origin: .zero, size: targetSize))
+    }
+    return resized.jpegData(compressionQuality: 0.8)
+  }
+
   // MARK: - Helpers
 
   private var contactTypeLabel: String {
@@ -522,16 +632,58 @@ struct ContactDetailView: View {
 
 private struct ContactDetailAvatarView: View {
   let contact: ContactDTO
+  let isSavingAvatar: Bool
+  let onEditAvatar: () -> Void
 
   var body: some View {
-    switch contact.type {
-    case .chat:
-      ContactAvatar(contact: contact, size: 150)
-    case .repeater:
-      NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 150)
-    case .room:
-      NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 150)
+    if contact.type == .chat {
+      Button(action: onEditAvatar) {
+        ZStack {
+          ContactAvatar(contact: contact, size: 150)
+          if isSavingAvatar {
+            Circle()
+              .fill(.black.opacity(0.4))
+              .frame(width: 150, height: 150)
+            ProgressView()
+              .tint(.white)
+          }
+          editBadge
+        }
+      }
+      .buttonStyle(.plain)
+      .disabled(isSavingAvatar)
+      .accessibilityLabel(accessibilityLabel)
+    } else {
+      switch contact.type {
+      case .repeater:
+        NodeAvatar(publicKey: contact.publicKey, role: .repeater, size: 150)
+      case .room:
+        NodeAvatar(publicKey: contact.publicKey, role: .roomServer, size: 150)
+      case .chat:
+        EmptyView()
+      }
     }
+  }
+
+  private var accessibilityLabel: String {
+    guard isSavingAvatar else {
+      return "\(contact.displayName), \(L10n.Contacts.Contacts.Detail.Avatar.chooseSource)"
+    }
+    return "\(contact.displayName), \(L10n.Contacts.Contacts.Detail.Avatar.savingAnnouncement)"
+  }
+
+  private var editBadge: some View {
+    VStack {
+      Spacer()
+      HStack {
+        Spacer()
+        Image(systemName: "camera.circle.fill")
+          .font(.system(size: 32))
+          .symbolRenderingMode(.palette)
+          .foregroundStyle(.white, .gray)
+      }
+    }
+    .frame(width: 150, height: 150)
   }
 }
 
@@ -539,11 +691,17 @@ private struct ContactProfileSection: View {
   let currentContact: ContactDTO
   let contactTypeLabel: String
   @Binding var measuredHeight: CGFloat
+  let isSavingAvatar: Bool
+  let onEditAvatar: () -> Void
 
   var body: some View {
     Section {
       VStack(spacing: 12) {
-        ContactDetailAvatarView(contact: currentContact)
+        ContactDetailAvatarView(
+          contact: currentContact,
+          isSavingAvatar: isSavingAvatar,
+          onEditAvatar: onEditAvatar
+        )
 
         VStack(spacing: 4) {
           Text(currentContact.displayName)

@@ -94,6 +94,8 @@ public actor PersistenceStore: PersistenceStoreProtocol {
   ///          immutable, and backup import dedupes them store-wide, so existing
   ///          stores hold no duplicates) and RxLogEntry [radioID, receivedAt]
   ///          index.
+  /// - v5→v6: Added Contact.avatarImageData (Data?, default nil) storing a
+  ///          user-picked profile picture as a compressed JPEG blob.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

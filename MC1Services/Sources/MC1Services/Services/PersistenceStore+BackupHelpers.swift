@@ -228,6 +228,10 @@ extension PersistenceStore {
       contact.customOCVArrayString = backupOCV
       changed = true
     }
+    if contact.avatarImageData == nil, let backupAvatar = dto.avatarImageData {
+      contact.avatarImageData = backupAvatar
+      changed = true
+    }
     return changed
   }
 

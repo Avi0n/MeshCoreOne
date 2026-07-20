@@ -510,7 +510,8 @@ public actor ContactService {
         unreadCount: isBeingBlocked ? 0 : existing.unreadCount,
         unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 
@@ -554,15 +555,30 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: existing.isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: preset,
-        customOCVArrayString: customArray
+        customOCVArrayString: customArray,
+        avatarImageData: existing.avatarImageData
       )
     )
 
     try await dataStore.saveContact(updated)
+  }
+
+  /// Updates a contact's locally stored profile picture.
+  /// - Parameters:
+  ///   - contactID: The contact's ID
+  ///   - imageData: Compressed JPEG data for the new avatar, or `nil` to remove it
+  public func updateContactAvatar(contactID: UUID, imageData: Data?) async throws {
+    guard let existing = try await dataStore.fetchContact(id: contactID) else {
+      throw ContactServiceError.contactNotFound
+    }
+
+    try await dataStore.saveContact(existing.with(avatarImageData: imageData))
   }
 
   // MARK: - Device Favorite Sync
@@ -625,11 +641,14 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 
@@ -700,11 +719,14 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: existing.isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 

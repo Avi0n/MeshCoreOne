@@ -796,7 +796,8 @@ struct BackupIntegrationTests {
       unreadCount: 7,
       unreadMentionCount: 2,
       ocvPreset: OCVPreset.custom.rawValue,
-      customOCVArrayString: "4200,4100,4000"
+      customOCVArrayString: "4200,4100,4000",
+      avatarImageData: Data(repeating: 0xAA, count: 16)
     )
 
     let envelope = AppBackupEnvelope.test(
@@ -825,6 +826,79 @@ struct BackupIntegrationTests {
     #expect(mergedContact.unreadMentionCount == 2)
     #expect(mergedContact.ocvPreset == OCVPreset.custom.rawValue)
     #expect(mergedContact.customOCVArrayString == "4200,4100,4000")
+    #expect(mergedContact.avatarImageData == Data(repeating: 0xAA, count: 16))
+  }
+
+  // MARK: - Test 11b: avatarImageData backup round-trip
+
+  @Test
+  func `Contact avatarImageData survives encode decode export import and merge`() async throws {
+    // Encode/decode round-trip with non-nil data.
+    let withAvatar = ContactDTO.testContact(avatarImageData: Data(repeating: 0x11, count: 8))
+    let encoded = try JSONEncoder().encode(withAvatar)
+    let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
+    #expect(decoded.avatarImageData == Data(repeating: 0x11, count: 8))
+
+    // Legacy payload missing the key entirely decodes to nil, not a decode failure.
+    var legacyJSON = try #require(
+      JSONSerialization.jsonObject(with: encoded) as? [String: Any]
+    )
+    legacyJSON.removeValue(forKey: "avatarImageData")
+    let legacyData = try JSONSerialization.data(withJSONObject: legacyJSON)
+    let legacyDecoded = try JSONDecoder().decode(ContactDTO.self, from: legacyData)
+    #expect(legacyDecoded.avatarImageData == nil)
+
+    // Export -> import round-trip onto a fresh store preserves the avatar on insert.
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let sourceContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xE3, count: 32),
+      name: "Bob",
+      avatarImageData: Data(repeating: 0x22, count: 8)
+    )
+    try await sourceStore.saveContact(sourceContact)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let importResult = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(importResult.contactsInserted == 1)
+
+    let insertedContact = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: sourceContact.publicKey)
+    )
+    #expect(insertedContact.avatarImageData == Data(repeating: 0x22, count: 8))
+
+    // Merge onto an existing contact with no local avatar adopts the backup's.
+    let existingNoAvatar = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xE4, count: 32),
+      name: "Carol",
+      avatarImageData: nil
+    )
+    try await destStore.saveContact(existingNoAvatar)
+
+    let backupWithAvatar = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: existingNoAvatar.publicKey,
+      name: "Carol",
+      avatarImageData: Data(repeating: 0x33, count: 8)
+    )
+    let mergeEnvelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      contacts: [backupWithAvatar]
+    )
+    let mergeResult = try await service.importBackup(envelope: mergeEnvelope, into: destStore)
+    #expect(mergeResult.contactsSkipped == 1)
+
+    let mergedCarol = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: existingNoAvatar.publicKey)
+    )
+    #expect(mergedCarol.avatarImageData == Data(repeating: 0x33, count: 8))
   }
 
   // MARK: - Test 12: Merge import — channel metadata restored

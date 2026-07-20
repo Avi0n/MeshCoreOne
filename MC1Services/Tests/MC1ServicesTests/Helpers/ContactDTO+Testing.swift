@@ -29,7 +29,8 @@ extension ContactDTO {
     isFavorite: Bool = false,
     lastMessageDate: Date? = nil,
     unreadCount: Int = 0,
-    unreadMentionCount: Int = 0
+    unreadMentionCount: Int = 0,
+    avatarImageData: Data? = nil
   ) -> ContactDTO {
     ContactDTO(
       id: id,
@@ -50,7 +51,8 @@ extension ContactDTO {
       isFavorite: isFavorite,
       lastMessageDate: lastMessageDate,
       unreadCount: unreadCount,
-      unreadMentionCount: unreadMentionCount
+      unreadMentionCount: unreadMentionCount,
+      avatarImageData: avatarImageData
     )
   }
 }

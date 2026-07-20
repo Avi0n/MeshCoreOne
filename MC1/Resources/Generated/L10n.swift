@@ -1327,6 +1327,20 @@ public enum L10n {
             }
           }
         }
+        public enum Avatar {
+          /// Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file
+          public static let chooseFile = L10n.tr("Contacts", "contacts.detail.avatar.chooseFile", fallback: "Choose File...")
+          /// Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library
+          public static let choosePhoto = L10n.tr("Contacts", "contacts.detail.avatar.choosePhoto", fallback: "Choose Photo")
+          /// Location: ContactDetailView.swift - Purpose: Avatar edit menu title
+          public static let chooseSource = L10n.tr("Contacts", "contacts.detail.avatar.chooseSource", fallback: "Change Profile Picture")
+          /// Location: ContactDetailView.swift - Purpose: Error shown when the picked file isn't a valid image
+          public static let invalidImage = L10n.tr("Contacts", "contacts.detail.avatar.invalidImage", fallback: "That file couldn't be used as a profile picture.")
+          /// Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo
+          public static let removePhoto = L10n.tr("Contacts", "contacts.detail.avatar.removePhoto", fallback: "Remove Photo")
+          /// Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved
+          public static let savingAnnouncement = L10n.tr("Contacts", "contacts.detail.avatar.savingAnnouncement", fallback: "Saving photo")
+        }
         public enum Error {
           /// Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error
           public static let servicesUnavailable = L10n.tr("Contacts", "contacts.detail.error.servicesUnavailable", fallback: "Services not available")
