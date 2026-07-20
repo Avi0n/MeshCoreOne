@@ -69,7 +69,7 @@ enum ChatKeyboardLift {
 }
 
 extension EnvironmentValues {
-  // Owned keyboard lift applied to chat bottom chrome. Zero when the keyboard is down.
+  /// Owned keyboard lift applied to chat bottom chrome. Zero when the keyboard is down.
   @Entry var chatKeyboardLift: CGFloat = 0
 }
 
