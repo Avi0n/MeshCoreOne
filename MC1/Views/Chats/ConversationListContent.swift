@@ -81,10 +81,8 @@ struct ConversationListContent: View {
         }
       }
     }
-    // Once the list has loaded, eagerly warm the top conversations (up to the
-    // coordinator registry's LRU capacity) so tapping any of them opens straight
-    // to the settled bottom — including rows still below the fold that the lazy
-    // stack hasn't rendered yet, which the per-row dwell prewarm can't reach.
+    // Warm the top registry-capacity conversations after load so open lands settled.
+    // Keep warm work off LazyVStack rows: appear/disappear would start and cancel tasks while scrolling.
     .task(id: hasLoadedOnce) {
       guard hasLoadedOnce else { return }
       await prewarmTopConversations()
@@ -149,28 +147,16 @@ struct ConversationListContent: View {
     return ForEach(Array(ordered.enumerated()), id: \.element.id) { index, conversation in
       rowView(conversation, referenceDate: referenceDate)
         .transition(.opacity)
-        .task(id: conversation.id) { await prewarmOnDwell(conversation) }
       if index < ordered.count - 1 {
         Divider().padding(.leading, Self.rowSeparatorLeadingInset)
       }
     }
   }
 
-  /// Warms the shared coordinator for a conversation the user is dwelling on, so
-  /// tapping it opens straight to the settled bottom with no load flash. The
-  /// short delay (paired with the row's `.task` cancelling on disappear) means a
-  /// fast scroll past a row never pays the fetch/build cost — only rows the user
-  /// actually pauses on are prewarmed. Rooms have no coordinator; skipped.
-  private func prewarmOnDwell(_ conversation: Conversation) async {
-    try? await Task.sleep(for: .milliseconds(250))
-    guard !Task.isCancelled else { return }
-    warm(conversation)
-  }
-
   /// Warms the top conversations on first load, up to the registry's LRU
   /// capacity. Staggered so the per-conversation fetch and item build don't land
   /// on the main actor in one burst; `prefetchConversation` no-ops for any that
-  /// are already warm (e.g. from a dwell prewarm).
+  /// are already warm.
   private func prewarmTopConversations() async {
     let ordered = favoriteConversations + otherConversations
     for conversation in ordered.prefix(ChatCoordinatorRegistry.defaultCapacity) {
