@@ -244,7 +244,7 @@
 "remoteNodes.settings.deviceInfoFooter" = "Версия прошивки и часы устройства.";
 
 /* Location: RepeaterSettingsView.swift - Radio settings section footer */
-"remoteNodes.settings.radioFooter" = "Частота, полоса пропускания, коэффициент расширения, скорость кодирования и мощность передачи.";
+"remoteNodes.settings.radioFooter" = "Частота, полоса пропускания, коэффициент расширения и скорость кодирования.";
 
 /* Location: RepeaterSettingsView.swift - Identity section footer */
 "remoteNodes.settings.identityFooter" = "Имя ретранслятора и GPS-координаты для отображения на карте.";
@@ -281,8 +281,8 @@
 /* Location: RepeaterSettingsViewModel.swift - Radio applied success */
 "remoteNodes.settings.radioAppliedSuccess" = "Настройки радио применены. Перезапусти устройство для вступления в силу.";
 
-/* Location: RepeaterSettingsViewModel.swift - Radio apply partial failure */
-"remoteNodes.settings.radioApplyFailed" = "Некоторые настройки радио не удалось применить";
+/* Location: RepeaterSettingsViewModel.swift - Radio apply failure */
+"remoteNodes.settings.radioApplyFailed" = "Не удалось применить настройки радио";
 
 /* Location: RepeaterSettingsViewModel.swift - General apply failure */
 "remoteNodes.settings.someSettingsFailedToApply" = "Некоторые настройки не удалось применить";

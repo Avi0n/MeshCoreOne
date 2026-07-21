@@ -3441,10 +3441,10 @@ public enum L10n {
         public static let pickOnMap = L10n.tr("RemoteNodes", "remoteNodes.settings.pickOnMap", fallback: "Pick on Map")
         /// Location: RepeaterSettingsViewModel.swift - Radio applied success
         public static let radioAppliedSuccess = L10n.tr("RemoteNodes", "remoteNodes.settings.radioAppliedSuccess", fallback: "Radio settings applied. Restart device to take effect.")
-        /// Location: RepeaterSettingsViewModel.swift - Radio apply partial failure
-        public static let radioApplyFailed = L10n.tr("RemoteNodes", "remoteNodes.settings.radioApplyFailed", fallback: "Some radio settings failed to apply")
+        /// Location: RepeaterSettingsViewModel.swift - Radio apply failure
+        public static let radioApplyFailed = L10n.tr("RemoteNodes", "remoteNodes.settings.radioApplyFailed", fallback: "Radio settings failed to apply")
         /// Location: RepeaterSettingsView.swift - Radio settings section footer
-        public static let radioFooter = L10n.tr("RemoteNodes", "remoteNodes.settings.radioFooter", fallback: "Frequency, bandwidth, spreading factor, coding rate, and transmit power.")
+        public static let radioFooter = L10n.tr("RemoteNodes", "remoteNodes.settings.radioFooter", fallback: "Frequency, bandwidth, spreading factor, and coding rate.")
         /// Location: RepeaterSettingsViewModel.swift - Radio not loaded error
         public static let radioNotLoaded = L10n.tr("RemoteNodes", "remoteNodes.settings.radioNotLoaded", fallback: "Radio settings not loaded")
         /// Location: RepeaterSettingsView.swift - Radio parameters section title

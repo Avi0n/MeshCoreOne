@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: - Unified Focus Field
 
 enum NodeSettingsField: Hashable {
-  case frequency, txPower, advertInterval, floodAdvertInterval, floodMaxHops
+  case frequency, advertInterval, floodAdvertInterval, floodMaxHops
   case identityName, contactInfo, guestPassword
 }
 
@@ -190,27 +190,6 @@ struct NodeRadioSettingsSection: View {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.codingRate)
           Spacer()
           SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
-        }
-      }
-
-      HStack {
-        Text(L10n.RemoteNodes.RemoteNodes.Settings.txPowerDbm)
-        Spacer()
-        if let txPower = settings.txPower {
-          TextField(L10n.RemoteNodes.RemoteNodes.Settings.dbm, value: Binding(
-            get: { txPower },
-            set: { settings.txPower = $0 }
-          ), format: .number)
-            .keyboardType(.numbersAndPunctuation)
-            .multilineTextAlignment(.trailing)
-            .frame(width: 80)
-            .focused(focusedField, equals: .txPower)
-            .onChange(of: settings.txPower) { _, _ in
-              settings.radioSettingsModified = true
-            }
-        } else {
-          SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
-            .frame(width: 80, alignment: .trailing)
         }
       }
 

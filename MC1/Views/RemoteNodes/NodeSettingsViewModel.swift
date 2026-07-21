@@ -69,11 +69,10 @@ final class NodeSettingsViewModel {
   var bandwidth: Double?
   var spreadingFactor: Int?
   var codingRate: Int?
-  var txPower: Int?
   var isLoadingRadio = false
   var radioError = false
   var radioLoaded: Bool {
-    frequency != nil || txPower != nil
+    frequency != nil
   }
 
   var radioSettingsModified = false
@@ -295,16 +294,6 @@ final class NodeSettingsViewModel {
     var hadTimeout = false
 
     do {
-      let response = try await sendAndWait("get tx")
-      if case let .txPower(power) = CLIResponse.parse(response, forQuery: "get tx") {
-        txPower = power
-      }
-    } catch {
-      if case RemoteNodeError.timeout = error { hadTimeout = true }
-      logger.warning("Failed to get TX power: \(error)")
-    }
-
-    do {
       let response = try await sendAndWait("get radio")
       if case let .radio(freq, bw, sf, cr) = CLIResponse.parse(response, forQuery: "get radio") {
         frequency = freq
@@ -370,7 +359,7 @@ final class NodeSettingsViewModel {
   // MARK: - Apply Methods
 
   func applyRadioSettings() async {
-    guard let frequency, let bandwidth, let spreadingFactor, let codingRate, let txPower else {
+    guard let frequency, let bandwidth, let spreadingFactor, let codingRate else {
       errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.radioNotLoaded
       return
     }
@@ -379,23 +368,9 @@ final class NodeSettingsViewModel {
     errorMessage = nil
 
     do {
-      var allSucceeded = true
-
       let radioCommand = "set radio \(frequency),\(bandwidth),\(spreadingFactor),\(codingRate)"
       let radioResponse = try await sendAndWait(radioCommand)
       if case .ok = CLIResponse.parse(radioResponse) {
-      } else {
-        allSucceeded = false
-      }
-
-      let txCommand = "set tx \(txPower)"
-      let txResponse = try await sendAndWait(txCommand)
-      if case .ok = CLIResponse.parse(txResponse) {
-      } else {
-        allSucceeded = false
-      }
-
-      if allSucceeded {
         radioSettingsModified = false
         successMessage = L10n.RemoteNodes.RemoteNodes.Settings.radioAppliedSuccess
         showSuccessAlert = true
@@ -702,18 +677,13 @@ final class NodeSettingsViewModel {
   }
 
   private func registerSharedLateRecovery() {
-    registerLateRecovery(query: "get tx") { [weak self] value in
-      guard let self, case let .txPower(power) = value else { return }
-      txPower = power
-      radioError = frequency == nil
-    }
     registerLateRecovery(query: "get radio") { [weak self] value in
       guard let self, case let .radio(frequency, bandwidth, spreadingFactor, codingRate) = value else { return }
       self.frequency = frequency
       self.bandwidth = bandwidth
       self.spreadingFactor = spreadingFactor
       self.codingRate = codingRate
-      radioError = txPower == nil
+      radioError = false
     }
     registerLateRecovery(query: "get lat") { [weak self] value in
       guard let self, case let .latitude(latitude) = value else { return }

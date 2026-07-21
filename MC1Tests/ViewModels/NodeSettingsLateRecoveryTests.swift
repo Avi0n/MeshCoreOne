@@ -34,18 +34,24 @@ struct NodeSettingsLateRecoveryTests {
   }
 
   @Test
-  func `belated TX power reply is recovered after its command timed out`() async {
-    let viewModel = makeViewModel(responses: [
-      "get radio": .success("> 915.000,250.0,10,5"),
-    ])
+  func `belated get radio reply is recovered after its command timed out`() async {
+    let viewModel = makeViewModel(responses: [:])
 
     await viewModel.fetchRadioSettings()
-    #expect(viewModel.txPower == nil)
+    #expect(viewModel.frequency == nil)
+    #expect(viewModel.bandwidth == nil)
+    #expect(viewModel.spreadingFactor == nil)
+    #expect(viewModel.codingRate == nil)
     #expect(viewModel.radioError)
+    #expect(!viewModel.radioLoaded)
 
-    viewModel.handleCommonLateResponse("> 22")
-    #expect(viewModel.txPower == 22)
+    viewModel.handleCommonLateResponse("> 915.000,250.0,10,5")
+    #expect(viewModel.frequency == 915.0)
+    #expect(viewModel.bandwidth == 250.0)
+    #expect(viewModel.spreadingFactor == 10)
+    #expect(viewModel.codingRate == 5)
     #expect(!viewModel.radioError)
+    #expect(viewModel.radioLoaded)
   }
 
   @Test

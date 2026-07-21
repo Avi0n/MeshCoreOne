@@ -214,3 +214,57 @@ struct NodeSettingsIdentityApplyGuardTests {
     #expect(recorder.commands.contains { $0.hasPrefix("set lat 45") })
   }
 }
+
+@Suite("NodeSettingsViewModel radio apply")
+@MainActor
+struct NodeSettingsRadioApplyTests {
+  @MainActor
+  final class CommandRecorder {
+    private(set) var commands: [String] = []
+    func send(_ id: UUID, _ command: String, _ timeout: Duration) async throws -> String {
+      commands.append(command)
+      return "OK"
+    }
+  }
+
+  private func makeConfiguredViewModel(recorder: CommandRecorder) -> NodeSettingsViewModel {
+    let session = RemoteNodeSessionDTO(
+      radioID: UUID(),
+      publicKey: Data(repeating: 0x42, count: 32),
+      name: "Test Node",
+      role: .repeater,
+      isConnected: true,
+      permissionLevel: .admin
+    )
+    let viewModel = NodeSettingsViewModel()
+    viewModel.configure(session: session, sendCommand: recorder.send, sendRawCommand: recorder.send)
+    return viewModel
+  }
+
+  @Test
+  func `apply radio settings sends only set radio and clears modified flag`() async {
+    let recorder = CommandRecorder()
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+    viewModel.frequency = 915.0
+    viewModel.bandwidth = 250.0
+    viewModel.spreadingFactor = 10
+    viewModel.codingRate = 5
+    viewModel.radioSettingsModified = true
+
+    await viewModel.applyRadioSettings()
+
+    #expect(recorder.commands == ["set radio 915.0,250.0,10,5"])
+    #expect(recorder.commands.contains { $0.contains("set tx") } == false)
+    #expect(viewModel.radioSettingsModified == false)
+  }
+
+  @Test
+  func `fetch radio settings sends only get radio`() async {
+    let recorder = CommandRecorder()
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+
+    await viewModel.fetchRadioSettings()
+
+    #expect(recorder.commands == ["get radio"])
+  }
+}

@@ -247,7 +247,7 @@
 "remoteNodes.settings.deviceInfoFooter" = "Firmware-Version und Geräteuhr.";
 
 /* Location: RepeaterSettingsView.swift - Radio settings section footer */
-"remoteNodes.settings.radioFooter" = "Frequenz, Bandbreite, Spreizfaktor, Codierungsrate und Sendeleistung.";
+"remoteNodes.settings.radioFooter" = "Frequenz, Bandbreite, Spreizfaktor und Codierungsrate.";
 
 /* Location: RepeaterSettingsView.swift - Identity section footer */
 "remoteNodes.settings.identityFooter" = "Repeatername und GPS-Koordinaten für die Kartenanzeige.";
@@ -284,8 +284,8 @@
 /* Location: RepeaterSettingsViewModel.swift - Radio applied success */
 "remoteNodes.settings.radioAppliedSuccess" = "Funkeinstellungen angewendet. Gerät neustarten, damit sie wirksam werden.";
 
-/* Location: RepeaterSettingsViewModel.swift - Radio apply partial failure */
-"remoteNodes.settings.radioApplyFailed" = "Einige Funkeinstellungen konnten nicht angewendet werden";
+/* Location: RepeaterSettingsViewModel.swift - Radio apply failure */
+"remoteNodes.settings.radioApplyFailed" = "Funkeinstellungen konnten nicht angewendet werden";
 
 /* Location: RepeaterSettingsViewModel.swift - General apply failure */
 "remoteNodes.settings.someSettingsFailedToApply" = "Einige Einstellungen konnten nicht angewendet werden";

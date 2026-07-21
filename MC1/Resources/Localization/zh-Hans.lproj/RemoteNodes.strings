@@ -247,7 +247,7 @@
 "remoteNodes.settings.deviceInfoFooter" = "固件版本和设备时钟。";
 
 /* Location: RepeaterSettingsView.swift - Radio settings section footer */
-"remoteNodes.settings.radioFooter" = "频率、带宽、扩频因子、编码率和发射功率。";
+"remoteNodes.settings.radioFooter" = "频率、带宽、扩频因子和编码率。";
 
 /* Location: RepeaterSettingsView.swift - Identity section footer */
 "remoteNodes.settings.identityFooter" = "转发节点名称和用于地图显示的GPS坐标。";
@@ -284,8 +284,8 @@
 /* Location: RepeaterSettingsViewModel.swift - Radio applied success */
 "remoteNodes.settings.radioAppliedSuccess" = "无线电设置已应用。重启设备以生效。";
 
-/* Location: RepeaterSettingsViewModel.swift - Radio apply partial failure */
-"remoteNodes.settings.radioApplyFailed" = "部分无线电设置应用失败";
+/* Location: RepeaterSettingsViewModel.swift - Radio apply failure */
+"remoteNodes.settings.radioApplyFailed" = "无线电设置应用失败";
 
 /* Location: RepeaterSettingsViewModel.swift - General apply failure */
 "remoteNodes.settings.someSettingsFailedToApply" = "部分设置应用失败";

@@ -247,7 +247,7 @@
 "remoteNodes.settings.deviceInfoFooter" = "Versione firmware e orologio del dispositivo.";
 
 /* Location: RepeaterSettingsView.swift - Radio settings section footer */
-"remoteNodes.settings.radioFooter" = "Frequenza, larghezza di banda, fattore di spreading, coding rate e potenza di trasmissione.";
+"remoteNodes.settings.radioFooter" = "Frequenza, larghezza di banda, fattore di spreading e coding rate.";
 
 /* Location: RepeaterSettingsView.swift - Identity section footer */
 "remoteNodes.settings.identityFooter" = "Nome del ripetitore e coordinate GPS per la visualizzazione sulla mappa.";
@@ -284,8 +284,8 @@
 /* Location: RepeaterSettingsViewModel.swift - Radio applied success */
 "remoteNodes.settings.radioAppliedSuccess" = "Impostazioni radio applicate. Riavvia il dispositivo per renderle effettive.";
 
-/* Location: RepeaterSettingsViewModel.swift - Radio apply partial failure */
-"remoteNodes.settings.radioApplyFailed" = "Alcune impostazioni radio non sono state applicate";
+/* Location: RepeaterSettingsViewModel.swift - Radio apply failure */
+"remoteNodes.settings.radioApplyFailed" = "Impostazioni radio non sono state applicate";
 
 /* Location: RepeaterSettingsViewModel.swift - General apply failure */
 "remoteNodes.settings.someSettingsFailedToApply" = "Alcune impostazioni non sono state applicate";

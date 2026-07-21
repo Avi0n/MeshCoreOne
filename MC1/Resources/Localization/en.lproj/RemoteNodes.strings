@@ -247,7 +247,7 @@
 "remoteNodes.settings.deviceInfoFooter" = "Firmware version and device clock.";
 
 /* Location: RepeaterSettingsView.swift - Radio settings section footer */
-"remoteNodes.settings.radioFooter" = "Frequency, bandwidth, spreading factor, coding rate, and transmit power.";
+"remoteNodes.settings.radioFooter" = "Frequency, bandwidth, spreading factor, and coding rate.";
 
 /* Location: RepeaterSettingsView.swift - Identity section footer */
 "remoteNodes.settings.identityFooter" = "Repeater name and GPS coordinates for map display.";
@@ -284,8 +284,8 @@
 /* Location: RepeaterSettingsViewModel.swift - Radio applied success */
 "remoteNodes.settings.radioAppliedSuccess" = "Radio settings applied. Restart device to take effect.";
 
-/* Location: RepeaterSettingsViewModel.swift - Radio apply partial failure */
-"remoteNodes.settings.radioApplyFailed" = "Some radio settings failed to apply";
+/* Location: RepeaterSettingsViewModel.swift - Radio apply failure */
+"remoteNodes.settings.radioApplyFailed" = "Radio settings failed to apply";
 
 /* Location: RepeaterSettingsViewModel.swift - General apply failure */
 "remoteNodes.settings.someSettingsFailedToApply" = "Some settings failed to apply";
