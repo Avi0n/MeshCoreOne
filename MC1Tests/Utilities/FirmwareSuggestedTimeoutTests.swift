@@ -53,17 +53,14 @@ struct FirmwareSuggestedTimeoutTests {
 
   @Test
   func `Flood adds return-leg grace on top of a sane hint`() {
-    // 5000ms × 1.2 = 6s, plus 5s grace for the multi-hop return leg the
-    // firmware's request-airtime estimate can't see.
     let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 5000, profile: .flood)
-    #expect(timeout == 11.0)
+    #expect(timeout == 14.0) // 5000ms × 1.2 + 8s grace
   }
 
   @Test
   func `Flood grace lifts a small hint above the floor`() {
-    // 3000ms × 1.2 = 3.6s + 5s grace = 8.6s; grace alone already clears the 5s floor.
     let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 3000, profile: .flood)
-    #expect(abs(timeout - 8.6) < tolerance)
+    #expect(abs(timeout - 11.6) < tolerance) // 3000ms × 1.2 + 8s grace
   }
 
   @Test
@@ -76,5 +73,37 @@ struct FirmwareSuggestedTimeoutTests {
   func `Flood caps an absurd hint`() {
     let timeout = FirmwareSuggestedTimeout.sanitizedSeconds(suggestedTimeoutMs: 68_719_800, profile: .flood)
     #expect(timeout == 60.0)
+  }
+
+  // MARK: - Path discovery overall budget
+
+  @Test
+  func `Path discovery floors a fast-preset hint to the multi-hop minimum`() {
+    let timeout = FirmwareSuggestedTimeout.pathDiscoverySeconds(suggestedTimeoutMs: 5000)
+    #expect(timeout == FirmwareSuggestedTimeout.pathDiscoveryMinimumOverallSeconds)
+    #expect(timeout == 20.0)
+  }
+
+  @Test
+  func `Path discovery honors a larger flood budget above the minimum`() {
+    let timeout = FirmwareSuggestedTimeout.pathDiscoverySeconds(suggestedTimeoutMs: 20000)
+    #expect(timeout == 32.0) // 20000ms × 1.2 + 8s grace
+  }
+
+  @Test
+  func `Path discovery missing hint uses the flood default above the minimum`() {
+    let timeout = FirmwareSuggestedTimeout.pathDiscoverySeconds(suggestedTimeoutMs: 0)
+    #expect(timeout == 30.0)
+  }
+
+  @Test
+  func `Path discovery retransmit interval uses double firmware est with a five second floor`() {
+    #expect(FirmwareSuggestedTimeout.pathDiscoveryRetransmitInterval(suggestedTimeoutMs: 0) == nil)
+    #expect(
+      FirmwareSuggestedTimeout.pathDiscoveryRetransmitInterval(suggestedTimeoutMs: 1000) == .seconds(5)
+    )
+    #expect(
+      FirmwareSuggestedTimeout.pathDiscoveryRetransmitInterval(suggestedTimeoutMs: 5000) == .seconds(10)
+    )
   }
 }

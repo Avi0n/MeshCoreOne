@@ -124,14 +124,6 @@ final class PathManagementViewModel {
   /// Discovery cancellation
   private var discoveryTask: Task<Void, Never>?
 
-  /// Delayed re-present of the discovery alert after a late response;
-  /// see `handleDiscoveryResponse`.
-  private var alertRedisplayTask: Task<Void, Never>?
-
-  /// Long enough for the alert dismissal transition to finish; SwiftUI
-  /// ignores re-presenting a binding that flips back before it completes.
-  private static let alertRedisplayDelay: Duration = .milliseconds(600)
-
   // Discovery countdown state
   var discoverySecondsRemaining: Int?
   private var countdownTask: Task<Void, Never>?
@@ -456,15 +448,12 @@ final class PathManagementViewModel {
 
   // MARK: - Path Operations
 
-  /// Initiate path discovery for a contact (with cancel support).
-  /// Reports `.noPathFound` if the remote node doesn't respond before the
-  /// firmware-suggested timeout elapses.
+  /// Starts path discovery for a contact. Timeout is terminal for the UI: a
+  /// late push after `.noPathFound` does not flip to success.
   func discoverPath(for contact: ContactDTO) async {
     guard let contactService = contactServiceProvider() else { return }
 
-    // Cancel any existing discovery
     discoveryTask?.cancel()
-    alertRedisplayTask?.cancel()
 
     isDiscovering = true
     discoveryResult = nil
@@ -477,41 +466,41 @@ final class PathManagementViewModel {
           publicKey: contact.publicKey
         )
 
-        let timeoutSeconds = FirmwareSuggestedTimeout.sanitizedSeconds(
-          suggestedTimeoutMs: sentResponse.suggestedTimeoutMs,
-          profile: .flood
+        let timeoutSeconds = FirmwareSuggestedTimeout.pathDiscoverySeconds(
+          suggestedTimeoutMs: sentResponse.suggestedTimeoutMs
         )
         if sentResponse.suggestedTimeoutMs == 0 {
           logger.warning(
             "Path discovery timeout default applied: firmware suggested no timeout, using \(timeoutSeconds)s"
           )
         } else {
-          logger.info("Path discovery timeout: \(timeoutSeconds)s (firmware suggested: \(sentResponse.suggestedTimeoutMs)ms)")
+          logger.info(
+            "Path discovery timeout: \(timeoutSeconds)s (firmware suggested: \(sentResponse.suggestedTimeoutMs)ms)"
+          )
         }
 
-        // Start countdown timer
         self.discoveryTimeoutSeconds = timeoutSeconds
         self.discoveryStartTime = Date.now
         self.discoverySecondsRemaining = Int(timeoutSeconds)
         self.startCountdownTask()
 
-        // Wait for push notification with firmware-suggested timeout.
-        // AdvertisementService handler calls handleDiscoveryResponse()
-        // which cancels this task early if a response arrives; sleep throws.
-        try await Task.sleep(for: .seconds(timeoutSeconds))
+        // `handleDiscoveryResponse` cancels this task on success. Missing
+        // firmware hints use a single send for the whole budget.
+        try await waitForDiscoveryResponse(
+          timeoutSeconds: timeoutSeconds,
+          suggestedTimeoutMs: sentResponse.suggestedTimeoutMs,
+          contactService: contactService,
+          contact: contact
+        )
 
-        // A response landing between sleep expiry and this resumption has
-        // already resolved state via handleDiscoveryResponse; its cancel()
-        // can't make a finished sleep throw, so re-check before writing.
+        // Finished sleep does not throw on cancel; re-check so a response that
+        // landed at expiry is not overwritten by `.noPathFound`.
         guard !Task.isCancelled else { return }
 
-        // Timeout: the remote node did not respond
         discoveryResult = .noPathFound
         showDiscoveryResult = true
       } catch is CancellationError {
-        // Whoever cancelled us (user cancel, push-response handler, or a
-        // fresh discoverPath re-entry) already resolved state. Bail so
-        // this task's tail doesn't clobber the newer run's state.
+        // Cancel, success path, or a fresh `discoverPath` already owns state.
         return
       } catch {
         discoveryResult = .failed(error.userFacingMessage)
@@ -520,6 +509,56 @@ final class PathManagementViewModel {
 
       isDiscovering = false
       cleanupCountdownState()
+    }
+  }
+
+  /// Waits until the overall budget elapses, retransmitting when
+  /// `pathDiscoveryRetransmitInterval` returns a spacing. Throws
+  /// `CancellationError` when a response or cancel ends the attempt early.
+  private func waitForDiscoveryResponse(
+    timeoutSeconds: Double,
+    suggestedTimeoutMs: UInt32,
+    contactService: ContactService,
+    contact: ContactDTO
+  ) async throws {
+    let deadline = ContinuousClock.now.advanced(by: .seconds(timeoutSeconds))
+    let retransmitInterval = FirmwareSuggestedTimeout.pathDiscoveryRetransmitInterval(
+      suggestedTimeoutMs: suggestedTimeoutMs
+    )
+    var retransmitCount = 0
+
+    while !Task.isCancelled {
+      let remaining = deadline - ContinuousClock.now
+      guard remaining > .zero else { return }
+
+      let sleepFor: Duration = if let retransmitInterval {
+        remaining < retransmitInterval ? remaining : retransmitInterval
+      } else {
+        remaining
+      }
+
+      try await Task.sleep(for: sleepFor)
+      guard !Task.isCancelled else { return }
+      if ContinuousClock.now >= deadline { return }
+
+      guard retransmitInterval != nil else { return }
+
+      retransmitCount += 1
+      do {
+        logger.info(
+          "Path discovery retransmit #\(retransmitCount) for \(contact.publicKey.prefix(3).uppercaseHexString())..."
+        )
+        _ = try await contactService.sendPathDiscovery(
+          radioID: contact.radioID,
+          publicKey: contact.publicKey
+        )
+      } catch is CancellationError {
+        throw CancellationError()
+      } catch {
+        logger.warning(
+          "Path discovery retransmit #\(retransmitCount) failed: \(error.localizedDescription); continuing wait"
+        )
+      }
     }
   }
 
@@ -561,18 +600,19 @@ final class PathManagementViewModel {
   func cancelDiscovery() {
     discoveryTask?.cancel()
     discoveryTask = nil
-    alertRedisplayTask?.cancel()
-    alertRedisplayTask = nil
     isDiscovering = false
     cleanupCountdownState()
   }
 
-  /// Called when a path discovery response is received via push notification.
+  /// Resolves an in-flight discovery from a path-discovery push.
   ///
-  /// `hopCount` is `nil` when the wire's `out_path_len` byte used the reserved
-  /// hash-size mode and couldn't be decoded. Treat that as "no valid path
-  /// returned" rather than silently reporting a direct route.
+  /// Requires `isDiscovering`; after timeout or cancel the response is ignored
+  /// here (`AdvertisementService` may still persist the path). `hopCount` is
+  /// `nil` when `out_path_len` used a reserved hash-size mode and could not be
+  /// decoded — treated as no valid path, not a silent direct route.
   func handleDiscoveryResponse(hopCount: Int?) {
+    guard isDiscovering else { return }
+
     discoveryTask?.cancel()
     isDiscovering = false
     cleanupCountdownState()
@@ -582,23 +622,8 @@ final class PathManagementViewModel {
     } else {
       discoveryResult = .noPathFound
     }
+    showDiscoveryResult = true
 
-    if showDiscoveryResult {
-      // The timeout alert is already on screen and its message was captured
-      // at presentation, so a response landing now would stay hidden behind
-      // stale failure text. Dismiss and re-present with the fresh result.
-      showDiscoveryResult = false
-      alertRedisplayTask?.cancel()
-      alertRedisplayTask = Task {
-        try? await Task.sleep(for: Self.alertRedisplayDelay)
-        guard !Task.isCancelled else { return }
-        showDiscoveryResult = true
-      }
-    } else {
-      showDiscoveryResult = true
-    }
-
-    // Signal that contact data should be refreshed to show new path
     onContactNeedsRefresh?()
   }
 
