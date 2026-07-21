@@ -288,7 +288,7 @@ public extension MeshCoreSession {
           case let .response(response):
             group.cancelAll()
             // Drain so a late retransmit send error cannot surface after success.
-            while let _ = try? await group.next() {}
+            while await (try? group.next()) != nil {}
             return response
           case .timedOut:
             group.cancelAll()
