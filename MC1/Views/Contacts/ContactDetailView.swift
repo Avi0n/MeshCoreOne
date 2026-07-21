@@ -1205,23 +1205,27 @@ private struct ContactNetworkPathSection: View {
 
       // Path Discovery button (prominent)
       if pathViewModel.isDiscovering {
-        VStack(alignment: .leading, spacing: 4) {
-          HStack {
-            Label(L10n.Contacts.Contacts.Detail.discoveringPath, systemImage: "antenna.radiowaves.left.and.right")
-            Spacer()
-            ProgressView()
-            Button(L10n.Contacts.Contacts.Common.cancel) {
-              pathViewModel.cancelDiscovery()
+        HStack {
+          // Keep the remaining-time caption under the Label title, not the icon.
+          Label {
+            VStack(alignment: .leading, spacing: 4) {
+              Text(L10n.Contacts.Contacts.Detail.discoveringPath)
+              if let remaining = pathViewModel.discoverySecondsRemaining, remaining > 0 {
+                Text(L10n.Contacts.Contacts.Detail.secondsRemaining(remaining))
+                  .font(.caption)
+                  .foregroundStyle(.secondary)
+              }
             }
-            .buttonStyle(.borderless)
-            .font(.subheadline)
+          } icon: {
+            Image(systemName: "antenna.radiowaves.left.and.right")
           }
-
-          if let remaining = pathViewModel.discoverySecondsRemaining, remaining > 0 {
-            Text(L10n.Contacts.Contacts.Detail.secondsRemaining(remaining))
-              .font(.caption)
-              .foregroundStyle(.secondary)
+          Spacer()
+          ProgressView()
+          Button(L10n.Contacts.Contacts.Common.cancel) {
+            pathViewModel.cancelDiscovery()
           }
+          .buttonStyle(.borderless)
+          .font(.subheadline)
         }
       } else {
         Button {
