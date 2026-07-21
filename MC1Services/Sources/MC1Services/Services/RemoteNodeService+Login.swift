@@ -81,7 +81,39 @@ public extension RemoteNodeService {
             let timeoutSeconds = max(1, Int(timeInterval(for: timeout).rounded(.up)))
             await onTimeoutKnown(timeoutSeconds)
           }
-          try? await Task.sleep(for: timeout)
+
+          // Retransmit while waiting for loginSuccess, spaced at least one
+          // firmware-suggested RTT so multi-hop paths are not flooded mid-flight.
+          let deadline = ContinuousClock.now.advanced(by: timeout)
+          let retransmitInterval = max(
+            RemoteOperationTimeoutPolicy.loginRetransmitInterval,
+            .milliseconds(Int(sentInfo.suggestedTimeoutMs))
+          )
+          var retransmitCount = 0
+          while !Task.isCancelled {
+            let remaining = deadline - ContinuousClock.now
+            guard remaining > .zero else { break }
+            let sleepFor = remaining < retransmitInterval ? remaining : retransmitInterval
+            try? await Task.sleep(for: sleepFor)
+            guard !Task.isCancelled else { return }
+            guard pendingLogins[prefix] != nil else {
+              logger.info("login: continuation consumed for prefix \(prefixHex); stopping retransmits")
+              return
+            }
+            if ContinuousClock.now >= deadline { break }
+            retransmitCount += 1
+            do {
+              logger.info("login: retransmit #\(retransmitCount) for prefix \(prefixHex)")
+              _ = try await session.sendLogin(to: remoteSession.publicKey, password: pwd)
+            } catch is CancellationError {
+              return
+            } catch {
+              logger.warning(
+                "login: retransmit #\(retransmitCount) failed for \(prefixHex): \(error.localizedDescription)"
+              )
+            }
+          }
+
           guard !Task.isCancelled else { return }
           if let pending = pendingLogins.removeValue(forKey: prefix) {
             logger.warning("Login timeout after \(timeout) for session \(sessionID), prefix \(prefixHex)")

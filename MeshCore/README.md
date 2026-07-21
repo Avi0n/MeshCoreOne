@@ -167,20 +167,30 @@ for await state in await session.connectionState {
 }
 ```
 
-### Binary Protocol (Remote Node Queries)
+### Remote Node Queries (Status, Telemetry, Binary)
+
+Binary exchanges (status, telemetry, owner info, neighbours, MMA, ACL, regions)
+send once, then retransmit the same frame until a matching reply arrives or
+`binaryRequestOverallTimeout` (default 40s) elapses. Set
+`binaryRequestRetransmitInterval` to `nil` to disable retransmits. Spacing is
+`max(floor, suggestedTimeoutMs × binaryRetransmitRTTHeadroom)` (headroom 2)
+because companion `est_timeout` is outbound airtime×path, not a full return RTT.
+Companion firmware keeps one pending tag per request class and replaces it on
+each send, so only the latest `messageSent` tag matches `.binaryResponse`.
+Typed status pushes still match by public-key prefix.
 
 ```swift
-// Request status from remote node
+// Status via CMD_SEND_STATUS_REQ (firmware matches by pubkey)
 let status = try await session.requestStatus(from: publicKey)
 print("Remote battery: \(status.battery) mV, uptime: \(status.uptime)s")
 
 // For room servers, use a typed request so the correct status layout is decoded.
 let roomStatus = try await session.requestStatus(from: roomContact)
 
-// Request telemetry
+// Telemetry via CMD_SEND_TELEMETRY_REQ
 let telemetry = try await session.requestTelemetry(from: publicKey)
 
-// Request MMA (Min/Max/Average) data
+// MMA / neighbours / ACL use CMD_SEND_BINARY_REQ
 let mma = try await session.requestMMA(from: publicKey, start: startDate, end: endDate)
 
 // Request neighbors list

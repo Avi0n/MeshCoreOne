@@ -31,7 +31,7 @@ extension BinaryProtocolError: LocalizedError {
 public actor BinaryProtocolService {
   // MARK: - Properties
 
-  private let session: any DiagnosticsSessionOps & SessionEventStreaming
+  private let session: any DiagnosticsSessionOps & SessionEventStreaming & ContactSessionOps
   private let dataStore: any PersistenceStoreProtocol
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "BinaryProtocol")
 
@@ -49,7 +49,10 @@ public actor BinaryProtocolService {
 
   // MARK: - Initialization
 
-  public init(session: any DiagnosticsSessionOps & SessionEventStreaming, dataStore: any PersistenceStoreProtocol) {
+  public init(
+    session: any DiagnosticsSessionOps & SessionEventStreaming & ContactSessionOps,
+    dataStore: any PersistenceStoreProtocol
+  ) {
     self.session = session
     self.dataStore = dataStore
   }
@@ -121,10 +124,8 @@ public actor BinaryProtocolService {
   /// - Parameter publicKey: The remote node's full 32-byte public key
   /// - Returns: StatusResponse with device stats
   public func requestStatus(from publicKey: Data) async throws -> StatusResponse {
-    do {
-      return try await session.requestStatus(from: publicKey)
-    } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
+    try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "status") {
+      try await self.session.requestStatus(from: publicKey)
     }
   }
 
@@ -137,10 +138,8 @@ public actor BinaryProtocolService {
     from publicKey: Data,
     type: ContactType
   ) async throws -> StatusResponse {
-    do {
-      return try await session.requestStatus(from: publicKey, type: type)
-    } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
+    try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "status") {
+      try await self.session.requestStatus(from: publicKey, type: type)
     }
   }
 
@@ -150,10 +149,8 @@ public actor BinaryProtocolService {
   /// - Parameter publicKey: The remote node's public key (full or prefix)
   /// - Returns: TelemetryResponse with sensor data
   public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
-    do {
-      return try await session.requestTelemetry(from: publicKey)
-    } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
+    try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "telemetry") {
+      try await self.session.requestTelemetry(from: publicKey)
     }
   }
 
@@ -178,16 +175,14 @@ public actor BinaryProtocolService {
     orderBy: UInt8 = 0,
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength
   ) async throws -> NeighboursResponse {
-    do {
-      return try await session.requestNeighbours(
+    try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "neighbours") {
+      try await self.session.requestNeighbours(
         from: publicKey,
         count: count,
         offset: offset,
         orderBy: orderBy,
         pubkeyPrefixLength: pubkeyPrefixLength
       )
-    } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
     }
   }
 
@@ -202,14 +197,12 @@ public actor BinaryProtocolService {
     orderBy: UInt8 = 0,
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength
   ) async throws -> NeighboursResponse {
-    do {
-      return try await session.fetchAllNeighbours(
+    try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "neighbours") {
+      try await self.session.fetchAllNeighbours(
         from: publicKey,
         orderBy: orderBy,
         pubkeyPrefixLength: pubkeyPrefixLength
       )
-    } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
     }
   }
 
@@ -226,10 +219,43 @@ public actor BinaryProtocolService {
     start: Date,
     end: Date
   ) async throws -> MMAResponse {
+    try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "mma") {
+      try await self.session.requestMMA(from: publicKey, start: start, end: end)
+    }
+  }
+
+  // MARK: - Direct-path flood recovery
+
+  /// On mesh timeout, calls `resetPath` and retries once. Always resets because
+  /// this path has no radio-scoped contact to check for flood routing.
+  private func performWithPathResetOnTimeout<T: Sendable>(
+    publicKey: Data,
+    operationName: String,
+    operation: () async throws -> T
+  ) async throws -> T {
     do {
-      return try await session.requestMMA(from: publicKey, start: start, end: end)
+      return try await operation()
     } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
+      guard case .timeout = error else { throw BinaryProtocolError.sessionError(error) }
+      logger.info(
+        "\(operationName): mesh timeout; resetting path to flood and retrying once"
+      )
+      let firstTimeout = error
+      do {
+        try await session.resetPath(publicKey: publicKey)
+      } catch is CancellationError {
+        throw CancellationError()
+      } catch {
+        logger.warning(
+          "\(operationName): path reset failed (\(error.localizedDescription)); not retrying"
+        )
+        throw BinaryProtocolError.sessionError(firstTimeout)
+      }
+      do {
+        return try await operation()
+      } catch let retryError as MeshCoreError {
+        throw BinaryProtocolError.sessionError(retryError)
+      }
     }
   }
 
@@ -239,10 +265,8 @@ public actor BinaryProtocolService {
   /// - Parameter publicKey: The remote node's public key
   /// - Returns: ACLResponse with permission entries
   public func requestACL(from publicKey: Data) async throws -> ACLResponse {
-    do {
-      return try await session.requestACL(from: publicKey)
-    } catch let error as MeshCoreError {
-      throw BinaryProtocolError.sessionError(error)
+    try await performWithPathResetOnTimeout(publicKey: publicKey, operationName: "acl") {
+      try await self.session.requestACL(from: publicKey)
     }
   }
 

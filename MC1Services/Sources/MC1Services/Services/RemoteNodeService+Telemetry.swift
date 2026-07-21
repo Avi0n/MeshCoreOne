@@ -10,7 +10,6 @@ public extension RemoteNodeService {
       throw RemoteNodeError.sessionNotFound
     }
 
-    // Log status request
     let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
     await auditLogger.logStatusRequest(target: targetType, publicKey: remoteSession.publicKey)
 
@@ -18,14 +17,16 @@ public extension RemoteNodeService {
       let effectiveTimeout = timeout ?? RemoteOperationTimeoutPolicy.binaryMaximum
       return try await withTimeout(effectiveTimeout, operationName: "remoteStatus") {
         let contactType: ContactType = remoteSession.isRoom ? .room : .repeater
-        return try await self.session.requestStatus(from: remoteSession.publicKey, type: contactType)
+        return try await self.session.requestStatus(
+          from: remoteSession.publicKey,
+          type: contactType
+        )
       }
     } catch is TimeoutError {
-      recordSalvageableTimeout(.status, publicKey: remoteSession.publicKey)
       throw RemoteNodeError.timeout
     } catch let error as MeshCoreError {
       if case .timeout = error {
-        recordSalvageableTimeout(.status, publicKey: remoteSession.publicKey)
+        throw RemoteNodeError.timeout
       }
       throw RemoteNodeError.sessionError(error)
     }
@@ -39,7 +40,6 @@ public extension RemoteNodeService {
       throw RemoteNodeError.sessionNotFound
     }
 
-    // Log telemetry request
     let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
     await auditLogger.logTelemetryRequest(target: targetType, publicKey: remoteSession.publicKey)
 
@@ -49,11 +49,10 @@ public extension RemoteNodeService {
         try await self.session.requestTelemetry(from: remoteSession.publicKey)
       }
     } catch is TimeoutError {
-      recordSalvageableTimeout(.telemetry, publicKey: remoteSession.publicKey)
       throw RemoteNodeError.timeout
     } catch let error as MeshCoreError {
       if case .timeout = error {
-        recordSalvageableTimeout(.telemetry, publicKey: remoteSession.publicKey)
+        throw RemoteNodeError.timeout
       }
       throw RemoteNodeError.sessionError(error)
     }
@@ -75,6 +74,9 @@ public extension RemoteNodeService {
     } catch is TimeoutError {
       throw RemoteNodeError.timeout
     } catch let error as MeshCoreError {
+      if case .timeout = error {
+        throw RemoteNodeError.timeout
+      }
       throw RemoteNodeError.sessionError(error)
     }
   }

@@ -148,9 +148,27 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
   )
 
-  /// Result to return from `requestStatus`.
+  /// Result to return from `requestStatus` when the FIFO list is empty.
   public var stubbedRequestStatusResult: Result<StatusResponse, Error> =
     .failure(NotStubbed.method("requestStatus"))
+
+  /// Results consumed FIFO by successive `requestStatus` calls. When non-empty,
+  /// takes precedence over `stubbedRequestStatusResult`.
+  public var stubbedRequestStatusResults: [Result<StatusResponse, Error>] = []
+
+  /// Result to return from `requestTelemetry` when the FIFO list is empty.
+  public var stubbedRequestTelemetryResult: Result<TelemetryResponse, Error> =
+    .failure(NotStubbed.method("requestTelemetry"))
+
+  /// Results consumed FIFO by successive `requestTelemetry` calls.
+  public var stubbedRequestTelemetryResults: [Result<TelemetryResponse, Error>] = []
+
+  /// Result to return from `requestOwnerInfo`.
+  public var stubbedRequestOwnerInfoResult: Result<OwnerInfoResponse, Error> =
+    .failure(NotStubbed.method("requestOwnerInfo"))
+
+  /// Results consumed FIFO by successive `requestOwnerInfo` calls.
+  public var stubbedRequestOwnerInfoResults: [Result<OwnerInfoResponse, Error>] = []
 
   // MARK: - Recorded Invocations
 
@@ -235,6 +253,22 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// Sets the result returned by `requestStatus` (isolated setter).
   public func setRequestStatusResult(_ result: Result<StatusResponse, Error>) {
     stubbedRequestStatusResult = result
+    stubbedRequestStatusResults = []
+  }
+
+  /// Sets FIFO results for successive `requestStatus` calls (isolated setter).
+  public func setRequestStatusResults(_ results: [Result<StatusResponse, Error>]) {
+    stubbedRequestStatusResults = results
+  }
+
+  /// Sets FIFO results for successive `requestTelemetry` calls (isolated setter).
+  public func setRequestTelemetryResults(_ results: [Result<TelemetryResponse, Error>]) {
+    stubbedRequestTelemetryResults = results
+  }
+
+  /// Sets FIFO results for successive `requestOwnerInfo` calls (isolated setter).
+  public func setRequestOwnerInfoResults(_ results: [Result<OwnerInfoResponse, Error>]) {
+    stubbedRequestOwnerInfoResults = results
   }
 
   /// Sets the error thrown by `addContact` (isolated setter).
@@ -486,10 +520,25 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   }
 
   public func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
-    throw NotStubbed.method("requestOwnerInfo")
+    if !stubbedRequestOwnerInfoResults.isEmpty {
+      switch stubbedRequestOwnerInfoResults.removeFirst() {
+      case let .success(response): return response
+      case let .failure(error): throw error
+      }
+    }
+    switch stubbedRequestOwnerInfoResult {
+    case let .success(response): return response
+    case let .failure(error): throw error
+    }
   }
 
   public func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse {
+    if !stubbedRequestStatusResults.isEmpty {
+      switch stubbedRequestStatusResults.removeFirst() {
+      case let .success(response): return response
+      case let .failure(error): throw error
+      }
+    }
     switch stubbedRequestStatusResult {
     case let .success(response): return response
     case let .failure(error): throw error
@@ -497,7 +546,16 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   }
 
   public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
-    throw NotStubbed.method("requestTelemetry")
+    if !stubbedRequestTelemetryResults.isEmpty {
+      switch stubbedRequestTelemetryResults.removeFirst() {
+      case let .success(response): return response
+      case let .failure(error): throw error
+      }
+    }
+    switch stubbedRequestTelemetryResult {
+    case let .success(response): return response
+    case let .failure(error): throw error
+    }
   }
 
   public func requestNeighbours(

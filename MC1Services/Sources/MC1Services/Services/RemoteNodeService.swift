@@ -69,34 +69,6 @@ public actor RemoteNodeService {
   /// FIFO waiters for a node's CLI slot, keyed by 6-byte public key prefix.
   var cliSlotWaiters: [Data: [CLISlotWaiter]] = [:]
 
-  /// A binary request kind whose late response can be salvaged after timeout.
-  enum SalvageableBinaryRequest: Hashable, Sendable {
-    case status
-    case telemetry
-    case neighbours
-  }
-
-  /// A late binary response recovered after its request timed out.
-  public enum SalvagedBinaryResponse: Sendable {
-    case status(StatusResponse)
-    case telemetry(TelemetryResponse)
-    case neighbours(NeighboursResponse)
-  }
-
-  struct SalvageKey: Hashable {
-    let kind: SalvageableBinaryRequest
-    let prefix: Data
-  }
-
-  /// Binary requests that timed out but may still be answered. Responses carry
-  /// the node's key prefix, so a late arrival within the window is exactly
-  /// attributable and salvaging it spares the airtime of a retry.
-  var salvageableTimeouts: [SalvageKey: ContinuousClock.Instant] = [:]
-  static let salvageWindow: Duration = .seconds(60)
-
-  /// Delivers salvaged responses to the admin services; wired by `ServiceContainer`.
-  var salvagedResponseRouter: (@Sendable (SalvagedBinaryResponse) async -> Void)?
-
   /// Reads the connected radio's clock; wired by `ServiceContainer`. Clock
   /// drift is measured against the radio, not the phone, because mesh packet
   /// timestamps come from the radio's RTC.
@@ -176,7 +148,7 @@ public actor RemoteNodeService {
           true
         case let .contactMessageReceived(info) where info.textType == cliResponseTextType:
           true
-        case .statusResponse, .telemetryResponse, .neighboursResponse:
+        case .statusResponse, .telemetryResponse, .neighboursResponse, .binaryResponse:
           true
         default:
           false
@@ -228,53 +200,9 @@ public actor RemoteNodeService {
         handleCLIResponse(message)
       }
 
-    case let .statusResponse(response):
-      await salvageIfRecorded(.status, publicKeyPrefix: response.publicKeyPrefix, response: .status(response))
-
-    case let .telemetryResponse(response):
-      await salvageIfRecorded(.telemetry, publicKeyPrefix: response.publicKeyPrefix, response: .telemetry(response))
-
-    case let .neighboursResponse(response):
-      await salvageIfRecorded(
-        .neighbours, publicKeyPrefix: response.publicKeyPrefix, response: .neighbours(response)
-      )
-
     default:
       break
     }
-  }
-
-  // MARK: - Late Binary Response Salvage
-
-  /// Wires the delivery target for salvaged responses.
-  public func setSalvagedResponseRouter(
-    _ router: @escaping @Sendable (SalvagedBinaryResponse) async -> Void
-  ) {
-    salvagedResponseRouter = router
-  }
-
-  /// Marks a timed-out request as still answerable within the salvage window.
-  func recordSalvageableTimeout(_ kind: SalvageableBinaryRequest, publicKey: Data) {
-    let now = ContinuousClock.now
-    salvageableTimeouts = salvageableTimeouts.filter { $0.value > now }
-    let key = SalvageKey(kind: kind, prefix: Data(publicKey.prefix(6)))
-    salvageableTimeouts[key] = now.advanced(by: Self.salvageWindow)
-  }
-
-  /// Delivers a late response when its request is recorded as timed out.
-  /// Solicited responses are never routed here twice: the entry exists only
-  /// after the original request already failed.
-  private func salvageIfRecorded(
-    _ kind: SalvageableBinaryRequest,
-    publicKeyPrefix: Data,
-    response: SalvagedBinaryResponse
-  ) async {
-    let key = SalvageKey(kind: kind, prefix: Data(publicKeyPrefix.prefix(6)))
-    guard let expiry = salvageableTimeouts.removeValue(forKey: key) else { return }
-    guard expiry > ContinuousClock.now, let router = salvagedResponseRouter else { return }
-
-    logger.info("Salvaged late \(String(describing: kind)) response after timeout")
-    await router(response)
   }
 
   /// Handle CLI response from a contact message. The wire prefix echoed by

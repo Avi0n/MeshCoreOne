@@ -5,24 +5,20 @@ import Testing
 @Suite("Binary request timeout")
 struct BinaryRequestTimeoutTests {
   @Test
-  func `short firmware estimates are floored for flood-return replies`() {
-    // A 2-hop direct estimate (4346ms -> 8.7s doubled) starved a status reply
-    // that returned via flood; the floor must win over short estimates.
+  func `defaults use a 40 second overall budget and 1 second retransmit floor`() {
     let configuration = SessionConfiguration()
-    #expect(configuration.binaryRequestTimeout(suggestedTimeoutMs: 4346)
-      == configuration.binaryRequestMinimumTimeout)
-    #expect(configuration.binaryRequestTimeout(suggestedTimeoutMs: 0)
-      == configuration.binaryRequestMinimumTimeout)
+    #expect(configuration.binaryRequestOverallTimeout == 40.0)
+    #expect(configuration.binaryRequestRetransmitInterval == 1.0)
+    #expect(SessionConfiguration.binaryRetransmitRTTHeadroom == 2.0)
   }
 
   @Test
-  func `long firmware estimates extend beyond the floor`() {
-    #expect(SessionConfiguration().binaryRequestTimeout(suggestedTimeoutMs: 10000) == 20.0)
-  }
-
-  @Test
-  func `a zero floor leaves the firmware estimate in charge`() {
-    let configuration = SessionConfiguration(binaryRequestMinimumTimeout: 0)
-    #expect(configuration.binaryRequestTimeout(suggestedTimeoutMs: 4346) == 8.692)
+  func `configuration accepts custom overall and nil retransmit disables in exchange resends`() {
+    let configuration = SessionConfiguration(
+      binaryRequestOverallTimeout: 0.05,
+      binaryRequestRetransmitInterval: nil
+    )
+    #expect(configuration.binaryRequestOverallTimeout == 0.05)
+    #expect(configuration.binaryRequestRetransmitInterval == nil)
   }
 }

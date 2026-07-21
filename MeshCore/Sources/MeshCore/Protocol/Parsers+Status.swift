@@ -1,6 +1,6 @@
 import Foundation
 
-extension Parsers {
+public extension Parsers {
   // MARK: - StatusResponse
 
   /// Parser for remote node status reports.
@@ -22,7 +22,7 @@ extension Parsers {
     /// - Offset 51 (4 bytes): Duplicate counters
     /// - Offset 55 (4 bytes): Repeater: Rx airtime (UInt32 LE); Room server: posted count (UInt16 LE) + post-push count (UInt16 LE)
     /// - Offset 59 (4 bytes): Repeater only: Receive errors (UInt32 LE, optional)
-    static func parse(_ data: Data, layout: MeshCore.StatusResponse.Layout = .repeater) -> MeshEvent {
+    public static func parse(_ data: Data, layout: MeshCore.StatusResponse.Layout = .repeater) -> MeshEvent {
       guard data.count >= PacketSize.statusResponseMinimum else {
         return .parseFailure(
           data: data,
@@ -137,16 +137,14 @@ extension Parsers {
     ///   - data: Raw binary response payload (without the 4-byte tag).
     ///   - publicKeyPrefix: The 6-byte public key prefix from the pending request context.
     /// - Returns: A `StatusResponse` if parsing succeeds, `nil` otherwise.
-    static func parseFromBinaryResponse(
+    public static func parseFromBinaryResponse(
       _ data: Data,
       publicKeyPrefix: Data,
       layout: MeshCore.StatusResponse.Layout = .repeater
     ) -> MeshCore.StatusResponse? {
-      // Accept exactly 48 (no rxAirtime), 52 (with rxAirtime), or 56+ (with receiveErrors).
-      // Reject malformed payloads with incomplete fields (49-51, 53-55).
-      guard data.count == PacketSize.binaryResponseStatusBase ||
-        data.count == PacketSize.binaryResponseStatusWithRxAirtime ||
-        data.count >= PacketSize.binaryResponseStatusWithReceiveErrors else { return nil }
+      // Base frame is required; optional trailing fields are read only when the
+      // full field is present. A partial trailer is ignored rather than rejected.
+      guard data.count >= PacketSize.binaryResponseStatusBase else { return nil }
 
       var offset = 0
       let battery = Int(data.readUInt16LE(at: offset)); offset += 2
@@ -241,7 +239,7 @@ extension Parsers {
     /// - Offset 0 (1 byte): Reserved
     /// - Offset 1 (6 bytes): Public key prefix
     /// - Offset 7 (N bytes): Raw LPP telemetry data
-    static func parse(_ data: Data) -> MeshEvent {
+    public static func parse(_ data: Data) -> MeshEvent {
       // Minimum: reserved(1) + pubkey(6) = 7 bytes
       guard data.count >= 7 else {
         return .parseFailure(data: data, reason: "TelemetryResponse too short: \(data.count) bytes, need 7")
@@ -268,7 +266,7 @@ extension Parsers {
     ///   - data: Raw binary response payload (without the 4-byte tag).
     ///   - publicKeyPrefix: The 6-byte public key prefix from the pending request context.
     /// - Returns: A `TelemetryResponse` with the raw data for LPP decoding.
-    static func parseFromBinaryResponse(_ data: Data, publicKeyPrefix: Data) -> MeshCore.TelemetryResponse {
+    public static func parseFromBinaryResponse(_ data: Data, publicKeyPrefix: Data) -> MeshCore.TelemetryResponse {
       MeshCore.TelemetryResponse(
         publicKeyPrefix: publicKeyPrefix,
         tag: nil,

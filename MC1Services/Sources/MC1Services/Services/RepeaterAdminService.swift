@@ -129,11 +129,10 @@ public actor RepeaterAdminService {
         )
       }
     } catch is TimeoutError {
-      await remoteNodeService.recordSalvageableTimeout(.neighbours, publicKey: remoteSession.publicKey)
       throw RemoteNodeError.timeout
     } catch let error as MeshCoreError {
       if case .timeout = error {
-        await remoteNodeService.recordSalvageableTimeout(.neighbours, publicKey: remoteSession.publicKey)
+        throw RemoteNodeError.timeout
       }
       throw RemoteNodeError.sessionError(error)
     }

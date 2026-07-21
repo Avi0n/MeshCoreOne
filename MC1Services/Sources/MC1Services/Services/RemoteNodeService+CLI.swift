@@ -76,14 +76,38 @@ extension RemoteNodeService {
     try await acquireCLISlot(for: destinationPrefix, waiterID: requestID)
     defer { releaseCLISlot(for: destinationPrefix) }
 
-    return try await performCLIExchange(
+    // Reboot has no reply; path-reset+resend would fire a second reboot.
+    if Self.isFireAndForgetCLI(command) {
+      return try await performCLIExchange(
+        publicKey: remoteSession.publicKey,
+        destinationPrefix: destinationPrefix,
+        command: command,
+        acceptsAnyResponse: acceptsAnyResponse,
+        timeout: timeout,
+        requestID: requestID
+      )
+    }
+
+    return try await performWithDirectPathFloodRecovery(
+      radioID: remoteSession.radioID,
       publicKey: remoteSession.publicKey,
-      destinationPrefix: destinationPrefix,
-      command: command,
-      acceptsAnyResponse: acceptsAnyResponse,
-      timeout: timeout,
-      requestID: requestID
-    )
+      operationName: "remoteCLI"
+    ) {
+      try await self.performCLIExchange(
+        publicKey: remoteSession.publicKey,
+        destinationPrefix: destinationPrefix,
+        command: command,
+        acceptsAnyResponse: acceptsAnyResponse,
+        timeout: timeout,
+        requestID: requestID
+      )
+    }
+  }
+
+  /// Commands that intentionally get no reply (or treat timeout as success).
+  private static func isFireAndForgetCLI(_ command: String) -> Bool {
+    let lower = command.lowercased().trimmingCharacters(in: .whitespaces)
+    return lower == "reboot" || lower.hasPrefix("reboot ")
   }
 
   /// Register the pending request, send the command, and poll the device for

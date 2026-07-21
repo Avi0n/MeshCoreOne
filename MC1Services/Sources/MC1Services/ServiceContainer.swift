@@ -370,33 +370,6 @@ public final class ServiceContainer {
     await messageService.startEventMonitoring()
     await messageService.startAckExpiryChecking()
 
-    // Route salvaged late binary responses to the admin surface that shows
-    // them. Weak captures: the router lives on remoteNodeService, and the
-    // admin services hold remoteNodeService back.
-    let repeaterAdmin = repeaterAdminService
-    let roomAdmin = roomAdminService
-    await remoteNodeService.setSalvagedResponseRouter { [weak repeaterAdmin, weak roomAdmin, dataStore] salvaged in
-      switch salvaged {
-      case let .status(response):
-        let prefix = Data(response.publicKeyPrefix.prefix(6))
-        guard let session = try? await dataStore.fetchRemoteNodeSessionByPrefix(prefix) else { return }
-        if session.isRoom {
-          await roomAdmin?.invokeStatusHandler(response)
-        } else {
-          await repeaterAdmin?.invokeStatusHandler(response)
-        }
-      case let .telemetry(response):
-        let prefix = Data(response.publicKeyPrefix.prefix(6))
-        guard let session = try? await dataStore.fetchRemoteNodeSessionByPrefix(prefix) else { return }
-        if session.isRoom {
-          await roomAdmin?.invokeTelemetryHandler(response)
-        } else {
-          await repeaterAdmin?.invokeTelemetryHandler(response)
-        }
-      case let .neighbours(response):
-        await repeaterAdmin?.invokeNeighboursHandler(response)
-      }
-    }
     let meshSession = session
     await remoteNodeService.setRadioClockProvider { [weak meshSession] in
       try? await meshSession?.getTime()
