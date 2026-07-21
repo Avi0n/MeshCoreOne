@@ -2675,8 +2675,12 @@ public enum L10n {
   public enum Map {
     public enum Map {
       public enum Callout {
+        /// Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout
+        public static let add = L10n.tr("Map", "map.callout.add", fallback: "Add")
         /// Location: ContactCalloutContent.swift - Purpose: Button to view contact details
         public static let details = L10n.tr("Map", "map.callout.details", fallback: "Details")
+        /// Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list
+        public static let discovered = L10n.tr("Map", "map.callout.discovered", fallback: "Discovered")
         /// Location: ContactCalloutContent.swift - Purpose: Button to send message from callout
         public static let message = L10n.tr("Map", "map.callout.message", fallback: "Message")
         public enum NodeKind {
@@ -2756,6 +2760,12 @@ public enum L10n {
           public static let outboundPath = L10n.tr("Map", "map.detail.section.outboundPath", fallback: "Outbound Path")
         }
       }
+      public enum DiscoveredDetail {
+        /// Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table
+        public static let add = L10n.tr("Map", "map.discoveredDetail.add", fallback: "Add to Nodes")
+        /// Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail
+        public static let title = L10n.tr("Map", "map.discoveredDetail.title", fallback: "Discovered Node")
+      }
       public enum NodeKind {
         /// Location: MapView.swift ContactDetailSheet - Purpose: Display name for chat contact type
         public static let chatContact = L10n.tr("Map", "map.nodeKind.chatContact", fallback: "Chat Contact")
@@ -2767,6 +2777,12 @@ public enum L10n {
       public enum OfflineBadge {
         /// Label shown on map when device has no internet connection
         public static let label = L10n.tr("Map", "map.offlineBadge.label", fallback: "Offline")
+      }
+      public enum Pin {
+        public enum Accessibility {
+          /// Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins
+          public static let discovered = L10n.tr("Map", "map.pin.accessibility.discovered", fallback: "Discovered, not on node list")
+        }
       }
       public enum Preview {
         /// Location: MapPreviewFragmentView.swift - Purpose: Accessibility hint for tapping the chat map-location thumbnail
@@ -4744,6 +4760,22 @@ public enum L10n {
       public static let header = L10n.tr("Settings", "mapPreviews.header", fallback: "Map Previews")
       /// Toggle label for chat map thumbnails
       public static let toggle = L10n.tr("Settings", "mapPreviews.toggle", fallback: "Show Map Thumbnails")
+    }
+    public enum Maps {
+      /// Picker label for map basemap appearance
+      public static let appearance = L10n.tr("Settings", "maps.appearance", fallback: "Map Appearance")
+      /// Footer explaining map appearance is basemap-only
+      public static let appearanceFooter = L10n.tr("Settings", "maps.appearanceFooter", fallback: "Controls the map basemap only. App colors still follow Appearance.")
+      /// Section header for display preferences on Maps settings
+      public static let displayHeader = L10n.tr("Settings", "maps.displayHeader", fallback: "Display")
+      /// Section header for Offline Maps entry under Maps settings
+      public static let offlineHeader = L10n.tr("Settings", "maps.offlineHeader", fallback: "Offline Maps")
+      /// Toggle to show discovered nodes on the main map
+      public static let showDiscovered = L10n.tr("Settings", "maps.showDiscovered", fallback: "Show Discovered Nodes")
+      /// Footer explaining the discovered-nodes map toggle
+      public static let showDiscoveredFooter = L10n.tr("Settings", "maps.showDiscoveredFooter", fallback: "When enabled, nodes from Discover that share a location appear on the map alongside saved nodes.")
+      /// Navigation title for Settings → Maps hub
+      public static let title = L10n.tr("Settings", "maps.title", fallback: "Maps")
     }
     public enum Messages {
       /// Footer explaining what the message display options show

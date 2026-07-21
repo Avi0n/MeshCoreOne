@@ -1343,6 +1343,29 @@
 "replyWithQuote.toggle" = "Responder con cita";
 "replyWithQuote.footer" = "Al responder se incluye una vista previa del mensaje original.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Mapas";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Visualización";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "Mostrar nodos descubiertos";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "Cuando está activado, los nodos de Descubrir que comparten una ubicación aparecen en el mapa junto a los nodos guardados.";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Apariencia del mapa";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Controla solo el mapa base. Los colores de la app siguen Apariencia.";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Mapas sin conexión";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

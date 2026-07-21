@@ -326,6 +326,56 @@ struct AppBackupEnvelopeTests {
   }
 
   @Test
+  func `Legacy envelope without map preference keys decodes to nil and restore skips them`() throws {
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showDiscoveredNodesOnMap == nil)
+    #expect(decoded.mapColorSchemePreference == nil)
+
+    let suiteName = "test.mapPrefs.legacy.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let showKey = AppStorageKey.showDiscoveredNodesOnMap.rawValue
+    let schemeKey = AppStorageKey.mapColorSchemePreference.rawValue
+    // Pre-seed local prefs: write-if-missing must leave them untouched.
+    defaults.set(false, forKey: showKey)
+    defaults.set("light", forKey: schemeKey)
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(showKey))
+    #expect(!setKeys.contains(schemeKey))
+    #expect(defaults.bool(forKey: showKey) == false)
+    #expect(defaults.string(forKey: schemeKey) == "light")
+  }
+
+  @Test
+  func `Map preference keys round-trip non-default values through restore`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.showDiscoveredNodesOnMap = true
+    prefs.mapColorSchemePreference = "dark"
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showDiscoveredNodesOnMap == true)
+    #expect(decoded.mapColorSchemePreference == "dark")
+
+    let suiteName = "test.mapPrefs.roundTrip.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let showKey = AppStorageKey.showDiscoveredNodesOnMap.rawValue
+    let schemeKey = AppStorageKey.mapColorSchemePreference.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(setKeys.contains(showKey))
+    #expect(setKeys.contains(schemeKey))
+    #expect(defaults.bool(forKey: showKey) == true)
+    #expect(defaults.string(forKey: schemeKey) == "dark")
+  }
+
+  @Test
   func `showInlineImages survives restore and never reconstructs the link-content toggle`() throws {
     // showInlineImages is retained in the wire format but no longer read as a
     // gate. It must survive encode -> decode -> restore, and restoring an

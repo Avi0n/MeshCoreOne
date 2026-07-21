@@ -25,8 +25,16 @@ struct NeighborSNRMapView: View {
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
+  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
+  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
 
   @State private var cameraRegion: MKCoordinateRegion?
+
+  private var mapIsDark: Bool {
+    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
+    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
+  }
+
   @State private var cameraRegionVersion = 0
   @State private var isCenteredOnUser = false
   @State private var plotted: NeighborSNRMapBuilder.PlottedNeighbors?
@@ -39,7 +47,7 @@ struct NeighborSNRMapView: View {
         points: plotted?.points ?? [],
         lines: plotted?.lines ?? [],
         mapStyle: mapStyleSelection,
-        isDarkMode: colorScheme == .dark,
+        isDarkMode: mapIsDark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
         showsUserLocation: true,

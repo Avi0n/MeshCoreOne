@@ -2,7 +2,7 @@ import MapKit
 import MC1Services
 import SwiftUI
 
-/// ViewModel for map contact locations
+/// ViewModel for map contact and discovered-node locations
 @Observable
 @MainActor
 final class MapViewModel {
@@ -11,7 +11,10 @@ final class MapViewModel {
   /// All contacts with valid locations
   var contactsWithLocation: [ContactDTO] = []
 
-  /// Map points derived from contacts — stored to avoid reallocation on every body eval.
+  /// Located discovered nodes not already present as contacts (public key).
+  private(set) var discoveredWithLocation: [DiscoveredNodeDTO] = []
+
+  /// Map points derived from contacts and discovered nodes — stored to avoid reallocation on every body eval.
   private(set) var mapPoints: [MapPoint] = []
 
   /// A user-dropped pin from a chat coordinate tap. Folded into `mapPoints` so it
@@ -30,6 +33,11 @@ final class MapViewModel {
   /// Version counter for the camera region, incremented to signal a new camera target
   private(set) var cameraRegionVersion = 0
 
+  /// True when Center All should be enabled: any located contact or discovered pin.
+  var hasPinsForCenterAll: Bool {
+    !contactsWithLocation.isEmpty || !discoveredWithLocation.isEmpty
+  }
+
   // MARK: - Dependencies
 
   private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
@@ -42,6 +50,13 @@ final class MapViewModel {
   private var radioID: UUID? {
     radioIDProvider()
   }
+
+  private static let reloadDebounce: Duration = .milliseconds(50)
+  private var reloadTask: Task<Void, Never>?
+  /// Latest include flag requested while a coalesced reload is pending.
+  private var pendingIncludeDiscovered = false
+  /// Bumped so an older in-flight load cannot overwrite a newer one.
+  private var loadGeneration = 0
 
   // MARK: - Initialization
 
@@ -62,30 +77,103 @@ final class MapViewModel {
     radioIDProvider = radioID
   }
 
-  // MARK: - Load Contacts
+  // MARK: - Load Map Data
 
-  /// Load contacts with valid locations from the database
-  func loadContactsWithLocation() async {
-    guard let dataStore, let radioID else { return }
+  /// Load located contacts and, when `includeDiscovered` is true, located
+  /// discovered nodes not already present as contacts (public key).
+  /// - Parameter showsLoadingChrome: true for first paint / user refresh only.
+  ///   Coalesced live reloads pass false so the overlay and refresh spinner stay quiet.
+  ///
+  /// Loading chrome is owned by the current generation: start sets
+  /// `isLoading = showsLoadingChrome`, stale early returns leave it alone, and only
+  /// the current generation clears it on exit.
+  func loadMapData(includeDiscovered: Bool, showsLoadingChrome: Bool = true) async {
+    loadGeneration += 1
+    let generation = loadGeneration
 
-    isLoading = true
+    guard let dataStore, let radioID else {
+      errorMessage = nil
+      isLoading = false
+      clearMapPinData()
+      return
+    }
+    // Silent loads clear a spinner left by a superseded chrome load.
+    isLoading = showsLoadingChrome
     errorMessage = nil
-
     do {
       let allContacts = try await dataStore.fetchContacts(radioID: radioID)
-      contactsWithLocation = allContacts.filter(\.hasLocation)
+      guard generation == loadGeneration else { return }
+
+      let locatedContacts = allContacts.filter(\.hasLocation)
+
+      let locatedDiscovered: [DiscoveredNodeDTO]
+      if includeDiscovered {
+        // Full-table fetch, then keep only plottable nodes not already contacts.
+        let allDiscovered = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
+        guard generation == loadGeneration else { return }
+        let contactKeys = Set(allContacts.map(\.publicKey))
+        locatedDiscovered = allDiscovered.filter { node in
+          node.coordinate.isValidFix && !contactKeys.contains(node.publicKey)
+        }
+      } else {
+        locatedDiscovered = []
+      }
+
+      guard generation == loadGeneration else { return }
+      // Assign both arrays only after both fetches succeed so lookups and Center All
+      // never disagree with mapPoints.
+      contactsWithLocation = locatedContacts
+      discoveredWithLocation = locatedDiscovered
       rebuildMapPoints()
     } catch {
+      guard generation == loadGeneration else { return }
+      // Keep pin store consistent with the toggle even when contact fetch fails.
+      if !includeDiscovered, !discoveredWithLocation.isEmpty {
+        discoveredWithLocation = []
+        rebuildMapPoints()
+      }
       errorMessage = error.userFacingMessage
     }
+    if generation == loadGeneration {
+      isLoading = false
+    }
+  }
 
-    isLoading = false
+  /// Schedules a debounced reload so bursts of version bumps trigger one load.
+  /// Records the latest `includeDiscovered` so a toggle flip during the debounce
+  /// window is not dropped.
+  func scheduleCoalescedReload(includeDiscovered: Bool, showsLoadingChrome: Bool = false) {
+    pendingIncludeDiscovered = includeDiscovered
+    guard reloadTask == nil else { return }
+    reloadTask = Task { @MainActor [weak self] in
+      try? await Task.sleep(for: Self.reloadDebounce)
+      guard let self, !Task.isCancelled else { return }
+      self.reloadTask = nil
+      let include = self.pendingIncludeDiscovered
+      await self.loadMapData(
+        includeDiscovered: include,
+        showsLoadingChrome: showsLoadingChrome
+      )
+    }
+  }
+
+  /// Cancels any pending coalesced reload (e.g. before a user-driven refresh).
+  func cancelPendingReload() {
+    reloadTask?.cancel()
+    reloadTask = nil
+    loadGeneration += 1
+  }
+
+  private func clearMapPinData() {
+    contactsWithLocation = []
+    discoveredWithLocation = []
+    rebuildMapPoints()
   }
 
   // MARK: - Map Points
 
   private func rebuildMapPoints() {
-    mapPoints = contactsWithLocation.map { contact in
+    var points: [MapPoint] = contactsWithLocation.map { contact in
       MapPoint(
         id: contact.id,
         coordinate: contact.coordinate,
@@ -96,9 +184,34 @@ final class MapViewModel {
         badgeText: nil
       )
     }
-    if let focusedPin {
-      mapPoints.append(focusedPin)
+    points += discoveredWithLocation.map { node in
+      MapPoint(
+        id: node.id,
+        coordinate: node.coordinate,
+        pinStyle: node.nodeType.pinStyle,
+        label: node.name,
+        isClusterable: true,
+        hopIndex: nil,
+        badgeText: nil
+      )
     }
+    if let focusedPin {
+      points.append(focusedPin)
+    }
+    // Avoid force-assign when equal so MapLibre can skip O(n) GeoJSON rebuild.
+    if points != mapPoints {
+      mapPoints = points
+    }
+  }
+
+  // MARK: - Lookup
+
+  func contact(forPointID id: UUID) -> ContactDTO? {
+    contactsWithLocation.first { $0.id == id }
+  }
+
+  func discovered(forPointID id: UUID) -> DiscoveredNodeDTO? {
+    discoveredWithLocation.first { $0.id == id }
   }
 
   // MARK: - Map Interaction
@@ -130,14 +243,14 @@ final class MapViewModel {
     rebuildMapPoints()
   }
 
-  /// Center map to show all contacts
+  /// Center map to show all located contacts and discovered pins.
   func centerOnAllContacts() {
-    guard !contactsWithLocation.isEmpty else {
+    var coordinates = contactsWithLocation.map(\.coordinate)
+    coordinates += discoveredWithLocation.map(\.coordinate)
+    guard !coordinates.isEmpty else {
       cameraRegion = nil
       return
     }
-
-    let coordinates = contactsWithLocation.map(\.coordinate)
     setCameraRegion(coordinates.boundingRegion())
   }
 

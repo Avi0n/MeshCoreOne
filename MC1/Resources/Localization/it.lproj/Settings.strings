@@ -1341,6 +1341,29 @@
 "replyWithQuote.toggle" = "Rispondi con citazione";
 "replyWithQuote.footer" = "La risposta include un’anteprima del messaggio originale.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Mappe";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Visualizzazione";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "Mostra nodi scoperti";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "Se attivo, i nodi da Scopri che condividono una posizione compaiono sulla mappa insieme ai nodi salvati.";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Aspetto mappa";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Controlla solo la mappa base. I colori dell’app seguono ancora Aspetto.";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Mappe offline";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

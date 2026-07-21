@@ -106,8 +106,8 @@ struct SettingsListContent: View {
         )
       }
 
-      SettingsDetailRow(detail: .offlineMaps) {
-        TintedLabel(L10n.Settings.OfflineMaps.title, systemImage: "map.fill")
+      SettingsDetailRow(detail: .maps) {
+        TintedLabel(L10n.Settings.Maps.title, systemImage: "map.fill")
       }
 
       SettingsDetailRow(detail: .backup) {

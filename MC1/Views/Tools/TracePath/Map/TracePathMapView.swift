@@ -14,7 +14,14 @@ struct TracePathMapView: View {
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
+  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
+  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
   @State private var mapViewModel = TracePathMapViewModel()
+
+  private var mapIsDark: Bool {
+    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
+    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
+  }
 
   @State private var showingSavePrompt = false
   @State private var saveName = ""
@@ -118,7 +125,7 @@ struct TracePathMapView: View {
       points: mapViewModel.mapPoints,
       lines: mapViewModel.mapLines,
       mapStyle: mapStyleSelection,
-      isDarkMode: colorScheme == .dark,
+      isDarkMode: mapIsDark,
       isOffline: !appState.offlineMapService.isNetworkAvailable,
       showLabels: showLabels,
       showsUserLocation: true,

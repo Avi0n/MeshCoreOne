@@ -34,6 +34,8 @@ public enum AppStorageKey: String {
   case mapStyleSelection
   case mapShowLabels
   case mapNorthLocked
+  case showDiscoveredNodesOnMap
+  case mapColorSchemePreference
   case hasSeenRepeaterDragHint
   case autoDeleteStaleNodesDays
   case lastStaleCleanupDate
@@ -72,6 +74,9 @@ public enum AppStorageKey: String {
   public static let defaultShowMapPreviewThumbnails: Bool = true
   public static let defaultMapShowLabels: Bool = true
   public static let defaultMapNorthLocked: Bool = false
+  public static let defaultShowDiscoveredNodesOnMap: Bool = false
+  /// Raw value of `AppColorSchemePreference.system` — basemap only, not app chrome.
+  public static let defaultMapColorSchemePreference: String = "system"
   public static let defaultHasSeenRepeaterDragHint: Bool = false
   public static let defaultLiveActivityEnabled: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.

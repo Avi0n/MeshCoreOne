@@ -1343,6 +1343,29 @@
 "replyWithQuote.toggle" = "Antwoorden met citaat";
 "replyWithQuote.footer" = "Bij een antwoord wordt een voorbeeld van het oorspronkelijke bericht toegevoegd.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Kaarten";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Weergave";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "Ontdekte knooppunten tonen";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "Wanneer ingeschakeld verschijnen knooppunten uit Ontdekken die een locatie delen op de kaart naast opgeslagen knooppunten.";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Kaartweergave";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Bepaalt alleen de basiskaart. App-kleuren volgen nog steeds Weergave.";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Offline kaarten";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

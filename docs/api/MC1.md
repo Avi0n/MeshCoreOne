@@ -169,18 +169,21 @@ Manages state for the map view showing contact locations.
 | Property | Type | Description |
 |----------|------|-------------|
 | `contactsWithLocation` | `[ContactDTO]` | Contacts with valid coordinates |
-| `mapPoints` | `[MapPoint]` | Map points derived from contacts plus any dropped pin |
+| `discoveredWithLocation` | `[DiscoveredNodeDTO]` | Located discovered nodes (when include is on), deduped by public key |
+| `mapPoints` | `[MapPoint]` | Map points from contacts, discovered nodes, plus any dropped pin |
 | `focusedPin` | `MapPoint?` | A user-dropped pin from a chat coordinate tap |
 | `cameraRegion` | `MKCoordinateRegion?` | Map viewport region |
 | `isLoading` | `Bool` | Loading state |
+| `hasPinsForCenterAll` | `Bool` | Whether Center All has any contact or discovered pin |
 
 **Key Methods:**
 
 | Method | Description |
 |--------|-------------|
-| `loadContactsWithLocation() async` | Load contacts with valid locations |
+| `loadMapData(includeDiscovered:showsLoadingChrome:) async` | Load located contacts and optionally plottable discovered nodes |
+| `scheduleCoalescedReload(includeDiscovered:showsLoadingChrome:)` | Debounced live reload; trailing `includeDiscovered` wins |
 | `focusOnCoordinate(_:)` | Drop a pin at a coordinate and center on it |
-| `centerOnAllContacts()` | Center map to show all contacts |
+| `centerOnAllContacts()` | Center map on contact ∪ discovered pin coordinates |
 
 ---
 

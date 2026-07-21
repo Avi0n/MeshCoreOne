@@ -12,6 +12,8 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var appColorSchemePreference: String?
   public var mapShowLabels: Bool?
   public var mapNorthLocked: Bool?
+  public var showDiscoveredNodesOnMap: Bool?
+  public var mapColorSchemePreference: String?
   public var replyWithQuote: Bool?
   public var showInlineImages: Bool?
   public var autoPlayGIFs: Bool?
@@ -101,6 +103,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.liveActivityEnabled, AppStorageKey.liveActivityEnabled.rawValue),
     (\.mapShowLabels, AppStorageKey.mapShowLabels.rawValue),
     (\.mapNorthLocked, AppStorageKey.mapNorthLocked.rawValue),
+    (\.showDiscoveredNodesOnMap, AppStorageKey.showDiscoveredNodesOnMap.rawValue),
     (\.replyWithQuote, AppStorageKey.replyWithQuote.rawValue),
     (\.showInlineImages, AppStorageKey.showInlineImages.rawValue),
     (\.autoPlayGIFs, AppStorageKey.autoPlayGIFs.rawValue),
@@ -135,6 +138,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   /// See `boolMappings` for the `nonisolated(unsafe)` rationale.
   private nonisolated(unsafe) static let stringMappings: [(WritableKeyPath<BackupUserDefaults, String?>, String)] = [
     (\.mapStyleSelection, AppStorageKey.mapStyleSelection.rawValue),
+    (\.mapColorSchemePreference, AppStorageKey.mapColorSchemePreference.rawValue),
     (\.discoverySortOrder, AppStorageKey.discoverySortOrder.rawValue),
     (\.nodesSortOrder, AppStorageKey.nodesSortOrder.rawValue),
     (\.tracePathViewMode, AppStorageKey.tracePathViewMode.rawValue),

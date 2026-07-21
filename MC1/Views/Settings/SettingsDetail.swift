@@ -13,7 +13,7 @@ enum SettingsDetail: Hashable {
   case notifications
   case chats
   case appearance
-  case offlineMaps
+  case maps
   case backup
   case support
 
@@ -23,7 +23,7 @@ enum SettingsDetail: Hashable {
     switch self {
     case .deviceInfo, .radio, .location, .connection, .advanced:
       true
-    case .notifications, .chats, .appearance, .offlineMaps, .backup, .support:
+    case .notifications, .chats, .appearance, .maps, .backup, .support:
       false
     }
   }

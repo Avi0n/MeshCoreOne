@@ -10,11 +10,14 @@ struct MapCanvasView: View {
   @Binding var mapStyleSelection: MapStyleSelection
   @Binding var showLabels: Bool
   @Binding var isNorthLocked: Bool
-  @Binding var selectedCalloutContact: ContactDTO?
+  @Binding var selectedCallout: MapCalloutSelection?
   @Binding var selectedPointScreenPosition: CGPoint?
   @Binding var isStyleLoaded: Bool
+  let isAddingDiscovered: Bool
   let onShowContactDetail: (ContactDTO) -> Void
   let onNavigateToChat: (ContactDTO) -> Void
+  let onShowDiscoveredDetail: (DiscoveredNodeDTO) -> Void
+  let onAddDiscovered: (DiscoveredNodeDTO) -> Void
   let onCenterOnUser: () -> Bool
   let onClearSelection: () -> Void
   let onPersistCamera: (MKCoordinateRegion) -> Void
@@ -28,12 +31,15 @@ struct MapCanvasView: View {
         mapStyleSelection: mapStyleSelection,
         showLabels: showLabels,
         isNorthLocked: isNorthLocked,
-        selectedCalloutContact: $selectedCalloutContact,
+        selectedCallout: $selectedCallout,
         selectedPointScreenPosition: $selectedPointScreenPosition,
         isStyleLoaded: $isStyleLoaded,
         isCenteredOnUser: $isCenteredOnUser,
+        isAddingDiscovered: isAddingDiscovered,
         onShowContactDetail: onShowContactDetail,
         onNavigateToChat: onNavigateToChat,
+        onShowDiscoveredDetail: onShowDiscoveredDetail,
+        onAddDiscovered: onAddDiscovered,
         onPersistCamera: onPersistCamera
       )
       .ignoresSafeArea()
@@ -52,7 +58,7 @@ struct MapCanvasView: View {
           mapStyleSelection: $mapStyleSelection,
           isCenteredOnUser: isCenteredOnUser,
           viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds(),
-          contactsEmpty: viewModel.contactsWithLocation.isEmpty,
+          centerAllEmpty: !viewModel.hasPinsForCenterAll,
           onLocationTap: {
             isCenteredOnUser = onCenterOnUser()
           },
@@ -75,7 +81,7 @@ private struct MapCanvasControls: View {
   @Binding var mapStyleSelection: MapStyleSelection
   let isCenteredOnUser: Bool
   let viewportBounds: MLNCoordinateBounds?
-  let contactsEmpty: Bool
+  let centerAllEmpty: Bool
   let onLocationTap: () -> Void
   let onClearSelection: () -> Void
   let onCenterAll: () -> Void
@@ -92,7 +98,7 @@ private struct MapCanvasControls: View {
         viewportBounds: viewportBounds
       ) {
         CenterAllButton(
-          isEmpty: contactsEmpty,
+          isEmpty: centerAllEmpty,
           onClearSelection: onClearSelection,
           onCenterAll: onCenterAll
         )

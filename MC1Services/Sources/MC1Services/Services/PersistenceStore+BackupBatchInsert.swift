@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import SwiftData
 
@@ -587,6 +588,7 @@ extension PersistenceStore {
 
   /// Rejects rows whose public key is not protocol-sized; truncates name and out-path
   /// to protocol bounds so a crafted envelope cannot bloat the store under the row-count cap.
+  /// Out-of-range lat/lon becomes (0,0) so restored rows are not plottable on the map.
   private func sanitizeDiscoveredNodeForImport(_ dto: DiscoveredNodeDTO) -> DiscoveredNodeDTO? {
     guard dto.publicKey.count == ProtocolLimits.publicKeySize else { return nil }
     let name = dto.name.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)
@@ -595,7 +597,11 @@ extension PersistenceStore {
     } else {
       dto.outPath
     }
-    guard name != dto.name || outPath != dto.outPath else { return dto }
+    let plottable = CLLocationCoordinate2D(latitude: dto.latitude, longitude: dto.longitude).isValidFix
+    let latitude = plottable ? dto.latitude : 0
+    let longitude = plottable ? dto.longitude : 0
+    guard name != dto.name || outPath != dto.outPath
+      || latitude != dto.latitude || longitude != dto.longitude else { return dto }
     return DiscoveredNodeDTO(
       id: dto.id,
       radioID: dto.radioID,
@@ -604,8 +610,8 @@ extension PersistenceStore {
       typeRawValue: dto.typeRawValue,
       lastHeard: dto.lastHeard,
       lastAdvertTimestamp: dto.lastAdvertTimestamp,
-      latitude: dto.latitude,
-      longitude: dto.longitude,
+      latitude: latitude,
+      longitude: longitude,
       outPathLength: dto.outPathLength,
       outPath: outPath,
       inboundHopCount: dto.inboundHopCount,

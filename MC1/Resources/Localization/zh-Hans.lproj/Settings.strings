@@ -1343,6 +1343,29 @@
 "replyWithQuote.toggle" = "引用回复";
 "replyWithQuote.footer" = "回复时包含原始消息的预览。";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "地图";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "显示";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "显示发现的节点";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "开启后，发现中带有位置的节点会与已保存节点一起显示在地图上。";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "地图外观";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "仅控制地图底图。应用颜色仍跟随外观。";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "离线地图";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

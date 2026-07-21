@@ -1343,6 +1343,29 @@
 "replyWithQuote.toggle" = "Répondre avec citation";
 "replyWithQuote.footer" = "La réponse inclut un aperçu du message d'origine.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Cartes";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Affichage";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "Afficher les nœuds découverts";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "Lorsqu'activé, les nœuds de Découvrir qui partagent une position apparaissent sur la carte aux côtés des nœuds enregistrés.";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Apparence de la carte";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Contrôle uniquement le fond de carte. Les couleurs de l'app suivent toujours Apparence.";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Cartes hors ligne";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

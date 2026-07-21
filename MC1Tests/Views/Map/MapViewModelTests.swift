@@ -72,7 +72,7 @@ struct MapViewModelFocusTests {
   }
 
   @Test
-  func `loadContactsWithLocation preserves a previously dropped pin`() async throws {
+  func `loadMapData preserves a previously dropped pin`() async throws {
     let radioID = UUID()
     let container = try PersistenceStore.createContainer(inMemory: true)
     let dataStore = PersistenceStore(modelContainer: container)
@@ -82,7 +82,7 @@ struct MapViewModelFocusTests {
     viewModel.configure(dataStore: { dataStore }, radioID: { radioID })
     viewModel.focusOnCoordinate(CLLocationCoordinate2D(latitude: 10, longitude: 20))
 
-    await viewModel.loadContactsWithLocation()
+    await viewModel.loadMapData(includeDiscovered: false)
 
     #expect(viewModel.mapPoints.contains { $0.pinStyle == .droppedPin }, "Refresh must not wipe the dropped pin")
     #expect(viewModel.mapPoints.contains { $0.pinStyle != .droppedPin }, "The contact pin should also be present")
@@ -118,7 +118,7 @@ struct MapViewModelFocusTests {
 
     let viewModel = MapViewModel()
     viewModel.configure(dataStore: { dataStore }, radioID: { radioID })
-    await viewModel.loadContactsWithLocation()
+    await viewModel.loadMapData(includeDiscovered: false)
 
     viewModel.applyInitialCamera(saved: nil, hasPendingFocus: false)
 

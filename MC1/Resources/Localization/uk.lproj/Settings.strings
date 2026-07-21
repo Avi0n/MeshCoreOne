@@ -1343,6 +1343,29 @@
 "replyWithQuote.toggle" = "Відповідати з цитатою";
 "replyWithQuote.footer" = "Відповідь включає попередній перегляд оригінального повідомлення.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Карти";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Відображення";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "Показувати виявлені вузли";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "Коли увімкнено, вузли з Виявлення, що діляться місцезнаходженням, з'являються на карті разом зі збереженими вузлами.";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Вигляд карти";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Керує лише базовою картою. Кольори застосунку й надалі слідують «Зовнішньому вигляду».";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Офлайн-карти";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

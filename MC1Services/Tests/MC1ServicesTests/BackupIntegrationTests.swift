@@ -3829,6 +3829,40 @@ struct BackupIntegrationTests {
   }
 
   @Test
+  func `Import null-islands invalid discovered coordinates`() async throws {
+    let radioID = UUID()
+    let device = DeviceDTO.testDevice(radioID: radioID, publicKey: Data(repeating: 0xDD, count: 32))
+    let outOfRange = DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: Data(repeating: 0x33, count: 32),
+      name: "Bad-Coords",
+      typeRawValue: 0x01,
+      lastHeard: Date(timeIntervalSince1970: 1_700_000_000),
+      lastAdvertTimestamp: 1,
+      latitude: 999.0,
+      longitude: -122.0,
+      outPathLength: 0xFF,
+      outPath: Data(),
+      inboundHopCount: nil,
+      inboundHopAdvertTimestamp: nil
+    )
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let result = try await AppBackupService().importBackup(
+      envelope: .test(devices: [device], discoveredNodes: [outOfRange]),
+      into: store
+    )
+    #expect(result.discoveredNodesInserted == 1)
+
+    let persisted = try await store.fetchDiscoveredNodes(radioID: radioID)
+    #expect(persisted.count == 1)
+    #expect(persisted.first?.latitude == 0)
+    #expect(persisted.first?.longitude == 0)
+    #expect(persisted.first?.hasLocation == false)
+  }
+
+  @Test
   func `Import assigns fresh DiscoveredNode.id so an id collision cannot upsert the local row`() async throws {
     // Without re-mint, SwiftData upserts on @Attribute(.unique) DiscoveredNode.id when a
     // backup reuses that id under a different publicKey. Seed via upsertDiscoveredNode so the

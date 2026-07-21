@@ -1343,6 +1343,29 @@
 "replyWithQuote.toggle" = "Odpowiedz z cytatem";
 "replyWithQuote.footer" = "Odpowiadanie dołącza podgląd oryginalnej wiadomości.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Mapy";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Wyświetlanie";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "Pokaż odkryte węzły";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "Gdy włączone, węzły z Odkrywania, które udostępniają lokalizację, pojawiają się na mapie obok zapisanych węzłów.";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Wygląd mapy";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Steruje tylko podkładem mapy. Kolory aplikacji nadal wynikają z ustawienia Wygląd.";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Mapy offline";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

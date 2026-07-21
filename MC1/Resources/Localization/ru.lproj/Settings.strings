@@ -1343,6 +1343,29 @@
 "replyWithQuote.toggle" = "Ответ с цитатой";
 "replyWithQuote.footer" = "Ответ включает предпросмотр исходного сообщения.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Карты";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Отображение";
+
+/* Toggle to show discovered nodes on the main map */
+"maps.showDiscovered" = "Показывать обнаруженные узлы";
+
+/* Footer explaining the discovered-nodes map toggle */
+"maps.showDiscoveredFooter" = "Когда включено, узлы из Обнаружения, которые делятся местоположением, появляются на карте вместе с сохранёнными.";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Внешний вид карты";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Управляет только базовой картой. Цвета приложения по-прежнему следуют настройке «Внешний вид».";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Офлайн-карты";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */

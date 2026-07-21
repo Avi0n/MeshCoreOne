@@ -199,19 +199,10 @@ struct DiscoveryView: View {
     addingNodeID = node.id
     Task {
       do {
-        let frame = ContactFrame(
-          publicKey: node.publicKey,
-          type: node.nodeType,
-          flags: 0,
-          outPathLength: node.outPathLength,
-          outPath: node.outPath,
-          name: node.name,
-          lastAdvertTimestamp: node.lastAdvertTimestamp,
-          latitude: node.latitude,
-          longitude: node.longitude,
-          lastModified: UInt32(Date().timeIntervalSince1970)
+        try await contactService.addOrUpdateContact(
+          radioID: node.radioID,
+          contact: node.makeContactFrame()
         )
-        try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
         await viewModel.loadDiscoveredNodes()
       } catch ContactServiceError.contactTableFull {
         let maxContacts = appState.connectedDevice?.maxContacts
