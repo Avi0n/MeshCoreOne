@@ -87,6 +87,22 @@ struct RadioPresetRecommendationTests {
     #expect(preset.region == .southAmerica)
   }
 
+  @Test
+  func `Brazil → br`() {
+    let region = RegionSelection(countryCode: "BR", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "br")
+  }
+
+  @Test
+  func `Brazil preset carries the expected radio parameters`() throws {
+    let preset = try #require(RadioPresets.all.first(where: { $0.id == "br" }))
+    #expect(preset.frequencyMHz == 923.125)
+    #expect(preset.bandwidthKHz == 62.5)
+    #expect(preset.spreadingFactor == 8)
+    #expect(preset.codingRate == 8)
+    #expect(preset.region == .southAmerica)
+  }
+
   // MARK: - Tier 3 (continent)
 
   @Test
@@ -138,6 +154,13 @@ struct RadioPresetRecommendationTests {
     let ids = RadioPresets.presets(for: region).map(\.id)
     #expect(ids.contains("vn-narrow"))
     #expect(ids.contains("vn"))
+  }
+
+  @Test
+  func `presets(for: BR) includes br`() {
+    let region = RegionSelection(countryCode: "BR", source: .location)
+    let ids = RadioPresets.presets(for: region).map(\.id)
+    #expect(ids.contains("br"))
   }
 }
 

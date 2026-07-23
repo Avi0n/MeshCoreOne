@@ -23,7 +23,7 @@ public enum RadioRegion: String, CaseIterable, Sendable {
       return [.europe, .northAmerica, .oceania, .asia]
     case "VN", "TH", "MY", "SG", "PH", "ID":
       return [.asia, .oceania, .europe, .northAmerica]
-    case "CL":
+    case "CL", "BR":
       return [.southAmerica, .northAmerica, .europe, .oceania, .asia]
     default:
       return RadioRegion.allCases
@@ -174,6 +174,10 @@ public enum RadioPresets {
     RadioPreset(id: "cl", name: "Chile", region: .southAmerica,
                 frequencyMHz: 927.875, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 5,
                 availability: .countries(["CL"])),
+    // Brazil
+    RadioPreset(id: "br", name: "Brazil", region: .southAmerica,
+                frequencyMHz: 923.125, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8,
+                availability: .countries(["BR"])),
 
     // Asia
     RadioPreset(id: "vn-narrow", name: "Vietnam (Narrow)", region: .asia,
