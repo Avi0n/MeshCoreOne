@@ -1682,6 +1682,8 @@
 "Support.Pending.Banner" = "En attente d'approbation — votre achat sera activé une fois approuvé.";
 "Support.Pending.Button" = "En attente d'approbation";
 "Support.Contact.Link" = "Contacter l'assistance";
+"Support.ThankYou.Title" = "Merci !";
+"Support.ThankYou.Body" = "Merci pour votre soutien, ça compte beaucoup. Je continue de travailler pour améliorer MC1 !";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Par défaut";

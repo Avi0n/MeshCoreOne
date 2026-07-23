@@ -1680,6 +1680,8 @@
 "Support.Pending.Banner" = "Waiting for approval. Your purchase unlocks as soon as it's approved.";
 "Support.Pending.Button" = "Awaiting approval";
 "Support.Contact.Link" = "Email the developer";
+"Support.ThankYou.Title" = "Thank you!";
+"Support.ThankYou.Body" = "Thanks for your support, it means a lot. I'll keep working on making MC1 better!";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Default";

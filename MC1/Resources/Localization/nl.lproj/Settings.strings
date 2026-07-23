@@ -1682,6 +1682,8 @@
 "Support.Pending.Banner" = "Wacht op goedkeuring — je aankoop wordt geactiveerd zodra deze is goedgekeurd.";
 "Support.Pending.Button" = "Wacht op goedkeuring";
 "Support.Contact.Link" = "Contact opnemen met support";
+"Support.ThankYou.Title" = "Bedankt!";
+"Support.ThankYou.Body" = "Dank je voor je steun, het betekent veel. Ik blijf hard werken om MC1 beter te maken!";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Standaard";

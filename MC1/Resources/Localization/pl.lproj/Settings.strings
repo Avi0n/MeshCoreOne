@@ -1682,6 +1682,8 @@
 "Support.Pending.Banner" = "Oczekiwanie na zatwierdzenie — zakup zostanie aktywowany po zatwierdzeniu.";
 "Support.Pending.Button" = "Oczekiwanie na zatwierdzenie";
 "Support.Contact.Link" = "Skontaktuj się z pomocą techniczną";
+"Support.ThankYou.Title" = "Dziękuję!";
+"Support.ThankYou.Body" = "Dzięki za wsparcie, wiele dla mnie znaczy. Będę dalej pracować nad tym, żeby MC1 było jeszcze lepsze!";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Domyślny";

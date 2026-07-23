@@ -1680,6 +1680,8 @@
 "Support.Pending.Banner" = "In attesa di approvazione. L’acquisto si sblocca non appena viene approvato.";
 "Support.Pending.Button" = "In attesa di approvazione";
 "Support.Contact.Link" = "Scrivi allo sviluppatore";
+"Support.ThankYou.Title" = "Grazie!";
+"Support.ThankYou.Body" = "Grazie per il tuo supporto, per me significa molto. Continuerò a lavorare per migliorare MC1!";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Predefinito";

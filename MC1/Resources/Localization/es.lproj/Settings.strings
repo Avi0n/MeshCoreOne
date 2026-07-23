@@ -1682,6 +1682,8 @@
 "Support.Pending.Banner" = "Esperando aprobación: tu compra se activará cuando se apruebe.";
 "Support.Pending.Button" = "Esperando aprobación";
 "Support.Contact.Link" = "Contactar con soporte";
+"Support.ThankYou.Title" = "¡Gracias!";
+"Support.ThankYou.Body" = "Gracias por tu apoyo, significa mucho. ¡Seguiré trabajando para mejorar MC1!";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Predeterminado";

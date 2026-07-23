@@ -1682,6 +1682,8 @@
 "Support.Pending.Banner" = "Warten auf Genehmigung – dein Kauf wird nach der Genehmigung aktiviert.";
 "Support.Pending.Button" = "Warten auf Genehmigung";
 "Support.Contact.Link" = "Support kontaktieren";
+"Support.ThankYou.Title" = "Danke!";
+"Support.ThankYou.Body" = "Danke für deine Unterstützung, das bedeutet mir viel. Ich arbeite weiter daran, MC1 noch besser zu machen!";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Standard";

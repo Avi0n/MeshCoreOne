@@ -3952,6 +3952,12 @@ public enum L10n {
         /// Restoring…
         public static let syncing = L10n.tr("Settings", "Support.Restore.Syncing", fallback: "Restoring…")
       }
+      public enum ThankYou {
+        /// Thanks for your support, it means a lot. I'll keep working on making MC1 better!
+        public static let body = L10n.tr("Settings", "Support.ThankYou.Body", fallback: "Thanks for your support, it means a lot. I'll keep working on making MC1 better!")
+        /// Thank you!
+        public static let title = L10n.tr("Settings", "Support.ThankYou.Title", fallback: "Thank you!")
+      }
       public enum Theme {
         /// MARK: Theme display names
         public static let `default` = L10n.tr("Settings", "Support.Theme.Default", fallback: "Default")

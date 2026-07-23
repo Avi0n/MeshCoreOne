@@ -1682,6 +1682,8 @@
 "Support.Pending.Banner" = "Ожидает одобрения — покупка активируется после одобрения.";
 "Support.Pending.Button" = "Ожидает одобрения";
 "Support.Contact.Link" = "Связаться с поддержкой";
+"Support.ThankYou.Title" = "Спасибо!";
+"Support.ThankYou.Body" = "Спасибо за вашу поддержку — это очень много значит. Я продолжу работать над тем, чтобы MC1 становился лучше!";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Стандартная";

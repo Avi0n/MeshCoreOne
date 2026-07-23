@@ -1682,6 +1682,8 @@
 "Support.Pending.Banner" = "等待批准——你的购买将在获批后生效。";
 "Support.Pending.Button" = "等待批准";
 "Support.Contact.Link" = "联系支持";
+"Support.ThankYou.Title" = "谢谢你！";
+"Support.ThankYou.Body" = "感谢你的支持，这对我很重要。我会继续努力让 MC1 变得更好！";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "默认";
