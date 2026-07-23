@@ -786,8 +786,21 @@ struct DisplayFlagsTests {
     ]
 
     #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
-    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == true) // outgoing
-    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == true) // after outgoing
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == true)
+  }
+
+  @Test
+  func `Consecutive outgoing channel messages hide sender name`() {
+    let messages = [
+      createChannelMessage(timestamp: 1000, senderName: nil, isOutgoing: true),
+      createChannelMessage(timestamp: 1060, senderName: nil, isOutgoing: true),
+      createChannelMessage(timestamp: 1120, senderName: nil, isOutgoing: true)
+    ]
+
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[0], previous: nil).showSenderName == true)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[1], previous: messages[0]).showSenderName == false)
+    #expect(ChatMessageBakeState.computeDisplayFlags(for: messages[2], previous: messages[1]).showSenderName == false)
   }
 
   @Test

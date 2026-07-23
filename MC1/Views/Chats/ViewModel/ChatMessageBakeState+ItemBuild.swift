@@ -43,10 +43,14 @@ extension ChatMessageBakeState {
     let showTimestamp = timeGap > messageGroupingGapSeconds
     let showDirectionGap = message.direction != previous.direction
 
-    let showSenderName: Bool = if message.contactID != nil || message.isOutgoing {
-      // UI suppresses the sender name for direct messages anyway; the branch
-      // keeps the channel-message logic from running with a missing senderNodeName.
+    let showSenderName: Bool = if message.contactID != nil {
+      // Direct messages never show a sender name; keep true so each row still
+      // gets the cluster gap used for new-sender spacing.
       true
+    } else if message.isOutgoing {
+      // Outgoing channel rows never show a name. Side-switch spacing comes from
+      // showDirectionGap instead.
+      false
     } else if previous.isOutgoing || timeGap > messageGroupingGapSeconds {
       true
     } else if let currentName = message.senderNodeName, let previousName = previous.senderNodeName {

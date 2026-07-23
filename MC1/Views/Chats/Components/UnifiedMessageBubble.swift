@@ -19,6 +19,9 @@ private let bubbleRowOppositeEdgeMinInset: CGFloat = 40
 /// why `senderNamePlacement` subtracts it from the name's own gap.
 private let bubbleStackSpacing: CGFloat = 2
 
+/// Top padding for same-cluster follow-ups (no direction switch, no new sender).
+private let sameClusterPaddingTop: CGFloat = 2
+
 /// Unified message bubble for both direct and channel messages.
 ///
 /// Conforms to `Equatable` with comparison on `item` alone. Closures
@@ -292,7 +295,7 @@ struct UnifiedMessageBubble: View, Equatable {
     // stay tightly stacked.
     if item.grouping.showDirectionGap { return 14 }
     if item.grouping.showSenderName { return 8 }
-    return item.envelope.isOutgoing ? 1 : 2
+    return sameClusterPaddingTop
   }
 
   var accessibilityMessageLabel: String {
