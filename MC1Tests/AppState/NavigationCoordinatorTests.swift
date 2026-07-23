@@ -304,6 +304,21 @@ struct NavigationCoordinatorMapTests {
   }
 }
 
+@Suite("NavigationCoordinator Settings Navigation Tests")
+@MainActor
+struct NavigationCoordinatorSettingsTests {
+  @Test
+  func `navigateToSetting sets selectedSetting and selects the settings tab`() {
+    let coordinator = NavigationCoordinator()
+    coordinator.selectedTab = AppTab.chats.rawValue
+
+    coordinator.navigateToSetting(.support)
+
+    #expect(coordinator.selectedSetting == .support)
+    #expect(coordinator.selectedTab == AppTab.settings.rawValue)
+  }
+}
+
 @Suite("NavigationCoordinator Pending Link Tests")
 @MainActor
 struct NavigationCoordinatorPendingLinkTests {

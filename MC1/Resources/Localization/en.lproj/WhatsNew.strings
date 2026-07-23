@@ -13,17 +13,17 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Continue";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Shortcuts";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "Check your radio's status, send messages, and broadcast adverts.";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Improved chats";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Opening a chat lands you at new messages instead of the bottom. Times show on every bubble, and history and link previews load faster.";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "Clear a DM Conversation";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "Wipe the message history of any DM.";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Contact photos";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Set an avatar on any contact so people are easier to spot in lists and conversations.";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "Sort by hops";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "Nodes tab now correlates inbound hops from adverts in the RX Log.";
+/* What's New v1.3 - Discovered nodes on maps feature, title */
+"whatsNew.richerMaps.title" = "Discovered nodes on maps";
+/* What's New v1.3 - Discovered nodes on maps feature, description */
+"whatsNew.richerMaps.description" = "Show discovered contacts on the map and choose light, dark, or system map appearance in Settings → Maps.";

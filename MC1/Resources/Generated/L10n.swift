@@ -6028,23 +6028,23 @@ public enum L10n {
       public static let continueButton = L10n.tr("WhatsNew", "whatsNew.continueButton", fallback: "Continue")
       /// Title of the What's New sheet shown once after an app update
       public static let title = L10n.tr("WhatsNew", "whatsNew.title", fallback: "What's New")
-      public enum ClearMessages {
-        /// What's New v1.1 - Clear Messages feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.clearMessages.description", fallback: "Wipe the message history of any DM.")
-        /// What's New v1.1 - Clear Messages feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.clearMessages.title", fallback: "Clear a DM Conversation")
+      public enum ContactPhotos {
+        /// What's New v1.3 - Contact photos feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.contactPhotos.description", fallback: "Set an avatar on any contact so people are easier to spot in lists and conversations.")
+        /// What's New v1.3 - Contact photos feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.contactPhotos.title", fallback: "Contact photos")
       }
-      public enum InboundHops {
-        /// What's New v1.1 - Inbound hop counts feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.inboundHops.description", fallback: "Nodes tab now correlates inbound hops from adverts in the RX Log.")
-        /// What's New v1.1 - Inbound hop counts feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.inboundHops.title", fallback: "Sort by hops")
+      public enum FasterChats {
+        /// What's New v1.3 - Improved chats feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.fasterChats.description", fallback: "Opening a chat lands you at new messages instead of the bottom. Times show on every bubble, and history and link previews load faster.")
+        /// What's New v1.3 - Improved chats feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.fasterChats.title", fallback: "Improved chats")
       }
-      public enum SiriShortcuts {
-        /// What's New v1.1 - Shortcuts feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.siriShortcuts.description", fallback: "Check your radio's status, send messages, and broadcast adverts.")
-        /// What's New v1.1 - Shortcuts feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.siriShortcuts.title", fallback: "Shortcuts")
+      public enum RicherMaps {
+        /// What's New v1.3 - Discovered nodes on maps feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.richerMaps.description", fallback: "Show discovered contacts on the map and choose light, dark, or system map appearance in Settings → Maps.")
+        /// What's New v1.3 - Discovered nodes on maps feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.richerMaps.title", fallback: "Discovered nodes on maps")
       }
     }
   }

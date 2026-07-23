@@ -13,17 +13,17 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Продолжить";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Быстрые команды";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "Проверяйте состояние рации, отправляйте сообщения и рассылайте объявления.";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Улучшенные чаты";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Открытие чата переносит вас к новым сообщениям, а не в самый низ. Время отображается на каждом пузыре, а история и превью ссылок загружаются быстрее.";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "Очистить личную переписку";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "Удаляйте историю любого личного сообщения.";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Фото контактов";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Задайте аватар любому контакту, чтобы легче узнавать людей в списках и переписках.";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "Сортировка по переходам";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "Вкладка «Узлы» теперь сопоставляет входящие переходы с объявлениями в Журнале RX.";
+/* What's New v1.3 - Discovered nodes on maps feature, title */
+"whatsNew.richerMaps.title" = "Обнаруженные узлы на картах";
+/* What's New v1.3 - Discovered nodes on maps feature, description */
+"whatsNew.richerMaps.description" = "Показывайте обнаруженные контакты на карте и выбирайте светлый, тёмный или системный вид карты в «Настройки → Карты».";
