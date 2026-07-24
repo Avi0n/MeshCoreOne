@@ -7,8 +7,8 @@ extension CLIToolViewModel {
   /// Updates ghost text based on current input.
   /// - Parameter cursorAtEnd: Whether cursor is at end of input. Ghost text only shows when true.
   func updateGhostText(cursorAtEnd: Bool) {
-    // No ghost text during password entry
-    guard pendingLoginContact == nil else {
+    // No ghost text during password entry or a pending confirmation
+    guard pendingLoginContact == nil, pendingConfirmation == nil else {
       ghostText = ""
       return
     }
@@ -50,7 +50,7 @@ extension CLIToolViewModel {
   /// - Returns: Array of suggestions if multiple matches, nil otherwise
   @discardableResult
   func tabComplete() -> [String]? {
-    guard pendingLoginContact == nil else { return nil }
+    guard pendingLoginContact == nil, pendingConfirmation == nil else { return nil }
 
     // If already showing suggestions, cycle selection
     if let suggestions = tabSuggestions, !suggestions.isEmpty {
@@ -132,5 +132,12 @@ extension CLIToolViewModel {
     } catch {
       Self.logger.error("Failed to fetch contacts for completion: \(error)")
     }
+  }
+
+  /// Prefetches custom-var names for bare `get`/`set` completion. Errors are
+  /// swallowed: old firmware can't enumerate vars and the keys stay empty.
+  func updateCustomVarKeysForCompletion() async {
+    guard let settingsService, let vars = try? await settingsService.getCustomVars() else { return }
+    completionEngine.updateCustomVarKeys(Array(vars.keys))
   }
 }

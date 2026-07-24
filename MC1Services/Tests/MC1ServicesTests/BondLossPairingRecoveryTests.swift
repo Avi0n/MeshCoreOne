@@ -1,7 +1,9 @@
+import CoreBluetooth
 import Foundation
 @testable import MC1Services
 import MeshCore
 import MeshCoreTestSupport
+import ObjectiveC
 import SwiftData
 import Testing
 
@@ -144,5 +146,210 @@ struct BondLossPairingRecoveryTests {
     #expect(try await store.fetchContacts(radioID: secondConnect.radioID).contains { $0.id == contactID })
     #expect(try await store.fetchMessages(contactID: contactID).contains { $0.id == messageID })
     #expect(try await store.fetchChannels(radioID: secondConnect.radioID).contains { $0.name == "FieldChannel" })
+  }
+
+  // MARK: - Bond-verification clear
+
+  @Test
+  func `clearPersistedConnection clears forgotten device bond and leaves the other intact`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
+    defer { env.cleanup() }
+
+    let deviceA = UUID()
+    let deviceB = UUID()
+    let verifiedAt = Date()
+
+    await env.stateMachine.recordBondVerification(deviceID: deviceA, at: verifiedAt)
+    await env.stateMachine.recordBondVerification(deviceID: deviceB, at: verifiedAt)
+    // Bond slot holds B; last-connected is A — clear must target forgotten A
+    // (not the bond-slot holder) and must not skip when A is not last-connected.
+    env.manager.persistConnection(deviceID: deviceA, radioID: UUID(), deviceName: "Radio A")
+    LastConnectionStore(defaults: defaults).persistBondVerification(deviceID: deviceB)
+
+    await env.manager.clearPersistedConnection(for: deviceA)
+
+    #expect(await env.stateMachine.recordedBondVerifications[deviceA] == nil)
+    // B's stamp survives; exact Date may be re-seeded from the store by wiring.
+    #expect(await env.stateMachine.recordedBondVerifications[deviceB] != nil)
+    _ = verifiedAt
+
+    let store = LastConnectionStore(defaults: defaults)
+    #expect(store.deviceID == nil)
+    #expect(store.bondVerificationDate(for: deviceB) != nil)
+    #expect(store.bondVerifiedDeviceID == deviceB)
+  }
+
+  @Test
+  func `holder bond slot survives forgetting a non-holder`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
+    defer { env.cleanup() }
+
+    let deviceA = UUID()
+    let deviceB = UUID()
+    env.manager.persistConnection(deviceID: deviceA, radioID: UUID(), deviceName: "Radio A")
+    LastConnectionStore(defaults: defaults).persistBondVerification(deviceID: deviceB)
+
+    await env.manager.clearPersistedConnection(for: deviceA)
+
+    let store = LastConnectionStore(defaults: defaults)
+    #expect(store.bondVerifiedDeviceID == deviceB)
+    #expect(store.bondVerificationDate(for: deviceB) != nil)
+  }
+
+  @Test
+  func `empty bond slot still clears forgotten device in-memory verification`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
+    defer { env.cleanup() }
+
+    let deviceA = UUID()
+    await env.stateMachine.recordBondVerification(deviceID: deviceA, at: Date())
+    // No persistBondVerification — bond slot empty; in-memory clear must still run.
+
+    await env.manager.clearPersistedConnection(for: deviceA)
+
+    #expect(await env.stateMachine.recordedBondVerifications[deviceA] == nil)
+  }
+
+  @Test
+  func `forgetting a non-last-connected device still clears its bond verification`() async throws {
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let env = try ConnectionManager.createForPairingTesting(defaults: defaults)
+    defer { env.cleanup() }
+
+    let deviceA = UUID()
+    let deviceB = UUID()
+    env.manager.persistConnection(deviceID: deviceA, radioID: UUID(), deviceName: "Radio A")
+    await env.stateMachine.recordBondVerification(deviceID: deviceB, at: Date())
+    LastConnectionStore(defaults: defaults).persistBondVerification(deviceID: deviceB)
+
+    // removeFailedPairing is the async forget path; must clear B even though A is last-connected.
+    await env.manager.removeFailedPairing(deviceID: deviceB)
+
+    #expect(await env.stateMachine.recordedBondVerifications[deviceB] == nil)
+    let store = LastConnectionStore(defaults: defaults)
+    #expect(store.deviceID == deviceA)
+    #expect(store.bondVerificationDate(for: deviceB) == nil)
+    #expect(store.bondVerifiedDeviceID == nil)
+  }
+
+  @Test
+  func `awaited forget clears bond before encryption-timeout budget classifies as bondSuspect`() async throws {
+    // Single owner: seed and clear on the real SM map, then classify through the
+    // same actor's handleDidFailToConnect path (no dual-tracked local policy).
+    BondRefreshClearPeripheral.reset()
+    let sm = BLEStateMachine()
+    await sm.injectBondClearTestCentral(BondRefreshClearCentralManager(delegate: nil, queue: nil))
+    let peripheral = makeLeakedBondClearPeripheral()
+    let deviceID = BondRefreshClearPeripheral.uuid
+
+    await sm.recordBondVerification(deviceID: deviceID, at: Date())
+    #expect(await sm.bondVerificationDate(for: deviceID) != nil)
+
+    // Production async clear path (same await as forget/removeFailedPairing).
+    let suiteName = "test.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let manager = ConnectionManager(
+      modelContainer: container,
+      defaults: defaults,
+      stateMachine: sm
+    )
+    await manager.clearPersistedConnection(for: deviceID)
+    #expect(await sm.bondVerificationDate(for: deviceID) == nil)
+
+    await sm.primeBondClearAutoReconnecting(peripheral: peripheral)
+    let recorder = BondClearDisconnectionRecorder()
+    await sm.setDisconnectionHandler { id, error in
+      recorder.append(deviceID: id, error: error)
+    }
+    let encryptionTimedOut = NSError(
+      domain: CBErrorDomain,
+      code: CBError.encryptionTimedOut.rawValue
+    )
+    for _ in 1...ReconnectPolicy.maxAutoReconnectConnectFailures {
+      await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
+    }
+
+    #expect(recorder.events.count == 1)
+    guard case .authenticationFailed = recorder.events.first?.error as? BLEError else {
+      Issue.record("Expected .authenticationFailed without grace, got \(String(describing: recorder.events.first?.error))")
+      return
+    }
+  }
+}
+
+// MARK: - Clear-before-classify doubles
+
+private final class BondClearDisconnectionRecorder: @unchecked Sendable {
+  private(set) var events: [(deviceID: UUID, error: Error?)] = []
+  private let lock = NSLock()
+
+  func append(deviceID: UUID, error: Error?) {
+    lock.lock()
+    events.append((deviceID, error))
+    lock.unlock()
+  }
+}
+
+private enum BondRefreshClearPeripheralStore {
+  nonisolated(unsafe) static var retained: [AnyObject] = []
+}
+
+private final class BondRefreshClearPeripheral: CBPeripheral, @unchecked Sendable {
+  static let uuid = UUID(uuidString: "CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC")!
+  static func reset() {}
+
+  override var identifier: UUID {
+    Self.uuid
+  }
+
+  override var state: CBPeripheralState {
+    .disconnected
+  }
+
+  override var delegate: CBPeripheralDelegate? {
+    get { nil }
+    set {}
+  }
+
+  override func discoverServices(_ serviceUUIDs: [CBUUID]?) {}
+}
+
+private final class BondRefreshClearCentralManager: CBCentralManager, @unchecked Sendable {
+  override var state: CBManagerState {
+    .poweredOn
+  }
+
+  override func cancelPeripheralConnection(_ peripheral: CBPeripheral) {}
+  override func connect(_ peripheral: CBPeripheral, options: [String: Any]? = nil) {}
+}
+
+private func makeLeakedBondClearPeripheral() -> BondRefreshClearPeripheral {
+  // swiftlint:disable:next force_cast
+  let peripheral = class_createInstance(BondRefreshClearPeripheral.self, 0) as! BondRefreshClearPeripheral
+  BondRefreshClearPeripheralStore.retained.append(peripheral)
+  return peripheral
+}
+
+private extension BLEStateMachine {
+  func injectBondClearTestCentral(_ manager: CBCentralManager) {
+    centralManager = manager
+  }
+
+  func primeBondClearAutoReconnecting(peripheral: CBPeripheral) {
+    phase = .autoReconnecting(peripheral: peripheral, tx: nil, rx: nil)
+    phaseStartTime = Date()
   }
 }

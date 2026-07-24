@@ -12,6 +12,10 @@ struct ConversationListContent: View {
   }
 
   @Environment(\.appTheme) private var theme
+  @Environment(\.appState) private var appState
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   private let viewModel: ChatViewModel
   private let favoriteConversations: [Conversation]
@@ -77,6 +81,12 @@ struct ConversationListContent: View {
         }
       }
     }
+    // Warm the top registry-capacity conversations after load so open lands settled.
+    // Keep warm work off LazyVStack rows: appear/disappear would start and cancel tasks while scrolling.
+    .task(id: hasLoadedOnce) {
+      guard hasLoadedOnce else { return }
+      await prewarmTopConversations()
+    }
   }
 
   private var loadingBody: some View {
@@ -141,6 +151,35 @@ struct ConversationListContent: View {
         Divider().padding(.leading, Self.rowSeparatorLeadingInset)
       }
     }
+  }
+
+  /// Warms the top conversations on first load, up to the registry's LRU
+  /// capacity. Staggered so the per-conversation fetch and item build don't land
+  /// on the main actor in one burst; `prefetchConversation` no-ops for any that
+  /// are already warm.
+  private func prewarmTopConversations() async {
+    let ordered = favoriteConversations + otherConversations
+    for conversation in ordered.prefix(ChatCoordinatorRegistry.defaultCapacity) {
+      guard !Task.isCancelled else { return }
+      warm(conversation)
+      try? await Task.sleep(for: .milliseconds(30))
+    }
+  }
+
+  /// Kicks off the coordinator warm for one conversation. Rooms have no
+  /// coordinator; skipped.
+  private func warm(_ conversation: Conversation) {
+    guard let conversationType = ChatRoute(conversation: conversation).chatConversationType else { return }
+    appState.prefetchConversation(
+      conversationType,
+      envInputs: appState.chatEnvInputs(
+        for: conversationType,
+        themeID: theme.id,
+        isDark: colorScheme == .dark,
+        isHighContrast: colorSchemeContrast == .increased,
+        contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize)
+      )
+    )
   }
 
   @ViewBuilder

@@ -38,8 +38,6 @@
 "contacts.nodeKind.chat" = "聊天";
 
 /* Location: Multiple files - Purpose: Chat contact full label */
-"contacts.nodeKind.chatContact" = "聊天联系人";
-
 /* Location: Multiple files - Purpose: Repeater contact type label */
 "contacts.nodeKind.repeater" = "转发节点";
 
@@ -270,6 +268,24 @@
 
 /* Location: ContactDetailView.swift - Purpose: Info section header */
 "contacts.detail.info" = "信息";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu title */
+"contacts.detail.avatar.chooseSource" = "更改个人头像";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library */
+"contacts.detail.avatar.choosePhoto" = "选择照片";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file */
+"contacts.detail.avatar.chooseFile" = "选择文件…";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo */
+"contacts.detail.avatar.removePhoto" = "移除照片";
+
+/* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
+"contacts.detail.avatar.savingAnnouncement" = "正在保存照片";
+
+/* Location: ContactDetailView.swift - Purpose: Error shown when the picked file is not a valid image */
+"contacts.detail.avatar.invalidImage" = "该文件无法用作个人头像。";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "昵称";
@@ -522,11 +538,7 @@
 "contacts.scan.error.invalidFormat" = "无效的二维码格式";
 
 /* Location: ScanContactQRView.swift - Purpose: Missing name error */
-"contacts.scan.error.missingName" = "无效的二维码：缺少名称";
-
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
-"contacts.scan.error.invalidKey" = "无效的二维码：无效的公钥";
-
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "导入联系人失败：%@";
 
@@ -551,8 +563,6 @@
 "contacts.discovery.addedAccessibility" = "已添加到联系人";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
-"contacts.discovery.error.servicesUnavailable" = "服务不可用";
-
 /* Location: DiscoveryView.swift - Purpose: Segment filter: All */
 "contacts.discovery.segment.all" = "全部";
 
@@ -984,28 +994,14 @@
 // MARK: - Trace Path Cluster View
 
 /* Location: TracePathClusterView.swift - Accessibility label for cluster annotation - %d is count */
-"contacts.trace.map.cluster.label" = "%d 个转发节点";
-
 /* Location: TracePathClusterView.swift - Accessibility hint for cluster annotation */
-"contacts.trace.map.cluster.hint" = "双击以放大";
-
 // MARK: - Trace Path Repeater Pin View
 
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for repeater in path - %1$@ is name, %2$d is hop number */
-"contacts.trace.map.pin.inPathLabel" = "转发节点：%1$@，路径中第 %2$d 跳";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for removable last hop */
-"contacts.trace.map.pin.removableHint" = "双击以从路径中移除";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for non-removable hop */
-"contacts.trace.map.pin.notRemovableHint" = "此跳无法移除。只有最后一跳可以移除。";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for available repeater - %@ is name */
-"contacts.trace.map.pin.availableLabel" = "转发节点：%@";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for adding repeater to path */
-"contacts.trace.map.pin.addHint" = "双击以添加到路径";
-
 // MARK: - Trace Path Map View
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
@@ -1015,11 +1011,7 @@
 "contacts.trace.map.clear" = "清除";
 
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
-"contacts.trace.map.hideLabels" = "隐藏标签";
-
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
-"contacts.trace.map.showLabels" = "显示标签";
-
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
 "contacts.trace.map.centerOnPath" = "以路径为中心";
 
@@ -1177,8 +1169,6 @@
 // MARK: - Stats Badge Accessibility
 
 /* Location: StatsBadgeView.swift - Purpose: Distance and signal accessibility */
-"contacts.statsBadge.accessibility" = "距离：%@，信号：%d 分贝";
-
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */

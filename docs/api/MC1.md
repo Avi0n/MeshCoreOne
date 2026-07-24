@@ -168,19 +168,26 @@ Manages state for the map view showing contact locations.
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `contactsWithLocation` | `[ContactDTO]` | Contacts with valid coordinates |
-| `mapPoints` | `[MapPoint]` | Map points derived from contacts plus any dropped pin |
+| `visibleContacts` | `[ContactDTO]` | Filter-visible contacts shown as pins |
+| `visibleDiscovered` | `[DiscoveredNodeDTO]` | Filter-visible discovered nodes shown as pins |
+| `allLocatedContacts` | `[ContactDTO]` | Unfiltered located contacts (cache for warm re-filter) |
+| `allLocatedDiscovered` | `[DiscoveredNodeDTO]` | Unfiltered plottable discovered nodes (cache for warm re-filter) |
+| `mapPoints` | `[MapPoint]` | Map points from contacts, discovered nodes, plus any dropped pin |
 | `focusedPin` | `MapPoint?` | A user-dropped pin from a chat coordinate tap |
 | `cameraRegion` | `MKCoordinateRegion?` | Map viewport region |
 | `isLoading` | `Bool` | Loading state |
+| `hasPinsForCenterAll` | `Bool` | Whether Center All has any contact or discovered pin |
 
 **Key Methods:**
 
 | Method | Description |
 |--------|-------------|
-| `loadContactsWithLocation() async` | Load contacts with valid locations |
+| `loadMapData(filter:showsLoadingChrome:) async` | Load located contacts and discovered nodes, then apply `MapFilterState` pin algebra |
+| `applyFilter(_:)` | Warm pin algebra from cached located tables (no reload) |
+| `scheduleFilterChange(_:)` | Debounced filter apply; cold path loads when cache empty |
+| `scheduleCoalescedReload(filter:showsLoadingChrome:)` | Debounced live reload; trailing filter wins |
 | `focusOnCoordinate(_:)` | Drop a pin at a coordinate and center on it |
-| `centerOnAllContacts()` | Center map to show all contacts |
+| `centerOnAllContacts()` | Center map on contact ∪ discovered pin coordinates |
 
 ---
 

@@ -33,6 +33,12 @@
 /* Location: MapView.swift - Purpose: Accessibility label for refresh button */
 "map.controls.refresh" = "Обновить контакты";
 
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "Фильтр";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "Фильтры активны";
+
 // MARK: - Map Style Selection
 
 /* Location: MapStyleSelection.swift - Purpose: Standard map style option */
@@ -109,8 +115,6 @@
 "map.detail.action.telemetry" = "Телеметрия";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "Сохранённая история";
-
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "Доступ к телеметрии";
 
@@ -151,17 +155,27 @@
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
 "map.callout.nodeKind.room" = "Комната";
 
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
+"map.callout.add" = "Добавить";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list */
+"map.callout.discovered" = "Обнаружен";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
+"map.discoveredDetail.title" = "Обнаруженный узел";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
+"map.discoveredDetail.add" = "Добавить в узлы";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
+"map.pin.accessibility.discovered" = "Обнаружен, нет в списке узлов";
+
 // MARK: - Contact Annotation
 
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for favorite contacts */
-"map.annotation.favorite" = "В избранном";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for repeater nodes */
-"map.annotation.repeater" = "Ретранслятор";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for room nodes */
-"map.annotation.room" = "Комната";
-
 // MARK: - Offline Badge
 
 /* Label shown on map when device has no internet connection */

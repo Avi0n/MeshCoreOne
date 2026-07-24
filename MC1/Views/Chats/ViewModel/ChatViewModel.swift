@@ -84,20 +84,22 @@ final class ChatViewModel {
 
   // MARK: - Conversation Cache Storage
 
-  @ObservationIgnored var urlDetectionTask: Task<Void, Never>?
-  /// Bumped on every buildItems rebuild. Only the URL-detection writer
-  /// checks this before mutating cachedURLs; single-row rebuilds via
-  /// rebuildDisplayItem do not write cachedURLs and do not need gating.
-  @ObservationIgnored var urlDetectionGeneration: UInt64 = 0
   /// Tracks the last region scope sent to the device via setFloodScope.
   @ObservationIgnored var lastSetRegionScope: RegionScopeState = .unknown
 
+  /// Per-conversation assembly module owning the bake state, write
+  /// capability, and populate/bake ordering. Bound by `configure(...)` once
+  /// the conversation identity is known. Always present; inert (no
+  /// coordinator) for conversation-list usage.
+  @ObservationIgnored let timeline = ChatTimeline(role: .interactive)
+
   /// Per-(radio, conversation) coordinator that owns the canonical chat
-  /// state for this view model. Bound by `configure(...)` once the
-  /// conversation identity is known. Two `ChatViewModel`s on the same
+  /// state for this view model. Two `ChatViewModel`s on the same
   /// conversation share one coordinator via the registry, so an update
   /// applied from one view is visible to the other.
-  var coordinator: ChatCoordinator?
+  var coordinator: ChatCoordinator? {
+    timeline.coordinator
+  }
 
   /// Messages for the current conversation. Forwards to the bound
   /// coordinator; empty when no coordinator is bound (e.g., conversation
@@ -116,22 +118,15 @@ final class ChatViewModel {
   /// current user name) that feed `MessageItem` construction.
   /// `ChatConversationView` pushes via `applyEnvInputs(_:)` before
   /// `loadMessages` and on subsequent toggle changes.
-  var envInputs: EnvInputs = .default
+  var envInputs: EnvInputs {
+    get { timeline.envInputs }
+    set { timeline.envInputs = newValue }
+  }
 
   /// Update env-derived inputs and trigger a full rebuild when the value
   /// changes and there are messages to rebuild. Idempotent on no-change.
   func applyEnvInputs(_ new: EnvInputs) {
-    guard envInputs != new else { return }
-    // When the network transitions from unavailable to available, drop the
-    // sticky map-snapshot failures so renders that failed during the outage
-    // retry on the next rebuild. Without this, an offline-pack miss stays
-    // poisoned until a memory warning evicts the failed set.
-    if envInputs.isOffline, !new.isOffline {
-      MapSnapshotStore.shared.clearFailures()
-    }
-    envInputs = new
-    guard !messages.isEmpty else { return }
-    buildItems()
+    timeline.applyEnvInputs(new)
   }
 
   /// Monotonic counter bumped when a `MessageEvent` indicates the current
@@ -163,10 +158,12 @@ final class ChatViewModel {
     coordinator?.messagesByID ?? [:]
   }
 
-  /// Current contact being chatted with
+  /// Current contact being chatted with. `timeline.conversation` is not
+  /// mirrored from here: the load paths assign it via `stageOpen`/`open`,
+  /// and DTO refreshes assign it directly alongside this property.
   var currentContact: ContactDTO?
 
-  /// Current channel being viewed
+  /// Current channel being viewed. Same contract as `currentContact`.
   var currentChannel: ChannelDTO?
 
   /// Loading state
@@ -214,57 +211,26 @@ final class ChatViewModel {
   /// Last message previews cache
   var lastMessageCache: [UUID: MessageDTO] = [:]
 
-  // The preview-cache block below (`previewStates`, `cachedURLs`,
-  // `decodedImages`, `loadedImageData`) is per-VM state, not shared
-  // across multiple VMs binding to the same `ChatCoordinator`. On iPad
-  // split view each VM rebuilds its own cache; the two views can
-  // diverge until the next rebuild on each side. See
-  // `ChatCoordinatorRegistry.coordinator(for:)` for the accepted
-  // trade-off context.
-
   /// Scope preferences (master + per-conversation-type auto-resolve) read by
   /// the image fetch sites so inline images honor the same DM/channel gate the
   /// card path applies inside `LinkPreviewCache`. Internal so tests can inject
   /// a scratch `UserDefaults` suite instead of leaking into `.standard`.
   var linkPreviewPreferences = LinkPreviewPreferences()
 
-  /// Preview state per message (keyed by message ID)
-  var previewStates: [UUID: PreviewLoadState] = [:]
-
-  /// Loaded preview data per message (keyed by message ID)
-  var loadedPreviews: [UUID: LinkPreviewDataDTO] = [:]
+  /// Per-message bake state (preview/image caches, divider) and the item-build
+  /// pipeline reading it. Owned by `timeline`; not observed, because redraw
+  /// is decided by `MessageItem`.
+  ///
+  /// Per-VM state, not shared across view models bound to the same
+  /// `ChatCoordinator`. On iPad split view each rebuilds its own caches, so the
+  /// two can diverge until the next rebuild on each side;
+  /// `ChatCoordinatorRegistry.coordinator(for:)` carries the trade-off context.
+  var bake: ChatMessageBakeState {
+    timeline.bake
+  }
 
   /// In-flight preview fetch tasks (prevents duplicate fetches)
   var previewFetchTasks: [UUID: Task<Void, Never>] = [:]
-
-  /// Total cost limit for `loadedImageData`. `NSCache` evicts entries to
-  /// stay under this byte budget and also responds to system memory
-  /// pressure on its own.
-  private static let imageDataCacheLimitBytes = 50 * 1024 * 1024
-
-  /// Raw image data per message (keyed by message ID). Backed by
-  /// `NSCache` so memory pressure and the configured cost limit drive
-  /// eviction instead of an unbounded dictionary. `@ObservationIgnored`
-  /// because mutations should not trigger SwiftUI redraws — consumers
-  /// read this via explicit method calls when an image is tapped.
-  @ObservationIgnored
-  let loadedImageData: NSCache<NSUUID, NSData> = {
-    let cache = NSCache<NSUUID, NSData>()
-    cache.totalCostLimit = ChatViewModel.imageDataCacheLimitBytes
-    return cache
-  }()
-
-  /// Pre-decoded UIImage per message (avoids decoding in view body)
-  var decodedImages: [UUID: UIImage] = [:]
-
-  /// Pre-decoded link preview assets (single dictionary to batch Observable notifications)
-  var decodedPreviewAssets: [UUID: DecodedPreviewAssets] = [:]
-
-  /// Tracks in-flight legacy preview decode tasks to prevent duplicates
-  var legacyPreviewDecodeInFlight: Set<UUID> = []
-
-  /// Whether each image message is a GIF (computed once during decode)
-  var imageIsGIF: [UUID: Bool] = [:]
 
   /// In-flight image fetch tasks
   var imageFetchTasks: [UUID: Task<Void, Never>] = [:]
@@ -272,22 +238,6 @@ final class ChatViewModel {
   /// In-flight reaction sends (prevents duplicate reactions on rapid taps)
   /// Key format: "{messageID}-{emoji}"
   var inFlightReactions: Set<String> = []
-
-  /// Cached URL detection results to avoid re-running NSDataDetector on rebuilds
-  var cachedURLs: [UUID: URL?] = [:]
-
-  /// Image-extension URLs the fetch path has discovered serve an HTML page,
-  /// not image bytes (imgur, pasteboard, prnt.sc). Keyed by URL string so one
-  /// discovery reroutes every loaded message sharing it. Gates the synchronous
-  /// build path (`isInlineImageURL`, `shouldRequestImageFetch`); cleared on
-  /// conversation switch, so re-entering a chat re-fetches each page URL once.
-  var imageURLsServingPages: Set<String> = []
-
-  /// Maps a snapshot request to the messages that show its thumbnail, so a late
-  /// `resolutionStream` event rebuilds only those rows (O(matches)) instead of
-  /// regex-scanning every loaded message. Populated in `makeBuildInputs`,
-  /// cleared on conversation switch.
-  @ObservationIgnored var mapPreviewRequestIndex: [MapSnapshotRequest: Set<UUID>] = [:]
 
   // MARK: - Pagination State
 
@@ -306,39 +256,9 @@ final class ChatViewModel {
     renderState.totalFetchedCount
   }
 
-  /// Message ID that should show the "New Messages" divider above it
-  var newMessagesDividerMessageID: UUID?
-
-  /// Whether the divider position has been computed for the current conversation
-  var dividerComputed = false
-
-  /// Unread count above which the "New Messages" divider is shown (strictly greater).
-  private let newMessagesDividerThreshold = 10
-
-  /// Computes the divider message ID from a fetched (unfiltered) message array.
-  /// Must be called before filtering. Sets `dividerComputed = true`.
-  ///
-  /// Positional: the divider sits `unreadCount` rows from the end. This relies on unread
-  /// messages occupying the array tail, which block-at-reconnect upholds — every unread row
-  /// (live or drained) takes a sortDate at or after its receive/drain time, later than any
-  /// already-read row, so unread always sorts to the tail. Do not switch this to a
-  /// `first(where: { !$0.isRead })` scan: per-message `isRead` is not maintained on chat open
-  /// (only the unread counter is cleared), so the scan would land on the first row of the page.
-  ///
-  /// The boundary row may be a sent outgoing reaction that `filterOutgoingReactionMessages`
-  /// drops before the items are built; the divider id must survive that filter, so advance
-  /// past any hidden row to the next visible one (toward newer), which renders at the same
-  /// visual position.
-  func computeDividerPosition(from messages: [MessageDTO], unreadCount: Int, isDM: Bool) {
-    guard !dividerComputed, unreadCount > newMessagesDividerThreshold else { return }
-    var dividerIndex = max(0, messages.count - unreadCount)
-    while dividerIndex < messages.count, isHiddenOutgoingReaction(messages[dividerIndex], isDM: isDM) {
-      dividerIndex += 1
-    }
-    if dividerIndex < messages.count {
-      newMessagesDividerMessageID = messages[dividerIndex].id
-    }
-    dividerComputed = true
+  /// Snapshot of observed contact tables for the item bake.
+  func currentSenderTables() -> ChatSenderTables {
+    ChatSenderTables(contacts: allContacts, nicknamesByLoweredName: nicknamesByLoweredName)
   }
 
   // MARK: - Dependencies
@@ -406,9 +326,8 @@ final class ChatViewModel {
   @ObservationIgnored var reactionServiceProvider: @MainActor () -> ReactionService? = { nil }
   @ObservationIgnored var chatSendQueueServiceProvider: @MainActor () -> ChatSendQueueService? = { nil }
 
-  @ObservationIgnored private var inlineImageDimensionsStoreProvider: @MainActor () -> InlineImageDimensionsStore? = { nil }
   var inlineImageDimensionsStore: InlineImageDimensionsStore? {
-    inlineImageDimensionsStoreProvider()
+    bake.inlineImageDimensionsStore
   }
 
   @ObservationIgnored private var prefetchDataStoreProvider: @MainActor () -> (any PersistenceStoreProtocol)? = { nil }
@@ -427,19 +346,32 @@ final class ChatViewModel {
   /// nil while disconnected (offline browse never receives new messages).
   @ObservationIgnored var prefetcher: InlineImagePrefetcher?
 
-  /// Long-running subscription to `InlineImageDimensionsStore.resolutionStream`.
+  /// Long-running subscription to `InlineImageDimensionsStore.resolutionUpdates()`.
   /// On each emitted URL, every message whose body contains that URL is
-  /// rebuilt so the bubble picks up the now-known `cachedAspect`.
+  /// rebuilt so the bubble picks up the now-known `cachedAspect`. Speculative
+  /// primes use `ChatTimelinePrimer` and never subscribe; this path is for the
+  /// interactive conversation only.
   @ObservationIgnored var dimensionResolutionTask: Task<Void, Never>?
 
   /// Long-running subscription to `MapSnapshotStore.shared.resolutionStream`.
-  /// Started once (the store is a process-lifetime singleton).
+  /// Started once (the store is a process-lifetime singleton). Interactive only;
+  /// `ChatTimelinePrimer` does not subscribe.
   @ObservationIgnored var snapshotResolutionTask: Task<Void, Never>?
 
   /// Per-instance override of the receive-time prefetch timeout. Production
   /// callers leave this at `defaultPrefetchTimeout` (3s); tests can shorten
   /// it to bound their wall-clock budget.
   @ObservationIgnored var prefetchTimeout: Duration = ChatViewModel.defaultPrefetchTimeout
+
+  /// Write capability for the bound coordinator, minted when `timeline`
+  /// binds. Every timeline mutation goes through this; when a newer owner
+  /// binds the same coordinator (live open superseding a prime, BFU scene
+  /// rebuild), this writer goes stale and its writes no-op, so a cold view
+  /// model can never bake its state over the live timeline.
+  /// Reads keep using `coordinator` directly. `nil` when unbound.
+  var timelineWriter: ChatTimelineWriter? {
+    timeline.writer
+  }
 
   /// Contact ID currently having its favorite status toggled (for loading UI)
   var togglingFavoriteID: UUID?
@@ -479,7 +411,7 @@ final class ChatViewModel {
     sessionProvider = dependencies.session
     reactionServiceProvider = dependencies.reactionService
     chatSendQueueServiceProvider = dependencies.chatSendQueueService
-    inlineImageDimensionsStoreProvider = dependencies.inlineImageDimensionsStore
+    bake.bindInlineImageDimensionsStore(dependencies.inlineImageDimensionsStore)
     prefetchDataStoreProvider = dependencies.prefetchDataStore
     self.onNavigateToMap = onNavigateToMap
     lastSetRegionScope = .unknown
@@ -487,42 +419,64 @@ final class ChatViewModel {
       self.linkPreviewCache = linkPreviewCache
       configurePrefetcher(
         linkPreviewCache: linkPreviewCache,
-        dimensionsStore: inlineImageDimensionsStoreProvider(),
+        dimensionsStore: dependencies.inlineImageDimensionsStore(),
         prefetchDataStore: prefetchDataStoreProvider()
       )
     }
     bindCoordinator(registry: chatCoordinatorRegistry, conversation: conversation)
   }
 
+  /// Eagerly attaches the shared coordinator so a warm (prefetched or previously
+  /// opened) conversation renders its messages on the first frame, before the
+  /// load task runs. Sets only the timeline's `coordinator` reference, never
+  /// the coordinator's rebuild hooks, which belong to the persistent view model
+  /// and are installed by `configure`/`bindCoordinator`. That omission is what
+  /// makes it safe to call from `init`, where transient view-model instances may
+  /// be created and discarded.
+  func attachCoordinator(_ coordinator: ChatCoordinator) {
+    timeline.attach(coordinator)
+  }
+
   private func bindCoordinator(registry: ChatCoordinatorRegistry?, conversation: ChatConversationType?) {
     guard let conversation else { return }
     guard let registry else { return }
-    let id: ChatConversationID = switch conversation {
-    case let .dm(contact):
-      .dm(radioID: contact.radioID, contactID: contact.id)
-    case let .channel(channel):
-      .channel(radioID: channel.radioID, channelIndex: channel.index)
-    }
-    let resolved = registry.coordinator(for: id)
-    // The most recently bound view model owns the per-ID rebuild hook
-    // the coordinator invokes after `applyReloadedIDs`. With two view
-    // models on the same conversation (iPad split view) the rendered
-    // state stays consistent because both observe the shared
-    // coordinator's `renderState` — only the per-view-model snapshot
-    // inputs (preview state, decoded images) come from the bound
-    // rebuilder.
-    resolved.renderItemRebuilder = { [weak self] messageID in
-      self?.rebuildDisplayItem(for: messageID)
-    }
-    resolved.renderStateInvalidated = { [weak self] in
-      self?.handleRenderStateInvalidated()
-    }
-    coordinator = resolved
+    let resolved = registry.coordinator(for: conversation.coordinatorID)
+    // The timeline owns both the rebuild hooks and the write capability,
+    // installed as one atomic act. An `.interactive` bind always succeeds
+    // and revokes any prior writer (a stale prime's in-flight bakes then
+    // no-op at the coordinator). With two observers on the same conversation
+    // the rendered state stays consistent because both read the shared
+    // coordinator's `renderState`; only the current writer bakes items.
+    timeline.bind(
+      resolved,
+      dataStore: { [weak self] in self?.dataStore },
+      senderTables: { [weak self] in self?.currentSenderTables() ?? .empty },
+      postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
+    )
   }
 
-  private func handleRenderStateInvalidated() {
-    buildItems()
+  /// Vacates the coordinator's writer slot so arrival-time prime refreshes
+  /// can service this conversation while it is off screen; the load task's
+  /// `configure` rebinds on the next appearance. Deallocation is not a
+  /// substitute: SwiftUI can keep a popped destination's state alive.
+  func releaseTimelineWriter() {
+    timeline.releaseWriter()
   }
+
+  #if DEBUG
+    /// Test seam mirroring `bindCoordinator` for suites that construct a
+    /// coordinator directly instead of resolving one through a registry:
+    /// installs the interactive writer and the rebuild hooks in one act,
+    /// exactly like a live open.
+    func bindCoordinatorForTesting(_ coordinator: ChatCoordinator) {
+      timeline.bind(
+        coordinator,
+        dataStore: { [weak self] in self?.dataStore },
+        senderTables: { [weak self] in self?.currentSenderTables() ?? .empty },
+        postApply: { [weak self] in self?.decodeLegacyPreviewImages() }
+      )
+    }
+  #endif
 
   /// Build the receive-time prefetcher and start (or restart) the
   /// dimension-resolution subscription. Called from `configure(...)` when a
@@ -564,7 +518,7 @@ final class ChatViewModel {
   private func startObservingDimensionResolutions(store: InlineImageDimensionsStore) {
     dimensionResolutionTask?.cancel()
     dimensionResolutionTask = Task { [weak self] in
-      for await resolvedURL in store.resolutionStream {
+      for await resolvedURL in store.resolutionUpdates() {
         guard !Task.isCancelled else { return }
         await self?.handleDimensionResolution(resolvedURL)
       }

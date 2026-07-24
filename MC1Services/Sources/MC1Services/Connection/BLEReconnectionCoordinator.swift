@@ -31,6 +31,12 @@ final class BLEReconnectionCoordinator {
 
   private var timeoutTask: Task<Void, Never>?
 
+  /// Generation of an in-flight `rebuildSession` (including first-fail retry), or
+  /// nil when none. Rejects a second completion only for the same generation so
+  /// a newer cycle (bumped by `handleEnteringAutoReconnect`) can still rebuild
+  /// while a stale retry sleeps, without allowing dual entry on one generation.
+  private var sessionRebuildInFlightGeneration: Int?
+
   /// Incremented each time a reconnection cycle starts, used to detect stale rebuilds and retries.
   private(set) var reconnectGeneration = 0
 
@@ -113,12 +119,37 @@ final class BLEReconnectionCoordinator {
 
     // This completion is for our device — safe to cancel timeout
     cancelTimeout()
-    clearActiveCycle(invalidateGeneration: false)
+    // Keep the cycle claimed across rebuild, the first-fail → retry sleep, and
+    // handleReconnectionFailure so concurrent checkBLEConnectionHealth cannot
+    // install a stack that the failure handler would tear down.
 
-    // Accept both disconnected (normal) and connecting (auto-reconnect in progress)
+    // Accept both disconnected (normal) and connecting (auto-reconnect in progress).
+    // Production rebuildSession sets `.connected` early, so a second same-device
+    // completion often arrives while state is already `.connected`. If a rebuild
+    // (or its retry/failure path) is in flight, ignore without clearing the cycle
+    // claim — that claim is what keeps health single-flight during the gap.
     let state = delegate.connectionState
     guard state == .disconnected || state == .connecting else {
+      if sessionRebuildInFlightGeneration != nil {
+        logger.info(
+          "[BLE] Ignoring reconnection for \(deviceID.uuidString.prefix(8)): already \(String(describing: state)) while rebuild in flight"
+        )
+        return
+      }
       logger.info("Ignoring reconnection: already \(String(describing: state))")
+      clearActiveCycle(invalidateGeneration: false)
+      return
+    }
+
+    // Reject a second completion while a rebuild for *this* generation is live
+    // (dual didConnect). Compare against reconnectGeneration *before* bumping so
+    // the first completion's in-flight mark matches. A newer
+    // handleEnteringAutoReconnect bumps generation first, so a completion after
+    // that can rebuild while a stale retry still sleeps under an older mark.
+    if sessionRebuildInFlightGeneration == reconnectGeneration {
+      logger.warning(
+        "[BLE] Ignoring auto-reconnect completion for \(deviceID.uuidString.prefix(8)): session rebuild already in flight for generation \(reconnectGeneration)"
+      )
       return
     }
 
@@ -126,9 +157,20 @@ final class BLEReconnectionCoordinator {
     let expectedGeneration = reconnectGeneration
 
     delegate.setConnectionState(.connecting)
+    sessionRebuildInFlightGeneration = expectedGeneration
+    defer {
+      if sessionRebuildInFlightGeneration == expectedGeneration {
+        sessionRebuildInFlightGeneration = nil
+      }
+    }
 
     do {
       try await delegate.rebuildSession(deviceID: deviceID)
+      // Only clear if we still own the generation — a non-throwing supersession
+      // abort leaves a newer cycle's claim intact.
+      if expectedGeneration == reconnectGeneration {
+        clearActiveCycle(invalidateGeneration: false)
+      }
     } catch {
       logger.warning("[BLE] Auto-reconnect session rebuild failed: \(error.localizedDescription) - retrying in 2s")
       await retryRebuild(deviceID: deviceID, expectedGeneration: expectedGeneration)
@@ -184,26 +226,43 @@ final class BLEReconnectionCoordinator {
   /// Retries a failed session rebuild after a short delay, aborting if the reconnect
   /// generation has changed or the user disconnected during the wait.
   private func retryRebuild(deviceID: UUID, expectedGeneration: Int) async {
-    guard let delegate else { return }
+    guard let delegate else {
+      if expectedGeneration == reconnectGeneration {
+        clearActiveCycle(invalidateGeneration: false)
+      }
+      return
+    }
 
     try? await Task.sleep(for: .seconds(2))
 
     guard expectedGeneration == reconnectGeneration else {
       logger.info("New reconnect cycle started during rebuild retry delay - aborting stale retry")
+      // A newer cycle owns the claim; do not clear theirs.
       return
     }
     guard delegate.connectionIntent.wantsConnection else {
       logger.info("User disconnected during rebuild retry delay")
+      // Hold claim through failure handling so concurrent health cannot rebuild
+      // under a torn-down stack, then release only if we still own the generation.
       await delegate.handleReconnectionFailure()
+      if expectedGeneration == reconnectGeneration {
+        clearActiveCycle(invalidateGeneration: false)
+      }
       return
     }
 
     do {
       try await delegate.rebuildSession(deviceID: deviceID)
       logger.info("[BLE] Auto-reconnect session rebuild succeeded on retry")
+      if expectedGeneration == reconnectGeneration {
+        clearActiveCycle(invalidateGeneration: false)
+      }
     } catch {
       logger.error("[BLE] Auto-reconnect session rebuild failed on retry: \(error.localizedDescription)")
       await delegate.handleReconnectionFailure()
+      if expectedGeneration == reconnectGeneration {
+        clearActiveCycle(invalidateGeneration: false)
+      }
     }
   }
 
@@ -278,7 +337,10 @@ protocol BLEReconnectionDelegate: AnyObject {
   /// Notifies the UI layer of connection loss.
   func notifyConnectionLost() async
 
-  /// Handles reconnection failure (cleanup session, disconnect transport).
+  /// Handles reconnection failure: app-stack teardown with preserve-vs-sever
+  /// branching on link health, intent, and rebuild budget. Does not always
+  /// disconnect the transport — a live link under budget is preserved for
+  /// in-place health-check rebuild.
   func handleReconnectionFailure() async
 
   /// Returns whether the BLE transport is currently in auto-reconnecting phase.

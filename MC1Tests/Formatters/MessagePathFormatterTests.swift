@@ -45,57 +45,6 @@ struct MessagePathFormatterTests {
   }
 
   @Test
-  func `Four node path shows all nodes`() {
-    let message = createMessage(pathLength: 4, pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2]))
-    let result = MessagePathFormatter.format(message)
-    #expect(result == "A3,7F,42,B2")
-  }
-
-  // MARK: - Truncation Tests
-
-  @Test
-  func `Six node path shows all nodes (no truncation)`() {
-    let message = createMessage(
-      pathLength: 6,
-      pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2, 0xC1, 0xD4])
-    )
-    let result = MessagePathFormatter.format(message)
-    #expect(result == "A3,7F,42,B2,C1,D4")
-  }
-
-  @Test
-  func `Seven node path truncates with ellipsis`() {
-    let message = createMessage(
-      pathLength: 7,
-      pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2, 0xC1, 0xD4, 0xE5])
-    )
-    let result = MessagePathFormatter.format(message)
-    #expect(result == "A3,7F,42…C1,D4,E5")
-  }
-
-  @Test
-  func `Ten node path truncates correctly`() {
-    let message = createMessage(
-      pathLength: 10,
-      pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2, 0xC1, 0xD4, 0xE5, 0xF6, 0x11, 0x22])
-    )
-    let result = MessagePathFormatter.format(message)
-    #expect(result == "A3,7F,42…F6,11,22")
-  }
-
-  // MARK: - Boundary & Edge Case Tests
-
-  @Test
-  func `Five node path shows all nodes (boundary before truncation)`() {
-    let message = createMessage(
-      pathLength: 5,
-      pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2, 0xC1])
-    )
-    let result = MessagePathFormatter.format(message)
-    #expect(result == "A3,7F,42,B2,C1")
-  }
-
-  @Test
   func `Zero-byte node formats correctly`() {
     let message = createMessage(pathLength: 2, pathNodes: Data([0x00, 0xA3]))
     let result = MessagePathFormatter.format(message)
@@ -141,6 +90,20 @@ struct MessagePathFormatterTests {
       pathNodes: Data([0x01, 0x02, 0x03, 0x04, 0x05, 0x06])
     )
     #expect(MessagePathFormatter.format(message) == "010203,040506")
+  }
+
+  // MARK: - Truncation Tests
+
+  @Test
+  func `Four-node path is shown in full (at the cap)`() {
+    let message = createMessage(pathLength: 4, pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2]))
+    #expect(MessagePathFormatter.format(message) == "A3,7F,42,B2")
+  }
+
+  @Test
+  func `Path longer than four nodes collapses the middle to a tight ellipsis`() {
+    let message = createMessage(pathLength: 6, pathNodes: Data([0xA3, 0x7F, 0x42, 0xB2, 0xC1, 0xD0]))
+    #expect(MessagePathFormatter.format(message) == "A3,7F…C1,D0")
   }
 
   // MARK: - Helper

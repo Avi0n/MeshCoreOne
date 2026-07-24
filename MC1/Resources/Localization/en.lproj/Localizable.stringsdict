@@ -2,39 +2,21 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>common.hops</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@count@</string>
-        <key>count</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>d</string>
-            <key>zero</key>
-            <string>%d hops</string>
-            <key>one</key>
-            <string>%d hop</string>
-            <key>other</key>
-            <string>%d hops</string>
-        </dict>
-    </dict>
-    <key>error.channelService.circuitBreakerOpen</key>
-    <dict>
-        <key>NSStringLocalizedFormatKey</key>
-        <string>%#@count@</string>
-        <key>count</key>
-        <dict>
-            <key>NSStringFormatSpecTypeKey</key>
-            <string>NSStringPluralRuleType</string>
-            <key>NSStringFormatValueTypeKey</key>
-            <string>lld</string>
-            <key>one</key>
-            <string>Channel sync suspended after %lld consecutive failure.</string>
-            <key>other</key>
-            <string>Channel sync suspended after %lld consecutive failures.</string>
-        </dict>
-    </dict>
+	<key>error.channelService.circuitBreakerOpen</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@count@</string>
+		<key>count</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Channel sync suspended after %lld consecutive failure.</string>
+			<key>other</key>
+			<string>Channel sync suspended after %lld consecutive failures.</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

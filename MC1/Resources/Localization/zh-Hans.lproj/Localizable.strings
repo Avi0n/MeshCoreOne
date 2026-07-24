@@ -7,7 +7,6 @@
   that appear in multiple places throughout the app.
  */
 
-
 // MARK: - Generic Buttons
 
 /* Standard confirmation button for dialogs */
@@ -29,8 +28,6 @@
 "common.edit" = "编辑";
 
 /* Standard close button for dismissing views */
-"common.close" = "关闭";
-
 /* Button to retry a failed operation */
 "common.tryAgain" = "重试";
 
@@ -53,9 +50,6 @@
 "common.error.rateLimited" = "请求过多，请稍后重试。";
 
 /* Standard remove button for removing items from a list or group */
-"common.remove" = "移除";
-
-
 // MARK: - Connection Status
 
 /* Location: SyncingPillView.swift - Status shown when syncing data */
@@ -69,7 +63,6 @@
 
 /* Location: SyncingPillView.swift - Status shown when device is disconnected */
 "common.status.disconnected" = "已断开";
-
 
 // MARK: - Tab Bar
 
@@ -90,7 +83,6 @@
 
 /* Tab bar title for the app settings screen */
 "tabs.settings" = "设置";
-
 
 // MARK: - Connection Alerts
 
@@ -115,15 +107,12 @@
 /* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
 "accessibility.alert.connectionFailed.removeAndRetry" = "移除设备配对并重试";
 
-
 // MARK: - Accessibility
 
 /* Location: SyncingPillView.swift - Accessibility hint for disconnected state */
 "common.accessibility.connectHint" = "双击以连接设备";
 
 /* VoiceOver announcement when viewing cached data while disconnected from device */
-"accessibility.viewingCachedData" = "正在查看缓存数据。连接设备以获取更新。";
-
 /* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
 "accessibility.requiresRadioConnection" = "请先开启设备连接";
 
@@ -133,36 +122,20 @@
 /* Accessibility value for toggle in Off state */
 "accessibility.off" = "关闭";
 
-
 // MARK: - Node Types
 
 /* Node type for a person or contact */
-"nodeType.contact" = "联系人";
-
 /* Node type for a mesh network repeater device */
-"nodeType.repeater" = "转发节点";
-
 /* Node type for a group chat room */
-"nodeType.room" = "房间";
-
-
 // MARK: - Permission Levels
 
 /* Permission level with limited access */
-"permission.guest" = "访客";
-
 /* Permission level with standard access */
-"permission.member" = "成员";
-
 /* Permission level with full administrative access */
-"permission.admin" = "管理员";
-
-
 // MARK: - Reaction Notifications
 
 /* Notification body when someone reacts to your message - %1$@ is the emoji, %2$@ is the message preview */
 "notifications.reaction.body" = "%1$@ 回应了您的消息：\"%2$@\"";
-
 
 // MARK: - Discovery Notifications
 
@@ -174,7 +147,6 @@
 
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "发现新房间";
-
 
 // MARK: - Notification Actions
 
@@ -189,7 +161,6 @@
 
 /* Notification action button to mark a message as read */
 "notifications.action.markAsRead" = "标为已读";
-
 
 // MARK: - Low Battery Notifications
 
@@ -208,7 +179,6 @@
 /* Fallback display name for a discovered contact with no advertised name */
 "notifications.discovery.unknownContact" = "未知联系人";
 
-
 // MARK: - Connection VoiceOver Announcements
 
 /* VoiceOver announcement when sync fails and device is disconnecting */
@@ -225,12 +195,10 @@
 "accessibility.signalStrength.medium" = "中等信号";
 "accessibility.signalStrength.strong" = "强信号";
 
-
 // MARK: - Status Pill
 
 /* Status pill message when sync has failed */
 "statusPill.syncFailed" = "同步失败";
-
 
 // MARK: - Error Messages
 

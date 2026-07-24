@@ -19,6 +19,23 @@ public enum CLIResponse: Sendable, Equatable {
   case ownerInfo(String)
   case raw(String)
 
+  /// Canonical query strings. `parse`'s query hints and `structuredQueries`
+  /// both build on these so a new query can't join one and drift from the other.
+  private enum Query {
+    static let version = "ver"
+    static let name = "get name"
+    static let ownerInfo = "get owner.info"
+    static let clock = "clock"
+    static let radio = "get radio"
+    static let txPower = "get tx"
+    static let repeatMode = "get repeat"
+    static let advertInterval = "get advert.interval"
+    static let floodAdvertInterval = "get flood.advert.interval"
+    static let floodMax = "get flood.max"
+    static let latitude = "get lat"
+    static let longitude = "get lon"
+  }
+
   /// Parse a CLI response text into a structured type
   /// Note: Response correlation must be handled by the caller based on pending query tracking
   public static func parse(_ text: String, forQuery query: String? = nil) -> CLIResponse {
@@ -52,29 +69,29 @@ public enum CLIResponse: Sendable, Equatable {
     }
 
     // Use query hint to match version responses that don't have standard prefix
-    if query == "ver" {
+    if query == Query.version {
       return .version(trimmed)
     }
 
-    // Freeform text fields: query hint takes priority over broad content heuristics
-    // below (e.g. deviceTime matches any string with ":" and "/", which is common
-    // in repeater names and contact info like "Contact: KD7ABC / 145.230")
-    if query == "get name" {
+    // Freeform text fields: any remaining text is the value
+    if query == Query.name {
       return .name(trimmed)
     }
 
-    if query == "get owner.info" {
+    if query == Query.ownerInfo {
       return .ownerInfo(trimmed)
     }
 
-    // Clock response: "06:40 - 18/4/2025 UTC" or contains time-like patterns
-    if trimmed.contains("UTC") || (trimmed.contains(":") && trimmed.contains("/")) {
+    // Clock response: "06:40 - 18/4/2025 UTC". Gated on the query because the
+    // ":" + "/" shape also appears in names and owner info like
+    // "Contact: KD7ABC / 145.230".
+    if query == Query.clock, trimmed.contains("UTC") || (trimmed.contains(":") && trimmed.contains("/")) {
       return .deviceTime(trimmed)
     }
 
     // Radio params: "915.000,250.0,10,5" (freq,bw,sf,cr)
     // Use query hint to disambiguate from other comma-separated values
-    if query == "get radio" {
+    if query == Query.radio {
       let parts = trimmed.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) }
       if parts.count >= 4,
          let freq = Double(parts[0]),
@@ -86,12 +103,12 @@ public enum CLIResponse: Sendable, Equatable {
     }
 
     // TX power in dBm, optionally annotated with ZephCore power-control state
-    if query == "get tx", let power = parseTXPowerDBm(trimmed) {
+    if query == Query.txPower, let power = parseTXPowerDBm(trimmed) {
       return .txPower(power)
     }
 
     // Repeat mode: "on" or "off"
-    if query == "get repeat" {
+    if query == Query.repeatMode {
       if trimmed.lowercased() == "on" {
         return .repeatMode(true)
       } else if trimmed.lowercased() == "off" {
@@ -100,27 +117,27 @@ public enum CLIResponse: Sendable, Equatable {
     }
 
     // Advert interval: integer minutes
-    if query == "get advert.interval", let interval = Int(trimmed) {
+    if query == Query.advertInterval, let interval = Int(trimmed) {
       return .advertInterval(interval)
     }
 
     // Flood advert interval: integer hours
-    if query == "get flood.advert.interval", let interval = Int(trimmed) {
+    if query == Query.floodAdvertInterval, let interval = Int(trimmed) {
       return .floodAdvertInterval(interval)
     }
 
     // Flood max: integer hops
-    if query == "get flood.max", let maxHops = Int(trimmed) {
+    if query == Query.floodMax, let maxHops = Int(trimmed) {
       return .floodMax(maxHops)
     }
 
     // Latitude: decimal degrees
-    if query == "get lat", let lat = Double(trimmed) {
+    if query == Query.latitude, let lat = Double(trimmed) {
       return .latitude(lat)
     }
 
     // Longitude: decimal degrees
-    if query == "get lon", let lon = Double(trimmed) {
+    if query == Query.longitude, let lon = Double(trimmed) {
       return .longitude(lon)
     }
 
@@ -128,16 +145,70 @@ public enum CLIResponse: Sendable, Equatable {
   }
 
   /// Reads the configured TX power in dBm from a `get tx` reply. Stock firmware
-  /// sends a bare integer; ZephCore appends Adaptive Power Control state, and
-  /// while APC is active the leading number is the reduced live power whereas the
-  /// `max=` ceiling is what `set tx` writes back, so `max=` wins when present.
+  /// sends a bare integer ("> 22"); ZephCore appends Adaptive Power Control
+  /// state ("> 22dBm (apc=off)"), and while APC is active the leading number is
+  /// the reduced live power whereas the `max=` ceiling is what `set tx` writes
+  /// back, so `max=` wins when present.
   private static func parseTXPowerDBm(_ text: String) -> Int? {
     if let match = text.firstMatch(of: /max=(-?\d+)/) {
       return Int(match.output.1)
     }
-    if let match = text.firstMatch(of: /^(-?\d+)/) {
+    // Accept only a whole leading integer ("22", "22dBm (apc=off)"); a digit
+    // run followed by "." or "," is some other value, such as the leading
+    // frequency of a radio CSV, never a power.
+    if let match = text.firstMatch(of: /^(-?\d+)(?:dBm|\s|$)/) {
       return Int(match.output.1)
     }
     return nil
+  }
+
+  /// Queries whose replies have a machine-checkable shape. Free-form gets and
+  /// set/action commands are absent because their success replies are
+  /// arbitrary text: firmware answers `password` with "password now:", not
+  /// "OK", and letsmesh builds answer `ver` with
+  /// "1.11.0-letsmesh.net-dev-... (Build: ...)" that no shape check covers.
+  private static let structuredQueries: Set<String> = [
+    Query.radio, Query.txPower, Query.repeatMode, Query.advertInterval,
+    Query.floodAdvertInterval, Query.floodMax, Query.latitude, Query.longitude,
+    Query.clock,
+  ]
+
+  /// Whether the query's reply has a machine-checkable shape.
+  public static func isStructuredQuery(_ query: String) -> Bool {
+    structuredQueries.contains(query)
+  }
+
+  /// Whether a reply is plausible for the given pending query. Replies to
+  /// structured gets must parse to their typed case (or an error); everything
+  /// else matches any text.
+  public static func isPlausibleResponse(_ response: String, forQuery query: String) -> Bool {
+    guard structuredQueries.contains(query) else { return true }
+    if case .raw = parse(response, forQuery: query) {
+      return false
+    }
+    return true
+  }
+
+  // MARK: - Wire Prefix Echo
+
+  /// Separator of the optional CLI wire prefix. Repeater and room firmware
+  /// reflect a leading "XX|" from the command back at the start of the reply,
+  /// giving the otherwise tagless CLI channel a correlation token.
+  static let echoPrefixSeparator: Character = "|"
+
+  /// Length of the wire prefix including the separator.
+  private static let echoPrefixLength = 3
+
+  /// Splits an echoed wire prefix off a reply. Returns nil when the reply
+  /// carries none. Only two hex digits plus the separator qualify, matching
+  /// the prefixes this app generates, so ordinary reply text can't be
+  /// mistaken for a prefix.
+  public static func splitEchoedPrefix(_ text: String) -> (prefix: String, body: String)? {
+    guard text.count > echoPrefixLength,
+          text.prefix(echoPrefixLength).wholeMatch(of: /[0-9A-F]{2}\|/) != nil else {
+      return nil
+    }
+    let splitIndex = text.index(text.startIndex, offsetBy: echoPrefixLength)
+    return (String(text[..<splitIndex]), String(text[splitIndex...]))
   }
 }

@@ -369,6 +369,11 @@ public final class ServiceContainer {
     await rxLogService.startEventMonitoring(radioID: radioID)
     await messageService.startEventMonitoring()
     await messageService.startAckExpiryChecking()
+
+    let meshSession = session
+    await remoteNodeService.setRadioClockProvider { [weak meshSession] in
+      try? await meshSession?.getTime()
+    }
     await remoteNodeService.startEventMonitoring()
 
     // Always start message event monitoring so handlers are ready for polled messages

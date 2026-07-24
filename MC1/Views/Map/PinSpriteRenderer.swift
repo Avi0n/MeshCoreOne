@@ -7,6 +7,51 @@ enum PinSpriteRenderer {
   /// Used by the map Coordinator to position callout anchors above the pin icon.
   static let standardHeight: CGFloat = 43 // 36 (circle) + 10 (triangle) - 3 (overlap)
 
+  /// Diameter of the small center-anchored location-fix dot.
+  static let locationDotDiameter: CGFloat = 14
+
+  /// Number of recency buckets a location trail's dots are graded into. Five reads
+  /// as a clear directional gradient without banding into noise at dot size.
+  /// `nonisolated` so the (non-isolated) path builder can bucket against it.
+  nonisolated static let recencyBucketCount = 5
+
+  /// Recency ramp for sampled location-fix dots, oldest → newest: a warm "ember"
+  /// family (warm-grey → ochre → amber → orange → coral) that harmonizes with the
+  /// pink hero while stopping short of its hue, so the newest dot is never mistaken
+  /// for the current-position hero. Tuned per basemap because a single ramp can't
+  /// stay legible on both: the light stops would sink into a dark ground, and vice
+  /// versa. Recency rises in saturation and warmth together, so it survives greyscale
+  /// and red/green colour-vision deficiency. From an Apple UI/UX design consult.
+  private static let locationDotPaletteLight = [0xA19687, 0xB68F68, 0xD17A47, 0xE76740, 0xF55E47].map(hexColor)
+  private static let locationDotPaletteDark = [0xB1A695, 0xC59E77, 0xD8885A, 0xED7C5A, 0xF87662].map(hexColor)
+
+  /// The hero tint for the node's latest location report (the mockup's `--hero`).
+  private static let locationHeroColor = hexColor(0xFF375F)
+
+  /// Sprite name for a location-fix dot at the given recency bucket (clamped in range).
+  static func locationDotSpriteName(bucket: Int) -> String {
+    "pin-location-fix-\(min(max(bucket, 0), recencyBucketCount - 1))"
+  }
+
+  private nonisolated static func hexColor(_ hex: UInt32) -> UIColor {
+    UIColor(
+      red: CGFloat((hex >> 16) & 0xFF) / 255,
+      green: CGFloat((hex >> 8) & 0xFF) / 255,
+      blue: CGFloat(hex & 0xFF) / 255,
+      alpha: 1
+    )
+  }
+
+  /// Upward offset from a pin's coordinate to where its tap callout should attach:
+  /// the top of the drawn sprite. Bottom-anchored teardrops lift a full pin height;
+  /// the center-anchored location dot lifts only its radius plus a hair of clearance.
+  static func calloutLift(for style: MapPoint.PinStyle) -> CGFloat {
+    switch style {
+    case .locationFix: locationDotDiameter / 2 + 4
+    default: standardHeight
+    }
+  }
+
   static let labelSpritePrefix = "label-"
 
   /// Largest hop number a pin badge will render. Hops beyond this clamp to the
@@ -15,30 +60,45 @@ enum PinSpriteRenderer {
 
   private static var cachedImages: [String: UIImage]?
 
-  /// Single cached dropped-pin sprite for the chat map thumbnail. Distinct from
-  /// `cachedImages`, which is only populated after the Map tab loads its GL
-  /// style; the chat snapshot path never loads that style.
-  private static var cachedDroppedPin: UIImage?
+  /// Sprites cached for static snapshot compositing, keyed by spec name. Distinct
+  /// from `cachedImages`, which is only populated after the Map tab loads its GL
+  /// style; the snapshot render paths never load that style.
+  private static var cachedSnapshotSprites: [String: UIImage] = [:]
 
-  /// The dropped-pin sprite (systemPink circle + `mappin`), rendered once and
-  /// reused. Coordinate-independent, so the chat thumbnail composites the exact
-  /// pin the Map tab drops. Must be called on the main actor.
-  static func droppedPinSprite() -> UIImage {
-    if let cached = cachedDroppedPin { return cached }
-    guard let spec = allSpecs.first(where: { $0.name == "pin-dropped" }) else {
+  /// A base pin sprite rendered once and reused, so snapshot thumbnails composite
+  /// the exact pins the live map drops. Unknown names return an empty image.
+  /// Must be called on the main actor.
+  static func snapshotSprite(named name: String) -> UIImage {
+    if let cached = cachedSnapshotSprites[name] { return cached }
+    guard let spec = allSpecs.first(where: { $0.name == name }) else {
       return UIImage()
     }
     let image = render(spec)
-    cachedDroppedPin = image
+    cachedSnapshotSprites[name] = image
     return image
+  }
+
+  /// The dropped-pin sprite (systemPink circle + `mappin`) for the chat map thumbnail.
+  static func droppedPinSprite() -> UIImage {
+    snapshotSprite(named: "pin-dropped")
   }
 
   /// Registers base pin sprites into the style. Hop-ring variants are rendered
   /// lazily via `renderOnDemand(name:into:)` when MapLibre requests a missing image.
-  static func renderAll(into style: MLNStyle) {
+  /// `isDarkMode` selects the location-dot recency palette; the style reloads on a
+  /// theme switch, so this re-renders those sprites for the new basemap each time.
+  static func renderAll(into style: MLNStyle, isDarkMode: Bool) {
     var rendered: [String: UIImage] = [:]
     for spec in allSpecs {
       rendered[spec.name] = render(spec)
+    }
+    // Recency-graded location dots: one sprite per bucket, from the theme's palette.
+    let palette = isDarkMode ? locationDotPaletteDark : locationDotPaletteLight
+    // A pure-white casing on every small dot over a dark basemap sparkles and starts
+    // borrowing the hero's white-centre language, so soften it on dark ground.
+    let casing = isDarkMode ? UIColor.white.withAlphaComponent(0.85) : UIColor.white
+    for bucket in 0..<recencyBucketCount {
+      rendered[locationDotSpriteName(bucket: bucket)] = renderLocationDot(fill: palette[bucket], casing: casing)
     }
     rendered["pin-badge"] = UIGraphicsImageRenderer(
       size: CGSize(width: 1, height: 1), format: .preferred()
@@ -105,6 +165,7 @@ enum PinSpriteRenderer {
     let text: String? // e.g. "A", "B" for point pins
     let ringColor: UIColor? // selection ring
     let renderStyle: RenderStyle
+    var centerDot: Bool = false // white dot in the circle head (location hero)
   }
 
   private static let allSpecs: [SpriteSpec] = [
@@ -141,6 +202,11 @@ enum PinSpriteRenderer {
     // Chat-dropped coordinate pin
     SpriteSpec(name: "pin-dropped", circleColor: .systemPink,
                iconName: "mappin", text: nil, ringColor: nil, renderStyle: .standard),
+
+    // Node location history hero: the emphasized latest-fix teardrop. The recency
+    // dots are rendered separately per bucket in renderAll (theme-specific palette).
+    SpriteSpec(name: "pin-location-latest", circleColor: locationHeroColor,
+               iconName: nil, text: nil, ringColor: nil, renderStyle: .standard, centerDot: true),
   ]
 
   // MARK: - Rendering
@@ -224,6 +290,16 @@ enum PinSpriteRenderer {
           height: size.height
         )
         (text as NSString).draw(in: textRect, withAttributes: attrs)
+      } else if spec.centerDot {
+        let dotDiameter: CGFloat = 12
+        let dotRect = CGRect(
+          x: circleRect.midX - dotDiameter / 2,
+          y: circleRect.midY - dotDiameter / 2,
+          width: dotDiameter,
+          height: dotDiameter
+        )
+        UIColor.white.setFill()
+        cgContext.fillEllipse(in: dotRect)
       }
 
       // Triangle pointer
@@ -345,6 +421,42 @@ enum PinSpriteRenderer {
         height: textSize.height
       )
       (text as NSString).draw(in: textRect, withAttributes: attrs)
+    }
+  }
+
+  /// A small filled dot with a casing stroke and soft shadow: one sampled node
+  /// location report, center-anchored on its coordinate. No teardrop pointer, so a
+  /// dense trail of them reads as a track of observations rather than a pin field.
+  /// `fill` encodes the fix's recency bucket; `casing` carries figure/ground
+  /// separation from the basemap and softens on dark ground.
+  private static func renderLocationDot(fill: UIColor, casing: UIColor) -> UIImage {
+    let diameter = locationDotDiameter
+    let strokeWidth: CGFloat = 2
+    let padding: CGFloat = 2 // room for the drop shadow
+    let total = diameter + strokeWidth + padding * 2
+
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: total, height: total), format: .preferred())
+    return renderer.image { ctx in
+      let cgContext = ctx.cgContext
+      let dotRect = CGRect(
+        x: (total - diameter) / 2,
+        y: (total - diameter) / 2,
+        width: diameter,
+        height: diameter
+      )
+
+      cgContext.saveGState()
+      cgContext.setShadow(offset: CGSize(width: 0, height: 1), blur: 2, color: UIColor.black.withAlphaComponent(0.3).cgColor)
+      fill.setFill()
+      cgContext.fillEllipse(in: dotRect)
+      cgContext.restoreGState()
+
+      fill.setFill()
+      cgContext.fillEllipse(in: dotRect)
+
+      casing.setStroke()
+      cgContext.setLineWidth(strokeWidth)
+      cgContext.strokeEllipse(in: dotRect.insetBy(dx: strokeWidth / 2, dy: strokeWidth / 2))
     }
   }
 

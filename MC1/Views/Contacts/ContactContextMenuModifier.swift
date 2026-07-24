@@ -1,9 +1,9 @@
 import MC1Services
 import SwiftUI
 
-/// Long-press context-menu actions for a node row: delete, block/unblock, favorite/unfavorite,
-/// matching the conversation list. Delete is gated while a removal is in flight so a rapid re-press
-/// can't double-fire.
+/// Long-press context-menu actions for a node row: send message (chat contacts only), delete,
+/// block/unblock, favorite/unfavorite, matching the conversation list. Delete is gated while a
+/// removal is in flight so a rapid re-press can't double-fire.
 struct ContactContextMenuModifier: ViewModifier {
   @Environment(\.appState) private var appState
 
@@ -14,16 +14,33 @@ struct ContactContextMenuModifier: ViewModifier {
     appState.connectionState == .ready
   }
 
+  /// ZephCore V-contact remove is disabled (would turn off firmware admin CLI).
+  private var isVContact: Bool {
+    guard let selfKey = appState.connectedDevice?.publicKey else { return false }
+    return VContactIdentity.isVContact(publicKey: contact.publicKey, selfPublicKey: selfKey)
+  }
+
   func body(content: Content) -> some View {
     content.contextMenu {
-      Button(role: .destructive) {
-        Task {
-          await viewModel.deleteContact(contact)
+      if contact.type == .chat, !contact.isBlocked {
+        Button {
+          appState.navigation.navigateToChat(with: contact)
+        } label: {
+          Label(L10n.Contacts.Contacts.Detail.sendMessage, systemImage: "message.fill")
         }
-      } label: {
-        Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
+        .disabled(!isConnected)
       }
-      .disabled(!isConnected || viewModel.isDeletePending(contact.id))
+
+      if !isVContact {
+        Button(role: .destructive) {
+          Task {
+            await viewModel.deleteContact(contact)
+          }
+        } label: {
+          Label(L10n.Contacts.Contacts.Common.delete, systemImage: "trash")
+        }
+        .disabled(!isConnected || viewModel.isDeletePending(contact.id))
+      }
 
       if contact.type == .chat {
         Button {

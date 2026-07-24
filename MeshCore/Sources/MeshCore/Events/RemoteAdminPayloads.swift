@@ -8,6 +8,10 @@ public struct LoginInfo: Sendable, Equatable {
   public let isAdmin: Bool
   /// The public key prefix of the node where the login occurred.
   public let publicKeyPrefix: Data
+  /// The remote node's RTC reading carried in the login response, when present.
+  /// Comparing it against local time exposes clock drift that silently breaks
+  /// the node's timestamp-based replay protection.
+  public let serverTime: Date?
 
   /// Initializes a new login information object.
   ///
@@ -15,10 +19,12 @@ public struct LoginInfo: Sendable, Equatable {
   ///   - permissions: The granted permissions.
   ///   - isAdmin: Admin status.
   ///   - publicKeyPrefix: The node's public key prefix.
-  public init(permissions: UInt8, isAdmin: Bool, publicKeyPrefix: Data) {
+  ///   - serverTime: The remote node's clock at login, if the response carried it.
+  public init(permissions: UInt8, isAdmin: Bool, publicKeyPrefix: Data, serverTime: Date? = nil) {
     self.permissions = permissions
     self.isAdmin = isAdmin
     self.publicKeyPrefix = publicKeyPrefix
+    self.serverTime = serverTime
   }
 }
 

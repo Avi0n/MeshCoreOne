@@ -11,28 +11,28 @@ struct LoginTimeoutConfigTests {
 
   @Test
   func `Direct path (mode 0) uses base timeout only`() {
-    // Mode 0, 0 hops → encoded as 0x00
+    // Mode 0, 0 hops encodes as 0x00
     let timeout = LoginTimeoutConfig.timeout(forPathLength: 0x00)
     #expect(timeout == .seconds(5))
   }
 
   @Test
   func `Direct path (mode 1) uses base timeout only, not mode bits`() {
-    // Mode 1, 0 hops → encoded as 0x40 (64 decimal)
+    // Mode 1, 0 hops encodes as 0x40 (64 decimal)
     let timeout = LoginTimeoutConfig.timeout(forPathLength: 0x40)
     #expect(timeout == .seconds(5))
   }
 
   @Test
   func `Direct path (mode 2) uses base timeout only, not mode bits`() {
-    // Mode 2, 0 hops → encoded as 0x80 (128 decimal)
+    // Mode 2, 0 hops encodes as 0x80 (128 decimal)
     let timeout = LoginTimeoutConfig.timeout(forPathLength: 0x80)
     #expect(timeout == .seconds(5))
   }
 
   @Test
   func `Mode 1 with 3 hops computes timeout from hop count`() {
-    // Mode 1, 3 hops → encoded as 0x43
+    // Mode 1, 3 hops encodes as 0x43
     let timeout = LoginTimeoutConfig.timeout(forPathLength: 0x43)
     #expect(timeout == .seconds(35)) // 5 + 3*10
   }
@@ -44,15 +44,26 @@ struct LoginTimeoutConfigTests {
   }
 
   @Test
-  func `Flood routing (0xFF) falls back to base timeout`() {
-    // 0xFF: mode 3 (reserved) → decodePathLen returns nil → 0 hops
+  func `Flood routing (0xFF) budgets for the worst case`() {
+    // 0xFF is mode 3 (reserved), meaning no known path: the login floods both ways
     let timeout = LoginTimeoutConfig.timeout(forPathLength: 0xFF)
-    #expect(timeout == .seconds(5))
+    #expect(timeout == LoginTimeoutConfig.maximumTimeout)
+  }
+
+  @Test
+  func `Login timeout policy gives flood logins the full login maximum`() {
+    // A short firmware estimate must not starve a flood login; the policy
+    // clamps the flood budget to loginMaximum.
+    let sentInfo = makeSentInfo(timeoutMs: 4724)
+
+    let timeout = RemoteOperationTimeoutPolicy.loginTimeout(for: sentInfo, pathLength: 0xFF)
+
+    #expect(timeout == .seconds(20))
   }
 
   @Test
   func `Timeout is capped at maximum`() {
-    // Mode 0, 6 hops → 5 + 60 = 65, should cap at 60
+    // Mode 0, 6 hops gives 5 + 60 = 65, which should cap at 60
     let timeout = LoginTimeoutConfig.timeout(forPathLength: 6)
     #expect(timeout == .seconds(60))
   }

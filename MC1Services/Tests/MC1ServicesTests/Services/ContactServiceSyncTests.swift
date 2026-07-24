@@ -30,8 +30,12 @@ struct ContactServiceSyncTests {
   }
 
   private func contactFrame(_ keyByte: UInt8, name: String) -> ContactFrame {
+    contactFrame(key: publicKey(keyByte), name: name)
+  }
+
+  private func contactFrame(key: Data, name: String) -> ContactFrame {
     ContactFrame(
-      publicKey: publicKey(keyByte),
+      publicKey: key,
       type: .chat,
       flags: 0,
       outPathLength: 0,
@@ -69,6 +73,32 @@ struct ContactServiceSyncTests {
     #expect(Set(stored.map(\.name)) == ["Alice", "Bob"])
     // The stale contact was pruned on full sync.
     #expect(try await store.fetchContact(radioID: radioID, publicKey: publicKey(0xDD)) == nil)
+  }
+
+  @Test
+  func `Full sync prunes true orphans but keeps the ZephCore V-contact`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+
+    // The V-contact derived from the test device's self key is omitted from GET_CONTACTS
+    // while clock-deferred or disabled, so a full sync must not treat it as a table orphan.
+    let selfKey = Data(repeating: 0x01, count: ProtocolLimits.publicKeySize)
+    let vKey = try #require(VContactIdentity.publicKey(forSelfPublicKey: selfKey))
+    _ = try await store.saveContact(radioID: radioID, from: contactFrame(key: vKey, name: "vTestDevice"))
+    // A genuine orphan the device no longer reports.
+    _ = try await store.saveContact(radioID: radioID, from: contactFrame(0xDD, name: "Orphan"))
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([meshContact(0xAA, name: "Alice")])
+
+    let service = ContactService(session: session, dataStore: store, syncCoordinator: nil, cleanupCoordinator: nil)
+    _ = try await service.syncContacts(radioID: radioID, since: nil)
+
+    // The orphan is pruned; the V-contact survives.
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: publicKey(0xDD)) == nil)
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: vKey) != nil)
+    let stored = try await store.fetchContacts(radioID: radioID)
+    #expect(Set(stored.map(\.name)) == ["Alice", "vTestDevice"])
   }
 
   @Test

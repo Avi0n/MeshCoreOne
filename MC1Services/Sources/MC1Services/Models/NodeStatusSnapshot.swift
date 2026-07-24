@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import MeshCore
 import SwiftData
@@ -181,6 +182,18 @@ final class NodeStatusSnapshot {
   /// Telemetry data, only populated if the user expanded the telemetry section.
   var telemetryEntries: [TelemetrySnapshotEntry]?
 
+  // MARK: - Location
+
+  /// Primary GPS fix at capture time. Both set or both nil; dropped when the node
+  /// had no lock. Written first-wins during in-window enrichment so a later no-fix
+  /// response can't erase a good fix.
+  var latitude: Double?
+  var longitude: Double?
+  /// Altitude in meters for the fix above, or nil when the node reported none.
+  /// Optional independently of latitude/longitude: a fix can lack a usable
+  /// altitude. Distinct from 0.0, which is a real sea-level reading.
+  var altitude: Double?
+
   init(
     id: UUID = UUID(),
     timestamp: Date = .now,
@@ -203,7 +216,10 @@ final class NodeStatusSnapshot {
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
-    telemetryEntries: [TelemetrySnapshotEntry]? = nil
+    telemetryEntries: [TelemetrySnapshotEntry]? = nil,
+    latitude: Double? = nil,
+    longitude: Double? = nil,
+    altitude: Double? = nil
   ) {
     self.id = id
     self.timestamp = timestamp
@@ -227,6 +243,9 @@ final class NodeStatusSnapshot {
     self.postPushCount = postPushCount
     self.neighborSnapshots = neighborSnapshots
     self.telemetryEntries = telemetryEntries
+    self.latitude = latitude
+    self.longitude = longitude
+    self.altitude = altitude
   }
 
   /// Apply captured status metrics onto this snapshot, leaving neighbor and
@@ -275,7 +294,10 @@ final class NodeStatusSnapshot {
       postedCount: dto.postedCount,
       postPushCount: dto.postPushCount,
       neighborSnapshots: dto.neighborSnapshots,
-      telemetryEntries: dto.telemetryEntries
+      telemetryEntries: dto.telemetryEntries,
+      latitude: dto.latitude,
+      longitude: dto.longitude,
+      altitude: dto.altitude
     )
   }
 }
@@ -308,6 +330,9 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
   public let postPushCount: UInt16?
   public let neighborSnapshots: [NeighborSnapshotEntry]?
   public let telemetryEntries: [TelemetrySnapshotEntry]?
+  public let latitude: Double?
+  public let longitude: Double?
+  public let altitude: Double?
 
   init(from model: NodeStatusSnapshot) {
     id = model.id
@@ -332,6 +357,9 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     postPushCount = model.postPushCount
     neighborSnapshots = model.neighborSnapshots
     telemetryEntries = model.telemetryEntries
+    latitude = model.latitude
+    longitude = model.longitude
+    altitude = model.altitude
   }
 
   public init(
@@ -356,7 +384,10 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
-    telemetryEntries: [TelemetrySnapshotEntry]? = nil
+    telemetryEntries: [TelemetrySnapshotEntry]? = nil,
+    latitude: Double? = nil,
+    longitude: Double? = nil,
+    altitude: Double? = nil
   ) {
     self.id = id
     self.timestamp = timestamp
@@ -380,5 +411,16 @@ public struct NodeStatusSnapshotDTO: Sendable, Equatable, Identifiable, Codable 
     self.postPushCount = postPushCount
     self.neighborSnapshots = neighborSnapshots
     self.telemetryEntries = telemetryEntries
+    self.latitude = latitude
+    self.longitude = longitude
+    self.altitude = altitude
+  }
+
+  /// The snapshot's GPS fix as a plottable coordinate, or nil when either
+  /// component is missing or the pair is not a valid fix.
+  public var validCoordinate: CLLocationCoordinate2D? {
+    guard let latitude, let longitude else { return nil }
+    let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    return coordinate.isValidFix ? coordinate : nil
   }
 }

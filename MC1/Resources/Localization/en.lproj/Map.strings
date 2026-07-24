@@ -31,6 +31,12 @@
 /* Location: MapView.swift - Purpose: Accessibility label for refresh button */
 "map.controls.refresh" = "Refresh contacts";
 
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "Filter";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "Filters active";
+
 // MARK: - Map Style Selection
 
 /* Location: MapStyleSelection.swift - Purpose: Standard map style option */
@@ -107,8 +113,6 @@
 "map.detail.action.telemetry" = "Telemetry";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "Saved History";
-
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "Telemetry Access";
 
@@ -149,17 +153,26 @@
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
 "map.callout.nodeKind.room" = "Room";
 
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
+"map.callout.add" = "Add";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list */
+"map.callout.discovered" = "Discovered";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
+"map.discoveredDetail.title" = "Discovered Node";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
+"map.discoveredDetail.add" = "Add to Nodes";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
+"map.pin.accessibility.discovered" = "Discovered, not on node list";
+
 // MARK: - Contact Annotation
 
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for favorite contacts */
-"map.annotation.favorite" = "Favorite";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for repeater nodes */
-"map.annotation.repeater" = "Repeater";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for room nodes */
-"map.annotation.room" = "Room";
-
 // MARK: - Offline Badge
 
 /* Label shown on map when device has no internet connection */

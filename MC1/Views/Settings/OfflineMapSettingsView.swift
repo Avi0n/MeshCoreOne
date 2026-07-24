@@ -1,5 +1,6 @@
 import MapKit
 import MapLibre
+import MC1Services
 import SwiftUI
 
 struct OfflineMapSettingsView: View {
@@ -161,6 +162,9 @@ private struct RegionPickerSheet: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.colorScheme) private var colorScheme
 
+  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
+  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
+
   @State private var regionName = ""
   @State private var cameraRegion: MKCoordinateRegion?
   @State private var isDownloading = false
@@ -174,6 +178,11 @@ private struct RegionPickerSheet: View {
 
   private static let selectionPadding: CGFloat = 40
 
+  private var mapIsDark: Bool {
+    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
+    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
+  }
+
   var body: some View {
     NavigationStack {
       ZStack {
@@ -181,7 +190,7 @@ private struct RegionPickerSheet: View {
           points: [],
           lines: [],
           mapStyle: .standard,
-          isDarkMode: colorScheme == .dark,
+          isDarkMode: mapIsDark,
           showLabels: false,
           showsUserLocation: true,
           isInteractive: true,

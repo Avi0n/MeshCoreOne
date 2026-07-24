@@ -544,6 +544,40 @@ struct NodeConfigImportPlannerTests {
   }
 
   @Test
+  func `Occupancy that includes a virtual extra key blocks update-only until the key is excluded`() {
+    // Simulates GET_CONTACTS returning max real contacts + ZephCore V-contact (+1).
+    // Without excluding V from existingContacts, availableSlots goes negative and even an
+    // update of an existing key is rejected. buildImportPlan drops V before calling the planner.
+    let maxContacts = 1
+    let existingWithVirtual = Dictionary(uniqueKeysWithValues: [
+      Self.presentContact(keyedAs: Self.pubKeyHexA.lowercased()),
+      Self.presentContact(keyedAs: Self.pubKeyHexB.lowercased()),
+    ])
+    #expect {
+      _ = try Self.plan(
+        contacts: [Self.contact(name: "Update", publicKey: Self.pubKeyHexA)],
+        sections: Self.contactSections(),
+        maxContacts: maxContacts,
+        existingContacts: existingWithVirtual
+      )
+    } throws: { error in
+      if case NodeConfigServiceError.contactCapacityExceeded = error { return true }
+      return false
+    }
+
+    var occupancy = existingWithVirtual
+    occupancy.removeValue(forKey: Self.pubKeyHexB.lowercased())
+    #expect(throws: Never.self) {
+      _ = try Self.plan(
+        contacts: [Self.contact(name: "Update", publicKey: Self.pubKeyHexA)],
+        sections: Self.contactSections(),
+        maxContacts: maxContacts,
+        existingContacts: occupancy
+      )
+    }
+  }
+
+  @Test
   func `A new contact has no free slot once the device table is full`() {
     #expect {
       _ = try Self.plan(

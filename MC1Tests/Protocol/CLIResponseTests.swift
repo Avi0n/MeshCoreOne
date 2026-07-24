@@ -229,12 +229,12 @@ struct CLIResponseTests {
   // MARK: - Device Time with Prompt
 
   @Test func `parse device time with prompt prefix`() {
-    let result = CLIResponse.parse("> 06:40 - 18/4/2025 UTC")
+    let result = CLIResponse.parse("> 06:40 - 18/4/2025 UTC", forQuery: "clock")
     #expect(result == .deviceTime("06:40 - 18/4/2025 UTC"))
   }
 
   @Test func `parse device time without prompt prefix`() {
-    let result = CLIResponse.parse("14:30 - 25/12/2025 UTC")
+    let result = CLIResponse.parse("14:30 - 25/12/2025 UTC", forQuery: "clock")
     #expect(result == .deviceTime("14:30 - 25/12/2025 UTC"))
   }
 
@@ -278,9 +278,11 @@ struct CLIResponseTests {
     #expect(result == .name("Repeater: East / West"))
   }
 
-  @Test func `parse device time still works without query hint`() {
+  @Test func `parse device time requires the clock query`() {
+    // The ":" + "/" shape also appears in names and owner info, so a clock
+    // reply is only recognized when "clock" is the pending query.
     let result = CLIResponse.parse("06:40 - 18/4/2025 UTC")
-    #expect(result == .deviceTime("06:40 - 18/4/2025 UTC"))
+    #expect(result == .raw("06:40 - 18/4/2025 UTC"))
   }
 
   // MARK: - Edge Cases

@@ -209,6 +209,119 @@ struct BLEReconnectionCoordinatorTests {
   }
 
   @Test
+  func `cycle claim is held across first-fail retry gap until failure returns`() async {
+    let deviceID = UUID()
+    let (coordinator, delegate) = createCoordinator()
+    delegate.connectionIntent = .wantsConnection()
+    delegate.connectionState = .ready
+    // First rebuild fails, second (retry) also fails → handleReconnectionFailure.
+    delegate.rebuildSessionThrowCount = 2
+
+    var claimDuringFailure: UUID?
+    delegate.onHandleReconnectionFailure = {
+      claimDuringFailure = coordinator.reconnectingDeviceID
+    }
+
+    await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+    // After first throw, claim must still be held (would be nil if clear ran early).
+    async let completion: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
+    // Yield so first rebuild starts and fails into the 2s sleep.
+    await Task.yield()
+    try? await Task.sleep(for: .milliseconds(50))
+    #expect(coordinator.reconnectingDeviceID == deviceID)
+
+    await completion
+
+    #expect(delegate.handleReconnectionFailureCallCount == 1)
+    #expect(claimDuringFailure == deviceID)
+    #expect(coordinator.reconnectingDeviceID == nil)
+  }
+
+  @Test
+  func `overlapping completions for the same device start only one rebuild`() async {
+    let deviceID = UUID()
+    let (coordinator, delegate) = createCoordinator()
+    delegate.connectionIntent = .wantsConnection()
+    delegate.connectionState = .ready
+    delegate.rebuildSessionHold = true
+
+    await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+
+    async let first: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
+    // Wait until first rebuild is parked inside the hold.
+    for _ in 0..<100 where delegate.rebuildSessionHoldContinuation == nil {
+      await Task.yield()
+    }
+    #expect(delegate.rebuildSessionHoldContinuation != nil)
+    async let second: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
+    // Release the held rebuild.
+    delegate.rebuildSessionHold = false
+    delegate.rebuildSessionHoldContinuation?.resume()
+    await first
+    await second
+
+    #expect(delegate.rebuildSessionCalls.count == 1)
+  }
+
+  @Test
+  func `already-connected completion during rebuild does not drop cycle claim`() async {
+    // Production rebuildSession sets .connected early. A second completion in
+    // that window must not clearActiveCycle or health single-flight is lost.
+    let deviceID = UUID()
+    let (coordinator, delegate) = createCoordinator()
+    delegate.connectionIntent = .wantsConnection()
+    delegate.connectionState = .ready
+    delegate.rebuildSessionThrowCount = 2
+
+    var claimDuringFailure: UUID?
+    delegate.onHandleReconnectionFailure = {
+      claimDuringFailure = coordinator.reconnectingDeviceID
+    }
+    delegate.onRebuildSession = {
+      // Mirror production: surface .connected during rebuild.
+      delegate.connectionState = .connected
+    }
+
+    await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
+    async let first: Void = coordinator.handleReconnectionComplete(deviceID: deviceID)
+    for _ in 0..<50 where delegate.rebuildSessionCalls.isEmpty {
+      await Task.yield()
+    }
+    // Second completion while first is in flight and state is .connected.
+    await coordinator.handleReconnectionComplete(deviceID: deviceID)
+    #expect(coordinator.reconnectingDeviceID == deviceID)
+    #expect(delegate.rebuildSessionCalls.count == 1)
+
+    await first
+    #expect(claimDuringFailure == deviceID)
+    #expect(delegate.handleReconnectionFailureCallCount == 1)
+  }
+
+  @Test
+  func `successful rebuild does not clear a newer cycle claim after supersession`() async {
+    let deviceA = UUID()
+    let deviceB = UUID()
+    let (coordinator, delegate) = createCoordinator()
+    delegate.connectionIntent = .wantsConnection()
+    delegate.connectionState = .ready
+
+    await coordinator.handleEnteringAutoReconnect(deviceID: deviceA)
+
+    var enteredSuperseding = false
+    delegate.onRebuildSession = {
+      guard !enteredSuperseding else { return }
+      enteredSuperseding = true
+      // Mid-rebuild: a newer auto-reconnect cycle claims device B.
+      await coordinator.handleEnteringAutoReconnect(deviceID: deviceB)
+    }
+
+    await coordinator.handleReconnectionComplete(deviceID: deviceA)
+
+    // Newer cycle must still hold its claim; clearing on stale success would wipe it.
+    #expect(coordinator.reconnectingDeviceID == deviceB)
+  }
+
+  @Test
   func `stale device completion does not cancel active timeout`() async throws {
     let activeDevice = UUID()
     let staleDevice = UUID()
@@ -539,6 +652,12 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
   var teardownSessionCallCount = 0
   var rebuildSessionCalls: [UUID] = []
   var rebuildSessionShouldThrow = false
+  /// When > 0, the next N rebuildSession calls throw then decrement.
+  var rebuildSessionThrowCount = 0
+  /// When true, rebuildSession parks until `rebuildSessionHold` is set false
+  /// and the continuation is resumed.
+  var rebuildSessionHold = false
+  var rebuildSessionHoldContinuation: CheckedContinuation<Void, Never>?
   var disconnectTransportCallCount = 0
   var notifyConnectionLostCallCount = 0
   var notifyAutoReconnectStartedCallCount = 0
@@ -551,6 +670,8 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
   /// Runs inside `isTransportAutoReconnecting()` so tests can interleave work
   /// at that suspension point before the stubbed value is returned.
   var onIsTransportAutoReconnecting: (@MainActor () async -> Void)?
+  var onHandleReconnectionFailure: (@MainActor () async -> Void)?
+  var onRebuildSession: (@MainActor () async -> Void)?
 
   func setConnectionState(_ state: DeviceConnectionState) {
     connectionState = state
@@ -574,6 +695,18 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
 
   func rebuildSession(deviceID: UUID) async throws {
     rebuildSessionCalls.append(deviceID)
+    if let onRebuildSession {
+      await onRebuildSession()
+    }
+    if rebuildSessionHold {
+      await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
+        rebuildSessionHoldContinuation = cont
+      }
+    }
+    if rebuildSessionThrowCount > 0 {
+      rebuildSessionThrowCount -= 1
+      throw ReconnectionTestError.rebuildFailed
+    }
     if rebuildSessionShouldThrow {
       throw ReconnectionTestError.rebuildFailed
     }
@@ -589,6 +722,9 @@ private final class MockReconnectionDelegate: BLEReconnectionDelegate {
 
   func handleReconnectionFailure() async {
     handleReconnectionFailureCallCount += 1
+    if let onHandleReconnectionFailure {
+      await onHandleReconnectionFailure()
+    }
   }
 
   func isTransportAutoReconnecting() async -> Bool {

@@ -29,8 +29,15 @@ final class EventBroadcaster<Event: Sendable>: Sendable {
   /// Returns a stream receiving every event yielded after this call.
   /// If `finish()` has already been called, returns a stream that finishes
   /// immediately. Cancelling the consuming task unregisters the subscriber.
-  func subscribe() -> AsyncStream<Event> {
-    let (stream, continuation) = AsyncStream.makeStream(of: Event.self)
+  ///
+  /// `bufferingPolicy` bounds the per-subscriber buffer. Latest-state
+  /// notification streams should pass `.bufferingNewest(n)` so a stalled
+  /// consumer accumulates the most recent events instead of an unbounded
+  /// backlog.
+  func subscribe(
+    bufferingPolicy: AsyncStream<Event>.Continuation.BufferingPolicy = .unbounded
+  ) -> AsyncStream<Event> {
+    let (stream, continuation) = AsyncStream.makeStream(of: Event.self, bufferingPolicy: bufferingPolicy)
     let alreadyFinished = state.withLock { locked -> Bool in
       guard !locked.isFinished else { return true }
       let id = UUID()

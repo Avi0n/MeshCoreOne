@@ -358,11 +358,14 @@ struct EntityQueryScopingTests {
     #expect(currentRadioScope(bridge)?.radioID == nil)
   }
 
-  @Test func `scope is nil when app state has no current radio`() {
-    // A fresh AppState with no connection has a nil currentRadioID, so even an
-    // adopted bridge resolves no scope rather than reading the wrong radio.
+  @Test func `scope is nil when app state has no current radio`() async {
+    // Clear host last-connected state so a bare AppState() is not poisoned by a
+    // previous simulator run's UserDefaults.standard lastConnectedRadioID.
     let bridge = IntentBridge()
     let appState = AppState()
+    if let deviceID = appState.connectionManager.lastConnectedDeviceID {
+      await appState.connectionManager.clearPersistedConnection(for: deviceID)
+    }
     bridge.adopt(appState)
 
     #expect(appState.currentRadioID == nil)

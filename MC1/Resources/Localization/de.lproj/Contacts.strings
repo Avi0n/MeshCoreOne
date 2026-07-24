@@ -38,8 +38,6 @@
 "contacts.nodeKind.chat" = "Chat";
 
 /* Location: Multiple files - Purpose: Chat contact full label */
-"contacts.nodeKind.chatContact" = "Chat-Kontakt";
-
 /* Location: Multiple files - Purpose: Repeater contact type label */
 "contacts.nodeKind.repeater" = "Repeater";
 
@@ -270,6 +268,24 @@
 
 /* Location: ContactDetailView.swift - Purpose: Info section header */
 "contacts.detail.info" = "Info";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu title */
+"contacts.detail.avatar.chooseSource" = "Profilbild ändern";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library */
+"contacts.detail.avatar.choosePhoto" = "Foto auswählen";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file */
+"contacts.detail.avatar.chooseFile" = "Datei auswählen...";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo */
+"contacts.detail.avatar.removePhoto" = "Foto entfernen";
+
+/* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
+"contacts.detail.avatar.savingAnnouncement" = "Foto wird gespeichert";
+
+/* Location: ContactDetailView.swift - Purpose: Error shown when the picked file is not a valid image */
+"contacts.detail.avatar.invalidImage" = "Diese Datei konnte nicht als Profilbild verwendet werden.";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Spitzname";
@@ -522,11 +538,7 @@
 "contacts.scan.error.invalidFormat" = "Ungültiges QR-Code-Format";
 
 /* Location: ScanContactQRView.swift - Purpose: Missing name error */
-"contacts.scan.error.missingName" = "Ungültiger QR-Code: Name fehlt";
-
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
-"contacts.scan.error.invalidKey" = "Ungültiger QR-Code: ungültiger öffentlicher Schlüssel";
-
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "Kontakt konnte nicht importiert werden: %@";
 
@@ -551,8 +563,6 @@
 "contacts.discovery.addedAccessibility" = "Bereits zu Kontakten hinzugefügt";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
-"contacts.discovery.error.servicesUnavailable" = "Dienste nicht verfügbar";
-
 /* Location: DiscoveryView.swift - Purpose: Segment filter - All */
 "contacts.discovery.segment.all" = "Alle";
 
@@ -875,28 +885,14 @@
 // MARK: - Trace Path Cluster View
 
 /* Location: TracePathClusterView.swift - Accessibility label for cluster annotation */
-"contacts.trace.map.cluster.label" = "%d Repeater";
-
 /* Location: TracePathClusterView.swift - Accessibility hint for cluster annotation */
-"contacts.trace.map.cluster.hint" = "Doppeltippen zum Heranzoomen";
-
 // MARK: - Trace Path Repeater Pin View
 
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for repeater in path */
-"contacts.trace.map.pin.inPathLabel" = "Repeater: %1$@, Hop %2$d im Pfad";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for removable last hop */
-"contacts.trace.map.pin.removableHint" = "Doppeltippen, um aus dem Pfad zu entfernen";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for non-removable hop */
-"contacts.trace.map.pin.notRemovableHint" = "Dieser Hop kann nicht entfernt werden. Nur der letzte Hop kann entfernt werden.";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for available repeater */
-"contacts.trace.map.pin.availableLabel" = "Repeater: %@";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for adding repeater to path */
-"contacts.trace.map.pin.addHint" = "Doppeltippen, um zum Pfad hinzuzufügen";
-
 // MARK: - Trace Path View
 
 /* Location: TracePathView.swift - Purpose: Navigation title */
@@ -1015,11 +1011,7 @@
 "contacts.trace.map.clear" = "Löschen";
 
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
-"contacts.trace.map.hideLabels" = "Beschriftungen ausblenden";
-
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
-"contacts.trace.map.showLabels" = "Beschriftungen einblenden";
-
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
 "contacts.trace.map.centerOnPath" = "Auf Pfad zentrieren";
 
@@ -1177,8 +1169,6 @@
 // MARK: - Stats Badge Accessibility
 
 /* Location: StatsBadgeView.swift - Purpose: Distance and signal accessibility */
-"contacts.statsBadge.accessibility" = "Entfernung: %@, Signal: %d Dezibel";
-
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */

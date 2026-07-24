@@ -8,6 +8,10 @@ import SwiftUI
 /// share one instance.
 struct ChatsContentColumn: View {
   @Environment(\.appState) private var appState
+  @Environment(\.appTheme) private var theme
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+  @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   let viewModel: ChatViewModel
 
@@ -103,6 +107,10 @@ struct ChatsContentColumn: View {
       if newRoute == nil {
         selectedRoute = nil
         lastSelectedRoomIsConnected = nil
+      } else if let newRoute {
+        // Sidebar taps bind selection directly (bypassing `navigate(to:)`), so warm the
+        // coordinator here — the universal hook for every split-view selection.
+        prefetch(newRoute)
       }
     }
     // Refresh the selected route's payload as the snapshot recomputes and re-run the
@@ -140,6 +148,23 @@ struct ChatsContentColumn: View {
   private func navigate(to route: ChatRoute) {
     selectedRoute = route
     appState.navigation.chatsSelectedRoute = route
+  }
+
+  /// Warms the shared coordinator for the selected conversation before the detail
+  /// column swaps in, so the chat renders populated instead of jumping in a frame
+  /// later on a cold open.
+  private func prefetch(_ route: ChatRoute) {
+    guard let conversation = route.chatConversationType else { return }
+    appState.prefetchConversation(
+      conversation,
+      envInputs: appState.chatEnvInputs(
+        for: conversation,
+        themeID: theme.id,
+        isDark: colorScheme == .dark,
+        isHighContrast: colorSchemeContrast == .increased,
+        contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize)
+      )
+    )
   }
 
   private func clearNavigationIfActive(_ route: ChatRoute) {

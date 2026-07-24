@@ -8,6 +8,19 @@ public struct SessionConfiguration: Sendable {
   /// The client identifier sent to the device during session startup.
   public let clientIdentifier: String
 
+  /// Wall-clock budget for one binary exchange (status, telemetry, and peers).
+  /// In-exchange retransmits share this window until a reply or timeout.
+  public let binaryRequestOverallTimeout: TimeInterval
+
+  /// Minimum spacing between in-exchange retransmits of a binary request.
+  /// `nil` disables retransmits. Live cadence is
+  /// `max(this, suggestedTimeoutMs × binaryRetransmitRTTHeadroom)`.
+  public let binaryRequestRetransmitInterval: TimeInterval?
+
+  /// Multiplier on firmware `suggestedTimeoutMs` for retransmit spacing.
+  /// Firmware's estimate is outbound airtime×path; the return path needs headroom.
+  public static let binaryRetransmitRTTHeadroom: TimeInterval = 2.0
+
   /// Maximum idle gap allowed between contact stream events.
   public let contactStreamInactivityTimeout: TimeInterval
 
@@ -34,6 +47,8 @@ public struct SessionConfiguration: Sendable {
   /// - Parameters:
   ///   - defaultTimeout: The timeout for operations. Defaults to 5.0 seconds.
   ///   - clientIdentifier: The identifier for this client. Defaults to "MeshCore-Swift".
+  ///   - binaryRequestOverallTimeout: Wall-clock budget for one binary exchange.
+  ///   - binaryRequestRetransmitInterval: Retransmit floor, or `nil` to disable resends.
   ///   - contactStreamInactivityTimeout: The idle timeout for contact list progress.
   ///   - contactStreamHardTimeout: The total timeout for a contact list response.
   ///   - channelPipelineWindow: Max outstanding pipelined channel reads.
@@ -43,6 +58,8 @@ public struct SessionConfiguration: Sendable {
   public init(
     defaultTimeout: TimeInterval = 5.0,
     clientIdentifier: String = "MeshCore-Swift",
+    binaryRequestOverallTimeout: TimeInterval = 40.0,
+    binaryRequestRetransmitInterval: TimeInterval? = 1.0,
     contactStreamInactivityTimeout: TimeInterval = 15.0,
     contactStreamHardTimeout: TimeInterval = 180.0,
     channelPipelineWindow: Int = 8,
@@ -52,6 +69,8 @@ public struct SessionConfiguration: Sendable {
   ) {
     self.defaultTimeout = defaultTimeout
     self.clientIdentifier = clientIdentifier
+    self.binaryRequestOverallTimeout = binaryRequestOverallTimeout
+    self.binaryRequestRetransmitInterval = binaryRequestRetransmitInterval
     self.contactStreamInactivityTimeout = contactStreamInactivityTimeout
     self.contactStreamHardTimeout = contactStreamHardTimeout
     self.channelPipelineWindow = channelPipelineWindow
@@ -65,10 +84,6 @@ public struct SessionConfiguration: Sendable {
 
   /// Conversion factor between `MessageSentInfo.suggestedTimeoutMs` and seconds.
   static let millisecondsPerSecond: TimeInterval = 1000
-
-  /// Headroom multiplier applied to the firmware-suggested round-trip time when
-  /// deriving the effective wait for a binary-protocol response.
-  static let binaryRequestTimeoutMultiplier: Double = 2.0
 
   /// Headroom multiplier applied to the firmware-suggested round-trip time when
   /// waiting for a delivery acknowledgement during retry sends.

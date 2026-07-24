@@ -38,8 +38,6 @@
 "contacts.nodeKind.chat" = "Chat";
 
 /* Location: Multiple files - Purpose: Chat contact full label */
-"contacts.nodeKind.chatContact" = "Chatcontact";
-
 /* Location: Multiple files - Purpose: Repeater contact type label */
 "contacts.nodeKind.repeater" = "Repeater";
 
@@ -270,6 +268,24 @@
 
 /* Location: ContactDetailView.swift - Purpose: Info section header */
 "contacts.detail.info" = "Info";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu title */
+"contacts.detail.avatar.chooseSource" = "Profielfoto wijzigen";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library */
+"contacts.detail.avatar.choosePhoto" = "Kies foto";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file */
+"contacts.detail.avatar.chooseFile" = "Kies bestand...";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo */
+"contacts.detail.avatar.removePhoto" = "Verwijder foto";
+
+/* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
+"contacts.detail.avatar.savingAnnouncement" = "Foto wordt opgeslagen";
+
+/* Location: ContactDetailView.swift - Purpose: Error shown when the picked file is not a valid image */
+"contacts.detail.avatar.invalidImage" = "Dit bestand kan niet als profielfoto worden gebruikt.";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Bijnaam";
@@ -522,11 +538,7 @@
 "contacts.scan.error.invalidFormat" = "Ongeldig QR-codeformaat";
 
 /* Location: ScanContactQRView.swift - Purpose: Missing name error */
-"contacts.scan.error.missingName" = "Ongeldige QR-code: naam ontbreekt";
-
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
-"contacts.scan.error.invalidKey" = "Ongeldige QR-code: ongeldige publieke sleutel";
-
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "Kan contact niet importeren: %@";
 
@@ -551,8 +563,6 @@
 "contacts.discovery.addedAccessibility" = "Al toegevoegd aan contacten";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
-"contacts.discovery.error.servicesUnavailable" = "Services niet beschikbaar";
-
 /* Location: DiscoveryView.swift - Purpose: Segment filter - All */
 "contacts.discovery.segment.all" = "Alle";
 
@@ -984,28 +994,14 @@
 // MARK: - Trace Path Cluster View
 
 /* Location: TracePathClusterView.swift - Accessibility label for repeater cluster - %d is count */
-"contacts.trace.map.cluster.label" = "%d repeaters";
-
 /* Location: TracePathClusterView.swift - Accessibility hint for cluster */
-"contacts.trace.map.cluster.hint" = "Dubbeltik om in te zoomen";
-
 // MARK: - Trace Path Repeater Pin View
 
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for repeater in path - %1$@ is name, %2$d is hop number */
-"contacts.trace.map.pin.inPathLabel" = "Repeater: %1$@, hop %2$d in pad";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for removable repeater */
-"contacts.trace.map.pin.removableHint" = "Dubbeltik om uit het pad te verwijderen";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for non-removable repeater */
-"contacts.trace.map.pin.notRemovableHint" = "Deze hop kan niet worden verwijderd. Alleen de laatste hop kan worden verwijderd.";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility label for available repeater - %@ is name */
-"contacts.trace.map.pin.availableLabel" = "Repeater: %@";
-
 /* Location: TracePathRepeaterPinView.swift - Accessibility hint for available repeater */
-"contacts.trace.map.pin.addHint" = "Dubbeltik om aan het pad toe te voegen";
-
 // MARK: - Trace Path Map View
 
 /* Location: TracePathMapView.swift - Purpose: Hops count in results banner */
@@ -1015,11 +1011,7 @@
 "contacts.trace.map.clear" = "Wissen";
 
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
-"contacts.trace.map.hideLabels" = "Labels verbergen";
-
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
-"contacts.trace.map.showLabels" = "Labels tonen";
-
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
 "contacts.trace.map.centerOnPath" = "Centreren op pad";
 
@@ -1177,8 +1169,6 @@
 // MARK: - Stats Badge Accessibility
 
 /* Location: StatsBadgeView.swift - Purpose: Distance and signal accessibility */
-"contacts.statsBadge.accessibility" = "Afstand: %@, Signaal: %d decibel";
-
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */

@@ -17,14 +17,9 @@ public protocol BLEStateMachineProtocol: Actor {
   /// UUID of the currently connected device, or nil if not connected
   var connectedDeviceID: UUID? { get }
 
-  /// Current phase name for diagnostic logging
-  var currentPhaseName: String { get }
-
-  /// Current peripheral state for diagnostic logging (nil if no peripheral)
-  var currentPeripheralState: String? { get }
-
-  /// Current CBCentralManager state name for diagnostic logging
-  var centralManagerStateName: String { get }
+  /// One consistent snapshot of central state, phase, and peripheral state
+  /// for branching and diagnostic logging, read in a single actor hop.
+  var linkDiagnostics: BLELinkDiagnostics { get }
 
   /// Whether the Bluetooth central manager is in the powered-off state.
   var isBluetoothPoweredOff: Bool { get }
@@ -63,9 +58,36 @@ public protocol BLEStateMachineProtocol: Actor {
   /// Sets a handler called when Bluetooth powers on
   func setBluetoothPoweredOnHandler(_ handler: @escaping @Sendable () -> Void)
 
-  /// Sets the provider consulted for a device's last verified encrypted session
-  /// when classifying an exhausted encryption-timeout retry budget.
-  func setBondVerificationDateProvider(_ provider: @escaping @Sendable (UUID) -> Date?)
+  /// Records that a device's bond completed a verified encrypted session at
+  /// `date`, consulted when classifying an exhausted encryption-timeout retry
+  /// budget. Seeded from persistence at wiring time and refreshed after every
+  /// verified session.
+  func recordBondVerification(deviceID: UUID, at date: Date)
+
+  /// Clears a device's bond-verification record when its pairing is
+  /// forgotten, so a stale verification cannot shield the next episode.
+  func clearBondVerification(deviceID: UUID)
+
+  /// Tells the state machine whether a completed app-layer session is live for
+  /// `deviceID` (non-nil) or that no session is live (nil). Awaited from
+  /// ConnectionManager so RSSI bond refresh cannot race a stale flag.
+  func setAppSessionLive(deviceID: UUID?)
+
+  /// Whether the given device currently has a bond-verification stamp. Used by
+  /// ConnectionManager to re-validate before persisting an RSSI bond refresh.
+  func hasBondVerification(deviceID: UUID) -> Bool
+
+  /// Whether the session-live signal currently matches `deviceID`.
+  func isAppSessionLive(deviceID: UUID) -> Bool
+
+  /// Single-hop check: map has a stamp and session-live matches `deviceID`.
+  /// Used by the MainActor persist hop so a clear between two awaits cannot
+  /// re-persist a forgotten shield.
+  func shouldPersistBondRefresh(deviceID: UUID) -> Bool
+
+  /// Sets a handler called when an existing bond verification was refreshed
+  /// (never created) while a live app session is present — typically from RSSI.
+  func setBondRefreshedHandler(_ handler: (@Sendable (UUID) -> Void)?)
 
   /// Sets a handler for Bluetooth state changes
   func setBluetoothStateChangeHandler(_ handler: @escaping @Sendable (CBManagerState) -> Void)

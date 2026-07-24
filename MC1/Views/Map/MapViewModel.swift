@@ -2,16 +2,25 @@ import MapKit
 import MC1Services
 import SwiftUI
 
-/// ViewModel for map contact locations
+/// ViewModel for map contact and discovered-node locations
 @Observable
 @MainActor
 final class MapViewModel {
   // MARK: - Properties
 
-  /// All contacts with valid locations
-  var contactsWithLocation: [ContactDTO] = []
+  /// Unfiltered located contacts (all types / favorites). Display pins apply filter.
+  private(set) var allLocatedContacts: [ContactDTO] = []
 
-  /// Map points derived from contacts — stored to avoid reallocation on every body eval.
+  /// Unfiltered plottable discovered (valid fix, not already contacts).
+  private(set) var allLocatedDiscovered: [DiscoveredNodeDTO] = []
+
+  /// Filter-visible contacts shown as pins (callout lookup + Center All).
+  private(set) var visibleContacts: [ContactDTO] = []
+
+  /// Filter-visible discovered nodes shown as pins.
+  private(set) var visibleDiscovered: [DiscoveredNodeDTO] = []
+
+  /// Map points derived from visible contacts and discovered nodes — stored to avoid reallocation on every body eval.
   private(set) var mapPoints: [MapPoint] = []
 
   /// A user-dropped pin from a chat coordinate tap. Folded into `mapPoints` so it
@@ -30,6 +39,10 @@ final class MapViewModel {
   /// Version counter for the camera region, incremented to signal a new camera target
   private(set) var cameraRegionVersion = 0
 
+  var hasPinsForCenterAll: Bool {
+    !visibleContacts.isEmpty || !visibleDiscovered.isEmpty
+  }
+
   // MARK: - Dependencies
 
   private var dataStoreProvider: @MainActor () -> PersistenceStore? = { nil }
@@ -41,6 +54,22 @@ final class MapViewModel {
 
   private var radioID: UUID? {
     radioIDProvider()
+  }
+
+  private static let reloadDebounce: Duration = .milliseconds(50)
+  private var reloadTask: Task<Void, Never>?
+  /// Latest filter requested while a coalesced reload is pending.
+  private var pendingFilter = MapFilterState()
+  /// Bumped so an older in-flight load cannot overwrite a newer one.
+  private var loadGeneration = 0
+  private var currentFilter = MapFilterState()
+  /// After the first successful (or empty) load, type toggles re-filter without a full fetch.
+  private(set) var hasCompletedInitialLoad = false
+  /// Unit-test seam: next `loadMapData` throws after filter latches so the error path is covered.
+  var simulateLoadFailureForTesting = false
+  /// Unit-test seam: read `loadGeneration` so concurrent-load tests can wait until a load has entered.
+  var loadGenerationForTesting: Int {
+    loadGeneration
   }
 
   // MARK: - Initialization
@@ -62,30 +91,147 @@ final class MapViewModel {
     radioIDProvider = radioID
   }
 
-  // MARK: - Load Contacts
+  // MARK: - Load Map Data
 
-  /// Load contacts with valid locations from the database
-  func loadContactsWithLocation() async {
-    guard let dataStore, let radioID else { return }
+  /// Load unfiltered located contacts and discovered rows, then apply `filter` for display pins.
+  /// - Parameter showsLoadingChrome: true for first paint / user refresh only.
+  ///   Coalesced live reloads pass false so the overlay and refresh spinner stay quiet.
+  ///
+  /// Loading chrome is owned by the current generation: start sets
+  /// `isLoading = showsLoadingChrome`, stale early returns leave it alone, and only
+  /// the current generation clears it on exit.
+  func loadMapData(filter: MapFilterState, showsLoadingChrome: Bool = true) async {
+    loadGeneration += 1
+    let generation = loadGeneration
+    let sanitized = filter.sanitized(for: .mainMap)
+    // Latch so a later warm filter flip during this load wins at rebuild.
+    pendingFilter = sanitized
+    currentFilter = sanitized
 
-    isLoading = true
+    guard let dataStore, let radioID else {
+      errorMessage = nil
+      isLoading = false
+      clearMapPinData()
+      return
+    }
+    // Silent loads clear a spinner left by a superseded chrome load.
+    isLoading = showsLoadingChrome
     errorMessage = nil
-
     do {
+      if simulateLoadFailureForTesting {
+        simulateLoadFailureForTesting = false
+        throw MapLoadSimulationError()
+      }
       let allContacts = try await dataStore.fetchContacts(radioID: radioID)
-      contactsWithLocation = allContacts.filter(\.hasLocation)
-      rebuildMapPoints()
+      guard generation == loadGeneration else { return }
+
+      let locatedContacts = allContacts.filter(\.hasLocation)
+
+      // Always load discovered into the unfiltered cache so type/favorites re-filter is free.
+      let allDiscovered = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
+      guard generation == loadGeneration else { return }
+      let contactKeys = Set(allContacts.map(\.publicKey))
+      let locatedDiscovered = allDiscovered.filter { node in
+        node.coordinate.isValidFix && !contactKeys.contains(node.publicKey)
+      }
+
+      guard generation == loadGeneration else { return }
+      allLocatedContacts = locatedContacts
+      allLocatedDiscovered = locatedDiscovered
+      hasCompletedInitialLoad = true
+      currentFilter = pendingFilter
+      rebuildDisplayPins()
     } catch {
+      guard generation == loadGeneration else { return }
+      currentFilter = pendingFilter
+      rebuildDisplayPins()
       errorMessage = error.userFacingMessage
     }
+    if generation == loadGeneration {
+      isLoading = false
+    }
+  }
 
-    isLoading = false
+  /// Re-filter unfiltered caches without a SwiftData fetch.
+  func applyFilter(_ filter: MapFilterState) {
+    let sanitized = filter.sanitized(for: .mainMap)
+    pendingFilter = sanitized
+    currentFilter = sanitized
+    rebuildDisplayPins()
+  }
+
+  /// Re-filter when caches are warm; full load when the first fetch has not completed.
+  /// Always latches `pendingFilter` so a coalesced reload cannot overwrite a newer selection.
+  func scheduleFilterChange(_ filter: MapFilterState) {
+    let sanitized = filter.sanitized(for: .mainMap)
+    pendingFilter = sanitized
+    if !hasCompletedInitialLoad {
+      scheduleCoalescedReload(filter: sanitized)
+      return
+    }
+    applyFilter(sanitized)
+  }
+
+  /// Schedules a debounced full reload so bursts of version bumps trigger one load.
+  /// Records the latest filter so a multi-dimension flip during the debounce
+  /// window is not dropped.
+  func scheduleCoalescedReload(filter: MapFilterState, showsLoadingChrome: Bool = false) {
+    pendingFilter = filter.sanitized(for: .mainMap)
+    guard reloadTask == nil else { return }
+    reloadTask = Task { @MainActor [weak self] in
+      try? await Task.sleep(for: Self.reloadDebounce)
+      guard let self, !Task.isCancelled else { return }
+      self.reloadTask = nil
+      let next = self.pendingFilter
+      await self.loadMapData(
+        filter: next,
+        showsLoadingChrome: showsLoadingChrome
+      )
+    }
+  }
+
+  /// Cancels any pending coalesced reload (e.g. before a user-driven refresh).
+  func cancelPendingReload() {
+    reloadTask?.cancel()
+    reloadTask = nil
+    loadGeneration += 1
+  }
+
+  private func clearMapPinData() {
+    allLocatedContacts = []
+    allLocatedDiscovered = []
+    visibleContacts = []
+    visibleDiscovered = []
+    hasCompletedInitialLoad = false
+    rebuildMapPoints()
+  }
+
+  // MARK: - Display pin algebra
+
+  private func rebuildDisplayPins() {
+    let filter = currentFilter
+
+    let contacts: [ContactDTO] = if filter.favoritesOnly {
+      allLocatedContacts.filter(\.isFavorite)
+    } else {
+      allLocatedContacts.filter { filter.allowsContactType($0.type) }
+    }
+
+    let discovered: [DiscoveredNodeDTO] = if filter.effectiveShowDiscovered {
+      allLocatedDiscovered.filter { filter.allowsContactType($0.nodeType) }
+    } else {
+      []
+    }
+
+    visibleContacts = contacts
+    visibleDiscovered = discovered
+    rebuildMapPoints()
   }
 
   // MARK: - Map Points
 
   private func rebuildMapPoints() {
-    mapPoints = contactsWithLocation.map { contact in
+    var points: [MapPoint] = visibleContacts.map { contact in
       MapPoint(
         id: contact.id,
         coordinate: contact.coordinate,
@@ -96,9 +242,34 @@ final class MapViewModel {
         badgeText: nil
       )
     }
-    if let focusedPin {
-      mapPoints.append(focusedPin)
+    points += visibleDiscovered.map { node in
+      MapPoint(
+        id: node.id,
+        coordinate: node.coordinate,
+        pinStyle: node.nodeType.pinStyle,
+        label: node.name,
+        isClusterable: true,
+        hopIndex: nil,
+        badgeText: nil
+      )
     }
+    if let focusedPin {
+      points.append(focusedPin)
+    }
+    // Avoid force-assign when equal so MapLibre can skip O(n) GeoJSON rebuild.
+    if points != mapPoints {
+      mapPoints = points
+    }
+  }
+
+  // MARK: - Lookup
+
+  func contact(forPointID id: UUID) -> ContactDTO? {
+    visibleContacts.first { $0.id == id }
+  }
+
+  func discovered(forPointID id: UUID) -> DiscoveredNodeDTO? {
+    visibleDiscovered.first { $0.id == id }
   }
 
   // MARK: - Map Interaction
@@ -130,14 +301,13 @@ final class MapViewModel {
     rebuildMapPoints()
   }
 
-  /// Center map to show all contacts
   func centerOnAllContacts() {
-    guard !contactsWithLocation.isEmpty else {
+    var coordinates = visibleContacts.map(\.coordinate)
+    coordinates += visibleDiscovered.map(\.coordinate)
+    guard !coordinates.isEmpty else {
       cameraRegion = nil
       return
     }
-
-    let coordinates = contactsWithLocation.map(\.coordinate)
     setCameraRegion(coordinates.boundingRegion())
   }
 
@@ -151,5 +321,12 @@ final class MapViewModel {
     } else {
       centerOnAllContacts()
     }
+  }
+}
+
+/// Thrown only when `simulateLoadFailureForTesting` is set (unit tests).
+private struct MapLoadSimulationError: Error, LocalizedError {
+  var errorDescription: String? {
+    "Simulated map load failure"
   }
 }

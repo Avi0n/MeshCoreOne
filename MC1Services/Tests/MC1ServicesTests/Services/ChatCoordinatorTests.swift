@@ -6,6 +6,25 @@ import Testing
 @MainActor
 struct ChatCoordinatorTests {
   @Test
+  func `initialPageSize keeps the standard page when unread fits within it`() {
+    #expect(ChatCoordinator.initialPageSize(unreadCount: 0) == ChatCoordinator.pageSize)
+    #expect(ChatCoordinator.initialPageSize(unreadCount: 10) == ChatCoordinator.pageSize)
+    // Boundary: unread + context still under a page stays at pageSize.
+    let underFit = ChatCoordinator.pageSize - ChatCoordinator.dividerReadContext - 1
+    #expect(ChatCoordinator.initialPageSize(unreadCount: underFit) == ChatCoordinator.pageSize)
+  }
+
+  @Test
+  func `initialPageSize grows to cover all unread plus read context`() {
+    // Unread beyond one page must all load at once, else the first-unread message
+    // (where the divider sits) would only page in later and the jump would have no target.
+    let unread = ChatCoordinator.pageSize + 70
+    let limit = ChatCoordinator.initialPageSize(unreadCount: unread)
+    #expect(limit == unread + ChatCoordinator.dividerReadContext)
+    #expect(limit > unread, "Every unread message plus context must fit in the first page")
+  }
+
+  @Test
   func `append adds a new message and bumps renderStateID`() {
     let coordinator = ChatCoordinator.makeForTesting()
     let radioID = UUID()

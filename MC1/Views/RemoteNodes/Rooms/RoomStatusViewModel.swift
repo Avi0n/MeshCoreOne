@@ -41,10 +41,12 @@ final class RoomStatusViewModel {
     guard let roomAdminService else { return }
 
     await roomAdminService.setStatusHandler { [weak self] status in
+      guard await self?.helper.matchesSession(status.publicKeyPrefix) == true else { return }
       await self?.handleStatusResponse(status)
     }
 
     await roomAdminService.setTelemetryHandler { [weak self] response in
+      guard await self?.helper.matchesSession(response.publicKeyPrefix) == true else { return }
       await self?.helper.handleTelemetryResponse(response)
     }
   }

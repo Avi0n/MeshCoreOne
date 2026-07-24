@@ -33,6 +33,12 @@
 /* Location: MapView.swift - Purpose: Accessibility label for refresh button */
 "map.controls.refresh" = "Kontakte aktualisieren";
 
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "Filter";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "Filter aktiv";
+
 // MARK: - Map Style Selection
 
 /* Location: MapStyleSelection.swift - Purpose: Standard map style option */
@@ -109,8 +115,6 @@
 "map.detail.action.telemetry" = "Telemetrie";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "Gespeicherter Verlauf";
-
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "Telemetriezugriff";
 
@@ -151,17 +155,27 @@
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
 "map.callout.nodeKind.room" = "Raum";
 
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
+"map.callout.add" = "Hinzufügen";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list */
+"map.callout.discovered" = "Entdeckt";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
+"map.discoveredDetail.title" = "Entdeckter Knoten";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
+"map.discoveredDetail.add" = "Zu Knoten hinzufügen";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
+"map.pin.accessibility.discovered" = "Entdeckt, nicht in der Knotenliste";
+
 // MARK: - Contact Annotation
 
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for favorite contacts */
-"map.annotation.favorite" = "Favorit";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for repeater nodes */
-"map.annotation.repeater" = "Repeater";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for room nodes */
-"map.annotation.room" = "Raum";
-
 // MARK: - Offline Badge
 
 /* Label shown on map when device has no internet connection */

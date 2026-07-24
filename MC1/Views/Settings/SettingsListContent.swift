@@ -14,7 +14,6 @@ struct SettingsListContent: View {
   /// `true` when this list is the iPad split-view sidebar column, whose `.sidebar` style draws
   /// rows transparent so the column canvas shows through and the native selection highlight shows.
   let isSidebar: Bool
-  @State private var exportedLogFile: ExportedLogFile?
   private let liveActivityTip = LiveActivityTip()
 
   /// Drives the iPad split's selected settings page. The compact stack leaves it nil — inside a
@@ -38,9 +37,6 @@ struct SettingsListContent: View {
         DeviceSelectionSheet()
           .presentationDetents([.medium])
           .presentationDragIndicator(.visible)
-      }
-      .sheet(item: $exportedLogFile) { file in
-        ActivityView(activityItems: [file.url])
       }
   }
 
@@ -106,8 +102,8 @@ struct SettingsListContent: View {
         )
       }
 
-      SettingsDetailRow(detail: .offlineMaps) {
-        TintedLabel(L10n.Settings.OfflineMaps.title, systemImage: "map.fill")
+      SettingsDetailRow(detail: .maps) {
+        TintedLabel(L10n.Settings.Maps.title, systemImage: "map.fill")
       }
 
       SettingsDetailRow(detail: .backup) {
@@ -119,8 +115,6 @@ struct SettingsListContent: View {
     .themedRowBackground(theme, flatten: isSidebar)
 
     AboutSection(isSidebar: isSidebar)
-
-    DiagnosticsSection(exportedFile: $exportedLogFile, isSidebar: isSidebar)
 
     if demoModeManager.isUnlocked {
       Section {

@@ -24,6 +24,10 @@ struct AboutSection: View {
         }
       #endif
 
+      SettingsDetailRow(detail: .feedback) {
+        TintedLabel(L10n.Settings.Feedback.title, systemImage: "exclamationmark.bubble")
+      }
+
       Link(destination: URL(string: "https://meshcore.io")!) {
         HStack {
           TintedLabel(L10n.Settings.About.website, systemImage: "globe")

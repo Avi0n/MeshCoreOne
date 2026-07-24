@@ -230,7 +230,7 @@ extension CLIToolViewModel {
         _ = try await service.sendRawCommand(
           sessionID: session.id,
           command: command,
-          timeout: .seconds(2)
+          timeout: RemoteOperationTimeoutPolicy.fireAndForgetCLI
         )
         appendOutput(L10n.Tools.Tools.Cli.rebootSent, type: .success)
       } catch RemoteNodeError.timeout {

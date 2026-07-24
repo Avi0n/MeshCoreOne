@@ -25,8 +25,8 @@ struct SettingsDetailView: View {
       ChatSettingsView()
     case .appearance:
       AppearanceView()
-    case .offlineMaps:
-      OfflineMapSettingsView()
+    case .maps:
+      MapsSettingsView()
     case .backup:
       BackupRestoreView(
         connectionManager: appState.connectionManager,
@@ -37,6 +37,8 @@ struct SettingsDetailView: View {
       )
     case .support:
       SupportDevelopmentView()
+    case .feedback:
+      FeedbackView()
     }
   }
 }

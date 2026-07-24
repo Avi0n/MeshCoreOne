@@ -1,6 +1,18 @@
 import Foundation
 import OSLog
 
+/// Role a bound timeline writer plays.
+///
+/// `.interactive` is the live conversation UI: binding it always succeeds
+/// and revokes any prior writer. `.prime` is a speculative warm
+/// (navigation-time prefetch, arrival-time refresh): binding succeeds only
+/// while no live interactive owner exists, so a prime can populate an idle
+/// coordinator but can never write over an open chat.
+public enum ChatWriterRole: String, Sendable {
+  case interactive
+  case prime
+}
+
 /// Per-(radio, conversation) source of truth for chat timeline state.
 ///
 /// Replaces the parallel-storage model on `ChatViewModel`. Two
@@ -18,6 +30,19 @@ public final class ChatCoordinator {
   /// to refetch the most recent slice; consumed by `ChatViewModel` for
   /// initial-load sizing so post-reset renders match the normal load.
   public static let pageSize: Int = 50
+
+  /// Read messages loaded above the first unread so the "New Messages" divider
+  /// has a little context to sit beneath rather than pinning to the very top.
+  public static let dividerReadContext: Int = 12
+
+  /// Initial fetch size for opening a conversation. Guarantees every unread
+  /// message (plus a little read context) lands in the first page: otherwise a
+  /// conversation with more than `pageSize` unread would place the divider on a
+  /// message that only pages in later, leaving the jump-to-divider button with no
+  /// materialized target to scroll to.
+  public static func initialPageSize(unreadCount: Int) -> Int {
+    max(pageSize, unreadCount + dividerReadContext)
+  }
 
   public let conversationID: ChatConversationID
 
@@ -114,18 +139,85 @@ public final class ChatCoordinator {
   /// (preview state, cached URLs, decoded images). Stays `nil` when no
   /// view model is bound — `applyReloadedIDs` then refreshes DTOs without
   /// rebuilding render items, which matches headless and test usage.
+  /// Installed only through `bindWriter(owner:role:...)` so hook ownership
+  /// and write ownership are one atomic act.
   /// `@ObservationIgnored` because no view body reads this closure.
   @ObservationIgnored
-  public var renderItemRebuilder: (@MainActor (UUID) -> Void)?
+  public internal(set) var renderItemRebuilder: (@MainActor (UUID) -> Void)?
 
   /// Fires when the coordinator's `renderState.items` no longer reflects
   /// canonical `messages` and the bound view model must reassemble per-message
   /// inputs (preview state, cached URLs, decoded images live on main and are
   /// owned by the VM) before `rebuildItems` can be called again. Triggered
   /// when a fresher mutation lands mid-flight and `setRenderState` rejects
-  /// the stale rebuild, and after `hardReset`'s `replaceAll`.
+  /// the stale rebuild, and after `hardReset`'s `replaceAll`. Installed only
+  /// through `bindWriter(owner:role:...)`.
   @ObservationIgnored
-  public var renderStateInvalidated: (@MainActor () -> Void)?
+  public internal(set) var renderStateInvalidated: (@MainActor () -> Void)?
+
+  // MARK: - Writer ownership
+
+  /// Generation stamp of the most recent `bindWriter` call. Every
+  /// `ChatTimelineWriter` carries the generation it was minted with; a
+  /// writer whose generation no longer matches is stale and its mutations
+  /// no-op. `@ObservationIgnored`: never read from a view body.
+  @ObservationIgnored
+  private(set) var writerGeneration: UInt64 = 0
+
+  /// The object (view model) holding the current writer. Owners vacate the
+  /// slot explicitly via `releaseWriter(owner:)` when their view leaves the
+  /// screen; the weak reference is the fallback, freeing the slot for the
+  /// next `.prime` bind when an owner deallocates without releasing.
+  @ObservationIgnored
+  private(set) weak var writerOwner: AnyObject?
+
+  /// Role of the current writer. Meaningful only while `writerOwner` is
+  /// non-nil; a deallocated owner leaves a stale role behind, which
+  /// `bindWriter` treats as vacant.
+  @ObservationIgnored
+  private(set) var writerRole: ChatWriterRole = .prime
+
+  /// Claims write access to this timeline and installs the rebuild hooks.
+  ///
+  /// `.interactive` always succeeds, bumping the generation so every
+  /// previously minted writer goes stale. `.prime` succeeds only while no
+  /// live interactive owner exists (vacant slot, deallocated owner, or a
+  /// prior prime), and returns nil otherwise: a speculative warm must
+  /// never write over an open conversation.
+  ///
+  /// Reads (`messages`, `messagesByID`, `renderState`) stay unrestricted:
+  /// a superseded view model can still render the shared state.
+  public func bindWriter(
+    owner: AnyObject,
+    role: ChatWriterRole,
+    renderItemRebuilder: (@MainActor (UUID) -> Void)? = nil,
+    renderStateInvalidated: (@MainActor () -> Void)? = nil
+  ) -> ChatTimelineWriter? {
+    if role == .prime, writerRole == .interactive, writerOwner != nil {
+      logger.info("bindWriter: prime bind denied; interactive owner active for \(String(describing: self.conversationID), privacy: .public)")
+      return nil
+    }
+    writerGeneration &+= 1
+    writerOwner = owner
+    writerRole = role
+    self.renderItemRebuilder = renderItemRebuilder
+    self.renderStateInvalidated = renderStateInvalidated
+    return ChatTimelineWriter(coordinator: self, generation: writerGeneration, role: role)
+  }
+
+  /// Vacates the writer slot if `owner` still holds it, clearing the rebuild
+  /// hooks with it. Owner deallocation cannot free the slot reliably (SwiftUI
+  /// can keep a popped destination's state alive), and a slot that never
+  /// vacates starves every arrival-time `.prime` refresh. The identity check
+  /// keeps a stale view's teardown from evicting a successor that has already
+  /// bound; no generation bump, so the next bind revokes writers as usual.
+  public func releaseWriter(owner: AnyObject) {
+    guard writerOwner === owner else { return }
+    writerOwner = nil
+    writerRole = .prime
+    renderItemRebuilder = nil
+    renderStateInvalidated = nil
+  }
 
   init(
     conversationID: ChatConversationID,
@@ -146,6 +238,19 @@ public final class ChatCoordinator {
       let container = try! PersistenceStore.createContainer(inMemory: true)
       let store = PersistenceStore(modelContainer: container)
       return ChatCoordinator(conversationID: conversationID, dataStore: store)
+    }
+
+    /// Test-only fixture seam: seeds the timeline without minting a writer,
+    /// so fixture setup neither steals the bound view model's hooks nor
+    /// revokes its write capability. Release code mutates timelines only
+    /// through `ChatTimelineWriter`.
+    public func replaceAllForTesting(_ newMessages: [MessageDTO]) {
+      replaceAll(newMessages)
+    }
+
+    /// Test-only fixture seam; see `replaceAllForTesting`.
+    public func markLoadedForTesting() {
+      markLoaded()
     }
   #endif
 }

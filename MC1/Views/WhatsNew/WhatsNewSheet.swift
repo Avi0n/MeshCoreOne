@@ -1,10 +1,17 @@
 import SwiftUI
 
-/// The "What's New" sheet. Non-safety chrome, so glass on the Continue button is
-/// allowed; Continue and swipe-to-dismiss share one dismiss path that persists the baseline.
+/// The "What's New" sheet. Non-safety chrome, so glass on the footer buttons is
+/// allowed; Continue, Support Development, and swipe-to-dismiss share one dismiss path that
+/// persists the baseline.
 struct WhatsNewSheet: View {
   let release: WhatsNewRelease
 
+  #if SIDELOAD
+    @Environment(\.openURL) private var openURL
+    private static let sideloadSponsorsURL = URL(string: "https://github.com/sponsors/Avi0n")!
+  #else
+    @Environment(\.appState) private var appState
+  #endif
   @Environment(\.dismiss) private var dismiss
 
   fileprivate enum Metrics {
@@ -14,6 +21,7 @@ struct WhatsNewSheet: View {
     static let symbolColumnWidth: CGFloat = 44
     static let symbolToTextSpacing: CGFloat = 16
     static let titleToBodySpacing: CGFloat = 4
+    static let buttonSpacing: CGFloat = 12
   }
 
   var body: some View {
@@ -31,22 +39,52 @@ struct WhatsNewSheet: View {
             WhatsNewRow(item: item)
           }
         }
+
+        Link(L10n.WhatsNew.WhatsNew.fullReleaseNotes, destination: release.releaseNotesURL)
+          .font(.subheadline)
+          .frame(maxWidth: .infinity, alignment: .center)
       }
       .padding()
     }
     .safeAreaInset(edge: .bottom) {
-      Button {
-        dismiss()
-      } label: {
-        Text(L10n.WhatsNew.WhatsNew.continueButton)
-          .font(.headline)
-          .frame(maxWidth: .infinity)
-          .padding()
+      VStack(spacing: Metrics.buttonSpacing) {
+        Button {
+          supportMeTapped()
+        } label: {
+          Label(L10n.Settings.Support.title, systemImage: "heart")
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
+        }
+        .liquidGlassSecondaryButtonStyle()
+
+        Button {
+          dismiss()
+        } label: {
+          Text(L10n.WhatsNew.WhatsNew.continueButton)
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding()
+        }
+        .liquidGlassProminentButtonStyle()
       }
-      .liquidGlassProminentButtonStyle()
       .padding()
     }
     .presentationDragIndicator(.hidden)
+  }
+
+  private func supportMeTapped() {
+    #if SIDELOAD
+      openURL(Self.sideloadSponsorsURL)
+      dismiss()
+    #else
+      appState.navigation.navigateToSetting(.support)
+      // Let Settings mount and apply the path before the sheet dismisses.
+      Task { @MainActor in
+        await Task.yield()
+        dismiss()
+      }
+    #endif
   }
 }
 
@@ -102,6 +140,7 @@ private extension WhatsNewRelease {
         title: "Private by Default",
         description: "Your messages stay encrypted end to end, on device."
       )
-    ]
+    ],
+    releaseNotesURL: URL(string: "https://github.com/Avi0n/MeshCoreOne/releases/tag/v1.3.0")!
   )
 }

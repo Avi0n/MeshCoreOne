@@ -1,11 +1,8 @@
 import MC1Services
-import OSLog
 import SwiftUI
 
-private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationMessagesContent")
-
 /// Unified inner content view for both DM and Channel conversations.
-/// Handles loading state, empty state, message table, bubble construction, and overlay buttons.
+/// Handles loading state, empty state, the messages list, bubble construction, and overlay buttons.
 struct ChatConversationMessagesContent: View {
   // MARK: - Identity
 
@@ -18,21 +15,21 @@ struct ChatConversationMessagesContent: View {
 
   let envInputs: EnvInputs
 
-  // MARK: - Scroll State Bindings
+  // MARK: - Scroll State
 
   @Binding var isAtBottom: Bool
   @Binding var unreadCount: Int
-  @Binding var scrollToBottomRequest: Int
-  @Binding var scrollToMentionRequest: Int
-  @Binding var scrollToDividerRequest: Int
-  @Binding var isDividerVisible: Bool
-
-  // MARK: - Mention State
-
-  let unseenMentionIDs: [UUID]
-  @Binding var offscreenMentionIDs: [UUID]
+  let scrollToBottomRequest: Int
+  let scrollToTargetRequest: Int
   let scrollToTargetID: UUID?
-  let newMessagesDividerMessageID: UUID?
+
+  /// Whether the timeline is ready to show and, if so, the "New Messages"
+  /// divider id it opens scrolled to (nil opens at the bottom).
+  let firstSnapshotDecision: ChatInitialScrollPolicy.FirstSnapshotDecision
+
+  /// Fired once the tiled view has consumed the presented divider target, so the
+  /// owner can retire it and a later `.id` rebuild won't re-jump to the divider.
+  let onDividerTargetConsumed: () -> Void
 
   // MARK: - Sheet State Bindings
 
@@ -41,9 +38,10 @@ struct ChatConversationMessagesContent: View {
 
   // MARK: - Callbacks
 
-  let onMentionSeen: (UUID) async -> Bool
-  let onScrollToMention: () -> Void
   let onRetryMessage: (MessageDTO) -> Void
+
+  @Environment(\.appTheme) private var theme
+  @Environment(\.openURL) private var openURL
 
   // MARK: - Body
 
@@ -53,32 +51,94 @@ struct ChatConversationMessagesContent: View {
         emptyState
       } else if viewModel.messages.isEmpty {
         Color.clear
+      } else if case .withhold = firstSnapshotDecision {
+        // Same blank canvas a cold open shows while its fetch is in flight: a
+        // warm page from a previous open must not become the list's first
+        // snapshot, or the one-shot divider positioning is spent on it.
+        Color.clear
       } else {
-        ChatMessagesTableView(
-          viewModel: viewModel,
-          contactName: conversationType.navigationTitle,
-          deviceName: deviceName,
-          configuration: bubbleConfiguration,
-          recentEmojisStore: recentEmojisStore,
-          envInputs: envInputs,
-          isAtBottom: $isAtBottom,
-          unreadCount: $unreadCount,
-          scrollToBottomRequest: $scrollToBottomRequest,
-          scrollToMentionRequest: $scrollToMentionRequest,
-          scrollToDividerRequest: $scrollToDividerRequest,
-          isDividerVisible: $isDividerVisible,
-          selectedMessageForActions: $selectedMessageForActions,
-          imageViewerData: $imageViewerData,
-          unseenMentionIDs: unseenMentionIDs,
-          offscreenMentionIDs: $offscreenMentionIDs,
-          scrollToTargetID: scrollToTargetID,
-          newMessagesDividerMessageID: newMessagesDividerMessageID,
-          onMentionSeen: onMentionSeen,
-          onScrollToMention: onScrollToMention,
-          onRetryMessage: onRetryMessage
-        )
+        messagesList
       }
     }
+  }
+
+  // MARK: - Messages List
+
+  /// Presented divider target the list opens scrolled to; nil opens at the bottom.
+  private var initialScrollTargetID: UUID? {
+    if case let .present(target) = firstSnapshotDecision { return target }
+    return nil
+  }
+
+  /// The messages list bound to the current view model. When the conversation has an unread
+  /// backlog it opens scrolled to the baked "New Messages" divider.
+  private var messagesList: some View {
+    ChatTiledView(
+      items: viewModel.items,
+      cellContent: cellFactory.makeContent(for:),
+      contentBackground: theme.surfaces?.canvas,
+      isAtBottom: $isAtBottom,
+      unreadCount: $unreadCount,
+      scrollToBottomRequest: scrollToBottomRequest,
+      scrollToTargetRequest: scrollToTargetRequest,
+      scrollTargetID: scrollToTargetID,
+      initialScrollTargetID: initialScrollTargetID,
+      onLoadOlder: { await viewModel.loadOlderMessages() },
+      onInitialTargetConsumed: onDividerTargetConsumed
+    )
+    .onChange(of: envInputs) { _, new in
+      viewModel.applyEnvInputs(new)
+    }
+  }
+
+  private var cellFactory: ChatCellContentFactory {
+    ChatCellContentFactory(
+      contactName: conversationType.navigationTitle,
+      deviceName: deviceName,
+      configuration: bubbleConfiguration,
+      theme: theme,
+      openURL: openURL,
+      resolver: BubbleResolver(viewModel: viewModel),
+      actions: BubbleActions(
+        onRetryMessage: onRetryMessage,
+        onReaction: { emoji, message in
+          recentEmojisStore.recordUsage(emoji)
+          Task { await viewModel.sendReaction(emoji: emoji, to: message) }
+        },
+        onLongPress: { message in selectedMessageForActions = message },
+        onImageTap: { message in
+          if let data = viewModel.imageData(for: message.id) {
+            imageViewerData = ImageViewerData(
+              imageData: data,
+              isGIF: viewModel.isGIFImage(for: message.id)
+            )
+          }
+        },
+        onRetryInlineImage: { messageID in
+          Task { await viewModel.retryImageFetch(for: messageID) }
+        },
+        onRequestPreviewFetch: { messageID in
+          if viewModel.shouldRequestImageFetch(for: messageID) {
+            viewModel.requestImageFetch(for: messageID)
+          } else {
+            viewModel.requestPreviewFetch(for: messageID)
+          }
+        },
+        onManualPreviewFetch: { messageID in
+          if viewModel.shouldRequestImageFetch(for: messageID) {
+            viewModel.manualFetchImage(for: messageID)
+          } else {
+            Task { await viewModel.manualFetchPreview(for: messageID) }
+          }
+        },
+        onMapPreviewTap: { coordinate in
+          viewModel.navigateToMap(coordinate)
+        },
+        snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
+        requestSnapshot: { MapSnapshotStore.shared.request($0) },
+        retrySnapshot: { MapSnapshotStore.shared.retry($0) }
+      )
+    )
   }
 
   // MARK: - Empty State
@@ -181,18 +241,13 @@ private struct ChannelEmptyMessagesView: View {
       envInputs: .default,
       isAtBottom: .constant(true),
       unreadCount: .constant(0),
-      scrollToBottomRequest: .constant(0),
-      scrollToMentionRequest: .constant(0),
-      scrollToDividerRequest: .constant(0),
-      isDividerVisible: .constant(false),
-      unseenMentionIDs: [],
-      offscreenMentionIDs: .constant([]),
+      scrollToBottomRequest: 0,
+      scrollToTargetRequest: 0,
       scrollToTargetID: nil,
-      newMessagesDividerMessageID: nil,
+      firstSnapshotDecision: .present(target: nil),
+      onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
-      onMentionSeen: { _ in true },
-      onScrollToMention: {},
       onRetryMessage: { _ in }
     )
   }
@@ -213,18 +268,13 @@ private struct ChannelEmptyMessagesView: View {
       envInputs: .default,
       isAtBottom: .constant(true),
       unreadCount: .constant(0),
-      scrollToBottomRequest: .constant(0),
-      scrollToMentionRequest: .constant(0),
-      scrollToDividerRequest: .constant(0),
-      isDividerVisible: .constant(false),
-      unseenMentionIDs: [],
-      offscreenMentionIDs: .constant([]),
+      scrollToBottomRequest: 0,
+      scrollToTargetRequest: 0,
       scrollToTargetID: nil,
-      newMessagesDividerMessageID: nil,
+      firstSnapshotDecision: .present(target: nil),
+      onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
-      onMentionSeen: { _ in true },
-      onScrollToMention: {},
       onRetryMessage: { _ in }
     )
   }

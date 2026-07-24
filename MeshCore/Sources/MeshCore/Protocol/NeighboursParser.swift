@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Neighbours Parser
 
 /// Specialized parser for remote node neighbour lists.
-enum NeighboursParser {
+public enum NeighboursParser {
   /// Parses Neighbours response data from binary protocol.
   ///
   /// - Parameters:
@@ -17,7 +17,7 @@ enum NeighboursParser {
   /// - Offset 0 (2 bytes): Total neighbours count (Int16 LE)
   /// - Offset 2 (2 bytes): Results count in this response (Int16 LE)
   /// - Entries: `[prefix:N][secs_ago:4][snr:1]` where N = `prefixLength`.
-  static func parse(
+  public static func parse(
     _ data: Data,
     publicKeyPrefix: Data,
     tag: Data,

@@ -28,7 +28,10 @@ extension NodeStatusSnapshotDTO {
     directDuplicates: UInt32? = nil,
     floodDuplicates: UInt32? = nil,
     neighborSnapshots: [NeighborSnapshotEntry]? = nil,
-    telemetryEntries: [TelemetrySnapshotEntry]? = nil
+    telemetryEntries: [TelemetrySnapshotEntry]? = nil,
+    latitude: Double? = nil,
+    longitude: Double? = nil,
+    altitude: Double? = nil
   ) -> NodeStatusSnapshotDTO {
     NodeStatusSnapshotDTO(
       id: id,
@@ -50,7 +53,10 @@ extension NodeStatusSnapshotDTO {
       directDuplicates: directDuplicates,
       floodDuplicates: floodDuplicates,
       neighborSnapshots: neighborSnapshots,
-      telemetryEntries: telemetryEntries
+      telemetryEntries: telemetryEntries,
+      latitude: latitude,
+      longitude: longitude,
+      altitude: altitude
     )
   }
 }

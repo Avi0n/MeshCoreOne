@@ -38,8 +38,6 @@
 "contacts.nodeKind.chat" = "Чат";
 
 /* Location: Multiple files - Purpose: Chat contact full label */
-"contacts.nodeKind.chatContact" = "Контакт чата";
-
 /* Location: Multiple files - Purpose: Repeater contact type label */
 "contacts.nodeKind.repeater" = "Ретранслятор";
 
@@ -270,6 +268,24 @@
 
 /* Location: ContactDetailView.swift - Purpose: Info section header */
 "contacts.detail.info" = "Информация";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu title */
+"contacts.detail.avatar.chooseSource" = "Изменить фото профиля";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library */
+"contacts.detail.avatar.choosePhoto" = "Выбрать фото";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file */
+"contacts.detail.avatar.chooseFile" = "Выбрать файл...";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo */
+"contacts.detail.avatar.removePhoto" = "Удалить фото";
+
+/* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
+"contacts.detail.avatar.savingAnnouncement" = "Сохранение фото";
+
+/* Location: ContactDetailView.swift - Purpose: Error shown when the picked file is not a valid image */
+"contacts.detail.avatar.invalidImage" = "Этот файл нельзя использовать как фото профиля.";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Псевдоним";
@@ -522,11 +538,7 @@
 "contacts.scan.error.invalidFormat" = "Неверный формат QR-кода";
 
 /* Location: ScanContactQRView.swift - Purpose: Missing name error */
-"contacts.scan.error.missingName" = "Неверный QR-код: отсутствует имя";
-
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
-"contacts.scan.error.invalidKey" = "Неверный QR-код: недействительный публичный ключ";
-
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "Не удалось импортировать контакт: %@";
 
@@ -551,8 +563,6 @@
 "contacts.discovery.addedAccessibility" = "Уже добавлено в контакты";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
-"contacts.discovery.error.servicesUnavailable" = "Сервисы недоступны";
-
 /* Location: DiscoveryView.swift - Purpose: Segment filter - All */
 "contacts.discovery.segment.all" = "Все";
 
@@ -613,16 +623,7 @@
 
 // MARK: - Trace Path Cluster View
 
-"contacts.trace.map.cluster.label" = "Ретрансляторов: %d";
-"contacts.trace.map.cluster.hint" = "Нажмите дважды для увеличения";
-
 // MARK: - Trace Path Repeater Pin View
-
-"contacts.trace.map.pin.inPathLabel" = "Ретранслятор: %1$@, переход %2$d в маршруте";
-"contacts.trace.map.pin.removableHint" = "Нажмите дважды, чтобы удалить из маршрута";
-"contacts.trace.map.pin.notRemovableHint" = "Этот переход нельзя удалить. Можно удалить только последний переход.";
-"contacts.trace.map.pin.availableLabel" = "Ретранслятор: %@";
-"contacts.trace.map.pin.addHint" = "Нажмите дважды, чтобы добавить в маршрут";
 
 // MARK: - Path Editing Sheet
 
@@ -1002,11 +1003,7 @@
 "contacts.trace.map.clear" = "Очистить";
 
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
-"contacts.trace.map.hideLabels" = "Скрыть метки";
-
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
-"contacts.trace.map.showLabels" = "Показать метки";
-
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
 "contacts.trace.map.centerOnPath" = "Центрировать на маршруте";
 
@@ -1164,8 +1161,6 @@
 // MARK: - Stats Badge Accessibility
 
 /* Location: StatsBadgeView.swift - Purpose: Distance and signal accessibility */
-"contacts.statsBadge.accessibility" = "Расстояние: %@, Сигнал: %d децибел";
-
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */

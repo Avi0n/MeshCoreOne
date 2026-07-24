@@ -77,6 +77,9 @@ public final class Contact {
   /// Custom OCV array as comma-separated string (e.g., "4240,4112,4029,...")
   public var customOCVArrayString: String?
 
+  /// User-picked profile picture (compressed JPEG), overrides the generated initials avatar
+  public var avatarImageData: Data?
+
   public init(
     id: UUID = UUID(),
     radioID: UUID,
@@ -98,7 +101,8 @@ public final class Contact {
     unreadCount: Int = 0,
     unreadMentionCount: Int = 0,
     ocvPreset: String? = nil,
-    customOCVArrayString: String? = nil
+    customOCVArrayString: String? = nil,
+    avatarImageData: Data? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -121,6 +125,7 @@ public final class Contact {
     self.unreadMentionCount = unreadMentionCount
     self.ocvPreset = ocvPreset
     self.customOCVArrayString = customOCVArrayString
+    self.avatarImageData = avatarImageData
   }
 
   /// Builds a model instance directly from a DTO. Shared by `saveContact` and
@@ -147,7 +152,8 @@ public final class Contact {
       unreadCount: dto.unreadCount,
       unreadMentionCount: dto.unreadMentionCount,
       ocvPreset: dto.ocvPreset,
-      customOCVArrayString: dto.customOCVArrayString
+      customOCVArrayString: dto.customOCVArrayString,
+      avatarImageData: dto.avatarImageData
     )
   }
 
@@ -175,6 +181,7 @@ public final class Contact {
     unreadMentionCount = dto.unreadMentionCount
     ocvPreset = dto.ocvPreset
     customOCVArrayString = dto.customOCVArrayString
+    avatarImageData = dto.avatarImageData
   }
 
   /// Creates a Contact from a protocol ContactFrame
@@ -295,6 +302,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
   public let unreadMentionCount: Int
   public let ocvPreset: String?
   public let customOCVArrayString: String?
+  public let avatarImageData: Data?
 
   public init(from contact: Contact) {
     id = contact.id
@@ -318,6 +326,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     unreadMentionCount = contact.unreadMentionCount
     ocvPreset = contact.ocvPreset
     customOCVArrayString = contact.customOCVArrayString
+    avatarImageData = contact.avatarImageData
   }
 
   /// Memberwise initializer for creating DTOs directly
@@ -342,7 +351,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     unreadCount: Int,
     unreadMentionCount: Int = 0,
     ocvPreset: String? = nil,
-    customOCVArrayString: String? = nil
+    customOCVArrayString: String? = nil,
+    avatarImageData: Data? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -365,6 +375,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     self.unreadMentionCount = unreadMentionCount
     self.ocvPreset = ocvPreset
     self.customOCVArrayString = customOCVArrayString
+    self.avatarImageData = avatarImageData
   }
 
   public var type: ContactType {
@@ -443,7 +454,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
       nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
       isFavorite: isFavorite, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
-      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString
+      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
+      avatarImageData: avatarImageData
     )
   }
 
@@ -457,7 +469,23 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
       nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
       isFavorite: isFavorite, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
-      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString
+      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
+      avatarImageData: avatarImageData
+    )
+  }
+
+  /// Returns a copy with only `avatarImageData` changed.
+  public func with(avatarImageData: Data?) -> ContactDTO {
+    ContactDTO(
+      id: id, radioID: radioID, publicKey: publicKey, name: name,
+      typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
+      outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
+      latitude: latitude, longitude: longitude, lastModified: lastModified,
+      nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
+      isFavorite: isFavorite, lastMessageDate: lastMessageDate,
+      unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
+      ocvPreset: ocvPreset, customOCVArrayString: customOCVArrayString,
+      avatarImageData: avatarImageData
     )
   }
 

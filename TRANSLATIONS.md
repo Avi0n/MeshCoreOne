@@ -6,15 +6,16 @@ MeshCore One supports multiple languages. You can help improve translations enti
 
 | Language              | Code    | Status             |
 |-----------------------|---------|--------------------|
-| English               | en      | Complete (source)  |
-| German                | de      | AI-translated      |
 | Dutch                 | nl      | AI-translated      |
+| English               | en      | Complete (source)  |
+| French                | fr      | AI-translated      |
+| German                | de      | AI-translated      |
+| Italian               | it      | Verified by corradoignoti #376 |
 | Polish                | pl      | AI-translated      |
 | Russian               | ru      | AI-translated      |
-| Ukrainian             | uk      | AI-translated      |
+| Simplified Chinese    | zh-Hans | Verified by MGJ520 #225 |
 | Spanish               | es      | AI-translated      |
-| French                | fr      | AI-translated      |
-| Simplified Chinese    | zh-Hans | Verified by MGJ520 |
+| Ukrainian             | uk      | AI-translated      |
 
 Languages marked "AI-translated" were generated using AI and may contain errors. Native speaker verification is welcome.
 

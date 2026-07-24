@@ -159,4 +159,37 @@ struct PathDiscoveryParsingTests {
     #expect(pathInfo.outHopCount == nil,
             "Reserved mode yields nil hopCount so UI can fall back")
   }
+
+  // MARK: - matches(publicKey:)
+
+  private func makePathInfo(publicKeyPrefix: Data) -> PathInfo {
+    PathInfo(
+      publicKeyPrefix: publicKeyPrefix,
+      outPathLength: 0,
+      outPath: Data(),
+      inPathLength: 0,
+      inPath: Data()
+    )
+  }
+
+  @Test
+  func `matches accepts a key starting with the response prefix`() {
+    let key = Data([0x11, 0x22, 0x33, 0x44, 0x55, 0x66] + Array(repeating: 0xAB, count: 26))
+    let info = makePathInfo(publicKeyPrefix: Data([0x11, 0x22, 0x33, 0x44, 0x55, 0x66]))
+    #expect(info.matches(publicKey: key))
+  }
+
+  @Test
+  func `matches rejects a key for a different node`() {
+    let key = Data(repeating: 0xCD, count: 32)
+    let info = makePathInfo(publicKeyPrefix: Data([0x11, 0x22, 0x33, 0x44, 0x55, 0x66]))
+    #expect(!info.matches(publicKey: key))
+  }
+
+  @Test
+  func `matches rejects an empty prefix instead of matching every key`() {
+    let key = Data(repeating: 0xCD, count: 32)
+    let info = makePathInfo(publicKeyPrefix: Data())
+    #expect(!info.matches(publicKey: key))
+  }
 }

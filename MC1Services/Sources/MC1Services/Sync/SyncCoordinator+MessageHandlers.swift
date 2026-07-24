@@ -472,16 +472,32 @@ extension SyncCoordinator {
   }
 
   /// Routes a CLI response to the room or repeater admin service for the sending contact.
+  /// A wire prefix echoed by the firmware is stripped first so downstream
+  /// parsers see the same reply text regardless of firmware echo support.
   private func handleIncomingCLIMessage(
     _ message: ContactMessage,
     contact: ContactDTO?,
     dependencies: SyncDependencies
   ) async {
     if let contact {
-      if contact.type == .room {
-        await dependencies.roomAdminService.invokeCLIHandler(message, fromContact: contact)
+      let routed: ContactMessage = if let echoed = CLIResponse.splitEchoedPrefix(message.text) {
+        ContactMessage(
+          senderPublicKeyPrefix: message.senderPublicKeyPrefix,
+          pathLength: message.pathLength,
+          textType: message.textType,
+          senderTimestamp: message.senderTimestamp,
+          signature: message.signature,
+          text: echoed.body,
+          snr: message.snr
+        )
       } else {
-        await dependencies.repeaterAdminService.invokeCLIHandler(message, fromContact: contact)
+        message
+      }
+
+      if contact.type == .room {
+        await dependencies.roomAdminService.invokeCLIHandler(routed, fromContact: contact)
+      } else {
+        await dependencies.repeaterAdminService.invokeCLIHandler(routed, fromContact: contact)
       }
     } else {
       logger.warning("Dropping CLI response: no contact found for sender")
@@ -511,12 +527,6 @@ extension SyncCoordinator {
             contactID: contactID,
             contactType: contactType
           )
-          await notifyContactsChanged()
-        case .contactSyncRequested:
-          // Auto-add mode: AdvertisementService already fetched and
-          // saved the contact, so only a UI refresh is needed
-          PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
-            .info("B4 relay contactSyncRequested -> notifyContactsChanged")
           await notifyContactsChanged()
         case .contactUpdated, .nodeStorageFullChanged, .contactDeletedCleanup,
              .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:

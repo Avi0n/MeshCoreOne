@@ -13,17 +13,20 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Doorgaan";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Opdrachten";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "Controleer de status van je radio, verstuur berichten en zend advertenties uit.";
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Volledige release notes";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "DM-gesprek wissen";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "Wis de berichtgeschiedenis van elk direct bericht.";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Verbeterde chats";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Als je een chat opent, kom je bij nieuwe berichten terecht in plaats van onderaan. Tijden staan op elke bubbel, en geschiedenis en linkvoorbeelden laden sneller.";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "Sorteren op sprongen";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "Het tabblad Nodes koppelt inkomende sprongen nu aan advertenties in het RX-logboek.";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Contactfoto's";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Stel een avatar in voor elk contact zodat mensen makkelijker te herkennen zijn in lijsten en gesprekken.";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Kaartfilters";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filter pins op favorieten, ontdekte knooppunten en type knooppunt.";

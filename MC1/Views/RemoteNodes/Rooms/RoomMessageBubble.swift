@@ -110,7 +110,7 @@ private struct BubbleContent: View {
   }
 
   var body: some View {
-    VStack(alignment: isFromSelf ? .trailing : .leading, spacing: 4) {
+    VStack(alignment: isFromSelf ? .trailing : .leading, spacing: 0) {
       if !isFromSelf {
         Text(message.authorDisplayName)
           .font(.footnote)
@@ -120,7 +120,7 @@ private struct BubbleContent: View {
             colorScheme: colorScheme,
             contrast: highContrast ? .increased : .standard
           ))
-          .padding(.horizontal, 12)
+          .senderNamePlacement()
       }
 
       MessageText(message.text, baseColor: textColor, isOutgoing: isFromSelf)

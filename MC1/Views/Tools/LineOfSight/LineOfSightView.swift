@@ -417,7 +417,15 @@ private struct LOSMapCanvasView: View {
   let onMapTap: (CLLocationCoordinate2D) -> Void
   let onMapLongPress: (CLLocationCoordinate2D) -> Void
 
+  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
+  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
+
   @State private var isCenteredOnUser = false
+
+  private var mapIsDark: Bool {
+    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
+    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
+  }
 
   var body: some View {
     ZStack {
@@ -425,7 +433,7 @@ private struct LOSMapCanvasView: View {
         points: viewModel.mapPoints,
         lines: viewModel.mapLines,
         mapStyle: mapStyleSelection,
-        isDarkMode: colorScheme == .dark,
+        isDarkMode: mapIsDark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
         showsUserLocation: true,

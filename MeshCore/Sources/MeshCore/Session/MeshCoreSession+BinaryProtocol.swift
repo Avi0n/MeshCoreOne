@@ -4,7 +4,7 @@ import os
 public extension MeshCoreSession {
   // MARK: - Status Requests
 
-  /// Requests status information from a remote node using the binary protocol.
+  /// Requests status information from a remote node via `CMD_SEND_STATUS_REQ`.
   ///
   /// Raw public-key status requests use the repeater status layout.
   /// For room servers, prefer ``requestStatus(from: MeshContact)`` or
@@ -22,7 +22,7 @@ public extension MeshCoreSession {
     }
   }
 
-  /// Requests status information from a remote node using the binary protocol.
+  /// Requests status information from a remote node via `CMD_SEND_STATUS_REQ`.
   ///
   /// - Parameters:
   ///   - publicKey: The full 32-byte public key of the remote node.
@@ -53,18 +53,24 @@ public extension MeshCoreSession {
   }
 
   /// Internal implementation of status request, called within serialization.
+  ///
+  /// Uses `CMD_SEND_STATUS_REQ` so firmware pushes `STATUS_RESPONSE` (0x87)
+  /// matched by public-key prefix. `parseFromBinaryResponse` is the tag-matched fallback.
   private func performStatusRequest(
     from publicKey: Data,
     layout: StatusResponse.Layout
   ) async throws -> StatusResponse {
     let publicKeyPrefix = Data(publicKey.prefix(6))
     return try await performBinaryExchange(
-      request: PacketBuilder.binaryRequest(to: publicKey, type: .status),
+      request: PacketBuilder.sendStatusRequest(to: publicKey),
       to: publicKey,
       operation: "Status",
       matchRoutedEvent: { event in
         guard case let .statusResponse(response) = event,
               response.publicKeyPrefix == publicKeyPrefix else { return nil }
+        if layout == .roomServer, response.layout == .repeater {
+          return Self.roomServerStatus(fromRepeaterLayout: response)
+        }
         return response
       }
     ) { payload, _ in
@@ -74,6 +80,35 @@ public extension MeshCoreSession {
         layout: layout
       )
     }
+  }
+
+  /// Maps a repeater-layout status push into room-server counters when the
+  /// request used the room layout but the typed push arrived as repeater.
+  private static func roomServerStatus(fromRepeaterLayout response: StatusResponse) -> StatusResponse {
+    StatusResponse(
+      layout: .roomServer,
+      publicKeyPrefix: response.publicKeyPrefix,
+      battery: response.battery,
+      txQueueLength: response.txQueueLength,
+      noiseFloor: response.noiseFloor,
+      lastRSSI: response.lastRSSI,
+      packetsReceived: response.packetsReceived,
+      packetsSent: response.packetsSent,
+      airtime: response.airtime,
+      uptime: response.uptime,
+      sentFlood: response.sentFlood,
+      sentDirect: response.sentDirect,
+      receivedFlood: response.receivedFlood,
+      receivedDirect: response.receivedDirect,
+      fullEvents: response.fullEvents,
+      lastSNR: response.lastSNR,
+      directDuplicates: response.directDuplicates,
+      floodDuplicates: response.floodDuplicates,
+      rxAirtime: 0,
+      receiveErrors: 0,
+      roomServerPostedCount: UInt16(truncatingIfNeeded: response.rxAirtime),
+      roomServerPostPushCount: UInt16(truncatingIfNeeded: response.rxAirtime >> 16)
+    )
   }
 
   /// Requests status information from a remote node.
@@ -93,9 +128,10 @@ public extension MeshCoreSession {
 
   // MARK: - Binary Protocol Commands
 
-  /// Requests telemetry data from a remote node using binary protocol.
+  /// Requests telemetry data from a remote node via `CMD_SEND_TELEMETRY_REQ`.
   ///
-  /// This uses the binary protocol for more efficient data transfer than text commands.
+  /// Firmware pushes `TELEMETRY_RESPONSE` (0x8B) matched by response tag.
+  /// `parseFromBinaryResponse` is the tag-matched fallback.
   ///
   /// - Parameter publicKey: The full 32-byte public key of the remote node.
   /// - Returns: Telemetry response containing sensor data and device status.
@@ -110,13 +146,13 @@ public extension MeshCoreSession {
     }
   }
 
-  /// Runs one binary-protocol exchange: subscribe, send `request`, learn the expected
-  /// response tag and firmware-suggested timeout from `.messageSent`, then resolve the
-  /// first `.binaryResponse` whose tag matches.
-  ///
-  /// The consumer finishes the timeout stream on every exit, including the `.error`
-  /// throw, so the timeout task always starts its sleep instead of waiting on a
-  /// stream nobody will finish.
+  /// Send `request` and resolve the first matching `.binaryResponse` or
+  /// `matchRoutedEvent` hit. Retransmits the same frame until a reply arrives or
+  /// `binaryRequestOverallTimeout` elapses (`nil` retransmit interval disables
+  /// resends). Companion firmware keeps one pending tag per request class and
+  /// replaces it on every send, so only the latest `messageSent` tag matches
+  /// `.binaryResponse`. Routed pubkey matchers (status) ignore tags. Spacing is
+  /// `max(floor, suggestedTimeoutMs × binaryRetransmitRTTHeadroom)`.
   ///
   /// - Parameters:
   ///   - request: The fully built request frame to send.
@@ -125,7 +161,7 @@ public extension MeshCoreSession {
   ///   - matchRoutedEvent: Optional matcher for a response that arrives as an
   ///     already-routed typed event instead of a raw `.binaryResponse`.
   ///   - parseResponse: Parses the matched `.binaryResponse` payload (with its tag).
-  ///     Returning `nil` abandons the exchange and surfaces ``MeshCoreError/timeout``.
+  ///     Returning `nil` surfaces ``MeshCoreError/parseError`` with payload size.
   internal func performBinaryExchange<Response: Sendable>(
     request: Data,
     to publicKey: Data,
@@ -135,98 +171,148 @@ public extension MeshCoreSession {
   ) async throws -> Response {
     let prefixHex = publicKey.prefix(6).map { String(format: "%02x", $0) }.joined()
     let startTime = ContinuousClock.now
+    let overallTimeout = configuration.binaryRequestOverallTimeout
+    let retransmitFloor = configuration.binaryRequestRetransmitInterval
+    let cadence = BinaryExchangeCadence(minimumSeconds: retransmitFloor ?? 0)
 
-    logger.info("\(operation) request to \(prefixHex): sending")
+    let floorDesc = retransmitFloor.map { String(format: "%.1f", $0) } ?? "off"
+    logger.info(
+      "\(operation) request to \(prefixHex): sending (overall=\(String(format: "%.1f", overallTimeout))s, retransmitFloor=\(floorDesc)s)"
+    )
 
     // Subscribe before sending to avoid the race where the response arrives
     // before the consumer is listening.
     let events = await dispatcher.subscribe()
     try await transport.send(request)
 
-    // Wait for messageSent (to get expectedAck) then binaryResponse (the actual response)
-    return try await withThrowingTaskGroup(of: Response?.self) { group in
-      let (timeoutStream, timeoutContinuation) = AsyncStream<TimeInterval>.makeStream()
-
+    return try await withThrowingTaskGroup(of: BinaryExchangeSignal<Response>.self) { group in
       group.addTask { [logger] in
-        var expectedAck: Data?
+        // Firmware replaces the single pending tag on each send; track only latest.
+        var expectedTag: Data?
+        var acceptedMessageSent = false
+        var sendCount = 1
 
         for await event in events {
-          if Task.isCancelled { return nil }
+          if Task.isCancelled { return .idle }
 
           switch event {
           case let .messageSent(info):
-            // Capture the expectedAck from firmware's MSG_SENT response
-            // and signal the dynamic timeout to the timeout task.
-            expectedAck = info.expectedAck
-            let timeout = TimeInterval(info.suggestedTimeoutMs)
-              / SessionConfiguration.millisecondsPerSecond
-              * SessionConfiguration.binaryRequestTimeoutMultiplier
-            logger.info("\(operation) request to \(prefixHex): messageSent received, suggestedTimeoutMs=\(info.suggestedTimeoutMs), effective timeout=\(String(format: "%.1f", timeout))s")
-            timeoutContinuation.yield(timeout)
-            timeoutContinuation.finish()
+            expectedTag = info.expectedAck
+            acceptedMessageSent = true
+            await cadence.applySuggestedTimeoutMs(info.suggestedTimeoutMs)
+            let tagHex = info.expectedAck.map { String(format: "%02x", $0) }.joined()
+            logger.info(
+              "\(operation) request to \(prefixHex): messageSent #\(sendCount) tag=\(tagHex) suggestedTimeoutMs=\(info.suggestedTimeoutMs)"
+            )
+            sendCount += 1
 
           case let .error(code):
-            timeoutContinuation.finish()
-            throw MeshCoreError.deviceError(code: code ?? 0)
+            // Device errors after a live messageSent must not abort the wait
+            // (retransmit can fail while an earlier attempt is still answerable).
+            if !acceptedMessageSent {
+              throw MeshCoreError.deviceError(code: code ?? 0)
+            }
+            logger.warning(
+              "\(operation) request to \(prefixHex): device error \(code ?? 0) after messageSent; keeping wait"
+            )
+            continue
 
           case let .binaryResponse(tag, responseData):
-            // Match by expectedAck (4-byte tag from firmware)
-            guard let expected = expectedAck, tag == expected else { continue }
+            guard tag == expectedTag else { continue }
 
             guard let response = try parseResponse(responseData, tag) else {
-              return nil
+              let preview = responseData.prefix(32).hexString
+              logger.warning(
+                "\(operation) request to \(prefixHex): binary response parse failed (\(responseData.count) bytes, prefix=\(preview))"
+              )
+              throw MeshCoreError.parseError(
+                "\(operation) binary response unparseable (\(responseData.count) bytes)"
+              )
             }
             let elapsed = ContinuousClock.now - startTime
             logger.info("\(operation) request to \(prefixHex): response received in \(elapsed)")
-            return response
+            return .response(response)
 
           default:
-            // Handle an already-routed response (if routing happens elsewhere)
             if let routed = matchRoutedEvent?(event) {
               let elapsed = ContinuousClock.now - startTime
               logger.info("\(operation) request to \(prefixHex): routed response received in \(elapsed)")
-              return routed
+              return .response(routed)
             }
             continue
           }
         }
-        timeoutContinuation.finish()
-        return nil
+        return .idle
       }
 
-      group.addTask { [logger, clock = self.clock, defaultTimeout = configuration.defaultTimeout] in
-        // Wait for dynamic timeout from event task, or use default
-        var timeout = defaultTimeout
-        var usedFirmwareTimeout = false
-        for await t in timeoutStream {
-          timeout = t
-          usedFirmwareTimeout = true
-          break
-        }
-        logger.info("\(operation) request to \(prefixHex): timeout task sleeping for \(String(format: "%.1f", timeout))s (\(usedFirmwareTimeout ? "firmware" : "default"))")
-        try await clock.sleep(for: .seconds(timeout))
+      group.addTask { [logger, clock = self.clock] in
+        try await clock.sleep(for: .seconds(overallTimeout))
         let elapsed = ContinuousClock.now - startTime
         logger.warning("\(operation) request to \(prefixHex): timed out after \(elapsed)")
-        return nil
+        return .timedOut
       }
 
-      if let result = try await group.next() ?? nil {
-        group.cancelAll()
-        return result
+      if retransmitFloor != nil {
+        group.addTask { [logger, clock = self.clock, transport] in
+          var attempt = 1
+          while !Task.isCancelled {
+            let delay = await cadence.waitForInterval()
+            do {
+              try await clock.sleep(for: .seconds(delay))
+            } catch is CancellationError {
+              return .idle
+            }
+            guard !Task.isCancelled else { break }
+            attempt += 1
+            let interval = await cadence.currentSeconds()
+            logger.info(
+              "\(operation) request to \(prefixHex): retransmit #\(attempt) (interval=\(String(format: "%.1f", interval))s)"
+            )
+            do {
+              try await transport.send(request)
+            } catch is CancellationError {
+              return .idle
+            } catch {
+              logger.warning(
+                "\(operation) request to \(prefixHex): retransmit send failed (\(error.localizedDescription)); continuing"
+              )
+            }
+          }
+          return .idle
+        }
       }
-      group.cancelAll()
+
+      do {
+        while let signal = try await group.next() {
+          switch signal {
+          case let .response(response):
+            group.cancelAll()
+            // Drain so a late retransmit send error cannot surface after success.
+            while await (try? group.next()) != nil {}
+            return response
+          case .timedOut:
+            group.cancelAll()
+            throw MeshCoreError.timeout
+          case .idle:
+            continue
+          }
+        }
+      } catch {
+        group.cancelAll()
+        throw error
+      }
       throw MeshCoreError.timeout
     }
   }
 
   /// Internal implementation of telemetry request, called within serialization.
   private func performTelemetryRequest(from publicKey: Data) async throws -> TelemetryResponse {
-    // v1.12+ firmware reads payload[1] as an inverse permission mask.
-    // 0x00 inverts to 0xFF (all permissions granted), plus 3 reserved bytes.
-    let telemetryPayload = Data([0x00, 0x00, 0x00, 0x00])
     let publicKeyPrefix = Data(publicKey.prefix(6))
+    // CMD_SEND_TELEMETRY_REQ frame: [0x27][3 reserved zeros][pubkey32]. Firmware
+    // zeros the reserved mask so ~payload[1] grants full env permissions (guests
+    // remain clamped to base telemetry on the repeater).
     return try await performBinaryExchange(
-      request: PacketBuilder.binaryRequest(to: publicKey, type: .telemetry, payload: telemetryPayload),
+      request: PacketBuilder.getSelfTelemetry(destination: publicKey),
       to: publicKey,
       operation: "Telemetry",
       matchRoutedEvent: { event in
@@ -437,6 +523,74 @@ public extension MeshCoreSession {
         orderBy: orderBy,
         pubkeyPrefixLength: pubkeyPrefixLength
       )
+    }
+  }
+}
+
+/// Task-group signal for `performBinaryExchange` (file scope: nested enums are
+/// not allowed inside generic methods).
+private enum BinaryExchangeSignal<Response: Sendable>: Sendable {
+  case response(Response)
+  case timedOut
+  /// Cancelled retransmit loop or ended event stream; not a terminal result.
+  case idle
+}
+
+/// Live retransmit spacing shared from `messageSent` into the resend loop.
+/// Floor starts at the config minimum; rises to
+/// `suggestedTimeoutMs × binaryRetransmitRTTHeadroom` so multi-hop waits cover
+/// a full return trip before another copy.
+private actor BinaryExchangeCadence {
+  private var seconds: TimeInterval
+  private var hasSuggested = false
+  private var waiters: [CheckedContinuation<TimeInterval, Never>] = []
+
+  init(minimumSeconds: TimeInterval) {
+    self.seconds = minimumSeconds
+  }
+
+  func applySuggestedTimeoutMs(_ ms: UInt32) {
+    let suggested = TimeInterval(ms) / SessionConfiguration.millisecondsPerSecond
+    let withHeadroom = suggested * SessionConfiguration.binaryRetransmitRTTHeadroom
+    if withHeadroom > seconds {
+      seconds = withHeadroom
+    }
+    hasSuggested = true
+    let ready = waiters
+    waiters.removeAll()
+    for waiter in ready {
+      waiter.resume(returning: seconds)
+    }
+  }
+
+  /// Resolves with the live interval once firmware has suggested an RTT.
+  /// Falls back to the configured floor if cancelled before `messageSent`.
+  func waitForInterval() async -> TimeInterval {
+    if hasSuggested || Task.isCancelled {
+      return seconds
+    }
+    return await withTaskCancellationHandler {
+      await withCheckedContinuation { continuation in
+        if hasSuggested {
+          continuation.resume(returning: seconds)
+        } else {
+          waiters.append(continuation)
+        }
+      }
+    } onCancel: {
+      Task { await self.resumeWaitersWithFloor() }
+    }
+  }
+
+  func currentSeconds() -> TimeInterval {
+    seconds
+  }
+
+  private func resumeWaitersWithFloor() {
+    let ready = waiters
+    waiters.removeAll()
+    for waiter in ready {
+      waiter.resume(returning: seconds)
     }
   }
 }

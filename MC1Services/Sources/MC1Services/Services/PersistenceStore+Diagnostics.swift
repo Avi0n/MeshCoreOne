@@ -620,12 +620,14 @@ public extension PersistenceStore {
   /// capture enriches that row: status fields are applied only when the row is
   /// still telemetry-only (`uptimeSeconds == nil`), preserving the
   /// one-status-point-per-window throttle; telemetry and neighbor arrays are
-  /// applied whenever supplied. Outside the window a new snapshot is inserted.
+  /// applied whenever supplied. A location fix is first-wins: it is written
+  /// only when the row has none yet. Outside the window a new snapshot is inserted.
   func recordNodeStatusSnapshot(
     nodePublicKey: Data,
     status: NodeStatusMetrics?,
     telemetry: [TelemetrySnapshotEntry]?,
-    neighbors: [NeighborSnapshotEntry]?
+    neighbors: [NeighborSnapshotEntry]?,
+    location: NodeLocationFix?
   ) throws -> UUID {
     var latestDescriptor = FetchDescriptor<NodeStatusSnapshot>(
       predicate: #Predicate { $0.nodePublicKey == nodePublicKey },
@@ -644,6 +646,14 @@ public extension PersistenceStore {
       if let neighbors {
         latest.neighborSnapshots = neighbors
       }
+      // Location is first-wins, unlike telemetry/neighbors: the in-window row is
+      // stamped with the first capture's timestamp, so writing a later fix here
+      // would mis-plot it in time, and a later no-fix would erase a good fix.
+      if let location, latest.latitude == nil {
+        latest.latitude = location.latitude
+        latest.longitude = location.longitude
+        latest.altitude = location.altitude
+      }
       try modelContext.save()
       return latest.id
     }
@@ -657,6 +667,11 @@ public extension PersistenceStore {
     }
     if let neighbors {
       snapshot.neighborSnapshots = neighbors
+    }
+    if let location {
+      snapshot.latitude = location.latitude
+      snapshot.longitude = location.longitude
+      snapshot.altitude = location.altitude
     }
     modelContext.insert(snapshot)
     try modelContext.save()

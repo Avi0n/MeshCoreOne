@@ -30,20 +30,49 @@ public actor RemoteNodeService {
   /// Cancelled when login succeeds/fails before timeout.
   var pendingLoginTimeoutTasks: [Data: Task<Void, Never>] = [:]
 
-  /// Pending CLI request with command info for content-based response matching
+  /// The in-flight CLI request for a node. `acceptsAnyResponse` marks raw
+  /// passthrough commands whose reply shape can't be validated. `wirePrefix`
+  /// is the correlation token prepended to the command on the wire; firmware
+  /// reflects it back at the start of the reply.
   struct PendingCLIRequest {
+    let id: UUID
     let command: String
+    let wirePrefix: String
+    let acceptsAnyResponse: Bool
     let continuation: CheckedContinuation<String, Error>
-    let timestamp: Date
   }
 
-  /// Pending CLI requests keyed by 6-byte public key prefix.
-  /// Multiple requests per destination stored in order for FIFO fallback.
-  var pendingCLIRequests: [Data: [PendingCLIRequest]] = [:]
+  /// The single in-flight CLI request per node, keyed by 6-byte public key
+  /// prefix. Replies echoing the request's wire prefix are attributed
+  /// deterministically; unprefixed replies (firmware that predates the echo)
+  /// fall back to single-flight shape validation, and foreign-prefixed
+  /// replies are stale by definition and dropped.
+  var pendingCLIRequests: [Data: PendingCLIRequest] = [:]
 
-  /// Pending raw CLI requests for passthrough (FIFO matching, single request per sender).
-  /// Used by CLI tool where any response should be delivered without content-based matching.
-  var pendingRawCLIRequests: [Data: CheckedContinuation<String, Error>] = [:]
+  /// Cycling counter for CLI wire prefixes ("00|" through "FF|").
+  var cliPrefixCounter: UInt8 = 0
+
+  /// Clock drift measured at the last successful login, keyed by session ID.
+  /// Positive means the remote node's clock is ahead of the connected radio.
+  /// In-memory only; drift is re-measured on every login.
+  var loginClockDrifts: [UUID: TimeInterval] = [:]
+
+  /// A task queued for a node's CLI slot while another command is in flight.
+  struct CLISlotWaiter {
+    let id: UUID
+    let continuation: CheckedContinuation<Void, Error>
+  }
+
+  /// Nodes whose CLI slot is held by an in-flight command.
+  var cliSlotBusy: Set<Data> = []
+
+  /// FIFO waiters for a node's CLI slot, keyed by 6-byte public key prefix.
+  var cliSlotWaiters: [Data: [CLISlotWaiter]] = [:]
+
+  /// Reads the connected radio's clock; wired by `ServiceContainer`. Clock
+  /// drift is measured against the radio, not the phone, because mesh packet
+  /// timestamps come from the radio's RTC.
+  var radioClockProvider: (@Sendable () async -> Date?)?
 
   /// Keep-alive timer tasks
   var keepAliveTasks: [UUID: Task<Void, Never>] = [:]
@@ -119,6 +148,8 @@ public actor RemoteNodeService {
           true
         case let .contactMessageReceived(info) where info.textType == cliResponseTextType:
           true
+        case .statusResponse, .telemetryResponse, .neighboursResponse, .binaryResponse:
+          true
         default:
           false
         }
@@ -148,7 +179,8 @@ public actor RemoteNodeService {
         success: true,
         isAdmin: info.isAdmin,
         aclPermissions: info.permissions,
-        publicKeyPrefix: info.publicKeyPrefix
+        publicKeyPrefix: info.publicKeyPrefix,
+        serverTime: info.serverTime
       )
       await handleLoginResult(result, fromPublicKeyPrefix: info.publicKeyPrefix)
 
@@ -173,64 +205,70 @@ public actor RemoteNodeService {
     }
   }
 
-  /// Handle CLI response from a contact message.
-  /// Content-based matching runs first — raw (FIFO) matching only gets responses
-  /// that no typed query claimed.
+  /// Handle CLI response from a contact message. The wire prefix echoed by
+  /// firmware attributes a reply deterministically; an unprefixed reply falls
+  /// back to single-flight shape validation for older firmware, and a reply
+  /// echoing a different prefix belongs to an earlier command and is dropped.
   private func handleCLIResponse(_ message: ContactMessage) {
     let prefix = Data(message.senderPublicKeyPrefix.prefix(6))
 
-    // Try content-based matching first for structured requests
-    if var requests = pendingCLIRequests[prefix], !requests.isEmpty {
-      let (matchIndex, matchCount) = findBestMatch(response: message.text, in: requests)
-
-      if let matchIndex {
-        let matched = requests.remove(at: matchIndex)
-        pendingCLIRequests[prefix] = requests.isEmpty ? nil : requests
-        matched.continuation.resume(returning: message.text)
-        return
-      }
-
-      if matchCount > 1 {
-        // Multiple matches (ambiguous like "OK") - fall back to FIFO
-        let oldest = requests.removeFirst()
-        pendingCLIRequests[prefix] = requests.isEmpty ? nil : requests
-        oldest.continuation.resume(returning: message.text)
-        return
-      }
-    }
-
-    // No content match — deliver to raw CLI request if one is pending
-    if let continuation = pendingRawCLIRequests.removeValue(forKey: prefix) {
-      continuation.resume(returning: message.text)
+    guard let pending = pendingCLIRequests[prefix] else {
+      logger.debug("Unmatched CLI response (no pending request): \(message.text.prefix(50))")
       return
     }
 
-    // No pending requests matched
-    logger.debug("Unmatched CLI response (no pending request): \(message.text.prefix(50))")
+    let responseText: String
+    if let echoed = CLIResponse.splitEchoedPrefix(message.text) {
+      guard echoed.prefix == pending.wirePrefix else {
+        logger.warning(
+          "Dropping stale CLI response with prefix \(echoed.prefix) while awaiting \(pending.wirePrefix)"
+        )
+        return
+      }
+      responseText = echoed.body
+    } else {
+      // Firmware without prefix echo: fall back to shape validation.
+      guard pending.acceptsAnyResponse
+        || CLIResponse.isPlausibleResponse(message.text, forQuery: pending.command) else {
+        logger.warning(
+          "Dropping CLI response that doesn't match pending '\(pending.command)': \(message.text.prefix(50))"
+        )
+        return
+      }
+      responseText = message.text
+    }
+
+    pendingCLIRequests[prefix] = nil
+    pending.continuation.resume(returning: responseText)
   }
 
-  /// Find best matching request for a response based on CLIResponse parsing
-  /// Returns the matching index (if exactly one) and total match count
-  private func findBestMatch(response: String, in requests: [PendingCLIRequest]) -> (index: Int?, matchCount: Int) {
-    var matchingIndices: [Int] = []
+  /// Returns the next cycling CLI wire prefix ("00|" through "FF|").
+  func makeCLIWirePrefix() -> String {
+    defer { cliPrefixCounter &+= 1 }
+    return String(format: "%02X%@", cliPrefixCounter, String(CLIResponse.echoPrefixSeparator))
+  }
 
-    for (index, request) in requests.enumerated() {
-      let parsed = CLIResponse.parse(response, forQuery: request.command)
+  // MARK: - Login Clock Drift
 
-      // If parsing with this query produces a specific result (not .raw),
-      // it's a potential match
-      if case .raw = parsed {
-        continue
-      }
-      matchingIndices.append(index)
-    }
+  /// Sets the closure used to read the connected radio's clock.
+  public func setRadioClockProvider(_ provider: @escaping @Sendable () async -> Date?) {
+    radioClockProvider = provider
+  }
 
-    // Return match only if exactly one command matches
-    if matchingIndices.count == 1 {
-      return (matchingIndices[0], 1)
-    }
+  /// Records the clock drift measured from a login response, relative to the
+  /// radio's clock (falling back to the phone when the radio can't be read).
+  func recordLoginClockDrift(sessionID: UUID, serverTime: Date?) async {
+    guard let serverTime else { return }
+    let reference = await radioClockProvider?() ?? Date()
+    let drift = serverTime.timeIntervalSince(reference)
+    loginClockDrifts[sessionID] = drift
+    logger.info("Login clock drift for session \(sessionID): \(Int(drift))s")
+  }
 
-    return (nil, matchingIndices.count)
+  /// The remote node's clock drift measured at its last login this connection.
+  /// Positive means the node's clock is ahead of the connected radio.
+  public func loginClockDrift(sessionID: UUID) -> TimeInterval? {
+    loginClockDrifts[sessionID]
   }
 
   func timeInterval(for duration: Duration) -> TimeInterval {
@@ -245,14 +283,8 @@ public actor RemoteNodeService {
     }
   }
 
-  func cancelPendingCLIRequest(for prefix: Data, timestamp: Date) {
-    guard var requests = pendingCLIRequests[prefix],
-          let index = requests.firstIndex(where: { $0.timestamp == timestamp }) else {
-      return
-    }
-
-    let cancelled = requests.remove(at: index)
-    pendingCLIRequests[prefix] = requests.isEmpty ? nil : requests
+  func cancelPendingCLIRequest(for prefix: Data, requestID: UUID) {
+    guard let cancelled = takePendingCLIRequest(for: prefix, requestID: requestID) else { return }
     cancelled.continuation.resume(throwing: CancellationError())
   }
 

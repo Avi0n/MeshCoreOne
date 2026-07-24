@@ -13,17 +13,20 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "继续";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "快捷指令";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "查看电台状态、发送消息和广播通告。";
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "完整发布说明";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "清空私信对话";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "清空任意私信的消息记录。";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "聊天体验改进";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "打开聊天会定位到新消息，而不是滚到最底部。每条气泡都会显示时间，历史记录和链接预览加载也更快。";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "按跳数排序";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "“节点”标签页现在会将接收日志中通告的入站跳数关联起来。";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "联系人照片";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "为任意联系人设置头像，方便在列表和对话中快速认出对方。";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "地图筛选";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "按收藏、发现的节点和节点类型筛选地图标记。";

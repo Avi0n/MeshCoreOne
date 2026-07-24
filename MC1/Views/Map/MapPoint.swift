@@ -22,6 +22,12 @@ struct MapPoint: Identifiable, Equatable {
     case obstruction
     case badge
     case droppedPin
+    /// A sampled node location report: a small neutral dot threaded onto the
+    /// history trail. Center-anchored, unlike the bottom-anchored teardrops.
+    case locationFix
+    /// The node's most recent location report: the emphasized hero teardrop that
+    /// caps the trail.
+    case locationFixLatest
   }
 
   let hopIndex: Int?

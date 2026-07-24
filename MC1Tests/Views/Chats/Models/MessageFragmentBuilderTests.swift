@@ -352,35 +352,36 @@ struct MessageFragmentBuilderTests {
   // MARK: - Incoming send time
 
   @Test
-  func `footer shows send time on incoming message when enabled`() {
+  func `footer shows send time on incoming message`() {
     let wire: UInt32 = 1_700_000_000
     let message = makeIncomingMessage(timestamp: wire)
     let inputs = makeInputs(messageID: message.id)
     let item = MessageFragmentBuilder.makeItem(
-      for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: true)
+      for: message, inputs: inputs, envInputs: makeEnvInputs()
     )
     #expect(item.footer.sendTimeToShow == Date(timeIntervalSince1970: TimeInterval(wire)))
     #expect(item.footer.sendTimeWasCorrected == false)
   }
 
   @Test
-  func `footer hides send time when the toggle is off`() {
-    let message = makeIncomingMessage(timestamp: 1_700_000_000)
+  func `footer shows send time regardless of the legacy showIncomingSendTime flag`() {
+    let wire: UInt32 = 1_700_000_000
+    let message = makeIncomingMessage(timestamp: wire)
     let inputs = makeInputs(messageID: message.id)
     let item = MessageFragmentBuilder.makeItem(
       for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: false)
     )
-    #expect(item.footer.sendTimeToShow == nil)
+    #expect(item.footer.sendTimeToShow == Date(timeIntervalSince1970: TimeInterval(wire)))
   }
 
   @Test
-  func `footer hides send time on outgoing messages even when enabled`() {
+  func `footer shows send time on outgoing messages`() {
     let message = makeMessage(text: "hi") // outgoing by default
     let inputs = makeInputs(messageID: message.id)
     let item = MessageFragmentBuilder.makeItem(
-      for: message, inputs: inputs, envInputs: makeEnvInputs(showIncomingSendTime: true)
+      for: message, inputs: inputs, envInputs: makeEnvInputs()
     )
-    #expect(item.footer.sendTimeToShow == nil)
+    #expect(item.footer.sendTimeToShow == message.senderDate)
   }
 
   @Test

@@ -4,7 +4,11 @@ import SwiftUI
 // MARK: - Status Header
 
 struct NodeStatusHeaderSection: View {
+  /// Clock drift below this magnitude is normal RTC scatter and not shown.
+  private static let clockDriftWarningThreshold: TimeInterval = 300
+
   let session: RemoteNodeSessionDTO
+  var clockDrift: TimeInterval?
 
   var body: some View {
     Section {
@@ -21,6 +25,13 @@ struct NodeStatusHeaderSection: View {
               .font(.subheadline)
               .foregroundStyle(.secondary)
           }
+
+          if let drift = clockDrift, abs(drift) >= Self.clockDriftWarningThreshold {
+            Label(clockDriftWarning(drift), systemImage: "clock.badge.exclamationmark")
+              .font(.footnote)
+              .foregroundStyle(.orange)
+              .multilineTextAlignment(.center)
+          }
         }
         Spacer()
       }
@@ -28,6 +39,15 @@ struct NodeStatusHeaderSection: View {
       .listRowInsets(EdgeInsets())
     }
     .listSectionSpacing(.compact)
+  }
+
+  private func clockDriftWarning(_ drift: TimeInterval) -> String {
+    let magnitude = Duration.seconds(abs(drift)).formatted(
+      .units(allowed: [.days, .hours, .minutes, .seconds], width: .abbreviated, maximumUnitCount: 2)
+    )
+    return drift > 0
+      ? L10n.RemoteNodes.RemoteNodes.Status.clockAhead(magnitude)
+      : L10n.RemoteNodes.RemoteNodes.Status.clockBehind(magnitude)
   }
 }
 
@@ -294,6 +314,13 @@ struct NodeTelemetryDisclosureSection: View {
             ForEach(helper.cachedDataPoints, id: \.self) { dataPoint in
               NodeTelemetryRow(dataPoint: dataPoint, ocvArray: helper.ocvValues)
             }
+          }
+
+          if let fix = helper.currentLocationFix {
+            NavigationLink(value: NodeStatusRoute.locationMap(fix: fix, name: helper.session?.name)) {
+              Label(L10n.RemoteNodes.RemoteNodes.Status.viewOnMap, systemImage: "map")
+            }
+            .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.Accessibility.viewLocationOnMap)
           }
 
           NavigationLink(value: NodeStatusRoute.telemetryHistory) {

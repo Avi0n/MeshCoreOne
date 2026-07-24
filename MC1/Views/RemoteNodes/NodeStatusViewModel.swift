@@ -15,6 +15,12 @@ final class NodeStatusViewModel {
   /// Current session
   var session: RemoteNodeSessionDTO?
 
+  /// True when `publicKeyPrefix` matches the session this screen is showing.
+  func matchesSession(_ publicKeyPrefix: Data) -> Bool {
+    guard !publicKeyPrefix.isEmpty, let publicKey = session?.publicKey else { return false }
+    return publicKey.prefix(publicKeyPrefix.count) == publicKeyPrefix
+  }
+
   /// Public key for direct telemetry (no remote session).
   /// Used for chat nodes that don't require login.
   private var directPublicKey: Data?
@@ -177,30 +183,33 @@ final class NodeStatusViewModel {
     }
   }
 
-  /// Drive a section request through the shared retry budget, owning the
-  /// loading flag and section-error scaffold that the admin status view models
-  /// otherwise repeat verbatim. The `setLoading`/`setError` closures target the
-  /// section's own state (some live on this helper, some on the view model);
-  /// `onSuccess` applies the response. A `RemoteNodeError.timeout` surfaces the
-  /// shared timed-out string, any other error its user-facing message.
+  /// Runs a section request with the shared transient-retry budget, owning that
+  /// section's loading and error flags. Timeout and other errors set the section
+  /// error immediately; cancellation only clears loading.
   func runRetryingSectionRequest<T>(
     operationName: String,
-    setLoading: @MainActor (Bool) -> Void,
-    setError: @MainActor (String?) -> Void,
+    setLoading: @escaping @MainActor (Bool) -> Void,
+    setError: @escaping @MainActor (String?) -> Void,
+    timeoutMessage: String = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut,
     operation: @escaping @Sendable (Duration) async throws -> T,
-    onSuccess: @MainActor (T) async -> Void
+    onSuccess: @escaping @MainActor (T) async -> Void
   ) async {
     setLoading(true)
     setError(nil)
     do {
       let response = try await performWithTransientRetries(operationName: operationName, operation: operation)
       await onSuccess(response)
+      setLoading(false)
+    } catch is CancellationError {
+      setLoading(false)
     } catch RemoteNodeError.timeout {
-      setError(L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut)
+      logger.info("\(operationName, privacy: .public) timed out")
+      setError(timeoutMessage)
+      setLoading(false)
     } catch {
       setError(error.userFacingMessage)
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   // MARK: - Status Response Handling
@@ -286,13 +295,17 @@ final class NodeStatusViewModel {
       guard let value = numericValue else { return nil }
       return TelemetrySnapshotEntry(channel: Int(dp.channel), type: dp.typeName, value: value)
     }
-    guard !entries.isEmpty,
+
+    let location = currentLocationFix
+
+    guard !entries.isEmpty || location != nil,
           let nodeSnapshotService,
           let nodePublicKey = effectivePublicKey else { return }
 
     _ = await nodeSnapshotService.recordSnapshot(
       nodePublicKey: nodePublicKey,
-      telemetry: entries
+      telemetry: entries.isEmpty ? nil : entries,
+      location: location
     )
   }
 
@@ -307,6 +320,13 @@ final class NodeStatusViewModel {
     Dictionary(grouping: cachedDataPoints, by: \.channel)
       .sorted { $0.key < $1.key }
       .map { (channel: $0.key, dataPoints: $0.value) }
+  }
+
+  /// The node's reported location from the last telemetry response, or nil when it
+  /// reports no plottable coordinate. A node without a current GPS lock still reports
+  /// its last known or manually set position. Drives the live "View on Map" affordance.
+  var currentLocationFix: NodeLocationFix? {
+    NodeLocationFix.primaryFix(from: cachedDataPoints)
   }
 
   // MARK: - Display Formatters

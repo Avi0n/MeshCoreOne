@@ -7,6 +7,7 @@ struct SupportDevelopmentView: View {
 
   @State private var hasRetriedThisAppearance = false
   @State private var restoreSuccessTrigger = 0
+  @State private var showPurchaseThanks = false
 
   var body: some View {
     // A `@Bindable` local is required to project `$storeState.errorMessage` from the
@@ -20,8 +21,8 @@ struct SupportDevelopmentView: View {
         PendingPurchaseBanner()
       }
 
-      ThemesPurchaseSection()
-      ContributionsSection()
+      ThemesPurchaseSection(onPurchaseSucceeded: presentPurchaseThanks)
+      ContributionsSection(onPurchaseSucceeded: presentPurchaseThanks)
       restoreSection(storeState)
       RefundLinkSection()
       SupportContactSection()
@@ -31,6 +32,9 @@ struct SupportDevelopmentView: View {
     .navigationBarTitleDisplayMode(.inline)
     .errorAlert($storeState.errorMessage, retryAction: { Task { await storeState.service.load() } })
     .sensoryFeedback(.success, trigger: restoreSuccessTrigger)
+    .sheet(isPresented: $showPurchaseThanks) {
+      PurchaseThankYouSheet()
+    }
     .onChange(of: storeState.service.ownedThemeIDs) {
       storeState.reconcilePendingPurchase()
     }
@@ -49,6 +53,15 @@ struct SupportDevelopmentView: View {
       }
     }
     .onDisappear { hasRetriedThisAppearance = false }
+  }
+
+  /// Called after a verified immediate purchase. Defers one turn so list rebuild and any
+  /// StoreKit confirmation dismiss can settle before the thank-you sheet presents.
+  private func presentPurchaseThanks() {
+    Task { @MainActor in
+      await Task.yield()
+      showPurchaseThanks = true
+    }
   }
 
   private func restoreSection(_ storeState: StoreState) -> some View {

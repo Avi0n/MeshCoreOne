@@ -39,7 +39,7 @@ extension ChatViewModel {
       return
     }
 
-    coordinator?.applyStatusUpdate(
+    timeline.applyStatusUpdate(
       messageID: message.id,
       status: .pending,
       userInitiated: true
@@ -74,7 +74,7 @@ extension ChatViewModel {
       } catch {
         logger.error("enqueueChannel sendAgain failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
         _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-        coordinator?.applyStatusUpdate(messageID: message.id, status: .failed)
+        timeline.applyStatusUpdate(messageID: message.id, status: .failed)
         sendErrorMessage = Self.copyForEnqueueFailure(error)
       }
     } else {
@@ -102,7 +102,7 @@ extension ChatViewModel {
         return
       }
 
-      coordinator?.applyStatusUpdate(
+      timeline.applyStatusUpdate(
         messageID: message.id,
         status: .pending,
         userInitiated: true
@@ -126,8 +126,7 @@ extension ChatViewModel {
       try await dataStore.deleteMessage(id: message.id)
 
       // Remove from all local collections
-      coordinator?.remove(messageID: message.id)
-      coordinator?.removeRenderItem(id: message.id)
+      timeline.removeMessage(message.id)
 
       // Clean up preview state for deleted message
       cleanupPreviewState(for: message.id)

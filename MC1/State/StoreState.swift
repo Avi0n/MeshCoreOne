@@ -39,8 +39,8 @@ final class StoreState {
     }
   }
 
-  /// Returns `true` only on `.purchased`; callers that gate post-success UI (e.g. ContributionRow's
-  /// "thank you" animation) check this to avoid celebrating cancels, failures, or Ask-to-Buy pending.
+  /// Returns `true` only on `.purchased`; callers that gate post-success UI (e.g. the Support
+  /// thank-you sheet) check this to avoid celebrating cancels, failures, or Ask-to-Buy pending.
   /// `purchase` performs the StoreKit purchase. The view passes SwiftUI's `@Environment(\.purchase)`
   /// action so StoreKit resolves the confirmation scene from the view environment, which is robust
   /// against the foreground-scene churn (lifecycle reconciliation during sheet presentation) that

@@ -85,18 +85,24 @@ enum BLEPhase: @unchecked Sendable {
 
   /// Human-readable name for logging
   var name: String {
+    kind.rawValue
+  }
+
+  /// The case without its CoreBluetooth payload, safe to cross the actor
+  /// boundary for callers that branch on or log the phase.
+  var kind: BLEPhaseKind {
     switch self {
-    case .idle: "idle"
-    case .waitingForBluetooth: "waitingForBluetooth"
-    case .connecting: "connecting"
-    case .discoveringServices: "discoveringServices"
-    case .discoveringCharacteristics: "discoveringCharacteristics"
-    case .subscribingToNotifications: "subscribingToNotifications"
-    case .discoveryComplete: "discoveryComplete"
-    case .connected: "connected"
-    case .autoReconnecting: "autoReconnecting"
-    case .restoringState: "restoringState"
-    case .disconnecting: "disconnecting"
+    case .idle: .idle
+    case .waitingForBluetooth: .waitingForBluetooth
+    case .connecting: .connecting
+    case .discoveringServices: .discoveringServices
+    case .discoveringCharacteristics: .discoveringCharacteristics
+    case .subscribingToNotifications: .subscribingToNotifications
+    case .discoveryComplete: .discoveryComplete
+    case .connected: .connected
+    case .autoReconnecting: .autoReconnecting
+    case .restoringState: .restoringState
+    case .disconnecting: .disconnecting
     }
   }
 

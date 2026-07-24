@@ -5,7 +5,7 @@ import ObjectiveC
 import Testing
 
 /// Drives the callback handlers that route disconnection errors through
-/// `BLEStateMachine.makeConnectionError` before invoking `onDisconnection`,
+/// `ReconnectPolicy.makeConnectionError` before invoking `onDisconnection`,
 /// proving each site surfaces a bond-invalidation CoreBluetooth error as the
 /// typed `BLEError.authenticationFailed` and preserves `nil` for a clean
 /// disconnect in the `.connected` branch.

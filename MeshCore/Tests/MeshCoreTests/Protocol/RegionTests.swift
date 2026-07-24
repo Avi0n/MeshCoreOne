@@ -310,9 +310,14 @@ struct RequestRegionsIntegrationTests {
   @Test
   func `timeout when no binaryResponse arrives`() async throws {
     let transport = MockTransport()
+    // Short overall budget with retransmits disabled so the test observes the
+    // timeout quickly.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
+      configuration: SessionConfiguration(
+        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestOverallTimeout: 0.2,
+        binaryRequestRetransmitInterval: nil
+      )
     )
     try await startSession(session, transport: transport)
 
@@ -387,9 +392,14 @@ struct RequestRegionsIntegrationTests {
   @Test
   func `temporarily sets zero-hop before sending for flood-routed contact`() async throws {
     let transport = MockTransport()
+    // Short overall budget with retransmits disabled so the test can observe
+    // the path restore after a fast timeout.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
+      configuration: SessionConfiguration(
+        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestOverallTimeout: 0.2,
+        binaryRequestRetransmitInterval: nil
+      )
     )
     try await startSession(session, transport: transport)
 
@@ -443,9 +453,14 @@ struct RequestRegionsIntegrationTests {
   @Test
   func `requestRegions preserves an unmodeled raw type byte in the temp write`() async throws {
     let transport = MockTransport()
+    // Short overall budget with retransmits disabled so the test can observe
+    // the temp contact write after a fast timeout.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "Test")
+      configuration: SessionConfiguration(
+        defaultTimeout: 10, clientIdentifier: "Test", binaryRequestOverallTimeout: 0.2,
+        binaryRequestRetransmitInterval: nil
+      )
     )
     try await startSession(session, transport: transport)
 

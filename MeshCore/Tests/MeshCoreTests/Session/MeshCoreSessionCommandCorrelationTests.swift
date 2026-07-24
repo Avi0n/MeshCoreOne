@@ -547,7 +547,7 @@ struct MeshCoreSessionCommandCorrelationTests {
   }
 
   @Test
-  func `requestStatus uses room layout for typed room targets`() async throws {
+  func `requestStatus uses dedicated status command and room layout for typed room targets`() async throws {
     let transport = MockTransport()
     let session = MeshCoreSession(
       transport: transport,
@@ -567,10 +567,14 @@ struct MeshCoreSessionCommandCorrelationTests {
       await transport.sentData.count == 2
     }
 
+    let sent = await transport.sentData[1]
+    #expect(sent.first == CommandCode.sendStatusRequest.rawValue)
+
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: expectedAck))
+    // Dedicated STATUS_RESPONSE push; room counters packed where repeater rxAirtime sits.
     await transport.simulateReceive(
-      makeBinaryStatusResponsePacket(
-        tag: expectedAck,
+      makeStatusResponsePacket(
+        publicKeyPrefix: Data(target.prefix(6)),
         battery: 1000,
         roomServerPostedCount: 17,
         roomServerPostPushCount: 9
@@ -582,6 +586,136 @@ struct MeshCoreSessionCommandCorrelationTests {
     #expect(status.roomServerPostedCount == 17)
     #expect(status.roomServerPostPushCount == 9)
     #expect(status.rxAirtime == 0)
+    await session.stop()
+  }
+
+  @Test
+  func `requestStatus retransmits until a matching response arrives`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        binaryRequestOverallTimeout: 2.0,
+        binaryRequestRetransmitInterval: 0.05
+      )
+    )
+
+    try await startSession(session, transport: transport)
+
+    let target = Data(repeating: 0x31, count: 32)
+    let firstTag = Data([0x11, 0x22, 0x33, 0x44])
+    let secondTag = Data([0x55, 0x66, 0x77, 0x88])
+
+    let statusTask = Task {
+      try await session.requestStatus(from: target)
+    }
+
+    try await waitUntil("first status request should be sent") {
+      await transport.sentData.count == 2
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: firstTag, timeoutMs: 500))
+
+    try await waitUntil("status request should retransmit") {
+      await transport.sentData.count >= 3
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: secondTag, timeoutMs: 500))
+
+    // Status is routed by public-key prefix, not tag.
+    await transport.simulateReceive(
+      makeStatusResponsePacket(publicKeyPrefix: Data(target.prefix(6)), battery: 2200)
+    )
+
+    let status = try await statusTask.value
+    #expect(status.battery == 2200)
+    #expect(await transport.sentData.filter { $0.first == CommandCode.sendStatusRequest.rawValue }.count >= 2)
+    await session.stop()
+  }
+
+  @Test
+  func `binary response matches only the latest retransmit tag`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        binaryRequestOverallTimeout: 2.0,
+        binaryRequestRetransmitInterval: 0.05
+      )
+    )
+
+    try await startSession(session, transport: transport)
+
+    let target = Data(repeating: 0x31, count: 32)
+    let firstTag = Data([0x11, 0x22, 0x33, 0x44])
+    let secondTag = Data([0x55, 0x66, 0x77, 0x88])
+
+    let telemetryTask = Task {
+      try await session.requestTelemetry(from: target)
+    }
+
+    try await waitUntil("first telemetry request should be sent") {
+      await transport.sentData.count == 2
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: firstTag, timeoutMs: 500))
+
+    try await waitUntil("telemetry request should retransmit") {
+      await transport.sentData.count >= 3
+    }
+    await transport.simulateReceive(makeMessageSentPacket(expectedAck: secondTag, timeoutMs: 500))
+
+    // Stale first-tag reply after retransmit must not complete the wait.
+    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: firstTag))
+    try? await Task.sleep(for: .milliseconds(80))
+    #expect(!telemetryTask.isCancelled)
+
+    await transport.simulateReceive(makeBinaryTelemetryResponsePacket(tag: secondTag))
+
+    let telemetry = try await telemetryTask.value
+    #expect(telemetry.dataPoints.isEmpty)
+    await session.stop()
+  }
+
+  @Test
+  func `requestStatus times out after the overall budget without a reply`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        // Keep overall longer than retransmit spacing so a resend is observed.
+        binaryRequestOverallTimeout: 0.5,
+        binaryRequestRetransmitInterval: 0.05
+      )
+    )
+
+    try await startSession(session, transport: transport)
+
+    let target = Data(repeating: 0x31, count: 32)
+    let statusTask = Task {
+      try await session.requestStatus(from: target)
+    }
+
+    try await waitUntil("requestStatus should be sent") {
+      await transport.sentData.count == 2
+    }
+    // suggested 50ms × headroom 2 = 100ms between retransmits.
+    await transport.simulateReceive(
+      makeMessageSentPacket(expectedAck: Data([0x01, 0x02, 0x03, 0x04]), timeoutMs: 50)
+    )
+
+    let error = await #expect(throws: MeshCoreError.self) {
+      try await statusTask.value
+    }
+    guard case .timeout? = error else {
+      Issue.record("Expected timeout after overall budget, got \(String(describing: error))")
+      await session.stop()
+      return
+    }
+    #expect(await transport.sentData.filter { $0.first == CommandCode.sendStatusRequest.rawValue }.count >= 2)
     await session.stop()
   }
 
@@ -787,9 +921,16 @@ struct MeshCoreSessionCommandCorrelationTests {
   @Test
   func `binary request errors release the serializer for following requests`() async throws {
     let transport = MockTransport()
+    // Disable in-exchange retransmit so this serialization test is not
+    // sensitive to parallel-suite scheduling of retransmit sleeps.
     let session = MeshCoreSession(
       transport: transport,
-      configuration: SessionConfiguration(defaultTimeout: 10, clientIdentifier: "MCTst")
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        binaryRequestOverallTimeout: 2.0,
+        binaryRequestRetransmitInterval: nil
+      )
     )
 
     try await startSession(session, transport: transport)
@@ -913,11 +1054,11 @@ struct MeshCoreSessionCommandCorrelationTests {
     // Give a non-serialized sender time to also subscribe before any messageSent lands.
     try? await Task.sleep(for: .milliseconds(50))
 
-    // The binary request's own messageSent + response.
+    // The status request's own messageSent + dedicated STATUS_RESPONSE.
     await transport.simulateReceive(makeMessageSentPacket(expectedAck: statusAck))
     await transport.simulateReceive(
-      makeBinaryStatusResponsePacket(
-        tag: statusAck,
+      makeStatusResponsePacket(
+        publicKeyPrefix: Data(statusTarget.prefix(6)),
         battery: 1234,
         roomServerPostedCount: 5,
         roomServerPostPushCount: 2
@@ -1055,7 +1196,12 @@ private func makeTelemetryPacket(publicKeyPrefix: Data, lppPayload: Data) -> Dat
   return packet
 }
 
-private func makeStatusResponsePacket(publicKeyPrefix: Data, battery: UInt16) -> Data {
+private func makeStatusResponsePacket(
+  publicKeyPrefix: Data,
+  battery: UInt16,
+  roomServerPostedCount: UInt16 = 0,
+  roomServerPostPushCount: UInt16 = 0
+) -> Data {
   var packet = Data([ResponseCode.statusResponse.rawValue, 0x00])
   packet.append(publicKeyPrefix)
   packet.append(contentsOf: withUnsafeBytes(of: battery.littleEndian) { Array($0) })
@@ -1074,7 +1220,10 @@ private func makeStatusResponsePacket(publicKeyPrefix: Data, battery: UInt16) ->
   packet.append(contentsOf: withUnsafeBytes(of: Int16(0).littleEndian) { Array($0) })
   packet.append(contentsOf: withUnsafeBytes(of: UInt16(0).littleEndian) { Array($0) })
   packet.append(contentsOf: withUnsafeBytes(of: UInt16(0).littleEndian) { Array($0) })
-  packet.append(contentsOf: withUnsafeBytes(of: UInt32(0).littleEndian) { Array($0) })
+  // Trailing 4 bytes: repeater rxAirtime, or packed room posted/postPush when requested.
+  var trailing = UInt32(roomServerPostedCount)
+  trailing |= UInt32(roomServerPostPushCount) << 16
+  packet.append(contentsOf: withUnsafeBytes(of: trailing.littleEndian) { Array($0) })
   return packet
 }
 
@@ -1094,6 +1243,15 @@ private func makeBinaryStatusResponsePacket(
   payload.replaceSubrange(50..<52, with: withUnsafeBytes(of: roomServerPostPushCount.littleEndian) { Array($0) })
 
   packet.append(payload)
+  return packet
+}
+
+/// Wire: [0x8C][requestType:1][tag:4][LPP payload...]
+private func makeBinaryTelemetryResponsePacket(tag: Data, lppPayload: Data = Data()) -> Data {
+  var packet = Data([ResponseCode.binaryResponse.rawValue])
+  packet.append(0x00)
+  packet.append(tag)
+  packet.append(lppPayload)
   return packet
 }
 

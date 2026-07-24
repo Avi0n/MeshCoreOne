@@ -7,7 +7,6 @@
   that appear in multiple places throughout the app.
 */
 
-
 // MARK: - Generic Buttons
 
 /* Standard confirmation button for dialogs */
@@ -29,8 +28,6 @@
 "common.edit" = "Edit";
 
 /* Standard close button for dismissing views */
-"common.close" = "Close";
-
 /* Button to retry a failed operation */
 "common.tryAgain" = "Try Again";
 
@@ -53,9 +50,6 @@
 "common.error.rateLimited" = "Too many requests. Please try again shortly.";
 
 /* Standard remove button for removing items from a list or group */
-"common.remove" = "Remove";
-
-
 // MARK: - Connection Status
 
 /* Location: SyncingPillView.swift - Status shown when syncing data */
@@ -69,7 +63,6 @@
 
 /* Location: SyncingPillView.swift - Status shown when device is disconnected */
 "common.status.disconnected" = "Disconnected";
-
 
 // MARK: - Tab Bar
 
@@ -90,7 +83,6 @@
 
 /* Tab bar title for the app settings screen */
 "tabs.settings" = "Settings";
-
 
 // MARK: - Connection Alerts
 
@@ -115,15 +107,12 @@
 /* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
 "accessibility.alert.connectionFailed.removeAndRetry" = "Remove device pairing and try again";
 
-
 // MARK: - Accessibility
 
 /* Location: SyncingPillView.swift - Accessibility hint for disconnected state */
 "common.accessibility.connectHint" = "Double tap to connect device";
 
 /* VoiceOver announcement when viewing cached data while disconnected from device */
-"accessibility.viewingCachedData" = "Viewing cached data. Connect to device for updates.";
-
 /* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
 "accessibility.requiresRadioConnection" = "Requires radio connection";
 
@@ -133,36 +122,20 @@
 /* Accessibility value for toggle in Off state */
 "accessibility.off" = "Off";
 
-
 // MARK: - Node Types
 
 /* Node type for a person or contact */
-"nodeType.contact" = "Contact";
-
 /* Node type for a mesh network repeater device */
-"nodeType.repeater" = "Repeater";
-
 /* Node type for a group chat room */
-"nodeType.room" = "Room";
-
-
 // MARK: - Permission Levels
 
 /* Permission level with limited access */
-"permission.guest" = "Guest";
-
 /* Permission level with standard access */
-"permission.member" = "Member";
-
 /* Permission level with full administrative access */
-"permission.admin" = "Admin";
-
-
 // MARK: - Reaction Notifications
 
 /* Notification body when someone reacts to your message - %1$@ is the emoji, %2$@ is the message preview */
 "notifications.reaction.body" = "Reacted %1$@ to your message: \"%2$@\"";
-
 
 // MARK: - Discovery Notifications
 
@@ -174,7 +147,6 @@
 
 /* Notification title when a new room is discovered on the mesh network */
 "notifications.discovery.room" = "New Room Discovered";
-
 
 // MARK: - Notification Actions
 
@@ -189,7 +161,6 @@
 
 /* Notification action button to mark a message as read */
 "notifications.action.markAsRead" = "Mark as Read";
-
 
 // MARK: - Low Battery Notifications
 
@@ -208,7 +179,6 @@
 /* Fallback display name for a discovered contact with no advertised name */
 "notifications.discovery.unknownContact" = "Unknown Contact";
 
-
 // MARK: - Connection VoiceOver Announcements
 
 /* VoiceOver announcement when sync fails and device is disconnecting */
@@ -225,12 +195,10 @@
 "accessibility.signalStrength.medium" = "Medium signal";
 "accessibility.signalStrength.strong" = "Strong signal";
 
-
 // MARK: - Status Pill
 
 /* Status pill message when sync has failed */
 "statusPill.syncFailed" = "Sync Failed";
-
 
 // MARK: - Error Messages
 

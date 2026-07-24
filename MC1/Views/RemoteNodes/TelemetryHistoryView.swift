@@ -9,6 +9,8 @@ struct TelemetryHistoryView: View {
 
   @State private var snapshots: [NodeStatusSnapshotDTO] = []
   @State private var timeRange: HistoryTimeRange = .default
+  @State private var showsLocationMap = false
+  @State private var selectedReportID: UUID?
 
   private var filteredSnapshots: [NodeStatusSnapshotDTO] {
     guard let start = timeRange.startDate else { return snapshots }
@@ -16,10 +18,11 @@ struct TelemetryHistoryView: View {
   }
 
   var body: some View {
+    let filtered = filteredSnapshots
     List {
       HistoryTimeRangePicker(selection: $timeRange)
 
-      let groups = ChannelGroup.groups(from: filteredSnapshots)
+      let groups = ChannelGroup.groups(from: filtered)
       if groups.count > 1 {
         ForEach(groups) { channelGroup in
           Section {
@@ -39,12 +42,24 @@ struct TelemetryHistoryView: View {
           .themedRowBackground(theme)
         }
       }
+
+      LocationHistorySection(
+        snapshots: filtered,
+        showsFullPath: false,
+        showsMap: $showsLocationMap,
+        pendingMapSelection: $selectedReportID
+      )
     }
     .listSectionSpacing(.compact)
     .themedCanvas(theme)
     .chartScrubbingScrollLock()
     .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.telemetry)
     .liquidGlassToolbarBackground()
+    .locationMapDestination(
+      isPresented: $showsLocationMap,
+      snapshots: filtered,
+      initialSelection: selectedReportID
+    )
     .task {
       snapshots = await fetchSnapshots()
     }

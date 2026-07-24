@@ -178,6 +178,43 @@ public actor ChannelService {
     secret.allSatisfy { $0 == 0 }
   }
 
+  // MARK: - Export Channel URI
+
+  private static let channelURIScheme = "meshcore"
+  private static let channelURIHost = "channel"
+  private static let channelURIPath = "/add"
+  private static let channelURINameKey = "name"
+  private static let channelURISecretKey = "secret"
+  private static let channelURIRegionScopeKey = "region_scope"
+
+  /// Builds a shareable `meshcore://channel/add` URI via `URLComponents`.
+  /// Always includes `name` and `secret`. Adds `region_scope` only for `.region(name)`.
+  /// - Parameters:
+  ///   - name: Channel name (including leading `#` for hashtag channels).
+  ///   - secret: 16-byte channel PSK.
+  ///   - floodScope: App-side flood preference; only `.region` is encoded.
+  /// - Returns: URI string, or empty string if components fail to encode.
+  public static func exportChannelURI(
+    name: String,
+    secret: Data,
+    floodScope: ChannelFloodScope = .inherit
+  ) -> String {
+    var components = URLComponents()
+    components.scheme = channelURIScheme
+    components.host = channelURIHost
+    components.path = channelURIPath
+
+    var queryItems = [
+      URLQueryItem(name: channelURINameKey, value: name),
+      URLQueryItem(name: channelURISecretKey, value: secret.uppercaseHexString())
+    ]
+    if case let .region(regionName) = floodScope, !regionName.isEmpty {
+      queryItems.append(URLQueryItem(name: channelURIRegionScopeKey, value: regionName))
+    }
+    components.queryItems = queryItems
+    return components.url?.absoluteString ?? ""
+  }
+
   // MARK: - Channel CRUD Operations
 
   /// Fetches all channels for a device from the remote device.

@@ -13,17 +13,20 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Weiter";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Kurzbefehle";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "Frage den Status deines Funkgeräts ab, sende Nachrichten und Ankündigungen.";
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Vollständige Versionshinweise";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "DM-Unterhaltung leeren";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "Lösche den Nachrichtenverlauf jeder Direktnachricht.";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Verbesserte Chats";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Beim Öffnen eines Chats landest du bei neuen Nachrichten statt am Ende. Zeiten werden auf jeder Nachrichtenblase angezeigt, und Verlauf sowie Link-Vorschauen laden schneller.";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "Nach Sprüngen sortieren";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "Der Tab „Knoten“ ordnet eingehende Sprünge jetzt anhand der Ankündigungen im RX-Protokoll zu.";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Kontaktfotos";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Lege ein Avatar-Bild für jeden Kontakt fest, damit Personen in Listen und Unterhaltungen leichter zu erkennen sind.";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Kartenfilter";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtere Pins nach Favoriten, entdeckten Knoten und Knotentyp.";

@@ -13,17 +13,20 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Dalej";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Skróty";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "Sprawdzaj stan radia, wysyłaj wiadomości i nadawaj ogłoszenia.";
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Pełne informacje o wydaniu";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "Wyczyść rozmowę DM";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "Usuń historię dowolnej wiadomości bezpośredniej.";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Ulepszone czaty";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Otwarcie czatu przenosi Cię do nowych wiadomości zamiast na sam dół. Godzina jest widoczna na każdym dymku, a historia i podglądy linków ładują się szybciej.";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "Sortuj według przeskoków";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "Karta Węzły koreluje teraz przeskoki przychodzące z ogłoszeniami w Dzienniku RX.";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Zdjęcia kontaktów";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Ustaw awatar dla dowolnego kontaktu, aby łatwiej rozpoznawać osoby na listach i w rozmowach.";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Filtry mapy";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtruj pinezki według ulubionych, odkrytych węzłów i typu węzła.";

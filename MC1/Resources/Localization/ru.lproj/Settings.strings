@@ -6,7 +6,6 @@
   AI-translated - please verify with native speakers.
 */
 
-
 // MARK: - Main Settings View
 
 /* Navigation title for the main settings screen */
@@ -22,8 +21,6 @@
 "appSettings.header" = "Настройки приложения";
 
 /* Footer text for the advanced settings row */
-"advancedSettings.footer" = "Настройка радио, телеметрия, настройки контактов и управление устройством";
-
 /* Label for the advanced settings navigation row */
 "advancedSettings.title" = "Расширенные настройки";
 
@@ -32,7 +29,6 @@
 
 /* Build number display with build number */
 "build" = "Сборка %@";
-
 
 // MARK: - Demo Mode Section
 
@@ -44,7 +40,6 @@
 
 /* Footer explaining what demo mode does */
 "demoMode.footer" = "Демо-режим позволяет тестировать без оборудования, используя тестовые данные.";
-
 
 // MARK: - Device Section
 
@@ -59,7 +54,6 @@
 
 /* Button to connect a device */
 "device.connect" = "Подключить устройство";
-
 
 // MARK: - Device Info View
 
@@ -118,8 +112,6 @@
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
 /* Section header for identity information */
-"deviceInfo.identity.header" = "Идентификация";
-
 /* Label for public key */
 "deviceInfo.publicKey" = "Публичный ключ";
 
@@ -134,7 +126,6 @@
 
 /* Fallback manufacturer name */
 "deviceInfo.defaultManufacturer" = "Устройство MeshCore";
-
 
 // MARK: - Public Key View
 
@@ -153,12 +144,10 @@
 /* Button to copy key to clipboard */
 "publicKey.copy" = "Копировать в буфер обмена";
 
-
 // MARK: - Private Key View
 
 /* Section header describing the key type */
 "privateKey.header" = "64-байтный закрытый ключ Ed25519";
-
 
 // MARK: - Device Selection Sheet
 
@@ -166,14 +155,10 @@
 "deviceSelection.title" = "Подключить устройство";
 
 /* Button to connect to selected device */
-"deviceSelection.connect" = "Подключить";
-
 /* Section header for previously paired devices */
 "deviceSelection.previouslyPaired" = "Ранее сопряжённые";
 
 /* Footer text prompting user to select a device */
-"deviceSelection.selectToReconnect" = "Выберите устройство для повторного подключения";
-
 /* Button to connect via WiFi */
 "deviceSelection.connectViaWifi" = "Подключиться через WiFi";
 
@@ -210,15 +195,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
-
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
 "locationPicker.title" = "Установить местоположение";
 
 /* Marker title for node location on map */
-"locationPicker.markerTitle" = "Местоположение узла";
-
 /* Button to clear the selected location */
 "locationPicker.clearLocation" = "Очистить местоположение";
 
@@ -230,7 +212,6 @@
 
 /* Label for longitude display */
 "locationPicker.longitude" = "Долгота:";
-
 
 // MARK: - Trusted Contacts Picker
 
@@ -258,7 +239,6 @@
 /* Apply button label */
 "trustedContacts.apply" = "Применить";
 
-
 // MARK: - About Section
 
 /* Section header for about links */
@@ -276,7 +256,6 @@
 /* Link to the privacy policy */
 /* AI-translated - please verify with native speakers. */
 "about.privacyPolicy" = "Политика конфиденциальности";
-
 
 // MARK: - Advanced Radio Section
 
@@ -337,7 +316,6 @@
 /* Footer explaining repeat mode in advanced radio */
 "advancedRadio.repeatMode.footer" = "Создаёт локальный ретранслятор на выделенной частоте. Полезно для походов и удалённых районов. Допустимые частоты: 433, 869.495, 918 МГц.";
 
-
 /* Accessibility label for voltage text field - %d is the percentage level */
 "batteryCurve.accessibility.voltageLabel" = "Напряжение при %d процентах";
 
@@ -367,7 +345,6 @@
 /* Footer explaining path hash mode tradeoff */
 "pathHashMode.footer" = "Более крупные хеши уменьшают коллизии маршрутизации, но ограничивают максимальное количество переходов на маршруте. Ретрансляторы с прошивкой старше 1.14.0 не будут повторять сообщения с размером хеша больше 1 байта.";
 
-
 // MARK: - Default Flood Scope Section
 
 /* Section header for default flood scope picker */
@@ -378,7 +355,6 @@
 
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "Нет";
-
 
 // MARK: - Battery Curve Section
 
@@ -405,7 +381,6 @@
 
 /* Unit label for millivolts */
 "batteryCurve.mV" = "мВ";
-
 
 // MARK: - Bluetooth Section
 
@@ -463,19 +438,11 @@
 /* Error for invalid PIN format */
 "bluetooth.error.invalidPin" = "PIN должен быть 6-значным числом от 100000 до 999999";
 
-
 // MARK: - Contacts Settings Section
 
 /* Section header for nodes/contacts settings */
-"contacts.header" = "Узлы";
-
 /* Toggle label for auto-add nodes */
-"contacts.autoAdd" = "Автодобавление узлов";
-
 /* Description for auto-add nodes toggle */
-"contacts.autoAddDescription" = "Автоматически добавлять узлы из полученных объявлений";
-
-
 // MARK: - Nodes Settings Section
 
 /* Section header for nodes settings */
@@ -503,8 +470,6 @@
 "nodes.autoAddMode.allDescription" = "Автоматически добавлять каждый обнаруженный узел";
 
 /* Section header for auto-add types */
-"nodes.autoAddTypes.header" = "Типы автодобавления";
-
 /* Toggle label for auto-add contacts */
 "nodes.autoAddContacts" = "Контакты";
 
@@ -515,8 +480,6 @@
 "nodes.autoAddRoomServers" = "Серверы комнат";
 
 /* Section header for storage settings */
-"nodes.storage.header" = "Хранилище";
-
 /* Toggle label for overwrite oldest */
 "nodes.overwriteOldest" = "Перезаписать старейший";
 
@@ -540,7 +503,6 @@
 
 /* Footer text when hop limit is active */
 "nodes.maxHops.footerActive" = "Узлы за пределами выбранного расстояния хопов не будут добавлены автоматически.";
-
 
 // MARK: - Auto-Remove Old Nodes Section
 
@@ -571,7 +533,6 @@
 /* Last cleanup date row (%@ = relative date) */
 "nodes.staleCleanup.lastRun" = "Последняя проверка %@";
 
-
 // MARK: - Device Actions Section
 
 /* Section header for device actions */
@@ -591,7 +552,6 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "Устройство перезагрузится и временно отключится.";
-
 
 // MARK: - Danger Zone Section
 
@@ -661,7 +621,6 @@
 /* Message when no non-favorite nodes to remove */
 "dangerZone.alert.removeUnfavorited.noneFound" = "Нет неизбранных узлов для удаления.";
 
-
 // MARK: - Diagnostics Section
 
 /* Section header for diagnostics */
@@ -688,12 +647,10 @@
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Не удалось создать файл экспорта";
 
-
 // MARK: - Chat Settings
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Чаты";
-
 
 // MARK: - Link Preview Settings Section
 
@@ -715,7 +672,6 @@
 /* Footer note shown when Reduce Motion is enabled */
 "linkPreviews.reduceMotionNote" = "Уменьшение движения включено, поэтому GIF не будут воспроизводиться автоматически.";
 
-
 // MARK: - Node Settings Section
 
 /* Section header for node settings */
@@ -725,11 +681,7 @@
 "node.name" = "Имя узла";
 
 /* Default node name when unknown */
-"node.unknown" = "Неизвестно";
-
 /* Button text to copy */
-"node.copy" = "Копировать";
-
 /* Label for set location button */
 "node.setLocation" = "Установить местоположение";
 
@@ -747,7 +699,6 @@
 
 /* Alert title for editing node name */
 "node.alert.editName.title" = "Изменить имя узла";
-
 
 // MARK: - Notification Settings Section
 
@@ -791,12 +742,7 @@
 "notifications.openSettings" = "Открыть настройки";
 
 /* Message shown when device not connected */
-"notifications.connectDevice" = "Подключите устройство для настройки уведомлений";
-
 /* Footer for notifications navigation row */
-"notifications.footer" = "Оповещения о сообщениях, обнаружении контактов и низком заряде батареи.";
-
-
 // MARK: - Radio Preset Section
 
 /* Section header for radio settings */
@@ -831,7 +777,6 @@
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
 "radio.mismatchHint" = "Ваше радио настроено на %@, а не на рекомендуемую предустановку для %@.";
-
 
 // MARK: - Telemetry Settings Section
 
@@ -868,7 +813,6 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "Когда включено, другие узлы могут запрашивать данные телеметрии вашего устройства.";
 
-
 // MARK: - WiFi Section
 
 /* Section header for WiFi settings */
@@ -886,7 +830,6 @@
 /* Footer explaining WiFi address */
 "wifi.footer" = "Адрес вашего устройства в локальной сети";
 
-
 // MARK: - WiFi Edit Sheet
 
 /* Navigation title for WiFi edit sheet */
@@ -896,17 +839,9 @@
 "wifiEdit.connectionDetails" = "Данные подключения";
 
 /* Placeholder for IP address field */
-"wifiEdit.ipPlaceholder" = "IP-адрес";
-
 /* Placeholder for port field */
-"wifiEdit.portPlaceholder" = "Порт";
-
 /* Accessibility label for clear IP button */
-"wifiEdit.clearIp" = "Очистить IP-адрес";
-
 /* Accessibility label for clear port button */
-"wifiEdit.clearPort" = "Очистить порт";
-
 /* Footer explaining reconnection */
 "wifiEdit.footer" = "Изменение этих значений отключит и подключит заново к новому адресу.";
 
@@ -919,12 +854,10 @@
 /* Error for invalid port */
 "wifiEdit.error.invalidPort" = "Неверный номер порта";
 
-
 // MARK: - Error Alert
 
 /* Alert title for generic errors */
 "alert.error.title" = "Ошибка";
-
 
 // MARK: - Retry Alert
 
@@ -943,7 +876,6 @@
 /* Fallback message for retry alerts when error description is unavailable */
 "alert.retry.fallbackMessage" = "Убедитесь, что устройство подключено, и попробуйте снова.";
 
-
 // MARK: - Battery Curve Chart
 
 /* Chart X axis label */
@@ -955,15 +887,12 @@
 /* Accessibility label for battery curve chart */
 "chart.accessibility" = "Кривая разряда батареи, показывающая напряжение на каждом уровне заряда";
 
-
 // MARK: - Messages Settings Section
 
 /* Section header for message info settings in chats */
 "messages.header" = "Инфо сообщения";
 
 /* Toggle label for showing the raw uncorrected wire send time on incoming messages */
-"messages.showIncomingSendTime" = "Входящее время отправки";
-
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Входящий путь";
 
@@ -976,7 +905,6 @@
 /* Footer explaining what the message display options show */
 "messages.footer" = "Показывать информацию о маршрутизации и времени во входящих сообщениях.";
 
-
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
@@ -987,7 +915,6 @@
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Количество подтверждений, отправляемых на каждое прямое сообщение. Используйте 2 для лучшего подтверждения доставки по ненадёжным каналам.";
-
 
 // MARK: - BLE Status Indicator
 
@@ -1035,7 +962,6 @@
 
 /* Label shown in BLE status menu when repeat mode is active */
 "bleStatus.repeatModeActive" = "Режим ретранслятора активен";
-
 
 // MARK: - Location Settings Section
 
@@ -1093,8 +1019,6 @@
 "configExport.exportSelected" = "Экспортировать выбранные разделы";
 
 /* Customize export disclosure label */
-"configExport.customize" = "Настроить экспорт";
-
 /* Select all toggle label */
 "configExport.selectAll" = "Выбрать всё";
 
@@ -1111,7 +1035,6 @@
 "configExport.channels.description" = "Все каналы и их ключи шифрования";
 "configExport.contacts" = "Контакты";
 "configExport.contacts.description" = "Имена, ключи и последние известные позиции";
-
 
 // MARK: - Config Import
 
@@ -1300,23 +1223,15 @@
 "blocking.channelSenders.empty.description" = "Заблокированные имена отправителей каналов будут отображаться здесь.";
 
 /* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
-"blocking.channelSenders.unblock" = "Разблокировать";
-
-
 // MARK: - Language
 
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Язык";
 
-
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */
-"region.title" = "Регион";
-
 /* Location: SettingsView.swift - Detail row when region is unset */
-"region.notSet" = "Не задан";
-
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "Калифорния";
 
@@ -1358,8 +1273,6 @@
 "regenerateIdentity.generate" = "Сгенерировать ключ";
 
 /* Button to generate another key after the first */
-"regenerateIdentity.generateAnother" = "Сгенерировать другой";
-
 /* Progress label while generating */
 "regenerateIdentity.generating" = "Генерация…";
 
@@ -1379,8 +1292,6 @@
 "regenerateIdentity.prefix.footer" = "Опционально укажите до 4 шестнадцатеричных символов, с которых должен начинаться ваш открытый ключ. Более длинные префиксы занимают больше времени.";
 
 /* Error when prefix is not 1–4 hex characters */
-"regenerateIdentity.prefix.error.invalidLength" = "Префикс должен содержать от 1 до 4 шестнадцатеричных символов";
-
 /* Error when prefix is 00 or FF */
 "regenerateIdentity.prefix.error.reserved" = "00 и FF зарезервированы и не могут использоваться";
 
@@ -1432,6 +1343,23 @@
 "replyWithQuote.toggle" = "Ответ с цитатой";
 "replyWithQuote.footer" = "Ответ включает предпросмотр исходного сообщения.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Карты";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Отображение";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Внешний вид карты";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Управляет только базовой картой. Цвета приложения по-прежнему следуют настройке «Внешний вид».";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Офлайн-карты";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */
@@ -1474,14 +1402,8 @@
 "offlineMaps.cancel" = "Отмена";
 
 /* Delete confirmation title */
-"offlineMaps.deleteTitle" = "Удалить офлайн-карту?";
-
 /* Delete confirmation message */
-"offlineMaps.deleteMessage" = "Скачанные данные карты будут удалены.";
-
 /* Delete button */
-"offlineMaps.delete" = "Удалить";
-
 /* Error: insufficient disk space */
 "offlineMaps.error.insufficientDiskSpace" = "Недостаточно места. Требуется не менее 100 МБ.";
 
@@ -1517,8 +1439,6 @@
 "offlineMaps.layers" = "Слои";
 
 /* Include layers prompt */
-"offlineMaps.includeLayers" = "Включить дополнительные слои для использования офлайн.";
-
 /* No network available */
 "offlineMaps.noNetwork" = "Для загрузки карт требуется подключение к интернету.";
 
@@ -1653,6 +1573,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Для этих каналов не было свободного слота на этой рации, поэтому они и их сообщения не были импортированы. Освободите слот канала и выполните импорт снова, чтобы восстановить их.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Эти обнаруженные узлы не удалось восстановить, потому что список обнаружения этой рации заполнен (%d узлов). Существующие локальные узлы сохранены; сеть mesh повторно объявит отсутствующие.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Некоторые элементы не удалось восстановить: каналы без свободного слота на рации и обнаруженные узлы, превысившие ёмкость списка обнаружения (%d узлов). Освободите слот канала и повторно импортируйте каналы; сеть mesh повторно объявит отсутствующие обнаруженные узлы.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Готово";
 
@@ -1669,13 +1595,14 @@
 "settings.backup.import.cancelled.message" = "Данные не были изменены.";
 
 /* File access error */
-"settings.backup.import.file_access_error" = "Не удалось получить доступ к выбранному файлу.";
-
 /* Import preview manifest label: blocked senders */
 "settings.backup.import.preview.blocked_senders" = "Заблокированные отправители";
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Снимки состояния узлов";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Обнаруженные узлы";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Повторы сообщений";
@@ -1749,6 +1676,15 @@
 "Support.Pending.Banner" = "Ожидает одобрения — покупка активируется после одобрения.";
 "Support.Pending.Button" = "Ожидает одобрения";
 "Support.Contact.Link" = "Связаться с поддержкой";
+"Support.ThankYou.Title" = "Спасибо!";
+"Support.ThankYou.Body" = "Спасибо за вашу поддержку — это очень много значит. Я продолжу работать над тем, чтобы MC1 становился лучше!";
+
+/* MARK: Feedback screen */
+/* AI-translated - please verify with native speakers. */
+"Feedback.Title" = "Обратная связь";
+"Feedback.Header.Body" = "Предпочтительный способ — GitHub Issues, но можно и по электронной почте.";
+"Feedback.GitHub.Link" = "Открыть issue на GitHub";
+"Feedback.Email.Link" = "Написать разработчику";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Стандартная";

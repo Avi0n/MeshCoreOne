@@ -33,6 +33,12 @@
 /* Location: MapView.swift - Purpose: Accessibility label for refresh button */
 "map.controls.refresh" = "刷新联系人";
 
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "筛选";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "已启用筛选";
+
 // MARK: - Map Style Selection
 
 /* Location: MapStyleSelection.swift - Purpose: Standard map style option */
@@ -109,8 +115,6 @@
 "map.detail.action.telemetry" = "遥测数据";
 
 /* Location: MapView.swift - Purpose: Saved History button for offline telemetry */
-"map.detail.action.savedHistory" = "已保存历史";
-
 /* Location: MapView.swift ContactDetailSheet - Purpose: Sheet title for telemetry authentication */
 "map.detail.action.telemetryAccessTitle" = "遥测数据访问权限";
 
@@ -151,17 +155,27 @@
 /* Location: ContactCalloutContent.swift - Purpose: Display name for room in callout */
 "map.callout.nodeKind.room" = "房间";
 
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Add discovered node from callout */
+"map.callout.add" = "添加";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Label that the pin is discovered, not on the node list */
+"map.callout.discovered" = "已发现";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
+"map.discoveredDetail.title" = "发现的节点";
+
+/* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
+"map.discoveredDetail.add" = "添加到节点";
+
+/* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
+"map.pin.accessibility.discovered" = "已发现，不在节点列表中";
+
 // MARK: - Contact Annotation
 
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for favorite contacts */
-"map.annotation.favorite" = "收藏";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for repeater nodes */
-"map.annotation.repeater" = "转发节点";
-
 /* Location: ContactAnnotation.swift - Purpose: Subtitle for room nodes */
-"map.annotation.room" = "房间";
-
 // MARK: - Offline Badge
 
 /* Label shown on map when device has no internet connection */

@@ -6,7 +6,6 @@
   AI-translated - please verify with native speakers.
 */
 
-
 // MARK: - Main Settings View
 
 /* Navigation title for the main settings screen */
@@ -22,8 +21,6 @@
 "appSettings.header" = "App-instellingen";
 
 /* Footer text for the advanced settings row */
-"advancedSettings.footer" = "Radio-afstemming, telemetrie, contactinstellingen en apparaatbeheer";
-
 /* Label for the advanced settings navigation row */
 "advancedSettings.title" = "Geavanceerde instellingen";
 
@@ -32,7 +29,6 @@
 
 /* Build number display with build number */
 "build" = "Build %@";
-
 
 // MARK: - Demo Mode Section
 
@@ -44,7 +40,6 @@
 
 /* Footer explaining what demo mode does */
 "demoMode.footer" = "Demomodus maakt testen mogelijk zonder hardware met behulp van testgegevens.";
-
 
 // MARK: - Device Section
 
@@ -59,7 +54,6 @@
 
 /* Button to connect a device */
 "device.connect" = "Apparaat verbinden";
-
 
 // MARK: - Device Info View
 
@@ -118,8 +112,6 @@
 "deviceInfo.firmwareVersionFormat" = "v%@";
 
 /* Section header for identity information */
-"deviceInfo.identity.header" = "Identiteit";
-
 /* Label for public key */
 "deviceInfo.publicKey" = "Publieke sleutel";
 
@@ -134,7 +126,6 @@
 
 /* Fallback manufacturer name */
 "deviceInfo.defaultManufacturer" = "MeshCore-apparaat";
-
 
 // MARK: - Public Key View
 
@@ -153,12 +144,10 @@
 /* Button to copy key to clipboard */
 "publicKey.copy" = "Kopieer naar klembord";
 
-
 // MARK: - Private Key View
 
 /* Section header describing the key type */
 "privateKey.header" = "64-byte Ed25519 privésleutel";
-
 
 // MARK: - Device Selection Sheet
 
@@ -166,14 +155,10 @@
 "deviceSelection.title" = "Apparaat verbinden";
 
 /* Button to connect to selected device */
-"deviceSelection.connect" = "Verbinden";
-
 /* Section header for previously paired devices */
 "deviceSelection.previouslyPaired" = "Eerder gekoppeld";
 
 /* Footer text prompting user to select a device */
-"deviceSelection.selectToReconnect" = "Selecteer een apparaat om opnieuw te verbinden";
-
 /* Button to connect via WiFi */
 "deviceSelection.connectViaWifi" = "Verbinden via wifi";
 
@@ -210,15 +195,12 @@
 /* Fallback connection type description */
 "deviceSelection.bluetooth" = "Bluetooth";
 
-
 // MARK: - Location Picker View
 
 /* Navigation title for location picker */
 "locationPicker.title" = "Locatie instellen";
 
 /* Marker title for node location on map */
-"locationPicker.markerTitle" = "Knooppuntlocatie";
-
 /* Button to clear the selected location */
 "locationPicker.clearLocation" = "Locatie wissen";
 
@@ -230,7 +212,6 @@
 
 /* Label for longitude display */
 "locationPicker.longitude" = "Lengtegraad:";
-
 
 // MARK: - Trusted Contacts Picker
 
@@ -258,7 +239,6 @@
 /* Apply button label */
 "trustedContacts.apply" = "Toepassen";
 
-
 // MARK: - About Section
 
 /* Section header for about links */
@@ -276,7 +256,6 @@
 /* Link to the privacy policy */
 /* AI-translated - please verify with native speakers. */
 "about.privacyPolicy" = "Privacybeleid";
-
 
 // MARK: - Advanced Radio Section
 
@@ -337,7 +316,6 @@
 /* Footer explaining repeat mode in advanced radio */
 "advancedRadio.repeatMode.footer" = "Creëert een lokale repeater op een eigen frequentie. Handig voor wandelen en afgelegen gebieden. Geldige frequenties: 433, 869.495, 918 MHz.";
 
-
 /* Accessibility label for voltage text field at specific battery percent - %d is percent */
 "batteryCurve.accessibility.voltageLabel" = "Spanning bij %d procent";
 
@@ -367,7 +345,6 @@
 /* Footer explaining path hash mode tradeoff */
 "pathHashMode.footer" = "Grotere hashes verminderen routeringscollisies, maar beperken het maximale aantal hops per pad. Repeaters met firmware ouder dan 1.14.0 herhalen geen berichten met een hashgrootte groter dan 1 byte.";
 
-
 // MARK: - Default Flood Scope Section
 
 /* Section header for default flood scope picker */
@@ -378,7 +355,6 @@
 
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "Geen";
-
 
 // MARK: - Battery Curve Section
 
@@ -405,7 +381,6 @@
 
 /* Unit label for millivolts */
 "batteryCurve.mV" = "mV";
-
 
 // MARK: - Bluetooth Section
 
@@ -463,19 +438,11 @@
 /* Error for invalid PIN format */
 "bluetooth.error.invalidPin" = "PIN moet een 6-cijferig getal zijn tussen 100000 en 999999";
 
-
 // MARK: - Contacts Settings Section
 
 /* Section header for nodes/contacts settings */
-"contacts.header" = "Knooppunten";
-
 /* Toggle label for auto-add nodes */
-"contacts.autoAdd" = "Knooppunten automatisch toevoegen";
-
 /* Description for auto-add nodes toggle */
-"contacts.autoAddDescription" = "Voeg automatisch knooppunten toe van ontvangen advertenties";
-
-
 // MARK: - Nodes Settings Section
 
 /* Section header for nodes settings */
@@ -503,8 +470,6 @@
 "nodes.autoAddMode.allDescription" = "Elk ontdekt knooppunt automatisch toevoegen";
 
 /* Section header for auto-add types */
-"nodes.autoAddTypes.header" = "Automatisch toevoegen";
-
 /* Toggle label for auto-add contacts */
 "nodes.autoAddContacts" = "Contacten";
 
@@ -515,8 +480,6 @@
 "nodes.autoAddRoomServers" = "Ruimteservers";
 
 /* Section header for storage settings */
-"nodes.storage.header" = "Opslag";
-
 /* Toggle label for overwrite oldest */
 "nodes.overwriteOldest" = "Oudste overschrijven";
 
@@ -540,7 +503,6 @@
 
 /* Footer text when hop limit is active */
 "nodes.maxHops.footerActive" = "Knooppunten voorbij de geselecteerde hopafstand worden niet automatisch toegevoegd.";
-
 
 // MARK: - Auto-Remove Old Nodes Section
 
@@ -571,7 +533,6 @@
 /* Last cleanup date row (%@ = relative date) */
 "nodes.staleCleanup.lastRun" = "Laatst gecontroleerd %@";
 
-
 // MARK: - Device Actions Section
 
 /* Section header for device actions */
@@ -591,7 +552,6 @@
 
 /* Alert message for reboot confirmation */
 "deviceActions.alert.reboot.message" = "Het apparaat wordt herstart en tijdelijk losgekoppeld.";
-
 
 // MARK: - Danger Zone Section
 
@@ -661,7 +621,6 @@
 /* Message when no non-favorite nodes to remove */
 "dangerZone.alert.removeUnfavorited.noneFound" = "Geen niet-favoriete knooppunten om te verwijderen.";
 
-
 // MARK: - Diagnostics Section
 
 /* Section header for diagnostics */
@@ -688,12 +647,10 @@
 /* Error when export fails */
 "diagnostics.error.exportFailed" = "Kan exportbestand niet maken";
 
-
 // MARK: - Chat Settings
 
 /* Navigation title for chat settings page */
 "chatSettings.title" = "Chats";
-
 
 // MARK: - Link Preview Settings Section
 
@@ -715,7 +672,6 @@
 /* Footer note shown when Reduce Motion is enabled */
 "linkPreviews.reduceMotionNote" = "Verminder beweging staat aan, dus GIF's worden niet automatisch afgespeeld.";
 
-
 // MARK: - Node Settings Section
 
 /* Section header for node settings */
@@ -725,11 +681,7 @@
 "node.name" = "Knooppuntnaam";
 
 /* Default node name when unknown */
-"node.unknown" = "Onbekend";
-
 /* Button text to copy */
-"node.copy" = "Kopiëren";
-
 /* Label for set location button */
 "node.setLocation" = "Locatie instellen";
 
@@ -747,7 +699,6 @@
 
 /* Alert title for editing node name */
 "node.alert.editName.title" = "Knooppuntnaam bewerken";
-
 
 // MARK: - Notification Settings Section
 
@@ -791,12 +742,7 @@
 "notifications.openSettings" = "Open Instellingen";
 
 /* Message shown when device not connected */
-"notifications.connectDevice" = "Verbind een apparaat om meldingen te configureren";
-
 /* Footer for notifications navigation row */
-"notifications.footer" = "Berichtmeldingen, contactontdekkingen en waarschuwingen voor lage batterij.";
-
-
 // MARK: - Radio Preset Section
 
 /* Section header for radio settings */
@@ -831,7 +777,6 @@
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
 "radio.mismatchHint" = "Je radio gebruikt %@, niet de aanbevolen preset voor %@.";
-
 
 // MARK: - Telemetry Settings Section
 
@@ -868,7 +813,6 @@
 /* Footer explaining telemetry */
 "telemetry.footer" = "Wanneer ingeschakeld kunnen andere knooppunten de telemetriegegevens van je apparaat opvragen.";
 
-
 // MARK: - WiFi Section
 
 /* Section header for WiFi settings */
@@ -886,7 +830,6 @@
 /* Footer explaining WiFi address */
 "wifi.footer" = "Het lokale netwerkadres van je apparaat";
 
-
 // MARK: - WiFi Edit Sheet
 
 /* Navigation title for WiFi edit sheet */
@@ -896,17 +839,9 @@
 "wifiEdit.connectionDetails" = "Verbindingsgegevens";
 
 /* Placeholder for IP address field */
-"wifiEdit.ipPlaceholder" = "IP-adres";
-
 /* Placeholder for port field */
-"wifiEdit.portPlaceholder" = "Poort";
-
 /* Accessibility label for clear IP button */
-"wifiEdit.clearIp" = "IP-adres wissen";
-
 /* Accessibility label for clear port button */
-"wifiEdit.clearPort" = "Poort wissen";
-
 /* Footer explaining reconnection */
 "wifiEdit.footer" = "Het wijzigen van deze waarden verbreekt de verbinding en maakt opnieuw verbinding met het nieuwe adres.";
 
@@ -919,12 +854,10 @@
 /* Error for invalid port */
 "wifiEdit.error.invalidPort" = "Ongeldig poortnummer";
 
-
 // MARK: - Error Alert
 
 /* Alert title for generic errors */
 "alert.error.title" = "Fout";
-
 
 // MARK: - Retry Alert
 
@@ -943,7 +876,6 @@
 /* Fallback message for retry alerts when error description is unavailable */
 "alert.retry.fallbackMessage" = "Zorg ervoor dat het apparaat is verbonden en probeer het opnieuw.";
 
-
 // MARK: - Battery Curve Chart
 
 /* Chart X axis label */
@@ -955,15 +887,12 @@
 /* Accessibility label for battery curve chart */
 "chart.accessibility" = "Batterijontlaadcurve met spanning bij elk percentageniveau";
 
-
 // MARK: - Messages Settings Section
 
 /* Section header for message info settings in chats */
 "messages.header" = "Berichtinfo";
 
 /* Toggle label for showing the raw uncorrected wire send time on incoming messages */
-"messages.showIncomingSendTime" = "Inkomende verzendtijd";
-
 /* Toggle label for showing routing path on incoming messages */
 "messages.showIncomingPath" = "Inkomend pad";
 
@@ -976,7 +905,6 @@
 /* Footer explaining what the message display options show */
 "messages.footer" = "Routerings- en tijdsinformatie weergeven in inkomende berichtballonnen.";
 
-
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
@@ -987,7 +915,6 @@
 
 /* Footer explaining the acknowledgments setting */
 "directMessages.footer" = "Aantal bevestigingen dat per direct bericht wordt verstuurd. Gebruik 2 voor betere afleverbevestiging via onbetrouwbare verbindingen.";
-
 
 // MARK: - BLE Status Indicator
 
@@ -1035,7 +962,6 @@
 
 /* Label shown in BLE status menu when repeat mode is active */
 "bleStatus.repeatModeActive" = "Repeatermodus actief";
-
 
 // MARK: - Location Settings Section
 
@@ -1093,8 +1019,6 @@
 "configExport.exportSelected" = "Geselecteerde secties exporteren";
 
 /* Customize export disclosure label */
-"configExport.customize" = "Export aanpassen";
-
 /* Select all toggle label */
 "configExport.selectAll" = "Alles selecteren";
 
@@ -1111,7 +1035,6 @@
 "configExport.channels.description" = "Alle kanalen en hun versleutelingssleutels";
 "configExport.contacts" = "Contacten";
 "configExport.contacts.description" = "Namen, sleutels en laatst bekende posities";
-
 
 // MARK: - Config Import
 
@@ -1300,23 +1223,15 @@
 "blocking.channelSenders.empty.description" = "Kanaalafzendernamen die je blokkeert verschijnen hier.";
 
 /* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
-"blocking.channelSenders.unblock" = "Deblokkeren";
-
-
 // MARK: - Language
 
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Taal";
 
-
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */
-"region.title" = "Regio";
-
 /* Location: SettingsView.swift - Detail row when region is unset */
-"region.notSet" = "Niet ingesteld";
-
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "Californië";
 
@@ -1358,8 +1273,6 @@
 "regenerateIdentity.generate" = "Sleutel genereren";
 
 /* Button to generate another key after the first */
-"regenerateIdentity.generateAnother" = "Nog een genereren";
-
 /* Progress label while generating */
 "regenerateIdentity.generating" = "Genereren…";
 
@@ -1379,8 +1292,6 @@
 "regenerateIdentity.prefix.footer" = "Geef optioneel maximaal 4 hexadecimale tekens op waarmee je publieke sleutel moet beginnen. Langere voorvoegsels duren langer.";
 
 /* Error when prefix is not 1–4 hex characters */
-"regenerateIdentity.prefix.error.invalidLength" = "Voorvoegsel moet 1–4 hexadecimale tekens zijn";
-
 /* Error when prefix is 00 or FF */
 "regenerateIdentity.prefix.error.reserved" = "00 en FF zijn gereserveerd en kunnen niet worden gebruikt";
 
@@ -1432,6 +1343,23 @@
 "replyWithQuote.toggle" = "Antwoorden met citaat";
 "replyWithQuote.footer" = "Bij een antwoord wordt een voorbeeld van het oorspronkelijke bericht toegevoegd.";
 
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "Kaarten";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "Weergave";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "Kaartweergave";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "Bepaalt alleen de basiskaart. App-kleuren volgen nog steeds Weergave.";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "Offline kaarten";
+
 // MARK: - Offline Maps
 
 /* Navigation title for offline maps settings */
@@ -1474,14 +1402,8 @@
 "offlineMaps.cancel" = "Annuleren";
 
 /* Delete confirmation title */
-"offlineMaps.deleteTitle" = "Offline kaart verwijderen?";
-
 /* Delete confirmation message */
-"offlineMaps.deleteMessage" = "De gedownloade kaartgegevens worden verwijderd.";
-
 /* Delete button */
-"offlineMaps.delete" = "Verwijderen";
-
 /* Error: insufficient disk space */
 "offlineMaps.error.insufficientDiskSpace" = "Niet genoeg opslagruimte. Er is minimaal 100 MB vereist.";
 
@@ -1517,8 +1439,6 @@
 "offlineMaps.layers" = "Kaartlagen";
 
 /* Include layers prompt */
-"offlineMaps.includeLayers" = "Extra kaartlagen opnemen voor offline gebruik.";
-
 /* No network available */
 "offlineMaps.noNetwork" = "Een internetverbinding is vereist om kaarten te downloaden.";
 
@@ -1653,6 +1573,12 @@
 /* Import success footer explaining why some channels couldn't be restored and how to recover them */
 "settings.backup.import.success.dropped_footer" = "Deze kanalen hadden geen vrije sleuf op deze radio, dus zij en hun berichten zijn niet geïmporteerd. Maak een kanaalsleuf vrij en importeer opnieuw om ze te herstellen.";
 
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Deze ontdekte nodes konden niet worden hersteld omdat de ontdeklijst van deze radio vol is (%d nodes). Bestaande lokale nodes zijn behouden; het mesh-netwerk zal ontbrekende opnieuw aankondigen.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "Sommige items konden niet worden hersteld: kanalen zonder vrije radiosleuf en ontdekte nodes die de capaciteit van de ontdeklijst overschreden (%d nodes). Maak een kanaalsleuf vrij en importeer kanalen opnieuw; het mesh-netwerk zal ontbrekende ontdekte nodes opnieuw aankondigen.";
+
 /* Import success done button */
 "settings.backup.import.success.done" = "Gereed";
 
@@ -1669,13 +1595,14 @@
 "settings.backup.import.cancelled.message" = "Er zijn geen gegevens gewijzigd.";
 
 /* File access error */
-"settings.backup.import.file_access_error" = "Kan het geselecteerde bestand niet openen.";
-
 /* Import preview manifest label: blocked senders */
 "settings.backup.import.preview.blocked_senders" = "Geblokkeerde afzenders";
 
 /* Import preview manifest label: node status snapshots */
 "settings.backup.import.preview.node_status_snapshots" = "Knooppunt-momentopnamen";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "Ontdekte nodes";
 
 /* Import preview manifest label: message repeats */
 "settings.backup.import.preview.message_repeats" = "Berichtherhalingen";
@@ -1749,6 +1676,15 @@
 "Support.Pending.Banner" = "Wacht op goedkeuring — je aankoop wordt geactiveerd zodra deze is goedgekeurd.";
 "Support.Pending.Button" = "Wacht op goedkeuring";
 "Support.Contact.Link" = "Contact opnemen met support";
+"Support.ThankYou.Title" = "Bedankt!";
+"Support.ThankYou.Body" = "Dank je voor je steun, het betekent veel. Ik blijf hard werken om MC1 beter te maken!";
+
+/* MARK: Feedback screen */
+/* AI-translated - please verify with native speakers. */
+"Feedback.Title" = "Feedback";
+"Feedback.Header.Body" = "GitHub Issues heeft de voorkeur, maar e-mail werkt ook.";
+"Feedback.GitHub.Link" = "Open een GitHub Issue";
+"Feedback.Email.Link" = "Stuur de ontwikkelaar een e-mail";
 
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Standaard";

@@ -123,6 +123,14 @@ final class NavigationCoordinator {
     selectedTab = AppTab.map.rawValue
   }
 
+  /// Switches to the Settings tab and opens the given detail page. Compact
+  /// `SettingsView` observes `selectedSetting` and pushes it onto its stack;
+  /// the iPad split reads the same value for its detail column.
+  func navigateToSetting(_ detail: SettingsDetail) {
+    selectedSetting = detail
+    selectedTab = AppTab.settings.rawValue
+  }
+
   func clearPendingNavigation() {
     pendingChatContact = nil
   }

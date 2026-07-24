@@ -518,7 +518,7 @@ struct MessageServiceACKTests {
       longitude: 0,
       lastModified: UInt32(Date().timeIntervalSince1970)
     )
-    let contactID = try await dataStore.saveContact(radioID: radioID, from: frame)
+    let contactID = try await dataStore.saveContact(radioID: radioID, from: frame).id
 
     let messageID = UUID()
     try await dataStore.saveMessage(

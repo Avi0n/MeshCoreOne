@@ -47,10 +47,9 @@ final class NodeTelemetryViewModel {
       operationName: "telemetry",
       setLoading: { self.helper.isLoadingTelemetry = $0 },
       setError: { self.helper.telemetrySectionError = $0 },
+      timeoutMessage: L10n.RemoteNodes.RemoteNodes.Status.telemetryTimedOut,
       operation: { [binaryProtocolService, publicKey] _ in
-        // BinaryProtocolService relies on the session's own timeout; it has no
-        // timeout parameter, and reports a timeout as a wrapped session error,
-        // so map that to the telemetry-specific "may be disabled" copy.
+        // Map session timeout so the section shows telemetry-specific copy.
         do {
           return try await binaryProtocolService.requestTelemetry(from: publicKey)
         } catch BinaryProtocolError.sessionError(MeshCoreError.timeout) {
@@ -59,11 +58,5 @@ final class NodeTelemetryViewModel {
       },
       onSuccess: { await self.helper.handleTelemetryResponse($0) }
     )
-
-    // The shared NodeStatusViewModel renders a generic timed-out string; telemetry has a more
-    // specific cause worth surfacing, so refine that one case.
-    if helper.telemetrySectionError == L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut {
-      helper.telemetrySectionError = L10n.RemoteNodes.RemoteNodes.Status.telemetryTimedOut
-    }
   }
 }

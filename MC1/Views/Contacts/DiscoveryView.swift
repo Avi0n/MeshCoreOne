@@ -13,21 +13,27 @@ struct DiscoveryView: View {
   @State private var addingNodeID: UUID?
   @State private var showClearConfirmation = false
 
-  private var filteredNodes: [DiscoveredNodeDTO] {
-    let effectiveSortOrder = (sortOrder == .distance && appState.bestAvailableLocation == nil)
-      ? .lastHeard
-      : sortOrder
-
-    return viewModel.filteredNodes(
-      searchText: searchText,
-      segment: selectedSegment,
-      sortOrder: effectiveSortOrder,
-      userLocation: appState.bestAvailableLocation
-    )
-  }
-
   private var isSearching: Bool {
     !searchText.isEmpty
+  }
+
+  /// Sort orders that recompute when the user location sample changes.
+  private var consumesLocation: Bool {
+    switch sortOrder {
+    case .distance, .hops: true
+    case .lastHeard, .name: false
+    }
+  }
+
+  /// Value-typed projection of `bestAvailableLocation` so `onChange` compares
+  /// coordinates, not `CLLocation` identity (radio-GPS fallback allocates fresh).
+  private var locationSample: LocationSample? {
+    guard let location = appState.bestAvailableLocation else { return nil }
+    return LocationSample(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+  }
+
+  private var effectiveSortOrder: NodeSortOrder {
+    (sortOrder == .distance && appState.bestAvailableLocation == nil) ? .lastHeard : sortOrder
   }
 
   /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
@@ -80,20 +86,31 @@ struct DiscoveryView: View {
       if oldValue.isEmpty, !newValue.isEmpty {
         AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.searchingAllTypes).post()
       }
+      refreshVisibleNodes()
+    }
+    .onChange(of: selectedSegment) { _, _ in
+      refreshVisibleNodes()
+    }
+    .onChange(of: sortOrder) { _, _ in
+      refreshVisibleNodes()
+    }
+    .onChange(of: locationSample) { _, _ in
+      guard consumesLocation else { return }
+      refreshVisibleNodes()
     }
     .task {
-      viewModel.configure(dataStore: { [appState] in appState.offlineDataStore })
-      await loadDiscoveredNodes()
+      configureViewModel()
+      await viewModel.loadDiscoveredNodes()
+      // Seed filter inputs with the view's restored @AppStorage sort synchronously
+      // after load so the first painted frame uses the correct order.
+      refreshVisibleNodes()
     }
     .onChange(of: appState.servicesVersion) { _, _ in
-      Task {
-        await loadDiscoveredNodes()
-      }
+      configureViewModel()
+      viewModel.scheduleCoalescedReload()
     }
     .onChange(of: appState.contactsVersion) { _, _ in
-      Task {
-        await loadDiscoveredNodes()
-      }
+      viewModel.scheduleCoalescedReload()
     }
     .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
     .confirmationDialog(
@@ -127,7 +144,7 @@ struct DiscoveryView: View {
     ScrollView {
       LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
         Section {
-          if filteredNodes.isEmpty {
+          if viewModel.visibleNodes.isEmpty {
             emptyState
           } else {
             rows
@@ -140,7 +157,8 @@ struct DiscoveryView: View {
   }
 
   private var rows: some View {
-    ForEach(Array(filteredNodes.enumerated()), id: \.element.id) { index, node in
+    let nodes = viewModel.visibleNodes
+    return ForEach(Array(nodes.enumerated()), id: \.element.id) { index, node in
       DiscoveryNodeRow(
         node: node,
         isAdded: viewModel.isAdded(node),
@@ -153,16 +171,26 @@ struct DiscoveryView: View {
         }
       )
       .transition(.opacity)
-      if index < filteredNodes.count - 1 {
+      if index < nodes.count - 1 {
         Divider().padding(.leading, Self.rowSeparatorLeadingInset)
       }
     }
   }
 
-  private func loadDiscoveredNodes() async {
-    guard let radioID = appState.connectedDevice?.radioID else { return }
-    viewModel.configure(dataStore: { [appState] in appState.offlineDataStore })
-    await viewModel.loadDiscoveredNodes(radioID: radioID)
+  private func configureViewModel() {
+    viewModel.configure(
+      dataStore: { [appState] in appState.offlineDataStore },
+      radioID: { [appState] in appState.connectedDevice?.radioID }
+    )
+  }
+
+  private func refreshVisibleNodes() {
+    viewModel.updateVisibleNodes(
+      searchText: searchText,
+      segment: selectedSegment,
+      sortOrder: effectiveSortOrder,
+      userLocation: appState.bestAvailableLocation
+    )
   }
 
   private func addNode(_ node: DiscoveredNodeDTO) {
@@ -171,20 +199,11 @@ struct DiscoveryView: View {
     addingNodeID = node.id
     Task {
       do {
-        let frame = ContactFrame(
-          publicKey: node.publicKey,
-          type: node.nodeType,
-          flags: 0,
-          outPathLength: node.outPathLength,
-          outPath: node.outPath,
-          name: node.name,
-          lastAdvertTimestamp: node.lastAdvertTimestamp,
-          latitude: node.latitude,
-          longitude: node.longitude,
-          lastModified: UInt32(Date().timeIntervalSince1970)
+        try await contactService.addOrUpdateContact(
+          radioID: node.radioID,
+          contact: node.makeContactFrame()
         )
-        try await contactService.addOrUpdateContact(radioID: node.radioID, contact: frame)
-        await viewModel.loadDiscoveredNodes(radioID: node.radioID)
+        await viewModel.loadDiscoveredNodes()
       } catch ContactServiceError.contactTableFull {
         let maxContacts = appState.connectedDevice?.maxContacts
         if let maxContacts {
@@ -200,11 +219,17 @@ struct DiscoveryView: View {
   }
 
   private func clearAllDiscoveredNodes() async {
-    guard let radioID = appState.connectedDevice?.radioID else { return }
-    await viewModel.clearAllDiscoveredNodes(radioID: radioID)
+    await viewModel.clearAllDiscoveredNodes()
 
     AccessibilityNotification.Announcement(L10n.Contacts.Contacts.Discovery.clearedAllNodes).post()
   }
+}
+
+/// Equatable projection of a location for `onChange` without `CLLocation` identity comparison.
+/// Raw doubles are fine: `LocationService` is one-shot `requestLocation()`, not continuous GPS.
+private struct LocationSample: Equatable {
+  let latitude: Double
+  let longitude: Double
 }
 
 // MARK: - Empty View
@@ -305,7 +330,7 @@ private struct DiscoveryNodeRow: View {
 
       Spacer()
 
-      RelativeTimestampText(timestamp: node.lastAdvertTimestamp)
+      RelativeTimestampText(date: node.lastHeard)
 
       if isAdded {
         Button(L10n.Contacts.Contacts.Discovery.added) {}

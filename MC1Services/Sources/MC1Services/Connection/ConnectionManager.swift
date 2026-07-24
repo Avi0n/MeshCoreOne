@@ -331,6 +331,20 @@ public final class ConnectionManager {
   static let defaultConnectAttempts = 4
   static let unverifiedConnectAttempts = 2
 
+  /// Consecutive entries into `handleReconnectionFailure` while intent still wants a
+  /// connection that are allowed to preserve a live link (not radio handshakes — on the
+  /// auto-reconnect path the coordinator's first failed rebuild retries once before
+  /// reaching this funnel, so one unit can already cover two handshakes). Uses `<=`
+  /// comparison: N preserve attempts then sever on the (N+1)th wanting entry.
+  /// Exhaustion severs the link and leaves recovery to the ContinuousClock watchdog
+  /// (which only completes when the process is awake), so recovery waits until the
+  /// user foregrounds or another wake arrives — do not tighten lightly.
+  static let maxRebuildFailuresPreservingLink = 3
+
+  /// Count of consecutive intent-wanting rebuild failures into `handleReconnectionFailure`.
+  /// Reset on every operational session via `recordConnectionSuccess`.
+  var consecutiveRebuildFailures = 0
+
   /// Checks whether a connection attempt should proceed.
   /// Returns `true` if the circuit breaker allows it.
   /// - Parameter force: When `true`, bypasses the circuit breaker (user-initiated reconnect)
@@ -368,17 +382,34 @@ public final class ConnectionManager {
     }
   }
 
-  /// Records a successful connection, resetting the circuit breaker.
+  /// Records a successful connection, resetting the circuit breaker and the
+  /// rebuild-preserve budget. The counter reset sits above the `.closed` early
+  /// return so a healthy connection still refills the preserve budget.
   func recordConnectionSuccess() {
+    consecutiveRebuildFailures = 0
     if case .closed = circuitBreaker { return }
     circuitBreaker = .closed
     logger.info("[BLE] Circuit breaker: → closed (connection succeeded)")
   }
 
+  /// Refills the rebuild-preserve budget after a successful device switch.
+  /// Sole production call site: `switchDevice` after `promoteToReady`.
+  func resetPreserveBudgetAfterDeviceSwitch() {
+    recordConnectionSuccess()
+  }
+
+  /// Epoch bumped by every `clearPersistedConnection` so a queued bond-refresh
+  /// persist hop that already passed `shouldPersistBondRefresh` cannot write
+  /// after a forget clears the shield.
+  var bondRefreshPersistEpoch: UInt64 = 0
+
   // MARK: - Reconnection Watchdog
 
   /// Task managing the reconnection watchdog (retries when stuck disconnected)
   var reconnectionWatchdogTask: Task<Void, Never>?
+
+  /// Generation token so a finishing watchdog Task cannot nil a replacement task.
+  var reconnectionWatchdogGeneration = 0
 
   /// Session IDs that need re-authentication after BLE reconnect.
   /// Populated by `handleBLEDisconnection()`, consumed by `rebuildSession()`.
@@ -406,6 +437,14 @@ public final class ConnectionManager {
   #if DEBUG
     /// Test override for lastConnectedDeviceID
     var testLastConnectedDeviceID: UUID?
+
+    /// When set, the first watchdog sleep uses this instead of 30s so natural-exit
+    /// tests can complete without waiting on production backoff.
+    var testWatchdogInitialDelay: Duration?
+
+    /// Runs after `shouldPersistBondRefresh` returns true and before the epoch
+    /// check in `persistBondRefreshIfStillValid` — tests force clear in that window.
+    var bondRefreshPersistAfterShouldPersistHook: (@MainActor () async -> Void)?
 
     /// True when the BLE reconnection watchdog task is active.
     var isReconnectionWatchdogRunning: Bool {
@@ -454,13 +493,42 @@ public final class ConnectionManager {
   /// link (fresh connect, device switch, auto-reconnect rebuild); the radio
   /// gates that link behind MITM-bonded encryption, so any successful exchange
   /// proves the bond. Never called on the WiFi path, which bypasses the bond.
-  func recordBondVerification(deviceID: UUID) {
+  /// Also marks the app session live for RSSI bond-shield refresh (awaited).
+  func recordBondVerification(deviceID: UUID) async {
     lastConnectionStore.persistBondVerification(deviceID: deviceID)
+    await stateMachine.recordBondVerification(deviceID: deviceID, at: Date())
+    await stateMachine.setAppSessionLive(deviceID: deviceID)
   }
 
-  /// Clears the persisted connection
-  func clearPersistedConnection() {
-    lastConnectionStore.clear()
+  /// Clears persisted last-connection / bond-verification state for the forgotten
+  /// device. Always clears that device's in-memory bond verification (not the
+  /// current bond-slot holder), and holder-matches the store keys so forgetting
+  /// A cannot destroy B's shield. Also clears session-live when it matches so a
+  /// queued `onBondRefreshed` hop cannot re-persist after the map clear.
+  /// Bumps `bondRefreshPersistEpoch` first so an in-flight persist hop that
+  /// already observed a true `shouldPersistBondRefresh` still no-ops.
+  func clearPersistedConnection(for deviceID: UUID) async {
+    bondRefreshPersistEpoch &+= 1
+    await stateMachine.clearBondVerification(deviceID: deviceID)
+    if await stateMachine.isAppSessionLive(deviceID: deviceID) {
+      await stateMachine.setAppSessionLive(deviceID: nil)
+    }
+    lastConnectionStore.clear(for: deviceID)
+  }
+
+  /// Persist path for RSSI bond refresh: snapshot epoch, re-validate on the SM,
+  /// then require the same epoch before writing UserDefaults so a clear that
+  /// landed during the await cannot resurrect the cross-launch shield.
+  func persistBondRefreshIfStillValid(deviceID: UUID) async {
+    let epoch = bondRefreshPersistEpoch
+    guard await stateMachine.shouldPersistBondRefresh(deviceID: deviceID) else { return }
+    #if DEBUG
+      if let bondRefreshPersistAfterShouldPersistHook {
+        await bondRefreshPersistAfterShouldPersistHook()
+      }
+    #endif
+    guard epoch == bondRefreshPersistEpoch else { return }
+    lastConnectionStore.persistBondVerification(deviceID: deviceID)
   }
 
   /// Whether the disconnected pill should be suppressed (user explicitly disconnected)
@@ -567,12 +635,14 @@ public final class ConnectionManager {
       }
     }
 
-    // Let the state machine distinguish a recently verified bond from a
-    // suspect one when an auto-reconnect encryption-timeout budget exhausts.
-    // Read lazily at decision time; UserDefaults is thread-safe.
-    let bondStore = lastConnectionStore
-    await stateMachine.setBondVerificationDateProvider { deviceID in
-      bondStore.bondVerificationDate(for: deviceID)
+    // A bond verified in a previous launch must still shield an exhausted
+    // encryption-timeout budget, so seed the persisted verification before
+    // any teardown classification can run. Keyed off the bond slot, not the
+    // connection slot: a WiFi connection overwrites the latter without
+    // touching the bond.
+    if let deviceID = lastConnectionStore.bondVerifiedDeviceID,
+       let verified = lastConnectionStore.bondVerificationDate(for: deviceID) {
+      await stateMachine.recordBondVerification(deviceID: deviceID, at: verified)
     }
 
     // Handle entering auto-reconnecting phase
@@ -626,9 +696,10 @@ public final class ConnectionManager {
         // drop the completion since reconnectingDeviceID is still nil.
         await self.reconnectionCoordinator.handleEnteringAutoReconnect(deviceID: deviceID)
 
-        let bleState = await self.stateMachine.centralManagerStateName
-        let blePhase = await self.stateMachine.currentPhaseName
-        let blePeripheralState = await self.stateMachine.currentPeripheralState ?? "none"
+        let diagnostics = await self.stateMachine.linkDiagnostics
+        let bleState = diagnostics.centralState
+        let blePhase = diagnostics.phase
+        let blePeripheralState = diagnostics.peripheralState ?? "none"
 
         self.persistDisconnectDiagnostic(
           "source=bleStateMachine.autoReconnectingHandler, " +
@@ -654,6 +725,16 @@ public final class ConnectionManager {
       }
     }
 
+    // RSSI bond refresh runs on the state-machine actor; persist on MainActor
+    // via epoch-gated re-validation so a clear between shouldPersist and the
+    // UserDefaults write cannot resurrect a forgotten cross-launch shield.
+    await stateMachine.setBondRefreshedHandler { [weak self] deviceID in
+      Task { @MainActor in
+        guard let self else { return }
+        await self.persistBondRefreshIfStillValid(deviceID: deviceID)
+      }
+    }
+
     // Handle Bluetooth power-cycle recovery
     await stateMachine.setBluetoothPoweredOnHandler { [weak self] in
       Task { @MainActor in
@@ -667,9 +748,9 @@ public final class ConnectionManager {
           return
         }
 
-        let blePhase = await self.stateMachine.currentPhaseName
+        let blePhase = await self.stateMachine.linkDiagnostics.phase
         let bleConnectedDeviceID = await self.stateMachine.connectedDeviceID
-        if blePhase != "idle" || bleConnectedDeviceID == deviceID {
+        if blePhase != .idle || bleConnectedDeviceID == deviceID {
           self.logger.info(
             "[BLE] Bluetooth powered on: BLE already owns reconnect flow for \(deviceID.uuidString.prefix(8)) " +
               "(phase: \(blePhase), bleConnectedDevice: \(bleConnectedDeviceID?.uuidString.prefix(8) ?? "none"))"
@@ -935,6 +1016,8 @@ public final class ConnectionManager {
       logger.info("reconcileIdentity skipped: connectedDevice changed before currentSelfInfo")
       return nil
     }
+    let previousSelfPublicKey = preDevice.publicKey
+    let previousRadioID = preDevice.radioID
 
     let selfInfo: MeshCore.SelfInfo
     do {
@@ -973,6 +1056,18 @@ public final class ConnectionManager {
       return nil
     }
 
+    // Drop the local ZephCore V-contact derived from the previous self key when
+    // identity rotates; the new V-key arrives on the next contact sync. It was synced
+    // under the pre-reconcile partition, and ghost reconciliation re-keys only the
+    // Device row, never contacts, so it always lives under previousRadioID.
+    if previousSelfPublicKey != selfInfo.publicKey {
+      await dropStaleVContact(
+        dataStore: expectedServices.dataStore,
+        radioID: previousRadioID,
+        oldSelfPublicKey: previousSelfPublicKey
+      )
+    }
+
     guard let newRadioID else {
       logger.info("reconcileIdentity: publicKey changed but no ghost matched")
       return nil
@@ -1000,8 +1095,33 @@ public final class ConnectionManager {
     return newRadioID
   }
 
-  /// Syncs the device clock if it drifts more than 60 seconds from the phone.
-  /// Safe to call after sync — only affects future device-originated timestamps.
+  /// Removes a local contact row for the V-contact derived from a retired self public key.
+  private func dropStaleVContact(
+    dataStore: PersistenceStore,
+    radioID: UUID,
+    oldSelfPublicKey: Data
+  ) async {
+    guard let oldVKey = VContactIdentity.publicKey(forSelfPublicKey: oldSelfPublicKey) else { return }
+    do {
+      guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: oldVKey) else {
+        return
+      }
+      try await dataStore.deleteContact(id: contact.id)
+      logger.info("Dropped stale ZephCore V-contact after identity rotation")
+    } catch {
+      logger.warning("Failed to drop stale V-contact after identity rotation: \(error.localizedDescription)")
+    }
+  }
+
+  /// Setting the radio clock backward makes its request timestamps fall below
+  /// the `last_timestamp` remote repeaters recorded for it, and their replay
+  /// protection then silently drops every packet until the clock re-passes the
+  /// stored value. A tight tolerance keeps each backward step, and therefore
+  /// each deaf window, no longer than the tolerance itself, while still
+  /// recovering radios whose clocks are stuck far in the future.
+  private static let deviceClockDriftTolerance: TimeInterval = 5
+
+  /// Syncs the device clock when it drifts beyond `deviceClockDriftTolerance`.
   func syncDeviceTimeIfNeeded() async {
     guard let session else { return }
     do {
@@ -1009,7 +1129,7 @@ public final class ConnectionManager {
         try await session.getTime()
       }
       let timeDifference = abs(deviceTime.timeIntervalSinceNow)
-      if timeDifference > 60 {
+      if timeDifference > Self.deviceClockDriftTolerance {
         try await withTimeout(.seconds(5), operationName: "setTime") {
           try await session.setTime(Date())
         }

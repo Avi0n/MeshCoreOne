@@ -14,9 +14,6 @@ public enum AdvertisementEvent: Sendable {
   case contactUpdated
   /// A new contact was discovered via advertisement.
   case newContactDiscovered(name: String, contactID: UUID, contactType: ContactType)
-  /// An advert arrived for a contact unknown locally and it was fetched
-  /// from the device; observers should refresh contact lists.
-  case contactSyncRequested(radioID: UUID)
   /// The device's node storage full state changed (true = full, false = has space).
   case nodeStorageFullChanged(isFull: Bool)
   /// The device auto-deleted a contact (overwrite oldest); observers clean

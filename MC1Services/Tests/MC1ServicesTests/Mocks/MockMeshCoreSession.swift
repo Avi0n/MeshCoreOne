@@ -5,7 +5,10 @@ import MeshCore
 ///
 /// Configure the mock by setting the stub properties before calling methods.
 /// Track method calls by examining the recorded invocations.
-public actor MockMeshCoreSession: MeshCoreSessionProtocol {
+///
+/// Also conforms to ``AdvertisingSessionOps`` so services such as
+/// `AdvertisementService` can be exercised without a second fake session type.
+public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps {
   // MARK: - Connection State
 
   public var connectionState: AsyncStream<ConnectionState> {
@@ -51,6 +54,12 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     eventSubscriptions[id] = nil
   }
 
+  /// Number of active `events()` subscriptions; lets tests wait until a
+  /// consumer has subscribed before yielding events.
+  public var eventSubscriptionCount: Int {
+    eventSubscriptions.count
+  }
+
   /// Yields an event to every active `events()` subscriber whose filter matches.
   public func yieldEvent(_ event: MeshEvent) {
     for subscription in eventSubscriptions.values where subscription.filter?.matches(event) != false {
@@ -85,11 +94,21 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
   /// Error to throw from getContacts
   public var stubbedGetContactsError: Error?
 
-  /// Contact to return from getContact (by public key)
+  /// Contact to return from getContact (by public key) when no per-key stub is set.
   public var stubbedContact: MeshContact?
 
-  /// Error to throw from getContact
+  /// Error to throw from getContact when no per-key error is set.
   public var stubbedGetContactError: Error?
+
+  /// Per-key contact results for `getContact`. Takes precedence over `stubbedContact`.
+  public var stubbedContactsByKey: [Data: MeshContact?] = [:]
+
+  /// Per-key errors for `getContact`. Takes precedence over `stubbedGetContactError`.
+  public var stubbedGetContactErrorsByKey: [Data: Error] = [:]
+
+  /// Per-key hold gates: when present, `getContact` suspends until the continuation is resumed.
+  private var getContactHoldContinuations: [Data: CheckedContinuation<Void, Never>] = [:]
+  private var getContactHoldRequested: Set<Data> = []
 
   /// Error to throw from addContact
   public var stubbedAddContactError: Error?
@@ -123,6 +142,34 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
   /// Results to return from successive `sendLogin` calls, consumed FIFO.
   public var stubbedSendLoginResults: [Result<MessageSentInfo, Error>] = []
 
+  /// Result to return from `sendCommand`. The short suggested timeout keeps
+  /// CLI polling loops in tests brief.
+  public var stubbedSendCommandResult: Result<MessageSentInfo, Error> = .success(
+    MessageSentInfo(route: 0, expectedAck: Data(), suggestedTimeoutMs: 100)
+  )
+
+  /// Result to return from `requestStatus` when the FIFO list is empty.
+  public var stubbedRequestStatusResult: Result<StatusResponse, Error> =
+    .failure(NotStubbed.method("requestStatus"))
+
+  /// Results consumed FIFO by successive `requestStatus` calls. When non-empty,
+  /// takes precedence over `stubbedRequestStatusResult`.
+  public var stubbedRequestStatusResults: [Result<StatusResponse, Error>] = []
+
+  /// Result to return from `requestTelemetry` when the FIFO list is empty.
+  public var stubbedRequestTelemetryResult: Result<TelemetryResponse, Error> =
+    .failure(NotStubbed.method("requestTelemetry"))
+
+  /// Results consumed FIFO by successive `requestTelemetry` calls.
+  public var stubbedRequestTelemetryResults: [Result<TelemetryResponse, Error>] = []
+
+  /// Result to return from `requestOwnerInfo`.
+  public var stubbedRequestOwnerInfoResult: Result<OwnerInfoResponse, Error> =
+    .failure(NotStubbed.method("requestOwnerInfo"))
+
+  /// Results consumed FIFO by successive `requestOwnerInfo` calls.
+  public var stubbedRequestOwnerInfoResults: [Result<OwnerInfoResponse, Error>] = []
+
   // MARK: - Recorded Invocations
 
   public struct SendMessageInvocation: Sendable, Equatable {
@@ -147,6 +194,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     public let password: String
   }
 
+  public struct SendCommandInvocation: Sendable, Equatable {
+    public let destination: Data
+    public let command: String
+  }
+
   public struct SetChannelInvocation: Sendable, Equatable {
     public let index: UInt8
     public let name: String
@@ -164,6 +216,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
   public private(set) var getContactPublicKeys: [Data] = []
   public private(set) var addContactInvocations: [AddContactInvocation] = []
   public private(set) var sendLoginInvocations: [SendLoginInvocation] = []
+  public private(set) var sendCommandInvocations: [SendCommandInvocation] = []
   public private(set) var removeContactPublicKeys: [Data] = []
   public private(set) var resetPathPublicKeys: [Data] = []
   public private(set) var sendPathDiscoveryDestinations: [Data] = []
@@ -197,9 +250,62 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     stubbedSendLoginResults = results
   }
 
+  /// Sets the result returned by `requestStatus` (isolated setter).
+  public func setRequestStatusResult(_ result: Result<StatusResponse, Error>) {
+    stubbedRequestStatusResult = result
+    stubbedRequestStatusResults = []
+  }
+
+  /// Sets FIFO results for successive `requestStatus` calls (isolated setter).
+  public func setRequestStatusResults(_ results: [Result<StatusResponse, Error>]) {
+    stubbedRequestStatusResults = results
+  }
+
+  /// Sets FIFO results for successive `requestTelemetry` calls (isolated setter).
+  public func setRequestTelemetryResults(_ results: [Result<TelemetryResponse, Error>]) {
+    stubbedRequestTelemetryResults = results
+  }
+
+  /// Sets FIFO results for successive `requestOwnerInfo` calls (isolated setter).
+  public func setRequestOwnerInfoResults(_ results: [Result<OwnerInfoResponse, Error>]) {
+    stubbedRequestOwnerInfoResults = results
+  }
+
   /// Sets the error thrown by `addContact` (isolated setter).
   public func setAddContactError(_ error: Error?) {
     stubbedAddContactError = error
+  }
+
+  /// Sets the contact returned by `getContact` for a specific public key.
+  public func setStubbedContact(_ contact: MeshContact?, for publicKey: Data) {
+    stubbedContactsByKey[publicKey] = contact
+  }
+
+  /// Sets the error thrown by `getContact` for a specific public key.
+  public func setGetContactError(_ error: Error?, for publicKey: Data) {
+    if let error {
+      stubbedGetContactErrorsByKey[publicKey] = error
+    } else {
+      stubbedGetContactErrorsByKey.removeValue(forKey: publicKey)
+    }
+  }
+
+  /// Causes the next `getContact` for `publicKey` to suspend until `releaseGetContact(for:)` is called.
+  public func holdNextGetContact(for publicKey: Data) {
+    getContactHoldRequested.insert(publicKey)
+  }
+
+  /// Releases a held `getContact` for `publicKey`.
+  /// Does not clear a pending `holdNextGetContact` for a *future* call on the same key.
+  public func releaseGetContact(for publicKey: Data) {
+    if let continuation = getContactHoldContinuations.removeValue(forKey: publicKey) {
+      continuation.resume()
+    }
+  }
+
+  /// Whether a `getContact` for `publicKey` is currently suspended on a hold gate.
+  public func isGetContactHeld(for publicKey: Data) -> Bool {
+    getContactHoldContinuations[publicKey] != nil
   }
 
   // MARK: - Protocol Methods
@@ -231,11 +337,33 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
 
   public func getContact(publicKey: Data) async throws -> MeshContact? {
     getContactPublicKeys.append(publicKey)
+
+    if getContactHoldRequested.contains(publicKey) {
+      getContactHoldRequested.remove(publicKey)
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        getContactHoldContinuations[publicKey] = continuation
+      }
+    }
+
+    if let error = stubbedGetContactErrorsByKey[publicKey] {
+      throw error
+    }
     if let error = stubbedGetContactError {
       throw error
     }
+    if let keyed = stubbedContactsByKey[publicKey] {
+      return keyed
+    }
     return stubbedContact
   }
+
+  // MARK: - AdvertisingSessionOps
+
+  public func sendAdvertisement(flood: Bool) async throws {}
+
+  public func setName(_ name: String) async throws {}
+
+  public func setCoordinates(latitude: Double, longitude: Double) async throws {}
 
   public func addContact(_ contact: MeshContact) async throws {
     addContactInvocations.append(AddContactInvocation(contact: contact))
@@ -352,6 +480,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol {
     getContactPublicKeys = []
     addContactInvocations = []
     sendLoginInvocations = []
+    sendCommandInvocations = []
     removeContactPublicKeys = []
     resetPathPublicKeys = []
     sendPathDiscoveryDestinations = []
@@ -379,7 +508,11 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   public func sendLogout(to destination: Data) async throws {}
 
   public func sendCommand(to destination: Data, command: String, timestamp: Date) async throws -> MessageSentInfo {
-    throw NotStubbed.method("sendCommand")
+    sendCommandInvocations.append(SendCommandInvocation(destination: destination, command: command))
+    switch stubbedSendCommandResult {
+    case let .success(info): return info
+    case let .failure(error): throw error
+    }
   }
 
   public func sendKeepAlive(to publicKey: Data, syncSince: UInt32) async throws -> MessageSentInfo {
@@ -387,15 +520,42 @@ extension MockMeshCoreSession: RemoteAccessSessionOps {
   }
 
   public func requestOwnerInfo(from publicKey: Data) async throws -> OwnerInfoResponse {
-    throw NotStubbed.method("requestOwnerInfo")
+    if !stubbedRequestOwnerInfoResults.isEmpty {
+      switch stubbedRequestOwnerInfoResults.removeFirst() {
+      case let .success(response): return response
+      case let .failure(error): throw error
+      }
+    }
+    switch stubbedRequestOwnerInfoResult {
+    case let .success(response): return response
+    case let .failure(error): throw error
+    }
   }
 
   public func requestStatus(from publicKey: Data, type: ContactType) async throws -> StatusResponse {
-    throw NotStubbed.method("requestStatus")
+    if !stubbedRequestStatusResults.isEmpty {
+      switch stubbedRequestStatusResults.removeFirst() {
+      case let .success(response): return response
+      case let .failure(error): throw error
+      }
+    }
+    switch stubbedRequestStatusResult {
+    case let .success(response): return response
+    case let .failure(error): throw error
+    }
   }
 
   public func requestTelemetry(from publicKey: Data) async throws -> TelemetryResponse {
-    throw NotStubbed.method("requestTelemetry")
+    if !stubbedRequestTelemetryResults.isEmpty {
+      switch stubbedRequestTelemetryResults.removeFirst() {
+      case let .success(response): return response
+      case let .failure(error): throw error
+      }
+    }
+    switch stubbedRequestTelemetryResult {
+    case let .success(response): return response
+    case let .failure(error): throw error
+    }
   }
 
   public func requestNeighbours(

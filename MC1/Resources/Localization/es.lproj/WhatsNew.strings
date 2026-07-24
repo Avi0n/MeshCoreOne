@@ -13,17 +13,20 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Continuar";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Atajos";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "Consulta el estado de tu radio, envía mensajes y difunde anuncios.";
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Notas completas de la versión";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "Vaciar una conversación de MD";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "Borra el historial de cualquier mensaje directo.";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Chats mejorados";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Al abrir un chat, vas a los mensajes nuevos en lugar del final. La hora se muestra en cada burbuja, y el historial y las vistas previas de enlaces cargan más rápido.";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "Ordenar por saltos";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "La pestaña Nodos ahora correlaciona los saltos de entrada con los anuncios del Registro RX.";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Fotos de contactos";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Asigna un avatar a cualquier contacto para localizar personas más fácilmente en listas y conversaciones.";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Filtros de mapa";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtra pines por favoritos, nodos descubiertos y tipo de nodo.";

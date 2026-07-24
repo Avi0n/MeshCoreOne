@@ -1,0 +1,32 @@
+/*
+  WhatsNew.strings
+  MC1
+
+  Italian translation of What's New sheet strings.
+  Match Settings/Maps terminology for this verified locale.
+  New release blocks still need native speaker check when added.
+*/
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Novità";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Continua";
+
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Note di rilascio complete";
+
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Chat migliorate";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Aprendo una chat arrivi ai nuovi messaggi invece che in fondo. L'ora compare su ogni bolla, e cronologia e anteprime dei link si caricano più in fretta.";
+
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Foto dei contatti";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Imposta un avatar su qualsiasi contatto per riconoscere le persone più facilmente in elenchi e conversazioni.";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Filtri mappa";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtra i pin per preferiti, nodi scoperti e tipo di nodo.";

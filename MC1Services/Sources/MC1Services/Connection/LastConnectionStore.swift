@@ -11,8 +11,7 @@ import Foundation
 /// "does the user want to be connected" axis, not last-device state.
 ///
 /// `@unchecked Sendable`: the only stored property is a `UserDefaults`
-/// reference, which Apple documents as thread-safe; the bond-verification
-/// provider reads it from the BLE actor.
+/// reference, which Apple documents as thread-safe.
 struct LastConnectionStore: @unchecked Sendable {
   private let defaults: UserDefaults
 
@@ -48,14 +47,23 @@ struct LastConnectionStore: @unchecked Sendable {
     defaults.set(deviceName, forKey: PersistenceKeys.lastConnectedDeviceName)
   }
 
-  /// Clears the persisted connection record, including the bond verification,
-  /// so a re-pair after removal starts with no stale grace evidence.
-  func clear() {
-    defaults.removeObject(forKey: PersistenceKeys.lastConnectedDeviceID)
-    defaults.removeObject(forKey: PersistenceKeys.lastConnectedRadioID)
-    defaults.removeObject(forKey: PersistenceKeys.lastConnectedDeviceName)
-    defaults.removeObject(forKey: PersistenceKeys.lastBondVerifiedDeviceID)
-    defaults.removeObject(forKey: PersistenceKeys.lastBondVerifiedDate)
+  /// Clears persisted records that belong to `deviceID`.
+  ///
+  /// Last-connection keys are removed only when that device is the last-connected
+  /// holder. Bond-verification keys are removed only when that device holds the
+  /// bond slot — an unconditional wipe would destroy another radio's cross-launch
+  /// shield when forgetting a non-holder (for example after a WiFi connection
+  /// overwrote the connection slot without touching the bond slot).
+  func clear(for deviceID: UUID) {
+    if self.deviceID == deviceID {
+      defaults.removeObject(forKey: PersistenceKeys.lastConnectedDeviceID)
+      defaults.removeObject(forKey: PersistenceKeys.lastConnectedRadioID)
+      defaults.removeObject(forKey: PersistenceKeys.lastConnectedDeviceName)
+    }
+    if bondVerifiedDeviceID == deviceID {
+      defaults.removeObject(forKey: PersistenceKeys.lastBondVerifiedDeviceID)
+      defaults.removeObject(forKey: PersistenceKeys.lastBondVerifiedDate)
+    }
   }
 
   /// Records that the given device's bond completed a verified encrypted
@@ -64,6 +72,17 @@ struct LastConnectionStore: @unchecked Sendable {
   func persistBondVerification(deviceID: UUID) {
     defaults.set(deviceID.uuidString, forKey: PersistenceKeys.lastBondVerifiedDeviceID)
     defaults.set(Date(), forKey: PersistenceKeys.lastBondVerifiedDate)
+  }
+
+  /// The device holding the bond-verification slot, or nil when no bond has
+  /// verified. Distinct from `deviceID`: a WiFi connection overwrites the
+  /// connection slot without touching the bond slot, so cross-launch grace
+  /// seeding must key off this value.
+  var bondVerifiedDeviceID: UUID? {
+    guard let uuidString = defaults.string(forKey: PersistenceKeys.lastBondVerifiedDeviceID) else {
+      return nil
+    }
+    return UUID(uuidString: uuidString)
   }
 
   /// When the given device's bond last completed a verified encrypted session,

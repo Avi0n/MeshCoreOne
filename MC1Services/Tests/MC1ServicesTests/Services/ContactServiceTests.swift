@@ -457,12 +457,23 @@ struct ContactServiceTests {
       cleanupCoordinator: RecordingCleanupCoordinator(tracker: tracker)
     )
 
+    // Seed a message so the delete cascade is observable
+    let message = MessageDTO(from: Message(
+      radioID: radioID,
+      contactID: contactID,
+      text: "cascade",
+      timestamp: 0
+    ))
+    try await mockStore.saveMessage(message)
+
     // Remove the contact
     try await service.removeContact(radioID: radioID, publicKey: testPublicKey)
 
-    // Verify messages were deleted
-    let deletedForContacts = await mockStore.deletedMessagesForContactIDs
-    #expect(deletedForContacts == [contactID])
+    // Verify the contact was deleted and its messages died with it
+    let deletedContacts = await mockStore.deletedContactIDs
+    #expect(deletedContacts == [contactID])
+    let remainingMessages = await mockStore.messages
+    #expect(remainingMessages.isEmpty)
 
     // Verify cleanup handler was called with reason=.deleted
     let invocations = await tracker.invocations
@@ -606,6 +617,149 @@ struct ContactServiceTests {
     #expect(invocations.count == 1)
     #expect(invocations[0].contactID == contactID)
     #expect(invocations[0].reason == .blocked)
+  }
+
+  @Test
+  func `updateContactAvatar sets and clears avatarImageData`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+
+    let radioID = UUID()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: radioID,
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    let imageData = Data([0xDE, 0xAD, 0xBE, 0xEF])
+    try await service.updateContactAvatar(contactID: contactID, imageData: imageData)
+
+    let withAvatar = await mockStore.contacts[contactID]
+    #expect(withAvatar?.avatarImageData == imageData)
+
+    try await service.updateContactAvatar(contactID: contactID, imageData: nil)
+
+    let withoutAvatar = await mockStore.contacts[contactID]
+    #expect(withoutAvatar?.avatarImageData == nil)
+  }
+
+  @Test
+  func `avatarImageData survives updateContactPreferences`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+
+    let radioID = UUID()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: radioID,
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    let imageData = Data([0xDE, 0xAD, 0xBE, 0xEF])
+    try await service.updateContactAvatar(contactID: contactID, imageData: imageData)
+
+    try await service.updateContactPreferences(contactID: contactID, nickname: "Field Ops")
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.nickname == "Field Ops")
+    #expect(updated?.avatarImageData == imageData)
+  }
+
+  @Test
+  func `avatarImageData survives setContactFavorite`() async throws {
+    let mockSession = MockMeshCoreSession()
+    let mockStore = MockPersistenceStore()
+
+    let radioID = UUID()
+    let contactID = UUID()
+
+    let contact = ContactDTO(
+      id: contactID,
+      radioID: radioID,
+      publicKey: testPublicKey,
+      name: "TestContact",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+    try await mockStore.saveContact(contact)
+
+    let service = ContactService(
+      session: mockSession,
+      dataStore: mockStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    let imageData = Data([0xDE, 0xAD, 0xBE, 0xEF])
+    try await service.updateContactAvatar(contactID: contactID, imageData: imageData)
+
+    try await service.setContactFavorite(contactID, isFavorite: true)
+
+    let updated = await mockStore.contacts[contactID]
+    #expect(updated?.isFavorite == true)
+    #expect(updated?.avatarImageData == imageData)
   }
 
   @Test

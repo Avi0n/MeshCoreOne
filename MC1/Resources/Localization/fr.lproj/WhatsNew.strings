@@ -13,17 +13,20 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Continuer";
 
-/* What's New v1.1 - Shortcuts feature, title */
-"whatsNew.siriShortcuts.title" = "Raccourcis";
-/* What's New v1.1 - Shortcuts feature, description */
-"whatsNew.siriShortcuts.description" = "Consultez l'état de votre radio, envoyez des messages et diffusez des annonces.";
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Notes de version complètes";
 
-/* What's New v1.1 - Clear Messages feature, title */
-"whatsNew.clearMessages.title" = "Vider une conversation directe";
-/* What's New v1.1 - Clear Messages feature, description */
-"whatsNew.clearMessages.description" = "Effacez l'historique de n'importe quel message direct.";
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Discussions améliorées";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Ouvrir une discussion vous place sur les nouveaux messages plutôt qu'en bas. L'heure s'affiche sur chaque bulle, et l'historique ainsi que les aperçus de liens se chargent plus vite.";
 
-/* What's New v1.1 - Inbound hop counts feature, title */
-"whatsNew.inboundHops.title" = "Trier par sauts";
-/* What's New v1.1 - Inbound hop counts feature, description */
-"whatsNew.inboundHops.description" = "L'onglet Nœuds met désormais en correspondance les sauts entrants avec les annonces du Journal RX.";
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Photos de contacts";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Ajoutez un avatar à n'importe quel contact pour repérer plus facilement les personnes dans les listes et les conversations.";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Filtres de carte";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtrez les repères par favoris, nœuds découverts et type de nœud.";

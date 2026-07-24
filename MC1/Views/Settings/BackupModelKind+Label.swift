@@ -17,6 +17,7 @@ extension BackupModelKind {
     case .remoteNodeSessions: L10n.Settings.Settings.Backup.Import.Preview.remoteNodeSessions
     case .blockedChannelSenders: L10n.Settings.Settings.Backup.Import.Preview.blockedSenders
     case .nodeStatusSnapshots: L10n.Settings.Settings.Backup.Import.Preview.nodeStatusSnapshots
+    case .discoveredNodes: L10n.Settings.Settings.Backup.Import.Preview.discoveredNodes
     }
   }
 }

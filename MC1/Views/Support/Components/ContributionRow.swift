@@ -1,16 +1,15 @@
 import SwiftUI
 
 /// One tip row: name + price. Tapping the price purchases; high-value tips ($49.99 / $99.99)
-/// confirm first to mitigate a fat-finger purchase. On success a checkmark briefly replaces the
-/// price. "Contribution" naming avoids the TipKit identifier collision.
+/// confirm first to mitigate a fat-finger purchase. Success celebration is owned by the
+/// Support screen (thank-you sheet). "Contribution" naming avoids the TipKit identifier collision.
 struct ContributionRow: View {
   let displayName: String
   let displayPrice: String?
   let requiresConfirmation: Bool
-  let onPurchase: () async -> Bool
+  let onPurchase: () async -> Void
 
   @State private var showingConfirmation = false
-  @State private var showingThanks = false
   @State private var isPurchasing = false
 
   var body: some View {
@@ -34,41 +33,27 @@ struct ContributionRow: View {
     .accessibilityHint(L10n.Settings.Support.Accessibility.ContributionRow.hint)
   }
 
-  @ViewBuilder
   private var priceButton: some View {
-    if showingThanks {
-      Image(systemName: "checkmark.circle.fill")
-        .foregroundStyle(.green)
-        .transition(.opacity)
-    } else {
-      Button {
-        if requiresConfirmation {
-          showingConfirmation = true
-        } else {
-          Task { await runPurchase() }
-        }
-      } label: {
-        if isPurchasing {
-          ProgressView()
-        } else {
-          Text(displayPrice ?? "—").font(.callout.weight(.semibold))
-        }
+    Button {
+      if requiresConfirmation {
+        showingConfirmation = true
+      } else {
+        Task { await runPurchase() }
       }
-      .buttonStyle(.bordered)
-      .disabled(displayPrice == nil || isPurchasing)
+    } label: {
+      if isPurchasing {
+        ProgressView()
+      } else {
+        Text(displayPrice ?? "—").font(.callout.weight(.semibold))
+      }
     }
+    .buttonStyle(.bordered)
+    .disabled(displayPrice == nil || isPurchasing)
   }
 
   private func runPurchase() async {
     isPurchasing = true
-    let succeeded = await onPurchase()
+    await onPurchase()
     isPurchasing = false
-    guard succeeded else { return }
-    withAnimation { showingThanks = true }
-    AccessibilityNotification.Announcement(
-      L10n.Settings.Support.Accessibility.tipConfirmAnnouncement
-    ).post()
-    try? await Task.sleep(for: .seconds(1.5))
-    withAnimation { showingThanks = false }
   }
 }

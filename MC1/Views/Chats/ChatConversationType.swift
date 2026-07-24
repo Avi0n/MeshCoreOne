@@ -27,50 +27,24 @@ enum ChatConversationType {
         return L10n.Chats.Chats.ConnectionStatus.direct(contact.pathHopCount)
       }
     case let .channel(channel):
-      let base = channelTypeSubtitle(for: channel)
-      if let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) {
-        let regionDisplay = (region == deviceDefaultFloodScopeName)
-          ? L10n.Chats.Chats.ChannelInfo.Region.scopedDefault(region)
-          : region
-        return "\(base) \u{00B7} \(regionDisplay)"
+      // An empty subtitle hides the header's second line, so an unresolved region shows nothing.
+      guard let region = effectiveRegionName(
+        for: channel,
+        deviceDefaultFloodScopeName: deviceDefaultFloodScopeName
+      ) else {
+        return ""
       }
-      return base
-    }
-  }
-
-  /// Accessibility label for the subtitle, providing a VoiceOver-friendly description
-  /// when a region scope is active (the middle dot separator may be read literally).
-  func navigationSubtitleAccessibilityLabel(deviceDefaultFloodScopeName: String?) -> String? {
-    switch self {
-    case .dm:
-      return nil
-    case let .channel(channel):
-      guard let region = effectiveRegionName(for: channel, deviceDefaultFloodScopeName: deviceDefaultFloodScopeName) else {
-        return nil
-      }
-      let typeSubtitle = channelTypeSubtitle(for: channel)
-      if region == deviceDefaultFloodScopeName {
-        return L10n.Chats.Chats.ChannelInfo.Region.defaultScopedAccessibility(typeSubtitle, region)
-      }
-      return L10n.Chats.Chats.ChannelInfo.Region.scopedAccessibility(typeSubtitle, region)
+      let regionDisplay = (region == deviceDefaultFloodScopeName)
+        ? L10n.Chats.Chats.ChannelInfo.Region.scopedDefault(region)
+        : region
+      return L10n.Chats.Chats.Channel.headerRegion(regionDisplay)
     }
   }
 
   // MARK: - Private Helpers
 
-  private func channelTypeSubtitle(for channel: ChannelDTO) -> String {
-    if channel.isPublicChannel {
-      L10n.Chats.Chats.Channel.typePublic
-    } else if channel.name.hasPrefix("#") {
-      L10n.Chats.Chats.ChannelInfo.ChannelType.hashtag
-    } else {
-      L10n.Chats.Chats.Channel.typePrivate
-    }
-  }
-
-  /// Resolves the region name to display alongside the channel subtitle. Delegates to
-  /// ``ChannelFloodScopeResolver`` so the banner stays in sync with the FloodScope
-  /// actually pushed to the radio.
+  /// Resolves the region name shown as the channel header subtitle. Delegates to
+  /// ``ChannelFloodScopeResolver`` so the header matches the FloodScope actually pushed to the radio.
   private func effectiveRegionName(
     for channel: ChannelDTO,
     deviceDefaultFloodScopeName: String?
@@ -105,12 +79,35 @@ enum ChatConversationType {
     }
   }
 
+  /// Key for the shared `ChatCoordinator` in `ChatCoordinatorRegistry`. Coincides
+  /// with `draftConversationID` today but is named separately so the coordinator
+  /// and draft namespaces can diverge without silently breaking either.
+  var coordinatorID: ChatConversationID {
+    switch self {
+    case let .dm(contact):
+      .dm(radioID: contact.radioID, contactID: contact.id)
+    case let .channel(channel):
+      .channel(radioID: channel.radioID, channelIndex: channel.index)
+    }
+  }
+
   var radioID: UUID {
     switch self {
     case let .dm(contact):
       contact.radioID
     case let .channel(channel):
       channel.radioID
+    }
+  }
+
+  /// Unread count carried by the navigated DTO. Gates the open-at-divider target
+  /// so a fully-read reopen (count 0) never positions to a stale baked divider.
+  var unreadCount: Int {
+    switch self {
+    case let .dm(contact):
+      contact.unreadCount
+    case let .channel(channel):
+      channel.unreadCount
     }
   }
 

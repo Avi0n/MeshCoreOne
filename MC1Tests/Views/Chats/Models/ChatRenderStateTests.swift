@@ -78,7 +78,7 @@ struct ChatRenderStateTests {
   @Test
   func `updatingItem preserves phase`() async {
     let (viewModel, coordinator) = await makeChatSetup(messageCount: 3)
-    coordinator.markLoaded()
+    coordinator.markLoadedForTesting()
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -93,7 +93,7 @@ struct ChatRenderStateTests {
   func `removingItem preserves phase`() async {
     let messages = (0..<2).map { makeMessage(index: $0) }
     let (viewModel, coordinator) = await makeChatSetup(messages: messages)
-    coordinator.markLoaded()
+    coordinator.markLoadedForTesting()
     viewModel.buildItems()
     await coordinator.buildItemsTask?.value
 
@@ -207,15 +207,18 @@ private func makeChatSetup(messageCount: Int) async -> (ChatViewModel, ChatCoord
 private func makeChatSetup(messages: [MessageDTO]) async -> (ChatViewModel, ChatCoordinator) {
   let viewModel = ChatViewModel()
   let coordinator = ChatCoordinator.makeForTesting()
-  viewModel.coordinator = coordinator
-  coordinator.replaceAll(messages)
+  viewModel.bindCoordinatorForTesting(coordinator)
+  coordinator.replaceAllForTesting(messages)
   viewModel.buildItems()
   await coordinator.buildItemsTask?.value
   return (viewModel, coordinator)
 }
 
 @MainActor
-private func makeFakeMessageItem(id: UUID, senderName: String) -> MessageItem {
+private func makeFakeMessageItem(
+  id: UUID,
+  senderName: String
+) -> MessageItem {
   MessageItem(
     id: id,
     envelope: MessageEnvelope(

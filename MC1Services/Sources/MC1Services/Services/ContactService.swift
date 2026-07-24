@@ -151,17 +151,26 @@ public actor ContactService {
 
       eventBroadcaster.yield(.syncProgress(received: receivedCount, total: meshContacts.count))
 
-      // On full sync, remove local contacts that no longer exist on device
+      // On full sync, remove local contacts that no longer exist on device.
+      // Never prune the ZephCore V-contact: it is omitted from GET_CONTACTS while
+      // clock-deferred or disabled, but is not a real-table orphan.
       if since == nil {
         let localContacts = try await dataStore.fetchContacts(radioID: radioID)
-        let orphans = localContacts.filter { !devicePublicKeys.contains($0.publicKey) }
+        let selfPublicKey = try? await dataStore.fetchDevice(radioID: radioID)?.publicKey
+        let orphans = localContacts.filter { contact in
+          guard !devicePublicKeys.contains(contact.publicKey) else { return false }
+          if let selfPublicKey,
+             VContactIdentity.isVContact(publicKey: contact.publicKey, selfPublicKey: selfPublicKey) {
+            return false
+          }
+          return true
+        }
         if !orphans.isEmpty {
           logger.notice("Full sync prune: \(orphans.count) local contact(s) not found on device (device has \(devicePublicKeys.count), local has \(localContacts.count))")
         }
         for localContact in orphans {
           let keyPrefix = localContact.publicKey.prefix(4).map { String(format: "%02x", $0) }.joined()
           logger.notice("Full sync prune: deleting '\(localContact.name)' [\(keyPrefix)…] (favorite=\(localContact.isFavorite), type=\(localContact.typeRawValue), lastModified=\(localContact.lastModified))")
-          try await dataStore.deleteMessagesForContact(contactID: localContact.id)
           try await dataStore.deleteContact(id: localContact.id)
           await cleanupCoordinator?.handleCleanup(
             contactID: localContact.id, reason: .deleted, publicKey: localContact.publicKey
@@ -220,7 +229,15 @@ public actor ContactService {
   /// - Parameters:
   ///   - radioID: The device ID
   ///   - publicKey: The contact's 32-byte public key
+  ///
+  /// ZephCore V-contact remove is disabled: no `CMD_REMOVE` (which would turn `v.contact` off),
+  /// no local wipe, and no `.nodeDeleted` storage-full clear.
   public func removeContact(radioID: UUID, publicKey: Data) async throws {
+    if await isProtectedVContact(radioID: radioID, publicKey: publicKey) {
+      logger.info("removeContact ignored for ZephCore V-contact (remove disabled)")
+      return
+    }
+
     do {
       try await session.removeContact(publicKey: publicKey)
 
@@ -228,10 +245,6 @@ public actor ContactService {
       if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
         let contactID = contact.id
 
-        // Delete associated messages first
-        try await dataStore.deleteMessagesForContact(contactID: contactID)
-
-        // Delete the contact
         try await dataStore.deleteContact(id: contactID)
 
         // Trigger cleanup (notifications, badge, session)
@@ -253,12 +266,27 @@ public actor ContactService {
 
   /// Remove a contact's local data and run the full cleanup chain without contacting the device.
   /// Use when the device reports the contact doesn't exist but local data remains.
+  ///
+  /// ZephCore V-contact remove is disabled (same policy as ``removeContact``).
   public func removeLocalContact(contactID: UUID, publicKey: Data) async throws {
-    try await dataStore.deleteMessagesForContact(contactID: contactID)
+    if let contact = try? await dataStore.fetchContact(id: contactID),
+       await isProtectedVContact(radioID: contact.radioID, publicKey: publicKey) {
+      logger.info("removeLocalContact ignored for ZephCore V-contact (remove disabled)")
+      return
+    }
+
     try await dataStore.deleteContact(id: contactID)
     await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .deleted, publicKey: publicKey)
     eventBroadcaster.yield(.nodeDeleted)
     await syncCoordinator?.notifyContactsChanged()
+  }
+
+  /// Whether `publicKey` is the ZephCore V-contact for this radio (remove/prune protected).
+  private func isProtectedVContact(radioID: UUID, publicKey: Data) async -> Bool {
+    guard let selfPublicKey = try? await dataStore.fetchDevice(radioID: radioID)?.publicKey else {
+      return false
+    }
+    return VContactIdentity.isVContact(publicKey: publicKey, selfPublicKey: selfPublicKey)
   }
 
   /// Clears all messages for a direct conversation without deleting the contact.
@@ -482,7 +510,8 @@ public actor ContactService {
         unreadCount: isBeingBlocked ? 0 : existing.unreadCount,
         unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 
@@ -526,15 +555,30 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: existing.isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: preset,
-        customOCVArrayString: customArray
+        customOCVArrayString: customArray,
+        avatarImageData: existing.avatarImageData
       )
     )
 
     try await dataStore.saveContact(updated)
+  }
+
+  /// Updates a contact's locally stored profile picture.
+  /// - Parameters:
+  ///   - contactID: The contact's ID
+  ///   - imageData: Compressed JPEG data for the new avatar, or `nil` to remove it
+  public func updateContactAvatar(contactID: UUID, imageData: Data?) async throws {
+    guard let existing = try await dataStore.fetchContact(id: contactID) else {
+      throw ContactServiceError.contactNotFound
+    }
+
+    try await dataStore.saveContact(existing.with(avatarImageData: imageData))
   }
 
   // MARK: - Device Favorite Sync
@@ -597,11 +641,14 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 
@@ -672,11 +719,14 @@ public actor ContactService {
         lastModified: existing.lastModified,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
+        isMuted: existing.isMuted,
         isFavorite: existing.isFavorite,
         lastMessageDate: existing.lastMessageDate,
         unreadCount: existing.unreadCount,
+        unreadMentionCount: existing.unreadMentionCount,
         ocvPreset: existing.ocvPreset,
-        customOCVArrayString: existing.customOCVArrayString
+        customOCVArrayString: existing.customOCVArrayString,
+        avatarImageData: existing.avatarImageData
       )
     )
 

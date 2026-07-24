@@ -178,11 +178,31 @@ struct MessagePathViewModelTests {
   // MARK: - loadContacts
 
   @Test
-  func `loadContacts with nil services sets isLoading false and clears data`() async {
+  func `loadContacts with nil dataStore sets isLoading false and clears data`() async {
     let viewModel = MessagePathViewModel()
+    let contact = createContact(prefix: [0xAA], name: "Stale", type: .repeater)
+    viewModel.contacts = [contact]
+    viewModel.repeaters = [contact]
+    viewModel.discoveredRepeaters = [
+      DiscoveredNodeDTO(
+        id: UUID(),
+        radioID: UUID(),
+        publicKey: Data([0xAA] + Array(repeating: UInt8(0), count: 31)),
+        name: "StaleNode",
+        typeRawValue: ContactType.repeater.rawValue,
+        lastHeard: Date(),
+        lastAdvertTimestamp: 0,
+        latitude: 0,
+        longitude: 0,
+        outPathLength: 0,
+        outPath: Data(),
+        inboundHopCount: nil,
+        inboundHopAdvertTimestamp: nil
+      )
+    ]
     #expect(viewModel.isLoading == true)
 
-    await viewModel.loadContacts(services: nil, radioID: UUID())
+    await viewModel.loadContacts(dataStore: nil, radioID: UUID())
 
     #expect(viewModel.isLoading == false)
     #expect(viewModel.contacts.isEmpty)

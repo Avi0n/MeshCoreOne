@@ -333,9 +333,22 @@ struct ProtocolBugFixTests {
   }
 
   @Test
-  func `statusResponse parseFromBinaryResponse rejects incomplete payload`() {
-    // Reject sizes between valid field boundaries
+  func `statusResponse parseFromBinaryResponse accepts mid-length trailers`() {
+    // Partial trailers after the 48-byte base are ignored rather than rejected.
     for size in [49, 50, 51, 53, 54, 55] {
+      var payload = Data(repeating: 0, count: size)
+      payload[0] = 0xE8
+      payload[1] = 0x03 // Battery: 1000mV
+      let pubkeyPrefix = Data([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF])
+      let status = Parsers.StatusResponse.parseFromBinaryResponse(payload, publicKeyPrefix: pubkeyPrefix)
+      #expect(status != nil, "Should accept \(size)-byte payload")
+      #expect(status?.battery == 1000)
+    }
+  }
+
+  @Test
+  func `statusResponse parseFromBinaryResponse rejects below base size`() {
+    for size in [0, 12, 47] {
       let payload = Data(repeating: 0, count: size)
       let pubkeyPrefix = Data([0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF])
       let status = Parsers.StatusResponse.parseFromBinaryResponse(payload, publicKeyPrefix: pubkeyPrefix)

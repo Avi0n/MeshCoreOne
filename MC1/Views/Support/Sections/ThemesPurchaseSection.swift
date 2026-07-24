@@ -3,6 +3,8 @@ import StoreKit
 import SwiftUI
 
 struct ThemesPurchaseSection: View {
+  let onPurchaseSucceeded: () -> Void
+
   @Environment(\.appState) private var appState
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.purchase) private var purchase
@@ -42,7 +44,11 @@ struct ThemesPurchaseSection: View {
         ThemeBundleCard(
           isPending: storeState.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll,
           displayPrice: storeState.service.product(for: StoreCatalog.Theme.bundleAll)?.displayPrice,
-          onPurchase: { await storeState.purchase(productID: StoreCatalog.Theme.bundleAll) { try await purchase($0) } }
+          onPurchase: {
+            if await storeState.purchase(productID: StoreCatalog.Theme.bundleAll, purchase: { try await purchase($0) }) {
+              onPurchaseSucceeded()
+            }
+          }
         )
         .listRowInsets(ThemeCardMetrics.gridRowInsets)
         .listRowBackground(Color.clear)

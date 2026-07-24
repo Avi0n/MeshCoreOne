@@ -67,9 +67,20 @@ enum ChatLinkRouter {
       handleChannelLink(channelResult, appState: appState)
       return true
     } else {
-      chatLinkRouterLogger.error("Failed to parse meshcore URL: \(urlString, privacy: .public)")
+      logFailedMeshCoreParse(url)
       return false
     }
+  }
+
+  /// Logs scheme, host, and path only — query values can include channel secrets.
+  private static func logFailedMeshCoreParse(_ url: URL) {
+    let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+    let hadSecretQuery = components?.queryItems?.contains { item in
+      item.name == "secret" && !(item.value?.isEmpty ?? true)
+    } ?? false
+    chatLinkRouterLogger.error(
+      "Failed to parse meshcore URL scheme=\(url.scheme ?? "", privacy: .public) host=\(url.host() ?? "", privacy: .public) path=\(url.path(), privacy: .public) hadSecretQuery=\(hadSecretQuery)"
+    )
   }
 
   private static func handleContactLink(

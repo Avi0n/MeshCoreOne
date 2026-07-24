@@ -3,6 +3,8 @@ import StoreKit
 import SwiftUI
 
 struct ContributionsSection: View {
+  let onPurchaseSucceeded: () -> Void
+
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.purchase) private var purchase
@@ -31,7 +33,11 @@ struct ContributionsSection: View {
             displayName: product.displayName,
             displayPrice: product.displayPrice,
             requiresConfirmation: contribution.highValue,
-            onPurchase: { await storeState.purchase(productID: contribution.id) { try await purchase($0) } }
+            onPurchase: {
+              if await storeState.purchase(productID: contribution.id, purchase: { try await purchase($0) }) {
+                onPurchaseSucceeded()
+              }
+            }
           )
         }
       }

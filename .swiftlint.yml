@@ -7,7 +7,7 @@ excluded:
   - MC1.xcodeproj
   - MC1/Resources/Generated
   - MeshCore/.build
-  - MeshCore-references
+  - mc-ref
   - MC1Services/.build
   - fastlane
   - scripts

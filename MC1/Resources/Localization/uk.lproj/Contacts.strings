@@ -38,8 +38,6 @@
 "contacts.nodeKind.chat" = "Чат";
 
 /* Location: Multiple files - Purpose: Chat contact full label */
-"contacts.nodeKind.chatContact" = "Контакт чату";
-
 /* Location: Multiple files - Purpose: Repeater contact type label */
 "contacts.nodeKind.repeater" = "Ретранслятор";
 
@@ -270,6 +268,24 @@
 
 /* Location: ContactDetailView.swift - Purpose: Info section header */
 "contacts.detail.info" = "Інформація";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu title */
+"contacts.detail.avatar.chooseSource" = "Змінити фото профілю";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library */
+"contacts.detail.avatar.choosePhoto" = "Вибрати фото";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file */
+"contacts.detail.avatar.chooseFile" = "Вибрати файл...";
+
+/* Location: ContactDetailView.swift - Purpose: Avatar edit menu option to remove the current photo */
+"contacts.detail.avatar.removePhoto" = "Видалити фото";
+
+/* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
+"contacts.detail.avatar.savingAnnouncement" = "Збереження фото";
+
+/* Location: ContactDetailView.swift - Purpose: Error shown when the picked file is not a valid image */
+"contacts.detail.avatar.invalidImage" = "Цей файл не можна використати як фото профілю.";
 
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Псевдонім";
@@ -522,11 +538,7 @@
 "contacts.scan.error.invalidFormat" = "Недійсний формат QR-коду";
 
 /* Location: ScanContactQRView.swift - Purpose: Missing name error */
-"contacts.scan.error.missingName" = "Недійсний QR-код: відсутнє ім'я";
-
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
-"contacts.scan.error.invalidKey" = "Недійсний QR-код: недійсний публічний ключ";
-
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "Не вдалося імпортувати контакт: %@";
 
@@ -551,8 +563,6 @@
 "contacts.discovery.addedAccessibility" = "Уже додано до контактів";
 
 /* Location: DiscoveryView.swift - Purpose: Services not available error */
-"contacts.discovery.error.servicesUnavailable" = "Сервіси недоступні";
-
 /* Location: DiscoveryView.swift - Purpose: Segment filter - All */
 "contacts.discovery.segment.all" = "Усі";
 
@@ -613,16 +623,7 @@
 
 // MARK: - Trace Path Cluster View
 
-"contacts.trace.map.cluster.label" = "Ретрансляторів: %d";
-"contacts.trace.map.cluster.hint" = "Натисніть двічі для збільшення";
-
 // MARK: - Trace Path Repeater Pin View
-
-"contacts.trace.map.pin.inPathLabel" = "Ретранслятор: %1$@, перехід %2$d у маршруті";
-"contacts.trace.map.pin.removableHint" = "Натисніть двічі, щоб видалити з маршруту";
-"contacts.trace.map.pin.notRemovableHint" = "Цей перехід не можна видалити. Можна видалити лише останній перехід.";
-"contacts.trace.map.pin.availableLabel" = "Ретранслятор: %@";
-"contacts.trace.map.pin.addHint" = "Натисніть двічі, щоб додати до маршруту";
 
 // MARK: - Path Editing Sheet
 
@@ -1002,11 +1003,7 @@
 "contacts.trace.map.clear" = "Очистити";
 
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
-"contacts.trace.map.hideLabels" = "Приховати підписи";
-
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
-"contacts.trace.map.showLabels" = "Показати підписи";
-
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
 "contacts.trace.map.centerOnPath" = "Центрувати на маршруті";
 
@@ -1164,8 +1161,6 @@
 // MARK: - Stats Badge Accessibility
 
 /* Location: StatsBadgeView.swift - Purpose: Distance and signal accessibility */
-"contacts.statsBadge.accessibility" = "Відстань: %@, Сигнал: %d децибел";
-
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
