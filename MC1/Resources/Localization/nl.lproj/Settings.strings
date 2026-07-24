@@ -1679,6 +1679,13 @@
 "Support.ThankYou.Title" = "Bedankt!";
 "Support.ThankYou.Body" = "Dank je voor je steun, het betekent veel. Ik blijf hard werken om MC1 beter te maken!";
 
+/* MARK: Feedback screen */
+/* AI-translated - please verify with native speakers. */
+"Feedback.Title" = "Feedback";
+"Feedback.Header.Body" = "GitHub Issues heeft de voorkeur, maar e-mail werkt ook.";
+"Feedback.GitHub.Link" = "Open een GitHub Issue";
+"Feedback.Email.Link" = "Stuur de ontwikkelaar een e-mail";
+
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Standaard";
 "Support.Theme.Ember" = "Ember";

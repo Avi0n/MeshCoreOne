@@ -37,6 +37,8 @@ struct SettingsDetailView: View {
       )
     case .support:
       SupportDevelopmentView()
+    case .feedback:
+      FeedbackView()
     }
   }
 }

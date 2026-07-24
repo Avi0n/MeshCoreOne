@@ -16,6 +16,7 @@ enum SettingsDetail: Hashable {
   case maps
   case backup
   case support
+  case feedback
 
   /// The My Device rows only exist while a radio is connected; clearing their selection on
   /// disconnect or a radio switch keeps the detail pane from stranding a now-gone device page.
@@ -23,7 +24,7 @@ enum SettingsDetail: Hashable {
     switch self {
     case .deviceInfo, .radio, .location, .connection, .advanced:
       true
-    case .notifications, .chats, .appearance, .maps, .backup, .support:
+    case .notifications, .chats, .appearance, .maps, .backup, .support, .feedback:
       false
     }
   }

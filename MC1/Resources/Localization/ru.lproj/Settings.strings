@@ -1679,6 +1679,13 @@
 "Support.ThankYou.Title" = "Спасибо!";
 "Support.ThankYou.Body" = "Спасибо за вашу поддержку — это очень много значит. Я продолжу работать над тем, чтобы MC1 становился лучше!";
 
+/* MARK: Feedback screen */
+/* AI-translated - please verify with native speakers. */
+"Feedback.Title" = "Обратная связь";
+"Feedback.Header.Body" = "Предпочтительный способ — GitHub Issues, но можно и по электронной почте.";
+"Feedback.GitHub.Link" = "Открыть issue на GitHub";
+"Feedback.Email.Link" = "Написать разработчику";
+
 /* MARK: Theme display names */
 "Support.Theme.Default" = "Стандартная";
 "Support.Theme.Ember" = "Уголь";

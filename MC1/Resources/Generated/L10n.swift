@@ -3855,6 +3855,22 @@ public enum L10n {
         public static let selected = L10n.tr("Settings", "Appearance.Themes.Selected", fallback: "Selected")
       }
     }
+    public enum Feedback {
+      /// MARK: Feedback screen
+      public static let title = L10n.tr("Settings", "Feedback.Title", fallback: "Feedback")
+      public enum Email {
+        /// Email the developer
+        public static let link = L10n.tr("Settings", "Feedback.Email.Link", fallback: "Email the developer")
+      }
+      public enum GitHub {
+        /// Open a GitHub Issue
+        public static let link = L10n.tr("Settings", "Feedback.GitHub.Link", fallback: "Open a GitHub Issue")
+      }
+      public enum Header {
+        /// GitHub Issues is the preferred method, but email works too.
+        public static let body = L10n.tr("Settings", "Feedback.Header.Body", fallback: "GitHub Issues is the preferred method, but email works too.")
+      }
+    }
     public enum Support {
       /// MARK: Support (purchase) screen
       public static let title = L10n.tr("Settings", "Support.Title", fallback: "Support Development")
