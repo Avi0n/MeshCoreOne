@@ -22,7 +22,8 @@ enum WhatsNewCatalog {
           title: L10n.WhatsNew.WhatsNew.MapFilters.title,
           description: L10n.WhatsNew.WhatsNew.MapFilters.description
         )
-      ]
+      ],
+      releaseNotesURL: URL(string: "https://github.com/Avi0n/MeshCoreOne/releases/tag/v1.3.0")!
     )
   ]
 }

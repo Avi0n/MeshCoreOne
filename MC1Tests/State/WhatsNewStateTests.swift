@@ -25,7 +25,8 @@ final class WhatsNewStateTests {
   private func release(_ major: Int, _ minor: Int, items: Int = 1) -> WhatsNewRelease {
     WhatsNewRelease(
       version: WhatsNewVersion(major: major, minor: minor),
-      items: (0..<items).map { WhatsNewItem(symbol: "star", title: "t\($0)", description: "d\($0)") }
+      items: (0..<items).map { WhatsNewItem(symbol: "star", title: "t\($0)", description: "d\($0)") },
+      releaseNotesURL: URL(string: "https://example.com/releases")!
     )
   }
 

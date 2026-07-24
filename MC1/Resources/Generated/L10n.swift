@@ -6048,6 +6048,8 @@ public enum L10n {
     public enum WhatsNew {
       /// Button to dismiss the What's New sheet
       public static let continueButton = L10n.tr("WhatsNew", "whatsNew.continueButton", fallback: "Continue")
+      /// Link on the What's New sheet to the full GitHub release notes
+      public static let fullReleaseNotes = L10n.tr("WhatsNew", "whatsNew.fullReleaseNotes", fallback: "Full release notes")
       /// Title of the What's New sheet shown once after an app update
       public static let title = L10n.tr("WhatsNew", "whatsNew.title", fallback: "What's New")
       public enum ContactPhotos {

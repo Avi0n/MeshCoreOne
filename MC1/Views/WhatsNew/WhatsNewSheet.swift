@@ -39,6 +39,10 @@ struct WhatsNewSheet: View {
             WhatsNewRow(item: item)
           }
         }
+
+        Link(L10n.WhatsNew.WhatsNew.fullReleaseNotes, destination: release.releaseNotesURL)
+          .font(.subheadline)
+          .frame(maxWidth: .infinity, alignment: .center)
       }
       .padding()
     }
@@ -136,6 +140,7 @@ private extension WhatsNewRelease {
         title: "Private by Default",
         description: "Your messages stay encrypted end to end, on device."
       )
-    ]
+    ],
+    releaseNotesURL: URL(string: "https://github.com/Avi0n/MeshCoreOne/releases/tag/v1.3.0")!
   )
 }

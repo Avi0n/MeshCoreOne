@@ -13,6 +13,9 @@
 /* Button to dismiss the What's New sheet */
 "whatsNew.continueButton" = "Continue";
 
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Full release notes";
+
 /* What's New v1.3 - Improved chats feature, title */
 "whatsNew.fasterChats.title" = "Improved chats";
 /* What's New v1.3 - Improved chats feature, description */

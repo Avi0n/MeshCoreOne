@@ -4,6 +4,7 @@ import Foundation
 struct WhatsNewRelease: Identifiable {
   let version: WhatsNewVersion
   let items: [WhatsNewItem]
+  let releaseNotesURL: URL
 
   var id: WhatsNewVersion {
     version
