@@ -23,7 +23,7 @@
 /* What's New v1.3 - Contact photos feature, description */
 "whatsNew.contactPhotos.description" = "Встановіть аватар для будь-якого контакту, щоб легше впізнавати людей у списках і розмовах.";
 
-/* What's New v1.3 - Discovered nodes on maps feature, title */
-"whatsNew.richerMaps.title" = "Виявлені вузли на картах";
-/* What's New v1.3 - Discovered nodes on maps feature, description */
-"whatsNew.richerMaps.description" = "Показуйте виявлені контакти на карті та обирайте світлий, темний або системний вигляд карти в «Налаштування → Карти».";
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Фільтри карти";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Фільтруйте позначки за обраними, виявленими вузлами та типом вузла.";

@@ -23,7 +23,7 @@
 /* What's New v1.3 - Contact photos feature, description */
 "whatsNew.contactPhotos.description" = "Lege ein Avatar-Bild für jeden Kontakt fest, damit Personen in Listen und Unterhaltungen leichter zu erkennen sind.";
 
-/* What's New v1.3 - Discovered nodes on maps feature, title */
-"whatsNew.richerMaps.title" = "Entdeckte Knoten auf Karten";
-/* What's New v1.3 - Discovered nodes on maps feature, description */
-"whatsNew.richerMaps.description" = "Zeige entdeckte Kontakte auf der Karte und wähle helles, dunkles oder System-Kartenerscheinungsbild unter Einstellungen → Karten.";
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Kartenfilter";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtere Pins nach Favoriten, entdeckten Knoten und Knotentyp.";

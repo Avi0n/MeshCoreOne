@@ -23,7 +23,7 @@
 /* What's New v1.3 - Contact photos feature, description */
 "whatsNew.contactPhotos.description" = "为任意联系人设置头像，方便在列表和对话中快速认出对方。";
 
-/* What's New v1.3 - Discovered nodes on maps feature, title */
-"whatsNew.richerMaps.title" = "地图上的发现节点";
-/* What's New v1.3 - Discovered nodes on maps feature, description */
-"whatsNew.richerMaps.description" = "在地图上显示发现的联系人，并可在“设置 → 地图”中选择浅色、深色或跟随系统的地图外观。";
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "地图筛选";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "按收藏、发现的节点和节点类型筛选地图标记。";

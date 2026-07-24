@@ -19,8 +19,8 @@ enum WhatsNewCatalog {
         ),
         WhatsNewItem(
           symbol: "map",
-          title: L10n.WhatsNew.WhatsNew.RicherMaps.title,
-          description: L10n.WhatsNew.WhatsNew.RicherMaps.description
+          title: L10n.WhatsNew.WhatsNew.MapFilters.title,
+          description: L10n.WhatsNew.WhatsNew.MapFilters.description
         )
       ]
     )

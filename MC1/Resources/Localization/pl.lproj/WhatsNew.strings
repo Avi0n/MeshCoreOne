@@ -23,7 +23,7 @@
 /* What's New v1.3 - Contact photos feature, description */
 "whatsNew.contactPhotos.description" = "Ustaw awatar dla dowolnego kontaktu, aby łatwiej rozpoznawać osoby na listach i w rozmowach.";
 
-/* What's New v1.3 - Discovered nodes on maps feature, title */
-"whatsNew.richerMaps.title" = "Odkryte węzły na mapach";
-/* What's New v1.3 - Discovered nodes on maps feature, description */
-"whatsNew.richerMaps.description" = "Pokazuj odkryte kontakty na mapie i wybierz jasny, ciemny lub systemowy wygląd mapy w Ustawienia → Mapy.";
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Filtry mapy";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtruj pinezki według ulubionych, odkrytych węzłów i typu węzła.";

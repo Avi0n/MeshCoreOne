@@ -6046,11 +6046,11 @@ public enum L10n {
         /// What's New v1.3 - Improved chats feature, title
         public static let title = L10n.tr("WhatsNew", "whatsNew.fasterChats.title", fallback: "Improved chats")
       }
-      public enum RicherMaps {
-        /// What's New v1.3 - Discovered nodes on maps feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.richerMaps.description", fallback: "Show discovered contacts on the map and choose light, dark, or system map appearance in Settings → Maps.")
-        /// What's New v1.3 - Discovered nodes on maps feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.richerMaps.title", fallback: "Discovered nodes on maps")
+      public enum MapFilters {
+        /// What's New v1.3 - Map filters feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.mapFilters.description", fallback: "Filter pins by favorites, discovered nodes, and node type.")
+        /// What's New v1.3 - Map filters feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.mapFilters.title", fallback: "Map filters")
       }
     }
   }

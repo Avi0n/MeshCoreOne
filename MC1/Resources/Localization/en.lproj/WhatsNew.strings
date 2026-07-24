@@ -23,7 +23,7 @@
 /* What's New v1.3 - Contact photos feature, description */
 "whatsNew.contactPhotos.description" = "Set an avatar on any contact so people are easier to spot in lists and conversations.";
 
-/* What's New v1.3 - Discovered nodes on maps feature, title */
-"whatsNew.richerMaps.title" = "Discovered nodes on maps";
-/* What's New v1.3 - Discovered nodes on maps feature, description */
-"whatsNew.richerMaps.description" = "Show discovered contacts on the map and choose light, dark, or system map appearance in Settings → Maps.";
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Map filters";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filter pins by favorites, discovered nodes, and node type.";
