@@ -20,7 +20,13 @@ struct NeighborSNRMapBuilderTests {
     )
   }
 
-  private func makeContact(prefix: [UInt8], name: String, latitude: Double, longitude: Double) -> ContactDTO {
+  private func makeContact(
+    prefix: [UInt8],
+    name: String,
+    latitude: Double,
+    longitude: Double,
+    isFavorite: Bool = false
+  ) -> ContactDTO {
     ContactDTO(
       id: UUID(),
       radioID: UUID(),
@@ -37,7 +43,7 @@ struct NeighborSNRMapBuilderTests {
       nickname: nil,
       isBlocked: false,
       isMuted: false,
-      isFavorite: false,
+      isFavorite: isFavorite,
       lastMessageDate: nil,
       unreadCount: 0
     )
@@ -98,7 +104,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: [neighbor],
       contacts: [contact],
       discoveredNodes: [],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState()
     )
 
     #expect(result.points.count(where: { $0.pinStyle == .repeaterRingWhite }) == 1)
@@ -138,7 +145,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: neighbors,
       contacts: contacts,
       discoveredNodes: [],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState()
     )
 
     #expect(result.points.count(where: { $0.pinStyle == .repeaterRingWhite }) == 1)
@@ -164,7 +172,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: [neighbor],
       contacts: [contact],
       discoveredNodes: [],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState()
     )
 
     #expect(result.points.filter { $0.pinStyle == .repeaterRingWhite }.isEmpty)
@@ -188,7 +197,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: [neighbor],
       contacts: [contact],
       discoveredNodes: [node],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState(showDiscovered: true)
     )
 
     #expect(result.points.filter { $0.pinStyle == .repeater }.isEmpty)
@@ -208,7 +218,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: [neighbor],
       contacts: [contact],
       discoveredNodes: [],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState()
     )
 
     #expect(result.points.filter { $0.pinStyle == .repeater }.isEmpty)
@@ -230,7 +241,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: [neighbor],
       contacts: [],
       discoveredNodes: [node],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState(showDiscovered: true)
     )
 
     #expect(result.points.filter { $0.pinStyle == .repeater }.isEmpty)
@@ -248,7 +260,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: [neighbor],
       contacts: [],
       discoveredNodes: [],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState()
     )
 
     #expect(result.points.filter { $0.pinStyle == .repeater }.isEmpty)
@@ -270,7 +283,8 @@ struct NeighborSNRMapBuilderTests {
       neighbors: neighbors,
       contacts: [],
       discoveredNodes: [],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState()
     )
 
     #expect(result.points.count == 1)
@@ -290,12 +304,151 @@ struct NeighborSNRMapBuilderTests {
       neighbors: [neighbor],
       contacts: [],
       discoveredNodes: [],
-      userLocation: nil
+      userLocation: nil,
+      filter: MapFilterState()
     )
 
     #expect(result.points.isEmpty)
     #expect(result.region == nil)
     #expect(result.unplottable.count == 1)
+  }
+
+  // MARK: - Filter
+
+  @Test
+  func `favorites only keeps session pin and drops non-favorite neighbor`() {
+    let session = makeSession(latitude: 37.0, longitude: -122.0)
+    let favorite = makeContact(
+      prefix: exactPrefix,
+      name: "Fav",
+      latitude: 37.1,
+      longitude: -122.1,
+      isFavorite: true
+    )
+    let other = makeContact(
+      prefix: secondExactPrefix,
+      name: "Other",
+      latitude: 37.2,
+      longitude: -121.9,
+      isFavorite: false
+    )
+    let neighbors = [makeNeighbor(prefix: exactPrefix), makeNeighbor(prefix: secondExactPrefix)]
+
+    let result = NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: neighbors,
+      contacts: [favorite, other],
+      discoveredNodes: [],
+      userLocation: nil,
+      filter: MapFilterState(favoritesOnly: true)
+    )
+
+    #expect(result.points.count(where: { $0.pinStyle == .repeaterRingWhite }) == 1)
+    #expect(result.points.count(where: { $0.pinStyle == .repeater }) == 1)
+    #expect(result.points.contains { $0.pinStyle == .repeater && $0.label == "Fav" })
+    #expect(result.unplottable.count == 1)
+    // Non-favorite is excluded from the contact pool, so resolution falls back to hex.
+    #expect(result.unplottable.contains {
+      $0.matchKind == .unresolved
+        && $0.neighbor.publicKeyPrefix == Data(secondExactPrefix)
+    })
+  }
+
+  @Test
+  func `discovered off drops discovered-only exact neighbor into unplottable`() {
+    let session = makeSession(latitude: 37.0, longitude: -122.0)
+    let discovered = makeDiscoveredNode(
+      prefix: exactPrefix,
+      name: "Heard",
+      latitude: 37.1,
+      longitude: -122.1
+    )
+    let neighbor = makeNeighbor(prefix: exactPrefix)
+
+    let withD = NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: [neighbor],
+      contacts: [],
+      discoveredNodes: [discovered],
+      userLocation: nil,
+      filter: MapFilterState(showDiscovered: true)
+    )
+    #expect(withD.points.count(where: { $0.pinStyle == .repeater }) == 1)
+
+    let withoutD = NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: [neighbor],
+      contacts: [],
+      discoveredNodes: [discovered],
+      userLocation: nil,
+      filter: MapFilterState(showDiscovered: false)
+    )
+    #expect(withoutD.points.count(where: { $0.pinStyle == .repeater }) == 0)
+    #expect(withoutD.points.count(where: { $0.pinStyle == .repeaterRingWhite }) == 1)
+    #expect(withoutD.unplottable.count == 1)
+  }
+
+  @Test
+  func `same inputs twice produce equal points under MapPoint equality`() {
+    let session = makeSession(latitude: 37.0, longitude: -122.0)
+    let contact = makeContact(prefix: exactPrefix, name: "Ridge", latitude: 37.1, longitude: -122.1)
+    let neighbor = makeNeighbor(prefix: exactPrefix)
+
+    let first = NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: [neighbor],
+      contacts: [contact],
+      discoveredNodes: [],
+      userLocation: nil,
+      filter: MapFilterState()
+    )
+    let second = NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: [neighbor],
+      contacts: [contact],
+      discoveredNodes: [],
+      userLocation: nil,
+      filter: MapFilterState()
+    )
+    #expect(first.points == second.points)
+    #expect(first.lines.map(\.id) == second.lines.map(\.id))
+  }
+
+  @Test
+  func `favorites with discovered true still drops discovered-only neighbor`() {
+    let session = makeSession(latitude: 37.0, longitude: -122.0)
+    let discovered = makeDiscoveredNode(
+      prefix: exactPrefix,
+      name: "Heard",
+      latitude: 37.1,
+      longitude: -122.1
+    )
+    let neighbor = makeNeighbor(prefix: exactPrefix)
+
+    let result = NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: [neighbor],
+      contacts: [],
+      discoveredNodes: [discovered],
+      userLocation: nil,
+      filter: MapFilterState(favoritesOnly: true, showDiscovered: true)
+    )
+
+    #expect(result.points.count(where: { $0.pinStyle == .repeaterRingWhite }) == 1)
+    #expect(result.points.count(where: { $0.pinStyle == .repeater }) == 0)
+    #expect(result.unplottable.count == 1)
+  }
+
+  @Test
+  func `stableID namespaces separate roles for same key`() {
+    let key = Data(exactPrefix)
+    let center = NeighborSNRMapBuilder.stableID(role: .center, key: key)
+    let neighbor = NeighborSNRMapBuilder.stableID(role: .neighbor, key: key)
+    let badge = NeighborSNRMapBuilder.stableID(role: .badge, key: key)
+    #expect(center == NeighborSNRMapBuilder.stableID(role: .center, key: key))
+    #expect(center != neighbor)
+    #expect(neighbor != badge)
+    #expect(center != badge)
   }
 
   // MARK: - SNR bucketing

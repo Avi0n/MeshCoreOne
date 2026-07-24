@@ -13,6 +13,9 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var mapShowLabels: Bool?
   public var mapNorthLocked: Bool?
   public var showDiscoveredNodesOnMap: Bool?
+  public var mapFilterMainMap: String?
+  public var mapFilterTracePath: String?
+  public var mapFilterNeighborSNR: String?
   public var mapColorSchemePreference: String?
   public var replyWithQuote: Bool?
   public var showInlineImages: Bool?
@@ -139,6 +142,9 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   private nonisolated(unsafe) static let stringMappings: [(WritableKeyPath<BackupUserDefaults, String?>, String)] = [
     (\.mapStyleSelection, AppStorageKey.mapStyleSelection.rawValue),
     (\.mapColorSchemePreference, AppStorageKey.mapColorSchemePreference.rawValue),
+    (\.mapFilterMainMap, AppStorageKey.mapFilterMainMap.rawValue),
+    (\.mapFilterTracePath, AppStorageKey.mapFilterTracePath.rawValue),
+    (\.mapFilterNeighborSNR, AppStorageKey.mapFilterNeighborSNR.rawValue),
     (\.discoverySortOrder, AppStorageKey.discoverySortOrder.rawValue),
     (\.nodesSortOrder, AppStorageKey.nodesSortOrder.rawValue),
     (\.tracePathViewMode, AppStorageKey.tracePathViewMode.rawValue),

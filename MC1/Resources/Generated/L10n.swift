@@ -2701,6 +2701,10 @@ public enum L10n {
         public static let centerAll = L10n.tr("Map", "map.controls.centerAll", fallback: "Center on all contacts")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button
         public static let centerOnMyLocation = L10n.tr("Map", "map.controls.centerOnMyLocation", fallback: "Center on my location")
+        /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control
+        public static let filter = L10n.tr("Map", "map.controls.filter", fallback: "Filter")
+        /// Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults
+        public static let filterActive = L10n.tr("Map", "map.controls.filterActive", fallback: "Filters active")
         /// Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that locks the map bearing to north
         public static let lockNorth = L10n.tr("Map", "map.controls.lockNorth", fallback: "North up")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button
@@ -4776,10 +4780,6 @@ public enum L10n {
       public static let displayHeader = L10n.tr("Settings", "maps.displayHeader", fallback: "Display")
       /// Section header for Offline Maps entry under Maps settings
       public static let offlineHeader = L10n.tr("Settings", "maps.offlineHeader", fallback: "Offline Maps")
-      /// Toggle to show discovered nodes on the main map
-      public static let showDiscovered = L10n.tr("Settings", "maps.showDiscovered", fallback: "Show Discovered Nodes")
-      /// Footer explaining the discovered-nodes map toggle
-      public static let showDiscoveredFooter = L10n.tr("Settings", "maps.showDiscoveredFooter", fallback: "When enabled, nodes from Discover that share a location appear on the map alongside saved nodes.")
       /// Navigation title for Settings → Maps hub
       public static let title = L10n.tr("Settings", "maps.title", fallback: "Maps")
     }

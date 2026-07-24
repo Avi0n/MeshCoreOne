@@ -1349,12 +1349,6 @@
 /* Section header for display preferences on Maps settings */
 "maps.displayHeader" = "Display";
 
-/* Toggle to show discovered nodes on the main map */
-"maps.showDiscovered" = "Show Discovered Nodes";
-
-/* Footer explaining the discovered-nodes map toggle */
-"maps.showDiscoveredFooter" = "When enabled, nodes from Discover that share a location appear on the map alongside saved nodes.";
-
 /* Picker label for map basemap appearance */
 "maps.appearance" = "Map Appearance";
 

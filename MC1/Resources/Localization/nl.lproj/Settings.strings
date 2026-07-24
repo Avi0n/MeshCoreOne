@@ -1351,12 +1351,6 @@
 /* Section header for display preferences on Maps settings */
 "maps.displayHeader" = "Weergave";
 
-/* Toggle to show discovered nodes on the main map */
-"maps.showDiscovered" = "Ontdekte knooppunten tonen";
-
-/* Footer explaining the discovered-nodes map toggle */
-"maps.showDiscoveredFooter" = "Wanneer ingeschakeld verschijnen knooppunten uit Ontdekken die een locatie delen op de kaart naast opgeslagen knooppunten.";
-
 /* Picker label for map basemap appearance */
 "maps.appearance" = "Kaartweergave";
 

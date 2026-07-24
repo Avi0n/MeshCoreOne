@@ -27,12 +27,22 @@ struct NeighborSNRMapView: View {
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
   private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
+  @AppStorage(AppStorageKey.mapFilterNeighborSNR.rawValue)
+  private var mapFilterRaw: String = ""
 
   @State private var cameraRegion: MKCoordinateRegion?
 
   private var mapIsDark: Bool {
     let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
     return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
+  }
+
+  private var mapFilter: MapFilterState {
+    MapFilterPreferences.state(fromRaw: mapFilterRaw, host: .neighborSNR)
+  }
+
+  private var mapFilterBinding: Binding<MapFilterState> {
+    MapFilterPreferences.binding(raw: $mapFilterRaw, host: .neighborSNR)
   }
 
   @State private var cameraRegionVersion = 0
@@ -80,14 +90,9 @@ struct NeighborSNRMapView: View {
       }
     }
     .onAppear {
+      MapFilterPreferences.ensureMigrated(raw: &mapFilterRaw, host: .neighborSNR)
       guard plotted == nil else { return }
-      let built = NeighborSNRMapBuilder.build(
-        session: session,
-        neighbors: neighbors,
-        contacts: contacts,
-        discoveredNodes: discoveredNodes,
-        userLocation: userLocation
-      )
+      let built = rebuildPlotted()
       withAnimation { plotted = built }
       setCameraRegion(built.region)
     }
@@ -97,6 +102,20 @@ struct NeighborSNRMapView: View {
     .onChange(of: isStyleLoaded) { _, loaded in
       if loaded { setCameraRegion(plotted?.region) }
     }
+    .onChange(of: mapFilterRaw) { _, _ in
+      plotted = rebuildPlotted()
+    }
+  }
+
+  private func rebuildPlotted() -> NeighborSNRMapBuilder.PlottedNeighbors {
+    NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: neighbors,
+      contacts: contacts,
+      discoveredNodes: discoveredNodes,
+      userLocation: userLocation,
+      filter: mapFilter
+    )
   }
 
   /// Glanceable count of neighbors that couldn't be placed; tapping pushes their list. Styled like
@@ -129,7 +148,8 @@ struct NeighborSNRMapView: View {
         isNorthLocked: $isNorthLocked,
         showLabels: $showLabels,
         mapStyleSelection: $mapStyleSelection,
-        viewportBounds: cameraRegion?.toMLNCoordinateBounds()
+        viewportBounds: cameraRegion?.toMLNCoordinateBounds(),
+        filter: MapFilterControl(host: .neighborSNR, state: mapFilterBinding)
       ) {
         centerAllButton
       }

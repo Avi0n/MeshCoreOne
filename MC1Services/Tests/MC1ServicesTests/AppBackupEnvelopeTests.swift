@@ -376,6 +376,77 @@ struct AppBackupEnvelopeTests {
   }
 
   @Test
+  func `Legacy envelope without mapFilter keys decodes to nil and restore skips them`() throws {
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.mapFilterMainMap == nil)
+    #expect(decoded.mapFilterTracePath == nil)
+    #expect(decoded.mapFilterNeighborSNR == nil)
+
+    let suiteName = "test.mapFilter.legacy.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let mainKey = AppStorageKey.mapFilterMainMap.rawValue
+    defaults.set("{\"favoritesOnly\":false}", forKey: mainKey)
+
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(mainKey))
+    #expect(defaults.string(forKey: mainKey) == "{\"favoritesOnly\":false}")
+  }
+
+  @Test
+  func `mapFilterMainMap non-default JSON string round-trips through restore`() throws {
+    // Fixture mirrors MapFilterState.storageString without depending on MC1 types.
+    let filterJSON =
+      #"{"favoritesOnly":true,"showDiscovered":false,"showChat":true,"showRepeater":false,"showRoom":true}"#
+    let traceJSON =
+      #"{"favoritesOnly":false,"showDiscovered":true,"showChat":true,"showRepeater":true,"showRoom":true}"#
+    let neighborJSON =
+      #"{"favoritesOnly":true,"showDiscovered":false,"showChat":true,"showRepeater":true,"showRoom":true}"#
+    var prefs = BackupUserDefaults()
+    prefs.mapFilterMainMap = filterJSON
+    prefs.mapFilterTracePath = traceJSON
+    prefs.mapFilterNeighborSNR = neighborJSON
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.mapFilterMainMap == filterJSON)
+    #expect(decoded.mapFilterTracePath == traceJSON)
+    #expect(decoded.mapFilterNeighborSNR == neighborJSON)
+
+    let suiteName = "test.mapFilter.roundTrip.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let mainKey = AppStorageKey.mapFilterMainMap.rawValue
+    let traceKey = AppStorageKey.mapFilterTracePath.rawValue
+    let neighborKey = AppStorageKey.mapFilterNeighborSNR.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(setKeys.contains(mainKey))
+    #expect(setKeys.contains(traceKey))
+    #expect(setKeys.contains(neighborKey))
+    #expect(defaults.string(forKey: mainKey) == filterJSON)
+    #expect(defaults.string(forKey: traceKey) == traceJSON)
+    #expect(defaults.string(forKey: neighborKey) == neighborJSON)
+  }
+
+  @Test
+  func `dual legacy discovered and mapFilterMainMap both preserve on envelope wire`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.showDiscoveredNodesOnMap = true
+    prefs.mapFilterMainMap =
+      #"{"favoritesOnly":false,"showDiscovered":false,"showChat":true,"showRepeater":true,"showRoom":true}"#
+
+    let data = try JSONEncoder().encode(prefs)
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showDiscoveredNodesOnMap == true)
+    #expect(decoded.mapFilterMainMap?.contains("\"showDiscovered\":false") == true)
+  }
+
+  @Test
   func `showInlineImages survives restore and never reconstructs the link-content toggle`() throws {
     // showInlineImages is retained in the wire format but no longer read as a
     // gate. It must survive encode -> decode -> restore, and restoring an

@@ -1351,12 +1351,6 @@
 /* Section header for display preferences on Maps settings */
 "maps.displayHeader" = "Отображение";
 
-/* Toggle to show discovered nodes on the main map */
-"maps.showDiscovered" = "Показывать обнаруженные узлы";
-
-/* Footer explaining the discovered-nodes map toggle */
-"maps.showDiscoveredFooter" = "Когда включено, узлы из Обнаружения, которые делятся местоположением, появляются на карте вместе с сохранёнными.";
-
 /* Picker label for map basemap appearance */
 "maps.appearance" = "Внешний вид карты";
 

@@ -1351,12 +1351,6 @@
 /* Section header for display preferences on Maps settings */
 "maps.displayHeader" = "Anzeige";
 
-/* Toggle to show discovered nodes on the main map */
-"maps.showDiscovered" = "Entdeckte Knoten anzeigen";
-
-/* Footer explaining the discovered-nodes map toggle */
-"maps.showDiscoveredFooter" = "Wenn aktiviert, erscheinen Knoten aus Entdecken, die einen Standort teilen, auf der Karte neben gespeicherten Knoten.";
-
 /* Picker label for map basemap appearance */
 "maps.appearance" = "Kartenerscheinungsbild";
 

@@ -1351,12 +1351,6 @@
 /* Section header for display preferences on Maps settings */
 "maps.displayHeader" = "Відображення";
 
-/* Toggle to show discovered nodes on the main map */
-"maps.showDiscovered" = "Показувати виявлені вузли";
-
-/* Footer explaining the discovered-nodes map toggle */
-"maps.showDiscoveredFooter" = "Коли увімкнено, вузли з Виявлення, що діляться місцезнаходженням, з'являються на карті разом зі збереженими вузлами.";
-
 /* Picker label for map basemap appearance */
 "maps.appearance" = "Вигляд карти";
 

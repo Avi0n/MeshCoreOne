@@ -35,6 +35,11 @@ public enum AppStorageKey: String {
   case mapShowLabels
   case mapNorthLocked
   case showDiscoveredNodesOnMap
+  /// Per-host map filter JSON (`MapFilterState.storageString`).
+  /// Raw values match `BackupUserDefaults` property names so coverage tests stay aligned.
+  case mapFilterMainMap
+  case mapFilterTracePath
+  case mapFilterNeighborSNR
   case mapColorSchemePreference
   case hasSeenRepeaterDragHint
   case autoDeleteStaleNodesDays

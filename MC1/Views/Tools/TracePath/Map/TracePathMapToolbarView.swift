@@ -3,7 +3,7 @@ import MapLibre
 import MC1Services
 import SwiftUI
 
-/// Map controls toolbar for trace path map view (location, labels, layers)
+/// Map controls toolbar for trace path map view (location, filter, labels, style)
 struct TracePathMapToolbarView: View {
   @Environment(\.appState) private var appState
   @Bindable var mapViewModel: TracePathMapViewModel
@@ -11,6 +11,7 @@ struct TracePathMapToolbarView: View {
   @Binding var showLabels: Bool
   @Binding var isNorthLocked: Bool
   @Binding var isCenteredOnUser: Bool
+  var filter: MapFilterControl
 
   var body: some View {
     VStack {
@@ -25,7 +26,8 @@ struct TracePathMapToolbarView: View {
           isNorthLocked: $isNorthLocked,
           showLabels: $showLabels,
           mapStyleSelection: $mapStyleSelection,
-          viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds()
+          viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds(),
+          filter: filter
         ) {
           // Center on path
           if mapViewModel.hasPath {

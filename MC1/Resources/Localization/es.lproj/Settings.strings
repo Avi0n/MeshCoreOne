@@ -1351,12 +1351,6 @@
 /* Section header for display preferences on Maps settings */
 "maps.displayHeader" = "Visualización";
 
-/* Toggle to show discovered nodes on the main map */
-"maps.showDiscovered" = "Mostrar nodos descubiertos";
-
-/* Footer explaining the discovered-nodes map toggle */
-"maps.showDiscoveredFooter" = "Cuando está activado, los nodos de Descubrir que comparten una ubicación aparecen en el mapa junto a los nodos guardados.";
-
 /* Picker label for map basemap appearance */
 "maps.appearance" = "Apariencia del mapa";
 

@@ -33,6 +33,12 @@
 /* Location: MapView.swift - Purpose: Accessibility label for refresh button */
 "map.controls.refresh" = "Kontakte aktualisieren";
 
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control */
+"map.controls.filter" = "Filter";
+
+/* Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults */
+"map.controls.filterActive" = "Filter aktiv";
+
 // MARK: - Map Style Selection
 
 /* Location: MapStyleSelection.swift - Purpose: Standard map style option */

@@ -16,11 +16,21 @@ struct TracePathMapView: View {
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
   private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
+  @AppStorage(AppStorageKey.mapFilterTracePath.rawValue)
+  private var mapFilterRaw: String = ""
   @State private var mapViewModel = TracePathMapViewModel()
 
   private var mapIsDark: Bool {
     let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
     return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
+  }
+
+  private var mapFilter: MapFilterState {
+    MapFilterPreferences.state(fromRaw: mapFilterRaw, host: .tracePath)
+  }
+
+  private var mapFilterBinding: Binding<MapFilterState> {
+    MapFilterPreferences.binding(raw: $mapFilterRaw, host: .tracePath)
   }
 
   @State private var showingSavePrompt = false
@@ -60,20 +70,26 @@ struct TracePathMapView: View {
         mapStyleSelection: $mapStyleSelection,
         showLabels: $showLabels,
         isNorthLocked: $isNorthLocked,
-        isCenteredOnUser: $isCenteredOnUser
+        isCenteredOnUser: $isCenteredOnUser,
+        filter: MapFilterControl(host: .tracePath, state: mapFilterBinding)
       )
     }
     .onAppear {
+      MapFilterPreferences.ensureMigrated(raw: &mapFilterRaw, host: .tracePath)
       mapViewModel.configure(
         traceViewModel: traceViewModel,
         userLocation: appState.bestAvailableLocation
       )
       mapViewModel.showLabels = showLabels
+      mapViewModel.applyFilter(mapFilter)
       mapViewModel.rebuildOverlays()
       mapViewModel.performInitialCentering()
     }
     .onChange(of: showLabels) { _, newValue in
       mapViewModel.showLabels = newValue
+    }
+    .onChange(of: mapFilterRaw) { _, _ in
+      mapViewModel.applyFilter(mapFilter)
     }
     .onChange(of: appState.bestAvailableLocation) { old, new in
       guard old?.coordinate.latitude != new?.coordinate.latitude
@@ -81,10 +97,12 @@ struct TracePathMapView: View {
       mapViewModel.updateUserLocation(new)
     }
     .onChange(of: traceViewModel.availableNodes) { _, _ in
-      mapViewModel.rebuildPathState()
-      if !mapViewModel.hasInitiallyCenteredOnRepeaters, !mapViewModel.repeatersWithLocation.isEmpty {
-        mapViewModel.performInitialCentering()
-      }
+      // Contacts can load after path hops; lines, pins, and result styles all depend on them.
+      mapViewModel.handleNodeTablesChanged()
+    }
+    .onChange(of: traceViewModel.discoveredRepeaters) { _, _ in
+      // Discovered table can load after contacts; pins, path lines, and result styles depend on it.
+      mapViewModel.handleNodeTablesChanged()
     }
     .onChange(of: traceViewModel.resultID) { _, _ in
       mapViewModel.updateOverlaysWithResults()
@@ -136,13 +154,11 @@ struct TracePathMapView: View {
       cameraRegionVersion: mapViewModel.cameraRegionVersion,
       cameraBottomSheetFraction: 0,
       onPointTap: { point, _ in
-        if let repeater = mapViewModel.repeatersWithLocation.first(where: { $0.id == point.id }) {
-          let result = mapViewModel.handleRepeaterTap(repeater)
-          if result == .rejectedMiddleHop {
-            rejectedTapHaptic += 1
-          } else {
-            pinTapHaptic += 1
-          }
+        let result = mapViewModel.handleMapPointTap(pointID: point.id)
+        if result == .rejectedMiddleHop {
+          rejectedTapHaptic += 1
+        } else if result != .ignored {
+          pinTapHaptic += 1
         }
       },
       onMapTap: nil,

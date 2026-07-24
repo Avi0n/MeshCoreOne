@@ -14,6 +14,7 @@ struct MapCanvasView: View {
   @Binding var selectedPointScreenPosition: CGPoint?
   @Binding var isStyleLoaded: Bool
   let isAddingDiscovered: Bool
+  var filter: MapFilterControl
   let onShowContactDetail: (ContactDTO) -> Void
   let onNavigateToChat: (ContactDTO) -> Void
   let onShowDiscoveredDetail: (DiscoveredNodeDTO) -> Void
@@ -59,6 +60,7 @@ struct MapCanvasView: View {
           isCenteredOnUser: isCenteredOnUser,
           viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds(),
           centerAllEmpty: !viewModel.hasPinsForCenterAll,
+          filter: filter,
           onLocationTap: {
             isCenteredOnUser = onCenterOnUser()
           },
@@ -82,6 +84,7 @@ private struct MapCanvasControls: View {
   let isCenteredOnUser: Bool
   let viewportBounds: MLNCoordinateBounds?
   let centerAllEmpty: Bool
+  var filter: MapFilterControl
   let onLocationTap: () -> Void
   let onClearSelection: () -> Void
   let onCenterAll: () -> Void
@@ -95,7 +98,8 @@ private struct MapCanvasControls: View {
         isNorthLocked: $isNorthLocked,
         showLabels: $showLabels,
         mapStyleSelection: $mapStyleSelection,
-        viewportBounds: viewportBounds
+        viewportBounds: viewportBounds,
+        filter: filter
       ) {
         CenterAllButton(
           isEmpty: centerAllEmpty,

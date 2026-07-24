@@ -1,4 +1,5 @@
 import CoreLocation
+import CryptoKit
 import MapKit
 import MC1Services
 
@@ -24,13 +25,33 @@ enum NeighborSNRMapBuilder {
 
   private static let lineOpacity = 1.0
 
+  /// Role namespaces so center / neighbor / badge pins keep stable ids across rebuilds.
+  enum PinRole: UInt8, Sendable {
+    case center = 0
+    case neighbor = 1
+    case badge = 2
+  }
+
   static func build(
     session: RemoteNodeSessionDTO,
     neighbors: [NeighbourInfo],
     contacts: [ContactDTO],
     discoveredNodes: [DiscoveredNodeDTO],
-    userLocation: CLLocation?
+    userLocation: CLLocation?,
+    filter: MapFilterState
   ) -> PlottedNeighbors {
+    let filter = filter.sanitized(for: .neighborSNR)
+    let effectiveContacts: [ContactDTO] = if filter.favoritesOnly {
+      contacts.filter(\.isFavorite)
+    } else {
+      contacts
+    }
+    let effectiveDiscovered: [DiscoveredNodeDTO] = if filter.effectiveShowDiscovered {
+      discoveredNodes
+    } else {
+      []
+    }
+
     var points: [MapPoint] = []
     var lines: [MapLine] = []
     var unplottable: [UnplottableNeighbor] = []
@@ -39,7 +60,7 @@ enum NeighborSNRMapBuilder {
     let centerCoordinate = session.coordinate
     if let centerCoordinate {
       points.append(MapPoint(
-        id: UUID(),
+        id: stableID(role: .center, key: session.publicKey),
         coordinate: centerCoordinate,
         pinStyle: .repeaterRingWhite,
         label: session.name,
@@ -50,11 +71,11 @@ enum NeighborSNRMapBuilder {
       plottedCoordinates.append(centerCoordinate)
     }
 
-    for (index, neighbor) in neighbors.enumerated() {
+    for neighbor in neighbors {
       guard let resolved = NeighborNameResolver.resolveLocated(
         for: neighbor.publicKeyPrefix,
-        contacts: contacts,
-        discoveredNodes: discoveredNodes,
+        contacts: effectiveContacts,
+        discoveredNodes: effectiveDiscovered,
         userLocation: userLocation
       ) else {
         unplottable.append(UnplottableNeighbor(
@@ -79,8 +100,9 @@ enum NeighborSNRMapBuilder {
         continue
       }
 
+      let identityKey = neighbor.publicKeyPrefix
       points.append(MapPoint(
-        id: UUID(),
+        id: stableID(role: .neighbor, key: identityKey),
         coordinate: coordinate,
         pinStyle: .repeater,
         label: resolved.displayName,
@@ -95,7 +117,7 @@ enum NeighborSNRMapBuilder {
       guard let centerCoordinate else { continue }
 
       lines.append(MapLine(
-        id: "neighbor-\(index)",
+        id: stableLineID(key: identityKey),
         coordinates: [centerCoordinate, coordinate],
         style: .forSNR(neighbor.snr),
         opacity: lineOpacity,
@@ -103,7 +125,7 @@ enum NeighborSNRMapBuilder {
       ))
 
       points.append(MapLine.snrBadge(
-        id: UUID(),
+        id: stableID(role: .badge, key: identityKey),
         from: centerCoordinate,
         to: coordinate,
         snr: neighbor.snr
@@ -119,6 +141,25 @@ enum NeighborSNRMapBuilder {
   }
 
   private static func isPlottable(_ coordinate: CLLocationCoordinate2D) -> Bool {
-    CLLocationCoordinate2DIsValid(coordinate)
+    coordinate.isValidFix
+  }
+
+  /// Deterministic UUID from role namespace + identity key bytes (SHA-256 prefix).
+  static func stableID(role: PinRole, key: Data) -> UUID {
+    var material = Data([role.rawValue])
+    material.append(key)
+    let hash = SHA256.hash(data: material)
+    let bytes = Array(hash)
+    return UUID(uuid: (
+      bytes[0], bytes[1], bytes[2], bytes[3],
+      bytes[4], bytes[5], bytes[6], bytes[7],
+      bytes[8], bytes[9], bytes[10], bytes[11],
+      bytes[12], bytes[13], bytes[14], bytes[15]
+    ))
+  }
+
+  /// Line id stable across filter rebuilds (hex of neighbor-role stable UUID).
+  private static func stableLineID(key: Data) -> String {
+    "neighbor-\(stableID(role: .neighbor, key: key).uuidString)"
   }
 }

@@ -1,6 +1,12 @@
 import MapLibre
 import SwiftUI
 
+/// Single filter config for maps that expose the Filter menu.
+struct MapFilterControl {
+  let host: MapFilterHost
+  var state: Binding<MapFilterState>
+}
+
 /// Shared liquid-glass toolbar hosting the controls every interactive map uses
 /// (location, map options) plus a slot for one map-specific button.
 /// The map options control is a native menu offering the north lock, map-style
@@ -21,6 +27,8 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
   /// Current viewport, used to gate styles that lack offline coverage for the visible area.
   var viewportBounds: MLNCoordinateBounds?
 
+  var filter: MapFilterControl?
+
   /// One map-specific button shown below the standard controls.
   @ViewBuilder var additionalActions: () -> AdditionalActions
 
@@ -28,8 +36,11 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
     VStack(spacing: 0) {
       locationButton
 
-      Divider()
-        .frame(width: MapToolbarLayout.dividerWidth)
+      if let filter {
+        Divider()
+          .frame(width: MapToolbarLayout.dividerWidth)
+        filterMenu(state: filter.state, host: filter.host)
+      }
 
       CustomContentStack {
         additionalActions()
@@ -54,6 +65,76 @@ struct MapControlsToolbar<AdditionalActions: View>: View {
       action: onLocationTap
     )
     .mapControlButton(tint: .primary)
+  }
+
+  // MARK: - Filter Menu
+
+  @ViewBuilder
+  private func filterMenu(
+    state: Binding<MapFilterState>,
+    host: MapFilterHost
+  ) -> some View {
+    let capabilities = host.capabilities
+    let active = state.wrappedValue.differsFromSeed(for: host)
+    Menu {
+      if capabilities.contains(.favorites) {
+        Toggle(isOn: toggleBinding(state, \.favoritesOnly) { $0.setFavoritesOnly($1) }) {
+          Label(L10n.Contacts.Contacts.Segment.favorites, systemImage: "star.fill")
+        }
+      }
+      if capabilities.contains(.discovered) {
+        Toggle(isOn: toggleBinding(state, \.showDiscovered) { $0.setShowDiscovered($1) }) {
+          Label(L10n.Map.Map.Callout.discovered, systemImage: "antenna.radiowaves.left.and.right")
+        }
+        .disabled(state.wrappedValue.favoritesOnly)
+      }
+      if capabilities.includesTypes {
+        Divider()
+        Toggle(isOn: toggleBinding(state, \.showChat) {
+          $0.setShowChat($1, host: host)
+        }) {
+          Text(L10n.Contacts.Contacts.Segment.contacts)
+        }
+        .disabled(state.wrappedValue.favoritesOnly)
+        Toggle(isOn: toggleBinding(state, \.showRepeater) {
+          $0.setShowRepeater($1, host: host)
+        }) {
+          Text(L10n.Contacts.Contacts.Segment.repeaters)
+        }
+        .disabled(state.wrappedValue.favoritesOnly)
+        Toggle(isOn: toggleBinding(state, \.showRoom) {
+          $0.setShowRoom($1, host: host)
+        }) {
+          Text(L10n.Contacts.Contacts.Segment.rooms)
+        }
+        .disabled(state.wrappedValue.favoritesOnly)
+      }
+    } label: {
+      Label(
+        L10n.Map.Map.Controls.filter,
+        systemImage: active
+          ? "line.3.horizontal.decrease.circle.fill"
+          : "line.3.horizontal.decrease.circle"
+      )
+    }
+    .mapControlButton(tint: .primary)
+    .accessibilityLabel(L10n.Map.Map.Controls.filter)
+    .accessibilityValue(active ? L10n.Map.Map.Controls.filterActive : "")
+  }
+
+  private func toggleBinding(
+    _ state: Binding<MapFilterState>,
+    _ keyPath: KeyPath<MapFilterState, Bool>,
+    set: @escaping (inout MapFilterState, Bool) -> Void
+  ) -> Binding<Bool> {
+    Binding(
+      get: { state.wrappedValue[keyPath: keyPath] },
+      set: { newValue in
+        var copy = state.wrappedValue
+        set(&copy, newValue)
+        state.wrappedValue = copy
+      }
+    )
   }
 
   // MARK: - Map Options Menu

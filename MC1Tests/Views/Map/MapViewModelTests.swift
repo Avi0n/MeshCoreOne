@@ -82,7 +82,7 @@ struct MapViewModelFocusTests {
     viewModel.configure(dataStore: { dataStore }, radioID: { radioID })
     viewModel.focusOnCoordinate(CLLocationCoordinate2D(latitude: 10, longitude: 20))
 
-    await viewModel.loadMapData(includeDiscovered: false)
+    await viewModel.loadMapData(filter: MapFilterState(showDiscovered: false))
 
     #expect(viewModel.mapPoints.contains { $0.pinStyle == .droppedPin }, "Refresh must not wipe the dropped pin")
     #expect(viewModel.mapPoints.contains { $0.pinStyle != .droppedPin }, "The contact pin should also be present")
@@ -118,7 +118,7 @@ struct MapViewModelFocusTests {
 
     let viewModel = MapViewModel()
     viewModel.configure(dataStore: { dataStore }, radioID: { radioID })
-    await viewModel.loadMapData(includeDiscovered: false)
+    await viewModel.loadMapData(filter: MapFilterState(showDiscovered: false))
 
     viewModel.applyInitialCamera(saved: nil, hasPendingFocus: false)
 

@@ -8,8 +8,8 @@ struct MapView: View {
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
-  @AppStorage(AppStorageKey.showDiscoveredNodesOnMap.rawValue)
-  private var showDiscoveredNodesOnMap = AppStorageKey.defaultShowDiscoveredNodesOnMap
+  @AppStorage(AppStorageKey.mapFilterMainMap.rawValue)
+  private var mapFilterRaw: String = ""
   @SceneStorage(SceneStorageKey.mapCameraRegion.rawValue) private var savedCameraRegion = ""
   @State private var viewModel = MapViewModel()
   @State private var selectedCallout: MapCalloutSelection?
@@ -23,6 +23,14 @@ struct MapView: View {
     addingDiscoveredNodeID != nil
   }
 
+  private var mapFilter: MapFilterState {
+    MapFilterPreferences.state(fromRaw: mapFilterRaw, host: .mainMap)
+  }
+
+  private var mapFilterBinding: Binding<MapFilterState> {
+    MapFilterPreferences.binding(raw: $mapFilterRaw, host: .mainMap)
+  }
+
   var body: some View {
     NavigationStack {
       MapCanvasView(
@@ -34,6 +42,7 @@ struct MapView: View {
         selectedPointScreenPosition: $selectedPointScreenPosition,
         isStyleLoaded: $isStyleLoaded,
         isAddingDiscovered: isAddingDiscovered,
+        filter: MapFilterControl(host: .mainMap, state: mapFilterBinding),
         onShowContactDetail: { showContactDetail($0) },
         onNavigateToChat: { navigateToChat(with: $0) },
         onShowDiscoveredDetail: { showDiscoveredDetail($0) },
@@ -50,7 +59,7 @@ struct MapView: View {
             onRefresh: {
               viewModel.cancelPendingReload()
               await viewModel.loadMapData(
-                includeDiscovered: showDiscoveredNodesOnMap,
+                filter: mapFilter,
                 showsLoadingChrome: true
               )
             }
@@ -61,8 +70,10 @@ struct MapView: View {
         appState.locationService.requestPermissionIfNeeded()
         appState.locationService.requestLocation()
         configureViewModel()
+        // Empty stays empty (seed without write); legacy/corrupt loads may persist.
+        MapFilterPreferences.ensureMigrated(raw: &mapFilterRaw, host: .mainMap)
         await viewModel.loadMapData(
-          includeDiscovered: showDiscoveredNodesOnMap,
+          filter: mapFilter,
           showsLoadingChrome: true
         )
         // On first appearance the view model has no camera region; restoring here
@@ -72,17 +83,20 @@ struct MapView: View {
           hasPendingFocus: appState.navigation.pendingMapFocus != nil
         )
       }
-      .onChange(of: showDiscoveredNodesOnMap) { _, includeDiscovered in
+      .onChange(of: mapFilterRaw) { _, _ in
         clearSelection()
+        selectedContactForDetail = nil
         selectedDiscoveredForDetail = nil
-        viewModel.scheduleCoalescedReload(includeDiscovered: includeDiscovered)
+        viewModel.scheduleFilterChange(mapFilter)
       }
       .onChange(of: appState.contactsVersion) { _, _ in
-        viewModel.scheduleCoalescedReload(includeDiscovered: showDiscoveredNodesOnMap)
+        // contactsVersion also bumps after backup import; re-migrate while the tab is mounted.
+        MapFilterPreferences.ensureMigrated(raw: &mapFilterRaw, host: .mainMap)
+        viewModel.scheduleCoalescedReload(filter: mapFilter)
       }
       .onChange(of: appState.servicesVersion) { _, _ in
         configureViewModel()
-        viewModel.scheduleCoalescedReload(includeDiscovered: showDiscoveredNodesOnMap)
+        viewModel.scheduleCoalescedReload(filter: mapFilter)
       }
       .onChange(of: appState.navigation.pendingMapFocus, initial: true) { _, request in
         guard let request else { return }
@@ -96,7 +110,7 @@ struct MapView: View {
           onDelete: {
             Task {
               await viewModel.loadMapData(
-                includeDiscovered: showDiscoveredNodesOnMap,
+                filter: mapFilter,
                 showsLoadingChrome: false
               )
             }
@@ -162,7 +176,7 @@ struct MapView: View {
           contact: node.makeContactFrame()
         )
         await viewModel.loadMapData(
-          includeDiscovered: showDiscoveredNodesOnMap,
+          filter: mapFilter,
           showsLoadingChrome: false
         )
         selectedDiscoveredForDetail = nil
