@@ -147,6 +147,11 @@ struct ReconnectRebuildLifecycleTests {
   /// storage. A rebuild over the still-live link must consume a renewed stream,
   /// or its appStart handshake iterates a dead stream and times out. Pins the
   /// `refreshDataStream` call in `rebuildSession`.
+  ///
+  /// Intent is `.none` so rebuild returns after handshake (no query/sync). On that
+  /// path abandon clears the session, so success is a non-throwing rebuild plus
+  /// transport evidence that refresh and a post-refresh handshake occurred — not
+  /// residual `manager.session` state.
   @Test
   func `rebuild after a stopped predecessor completes its handshake over a refreshed stream`() async throws {
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -166,11 +171,12 @@ struct ReconnectRebuildLifecycleTests {
     // stop inside rebuildSession kills that stream's storage.
     let predecessor = MeshCoreSession(transport: transport)
     try await predecessor.start()
+    #expect(await transport.appStartReplyCount == 1)
+    #expect(await transport.refreshCount == 0)
 
     // Intent does not want a connection (.none, not .userDisconnected, whose
     // invariant requires .disconnected state), so the rebuild returns right
-    // after its handshake instead of driving device query and sync; the gate
-    // only needs the handshake to complete over the renewed stream.
+    // after its handshake instead of driving device query and sync.
     manager.setTestState(
       connectionState: .connected,
       session: predecessor,
@@ -178,13 +184,19 @@ struct ReconnectRebuildLifecycleTests {
       connectionIntent: ConnectionIntent.none
     )
 
-    try? await manager.rebuildSession(deviceID: UUID())
+    // Non-throwing return means session.start completed (dead stream would time out).
+    try await manager.rebuildSession(deviceID: UUID())
 
-    let selfInfo = await manager.session?.currentSelfInfo
     #expect(
-      selfInfo != nil,
-      "the rebuilt session must complete its appStart handshake over a refreshed stream"
+      await transport.refreshCount == 1,
+      "rebuild must refresh the data stream after stopping the predecessor"
     )
+    #expect(
+      await transport.appStartReplyCount == 2,
+      "rebuilt session must complete appStart on the refreshed stream"
+    )
+    #expect(manager.session == nil, "abandon must drop the session when intent does not want connection")
+    #expect(manager.connectionState == .disconnected)
   }
 
   /// A renewal outside `.connected` is declined: the slot owner keeps its
@@ -320,6 +332,8 @@ private actor RevendingHandshakeTransport: iOSMeshTransport {
   private var slot: AsyncStream<Data>?
   private var slotContinuation: AsyncStream<Data>.Continuation?
   private var connected = false
+  private(set) var refreshCount = 0
+  private(set) var appStartReplyCount = 0
 
   var receivedData: AsyncStream<Data> {
     slot ?? AsyncStream { $0.finish() }
@@ -347,11 +361,13 @@ private actor RevendingHandshakeTransport: iOSMeshTransport {
     // Answer the handshake only: the rebuild gate asserts appStart completion,
     // and an unanswered later command surfaces as its own timeout.
     if data.first == CommandCode.appStart.rawValue {
+      appStartReplyCount += 1
       slotContinuation?.yield(Self.selfInfoPacket())
     }
   }
 
   func refreshDataStream() {
+    refreshCount += 1
     vendStream()
   }
 
