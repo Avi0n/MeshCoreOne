@@ -27,7 +27,7 @@ packages:
     from: 1.5.0
   MapLibre:
     url: https://github.com/maplibre/maplibre-gl-native-distribution
-    exactVersion: 6.25.1
+    exactVersion: 6.28.0
   MessagingUI:
     url: https://github.com/bwees-forks/swiftui-messaging-ui
     # Pinned to an exact revision: Package.resolved is gitignored (the whole
