@@ -64,6 +64,27 @@ public extension PersistenceStore {
     return MessageDTO.reorderSameSenderClusters(dtos)
   }
 
+  func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO? {
+    let targetContactID: UUID? = contactID
+    let incoming = MessageDirection.incoming.rawValue
+    let predicate = #Predicate<Message> { message in
+      message.contactID == targetContactID
+        && message.directionRawValue == incoming
+        && !message.isRead
+    }
+    var descriptor = FetchDescriptor(
+      predicate: predicate,
+      sortBy: [
+        SortDescriptor(\Message.sortDate, order: .reverse),
+        SortDescriptor(\Message.timestamp, order: .reverse),
+        SortDescriptor(\Message.createdAt, order: .reverse)
+      ]
+    )
+    descriptor.fetchLimit = 1
+    guard let message = try modelContext.fetch(descriptor).first else { return nil }
+    return MessageDTO(from: message)
+  }
+
   /// Fetch messages for a channel
   func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int = 50, offset: Int = 0) throws -> [MessageDTO] {
     let targetRadioID = radioID

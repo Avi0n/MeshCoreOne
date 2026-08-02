@@ -633,13 +633,14 @@ struct SyncCoordinatorTests {
     let invocations = await mockContactService.syncContactsInvocations
     #expect(invocations.count == 1)
 
-    // Verify the since parameter was passed
+    // The device filter is strictly greater-than, so the window is rewound one
+    // second to include contacts modified in the watermark second itself.
     let since = invocations[0].since
-    let expectedDate = Date(timeIntervalSince1970: Double(lastSyncTimestamp))
+    let expectedDate = Date(timeIntervalSince1970: Double(lastSyncTimestamp) - 1)
 
     // Use try #require to safely unwrap and produce a clear failure message
     let actualSince = try #require(since, "Should pass lastContactSync as since parameter")
-    #expect(actualSince == expectedDate, "Since date should match device lastContactSync")
+    #expect(actualSince == expectedDate, "Since date should include the watermark second")
   }
 
   // MARK: - Succeeded Parameter Tests
@@ -709,7 +710,872 @@ struct SyncCoordinatorTests {
     #expect(succeededValues.values == [false], "Failed sync should pass succeeded: false")
   }
 
-  // MARK: - Resync Activity Bracket Tests
+  // MARK: - Advert Contact Delta Sync
+
+  @Test
+  @MainActor
+  func `performAdvertContactSync writes watermark and uses since filter`() async throws {
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let watermark: UInt32 = 1_704_067_200
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: watermark
+    )
+
+    let newWatermark = UInt32(Date().timeIntervalSince1970) + 60
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 3, lastSyncTimestamp: newWatermark, isIncremental: true)
+    ))
+
+    let outcome = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(outcome == .synced)
+
+    let invocations = await mockContactService.syncContactsInvocations
+    #expect(invocations.count == 1)
+    let since = try #require(invocations[0].since)
+    #expect(
+      since == Date(timeIntervalSince1970: Double(watermark) - 1),
+      "The device filter is strictly greater-than, so the window must include the watermark second"
+    )
+
+    let device = try #require(await dataStore.fetchDevice(radioID: testDeviceID))
+    #expect(device.lastContactSync == newWatermark)
+  }
+
+  @Test
+  @MainActor
+  func `performAdvertContactSync fullRefetch uses epoch zero and skips pruning`() async throws {
+    let coordinator = SyncCoordinator()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+
+    let keptKey = Data(repeating: 0x11, count: 32)
+    let orphanKey = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: ContactFrame(
+        publicKey: keptKey,
+        type: .chat,
+        flags: 0,
+        outPathLength: 0,
+        outPath: Data(),
+        name: "Kept",
+        lastAdvertTimestamp: 1_700_000_000,
+        latitude: 0,
+        longitude: 0,
+        lastModified: 1_700_000_100
+      )
+    )
+    _ = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: ContactFrame(
+        publicKey: orphanKey,
+        type: .chat,
+        flags: 0,
+        outPathLength: 0,
+        outPath: Data(),
+        name: "Orphan",
+        lastAdvertTimestamp: 1_700_000_000,
+        latitude: 0,
+        longitude: 0,
+        lastModified: 1_700_000_100
+      )
+    )
+
+    let session = MockMeshCoreSession()
+    // Device returns only the kept contact — orphan would be pruned on since == nil.
+    await session.setStubbedContacts([
+      MeshContact(
+        id: keptKey.hexString,
+        publicKey: keptKey,
+        type: .chat,
+        flags: ContactFlags(rawValue: 0),
+        outPathLength: 0,
+        outPath: Data(),
+        advertisedName: "Kept",
+        lastAdvertisement: Date(timeIntervalSince1970: 1_700_000_000),
+        latitude: 0,
+        longitude: 0,
+        lastModified: Date(timeIntervalSince1970: 1_800_000_000)
+      )
+    ])
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    let outcome = await coordinator.performAdvertContactSync(
+      fullRefetch: true,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: contactService
+    )
+    #expect(outcome == .synced)
+
+    let sinceArgs = await session.getContactsInvocations
+    #expect(sinceArgs.count == 1)
+    #expect(sinceArgs[0] == Date(timeIntervalSince1970: 0))
+
+    // Prune-free: local-only orphan survives epoch-0 full refetch.
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: orphanKey) != nil)
+
+    // Control: since == nil prunes the orphan.
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: orphanKey) == nil)
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: keptKey) != nil)
+  }
+
+  @Test
+  @MainActor
+  func `performAdvertContactSync returns busy when manual contact sync is active`() async throws {
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(
+        contactsReceived: 1,
+        lastSyncTimestamp: UInt32(Date().timeIntervalSince1970),
+        isIncremental: true
+      )
+    ))
+
+    await coordinator.setManualContactSyncActive(true)
+    let busy = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(busy == .busy)
+    #expect(
+      await mockContactService.syncContactsInvocations.isEmpty,
+      "manual refresh must block advert delta from reaching the radio"
+    )
+
+    await coordinator.setManualContactSyncActive(false)
+    let after = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(after == .synced)
+    #expect(await mockContactService.syncContactsInvocations.count == 1)
+  }
+
+  @Test
+  @MainActor
+  func `far-future watermark recovers with one full refetch then incremental`() async throws {
+    // After RTC correction, residual far-future lastmods can leave a permanent high
+    // watermark. Invalid stamp → prune-free epoch-0 once, then store the new max.
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let referenceNow = Date()
+    let phoneNow = UInt32(referenceNow.timeIntervalSince1970)
+    let farFuture = phoneNow &+ UInt32(30 * 24 * 60 * 60)
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: farFuture
+    )
+    // Full recovery returns a plausible max lastmod (radio clock now pinned to phone).
+    let recoveredWatermark = phoneNow &+ 30
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 4, lastSyncTimestamp: recoveredWatermark, isIncremental: true)
+    ))
+
+    let first = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(first == .synced)
+
+    let afterFirst = await mockContactService.syncContactsInvocations
+    #expect(afterFirst.count == 1)
+    #expect(
+      afterFirst[0].since == Date(timeIntervalSince1970: 0),
+      "advert invalid recovery must use prune-free epoch-0, not since=nil"
+    )
+    var device = try #require(await dataStore.fetchDevice(radioID: testDeviceID))
+    #expect(device.lastContactSync == recoveredWatermark)
+
+    // Second round: recovered watermark is plausible → incremental.
+    let nextWatermark = recoveredWatermark &+ 10
+    await mockContactService.reset()
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 1, lastSyncTimestamp: nextWatermark, isIncremental: true)
+    ))
+
+    let second = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(second == .synced)
+
+    let afterSecond = await mockContactService.syncContactsInvocations
+    #expect(afterSecond.count == 1)
+    let secondSince = try #require(afterSecond[0].since)
+    #expect(
+      secondSince == Date(timeIntervalSince1970: Double(recoveredWatermark) - 1),
+      "after recovery the next round must be incremental, not another full fetch"
+    )
+    device = try #require(await dataStore.fetchDevice(radioID: testDeviceID))
+    #expect(device.lastContactSync == nextWatermark)
+  }
+
+  @Test
+  @MainActor
+  func `far-future watermark recovery retries after a failed recovery fetch`() async throws {
+    // A recovery full fetch that throws must not spend the one-shot latch: the
+    // next round must retry the prune-free epoch-0 recovery, not fall back to the
+    // invalid stored watermark.
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let phoneNow = UInt32(Date().timeIntervalSince1970)
+    let farFuture = phoneNow &+ UInt32(30 * 24 * 60 * 60)
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: farFuture
+    )
+
+    // Round 1: recovery fetch throws.
+    await mockContactService.setStubbedSyncContactsResult(
+      .failure(SyncCoordinatorError.syncFailed("boom"))
+    )
+    let first = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(first == .failed)
+    let afterFirst = await mockContactService.syncContactsInvocations
+    #expect(afterFirst.count == 1)
+    #expect(
+      afterFirst[0].since == Date(timeIntervalSince1970: 0),
+      "failed round must still attempt prune-free epoch-0 recovery"
+    )
+
+    // Round 2: recovery fetch succeeds. Because round 1 failed, the latch is not
+    // spent, so this round must retry epoch-0 recovery — not the stored watermark.
+    let recoveredWatermark = phoneNow &+ 30
+    await mockContactService.reset()
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 2, lastSyncTimestamp: recoveredWatermark, isIncremental: true)
+    ))
+    let second = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(second == .synced)
+    let afterSecond = await mockContactService.syncContactsInvocations
+    #expect(afterSecond.count == 1)
+    #expect(
+      afterSecond[0].since == Date(timeIntervalSince1970: 0),
+      "a failed recovery must not spend the one-shot; retry epoch-0, not the stored far-future watermark"
+    )
+    let device = try #require(await dataStore.fetchDevice(radioID: testDeviceID))
+    #expect(device.lastContactSync == recoveredWatermark)
+  }
+
+  @Test
+  @MainActor
+  func `advert invalid watermark recovery is prune-free and keeps local-only contacts`() async throws {
+    // since=nil would delete local rows absent from the device response. Advert
+    // recovery must use epoch-0 so a background round never prunes.
+    let coordinator = SyncCoordinator()
+    let testDeviceID = UUID()
+    let phoneNow = UInt32(Date().timeIntervalSince1970)
+    let farFuture = phoneNow &+ UInt32(30 * 24 * 60 * 60)
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: farFuture
+    )
+
+    let keptKey = Data(repeating: 0x21, count: 32)
+    let orphanKey = Data(repeating: 0xA9, count: 32)
+    _ = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: ContactFrame(
+        publicKey: keptKey,
+        type: .chat,
+        flags: 0,
+        outPathLength: 0,
+        outPath: Data(),
+        name: "Kept",
+        lastAdvertTimestamp: phoneNow,
+        latitude: 0,
+        longitude: 0,
+        lastModified: phoneNow
+      )
+    )
+    _ = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: ContactFrame(
+        publicKey: orphanKey,
+        type: .chat,
+        flags: 0,
+        outPathLength: 0,
+        outPath: Data(),
+        name: "Orphan",
+        lastAdvertTimestamp: phoneNow,
+        latitude: 0,
+        longitude: 0,
+        lastModified: phoneNow
+      )
+    )
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([
+      MeshContact(
+        id: keptKey.hexString,
+        publicKey: keptKey,
+        type: .chat,
+        flags: ContactFlags(rawValue: 0),
+        outPathLength: 0,
+        outPath: Data(),
+        advertisedName: "Kept",
+        lastAdvertisement: Date(timeIntervalSince1970: TimeInterval(phoneNow)),
+        latitude: 0,
+        longitude: 0,
+        lastModified: Date(timeIntervalSince1970: TimeInterval(phoneNow &+ 10))
+      )
+    ])
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    let outcome = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: contactService
+    )
+    #expect(outcome == .synced)
+
+    let sinceArgs = await session.getContactsInvocations
+    #expect(sinceArgs.count == 1)
+    #expect(
+      sinceArgs[0] == Date(timeIntervalSince1970: 0),
+      "invalid advert recovery must full-fetch with prune-free epoch-0"
+    )
+    #expect(
+      try await dataStore.fetchContact(radioID: testDeviceID, publicKey: orphanKey) != nil,
+      "local-only contact must survive advert invalid-watermark recovery"
+    )
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: keptKey) != nil)
+  }
+
+  @Test
+  @MainActor
+  func `advert invalid watermark recovery full-fetches at most once per coordinator`() async throws {
+    // Residual far-future lastmods keep max(lastmod) implausible. Without a latch
+    // every advert debounce re-streams the whole table. One recovery, then stored stamp.
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let phoneNow = UInt32(Date().timeIntervalSince1970)
+    let farFuture = phoneNow &+ UInt32(30 * 24 * 60 * 60)
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: farFuture
+    )
+    // Write-back stays implausible — the pathological residual-lastmod case.
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 10, lastSyncTimestamp: farFuture, isIncremental: true)
+    ))
+
+    let first = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(first == .synced)
+    let afterFirst = await mockContactService.syncContactsInvocations
+    #expect(afterFirst.count == 1)
+    #expect(afterFirst[0].since == Date(timeIntervalSince1970: 0), "first round recovers with full fetch")
+
+    await mockContactService.reset()
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 0, lastSyncTimestamp: farFuture, isIncremental: true)
+    ))
+
+    let second = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(second == .synced)
+    let afterSecond = await mockContactService.syncContactsInvocations
+    #expect(afterSecond.count == 1)
+    let secondSince = try #require(afterSecond[0].since)
+    #expect(
+      secondSince == Date(timeIntervalSince1970: Double(farFuture) - 1),
+      "second round must use the stored stamp, not another full fetch"
+    )
+    #expect(secondSince != Date(timeIntervalSince1970: 0))
+  }
+
+  @Test
+  @MainActor
+  func `watermark a few minutes ahead of phone stays incremental`() async throws {
+    // Radio may lead the phone by minutes before time sync settles. That is not
+    // an invalid watermark and must not trigger a full recovery fetch.
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let phoneNow = UInt32(Date().timeIntervalSince1970)
+    let minutesLead: UInt32 = 5 * 60
+    let radioLead = phoneNow &+ minutesLead
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: radioLead
+    )
+    let newWatermark = radioLead &+ 15
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 1, lastSyncTimestamp: newWatermark, isIncremental: true)
+    ))
+
+    let outcome = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(outcome == .synced)
+
+    let invocations = await mockContactService.syncContactsInvocations
+    #expect(invocations.count == 1)
+    let since = try #require(
+      invocations[0].since,
+      "minute-scale lead must stay incremental (since non-nil), not a full recovery"
+    )
+    #expect(since == Date(timeIntervalSince1970: Double(radioLead) - 1))
+
+    let device = try #require(await dataStore.fetchDevice(radioID: testDeviceID))
+    #expect(device.lastContactSync == newWatermark)
+  }
+
+  @Test
+  func `contactWatermarkUse marks far-future invalid and minute lead incremental`() {
+    let reference = Date(timeIntervalSince1970: 1_800_000_000)
+    let refSeconds = UInt32(reference.timeIntervalSince1970)
+    let minuteLead = refSeconds &+ (5 * 60)
+    let farFuture = refSeconds &+ UInt32(30 * 24 * 60 * 60)
+
+    #expect(SyncCoordinator.contactWatermarkUse(fromLastContactSync: nil, referenceNow: reference) == .none)
+    #expect(SyncCoordinator.contactWatermarkUse(fromLastContactSync: 0, referenceNow: reference) == .none)
+    #expect(
+      SyncCoordinator.contactWatermarkUse(fromLastContactSync: minuteLead, referenceNow: reference)
+        == .incremental(minuteLead)
+    )
+    #expect(
+      SyncCoordinator.contactWatermarkUse(fromLastContactSync: farFuture, referenceNow: reference)
+        == .invalid(stored: farFuture)
+    )
+  }
+
+  @MainActor
+  @Test(arguments: [false, true])
+  func `performAdvertContactSync with zero watermark does not sync`(fullRefetch: Bool) async throws {
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 0
+    )
+
+    let newWatermark: UInt32 = 1_800_000_000
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 2, lastSyncTimestamp: newWatermark, isIncremental: true)
+    ))
+
+    let outcome = await coordinator.performAdvertContactSync(
+      fullRefetch: fullRefetch,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(outcome == .notReady)
+
+    #expect(
+      await mockContactService.syncContactsInvocations.isEmpty,
+      "No advert sync may run before the first pruning full sync succeeds"
+    )
+
+    let device = try #require(await dataStore.fetchDevice(radioID: testDeviceID))
+    #expect(
+      device.lastContactSync == 0,
+      "Writing a watermark here would suppress the one-time pruning full sync forever"
+    )
+  }
+
+  @Test
+  @MainActor
+  func `Advert sync runs after a full sync that found no contacts`() async throws {
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 0
+    )
+
+    // An empty radio has no contact to stamp, so the zero sentinel survives the full sync.
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 0, lastSyncTimestamp: 0, isIncremental: false)
+    ))
+
+    _ = try await coordinator.performFullSync(
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService,
+      channelService: MockChannelService(),
+      messagePollingService: MockMessagePollingService()
+    )
+
+    let device = try #require(await dataStore.fetchDevice(radioID: testDeviceID))
+    #expect(device.lastContactSync == 0)
+
+    let outcome = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+    #expect(outcome == .synced, "The first auto-added contact must not wait for another full sync")
+
+    let invocations = await mockContactService.syncContactsInvocations
+    #expect(invocations.count == 2)
+    #expect(
+      invocations[1].since == Date(timeIntervalSince1970: 0),
+      "With no watermark to resume from, the delta round fetches prune-free from epoch zero"
+    )
+  }
+
+  @Test
+  @MainActor
+  func `Full sync still prunes after an advert sync attempt with no watermark`() async throws {
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 0
+    )
+
+    await mockContactService.setStubbedSyncContactsResult(.success(
+      ContactSyncResult(contactsReceived: 2, lastSyncTimestamp: 1_800_000_000, isIncremental: true)
+    ))
+
+    _ = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService
+    )
+
+    _ = try await coordinator.performFullSync(
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService,
+      channelService: MockChannelService(),
+      messagePollingService: MockMessagePollingService()
+    )
+
+    let invocations = await mockContactService.syncContactsInvocations
+    #expect(invocations.count == 1)
+    #expect(
+      invocations[0].since == nil,
+      "The first full sync after a failed connect sync must still prune"
+    )
+  }
+
+  @Test
+  @MainActor
+  func `performAdvertContactSync returns false while sync claimed`() async throws {
+    let coordinator = SyncCoordinator()
+    let delayingContactService = DelayingContactService()
+    let mockChannelService = MockChannelService()
+    let mockMessagePollingService = MockMessagePollingService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+
+    let startedTracker = CallTracker()
+    await coordinator.setSyncActivityCallbacks(
+      onStarted: { startedTracker.markCalled() },
+      onEnded: { _ in },
+      onPhaseChanged: { _ in }
+    )
+
+    let firstSyncTask = Task {
+      try await coordinator.performFullSync(
+        radioID: testDeviceID,
+        dataStore: dataStore,
+        contactService: delayingContactService,
+        channelService: mockChannelService,
+        messagePollingService: mockMessagePollingService
+      )
+    }
+
+    try await waitUntil("First sync should have started") {
+      startedTracker.callCount >= 1
+    }
+
+    let outcome = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: MockContactService()
+    )
+    #expect(outcome == .busy, "A collision with another sync is not a failed exchange")
+
+    await delayingContactService.completeSync()
+    firstSyncTask.cancel()
+  }
+
+  @Test
+  @MainActor
+  func `Channel retry waits for an active advert contact sync instead of skipping`() async throws {
+    let coordinator = SyncCoordinator()
+    let gatedContactService = GatedContactService()
+    let mockChannelService = MockChannelService()
+    let testDeviceID = UUID()
+    let retryIndices: [UInt8] = [3, 5]
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+
+    let advertTask = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: testDeviceID,
+        dataStore: dataStore,
+        contactService: gatedContactService
+      )
+    }
+    await gatedContactService.waitForSyncStart()
+
+    let retryFinished = CallTracker()
+    let retryTask = Task {
+      let result = await coordinator.retryChannels(
+        radioID: testDeviceID,
+        channelService: mockChannelService,
+        indices: retryIndices
+      )
+      retryFinished.markCalled()
+      return result
+    }
+
+    try await Task.sleep(for: .milliseconds(200))
+    #expect(
+      !retryFinished.wasCalled,
+      "Channel retry must wait while an advert contact sync holds the claim"
+    )
+    #expect(await mockChannelService.retryInvocations.isEmpty)
+
+    await gatedContactService.release()
+
+    #expect(await advertTask.value == .synced, "Advert contact sync should complete once released")
+    let result = await retryTask.value
+    #expect(result.errors.isEmpty, "Channel retry must run for real after the advert sync releases")
+    #expect(await mockChannelService.retryInvocations.map(\.indices) == [retryIndices])
+  }
+
+  @Test
+  @MainActor
+  func `claimManualContactSync is atomic with the wait so advert cannot claim in the gap`() async throws {
+    // Separate wait and setManual hops leave a gap where a delta can pass both
+    // guards. One method waits then sets manual without yielding.
+    let coordinator = SyncCoordinator()
+    let gatedContactService = GatedContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+
+    let advertTask = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: testDeviceID,
+        dataStore: dataStore,
+        contactService: gatedContactService
+      )
+    }
+    await gatedContactService.waitForSyncStart()
+
+    let claimTask = Task {
+      try await coordinator.claimManualContactSync()
+    }
+
+    try await Task.sleep(for: .milliseconds(100))
+    // Still waiting on the advert claim — must not have set manual yet in a way
+    // that would be racy; release advert so the claim can complete.
+    await gatedContactService.release()
+    #expect(await advertTask.value == .synced)
+    try await claimTask.value
+
+    let racingAdvert = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: MockContactService()
+    )
+    #expect(
+      racingAdvert == .busy,
+      "After claimManualContactSync returns, manual flag must already be set"
+    )
+
+    await coordinator.setManualContactSyncActive(false)
+  }
+
+  @Test
+  @MainActor
+  func `waitForAdvertContactSync throws when cancelled`() async throws {
+    let coordinator = SyncCoordinator()
+    let gatedContactService = GatedContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+
+    let advertTask = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: testDeviceID,
+        dataStore: dataStore,
+        contactService: gatedContactService
+      )
+    }
+    await gatedContactService.waitForSyncStart()
+
+    let waitTask = Task {
+      try await coordinator.waitForAdvertContactSync()
+    }
+    try await Task.sleep(for: .milliseconds(50))
+    waitTask.cancel()
+
+    var threwCancellation = false
+    do {
+      try await waitTask.value
+    } catch is CancellationError {
+      threwCancellation = true
+    } catch {
+      Issue.record("Expected CancellationError, got \(error)")
+    }
+    #expect(threwCancellation, "Cancelled wait must throw CancellationError, not hang")
+
+    await gatedContactService.release()
+    _ = await advertTask.value
+  }
+
+  @Test
+  @MainActor
+  func `waitForAdvertContactSync throws when the bound is reached`() async throws {
+    let coordinator = SyncCoordinator()
+    let gatedContactService = GatedContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+
+    let advertTask = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: testDeviceID,
+        dataStore: dataStore,
+        contactService: gatedContactService
+      )
+    }
+    await gatedContactService.waitForSyncStart()
+
+    var timedOut = false
+    do {
+      try await coordinator.waitForAdvertContactSync(timeout: .milliseconds(40))
+    } catch let error as SyncCoordinatorError {
+      if case let .syncFailed(message) = error {
+        timedOut = message == SyncCoordinator.advertContactSyncWaitTimedOutMessage
+      }
+    }
+    #expect(timedOut, "Wait must surface a timeout error rather than hang or silent-skip")
+
+    await gatedContactService.release()
+    _ = await advertTask.value
+  }
+
+  @Test
+  @MainActor
+  func `onDisconnected resumes advert claim waiters`() async throws {
+    let coordinator = SyncCoordinator()
+    let gatedContactService = GatedContactService()
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      lastContactSync: 1_704_067_200
+    )
+    let mockTransport = SimulatorMockTransport()
+    let session = MeshCoreSession(transport: mockTransport)
+    let services = try await ServiceContainer.forTesting(session: session)
+
+    let advertTask = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: testDeviceID,
+        dataStore: dataStore,
+        contactService: gatedContactService
+      )
+    }
+    await gatedContactService.waitForSyncStart()
+
+    let waitTask = Task {
+      try await coordinator.waitForAdvertContactSync(timeout: .seconds(5))
+    }
+    try await Task.sleep(for: .milliseconds(50))
+
+    await coordinator.onDisconnected(notificationService: services.notificationService)
+
+    // Waiter must resume when the connection drops, not sit until the advert defer.
+    try await waitTask.value
+
+    await gatedContactService.release()
+    _ = await advertTask.value
+  }
 
   @Test
   @MainActor
@@ -859,6 +1725,39 @@ actor DelayingContactService: ContactServiceProtocol {
       }
     }
     return ContactSyncResult(contactsReceived: 0, lastSyncTimestamp: 0, isIncremental: false)
+  }
+}
+
+/// Mock contact service that suspends inside `syncContacts` until the test releases it.
+/// Lets a test hold an advert delta sync open while another sync path runs.
+private actor GatedContactService: ContactServiceProtocol {
+  private var hasStarted = false
+  private var startWaiters: [CheckedContinuation<Void, Never>] = []
+  private var gate: CheckedContinuation<Void, Never>?
+  private var isReleased = false
+
+  /// Waits until `syncContacts` has entered and is holding at the gate.
+  func waitForSyncStart() async {
+    if hasStarted { return }
+    await withCheckedContinuation { startWaiters.append($0) }
+  }
+
+  /// Lets the held `syncContacts` call return.
+  func release() {
+    isReleased = true
+    gate?.resume()
+    gate = nil
+  }
+
+  func syncContacts(radioID _: UUID, since _: Date?) async throws -> ContactSyncResult {
+    hasStarted = true
+    while !startWaiters.isEmpty {
+      startWaiters.removeFirst().resume()
+    }
+    if !isReleased {
+      await withCheckedContinuation { gate = $0 }
+    }
+    return ContactSyncResult(contactsReceived: 0, lastSyncTimestamp: 0, isIncremental: true)
   }
 }
 

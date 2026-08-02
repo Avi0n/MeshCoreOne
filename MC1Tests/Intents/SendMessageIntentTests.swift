@@ -26,6 +26,7 @@ struct SendMessageIntentTests {
       id: UUID(), radioID: radioID, publicKey: Data(repeating: 0xC1, count: 32), name: name,
       typeRawValue: type.rawValue, flags: 0, outPathLength: 0, outPath: Data(),
       lastAdvertTimestamp: 0, latitude: 0, longitude: 0, lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil, isBlocked: false, isMuted: false, isFavorite: false,
       lastMessageDate: nil, unreadCount: 0
     )

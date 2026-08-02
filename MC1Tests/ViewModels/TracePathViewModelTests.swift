@@ -40,7 +40,8 @@ private func createTestContact() -> ContactDTO {
     lastAdvertTimestamp: 0,
     latitude: 0,
     longitude: 0,
-    lastModified: 0
+    lastModified: 0,
+    lastHeardTimestamp: 0
   )
   return ContactDTO(from: contact)
 }
@@ -880,7 +881,8 @@ struct PathCaptureTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     )
     viewModel.addNode(ContactDTO(from: contact))
 
@@ -906,7 +908,8 @@ struct PathCaptureTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     )
     viewModel.addNode(ContactDTO(from: contact))
 
@@ -1310,7 +1313,8 @@ struct CodeInputParsingTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     )
     return ContactDTO(from: contact)
   }
@@ -1506,6 +1510,7 @@ struct OutboundPathNameResolutionTests {
       latitude: lat,
       longitude: lon,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -1538,6 +1543,7 @@ struct OutboundPathNameResolutionTests {
       latitude: contact1.latitude,
       longitude: contact1.longitude,
       lastModified: contact1.lastModified,
+      lastHeardTimestamp: nil,
       nickname: contact1.nickname,
       isBlocked: contact1.isBlocked,
       isMuted: contact1.isMuted,
@@ -1558,6 +1564,7 @@ struct OutboundPathNameResolutionTests {
       latitude: contact2.latitude,
       longitude: contact2.longitude,
       lastModified: contact2.lastModified,
+      lastHeardTimestamp: nil,
       nickname: contact2.nickname,
       isBlocked: contact2.isBlocked,
       isMuted: contact2.isMuted,
@@ -1625,6 +1632,7 @@ struct OutboundPathNameResolutionTests {
       latitude: 37.0,
       longitude: -122.0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -1645,6 +1653,7 @@ struct OutboundPathNameResolutionTests {
       latitude: 38.0,
       longitude: -123.0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -1734,7 +1743,8 @@ struct RoomSupportTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     )
     return ContactDTO(from: contact)
   }

@@ -232,7 +232,29 @@ extension PersistenceStore {
       contact.avatarImageData = backupAvatar
       changed = true
     }
+    let clampedHeard = clampedBackupLastHeardTimestamp(dto.lastHeardTimestamp)
+    if clampedHeard > contact.lastHeardTimestamp {
+      contact.lastHeardTimestamp = clampedHeard
+      changed = true
+    }
     return changed
+  }
+
+  /// Clamps a backup phone-clock stamp so a future exporting clock cannot pin
+  /// sort/prune under max-wins. Nil (legacy envelope) becomes 0.
+  /// Shares the same clamp as `touchContactHeard` so export-import is not lossy.
+  func clampedBackupLastHeardTimestamp(_ stamp: UInt32?, at now: Date = Date()) -> UInt32 {
+    guard let stamp else { return 0 }
+    return Self.clampedPhoneClockTimestamp(stamp, at: now)
+  }
+
+  /// Upper-bounds a phone-clock second stamp to now + `timestampToleranceFuture`.
+  /// Used by live `touchContactHeard` and backup import so both agree.
+  static func clampedPhoneClockTimestamp(_ stamp: UInt32, at now: Date = Date()) -> UInt32 {
+    let nowSeconds = UInt32(now.timeIntervalSince1970)
+    let tolerance = UInt32(SyncCoordinator.timestampToleranceFuture)
+    let upperBound = nowSeconds > UInt32.max - tolerance ? UInt32.max : nowSeconds + tolerance
+    return min(stamp, upperBound)
   }
 
   func mergeBackupMetadata(into channel: Channel, from dto: ChannelDTO) -> Bool {

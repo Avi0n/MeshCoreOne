@@ -31,6 +31,7 @@ private func createContact(
     latitude: latitude,
     longitude: longitude,
     lastModified: lastModified,
+    lastHeardTimestamp: nil,
     nickname: nil,
     isBlocked: isBlocked,
     isMuted: false,

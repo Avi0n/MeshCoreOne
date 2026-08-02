@@ -328,6 +328,11 @@ private actor StubDataStore: PersistenceStoreProtocol {
 
   func saveContact(_ dto: ContactDTO) async throws {}
   func deleteContact(id: UUID) async throws {}
+  @discardableResult
+  func touchContactHeard(radioID: UUID, publicKey: Data, at date: Date) async throws -> Bool {
+    false
+  }
+
   func updateContactLastMessage(contactID: UUID, date: Date?) async throws {}
   func incrementUnreadCount(contactID: UUID) async throws {}
   func clearUnreadCount(contactID: UUID) async throws {}

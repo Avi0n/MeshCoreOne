@@ -265,6 +265,7 @@ struct RxLogViewModelTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nickname,
       isBlocked: false,
       isMuted: false,

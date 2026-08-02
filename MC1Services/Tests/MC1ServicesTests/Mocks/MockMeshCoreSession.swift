@@ -110,6 +110,12 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   private var getContactHoldContinuations: [Data: CheckedContinuation<Void, Never>] = [:]
   private var getContactHoldRequested: Set<Data> = []
 
+  /// When true, the next `getContacts` parks until `releaseGetContacts()`.
+  private var getContactsHoldRequested = false
+  private var getContactsHoldActive = false
+  private var getContactsHoldContinuation: CheckedContinuation<Void, Never>?
+  private var getContactsStartWaiters: [CheckedContinuation<Void, Never>] = []
+
   /// Error to throw from addContact
   public var stubbedAddContactError: Error?
 
@@ -308,6 +314,28 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     getContactHoldContinuations[publicKey] != nil
   }
 
+  /// Causes the next `getContacts` to suspend until `releaseGetContacts()` is called.
+  public func holdNextGetContacts() {
+    getContactsHoldRequested = true
+  }
+
+  /// Suspends until a held `getContacts` has entered its gate (claim + body in progress).
+  public func waitForGetContactsStart() async {
+    if getContactsHoldActive { return }
+    await withCheckedContinuation { getContactsStartWaiters.append($0) }
+  }
+
+  /// Releases a held `getContacts` call.
+  public func releaseGetContacts() {
+    getContactsHoldContinuation?.resume()
+    getContactsHoldContinuation = nil
+  }
+
+  /// Whether a `getContacts` call is currently suspended on the hold gate.
+  public func isGetContactsHeld() -> Bool {
+    getContactsHoldContinuation != nil
+  }
+
   // MARK: - Protocol Methods
 
   public func sendMessage(to destination: Data, text: String, timestamp: Date, attempt: UInt8) async throws -> MessageSentInfo {
@@ -329,6 +357,17 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public func getContacts(since lastModified: Date?) async throws -> [MeshContact] {
     getContactsInvocations.append(lastModified)
+    if getContactsHoldRequested {
+      getContactsHoldRequested = false
+      getContactsHoldActive = true
+      while !getContactsStartWaiters.isEmpty {
+        getContactsStartWaiters.removeFirst().resume()
+      }
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        getContactsHoldContinuation = continuation
+      }
+      getContactsHoldActive = false
+    }
     if let error = stubbedGetContactsError {
       throw error
     }

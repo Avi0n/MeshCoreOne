@@ -56,7 +56,8 @@ struct ChatSendQueueServiceAttemptCountTests {
     let contact = Contact(
       radioID: radioID,
       publicKey: Data(repeating: 2, count: 32),
-      name: "Test Contact"
+      name: "Test Contact",
+      lastHeardTimestamp: 0
     )
     container.mainContext.insert(contact)
     try container.mainContext.save()

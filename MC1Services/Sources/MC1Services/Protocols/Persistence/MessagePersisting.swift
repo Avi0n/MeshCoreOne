@@ -21,6 +21,11 @@ public protocol MessagePersisting: Actor {
   /// Fetch messages for a contact
   func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO]
 
+  /// Newest unread incoming message for a contact, or nil when none.
+  /// Used to post a direct-message banner after orphan DMs are adopted to a
+  /// contact that did not exist when they arrived.
+  func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO?
+
   /// Fetch messages for a channel
   func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO]
 
@@ -159,5 +164,12 @@ extension MessagePersisting {
   /// Update message ACK info with no round-trip time
   func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus) async throws {
     try await updateMessageAck(id: id, ackCode: ackCode, status: status, roundTripTime: nil)
+  }
+
+  /// Default no-op for lightweight stubs. Concrete stores override; the method
+  /// must be `async throws` on the store so overload resolution does not pick
+  /// this empty default over the real implementation.
+  func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO? {
+    nil
   }
 }

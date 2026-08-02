@@ -188,6 +188,38 @@ public actor ContactService {
     }
   }
 
+  /// Full contact sync for a user-initiated refresh.
+  ///
+  /// Atomically waits out an advert-driven delta sync and claims the manual
+  /// refresh flag on the coordinator. Separate wait and claim hops leave a
+  /// window where a delta can take the claim after the wait returns and before
+  /// the flag is set; both publish `syncProgress` on the same event stream, so
+  /// that race jumps the pull-to-refresh counter. Callers still call
+  /// `AdvertisementService.setSyncingContacts(true)` first so no new delta
+  /// starts before this claim runs.
+  ///
+  /// - Parameter radioID: The device to sync from
+  /// - Returns: Sync result with count and timestamp
+  public func syncContactsForRefresh(radioID: UUID) async throws -> ContactSyncResult {
+    do {
+      try await syncCoordinator?.claimManualContactSync()
+    } catch is CancellationError {
+      throw CancellationError()
+    } catch {
+      // Wait timed out while an advert delta still held the claim. Do not
+      // proceed (races progress) and do not silent-skip: surface so the spinner stops.
+      throw ContactServiceError.syncInterrupted
+    }
+    do {
+      let result = try await syncContacts(radioID: radioID)
+      await syncCoordinator?.setManualContactSyncActive(false)
+      return result
+    } catch {
+      await syncCoordinator?.setManualContactSyncActive(false)
+      throw error
+    }
+  }
+
   // MARK: - Get Contact
 
   /// Get a specific contact by public key from local database
@@ -502,6 +534,7 @@ public actor ContactService {
         latitude: existing.latitude,
         longitude: existing.longitude,
         lastModified: existing.lastModified,
+        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
         nickname: resolvedNickname,
         isBlocked: isBlocked ?? existing.isBlocked,
         isMuted: existing.isMuted,
@@ -553,6 +586,7 @@ public actor ContactService {
         latitude: existing.latitude,
         longitude: existing.longitude,
         lastModified: existing.lastModified,
+        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
         isMuted: existing.isMuted,
@@ -639,6 +673,7 @@ public actor ContactService {
         latitude: existing.latitude,
         longitude: existing.longitude,
         lastModified: existing.lastModified,
+        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
         isMuted: existing.isMuted,
@@ -717,6 +752,7 @@ public actor ContactService {
         latitude: existing.latitude,
         longitude: existing.longitude,
         lastModified: existing.lastModified,
+        lastHeardTimestamp: existing.lastHeardTimestamp ?? 0,
         nickname: existing.nickname,
         isBlocked: existing.isBlocked,
         isMuted: existing.isMuted,

@@ -53,11 +53,35 @@ public protocol ContactPersisting: Actor {
   func deleteContact(id: UUID) async throws
 
   /// Deletes the contact only when no messages reference it. Insert-only
-  /// rollback of cancelled advert fetches: prefer an orphan contact over
-  /// cascade-wiping a concurrent DM. Implementations that share a ModelActor
-  /// with message storage must keep probe and delete in one isolation region
-  /// with no suspension between them.
+  /// rollback of a mid-sync radio delete: prefer an orphan contact over a
+  /// cascade that wipes a concurrent DM. Implementations that share a
+  /// ModelActor with message storage must keep probe and delete in one
+  /// isolation region with no suspension between them.
+  ///
+  /// PendingSend and Reaction cascade with their Message rows on
+  /// `deleteContact`, so a Message probe is sufficient.
   func deleteContactIfUnreferenced(id: UUID) async throws
+
+  /// Links direct messages stored before their contact row existed. Channel
+  /// rows are excluded by their non-nil channelIndex; the sender-key prefix
+  /// match runs in memory because `#Predicate` cannot express `Data.prefix`.
+  /// A prefix matching two contacts is left orphaned rather than guessed.
+  ///
+  /// Once a DM is adopted, `deleteContactIfUnreferenced` cannot roll that
+  /// contact back, and an incremental sync never prunes it. Ghost contacts
+  /// become permanent. That is the intended trade.
+  ///
+  /// Returns the number of messages adopted per contact id. Does not update
+  /// the springboard badge; the contact unread count is updated in place.
+  func adoptOrphanedDirectMessages(
+    radioID: UUID,
+    contacts: [(id: UUID, publicKey: Data)]
+  ) async throws -> [UUID: Int]
+
+  /// Stamps phone-clock recency for a contact heard on air and the matching
+  /// DiscoveredNode lastHeard, creating that Discover row from stored radio
+  /// fields when it is missing. Returns true when a Contact row existed.
+  func touchContactHeard(radioID: UUID, publicKey: Data, at date: Date) async throws -> Bool
 
   /// Update contact's last message info (nil clears the date, removing from conversations list)
   func updateContactLastMessage(contactID: UUID, date: Date?) async throws
@@ -134,5 +158,15 @@ public extension ContactPersisting where Self: MessagePersisting {
     }
     guard messages.isEmpty else { return }
     try await deleteContact(id: id)
+  }
+
+  /// Default no-op for lightweight stubs. Concrete stores override; the method
+  /// must be `async throws` on the store so overload resolution does not pick
+  /// this empty default over the real implementation.
+  func adoptOrphanedDirectMessages(
+    radioID: UUID,
+    contacts: [(id: UUID, publicKey: Data)]
+  ) async throws -> [UUID: Int] {
+    [:]
   }
 }

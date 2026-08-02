@@ -189,7 +189,8 @@ struct ChatTimelineClobberRegressionTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     ))
     _ = await viewModel.primeInitialMessages(for: contact)
 
@@ -212,7 +213,8 @@ struct ChatTimelineClobberRegressionTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     ))
     _ = await viewModel.primeInitialMessages(for: otherContact)
     #expect(viewModel.bake.previewStates[message.id] == nil)

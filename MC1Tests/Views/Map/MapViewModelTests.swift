@@ -22,6 +22,7 @@ struct MapViewModelFocusTests {
       latitude: 37.0,
       longitude: -122.0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,

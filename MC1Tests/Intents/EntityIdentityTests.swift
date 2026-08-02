@@ -34,6 +34,7 @@ struct EntityIdentityTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -215,6 +216,7 @@ struct EntityQueryScopingTests {
       id: UUID(), radioID: radioID, publicKey: publicKey, name: name,
       typeRawValue: type.rawValue, flags: 0, outPathLength: 0, outPath: Data(),
       lastAdvertTimestamp: 0, latitude: 0, longitude: 0, lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil, isBlocked: false, isMuted: false, isFavorite: false,
       lastMessageDate: nil, unreadCount: 0
     )

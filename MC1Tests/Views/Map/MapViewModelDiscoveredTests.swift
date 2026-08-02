@@ -39,6 +39,7 @@ struct MapViewModelDiscoveredTests {
       latitude: latitude,
       longitude: longitude,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,

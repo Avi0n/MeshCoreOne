@@ -284,14 +284,14 @@ public extension ConnectionManager {
     try await removeContacts(matching: { !$0.isFavorite })
   }
 
-  /// Removes non-favorite contacts whose `lastModified` timestamp is older than the given threshold.
+  /// Removes non-favorite contacts whose recency timestamp is older than the given threshold.
   /// - Parameter days: Number of days. Contacts not heard from in this many days are removed.
   /// - Returns: Count of removed vs total stale contacts
   /// - Throws: `ConnectionError.notConnected` if no device is connected
   func removeStaleNodes(olderThanDays days: Int) async throws -> RemoveUnfavoritedResult {
     let cutoff = UInt32(Date().addingTimeInterval(-Double(days) * 86400).timeIntervalSince1970)
-    return try await removeContacts(matching: { !$0.isFavorite && $0.lastModified < cutoff }) { contact in
-      let ageDays = (Int(Date().timeIntervalSince1970) - Int(contact.lastModified)) / 86400
+    return try await removeContacts(matching: { $0.matchesStaleNodePrune(cutoff: cutoff) }) { contact in
+      let ageDays = (Int(Date().timeIntervalSince1970) - Int(contact.recencyTimestamp)) / 86400
       let keyPrefix = contact.publicKeyHex.prefix(8)
       self.logger.info("Auto-removed stale node '\(contact.name)' [\(keyPrefix)] (last heard \(ageDays)d ago)")
     }

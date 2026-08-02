@@ -299,6 +299,9 @@
 /* Location: ContactDetailView.swift - Purpose: Last advert label */
 "contacts.detail.lastAdvert" = "最近广播";
 
+/* Location: ContactDetailView.swift - Purpose: Last heard (phone-clock on-air) label */
+"contacts.detail.lastHeard" = "最后收到";
+
 /* Location: ContactDetailView.swift - Purpose: Unread messages label */
 "contacts.detail.unreadMessages" = "未读消息";
 

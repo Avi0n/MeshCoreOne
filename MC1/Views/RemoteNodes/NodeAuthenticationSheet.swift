@@ -499,7 +499,8 @@ private struct ConnectButton: View {
       radioID: UUID(),
       publicKey: Data(repeating: 0x42, count: 32),
       name: "Test Room",
-      typeRawValue: ContactType.room.rawValue
+      typeRawValue: ContactType.room.rawValue,
+      lastHeardTimestamp: 0
     )),
     role: .roomServer,
     onSuccess: { _ in }

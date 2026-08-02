@@ -1225,6 +1225,8 @@ public enum L10n {
         public static let joinRoom = L10n.tr("Contacts", "contacts.detail.joinRoom", fallback: "Join Room")
         /// Location: ContactDetailView.swift - Purpose: Last advert label
         public static let lastAdvert = L10n.tr("Contacts", "contacts.detail.lastAdvert", fallback: "Last Advert")
+        /// Location: ContactDetailView.swift - Purpose: Last heard (phone-clock on-air) label
+        public static let lastHeard = L10n.tr("Contacts", "contacts.detail.lastHeard", fallback: "Last Heard")
         /// Location: ContactDetailView.swift - Purpose: Location section header
         public static let location = L10n.tr("Contacts", "contacts.detail.location", fallback: "Location")
         /// Location: ContactDetailView.swift - Purpose: Management button
@@ -2725,6 +2727,8 @@ public enum L10n {
         public static let hopSingular = L10n.tr("Map", "map.detail.hopSingular", fallback: "1 hop")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp
         public static let lastAdvert = L10n.tr("Map", "map.detail.lastAdvert", fallback: "Last Advert")
+        /// Location: MapView.swift ContactDetailSheet - Purpose: Last heard (phone-clock on-air) label
+        public static let lastHeard = L10n.tr("Map", "map.detail.lastHeard", fallback: "Last Heard")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for latitude coordinate
         public static let latitude = L10n.tr("Map", "map.detail.latitude", fallback: "Latitude")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for longitude coordinate

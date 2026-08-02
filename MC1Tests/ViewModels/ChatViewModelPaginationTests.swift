@@ -24,6 +24,7 @@ private func createTestContact(
     latitude: 0,
     longitude: 0,
     lastModified: UInt32(Date().timeIntervalSince1970),
+    lastHeardTimestamp: nil,
     nickname: nil,
     isBlocked: false,
     isMuted: false,

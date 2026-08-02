@@ -614,6 +614,7 @@ private struct AnalyzeButton: View {
     latitude: 37.7749,
     longitude: -122.4194,
     lastModified: 0,
+    lastHeardTimestamp: nil,
     nickname: nil,
     isBlocked: false,
     isMuted: false,

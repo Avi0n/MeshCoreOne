@@ -788,6 +788,7 @@ struct BackupIntegrationTests {
       latitude: existingContact.latitude,
       longitude: existingContact.longitude,
       lastModified: existingContact.lastModified,
+      lastHeardTimestamp: nil,
       nickname: "Field Ops",
       isBlocked: true,
       isMuted: true,
@@ -899,6 +900,242 @@ struct BackupIntegrationTests {
       await destStore.fetchContact(radioID: radioID, publicKey: existingNoAvatar.publicKey)
     )
     #expect(mergedCarol.avatarImageData == Data(repeating: 0x33, count: 8))
+  }
+
+  // MARK: - Test 11c: lastHeardTimestamp backup round-trip
+
+  @Test
+  func `Contact lastHeardTimestamp survives encode decode export import and merge`() async throws {
+    let withHeard = ContactDTO.testContact(lastHeardTimestamp: 1_700_000_500)
+    let encoded = try JSONEncoder().encode(withHeard)
+    let decoded = try JSONDecoder().decode(ContactDTO.self, from: encoded)
+    #expect(decoded.lastHeardTimestamp == 1_700_000_500)
+
+    var legacyJSON = try #require(
+      JSONSerialization.jsonObject(with: encoded) as? [String: Any]
+    )
+    legacyJSON.removeValue(forKey: "lastHeardTimestamp")
+    let legacyData = try JSONSerialization.data(withJSONObject: legacyJSON)
+    let legacyDecoded = try JSONDecoder().decode(ContactDTO.self, from: legacyData)
+    #expect(legacyDecoded.lastHeardTimestamp == nil)
+
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let sourceContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xF1, count: 32),
+      name: "Heard",
+      lastHeardTimestamp: 1_700_000_600
+    )
+    try await sourceStore.saveContact(sourceContact)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let importResult = try await service.importBackup(envelope: envelope, into: destStore)
+    #expect(importResult.contactsInserted == 1)
+
+    let inserted = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: sourceContact.publicKey)
+    )
+    #expect(inserted.lastHeardTimestamp == 1_700_000_600)
+
+    // Legacy envelope (missing key) materializes as model 0.
+    let legacyContact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xF2, count: 32),
+      name: "Legacy",
+      lastHeardTimestamp: nil
+    )
+    var legacyContactJSON = try #require(
+      try JSONSerialization.jsonObject(with: JSONEncoder().encode(legacyContact)) as? [String: Any]
+    )
+    legacyContactJSON.removeValue(forKey: "lastHeardTimestamp")
+    let legacyContactData = try JSONSerialization.data(withJSONObject: legacyContactJSON)
+    let legacyContactDecoded = try JSONDecoder().decode(ContactDTO.self, from: legacyContactData)
+    try await destStore.saveContact(legacyContactDecoded)
+    let legacyRow = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: legacyContact.publicKey)
+    )
+    #expect(legacyRow.lastHeardTimestamp == 0 || legacyRow.lastHeardTimestamp == nil)
+
+    // Merge: local newer keeps local; backup newer adopts; future stamp clamps.
+    let mergeKey = Data(repeating: 0xF3, count: 32)
+    let localNewer = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: 1_700_000_900
+    )
+    try await destStore.saveContact(localNewer)
+
+    let olderBackup = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: 1_700_000_100
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [olderBackup]
+      ),
+      into: destStore
+    )
+    let afterOlder = try #require(await destStore.fetchContact(radioID: radioID, publicKey: mergeKey))
+    #expect(afterOlder.lastHeardTimestamp == 1_700_000_900)
+
+    let newerBackup = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: 1_700_001_000
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [newerBackup]
+      ),
+      into: destStore
+    )
+    let afterNewer = try #require(await destStore.fetchContact(radioID: radioID, publicKey: mergeKey))
+    #expect(afterNewer.lastHeardTimestamp == 1_700_001_000)
+
+    let farFuture = UInt32(Date().timeIntervalSince1970) + 86400
+    let futureBackup = ContactDTO.testContact(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: mergeKey,
+      name: "Merge",
+      lastHeardTimestamp: farFuture
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [futureBackup]
+      ),
+      into: destStore
+    )
+    let afterFuture = try #require(await destStore.fetchContact(radioID: radioID, publicKey: mergeKey))
+    let now = UInt32(Date().timeIntervalSince1970)
+    let tolerance = UInt32(SyncCoordinator.timestampToleranceFuture)
+    let upper = now > UInt32.max - tolerance ? UInt32.max : now + tolerance
+    #expect(afterFuture.lastHeardTimestamp ?? 0 <= upper)
+    #expect(afterFuture.lastHeardTimestamp ?? 0 >= 1_700_001_000)
+
+    // Insert-only far-future stamp clamps on first import (no local row).
+    let insertKey = Data(repeating: 0xF4, count: 32)
+    let insertFuture = UInt32(Date().timeIntervalSince1970) + 86400
+    let insertBackup = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: insertKey,
+      name: "FutureInsert",
+      lastHeardTimestamp: insertFuture
+    )
+    _ = try await service.importBackup(
+      envelope: AppBackupEnvelope.test(
+        devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+        contacts: [insertBackup]
+      ),
+      into: destStore
+    )
+    let insertedFuture = try #require(
+      await destStore.fetchContact(radioID: radioID, publicKey: insertKey)
+    )
+    let insertNow = UInt32(Date().timeIntervalSince1970)
+    let insertUpper = insertNow > UInt32.max - tolerance ? UInt32.max : insertNow + tolerance
+    #expect(insertedFuture.lastHeardTimestamp ?? 0 <= insertUpper)
+    #expect(insertedFuture.lastHeardTimestamp ?? 0 < insertFuture)
+  }
+
+  // MARK: - Orphan DM adoption after reminted Device.id
+
+  @Test
+  func `Orphan DM survives export import and adoption under reminted device id`() async throws {
+    let radioID = UUID()
+    let contactKey = Data(repeating: 0xAD, count: 32)
+    let prefix = Data(contactKey.prefix(6))
+    let stamp = UInt32(1_700_000_700)
+
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let sourceDevice = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    try await sourceStore.saveDevice(sourceDevice)
+
+    // Orphan DM stored before the contact row exists.
+    try await sourceStore.saveMessage(
+      MessageDTO(
+        id: UUID(),
+        radioID: radioID,
+        contactID: nil,
+        channelIndex: nil,
+        text: "pre-contact dm",
+        timestamp: stamp,
+        createdAt: Date(timeIntervalSince1970: TimeInterval(stamp)),
+        direction: .incoming,
+        status: .delivered,
+        textType: .plain,
+        ackCode: nil,
+        pathLength: 0,
+        snr: nil,
+        pathNodes: nil,
+        senderKeyPrefix: prefix,
+        senderNodeName: nil,
+        isRead: false,
+        replyToID: nil,
+        roundTripTime: nil,
+        heardRepeats: 0,
+        retryAttempt: 0,
+        maxRetryAttempts: 0
+      )
+    )
+    let contact = ContactDTO.testContact(
+      radioID: radioID, publicKey: contactKey, name: "Adopted"
+    )
+    try await sourceStore.saveContact(contact)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    // Fresh store: Device.id reminted, radioID and publicKey survive.
+    let destRadioID = UUID()
+    let destStore = try await PersistenceStore.createTestDataStore(radioID: destRadioID)
+    let destDevice = DeviceDTO.testDevice(
+      id: UUID(),
+      radioID: destRadioID,
+      publicKey: sourceDevice.publicKey
+    )
+    try await destStore.saveDevice(destDevice)
+
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    // After import, contact and orphan share the remapped radio partition.
+    let importedContacts = try await destStore.fetchContacts(radioID: destRadioID)
+    let imported = try #require(importedContacts.first { $0.publicKey == contactKey })
+    let adopted = try await destStore.adoptOrphanedDirectMessages(
+      radioID: destRadioID,
+      contacts: [(id: imported.id, publicKey: imported.publicKey)]
+    )
+    #expect(adopted[imported.id] == 1 || adopted.isEmpty)
+    // Idempotent second run.
+    let second = try await destStore.adoptOrphanedDirectMessages(
+      radioID: destRadioID,
+      contacts: [(id: imported.id, publicKey: imported.publicKey)]
+    )
+    #expect(second.isEmpty)
+
+    let messages = try await destStore.fetchMessages(contactID: imported.id, limit: 10, offset: 0)
+    // Either import remapped the orphan already, or adoption linked it.
+    let all = try await destStore.fetchAllMessages(radioID: destRadioID)
+    let linked = all.filter { $0.text == "pre-contact dm" }
+    #expect(linked.count == 1)
+    if let msg = linked.first {
+      #expect(msg.contactID == imported.id || messages.contains { $0.id == msg.id })
+    }
   }
 
   // MARK: - Test 12: Merge import — channel metadata restored

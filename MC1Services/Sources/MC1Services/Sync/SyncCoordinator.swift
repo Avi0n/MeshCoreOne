@@ -119,6 +119,46 @@ public actor SyncCoordinator {
   /// that existed when guarding via the `@MainActor`-isolated `state` property.
   var isSyncInProgress = false
 
+  /// True while `performAdvertContactSync` holds `isSyncInProgress`. Full sync,
+  /// connection setup, and channel-only retry wait for this claim instead of skipping.
+  var advertContactSyncActive = false
+
+  /// True while a user-initiated contact refresh holds the radio pipeline.
+  /// Advert delta sync returns `.busy` so it retries on the debounce rather
+  /// than racing progress events with pull-to-refresh.
+  var manualContactSyncActive = false
+
+  /// Continuations held by `waitForAdvertContactSync` until the advert claim clears.
+  var advertSyncWaiters: [AdvertSyncWaiter] = []
+
+  /// Monotonic id for advert-sync waiters so cancel/timeout can resume one waiter.
+  var nextAdvertSyncWaiterID: UInt64 = 0
+
+  /// Optional override for the advert claim wait bound. Tests set a short value;
+  /// production leaves this nil so `advertContactSyncWaitTimeout` applies.
+  var advertContactSyncWaitTimeoutOverride: Duration?
+
+  /// One suspended waiter for the advert contact-sync claim.
+  struct AdvertSyncWaiter {
+    let id: UInt64
+    let continuation: CheckedContinuation<Void, Error>
+  }
+
+  /// Radio whose full contact fetch (`since == nil`) last completed. An empty
+  /// contact table stamps no watermark, so the zero sentinel alone cannot separate
+  /// "no full sync yet" from "nothing to stamp". Advert delta sync needs that
+  /// difference to run at all.
+  var fullContactSyncCompletedRadioID: UUID?
+
+  /// Radio that already spent its one invalid-watermark recovery full fetch this
+  /// coordinator lifetime. Bounds residual far-future lastmod tables so advert
+  /// delta cannot re-stream the whole contact table every debounce forever.
+  /// Manual pull-to-refresh and `forceFullSync` do not consult this latch.
+  var invalidWatermarkRecoveryRadioID: UUID?
+
+  /// Radio for which the exhausted-recovery notice was already logged once.
+  var invalidWatermarkRecoveryExhaustedLoggedRadioID: UUID?
+
   /// Cached blocked names (contacts + channel senders) for O(1) lookup in message handlers
   private var blockedNames: Set<String> = []
 
@@ -364,7 +404,7 @@ public actor SyncCoordinator {
   // MARK: - Timestamp Correction
 
   /// Maximum acceptable time in the future for a sender timestamp (5 minutes)
-  private static let timestampToleranceFuture: TimeInterval = 5 * 60
+  static let timestampToleranceFuture: TimeInterval = 5 * 60
 
   /// Maximum acceptable time in the past for a sender timestamp (6 months)
   private static let timestampTolerancePast: TimeInterval = 6 * 30 * 24 * 60 * 60

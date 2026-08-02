@@ -938,7 +938,16 @@ private struct ContactInfoSection: View {
           .foregroundStyle(.secondary)
       }
 
-      // Last advert
+      // Phone-clock last heard (on-air)
+      if let lastHeard = currentContact.lastHeardTimestamp, lastHeard > 0 {
+        HStack {
+          Text(L10n.Contacts.Contacts.Detail.lastHeard)
+          Spacer()
+          ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(lastHeard)), font: .body)
+        }
+      }
+
+      // Radio-sourced last advert
       if currentContact.lastAdvertTimestamp > 0 {
         HStack {
           Text(L10n.Contacts.Contacts.Detail.lastAdvert)
@@ -1357,6 +1366,7 @@ private struct ContactDangerSection: View {
       name: "Alice",
       latitude: 37.7749,
       longitude: -122.4194,
+      lastHeardTimestamp: 0,
       isFavorite: true
     )))
   }
@@ -1372,6 +1382,7 @@ private struct ContactDangerSection: View {
         name: "Alice",
         latitude: 37.7749,
         longitude: -122.4194,
+        lastHeardTimestamp: 0,
         isFavorite: true
       )),
       showFromDirectChat: true

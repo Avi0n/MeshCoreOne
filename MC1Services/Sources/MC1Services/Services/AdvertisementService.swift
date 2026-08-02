@@ -22,6 +22,21 @@ extension AdvertisementError: LocalizedError {
   }
 }
 
+// MARK: - Advert Contact Sync Outcome
+
+/// Result of one advert-driven contact delta exchange.
+///
+/// `busy` is not `failed`: a collision with another sync never reaches the
+/// radio, so it must not spend the failure budget that drops drained keys.
+/// `notReady` is permanent until a full contact fetch succeeds: neither requeue
+/// nor spend the failure budget.
+public enum AdvertContactSyncOutcome: Sendable {
+  case synced
+  case busy
+  case failed
+  case notReady
+}
+
 // MARK: - Advertisement Service
 
 /// Service for managing device advertisements and discovery.
@@ -38,28 +53,58 @@ public actor AdvertisementService {
   let dataStore: any PersistenceStoreProtocol
 
   private var eventMonitorTask: Task<Void, Never>?
-  private var currentRadioID: UUID?
+  var currentRadioID: UUID?
 
-  /// When true, the contact-fetch worker is paused (e.g. during contact sync).
+  /// When true, advert delta sync is deferred (full or manual contact sync).
+  /// Manual pull-to-refresh also sets this; it is invisible to `SyncCoordinator.isSyncInProgress`.
   var isSyncingContacts = false
 
-  /// Pending `getContact` work, deduped by key. Advert reason wins on merge
-  /// because its post-fetch work is a superset of pathUpdate's.
-  var contactFetchQueue: [Data: ContactFetchEntry] = [:]
-  var contactFetchWorker: Task<Void, Never>?
-  /// Bumped when a worker starts; an exiting worker nils the ref only when
-  /// generations match so it cannot clobber a newly started worker.
-  var contactFetchWorkerGeneration: UInt64 = 0
+  /// 0x80 keys heard since the last delta sync.
+  var pendingAdvertKeys: Set<Data> = []
 
-  /// Key currently being fetched, and whether 0x8F or teardown cancelled it
-  /// mid-flight. A cancelled fetch must not commit.
-  var inFlightKey: Data?
-  var inFlightCancelled = false
+  /// Phone receive times for pending 0x80 keys, keyed by public key.
+  /// Stamped onto `lastHeardTimestamp` after a delta insert (or materialize)
+  /// so a stale radio RTC cannot prune a contact just heard on air.
+  private var pendingAdvertReceiveTimes: [Data: Date] = [:]
 
-  /// Waiters for the current snapshotted worker pass. Concurrent
-  /// `setSyncingContacts(false)` callers share one pass; late joiners wait
-  /// for the next pass only — never drain-until-empty under live enqueues.
-  var barrierWaiters: [CheckedContinuation<Void, Never>] = []
+  /// 0x81 path-update keys waiting for the next delta sync. Tracked apart from
+  /// `pendingAdvertKeys` because a path key must not create a Discover row.
+  /// Keys (not a bool) so a successful incremental round can verify delivery
+  /// when radio `lastmod` falls at or below the stored watermark.
+  var pendingPathKeys: Set<Data> = []
+
+  /// True when any 0x81 path key is waiting for delta sync.
+  var pathSyncPending: Bool {
+    !pendingPathKeys.isEmpty
+  }
+
+  /// Keys the radio deleted (0x8F) since this round drained its keys. Rolled back so
+  /// a batch cannot re-save a dropped row, and skipped while reconciling. Cleared
+  /// when the next round drains, so a between-round delete never undoes a later
+  /// re-created contact.
+  var contactsDeletedDuringSync: Set<Data> = []
+
+  var deltaSyncTask: Task<Void, Never>?
+  /// Monotonic identity for the scheduled delta-sync round. `finishRound` clears
+  /// `deltaSyncTask` only while this still matches the running round.
+  var deltaSyncGeneration: UInt64 = 0
+  var lastDeltaSyncEnd: ContinuousClock.Instant?
+  var deltaSyncHandler: (@Sendable (_ fullRefetch: Bool) async -> AdvertContactSyncOutcome)?
+  /// One-shot: the next delta sync runs as a prune-free full fetch.
+  var escalateToFullRefetch = false
+
+  /// Delta syncs that failed back to back without an intervening success.
+  var consecutiveDeltaSyncFailures = 0
+
+  /// Failed delta syncs tolerated before a round drops its drained keys. Without a
+  /// cap, a handler that never succeeds repeats a full contact exchange forever.
+  static let maxConsecutiveDeltaSyncFailures = 5
+
+  let advertSyncDebounce: Duration
+  let advertSyncMinInterval: Duration
+  /// Backoff before re-arming after a `.busy` outcome. Shorter than
+  /// `advertSyncMinInterval` so claim collisions poll cheaply without spinning.
+  let advertSyncBusyBackoff: Duration
 
   /// Last overwrite-oldest deletion, used to correlate the replacement advert (0x8F then new contact).
   private var lastOverwriteDeletion: (name: String, pubKeyHex: String, time: Date)?
@@ -70,18 +115,25 @@ public actor AdvertisementService {
 
   // MARK: - Initialization
 
-  public init(session: any AdvertisingSessionOps & SessionEventStreaming, dataStore: any PersistenceStoreProtocol) {
+  public init(
+    session: any AdvertisingSessionOps & SessionEventStreaming,
+    dataStore: any PersistenceStoreProtocol,
+    advertSyncDebounce: Duration = .seconds(5),
+    advertSyncMinInterval: Duration = .seconds(30),
+    advertSyncBusyBackoff: Duration = .seconds(5)
+  ) {
     self.session = session
     self.dataStore = dataStore
+    self.advertSyncDebounce = advertSyncDebounce
+    self.advertSyncMinInterval = advertSyncMinInterval
+    self.advertSyncBusyBackoff = advertSyncBusyBackoff
   }
 
-  /// Cancels outstanding tasks only. Full queue and barrier teardown is
-  /// ``stopEventMonitoring`` (`ServiceContainer.tearDown`); deinit cannot
-  /// safely resume waiters. Commit paths also treat `Task.isCancelled` as
-  /// cancel eligibility so work does not land after teardown begins.
+  /// Cancels outstanding tasks only. Full teardown is ``stopEventMonitoring``
+  /// (`ServiceContainer.tearDown`); deinit cannot safely clear the handler.
   deinit {
     eventMonitorTask?.cancel()
-    contactFetchWorker?.cancel()
+    deltaSyncTask?.cancel()
   }
 
   // MARK: - Events
@@ -130,32 +182,153 @@ public actor AdvertisementService {
     }
   }
 
-  /// Stops event monitoring and tears down the contact-fetch worker
-  /// (queue, in-flight cancel, barrier waiters). Sole full teardown path.
+  /// Stops event monitoring and clears advert delta-sync state.
   public func stopEventMonitoring() {
     eventMonitorTask?.cancel()
     eventMonitorTask = nil
     currentRadioID = nil
-    cancelContactFetchWorkerAndClearQueue()
+    deltaSyncTask?.cancel()
+    deltaSyncTask = nil
+    deltaSyncHandler = nil
+    pendingAdvertKeys.removeAll()
+    pendingPathKeys.removeAll()
+    pendingAdvertReceiveTimes.removeAll()
+    escalateToFullRefetch = false
+    consecutiveDeltaSyncFailures = 0
+    isSyncingContacts = false
+    // Keep `contactsDeletedDuringSync` across teardown so a commit still in flight
+    // can roll back rows the radio deleted; the next round clears it when it drains.
   }
 
-  /// Toggle deferred contact fetching during sync.
+  /// Records a 0x80 key for the next delta sync.
   ///
-  /// When `false`, starts the single contact-fetch worker (if idle) and awaits
-  /// one snapshotted pass — not drain-until-empty. Concurrent callers share the
-  /// same in-flight pass; callers that join after a pass boundary wait for the
-  /// next snapshotted pass only.
+  /// A re-advert for a key in `contactsDeletedDuringSync` means the radio
+  /// re-added the contact after a mid-round 0x8F. Clear the tombstone so
+  /// rollback, reconcile, and adoption treat the re-synced row as live.
+  ///
+  /// `receivedAt` is the phone clock at the 0x80 (or re-record). It is applied
+  /// to `lastHeardTimestamp` once a Contact row exists so prune recency is not
+  /// hostage to a stale radio RTC.
+  func recordPendingAdvertKey(_ key: Data, receivedAt: Date = Date()) {
+    pendingAdvertKeys.insert(key)
+    contactsDeletedDuringSync.remove(key)
+    pendingAdvertReceiveTimes[key] = receivedAt
+  }
+
+  /// Captures and removes phone receive times for keys about to drain.
+  func takeAdvertReceiveTimes(for keys: Set<Data>) -> [Data: Date] {
+    var times: [Data: Date] = [:]
+    times.reserveCapacity(keys.count)
+    for key in keys {
+      if let receivedAt = pendingAdvertReceiveTimes.removeValue(forKey: key) {
+        times[key] = receivedAt
+      }
+    }
+    return times
+  }
+
+  /// Stamps `lastHeardTimestamp` for drained 0x80 keys that now have a Contact
+  /// row, using each key's recorded phone receive time. Uses
+  /// `touchContactHeard` so clamping matches the live 0x80 path.
+  func stampAdvertReceiveTimes(_ receiveTimes: [Data: Date], radioID: UUID?) async {
+    guard let radioID, !receiveTimes.isEmpty else { return }
+    for (publicKey, receivedAt) in receiveTimes {
+      guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+      do {
+        _ = try await dataStore.touchContactHeard(
+          radioID: radioID, publicKey: publicKey, at: receivedAt
+        )
+      } catch {
+        let pubKeyHex = publicKey.uppercaseHexString()
+        logger.error(
+          "Post-delta lastHeard stamp failed for \(pubKeyHex): \(error.localizedDescription)"
+        )
+      }
+    }
+  }
+
+  /// True when a delta sync still has work: pending 0x80 keys, a path update,
+  /// or an owed prune-free full refetch. Re-arm sites and the empty-round
+  /// guard share this definition so a future flag cannot desynchronise them.
+  var hasPendingDeltaSyncWork: Bool {
+    !pendingAdvertKeys.isEmpty || pathSyncPending || escalateToFullRefetch
+  }
+
+  /// Creates a local `Contact` from a pending 0x80 key so a DM that arrives
+  /// inside the advert delta-sync debounce window can notify and list normally.
+  ///
+  /// Matches `prefix` against `pendingAdvertKeys` only (keys the radio already
+  /// auto-added). Exactly one match is required; ambiguous prefixes return nil.
+  /// The key stays pending so the debounced delta round still reconciles Discover
+  /// and may emit `.newContactDiscovered`.
+  ///
+  /// - Returns: The persisted contact, or nil when no unique pending key matches
+  ///   or the radio fetch / save fails.
+  public func materializeContactForPendingAdvert(
+    matchingPrefix prefix: Data,
+    radioID: UUID
+  ) async -> ContactDTO? {
+    guard !prefix.isEmpty else { return nil }
+
+    let matches = pendingAdvertKeys.filter { $0.starts(with: prefix) }
+    guard matches.count == 1, let publicKey = matches.first else { return nil }
+
+    let pubKeyHex = publicKey.uppercaseHexString()
+    do {
+      guard let meshContact = try await session.getContact(publicKey: publicKey) else {
+        logger.info("materialize pending advert: getContact nil key=\(pubKeyHex)")
+        return nil
+      }
+      let frame = meshContact.toContactFrame()
+      let saveResult = try await dataStore.saveContact(radioID: radioID, from: frame)
+      // Stamp phone recency before the returned DTO is read so a debounce-window
+      // insert is not prune-eligible under a stale radio lastModified.
+      let receivedAt = pendingAdvertReceiveTimes[publicKey] ?? Date()
+      do {
+        _ = try await dataStore.touchContactHeard(
+          radioID: radioID, publicKey: publicKey, at: receivedAt
+        )
+      } catch {
+        logger.error(
+          "materialize pending advert lastHeard stamp failed key=\(pubKeyHex): \(error.localizedDescription)"
+        )
+      }
+      do {
+        _ = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
+      } catch {
+        logger.error(
+          "materialize pending advert Discover upsert failed key=\(pubKeyHex): \(error.localizedDescription)"
+        )
+      }
+      eventBroadcaster.yield(.contactUpdated)
+      return try await dataStore.fetchContact(id: saveResult.id)
+    } catch {
+      logger.error(
+        "materialize pending advert failed key=\(pubKeyHex): \(error.localizedDescription)"
+      )
+      return nil
+    }
+  }
+
+  /// Installs the contact delta-sync handler used after debounced 0x80/0x81 events.
+  /// A non-nil handler re-arms when work is already pending (adverts, path updates,
+  /// or an owed full refetch that arrived before wiring).
+  public func setDeltaSyncHandler(
+    _ handler: (@Sendable (_ fullRefetch: Bool) async -> AdvertContactSyncOutcome)?
+  ) {
+    deltaSyncHandler = handler
+    if handler != nil, hasPendingDeltaSyncWork {
+      scheduleDeltaSync()
+    }
+  }
+
+  /// Toggle deferred contact sync during a full or manual contact sync.
+  /// When set to `false` with pending work, re-arms so a mid-sync debounce does
+  /// not drop keys, path updates, or an owed full refetch.
   public func setSyncingContacts(_ isSyncing: Bool) async {
     isSyncingContacts = isSyncing
-    if !isSyncing {
-      startContactFetchWorkerIfNeeded()
-      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-        barrierWaiters.append(continuation)
-        // Idle worker means no pass is running; resume immediately.
-        if contactFetchWorker == nil {
-          resumeBarrierWaiters()
-        }
-      }
+    if !isSyncing, hasPendingDeltaSyncWork {
+      scheduleDeltaSync()
     }
   }
 
@@ -238,49 +411,49 @@ public actor AdvertisementService {
 
   // MARK: - Private Event Handlers
 
-  /// Handle advertisement event - Existing contact updated
+  /// 0x80 change notification: the radio already updated a contact row.
   private func handleAdvertEvent(publicKey: Data, radioID: UUID) async {
     let pubKeyHex = publicKey.uppercaseHexString()
     logger.debug("Advert event for \(pubKeyHex)")
     discoverTrace.info("B1 0x80 ADVERT received key=\(pubKeyHex)")
 
-    let timestamp = UInt32(Date().timeIntervalSince1970)
+    // One phone clock for touch and pending receive-time so the post-delta
+    // stamp matches the air-hear moment (not a later debounce fire).
+    let receivedAt = Date()
 
+    // Retry touch once: a transient store error must not permanently drop the
+    // advert under the empty-round guard. Recording without a successful touch
+    // is also wrong (it can announce a long-known contact as new).
+    var known: Bool?
     do {
-      if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
-        let frame = ContactFrame(
-          publicKey: contact.publicKey,
-          type: contact.type,
-          flags: contact.flags,
-          outPathLength: contact.outPathLength,
-          outPath: contact.outPath,
-          name: contact.name,
-          lastAdvertTimestamp: timestamp,
-          latitude: contact.latitude,
-          longitude: contact.longitude,
-          lastModified: UInt32(Date().timeIntervalSince1970)
+      known = try await dataStore.touchContactHeard(
+        radioID: radioID, publicKey: publicKey, at: receivedAt
+      )
+    } catch {
+      logger.error("Error handling advert event (retrying once): \(error.localizedDescription)")
+      do {
+        known = try await dataStore.touchContactHeard(
+          radioID: radioID, publicKey: publicKey, at: receivedAt
         )
-        _ = try await dataStore.saveContact(radioID: radioID, from: frame)
+      } catch {
+        logger.error("Advert touch retry failed: \(error.localizedDescription)")
+        known = nil
+      }
+    }
 
-        // Keep DiscoveredNode in sync so Discover stays visible for known contacts.
-        do {
-          let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-          discoverTrace.info("B2 0x80 known-contact upsert key=\(pubKeyHex) isNew=\(isNew)")
-        } catch {
-          discoverTrace.error("B2 0x80 known-contact upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
-        }
-
+    if let known {
+      if known {
         eventBroadcaster.yield(.contactUpdated)
       } else {
         discoverTrace.info("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
-        // Device has the contact, local store does not (auto-add). Enqueue
-        // getContact; never await BLE on the event-handler path.
-        logger.info("ADVERT received for unknown contact - enqueueing fetch")
-        enqueueContactFetch(publicKey, reason: .advert, radioID: radioID)
+        logger.info("ADVERT received for unknown contact - scheduling delta sync")
       }
-    } catch {
-      logger.error("Error handling advert event: \(error.localizedDescription)")
+      recordPendingAdvertKey(publicKey, receivedAt: receivedAt)
     }
+
+    // Schedule so other pending keys or a path update still run; the empty-round
+    // guard no-ops when this advert alone failed both touch attempts.
+    scheduleDeltaSync()
   }
 
   /// Handle new advertisement event - New contact discovered (manual add mode)
@@ -308,12 +481,16 @@ public actor AdvertisementService {
     }
   }
 
-  /// Path changed: enqueue getContact rather than awaiting BLE on the event path.
-  /// Shared worker defers while `isSyncingContacts` is true.
+  /// Path changed on the radio: record the key and schedule contact delta sync.
+  /// Path keys must not create Discover rows; path changes are not on-air heard evidence.
+  /// Delivery is via watermark-filtered GET_CONTACTS; if radio `lastmod` is at or
+  /// below the stored watermark the incremental round returns nothing and the
+  /// post-round path check escalates once to a prune-free full refetch.
   private func handlePathUpdatedEvent(publicKey: Data, radioID: UUID) async {
     let pubKeyHex = publicKey.uppercaseHexString()
     logger.debug("Path updated event for \(pubKeyHex)")
-    enqueueContactFetch(publicKey, reason: .pathUpdate, radioID: radioID)
+    pendingPathKeys.insert(publicKey)
+    scheduleDeltaSync()
   }
 
   /// Handle path discovery response event
@@ -381,13 +558,14 @@ public actor AdvertisementService {
       return
     }
 
-    // Cancel in-flight / queued fetches for this key before the local-row guard.
-    // Unknown-key fetches have no local row; without cancel a late save can
-    // resurrect the contact after 0x8F.
-    contactFetchQueue.removeValue(forKey: publicKey)
-    if inFlightKey == publicKey {
-      inFlightCancelled = true
-    }
+    // Drop pending reconcile / path keys so a deleted contact is not re-notified
+    // and a surviving path key cannot escalate to an epoch-0 full refetch.
+    pendingAdvertKeys.remove(publicKey)
+    pendingPathKeys.remove(publicKey)
+    pendingAdvertReceiveTimes.removeValue(forKey: publicKey)
+    // A running delta sync can re-save or reconcile this row after the radio dropped
+    // it. A key recorded outside a round is discarded when the next round drains.
+    contactsDeletedDuringSync.insert(publicKey)
 
     logger.info("Overwrite oldest: device deleted contact with key \(pubKeyPrefix)...")
 

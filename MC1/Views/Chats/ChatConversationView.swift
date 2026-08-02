@@ -772,7 +772,8 @@ private extension View {
       conversationType: .dm(ContactDTO(from: Contact(
         radioID: UUID(),
         publicKey: Data(repeating: 0x42, count: 32),
-        name: "Alice"
+        name: "Alice",
+        lastHeardTimestamp: 0
       )))
     )
   }
