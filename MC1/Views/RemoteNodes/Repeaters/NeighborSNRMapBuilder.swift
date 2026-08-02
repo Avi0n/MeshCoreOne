@@ -38,7 +38,8 @@ enum NeighborSNRMapBuilder {
     contacts: [ContactDTO],
     discoveredNodes: [DiscoveredNodeDTO],
     userLocation: CLLocation?,
-    filter: MapFilterState
+    filter: MapFilterState,
+    keyDisplayByteCount: Int
   ) -> PlottedNeighbors {
     let filter = filter.sanitized(for: .neighborSNR)
     let effectiveContacts: [ContactDTO] = if filter.favoritesOnly {
@@ -80,7 +81,10 @@ enum NeighborSNRMapBuilder {
       ) else {
         unplottable.append(UnplottableNeighbor(
           neighbor: neighbor,
-          displayName: NeighborNameResolver.fallbackName(for: neighbor.publicKeyPrefix),
+          displayName: NeighborNameResolver.fallbackName(
+            for: neighbor.publicKeyPrefix,
+            byteCount: keyDisplayByteCount
+          ),
           matchKind: .unresolved
         ))
         continue
@@ -136,8 +140,28 @@ enum NeighborSNRMapBuilder {
       points: points,
       lines: lines,
       region: plottedCoordinates.boundingRegion(),
-      unplottable: unplottable
+      unplottable: disambiguatingUnresolved(unplottable)
     )
+  }
+
+  /// Distinct unresolved neighbours can share the clamped key prefix and look identical;
+  /// colliding titles widen to the full stored prefix.
+  private static func disambiguatingUnresolved(_ unplottable: [UnplottableNeighbor]) -> [UnplottableNeighbor] {
+    var titleCounts: [String: Int] = [:]
+    for item in unplottable where item.matchKind == .unresolved {
+      titleCounts[item.displayName, default: 0] += 1
+    }
+    guard titleCounts.contains(where: { $0.value > 1 }) else { return unplottable }
+    return unplottable.map { item in
+      guard item.matchKind == .unresolved, titleCounts[item.displayName, default: 0] > 1 else {
+        return item
+      }
+      return UnplottableNeighbor(
+        neighbor: item.neighbor,
+        displayName: item.neighbor.publicKeyPrefix.uppercaseHexString(),
+        matchKind: .unresolved
+      )
+    }
   }
 
   private static func isPlottable(_ coordinate: CLLocationCoordinate2D) -> Bool {

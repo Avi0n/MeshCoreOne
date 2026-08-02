@@ -29,6 +29,10 @@ final class RepeaterStatusViewModel {
   /// Error scoped to the neighbors section, kept separate from other sections' errors.
   var neighborsSectionError: String?
 
+  /// Hex width for neighbour identity prefixes. Set with each neighbours response so on-screen
+  /// identifiers keep their width if the companion disconnects while the list is shown.
+  var neighborKeyDisplayByteCount = NeighborNameResolver.minimumKeyDisplayByteCount
+
   /// Discovery state
   var isDiscovering: Bool {
     discoverTask != nil
@@ -64,6 +68,11 @@ final class RepeaterStatusViewModel {
     repeaterAdminServiceProvider()
   }
 
+  private var deviceHashSizeProvider: @MainActor () -> Int? = { nil }
+  private var deviceHashSize: Int? {
+    deviceHashSizeProvider()
+  }
+
   // MARK: - Initialization
 
   init() {}
@@ -72,9 +81,11 @@ final class RepeaterStatusViewModel {
   func configure(
     repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService?,
     contactService: @escaping @MainActor () -> ContactService?,
-    nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?
+    nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?,
+    deviceHashSize: @escaping @MainActor () -> Int?
   ) {
     repeaterAdminServiceProvider = repeaterAdminService
+    deviceHashSizeProvider = deviceHashSize
     helper.configure(
       contactService: contactService,
       nodeSnapshotService: nodeSnapshotService
@@ -163,6 +174,7 @@ final class RepeaterStatusViewModel {
 
   func handleNeighboursResponse(_ response: NeighboursResponse) async {
     neighbors = response.neighbours
+    neighborKeyDisplayByteCount = NeighborNameResolver.keyDisplayByteCount(deviceHashSize: deviceHashSize)
     isLoadingNeighbors = false
     neighborsLoaded = true
 

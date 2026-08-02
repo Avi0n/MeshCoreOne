@@ -87,7 +87,8 @@ struct RepeaterSettingsView: View {
       statusViewModel.configure(
         repeaterAdminService: { appState.services?.repeaterAdminService },
         contactService: { appState.services?.contactService },
-        nodeSnapshotService: { appState.services?.nodeSnapshotService }
+        nodeSnapshotService: { appState.services?.nodeSnapshotService },
+        deviceHashSize: { appState.connectedDevice?.hashSize }
       )
       Task {
         await statusViewModel.registerHandlers()

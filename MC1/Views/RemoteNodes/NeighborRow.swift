@@ -5,6 +5,7 @@ struct NeighborRow: View {
   let neighbor: NeighbourInfo
   let displayName: String
   let matchKind: NodeNameMatchKind
+  let keyDisplayByteCount: Int
   let previousNeighbor: NeighborSnapshotEntry?
   let isNew: Bool
 
@@ -12,12 +13,14 @@ struct NeighborRow: View {
     neighbor: NeighbourInfo,
     displayName: String,
     matchKind: NodeNameMatchKind,
+    keyDisplayByteCount: Int,
     previousNeighbor: NeighborSnapshotEntry? = nil,
     isNew: Bool = false
   ) {
     self.neighbor = neighbor
     self.displayName = displayName
     self.matchKind = matchKind
+    self.keyDisplayByteCount = keyDisplayByteCount
     self.previousNeighbor = previousNeighbor
     self.isNew = isNew
   }
@@ -46,7 +49,7 @@ struct NeighborRow: View {
         }
 
         HStack(spacing: 4) {
-          Text(firstKeyByte)
+          Text(keyHex)
             .font(.system(.caption2, design: .monospaced))
           Text("·")
           Text(lastSeenText)
@@ -75,9 +78,11 @@ struct NeighborRow: View {
     }
   }
 
-  private var firstKeyByte: String {
-    guard let firstByte = neighbor.publicKeyPrefix.first else { return "" }
-    return Data([firstByte]).uppercaseHexString()
+  private var keyHex: String {
+    NeighborNameResolver.fallbackName(
+      for: neighbor.publicKeyPrefix,
+      byteCount: keyDisplayByteCount
+    )
   }
 
   private var lastSeenText: String {

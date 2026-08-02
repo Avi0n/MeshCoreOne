@@ -61,7 +61,8 @@ struct RepeaterStatusContent: View {
         neighbors: viewModel.neighbors,
         contacts: contacts,
         discoveredNodes: discoveredNodes,
-        userLocation: userLocation
+        userLocation: userLocation,
+        keyDisplayByteCount: viewModel.neighborKeyDisplayByteCount
       )
     }
     .themedCanvas(theme)
@@ -215,6 +216,7 @@ private struct NeighborsSection: View {
                 neighbor: neighbor,
                 displayName: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
                 matchKind: resolution?.matchKind ?? .unresolved,
+                keyDisplayByteCount: viewModel.neighborKeyDisplayByteCount,
                 previousNeighbor: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots?.first {
                   $0.publicKeyPrefix == neighbor.publicKeyPrefix
                 },
@@ -236,7 +238,10 @@ private struct NeighborsSection: View {
               )
               DisappearedNeighborRow(
                 neighbor: old,
-                displayName: resolution?.displayName ?? NeighborNameResolver.fallbackName(for: old.publicKeyPrefix),
+                displayName: resolution?.displayName ?? NeighborNameResolver.fallbackName(
+                  for: old.publicKeyPrefix,
+                  byteCount: viewModel.neighborKeyDisplayByteCount
+                ),
                 matchKind: resolution?.matchKind ?? .unresolved
               )
             }

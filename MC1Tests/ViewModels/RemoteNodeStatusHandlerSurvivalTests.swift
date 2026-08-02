@@ -85,7 +85,8 @@ struct RemoteNodeStatusHandlerSurvivalTests {
     viewModel.configure(
       repeaterAdminService: { service },
       contactService: { nil },
-      nodeSnapshotService: { nil }
+      nodeSnapshotService: { nil },
+      deviceHashSize: { nil }
     )
     await viewModel.registerHandlers()
 
@@ -152,7 +153,8 @@ struct RemoteNodeStatusHandlerSurvivalTests {
     viewModel.configure(
       repeaterAdminService: { service },
       contactService: { services.contactService },
-      nodeSnapshotService: { services.nodeSnapshotService }
+      nodeSnapshotService: { services.nodeSnapshotService },
+      deviceHashSize: { nil }
     )
     await viewModel.registerHandlers()
     await service.setStatusHandler { _ in statusFlag.set() }
@@ -205,7 +207,8 @@ struct RemoteNodeStatusHandlerSurvivalTests {
     viewModel.configure(
       repeaterAdminService: { service },
       contactService: { services.contactService },
-      nodeSnapshotService: { services.nodeSnapshotService }
+      nodeSnapshotService: { services.nodeSnapshotService },
+      deviceHashSize: { nil }
     )
     await viewModel.cleanup()
 

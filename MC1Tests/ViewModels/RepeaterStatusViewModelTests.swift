@@ -242,4 +242,53 @@ struct RepeaterStatusViewModelTests {
 
     #expect(viewModel.firmwareVersion == nil, "Nodes predating owner-info return an empty firmware string, which must map to nil")
   }
+
+  // MARK: - Neighbor key display width capture
+
+  @Test
+  func `Neighbours response captures the key display width from the device hash size`() async {
+    let viewModel = RepeaterStatusViewModel()
+    viewModel.configure(
+      repeaterAdminService: { nil },
+      contactService: { nil },
+      nodeSnapshotService: { nil },
+      deviceHashSize: { 3 }
+    )
+
+    #expect(viewModel.neighborKeyDisplayByteCount == NeighborNameResolver.minimumKeyDisplayByteCount,
+            "Width should start at the floor before any neighbours response")
+
+    await viewModel.handleNeighboursResponse(createNeighboursResponse())
+
+    #expect(viewModel.neighborKeyDisplayByteCount == 3, "Width should be captured from the device hash size at fetch")
+  }
+
+  @Test
+  func `Captured key display width survives a later disconnect`() async {
+    let viewModel = RepeaterStatusViewModel()
+    let device = HashSizeStub(value: 3)
+    viewModel.configure(
+      repeaterAdminService: { nil },
+      contactService: { nil },
+      nodeSnapshotService: { nil },
+      deviceHashSize: { device.value }
+    )
+
+    await viewModel.handleNeighboursResponse(createNeighboursResponse())
+    device.value = nil
+
+    #expect(viewModel.neighborKeyDisplayByteCount == 3,
+            "A disconnect must not reflow identifiers already on screen")
+  }
+}
+
+/// Mutable hash-size source for provider closures. A captured local var would trip the
+/// sendable-closure mutation warning.
+@MainActor
+private final class HashSizeStub {
+  var value: Int?
+
+  init(value: Int?) {
+    self.value = value
+  }
 }
