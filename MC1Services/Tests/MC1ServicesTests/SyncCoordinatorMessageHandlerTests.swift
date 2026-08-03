@@ -234,4 +234,108 @@ struct SyncCoordinatorMessageHandlerTests {
     )
     #expect(SyncCoordinator.shouldPostChannelNotification(forResolvedChannel: channel) == true)
   }
+
+  // MARK: - lastHeard mesh-liveness stamps
+
+  @Test
+  func `inbound DM stamps contact lastHeard`() async throws {
+    let radioID = UUID()
+    let dataStore = try await createTestDataStore(radioID: radioID)
+    let publicKey = Data(repeating: 0xAB, count: 32)
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Peer",
+      lastHeardTimestamp: 0
+    )
+    try await dataStore.saveContact(contact)
+
+    let mockPolling = MockMessagePollingService()
+    let (_, services) = try await createTestServices()
+    let dependencies = services.syncDependencies
+      .with(dataStore: dataStore, messagePollingService: mockPolling)
+
+    let coordinator = SyncCoordinator()
+    await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
+
+    let message = ContactMessage(
+      senderPublicKeyPrefix: Data(publicKey.prefix(6)),
+      pathLength: 0,
+      textType: 0,
+      senderTimestamp: Date(),
+      signature: nil,
+      text: "hello mesh",
+      snr: nil
+    )
+    await mockPolling.capturedContactMessageHandler?(message, contact, .live)
+
+    let updated = try #require(
+      await dataStore.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect((updated.lastHeardTimestamp ?? 0) > 0)
+  }
+
+  @Test
+  func `inbound channel message does not stamp lastHeard on a contact`() async throws {
+    let radioID = UUID()
+    let dataStore = try await createTestDataStore(radioID: radioID)
+    let publicKey = Data(repeating: 0xCD, count: 32)
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "ChannelPeer",
+      lastHeardTimestamp: 0
+    )
+    try await dataStore.saveContact(contact)
+
+    let mockPolling = MockMessagePollingService()
+    let (_, services) = try await createTestServices()
+    let dependencies = services.syncDependencies
+      .with(dataStore: dataStore, messagePollingService: mockPolling)
+
+    let coordinator = SyncCoordinator()
+    await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
+
+    let channelMessage = ChannelMessage(
+      channelIndex: 0,
+      pathLength: 0,
+      textType: 0,
+      senderTimestamp: Date(),
+      text: "ChannelPeer: hello channel",
+      snr: nil
+    )
+    await mockPolling.capturedChannelMessageHandler?(channelMessage, nil, .live)
+
+    let updated = try #require(
+      await dataStore.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect((updated.lastHeardTimestamp ?? 0) == 0)
+  }
+}
+
+// MARK: - SyncDependencies test helpers
+
+extension SyncDependencies {
+  /// Copy with a different data store and message polling service for tests.
+  func with(
+    dataStore: any PersistenceStoreProtocol,
+    messagePollingService: any MessagePollingServiceProtocol
+  ) -> SyncDependencies {
+    SyncDependencies(
+      dataStore: dataStore,
+      contactService: contactService,
+      channelService: channelService,
+      messagePollingService: messagePollingService,
+      notificationService: notificationService,
+      reactionService: reactionService,
+      advertisementService: advertisementService,
+      rxLogService: rxLogService,
+      roomServerService: roomServerService,
+      roomAdminService: roomAdminService,
+      repeaterAdminService: repeaterAdminService,
+      appStateProvider: appStateProvider,
+      startEventMonitoring: startEventMonitoring,
+      exportPrivateKey: exportPrivateKey
+    )
+  }
 }

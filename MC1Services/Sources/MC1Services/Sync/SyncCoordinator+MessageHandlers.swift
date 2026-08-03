@@ -247,6 +247,21 @@ extension SyncCoordinator {
       logger.warning("Dedup check failed, proceeding with save: \(error)")
     }
 
+    // Stamp before the reaction early return so bodies and reactions both count.
+    if case let .direct(_, contact) = resolvedKind, let contact {
+      do {
+        _ = try await dependencies.dataStore.touchContactHeard(
+          radioID: radioID,
+          publicKey: contact.publicKey,
+          at: Date()
+        )
+      } catch {
+        logger.error(
+          "lastHeard stamp failed for inbound DM: \(error.localizedDescription)"
+        )
+      }
+    }
+
     switch resolvedKind {
     case let .direct(_, contact):
       // Check if this is a DM reaction

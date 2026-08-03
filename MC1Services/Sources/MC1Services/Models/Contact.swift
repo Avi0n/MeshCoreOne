@@ -50,8 +50,9 @@ public final class Contact {
   /// Last modification timestamp (for sync watermarking)
   public var lastModified: UInt32
 
-  /// Phone-clock epoch seconds of the last on-air evidence this phone heard
-  /// for the contact. Monotonic; 0 means never heard by this phone.
+  /// Phone-clock epoch seconds of the last mesh liveness evidence this phone
+  /// recorded for the contact (advert receive, inbound DM, successful ping,
+  /// path-discovery response). Monotonic; 0 means never heard by this phone.
   public var lastHeardTimestamp: UInt32 = 0
 
   /// Local nickname override (optional)

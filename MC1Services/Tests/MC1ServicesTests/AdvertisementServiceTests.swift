@@ -2258,6 +2258,85 @@ struct AdvertisementServiceTests {
     #expect(favorite.recencyTimestamp < cutoff)
     #expect(!favorite.matchesStaleNodePrune(cutoff: cutoff))
   }
+
+  // MARK: - Path discovery response lastHeard
+
+  @Test
+  func `pathResponse stamps lastHeard and preserves radio lastModified`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+
+    let key = makePublicKey(seed: 0xA5)
+    let radioLastMod: UInt32 = 1_700_000_100
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "PathPeer",
+        lastModified: radioLastMod
+      )
+    )
+
+    await startMonitoring(service, session: session)
+
+    let pathInfo = PathInfo(
+      publicKeyPrefix: Data(key.prefix(6)),
+      outPathLength: 0,
+      outPath: Data(),
+      inPathLength: 0,
+      inPath: Data()
+    )
+    await session.yieldEvent(.pathResponse(pathInfo))
+
+    let stamped = await waitUntil {
+      guard let contact = try? await store.fetchContact(radioID: radioID, publicKey: key) else {
+        return false
+      }
+      return (contact.lastHeardTimestamp ?? 0) > 0
+    }
+    #expect(stamped)
+
+    let updated = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    )
+    #expect(updated.lastModified == radioLastMod)
+    #expect((updated.lastHeardTimestamp ?? 0) > 0)
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `pathUpdate does not stamp lastHeard`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xA6)
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "PathUpdatePeer",
+        lastModified: 1_700_000_100
+      )
+    )
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.pathUpdate(publicKey: key))
+
+    let ran = await waitUntil { await recorder.callCount >= 1 }
+    #expect(ran)
+
+    let updated = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    )
+    #expect((updated.lastHeardTimestamp ?? 0) == 0)
+
+    await service.stopEventMonitoring()
+  }
 }
 
 // MARK: - Concurrency helpers

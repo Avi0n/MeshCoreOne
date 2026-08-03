@@ -493,7 +493,8 @@ public actor AdvertisementService {
     scheduleDeltaSync()
   }
 
-  /// Handle path discovery response event
+  /// Path discovery response: update out-path and stamp phone-clock lastHeard.
+  /// Leaves radio lastModified unchanged — it is a radio watermark, not phone time.
   private func handlePathDiscoveryResponse(result: PathInfo, radioID: UUID) async {
     // Chunk debug output using the hash size each direction declares on
     // the wire so mode-skew between firmware and the cached device record
@@ -525,9 +526,21 @@ public actor AdvertisementService {
           lastAdvertTimestamp: contact.lastAdvertTimestamp,
           latitude: contact.latitude,
           longitude: contact.longitude,
-          lastModified: UInt32(Date().timeIntervalSince1970)
+          lastModified: contact.lastModified
         )
         _ = try await dataStore.saveContact(radioID: radioID, from: frame)
+
+        do {
+          _ = try await dataStore.touchContactHeard(
+            radioID: radioID,
+            publicKey: contact.publicKey,
+            at: Date()
+          )
+        } catch {
+          logger.error(
+            "Path response lastHeard stamp failed: \(error.localizedDescription)"
+          )
+        }
       }
 
       eventBroadcaster.yield(.pathDiscoveryResponse(result))
