@@ -91,6 +91,15 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// Contacts to return from getContacts
   public var stubbedContacts: [MeshContact] = []
 
+  /// Reported total for `getContactsReportingTotal`. `nil` returns
+  /// `stubbedContacts.count` (a complete stream). Set it above the stubbed
+  /// count to simulate a truncated stream.
+  public var stubbedReportedTotal: Int?
+
+  /// When `true`, `getContactsReportingTotal` returns a `nil` total, simulating a
+  /// reply that carried no `contactsStart` header.
+  public var stubbedReportsNoTotal = false
+
   /// Error to throw from getContacts
   public var stubbedGetContactsError: Error?
 
@@ -245,6 +254,18 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     stubbedContacts = contacts
   }
 
+  /// Sets the reported total for `getContactsReportingTotal` (isolated setter).
+  /// Set it above the stubbed contact count to simulate a truncated stream.
+  public func setStubbedReportedTotal(_ total: Int?) {
+    stubbedReportedTotal = total
+  }
+
+  /// Makes `getContactsReportingTotal` return a `nil` total (no `contactsStart`
+  /// header), through an isolated setter.
+  public func setStubbedReportsNoTotal(_ reportsNoTotal: Bool) {
+    stubbedReportsNoTotal = reportsNoTotal
+  }
+
   /// Sets the self info returned by `currentSelfInfo`, through an isolated setter
   /// for the same actor-isolation reason as `setStubbedContacts`.
   public func setCurrentSelfInfo(_ selfInfo: SelfInfo?) {
@@ -356,6 +377,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   }
 
   public func getContacts(since lastModified: Date?) async throws -> [MeshContact] {
+    try await getContactsReportingTotal(since: lastModified).contacts
+  }
+
+  public func getContactsReportingTotal(since lastModified: Date?) async throws -> ContactFetchResult {
     getContactsInvocations.append(lastModified)
     if getContactsHoldRequested {
       getContactsHoldRequested = false
@@ -371,7 +396,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     if let error = stubbedGetContactsError {
       throw error
     }
-    return stubbedContacts
+    return ContactFetchResult(
+      contacts: stubbedContacts,
+      reportedTotal: stubbedReportsNoTotal ? nil : (stubbedReportedTotal ?? stubbedContacts.count)
+    )
   }
 
   public func getContact(publicKey: Data) async throws -> MeshContact? {

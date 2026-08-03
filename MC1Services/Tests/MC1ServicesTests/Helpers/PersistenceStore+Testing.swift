@@ -6,6 +6,7 @@ extension PersistenceStore {
   static func createTestDataStore(
     radioID: UUID,
     maxChannels: UInt8 = 8,
+    maxContacts: UInt16 = 100,
     lastContactSync: UInt32 = 0
   ) async throws -> PersistenceStore {
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -15,6 +16,7 @@ extension PersistenceStore {
       radioID: radioID,
       firmwareVersion: 8,
       firmwareVersionString: "v1.0.0",
+      maxContacts: maxContacts,
       maxChannels: maxChannels,
       multiAcks: 0,
       lastContactSync: lastContactSync

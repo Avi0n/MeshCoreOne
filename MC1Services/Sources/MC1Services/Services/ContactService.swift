@@ -133,7 +133,8 @@ public actor ContactService {
   /// - Returns: Sync result with count and timestamp
   public func syncContacts(radioID: UUID, since: Date? = nil) async throws -> ContactSyncResult {
     do {
-      let meshContacts = try await session.getContacts(since: since)
+      let fetchResult = try await session.getContactsReportingTotal(since: since)
+      let meshContacts = fetchResult.contacts
 
       eventBroadcaster.yield(.syncProgress(received: 0, total: meshContacts.count))
 
@@ -152,30 +153,8 @@ public actor ContactService {
       eventBroadcaster.yield(.syncProgress(received: receivedCount, total: meshContacts.count))
 
       // On full sync, remove local contacts that no longer exist on device.
-      // Never prune the ZephCore V-contact: it is omitted from GET_CONTACTS while
-      // clock-deferred or disabled, but is not a real-table orphan.
       if since == nil {
-        let localContacts = try await dataStore.fetchContacts(radioID: radioID)
-        let selfPublicKey = try? await dataStore.fetchDevice(radioID: radioID)?.publicKey
-        let orphans = localContacts.filter { contact in
-          guard !devicePublicKeys.contains(contact.publicKey) else { return false }
-          if let selfPublicKey,
-             VContactIdentity.isVContact(publicKey: contact.publicKey, selfPublicKey: selfPublicKey) {
-            return false
-          }
-          return true
-        }
-        if !orphans.isEmpty {
-          logger.notice("Full sync prune: \(orphans.count) local contact(s) not found on device (device has \(devicePublicKeys.count), local has \(localContacts.count))")
-        }
-        for localContact in orphans {
-          let keyPrefix = localContact.publicKey.prefix(4).map { String(format: "%02x", $0) }.joined()
-          logger.notice("Full sync prune: deleting '\(localContact.name)' [\(keyPrefix)…] (favorite=\(localContact.isFavorite), type=\(localContact.typeRawValue), lastModified=\(localContact.lastModified))")
-          try await dataStore.deleteContact(id: localContact.id)
-          await cleanupCoordinator?.handleCleanup(
-            contactID: localContact.id, reason: .deleted, publicKey: localContact.publicKey
-          )
-        }
+        try await pruneOrphans(radioID: radioID, devicePublicKeys: devicePublicKeys, reportedTotal: fetchResult.reportedTotal)
       }
 
       return ContactSyncResult(
@@ -185,6 +164,59 @@ public actor ContactService {
       )
     } catch let error as MeshCoreError {
       throw ContactServiceError.sessionError(error)
+    }
+  }
+
+  /// Removes local contacts that a full fetch proves are gone from the device.
+  ///
+  /// Prunes only on a complete snapshot: received count must meet the
+  /// `contactsStart` total. A truncated stream leaves keys missing without a
+  /// real device deletion, so those must not prune. A genuine shrink lowers the
+  /// reported total in step, so a complete-but-smaller reply still prunes.
+  /// Both counts include the ZephCore V-contact when firmware streams it.
+  ///
+  /// A `nil` `reportedTotal` means the reply carried no `contactsStart` header,
+  /// so the device total is unknown and the snapshot cannot be proven complete;
+  /// the prune skips.
+  ///
+  /// Without a usable self public key the V-contact cannot be identified, so the
+  /// prune skips rather than risk deleting a local V-contact row that firmware
+  /// omitted while clock-deferred.
+  private func pruneOrphans(radioID: UUID, devicePublicKeys: Set<Data>, reportedTotal: Int?) async throws {
+    guard let reportedTotal else {
+      logger.notice("Full sync prune skipped: device sent no contact total (missing contactsStart header)")
+      return
+    }
+    guard devicePublicKeys.count >= reportedTotal else {
+      logger.notice(
+        "Full sync prune skipped: received \(devicePublicKeys.count) of \(reportedTotal) reported device contacts (incomplete snapshot)"
+      )
+      return
+    }
+    guard let selfPublicKey = try? await dataStore.fetchDevice(radioID: radioID)?.publicKey,
+          selfPublicKey.count == ProtocolLimits.publicKeySize else {
+      logger.notice("Full sync prune skipped: self public key unavailable or invalid, cannot exclude the V-contact")
+      return
+    }
+
+    let localContacts = try await dataStore.fetchContacts(radioID: radioID)
+    let orphans = localContacts.filter { contact in
+      guard !devicePublicKeys.contains(contact.publicKey) else { return false }
+      if VContactIdentity.isVContact(publicKey: contact.publicKey, selfPublicKey: selfPublicKey) {
+        return false
+      }
+      return true
+    }
+    if !orphans.isEmpty {
+      logger.notice("Full sync prune: \(orphans.count) local contact(s) not found on device (device has \(devicePublicKeys.count), local has \(localContacts.count))")
+    }
+    for localContact in orphans {
+      let keyPrefix = localContact.publicKey.prefix(4).map { String(format: "%02x", $0) }.joined()
+      logger.notice("Full sync prune: deleting '\(localContact.name)' [\(keyPrefix)…] (favorite=\(localContact.isFavorite), type=\(localContact.typeRawValue), lastModified=\(localContact.lastModified))")
+      try await dataStore.deleteContact(id: localContact.id)
+      await cleanupCoordinator?.handleCleanup(
+        contactID: localContact.id, reason: .deleted, publicKey: localContact.publicKey
+      )
     }
   }
 

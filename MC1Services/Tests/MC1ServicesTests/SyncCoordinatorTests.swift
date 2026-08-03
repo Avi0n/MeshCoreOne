@@ -10,12 +10,55 @@ struct SyncCoordinatorTests {
   private func createTestDataStore(
     radioID: UUID,
     maxChannels: UInt8 = 8,
+    maxContacts: UInt16 = 100,
     lastContactSync: UInt32 = 0
   ) async throws -> PersistenceStore {
     try await PersistenceStore.createTestDataStore(
       radioID: radioID,
       maxChannels: maxChannels,
+      maxContacts: maxContacts,
       lastContactSync: lastContactSync
+    )
+  }
+
+  private func contactFrame(
+    key: Data,
+    name: String,
+    flags: UInt8 = 0,
+    lastModified: UInt32 = 1_700_000_100
+  ) -> ContactFrame {
+    ContactFrame(
+      publicKey: key,
+      type: .chat,
+      flags: flags,
+      outPathLength: 0,
+      outPath: Data(),
+      name: name,
+      lastAdvertTimestamp: 1_700_000_000,
+      latitude: 0,
+      longitude: 0,
+      lastModified: lastModified
+    )
+  }
+
+  private func meshContact(
+    key: Data,
+    name: String,
+    flags: ContactFlags = ContactFlags(rawValue: 0),
+    lastModified: Date = Date(timeIntervalSince1970: 1_800_000_000)
+  ) -> MeshContact {
+    MeshContact(
+      id: key.hexString,
+      publicKey: key,
+      type: .chat,
+      flags: flags,
+      outPathLength: 0,
+      outPath: Data(),
+      advertisedName: name,
+      lastAdvertisement: Date(timeIntervalSince1970: 1_700_000_000),
+      latitude: 0,
+      longitude: 0,
+      lastModified: lastModified
     )
   }
 
@@ -1630,6 +1673,533 @@ struct SyncCoordinatorTests {
     // not the resync bracket. Since no initial sync was started, hasEndedSyncActivity
     // is already true and endSyncActivityOnce should be a no-op.
     #expect(succeededValues.values.isEmpty, "onDisconnected should not end the resync bracket")
+  }
+
+  // MARK: - Capacity-capped contact staleness at connect
+
+  @Test
+  @MainActor
+  func `At-capacity connect forces full contact sync and prunes the missing non-favourite`() async throws {
+    // Valid watermark would normally drive incremental sync, which never prunes.
+    // localCount == maxContacts forces a full (pruning) fetch instead.
+    let coordinator = SyncCoordinator()
+    let testDeviceID = UUID()
+    let watermark: UInt32 = 1_704_067_200
+    let maxContacts: UInt16 = 3
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: maxContacts,
+      lastContactSync: watermark
+    )
+
+    let keptA = Data(repeating: 0x11, count: 32)
+    let keptB = Data(repeating: 0x22, count: 32)
+    let evicted = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: keptA, name: "KeptA"))
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: keptB, name: "KeptB"))
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: evicted, name: "Evicted"))
+
+    let session = MockMeshCoreSession()
+    // Radio table is full and missing the evicted key (disconnected eviction).
+    await session.setStubbedContacts([
+      meshContact(key: keptA, name: "KeptA"),
+      meshContact(key: keptB, name: "KeptB"),
+      meshContact(key: Data(repeating: 0x33, count: 32), name: "Newcomer")
+    ])
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await coordinator.performFullSync(
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: contactService,
+      channelService: MockChannelService(),
+      messagePollingService: MockMessagePollingService()
+    )
+
+    let sinceArgs = await session.getContactsInvocations
+    #expect(sinceArgs.count == 1)
+    #expect(sinceArgs[0] == nil, "At-capacity connect must force since == nil (full prune path)")
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: evicted) == nil)
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: keptA) != nil)
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: keptB) != nil)
+  }
+
+  @Test
+  @MainActor
+  func `Below-capacity connect keeps incremental contact sync and does not prune`() async throws {
+    let coordinator = SyncCoordinator()
+    let testDeviceID = UUID()
+    let watermark: UInt32 = 1_704_067_200
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 100,
+      lastContactSync: watermark
+    )
+
+    let kept = Data(repeating: 0x11, count: 32)
+    let orphan = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: kept, name: "Kept"))
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: orphan, name: "Orphan"))
+
+    let session = MockMeshCoreSession()
+    // Incremental batch omits the orphan; below capacity must not prune it.
+    await session.setStubbedContacts([
+      meshContact(key: kept, name: "Kept")
+    ])
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await coordinator.performFullSync(
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: contactService,
+      channelService: MockChannelService(),
+      messagePollingService: MockMessagePollingService()
+    )
+
+    let sinceArgs = await session.getContactsInvocations
+    #expect(sinceArgs.count == 1)
+    let since = try #require(sinceArgs[0], "Below-capacity connect must pass a non-nil since")
+    #expect(since == Date(timeIntervalSince1970: Double(watermark) - 1))
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: orphan) != nil)
+  }
+
+  @Test
+  @MainActor
+  func `maxContacts zero does not force capacity full contact sync`() async throws {
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let watermark: UInt32 = 1_704_067_200
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 0,
+      lastContactSync: watermark
+    )
+    // Even with local contacts present, maxContacts == 0 must not force full.
+    _ = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: contactFrame(key: Data(repeating: 0x11, count: 32), name: "Any")
+    )
+
+    _ = try await coordinator.performFullSync(
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: mockContactService,
+      channelService: MockChannelService(),
+      messagePollingService: MockMessagePollingService()
+    )
+
+    let invocations = await mockContactService.syncContactsInvocations
+    #expect(invocations.count == 1)
+    #expect(invocations[0].since != nil, "maxContacts == 0 must not force since == nil")
+  }
+
+  @Test
+  @MainActor
+  func `Contact count read failure falls back to incremental and keeps connection usable`() async throws {
+    let coordinator = SyncCoordinator()
+    let mockContactService = MockContactService()
+    let testDeviceID = UUID()
+    let watermark: UInt32 = 1_704_067_200
+    let store = MockPersistenceStore()
+    try await store.saveDevice(
+      DeviceDTO.testDevice(
+        id: testDeviceID,
+        radioID: testDeviceID,
+        maxContacts: 3,
+        lastContactSync: watermark
+      )
+    )
+    // Count would be at capacity if the read succeeded; force the read to fail.
+    for byte: UInt8 in [0x11, 0x22, 0x33] {
+      try await store.saveContact(
+        ContactDTO(
+          id: UUID(),
+          radioID: testDeviceID,
+          publicKey: Data(repeating: byte, count: 32),
+          name: "C\(byte)",
+          typeRawValue: ContactType.chat.rawValue,
+          flags: 0,
+          outPathLength: 0,
+          outPath: Data(),
+          lastAdvertTimestamp: 0,
+          latitude: 0,
+          longitude: 0,
+          lastModified: 0,
+          lastHeardTimestamp: nil,
+          nickname: nil,
+          isBlocked: false,
+          isMuted: false,
+          isFavorite: false,
+          lastMessageDate: nil,
+          unreadCount: 0
+        )
+      )
+    }
+    await store.setStubbedFetchContactPublicKeysError(
+      NSError(domain: "test", code: 1, userInfo: [NSLocalizedDescriptionKey: "count read failed"])
+    )
+
+    let result = try await coordinator.performFullSync(
+      radioID: testDeviceID,
+      dataStore: store,
+      contactService: mockContactService,
+      channelService: MockChannelService(),
+      messagePollingService: MockMessagePollingService()
+    )
+
+    #expect(result.isConnectionUsable)
+    let invocations = await mockContactService.syncContactsInvocations
+    #expect(invocations.count == 1)
+    #expect(
+      invocations[0].since != nil,
+      "Count-read failure must degrade to incremental (today's behavior)"
+    )
+  }
+
+  @Test
+  @MainActor
+  func `Full sync prune skips a truncated stream the ratio floor would have pruned`() async throws {
+    // Device reports 4 contacts but the stream ends after 3 (favourite dropped).
+    // received < reportedTotal, so the prune skips and every local row survives.
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 4,
+      lastContactSync: 1_704_067_200
+    )
+
+    let favouriteKey = Data(repeating: 0xAA, count: 32)
+    let otherKeys = [
+      Data(repeating: 0x11, count: 32),
+      Data(repeating: 0x22, count: 32),
+      Data(repeating: 0x33, count: 32)
+    ]
+    let (favouriteID, _) = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: contactFrame(key: favouriteKey, name: "Favourite", flags: ContactFlags.favorite.rawValue)
+    )
+    // ContactFrame maps flags bit 0 to isFavorite; keep a message under the favourite.
+    let favourite = try #require(await dataStore.fetchContact(id: favouriteID))
+    #expect(favourite.isFavorite)
+    try await dataStore.saveMessage(MessageDTO(from: Message(
+      radioID: testDeviceID,
+      contactID: favouriteID,
+      text: "keep me",
+      timestamp: 1_700_000_000
+    )))
+    for (index, key) in otherKeys.enumerated() {
+      _ = try await dataStore.saveContact(
+        radioID: testDeviceID,
+        from: contactFrame(key: key, name: "Other\(index)")
+      )
+    }
+
+    let session = MockMeshCoreSession()
+    // Truncated: 3 of the 4 the device reports (the favourite frame was dropped).
+    await session.setStubbedContacts(otherKeys.enumerated().map { index, key in
+      meshContact(key: key, name: "Other\(index)")
+    })
+    await session.setStubbedReportedTotal(4)
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: favouriteKey) != nil)
+    let messages = try await dataStore.fetchMessages(contactID: favouriteID, limit: 10, offset: 0)
+    #expect(messages.count == 1)
+    #expect(messages.first?.text == "keep me")
+    for key in otherKeys {
+      #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: key) != nil)
+    }
+  }
+
+  @Test
+  @MainActor
+  func `Full sync prune removes a favourite absent from a complete device set`() async throws {
+    // Device returns a complete list that omits one favourite the user deleted on
+    // the radio. received (3) == reported (3), so the snapshot is complete and the
+    // prune runs; the favourite has no favourite-only exemption.
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 4,
+      lastContactSync: 1_704_067_200
+    )
+
+    let favouriteKey = Data(repeating: 0xAA, count: 32)
+    let keptKeys = [
+      Data(repeating: 0x11, count: 32),
+      Data(repeating: 0x22, count: 32),
+      Data(repeating: 0x33, count: 32)
+    ]
+    _ = try await dataStore.saveContact(
+      radioID: testDeviceID,
+      from: contactFrame(key: favouriteKey, name: "Favourite", flags: ContactFlags.favorite.rawValue)
+    )
+    for (index, key) in keptKeys.enumerated() {
+      _ = try await dataStore.saveContact(
+        radioID: testDeviceID,
+        from: contactFrame(key: key, name: "Kept\(index)")
+      )
+    }
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts(keptKeys.enumerated().map { index, key in
+      meshContact(key: key, name: "Kept\(index)")
+    })
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: favouriteKey) == nil)
+    for key in keptKeys {
+      #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: key) != nil)
+    }
+  }
+
+  @Test
+  @MainActor
+  func `Full sync prune removes orphans when the device genuinely shrank below half`() async throws {
+    // Complete device reply with one contact: received == reportedTotal, so the
+    // three stale local rows are pruned.
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 4,
+      lastContactSync: 1_704_067_200
+    )
+
+    let survivorKey = Data(repeating: 0x11, count: 32)
+    let staleKeys = [
+      Data(repeating: 0xAA, count: 32),
+      Data(repeating: 0x22, count: 32),
+      Data(repeating: 0x33, count: 32)
+    ]
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: survivorKey, name: "Survivor"))
+    for (index, key) in staleKeys.enumerated() {
+      _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: key, name: "Stale\(index)"))
+    }
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([meshContact(key: survivorKey, name: "Survivor")])
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: survivorKey) != nil)
+    for key in staleKeys {
+      #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: key) == nil)
+    }
+  }
+
+  @Test
+  @MainActor
+  func `Full sync prune preserves the local V-contact omitted from a complete stream`() async throws {
+    // ZephCore omits the V-contact while clock-deferred, so a complete stream can
+    // exclude it. It must survive the prune; a genuine orphan alongside it must not.
+    let testDeviceID = UUID()
+    let selfPublicKey = Data(repeating: 0x01, count: 32) // DeviceDTO.testDevice default
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 4,
+      lastContactSync: 1_704_067_200
+    )
+
+    let vContactKey = try #require(VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey))
+    let realKeys = [Data(repeating: 0x11, count: 32), Data(repeating: 0x22, count: 32)]
+    let orphanKey = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: vContactKey, name: "V-Contact"))
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: orphanKey, name: "Orphan"))
+    for (index, key) in realKeys.enumerated() {
+      _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: key, name: "Real\(index)"))
+    }
+
+    let session = MockMeshCoreSession()
+    // Complete stream of the two real contacts; V-contact and orphan both absent.
+    await session.setStubbedContacts(realKeys.enumerated().map { index, key in
+      meshContact(key: key, name: "Real\(index)")
+    })
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: vContactKey) != nil)
+    #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: orphanKey) == nil)
+    for key in realKeys {
+      #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: key) != nil)
+    }
+  }
+
+  @Test
+  @MainActor
+  func `V-contact in the last slot keeps the connect incremental, not at capacity`() async throws {
+    // maxContacts - 1 real contacts plus the local V-contact fill every slot, but
+    // the V-contact is virtual. Excluding it keeps the radio below capacity, so a
+    // valid watermark still drives an incremental (non-pruning) sync.
+    let coordinator = SyncCoordinator()
+    let testDeviceID = UUID()
+    let selfPublicKey = Data(repeating: 0x01, count: 32) // DeviceDTO.testDevice default
+    let watermark: UInt32 = 1_704_067_200
+    let maxContacts: UInt16 = 3
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: maxContacts,
+      lastContactSync: watermark
+    )
+
+    let vContactKey = try #require(VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey))
+    let realKeys = [Data(repeating: 0x11, count: 32), Data(repeating: 0x22, count: 32)]
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: vContactKey, name: "V-Contact"))
+    for (index, key) in realKeys.enumerated() {
+      _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: key, name: "Real\(index)"))
+    }
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts(realKeys.enumerated().map { index, key in
+      meshContact(key: key, name: "Real\(index)")
+    })
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await coordinator.performFullSync(
+      radioID: testDeviceID,
+      dataStore: dataStore,
+      contactService: contactService,
+      channelService: MockChannelService(),
+      messagePollingService: MockMessagePollingService()
+    )
+
+    let sinceArgs = await session.getContactsInvocations
+    #expect(sinceArgs.count == 1)
+    #expect(sinceArgs[0] != nil, "V-contact in the last slot must not trip at-capacity; sync stays incremental")
+  }
+
+  @Test
+  @MainActor
+  func `Full sync prune skips when the device sent no contact total`() async throws {
+    // A reply with no contactsStart header leaves the total unknown, so the
+    // snapshot cannot be proven complete. The prune must skip even though the
+    // received set would otherwise look like the whole table.
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 4,
+      lastContactSync: 1_704_067_200
+    )
+
+    let realKeys = [Data(repeating: 0x11, count: 32), Data(repeating: 0x22, count: 32)]
+    let orphanKey = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: orphanKey, name: "Orphan"))
+    for (index, key) in realKeys.enumerated() {
+      _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: key, name: "Real\(index)"))
+    }
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts(realKeys.enumerated().map { index, key in
+      meshContact(key: key, name: "Real\(index)")
+    })
+    await session.setStubbedReportsNoTotal(true)
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(
+      try await dataStore.fetchContact(radioID: testDeviceID, publicKey: orphanKey) != nil,
+      "Prune must skip when the device reports no total, so the orphan survives"
+    )
+    for key in realKeys {
+      #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: key) != nil)
+    }
+  }
+
+  @Test
+  @MainActor
+  func `Full sync prune skips when the self public key is the wrong length`() async throws {
+    // A device row with a malformed (non-32-byte) self key cannot identify the
+    // V-contact, so the prune must skip rather than risk deleting it. A local
+    // orphan survives even though the device set is complete.
+    let testDeviceID = UUID()
+    let dataStore = try await createTestDataStore(
+      radioID: testDeviceID,
+      maxContacts: 4,
+      lastContactSync: 1_704_067_200
+    )
+    try await dataStore.saveDevice(DeviceDTO.testDevice(
+      id: testDeviceID,
+      radioID: testDeviceID,
+      publicKey: Data(repeating: 0x01, count: 8),
+      maxContacts: 4,
+      lastContactSync: 1_704_067_200
+    ))
+
+    let realKeys = [Data(repeating: 0x11, count: 32), Data(repeating: 0x22, count: 32)]
+    let orphanKey = Data(repeating: 0x99, count: 32)
+    _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: orphanKey, name: "Orphan"))
+    for (index, key) in realKeys.enumerated() {
+      _ = try await dataStore.saveContact(radioID: testDeviceID, from: contactFrame(key: key, name: "Real\(index)"))
+    }
+
+    let session = MockMeshCoreSession()
+    // Complete stream of the two real contacts; received == reportedTotal.
+    await session.setStubbedContacts(realKeys.enumerated().map { index, key in
+      meshContact(key: key, name: "Real\(index)")
+    })
+    let contactService = ContactService(
+      session: session,
+      dataStore: dataStore,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+
+    _ = try await contactService.syncContacts(radioID: testDeviceID, since: nil)
+
+    #expect(
+      try await dataStore.fetchContact(radioID: testDeviceID, publicKey: orphanKey) != nil,
+      "Prune must skip when the self key is malformed, so the orphan survives"
+    )
+    for key in realKeys {
+      #expect(try await dataStore.fetchContact(radioID: testDeviceID, publicKey: key) != nil)
+    }
   }
 }
 

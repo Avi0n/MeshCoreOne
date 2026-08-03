@@ -101,7 +101,29 @@ public extension MeshCoreSession {
   /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
   ///           ``MeshCoreError/deviceError(code:)`` if the device returns an error.
   func getContacts(since lastModified: Date? = nil) async throws -> [MeshContact] {
-    let (contacts, modifiedDate): ([MeshContact], Date?) = try await requestResponseSerializer.withSerialization { [self] in
+    try await fetchContacts(since: lastModified).contacts
+  }
+
+  /// Fetches contacts and the device's reported contact total.
+  ///
+  /// The total comes from the `contactsStart` header. On a full fetch
+  /// (`since == nil`) it is the device's complete contact count, so a prune
+  /// caller can skip when received count is below that total. On an incremental
+  /// fetch the header still reports the full total, so the count is only a
+  /// completeness signal when `since == nil`.
+  ///
+  /// - Parameter lastModified: If provided, only returns contacts modified after this date.
+  /// - Returns: The contacts and the reported total.
+  /// - Throws: ``MeshCoreError/timeout`` if the device doesn't respond.
+  func getContactsReportingTotal(since lastModified: Date? = nil) async throws -> ContactFetchResult {
+    let result = try await fetchContacts(since: lastModified)
+    return ContactFetchResult(contacts: result.contacts, reportedTotal: result.reportedTotal)
+  }
+
+  private func fetchContacts(
+    since lastModified: Date?
+  ) async throws -> (contacts: [MeshContact], modifiedDate: Date?, reportedTotal: Int?) {
+    let (contacts, modifiedDate, reportedTotal): ([MeshContact], Date?, Int?) = try await requestResponseSerializer.withSerialization { [self] in
       let data = PacketBuilder.getContacts(since: lastModified)
       let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
@@ -114,12 +136,13 @@ public extension MeshCoreSession {
         // 3. Defers contactManager mutations until after the serialization closure
         //    to avoid actor-isolation issues in the @Sendable closure.
         return try await withThrowingTaskGroup(
-          of: ([MeshContact], Date?).self
+          of: ([MeshContact], Date?, Int?).self
         ) { group in
           let progressTracker = StreamProgressTracker()
           group.addTask {
             var receivedContacts: [MeshContact] = []
             var finalModifiedDate: Date?
+            var reportedTotal: Int?
 
             for await event in events {
               if Task.isCancelled {
@@ -129,6 +152,7 @@ public extension MeshCoreSession {
               switch event {
               case let .contactsStart(count):
                 await progressTracker.markProgress()
+                reportedTotal = count
                 receivedContacts.reserveCapacity(count)
               case let .contact(contact):
                 await progressTracker.markProgress()
@@ -136,7 +160,7 @@ public extension MeshCoreSession {
               case let .contactsEnd(modifiedDate):
                 await progressTracker.markProgress()
                 finalModifiedDate = modifiedDate
-                return (receivedContacts, finalModifiedDate)
+                return (receivedContacts, finalModifiedDate, reportedTotal)
               case let .error(code):
                 throw MeshCoreError.deviceError(code: code ?? 0)
               default:
@@ -197,7 +221,7 @@ public extension MeshCoreSession {
       contactManager.markClean(lastModified: modifiedDate)
     }
 
-    return contacts
+    return (contacts, modifiedDate, reportedTotal)
   }
 
   /// Fetches a single contact from the device by public key.

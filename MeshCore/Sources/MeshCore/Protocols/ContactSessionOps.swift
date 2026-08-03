@@ -9,6 +9,17 @@ public protocol ContactSessionOps: Actor {
   /// - Throws: `MeshCoreError` if the contact query fails.
   func getContacts(since lastModified: Date?) async throws -> [MeshContact]
 
+  /// Retrieves contacts and the device's reported contact total.
+  ///
+  /// The total comes from the `contactsStart` header. On a full fetch
+  /// (`since == nil`) it is the device's complete contact count, so a caller
+  /// that prunes local rows can detect a truncated stream.
+  ///
+  /// - Parameter lastModified: An optional date for incremental synchronization.
+  /// - Returns: The contacts and the reported total.
+  /// - Throws: `MeshCoreError` if the contact query fails.
+  func getContactsReportingTotal(since lastModified: Date?) async throws -> ContactFetchResult
+
   /// Fetches a single contact from the device by public key.
   ///
   /// - Parameter publicKey: The full 32-byte public key of the contact.

@@ -264,6 +264,84 @@ struct MeshCoreSessionCommandCorrelationTests {
   }
 
   @Test
+  func `getContactsReportingTotal surfaces the contactsStart total, not the received count`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        contactStreamInactivityTimeout: 1.0,
+        contactStreamHardTimeout: 10.0
+      )
+    )
+
+    try await startSession(session, transport: transport)
+
+    let fetchTask = Task {
+      try await session.getContactsReportingTotal()
+    }
+
+    try await waitUntil("getContacts should be sent") {
+      await transport.sentData.count == 2
+    }
+
+    // Header reports 3, but the stream carries only 2 contacts before end. The
+    // reported total must be the header value so the prune caller can detect the
+    // truncation.
+    await transport.simulateReceive(makeContactsStartPacket(count: 3))
+    for index in 0..<2 {
+      await transport.simulateReceive(
+        makeContactPacket(publicKey: Data(repeating: UInt8(index + 1), count: 32), name: "Node \(index)")
+      )
+    }
+    await transport.simulateReceive(makeContactsEndPacket(lastModified: 1_704_067_200))
+
+    let result = try await fetchTask.value
+    #expect(result.contacts.count == 2)
+    #expect(result.reportedTotal == 3)
+    await session.stop()
+  }
+
+  @Test
+  func `getContactsReportingTotal returns a nil total when contactsStart never arrives`() async throws {
+    let transport = MockTransport()
+    let session = MeshCoreSession(
+      transport: transport,
+      configuration: SessionConfiguration(
+        defaultTimeout: 10,
+        clientIdentifier: "MCTst",
+        contactStreamInactivityTimeout: 1.0,
+        contactStreamHardTimeout: 10.0
+      )
+    )
+
+    try await startSession(session, transport: transport)
+
+    let fetchTask = Task {
+      try await session.getContactsReportingTotal()
+    }
+
+    try await waitUntil("getContacts should be sent") {
+      await transport.sentData.count == 2
+    }
+
+    // Contacts and end arrive with no start header. The total stays unknown so a
+    // prune caller cannot mistake this stream for a complete snapshot.
+    for index in 0..<2 {
+      await transport.simulateReceive(
+        makeContactPacket(publicKey: Data(repeating: UInt8(index + 1), count: 32), name: "Node \(index)")
+      )
+    }
+    await transport.simulateReceive(makeContactsEndPacket(lastModified: 1_704_067_200))
+
+    let result = try await fetchTask.value
+    #expect(result.contacts.count == 2)
+    #expect(result.reportedTotal == nil)
+    await session.stop()
+  }
+
+  @Test
   func `getContacts times out after inactivity before contactsEnd`() async throws {
     let transport = MockTransport()
     let session = MeshCoreSession(

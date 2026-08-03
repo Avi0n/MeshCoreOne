@@ -531,14 +531,45 @@ extension SyncCoordinator {
     // Fetch device once for both contacts (lastContactSync) and channels (maxChannels)
     let device = try await dataStore.fetchDevice(radioID: radioID)
 
-    // Phase 1: Contacts (incremental unless forced full)
+    // At capacity, force a pruning contact fetch (`since == nil`). Offline
+    // eviction is invisible to the incremental watermark. Keep this contacts-
+    // only: do not set `forceFullSync`, which also forces channel sync.
+    // Decide here, before the watermark switch, so the one-shot invalid-
+    // watermark recovery token is not spent. Exclude the virtual V-contact
+    // from the count. Skip when maxContacts is unknown or zero; a count-read
+    // failure leaves atCapacity false.
+    var atCapacity = false
+    var realContactCount = 0
+    if let maxContacts = device?.maxContacts, maxContacts > 0 {
+      do {
+        let keys = try await dataStore.fetchContactPublicKeys(radioID: radioID)
+        realContactCount = keys.count
+        if let selfPublicKey = device?.publicKey,
+           let vContactKey = VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey),
+           keys.contains(vContactKey) {
+          realContactCount -= 1
+        }
+        atCapacity = realContactCount >= Int(maxContacts)
+      } catch {
+        logger.error("Failed to read local contact count for capacity check: \(error)")
+      }
+    }
+
+    // Phase 1: Contacts (incremental unless forced full or at capacity)
     var ranInvalidWatermarkRecovery = false
     let lastContactSync: Date?
-    if forceFullSync {
+    if forceFullSync || atCapacity {
       lastContactSync = nil
-      logger.notice(
-        "[Sync] Phase start: contacts (FULL sync, reason=forceFullSync) — local contacts not on device will be pruned"
-      )
+      if forceFullSync {
+        logger.notice(
+          "[Sync] Phase start: contacts (FULL sync, reason=forceFullSync) — local contacts not on device will be pruned"
+        )
+      } else {
+        let maxContacts = device?.maxContacts ?? 0
+        logger.notice(
+          "[Sync] Phase start: contacts (FULL sync, reason=at capacity (local \(realContactCount) of max \(maxContacts))) — local contacts not on device will be pruned"
+        )
+      }
     } else {
       switch Self.contactWatermarkUse(fromLastContactSync: device?.lastContactSync) {
       case .none:
