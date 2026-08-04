@@ -1308,9 +1308,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   // MARK: - RX Log
 
-  public private(set) var updatedRxLogRegions: [(id: UUID, regionScope: String?)] = []
-  public private(set) var updatedChannelMessageRegions: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
-  public private(set) var updatedDMMessageRegions: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
+  public private(set) var updatedRxLogRegions: [(id: UUID, regionScope: String?, regionScopeMatches: [String])] = []
+  public private(set) var updatedChannelMessageRegions: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
+  public private(set) var updatedDMMessageRegions: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
 
   public func saveRxLogEntry(_ dto: RxLogEntryDTO) async throws {
     mockRxLogEntries.append(dto)
@@ -1336,15 +1336,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     mockRxLogEntries.removeAll { $0.radioID == radioID && !keptIDs.contains($0.id) }
   }
 
-  public func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] {
-    mockRxLogEntries.filter { $0.radioID == radioID && $0.transportCode != nil && $0.regionScope == nil }
+  public func fetchEntriesWithTransportCode(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] {
+    Array(
+      mockRxLogEntries
+        .filter { $0.radioID == radioID && $0.transportCode != nil }
+        .sorted { $0.receivedAt > $1.receivedAt }
+        .prefix(limit)
+    )
   }
 
   public func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) async throws -> [RxLogEntryDTO] {
     mockRxLogEntries.filter { $0.radioID == radioID && $0.decryptStatus == status && $0.receivedAt >= since }
   }
 
-  public func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {
+  public func batchUpdateRxLogRegion(
+    updates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws {
     updatedRxLogRegions.append(contentsOf: updates)
   }
 
@@ -1359,18 +1366,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
+  @discardableResult
   public func batchUpdateChannelMessageRegion(
     radioID: UUID,
-    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) async throws {
+    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws -> [UUID] {
     updatedChannelMessageRegions.append(contentsOf: updates)
+    return []
   }
 
+  @discardableResult
   public func batchUpdateDMMessageRegion(
     radioID: UUID,
-    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) async throws {
+    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws -> [UUID] {
     updatedDMMessageRegions.append(contentsOf: updates)
+    return []
   }
 
   // MARK: - Saved Trace Paths

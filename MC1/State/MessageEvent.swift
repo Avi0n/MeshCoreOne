@@ -30,6 +30,9 @@ enum MessageEvent: Equatable {
   case messageRetrying(messageID: UUID, attempt: Int, maxAttempts: Int)
   case heardRepeatRecorded(messageID: UUID, count: Int)
   case reactionReceived(messageID: UUID, summary: String)
+  /// Region reprocess rewrote dual region fields on these Message rows.
+  /// Consumers call `enqueueReload` so open chats re-bake region footers.
+  case messagesRegionUpdated(messageIDs: [UUID])
   case routingChanged(contactID: UUID, isFlood: Bool)
   case roomMessageStatusUpdated(messageID: UUID)
   case roomMessageFailed(messageID: UUID)

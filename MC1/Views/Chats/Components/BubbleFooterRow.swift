@@ -78,6 +78,7 @@ struct BubbleFooterRow: View {
     if let region = footer.regionToShow {
       badges.append(AnyView(BubbleRegionFooter(
         regionName: region,
+        matchNames: footer.regionMatchNames,
         allowsWrap: dynamicTypeSize.isAccessibilitySize
       )))
     }
@@ -167,19 +168,45 @@ private struct BubblePathFooter: View {
 
 private struct BubbleRegionFooter: View {
   let regionName: String
+  let matchNames: [String]
   let allowsWrap: Bool
+
+  private var isAmbiguous: Bool {
+    matchNames.count > 1
+  }
 
   var body: some View {
     HStack(spacing: 2) {
       Image(systemName: "globe")
       Text(regionName)
         .lineLimit(allowsWrap ? nil : 1)
+      if isAmbiguous {
+        // Explicit region L10n only; do not use path-hop default strings.
+        let listBody = "\n" + matchNames.joined(separator: "\n")
+        FallbackMatchIndicatorView(
+          accessibilityLabel: L10n.Chats.Chats.Message.Region.Ambiguous.possibleMatch,
+          accessibilityHint: L10n.Chats.Chats.Message.Region.Ambiguous.possibleMatchHint,
+          title: L10n.Chats.Chats.Message.Region.Ambiguous.popoverTitle,
+          explanation: L10n.Chats.Chats.Message.Region.Ambiguous.popoverBody(listBody)
+        )
+      }
     }
     .font(.caption2)
     .foregroundStyle(.secondary)
     .footerChip(color: .secondary)
     .accessibilityElement(children: .combine)
-    .accessibilityLabel(L10n.Chats.Chats.Message.Region.accessibilityLabel(regionName))
+    .accessibilityLabel(MessageRegionAccessibility.label(regionName: regionName, matchNames: matchNames))
+  }
+}
+
+/// Shared VoiceOver label for the region chip and the whole-bubble combined label.
+enum MessageRegionAccessibility {
+  static func label(regionName: String, matchNames: [String]) -> String {
+    if matchNames.count > 1 {
+      let list = ListFormatter.localizedString(byJoining: matchNames)
+      return L10n.Chats.Chats.Message.Region.ambiguousAccessibilityLabel(list)
+    }
+    return L10n.Chats.Chats.Message.Region.accessibilityLabel(regionName)
   }
 }
 

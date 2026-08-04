@@ -234,7 +234,8 @@ extension SyncCoordinator {
       timestampCorrected: timestampCorrected,
       senderTimestamp: timestampCorrected ? timestamp : nil,
       routeType: rxResult.routeType,
-      regionScope: rxResult.regionScope
+      regionScope: rxResult.regionScope,
+      regionScopeMatches: rxResult.regionScopeMatches
     )
 
     // Check for duplicate before saving

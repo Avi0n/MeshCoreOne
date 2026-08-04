@@ -801,7 +801,7 @@ actor ParkingContactStore: PersistenceStoreProtocol {
 
   func clearRxLogEntries(radioID: UUID) async throws {}
   func pruneRxLogEntries(radioID: UUID, keepCount: Int, pruneThreshold: Int) async throws {}
-  func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] {
+  func fetchEntriesWithTransportCode(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] {
     []
   }
 
@@ -809,10 +809,18 @@ actor ParkingContactStore: PersistenceStoreProtocol {
     []
   }
 
-  func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {}
+  func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])]) async throws {}
   func batchUpdateRxLogDecryption(_ updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)]) async throws {}
-  func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
-  func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
+  @discardableResult
+  func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]) async throws -> [UUID] {
+    []
+  }
+
+  @discardableResult
+  func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]) async throws -> [UUID] {
+    []
+  }
+
   func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}
   // swiftlint:disable:next function_parameter_count
   func saveNodeStatusSnapshot(

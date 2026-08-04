@@ -176,7 +176,7 @@ final class RoomConversationViewModel {
 
     case .directMessageReceived, .channelMessageReceived,
          .messageStatusResolved, .messageResent, .messageFailed, .messageRetrying,
-         .heardRepeatRecorded, .reactionReceived, .routingChanged:
+         .heardRepeatRecorded, .reactionReceived, .messagesRegionUpdated, .routingChanged:
       // Non-Room events are not Room-scoped. Enumerated explicitly so
       // adding a new MessageEvent case surfaces as a non-exhaustive
       // switch compile error rather than a silent skip.

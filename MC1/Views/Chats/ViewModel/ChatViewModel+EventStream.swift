@@ -53,6 +53,10 @@ extension ChatViewModel {
          let .reactionReceived(messageID, _):
       timeline.enqueueReload(messageID: messageID)
 
+    case let .messagesRegionUpdated(messageIDs):
+      // Region reprocess rewrote dual fields; re-fetch to re-bake region chips.
+      timeline.enqueueReload(updatedMessageIDs: Set(messageIDs))
+
     case let .routingChanged(contactID, _):
       guard let current = currentContact, current.id == contactID else { return }
       requestContactRefresh()

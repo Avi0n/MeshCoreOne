@@ -32,6 +32,7 @@ final class MessageEventDispatcher {
     cancelAll()
     wireSyncCoordinator(services.syncCoordinator)
     wireHeardRepeats(services.heardRepeatsService)
+    wireRxLogRegionUpdates(services.rxLogService)
     wireRemoteNode(services.remoteNodeService)
     wireRoomServer(services.roomServerService)
     wireMessageService(services.messageService)
@@ -80,6 +81,17 @@ final class MessageEventDispatcher {
     let task = Task { [stream] in
       for await event in events {
         stream.send(.heardRepeatRecorded(messageID: event.messageID, count: event.count))
+      }
+    }
+    tasks.append(task)
+  }
+
+  private func wireRxLogRegionUpdates(_ rxLogService: RxLogService) {
+    let events = rxLogService.regionUpdateEvents()
+    let task = Task { [stream] in
+      for await messageIDs in events {
+        guard !messageIDs.isEmpty else { continue }
+        stream.send(.messagesRegionUpdated(messageIDs: messageIDs))
       }
     }
     tasks.append(task)

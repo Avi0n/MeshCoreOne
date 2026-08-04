@@ -1,5 +1,18 @@
 import Foundation
 
+/// Retention bounds for the RX log radio partition.
+///
+/// Shared by prune defaults and region reprocess so the fetch window stays
+/// aligned with how many rows can exist before pruning.
+public enum RxLogRetention {
+  /// Rows kept after a prune pass.
+  public static let keepCount = 1000
+
+  /// Extra rows allowed before prune runs. Peak retained count is
+  /// `keepCount + pruneThreshold`.
+  public static let pruneThreshold = 100
+}
+
 /// Store operations for RX log entries: persistence, lookup, and batch enrichment.
 public protocol RxLogPersisting: Actor {
   // MARK: - RxLogEntry Lookup
@@ -36,15 +49,22 @@ public protocol RxLogPersisting: Actor {
   /// Delete oldest entries once the log materially exceeds the retention cap
   func pruneRxLogEntries(radioID: UUID, keepCount: Int, pruneThreshold: Int) async throws
 
-  /// Fetch RX log entries that have a transport code but no resolved
-  /// region yet, the back-fill candidate set
-  func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO]
+  /// Fetch transport-coded RX log entries for region reprocess.
+  ///
+  /// Bound by prune retention (`limit`, typically
+  /// `RxLogRetention.keepCount + RxLogRetention.pruneThreshold`). Scans the
+  /// radio partition (indexed `radioID` + `receivedAt`); `transportCode` itself
+  /// is unindexed. Includes rows that already have a region label so unique,
+  /// multi-match, and clear rewrites all work.
+  func fetchEntriesWithTransportCode(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO]
 
   /// Fetch recent RX log entries with a given decrypt status
   func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) async throws -> [RxLogEntryDTO]
 
-  /// Batch update `regionScope` on RX log entries by id
-  func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws
+  /// Batch update dual region fields on RX log entries by id
+  func batchUpdateRxLogRegion(
+    updates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws
 
   /// Batch update RX log entries after successful decryption.
   /// Note: decodedText is transient and not persisted.
@@ -52,19 +72,23 @@ public protocol RxLogPersisting: Actor {
     _ updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)]
   ) async throws
 
-  /// Batch update `regionScope` on incoming channel `Message` rows
-  /// correlated by `(channelIndex, senderTimestamp)`
+  /// Batch update dual region fields on incoming channel `Message` rows
+  /// correlated by `(channelIndex, senderTimestamp)`.
+  /// - Returns: IDs of messages that were written (for open-chat invalidation).
+  @discardableResult
   func batchUpdateChannelMessageRegion(
     radioID: UUID,
-    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) async throws
+    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws -> [UUID]
 
-  /// Batch update `regionScope` on incoming DM `Message` rows
-  /// correlated by `(senderPrefixByte, senderTimestamp)`
+  /// Batch update dual region fields on incoming DM `Message` rows
+  /// correlated by `(senderPrefixByte, senderTimestamp)`.
+  /// - Returns: IDs of messages that were written (for open-chat invalidation).
+  @discardableResult
   func batchUpdateDMMessageRegion(
     radioID: UUID,
-    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) async throws
+    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws -> [UUID]
 }
 
 // MARK: - Default Parameter Values
@@ -75,8 +99,12 @@ extension RxLogPersisting {
     try await fetchRxLogEntries(radioID: radioID, limit: 500)
   }
 
-  /// Prune RX log entries with the default retention cap of 1000 plus a 100-entry threshold
+  /// Prune RX log entries with the default retention cap plus threshold
   func pruneRxLogEntries(radioID: UUID) async throws {
-    try await pruneRxLogEntries(radioID: radioID, keepCount: 1000, pruneThreshold: 100)
+    try await pruneRxLogEntries(
+      radioID: radioID,
+      keepCount: RxLogRetention.keepCount,
+      pruneThreshold: RxLogRetention.pruneThreshold
+    )
   }
 }

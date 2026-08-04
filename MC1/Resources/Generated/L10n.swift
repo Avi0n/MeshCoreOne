@@ -684,6 +684,10 @@ public enum L10n {
           public static func received(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.received", String(describing: p1), fallback: "Received: %@")
           }
+          /// Location: ActionsDetailsSection.swift - Details row when multiple known regions match the packet transport code - %@ is localized list of names
+          public static func regionAmbiguous(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.info.regionAmbiguous", String(describing: p1), fallback: "Region (ambiguous): %@")
+          }
           /// Location: MessageActionsSheet.swift - Details row shown when region could not be resolved
           public static let regionUnresolved = L10n.tr("Chats", "chats.message.info.regionUnresolved", fallback: "Region: Unknown")
           /// Location: UnifiedMessageBubble.swift - Context menu text showing round trip time - %d is milliseconds
@@ -713,6 +717,22 @@ public enum L10n {
           /// Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name
           public static func accessibilityLabel(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.region.accessibilityLabel", String(describing: p1), fallback: "Region %@")
+          }
+          /// Location: BubbleFooterRow.swift - VoiceOver when multiple regions match - %@ is localized list of names
+          public static func ambiguousAccessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.region.ambiguousAccessibilityLabel", String(describing: p1), fallback: "Region, ambiguous: %@")
+          }
+          public enum Ambiguous {
+            /// Location: FallbackMatchIndicatorView.swift - Popover body; %@ is newline-prefixed list of candidate names
+            public static func popoverBody(_ p1: Any) -> String {
+              return L10n.tr("Chats", "chats.message.region.ambiguous.popoverBody", String(describing: p1), fallback: "More than one region in your list matches this packet’s transport code. The app cannot tell which one was used.%@")
+            }
+            /// Location: FallbackMatchIndicatorView.swift - Popover title for region multi-match
+            public static let popoverTitle = L10n.tr("Chats", "chats.message.region.ambiguous.popoverTitle", fallback: "Multiple matching regions")
+            /// Location: FallbackMatchIndicatorView.swift - Accessibility label for region multi-match
+            public static let possibleMatch = L10n.tr("Chats", "chats.message.region.ambiguous.possibleMatch", fallback: "Multiple matching regions")
+            /// Location: FallbackMatchIndicatorView.swift - Accessibility hint for region multi-match
+            public static let possibleMatchHint = L10n.tr("Chats", "chats.message.region.ambiguous.possibleMatchHint", fallback: "More than one region in your list matches this packet’s transport code. The app cannot tell which one was used.")
           }
         }
         public enum Repeat {

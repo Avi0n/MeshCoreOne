@@ -149,11 +149,14 @@ public final class Message {
   /// Route type from RxLog correlation (-1 = unknown/uncorrelated)
   public var routeTypeRawValue: Int = -1
 
-  /// Resolved flood region the sender transmitted under, derived from
-  /// `transport_codes[0]` at receive time via the RxLog correlation. Incoming
-  /// messages only; nil when the sender's region was not in the local
-  /// known-regions list at receive time (back-filled by `updateKnownRegions`).
+  /// Confident single flood-region name from RxLog correlation, or nil when
+  /// unresolved or ambiguous. Read through `RegionScopeSemantics.coalesce`
+  /// with `regionScopeMatches` — nil alone is not "Unknown."
   public var regionScope: String?
+
+  /// Sorted known public regions that verify this packet's transport code.
+  /// Empty, one name, or two-plus for multi-match. Defaults to `[]`.
+  public var regionScopeMatches: [String] = []
 
   /// Heard repeats for this message (cascade delete)
   @Relationship(deleteRule: .cascade, inverse: \MessageRepeat.message)
@@ -196,7 +199,8 @@ public final class Message {
     senderTimestamp: UInt32? = nil,
     reactionSummary: String? = nil,
     routeTypeRawValue: Int = -1,
-    regionScope: String? = nil
+    regionScope: String? = nil,
+    regionScopeMatches: [String] = []
   ) {
     self.id = id
     self.radioID = radioID
@@ -235,6 +239,7 @@ public final class Message {
     self.reactionSummary = reactionSummary
     self.routeTypeRawValue = routeTypeRawValue
     self.regionScope = regionScope
+    self.regionScopeMatches = regionScopeMatches
   }
 
   /// Builds a model instance directly from a DTO. Shared by backup batch-insert
@@ -279,7 +284,8 @@ public final class Message {
       senderTimestamp: dto.senderTimestamp,
       reactionSummary: dto.reactionSummary,
       routeTypeRawValue: dto.routeType.map { Int($0.rawValue) } ?? -1,
-      regionScope: dto.regionScope
+      regionScope: dto.regionScope,
+      regionScopeMatches: dto.regionScopeMatches
     )
   }
 }
@@ -365,6 +371,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
   public var reactionSummary: String?
   public var routeType: RouteType?
   public var regionScope: String?
+  /// Sorted multi-match set. Empty when the backup key is missing.
+  public var regionScopeMatches: [String]
 
   /// Explicit Codable so backups predating ``sortDate`` decode cleanly.
   /// Legacy envelopes have no `sortDate` key; it falls back to `createdAt`,
@@ -377,7 +385,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
          roundTripTime, heardRepeats, sendCount, retryAttempt, maxRetryAttempts,
          deduplicationKey, linkPreviewURL, linkPreviewTitle, linkPreviewImageData,
          linkPreviewIconData, linkPreviewFetched, containsSelfMention, mentionSeen,
-         timestampCorrected, senderTimestamp, reactionSummary, routeType, regionScope
+         timestampCorrected, senderTimestamp, reactionSummary, routeType, regionScope,
+         regionScopeMatches
   }
 
   public init(from decoder: Decoder) throws {
@@ -420,6 +429,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     reactionSummary = try container.decodeIfPresent(String.self, forKey: .reactionSummary)
     routeType = try container.decodeIfPresent(RouteType.self, forKey: .routeType)
     regionScope = try container.decodeIfPresent(String.self, forKey: .regionScope)
+    // Missing key → []; do not invent matches from regionScope.
+    regionScopeMatches = try container.decodeIfPresent([String].self, forKey: .regionScopeMatches) ?? []
   }
 
   public init(from message: Message, includeLinkPreviewBlobs: Bool = true) {
@@ -470,6 +481,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     routeType = UInt8(exactly: message.routeTypeRawValue)
       .flatMap(RouteType.init(rawValue:))
     regionScope = message.regionScope
+    regionScopeMatches = message.regionScopeMatches
   }
 
   /// Memberwise initializer for creating DTOs directly
@@ -510,7 +522,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     senderTimestamp: UInt32? = nil,
     reactionSummary: String? = nil,
     routeType: RouteType? = nil,
-    regionScope: String? = nil
+    regionScope: String? = nil,
+    regionScopeMatches: [String] = []
   ) {
     self.id = id
     self.radioID = radioID
@@ -549,6 +562,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     self.reactionSummary = reactionSummary
     self.routeType = routeType
     self.regionScope = regionScope
+    self.regionScopeMatches = regionScopeMatches
   }
 
   public var isOutgoing: Bool {

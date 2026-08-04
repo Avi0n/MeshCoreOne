@@ -10,6 +10,7 @@ extension SyncCoordinator {
     let packetHash: String?
     let routeType: RouteType?
     let regionScope: String?
+    let regionScopeMatches: [String]
   }
 
   /// Looks up path data from an RxLogEntry to correlate with an incoming message.
@@ -38,7 +39,14 @@ extension SyncCoordinator {
         } else {
           logger.debug("Correlated incoming direct message to RxLogEntry, pathLength: \(pathLength), pathNodes: \(pathNodes.count) bytes")
         }
-        return RxLogLookupResult(pathNodes: pathNodes, pathLength: pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType, regionScope: rxEntry.regionScope)
+        return RxLogLookupResult(
+          pathNodes: pathNodes,
+          pathLength: pathLength,
+          packetHash: rxEntry.packetHash,
+          routeType: rxEntry.routeType,
+          regionScope: rxEntry.regionScope,
+          regionScopeMatches: rxEntry.regionScopeMatches
+        )
       }
 
       // Fallback for DMs: if timestamp-based lookup failed (e.g., RxLog decryption
@@ -53,7 +61,14 @@ extension SyncCoordinator {
           receivedSince: lookbackWindow
         ) {
           logger.debug("Correlated DM to RxLogEntry via sender prefix fallback, pathLength: \(rxEntry.pathLength)")
-          return RxLogLookupResult(pathNodes: rxEntry.pathNodes, pathLength: rxEntry.pathLength, packetHash: rxEntry.packetHash, routeType: rxEntry.routeType, regionScope: rxEntry.regionScope)
+          return RxLogLookupResult(
+            pathNodes: rxEntry.pathNodes,
+            pathLength: rxEntry.pathLength,
+            packetHash: rxEntry.packetHash,
+            routeType: rxEntry.routeType,
+            regionScope: rxEntry.regionScope,
+            regionScopeMatches: rxEntry.regionScopeMatches
+          )
         }
         logger.debug("No RxLogEntry found for direct message (primary + fallback), senderTimestamp: \(senderTimestamp)")
       } else if let channelIndex {
@@ -69,7 +84,14 @@ extension SyncCoordinator {
       }
     }
 
-    return RxLogLookupResult(pathNodes: nil, pathLength: defaultPathLength, packetHash: nil, routeType: nil, regionScope: nil)
+    return RxLogLookupResult(
+      pathNodes: nil,
+      pathLength: defaultPathLength,
+      packetHash: nil,
+      routeType: nil,
+      regionScope: nil,
+      regionScopeMatches: []
+    )
   }
 
   /// Increments unread counts and posts a notification for a direct message.

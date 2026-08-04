@@ -325,7 +325,7 @@ struct UnifiedMessageBubble: View, Equatable {
         label += ", \(L10n.Chats.Chats.Message.Path.accessibilityLabel(formattedPath))"
       }
       if let region = item.footer.regionToShow {
-        label += ", \(L10n.Chats.Chats.Message.Region.accessibilityLabel(region))"
+        label += ", \(MessageRegionAccessibility.label(regionName: region, matchNames: item.footer.regionMatchNames))"
       }
     }
     return label

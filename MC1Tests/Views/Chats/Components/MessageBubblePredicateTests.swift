@@ -172,6 +172,68 @@ struct MessageBubblePredicateTests {
     #expect(bubble.accessibilityMessageLabel.contains(regionFragment) == true)
   }
 
+  @Test
+  func `footer bakes multi-match chip label and ambiguous flag`() {
+    let message = makeMessage(
+      routeType: .flood,
+      regionScope: "Germany", // sticky first-match must lose to multi-match
+      regionScopeMatches: ["de-hh", "de-by"]
+    )
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    let footer = bundle.item.footer
+
+    #expect(footer.regionToShow == "de-by / de-hh")
+    #expect(footer.regionIsAmbiguous)
+    #expect(footer.regionMatchNames == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `footer bakes legacy scope-only as unique without ambiguous flag`() {
+    let message = makeMessage(routeType: .flood, regionScope: "Germany", regionScopeMatches: [])
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    let footer = bundle.item.footer
+
+    #expect(footer.regionToShow == "Germany")
+    #expect(!footer.regionIsAmbiguous)
+    #expect(footer.regionMatchNames == ["Germany"])
+  }
+
+  @Test
+  func `accessibilityMessageLabel lists all candidates when ambiguous`() {
+    // Ambiguous region footer (nil sticky scope, multi-match candidates) must surface
+    // every candidate name in the screen-reader label, not only the chip text.
+    let message = makeMessage(
+      routeType: .flood,
+      regionScope: nil,
+      regionScopeMatches: ["de-hh", "de-by"]
+    )
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingRegion: true
+    )
+    let footer = bundle.item.footer
+    let bubble = UnifiedMessageBubble(
+      message: message,
+      contactName: "Alice",
+      configuration: .directMessage,
+      item: bundle.item,
+      layout: FragmentLayout(content: bundle.item.content),
+      imageResolver: bundle.imageResolver
+    )
+
+    #expect(footer.regionIsAmbiguous)
+    #expect(footer.regionMatchNames.contains("de-by"))
+    #expect(footer.regionMatchNames.contains("de-hh"))
+    #expect(bubble.accessibilityMessageLabel.contains("de-by"))
+    #expect(bubble.accessibilityMessageLabel.contains("de-hh"))
+  }
+
   // MARK: - Helpers
 
   private func makeMessage(
@@ -180,7 +242,8 @@ struct MessageBubblePredicateTests {
     pathNodes: Data? = Data([0xA3, 0x7F]),
     direction: MessageDirection = .incoming,
     routeType: RouteType? = nil,
-    regionScope: String? = nil
+    regionScope: String? = nil,
+    regionScopeMatches: [String] = []
   ) -> MessageDTO {
     MessageDTO(
       id: UUID(),
@@ -206,7 +269,8 @@ struct MessageBubblePredicateTests {
       retryAttempt: 0,
       maxRetryAttempts: 0,
       routeType: routeType,
-      regionScope: regionScope
+      regionScope: regionScope,
+      regionScopeMatches: regionScopeMatches
     )
   }
 }

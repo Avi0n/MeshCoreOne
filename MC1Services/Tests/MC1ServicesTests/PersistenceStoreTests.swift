@@ -2106,10 +2106,12 @@ struct PersistenceStoreTests {
     radioID: UUID,
     senderTimestamp: UInt32? = nil,
     regionScope: String? = nil,
+    regionScopeMatches: [String] = [],
     payloadTypeBits: UInt8 = 5,
     transportCode: Data? = nil,
     channelIndex: UInt8? = 1,
-    packetPayload: Data = Data([0xAB, 0xCD, 0xEF])
+    packetPayload: Data = Data([0xAB, 0xCD, 0xEF]),
+    receivedAt: Date = Date()
   ) -> RxLogEntryDTO {
     // Create minimal ParsedRxLogData for the DTO
     let parsed = ParsedRxLogData(
@@ -2128,12 +2130,14 @@ struct PersistenceStoreTests {
 
     return RxLogEntryDTO(
       radioID: radioID,
+      receivedAt: receivedAt,
       from: parsed,
       channelIndex: channelIndex,
       channelName: "TestChannel",
       decryptStatus: .success,
       senderTimestamp: senderTimestamp,
       regionScope: regionScope,
+      regionScopeMatches: regionScopeMatches,
       decodedText: "Hello mesh!"
     )
   }
@@ -2316,12 +2320,78 @@ struct PersistenceStoreTests {
     let dto = createTestRxLogEntryDTO(
       radioID: device.id,
       senderTimestamp: 1_703_000_000,
-      regionScope: "Germany"
+      regionScope: "Germany",
+      regionScopeMatches: ["Germany"]
     )
     try await store.saveRxLogEntry(dto)
 
     let entries = try await store.fetchRxLogEntries(radioID: device.id)
     #expect(entries.first?.regionScope == "Germany")
+    #expect(entries.first?.regionScopeMatches == ["Germany"])
+  }
+
+  @Test
+  func `batchUpdateRxLogRegion writes dual region fields`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let dto = createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 1_703_000_050,
+      regionScope: "Germany",
+      regionScopeMatches: ["Germany"],
+      transportCode: Data([0x12, 0x34])
+    )
+    try await store.saveRxLogEntry(dto)
+    let id = try #require(try await store.fetchRxLogEntries(radioID: device.id).first?.id)
+
+    try await store.batchUpdateRxLogRegion(updates: [(
+      id: id,
+      regionScope: nil,
+      regionScopeMatches: ["de-by", "de-hh"]
+    )])
+
+    let updated = try #require(try await store.fetchRxLogEntries(radioID: device.id).first)
+    #expect(updated.regionScope == nil)
+    #expect(updated.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `fetchEntriesWithTransportCode includes labeled rows and honors limit`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let base = Date(timeIntervalSince1970: 1_700_000_000)
+    // Five transport-coded rows with distinct receivedAt; one nil-code row to exclude.
+    for index in 0..<5 {
+      try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+        radioID: device.id,
+        senderTimestamp: UInt32(index),
+        regionScope: index == 0 ? "Germany" : nil,
+        regionScopeMatches: index == 0 ? ["Germany"] : [],
+        transportCode: Data([UInt8(index), 0x02]),
+        receivedAt: base.addingTimeInterval(TimeInterval(index))
+      ))
+    }
+    try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 99,
+      transportCode: nil,
+      receivedAt: base.addingTimeInterval(100)
+    ))
+
+    let limit = 2
+    let entries = try await store.fetchEntriesWithTransportCode(radioID: device.id, limit: limit)
+    #expect(entries.count == limit)
+    #expect(entries.allSatisfy { $0.transportCode != nil })
+    // Newest-first by receivedAt: index 4 then 3 when sort is .reverse and fetchLimit applies.
+    #expect(entries.map(\.receivedAt) == [
+      base.addingTimeInterval(4),
+      base.addingTimeInterval(3)
+    ])
+    #expect(entries.map(\.senderTimestamp) == [4, 3])
   }
 
   @Test
@@ -2360,11 +2430,12 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateChannelMessageRegion(
       radioID: device.id,
-      updates: [(channelIndex: 0, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+      updates: [(channelIndex: 0, senderTimestamp: wireTimestamp, regionScope: "Germany", regionScopeMatches: ["Germany"])]
     )
 
     let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 0)
     #expect(saved.first?.regionScope == "Germany")
+    #expect(saved.first?.regionScopeMatches == ["Germany"])
   }
 
   @Test
@@ -2386,11 +2457,43 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateChannelMessageRegion(
       radioID: device.id,
-      updates: [(channelIndex: 1, senderTimestamp: originalWire, regionScope: "USA")]
+      updates: [(channelIndex: 1, senderTimestamp: originalWire, regionScope: "USA", regionScopeMatches: ["USA"])]
     )
 
     let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 1)
     #expect(saved.first?.regionScope == "USA")
+    #expect(saved.first?.regionScopeMatches == ["USA"])
+  }
+
+  @Test
+  func `batchUpdateChannelMessageRegion writes multi-match regionScopeMatches with nil scope`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let wireTimestamp: UInt32 = 1_703_666_666
+    let dto = MessageDTO.testChannelMessage(
+      radioID: device.id,
+      channelIndex: 3,
+      timestamp: wireTimestamp,
+      direction: .incoming,
+      status: .delivered
+    )
+    try await store.saveMessage(dto)
+
+    try await store.batchUpdateChannelMessageRegion(
+      radioID: device.id,
+      updates: [(
+        channelIndex: 3,
+        senderTimestamp: wireTimestamp,
+        regionScope: nil,
+        regionScopeMatches: ["First", "Second"]
+      )]
+    )
+
+    let saved = try #require(try await store.fetchMessages(radioID: device.id, channelIndex: 3).first)
+    #expect(saved.regionScope == nil)
+    #expect(Set(saved.regionScopeMatches) == Set(["First", "Second"]))
   }
 
   @Test
@@ -2411,7 +2514,7 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateChannelMessageRegion(
       radioID: device.id,
-      updates: [(channelIndex: 2, senderTimestamp: wireTimestamp, regionScope: "France")]
+      updates: [(channelIndex: 2, senderTimestamp: wireTimestamp, regionScope: "France", regionScopeMatches: ["France"])]
     )
 
     let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 2)
@@ -2439,11 +2542,12 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateDMMessageRegion(
       radioID: device.id,
-      updates: [(senderPrefixByte: 0xAB, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+      updates: [(senderPrefixByte: 0xAB, senderTimestamp: wireTimestamp, regionScope: "Germany", regionScopeMatches: ["Germany"])]
     )
 
     let saved = try await store.fetchMessages(contactID: contactID)
     #expect(saved.first?.regionScope == "Germany")
+    #expect(saved.first?.regionScopeMatches == ["Germany"])
   }
 
   @Test
@@ -2481,7 +2585,7 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateDMMessageRegion(
       radioID: device.id,
-      updates: [(senderPrefixByte: 0xAA, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+      updates: [(senderPrefixByte: 0xAA, senderTimestamp: wireTimestamp, regionScope: "Germany", regionScopeMatches: ["Germany"])]
     )
 
     let aliceSaved = try await store.fetchMessages(contactID: aliceContact)

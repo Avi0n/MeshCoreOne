@@ -3304,6 +3304,70 @@ struct BackupIntegrationTests {
     #expect(nilModel.regionScope == nil)
   }
 
+  // MARK: - Message.regionScopeMatches round-trip
+
+  @Test
+  func `Message.regionScopeMatches round-trips through full export/import`() async throws {
+    let radioID = UUID()
+    let sourceStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
+
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xAB, count: 32),
+      name: "Alice"
+    )
+    try await sourceStore.saveContact(contact)
+
+    var msg = MessageDTO.testDirectMessage(radioID: radioID, contactID: contact.id, text: "Greetings")
+    msg.regionScope = nil
+    msg.regionScopeMatches = ["de-by", "de-hh"]
+    msg.deduplicationKey = "region-scope-matches-roundtrip-\(UUID())"
+    try await sourceStore.saveMessage(msg)
+
+    let service = AppBackupService()
+    let exportResult = try await service.export(persistenceStore: sourceStore)
+    let envelope = try parseBackup(data: exportResult.data)
+
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+    _ = try await service.importBackup(envelope: envelope, into: destStore)
+
+    let restored = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(restored.count == 1)
+    #expect(restored.first?.regionScope == nil)
+    #expect(restored.first?.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `MessageDTO Codable: regionScopeMatches set decodes round-trip`() throws {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Test")
+    dto.regionScopeMatches = ["de-by", "de-hh"]
+
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+    #expect(decoded.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `Legacy MessageDTO envelope without regionScopeMatches decodes as empty`() throws {
+    let baseDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Legacy")
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "regionScopeMatches")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+    #expect(decoded.regionScopeMatches == [])
+  }
+
+  @Test
+  func `Message(dto:) forwards regionScopeMatches verbatim through DTO to model`() {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Forward")
+    dto.regionScopeMatches = ["de-by", "de-hh"]
+    let model = Message(dto: dto)
+    #expect(model.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
   // MARK: - MessageDTO.sortDate round-trip
 
   @Test

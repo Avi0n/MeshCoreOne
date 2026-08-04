@@ -311,6 +311,68 @@ struct SyncCoordinatorMessageHandlerTests {
     )
     #expect((updated.lastHeardTimestamp ?? 0) == 0)
   }
+
+  // MARK: - Live receive region propagation
+
+  @Test
+  func `live channel receive copies regionScope and regionScopeMatches from RxLog onto Message`() async throws {
+    let radioID = UUID()
+    let dataStore = try await createTestDataStore(radioID: radioID)
+    let channelIndex: UInt8 = 0
+    // Fixed integer epoch so ChannelMessage.senderTimestamp and RxLogEntry
+    // correlate without fractional-second truncation.
+    let senderTimestamp: UInt32 = 1_704_000_500
+    let expectedScope: String? = "Germany"
+    let expectedMatches = ["Germany"]
+
+    let parsed = ParsedRxLogData(
+      snr: 5,
+      rssi: -80,
+      rawPayload: Data([0x10, 0x20, 0x30]),
+      routeType: .flood,
+      payloadType: .groupText,
+      payloadVersion: 0,
+      payloadTypeBits: 5,
+      transportCode: nil,
+      pathLength: 0,
+      pathNodes: [],
+      packetPayload: Data([0xAA, 0xBB, 0xCC])
+    )
+    let rxEntry = RxLogEntryDTO(
+      radioID: radioID,
+      from: parsed,
+      channelIndex: channelIndex,
+      channelName: "Public",
+      decryptStatus: .success,
+      senderTimestamp: senderTimestamp,
+      regionScope: expectedScope,
+      regionScopeMatches: expectedMatches
+    )
+    try await dataStore.saveRxLogEntry(rxEntry)
+
+    let mockPolling = MockMessagePollingService()
+    let (_, services) = try await createTestServices()
+    let dependencies = services.syncDependencies
+      .with(dataStore: dataStore, messagePollingService: mockPolling)
+
+    let coordinator = SyncCoordinator()
+    await coordinator.wireMessageHandlers(dependencies: dependencies, radioID: radioID)
+
+    let channelMessage = ChannelMessage(
+      channelIndex: channelIndex,
+      pathLength: 0,
+      textType: 0,
+      senderTimestamp: Date(timeIntervalSince1970: TimeInterval(senderTimestamp)),
+      text: "NodeAlpha: region scope test",
+      snr: nil
+    )
+    await mockPolling.capturedChannelMessageHandler?(channelMessage, nil, .live)
+
+    let saved = try await dataStore.fetchMessages(radioID: radioID, channelIndex: channelIndex)
+    let message = try #require(saved.first)
+    #expect(message.regionScope == expectedScope)
+    #expect(Set(message.regionScopeMatches) == Set(expectedMatches))
+  }
 }
 
 // MARK: - SyncDependencies test helpers

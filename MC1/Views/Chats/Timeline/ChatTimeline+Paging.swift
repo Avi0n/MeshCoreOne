@@ -160,6 +160,10 @@ extension ChatTimeline {
     writer?.enqueueReload(messageID: messageID)
   }
 
+  func enqueueReload(updatedMessageIDs: Set<UUID>) {
+    writer?.enqueueReload(updatedMessageIDs: updatedMessageIDs)
+  }
+
   /// Removes a message and its render item together.
   func removeMessage(_ messageID: UUID) {
     writer?.remove(messageID: messageID)
