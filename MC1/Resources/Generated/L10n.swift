@@ -1336,14 +1336,6 @@ public enum L10n {
           }
         }
         public enum Avatar {
-          public enum Crop {
-            /// Location: AvatarCropView.swift - Purpose: Crop screen cancel button
-            public static let cancel = L10n.tr("Contacts", "contacts.detail.avatar.crop.cancel", fallback: "Cancel")
-            /// Location: AvatarCropView.swift - Purpose: Crop screen confirm button
-            public static let choose = L10n.tr("Contacts", "contacts.detail.avatar.crop.choose", fallback: "Choose")
-            /// Location: AvatarCropView.swift - Purpose: Crop screen navigation title
-            public static let title = L10n.tr("Contacts", "contacts.detail.avatar.crop.title", fallback: "Move and Scale")
-          }
           /// Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick an image file
           public static let chooseFile = L10n.tr("Contacts", "contacts.detail.avatar.chooseFile", fallback: "Choose File...")
           /// Location: ContactDetailView.swift - Purpose: Avatar edit menu option to pick a photo from the photo library
@@ -1356,6 +1348,14 @@ public enum L10n {
           public static let removePhoto = L10n.tr("Contacts", "contacts.detail.avatar.removePhoto", fallback: "Remove Photo")
           /// Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved
           public static let savingAnnouncement = L10n.tr("Contacts", "contacts.detail.avatar.savingAnnouncement", fallback: "Saving photo")
+          public enum Crop {
+            /// Location: AvatarCropView.swift - Purpose: Crop screen cancel button
+            public static let cancel = L10n.tr("Contacts", "contacts.detail.avatar.crop.cancel", fallback: "Cancel")
+            /// Location: AvatarCropView.swift - Purpose: Crop screen confirm button
+            public static let choose = L10n.tr("Contacts", "contacts.detail.avatar.crop.choose", fallback: "Choose")
+            /// Location: AvatarCropView.swift - Purpose: Crop screen navigation title
+            public static let title = L10n.tr("Contacts", "contacts.detail.avatar.crop.title", fallback: "Move and Scale")
+          }
         }
         public enum Error {
           /// Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error
