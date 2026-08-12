@@ -105,6 +105,8 @@ struct ContactDetailView: View {
   @State private var showAvatarFileImporter = false
   @State private var avatarPickerItem: PhotosPickerItem?
   @State private var isSavingAvatar = false
+  @State private var avatarImageToCrop: UIImage?
+  @State private var showAvatarCropSheet = false
 
   init(contact: ContactDTO, showFromDirectChat: Bool = false, onClearMessages: @escaping () -> Void = {}) {
     self.contact = contact
@@ -275,6 +277,18 @@ struct ContactDetailView: View {
     }
     .fileImporter(isPresented: $showAvatarFileImporter, allowedContentTypes: [.image]) { result in
       Task { await handleAvatarFileImport(result) }
+    }
+    .fullScreenCover(isPresented: $showAvatarCropSheet) {
+      if let avatarImageToCrop {
+        AvatarCropView(
+          image: avatarImageToCrop,
+          onCancel: { showAvatarCropSheet = false },
+          onComplete: { cropped in
+            showAvatarCropSheet = false
+            Task { await saveAvatar(data: cropped.jpegData(compressionQuality: 0.9) ?? Data()) }
+          }
+        )
+      }
     }
     .task {
       pathViewModel.configure(
@@ -535,7 +549,7 @@ struct ContactDetailView: View {
         errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
         return
       }
-      await saveAvatar(data: data)
+      presentCropSheet(data: data)
     } catch {
       errorMessage = error.userFacingMessage
     }
@@ -548,13 +562,22 @@ struct ContactDetailView: View {
       defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
       do {
         let data = try Data(contentsOf: url)
-        await saveAvatar(data: data)
+        presentCropSheet(data: data)
       } catch {
         errorMessage = error.userFacingMessage
       }
     case let .failure(error):
       errorMessage = error.userFacingMessage
     }
+  }
+
+  private func presentCropSheet(data: Data) {
+    guard let image = UIImage(data: data) else {
+      errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
+      return
+    }
+    avatarImageToCrop = image
+    showAvatarCropSheet = true
   }
 
   private func saveAvatar(data: Data) async {
