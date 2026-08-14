@@ -235,4 +235,32 @@ struct RemoteNodeCLICorrelationTests {
     await yieldReply(prefix + "US/CA^", to: harness.session)
     #expect(try await commandTask.value == "US/CA^")
   }
+
+  @Test
+  func `clock sync is rewritten to time with the host epoch on the wire`() async throws {
+    let harness = try await makeHarness()
+    let before = UInt32(Date().timeIntervalSince1970)
+
+    let commandTask = Task {
+      try await harness.service.sendRawCLICommand(
+        sessionID: harness.sessionID,
+        command: "clock sync"
+      )
+    }
+    try await waitUntil("command was never sent") {
+      await harness.session.sendCommandInvocations.count == 1
+    }
+
+    let after = UInt32(Date().timeIntervalSince1970)
+    let sent = await harness.session.sendCommandInvocations.last?.command ?? ""
+    let split = try #require(CLIResponse.splitEchoedPrefix(sent))
+    #expect(split.body.hasPrefix(RemoteCLICommandRewriter.timeCommandPrefix))
+    let epochText = String(split.body.dropFirst(RemoteCLICommandRewriter.timeCommandPrefix.count))
+    let epoch = try #require(UInt32(epochText))
+    #expect(epoch >= before && epoch <= after)
+
+    let prefix = try await sentWirePrefix(of: harness.session)
+    await yieldReply(prefix + "OK - clock set: 15:48 - 14/8/2026 UTC", to: harness.session)
+    #expect(try await commandTask.value == "OK - clock set: 15:48 - 14/8/2026 UTC")
+  }
 }

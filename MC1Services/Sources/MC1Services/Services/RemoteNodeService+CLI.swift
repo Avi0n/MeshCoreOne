@@ -67,6 +67,8 @@ extension RemoteNodeService {
       throw RemoteNodeError.permissionDenied
     }
 
+    let command = RemoteCLICommandRewriter.rewrite(command)
+
     // Log CLI command (with password redaction)
     await auditLogger.logCLICommand(publicKey: remoteSession.publicKey, command: command)
 

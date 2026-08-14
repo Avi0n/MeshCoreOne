@@ -268,3 +268,47 @@ struct NodeSettingsRadioApplyTests {
     #expect(recorder.commands == ["get radio"])
   }
 }
+
+@Suite("NodeSettingsViewModel clock sync")
+@MainActor
+struct NodeSettingsClockSyncTests {
+  @MainActor
+  final class CommandRecorder {
+    private(set) var commands: [String] = []
+    func send(_ id: UUID, _ command: String, _ timeout: Duration) async throws -> String {
+      commands.append(command)
+      return "OK - clock set: 15:35 - 14/8/2026 UTC"
+    }
+  }
+
+  private func makeConfiguredViewModel(recorder: CommandRecorder) -> NodeSettingsViewModel {
+    let session = RemoteNodeSessionDTO(
+      radioID: UUID(),
+      publicKey: Data(repeating: 0x42, count: 32),
+      name: "Test Node",
+      role: .repeater,
+      isConnected: true,
+      permissionLevel: .admin
+    )
+    let viewModel = NodeSettingsViewModel()
+    viewModel.configure(session: session, sendCommand: recorder.send, sendRawCommand: recorder.send)
+    return viewModel
+  }
+
+  @Test
+  func `syncTime sends the host epoch as time not bare clock sync`() async throws {
+    let recorder = CommandRecorder()
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+    let before = UInt32(Date().timeIntervalSince1970)
+
+    await viewModel.syncTime()
+
+    let after = UInt32(Date().timeIntervalSince1970)
+    #expect(recorder.commands.count == 1)
+    let command = try #require(recorder.commands.first)
+    #expect(command.hasPrefix("time "))
+    let epochText = String(command.dropFirst(5))
+    let epoch = try #require(UInt32(epochText))
+    #expect(epoch >= before && epoch <= after)
+  }
+}

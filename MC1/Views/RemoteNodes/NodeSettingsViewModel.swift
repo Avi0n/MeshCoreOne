@@ -546,7 +546,9 @@ final class NodeSettingsViewModel {
     errorMessage = nil
 
     do {
-      let response = try await sendAndWait("clock sync")
+      let response = try await sendAndWait(
+        RemoteCLICommandRewriter.rewrite(RemoteCLICommandRewriter.clockSyncCommand)
+      )
       switch NodeSettingsResponseParser.classifyClockSyncResponse(response) {
       case .synced:
         successMessage = L10n.RemoteNodes.RemoteNodes.Settings.timeSynced
