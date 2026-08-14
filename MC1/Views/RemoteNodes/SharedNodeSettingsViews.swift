@@ -47,6 +47,9 @@ struct NodeSettingsHeaderSection: View {
 // MARK: - Device Info Section
 
 struct NodeDeviceInfoSection: View {
+  /// Clock drift below this magnitude is normal RTC scatter and not shown.
+  private static let clockDriftWarningThreshold: TimeInterval = 300
+
   @Bindable var settings: NodeSettingsViewModel
 
   var body: some View {
@@ -62,7 +65,23 @@ struct NodeDeviceInfoSection: View {
     ) {
       LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.firmware, value: settings.firmwareVersion ?? NodeStatusViewModel.emDash)
       LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.deviceTime, value: settings.deviceTime ?? NodeStatusViewModel.emDash)
+      if let drift = settings.clockDrift, abs(drift) >= Self.clockDriftWarningThreshold {
+        Label(clockDriftWarning(drift), systemImage: "clock.badge.exclamationmark")
+          .font(.footnote)
+          .foregroundStyle(.orange)
+          .multilineTextAlignment(.center)
+          .frame(maxWidth: .infinity)
+      }
     }
+  }
+
+  private func clockDriftWarning(_ drift: TimeInterval) -> String {
+    let magnitude = Duration.seconds(abs(drift)).formatted(
+      .units(allowed: [.days, .hours, .minutes, .seconds], width: .abbreviated, maximumUnitCount: 2)
+    )
+    return drift > 0
+      ? L10n.RemoteNodes.RemoteNodes.Status.clockAhead(magnitude)
+      : L10n.RemoteNodes.RemoteNodes.Status.clockBehind(magnitude)
   }
 }
 

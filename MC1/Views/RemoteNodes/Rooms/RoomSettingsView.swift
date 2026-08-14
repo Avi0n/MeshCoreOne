@@ -15,7 +15,6 @@ struct RoomSettingsView: View {
   @State private var showRebootConfirmation = false
   @State private var showingLocationPicker = false
   @State private var telemetryConfigured = false
-  @State private var clockDrift: TimeInterval?
 
   var body: some View {
     // ZStack, not Group: a stable container keeps the navigation title hosted on one
@@ -30,8 +29,7 @@ struct RoomSettingsView: View {
           viewModel: statusViewModel,
           session: session,
           connectionState: appState.connectionState,
-          connectedDeviceID: appState.connectedDevice?.radioID,
-          clockDrift: clockDrift
+          connectedDeviceID: appState.connectedDevice?.radioID
         )
       }
     }
@@ -53,7 +51,6 @@ struct RoomSettingsView: View {
       if let send = viewModel.makeNodeCLISendClosure(session: session) {
         cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
       }
-      clockDrift = await appState.services?.remoteNodeService.loginClockDrift(sessionID: session.id)
     }
     .onChange(of: managementTab) { _, newTab in
       guard newTab == .telemetry, !telemetryConfigured else { return }

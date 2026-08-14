@@ -79,6 +79,38 @@ struct NodeSettingsResponseParserTests {
     #expect(NodeSettingsResponseParser.utcDate(fromClockResponse: "06:40 - 18/4/2025") == nil)
   }
 
+  @Test
+  func `clock response text is extracted from a bare clock line and from an OK sync line`() {
+    #expect(
+      NodeSettingsResponseParser.clockResponseText(in: "06:40 - 18/4/2025 UTC")
+        == "06:40 - 18/4/2025 UTC"
+    )
+    #expect(
+      NodeSettingsResponseParser.clockResponseText(in: "OK - clock set: 15:35 - 14/8/2026 UTC")
+        == "15:35 - 14/8/2026 UTC"
+    )
+    #expect(NodeSettingsResponseParser.clockResponseText(in: "OK - clock set") == nil)
+    #expect(NodeSettingsResponseParser.clockResponseText(in: "Alpha Repeater") == nil)
+  }
+
+  @Test
+  func `clock drift is node minus reference and nil when the text has no clock`() throws {
+    let node = try #require(
+      NodeSettingsResponseParser.utcDate(fromClockResponse: "06:40 - 18/4/2025 UTC")
+    )
+    let now = node.addingTimeInterval(600)
+    let drift = NodeSettingsResponseParser.clockDrift(
+      fromClockResponse: "06:40 - 18/4/2025 UTC",
+      relativeTo: now
+    )
+    #expect(drift == -600)
+
+    #expect(
+      NodeSettingsResponseParser.clockDrift(fromClockResponse: "OK - clock set", relativeTo: now)
+        == nil
+    )
+  }
+
   // MARK: - Clock Sync
 
   @Test

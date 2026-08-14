@@ -21,7 +21,6 @@ struct RepeaterSettingsView: View {
   /// The node's contact, kept live so the route section reflects the path the firmware learns after
   /// a flood login (delivered asynchronously as a contact update).
   @State private var routeContact: ContactDTO?
-  @State private var clockDrift: TimeInterval?
 
   var body: some View {
     // ZStack, not Group: a stable container keeps the navigation title hosted on one
@@ -40,8 +39,7 @@ struct RepeaterSettingsView: View {
           discoveredNodes: discoveredNodes,
           userLocation: appState.bestAvailableLocation,
           connectedDeviceID: appState.connectedDevice?.radioID,
-          routePathContact: routeContact,
-          clockDrift: clockDrift
+          routePathContact: routeContact
         )
       }
     }
@@ -70,7 +68,6 @@ struct RepeaterSettingsView: View {
         contacts = await (try? dataStore.fetchContacts(radioID: radioID)) ?? []
         discoveredNodes = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
       }
-      clockDrift = await appState.services?.remoteNodeService.loginClockDrift(sessionID: session.id)
       await refreshRouteContact()
     }
     .onChange(of: appState.contactsVersion) {

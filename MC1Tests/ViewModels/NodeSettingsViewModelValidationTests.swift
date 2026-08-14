@@ -275,9 +275,10 @@ struct NodeSettingsClockSyncTests {
   @MainActor
   final class CommandRecorder {
     private(set) var commands: [String] = []
+    var reply = "OK - clock set: 15:35 - 14/8/2026 UTC"
     func send(_ id: UUID, _ command: String, _ timeout: Duration) async throws -> String {
       commands.append(command)
-      return "OK - clock set: 15:35 - 14/8/2026 UTC"
+      return reply
     }
   }
 
@@ -310,5 +311,46 @@ struct NodeSettingsClockSyncTests {
     let epochText = String(command.dropFirst(5))
     let epoch = try #require(UInt32(epochText))
     #expect(epoch >= before && epoch <= after)
+  }
+
+  @Test
+  func `fetchDeviceInfo records drift from clock against a fixed now`() async throws {
+    let recorder = CommandRecorder()
+    recorder.reply = "06:40 - 18/4/2025 UTC"
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+    let node = try #require(NodeSettingsResponseParser.utcDate(fromClockResponse: recorder.reply))
+    viewModel.now = { node.addingTimeInterval(3600) }
+
+    await viewModel.fetchDeviceInfo()
+
+    #expect(viewModel.clockDrift == -3600)
+  }
+
+  @Test
+  func `syncTime on OK with clock text updates device time and drift`() async throws {
+    let recorder = CommandRecorder()
+    recorder.reply = "OK - clock set: 15:35 - 14/8/2026 UTC"
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+    let node = try #require(NodeSettingsResponseParser.utcDate(fromClockResponse: recorder.reply))
+    viewModel.now = { node }
+
+    await viewModel.syncTime()
+
+    #expect(recorder.commands.count == 1)
+    #expect(viewModel.clockDrift == 0)
+    #expect(viewModel.deviceTime != nil)
+  }
+
+  @Test
+  func `syncTime on bare OK hides the warning without a second command`() async {
+    let recorder = CommandRecorder()
+    recorder.reply = "OK - clock set"
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+    viewModel.clockDrift = -10000
+
+    await viewModel.syncTime()
+
+    #expect(recorder.commands.count == 1)
+    #expect(viewModel.clockDrift == nil)
   }
 }
