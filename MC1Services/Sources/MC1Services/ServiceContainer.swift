@@ -1,6 +1,5 @@
 import Foundation
 import MeshCore
-import OSLog
 import SwiftData
 
 /// Dependency injection container for MC1Services.
@@ -346,21 +345,7 @@ public final class ServiceContainer {
     guard eventMonitoringState == .stopped else { return }
     eventMonitoringState = .starting
 
-    let logger = Logger(subsystem: "com.mc1", category: "ServiceContainer")
-
-    // Configure HeardRepeatsService with device info
-    do {
-      if let device = try await dataStore.fetchDevice(radioID: radioID) {
-        await heardRepeatsService.configure(
-          radioID: radioID,
-          localNodeName: device.nodeName
-        )
-      } else {
-        logger.warning("Device not found for HeardRepeatsService configuration")
-      }
-    } catch {
-      logger.warning("Failed to fetch device for HeardRepeatsService: \(error)")
-    }
+    await heardRepeatsService.configure(radioID: radioID)
 
     // Start event monitoring for services that need it
     if enableAdvertisementMonitoring {

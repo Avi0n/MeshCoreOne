@@ -11,9 +11,6 @@ public actor HeardRepeatsService {
   /// Device ID for the current session
   private var radioID: UUID?
 
-  /// Local node name for matching sender in decrypted messages
-  private var localNodeName: String?
-
   /// Multicast broadcaster for heard-repeat events.
   private nonisolated let eventBroadcaster = EventBroadcaster<HeardRepeatEvent>()
 
@@ -36,13 +33,11 @@ public actor HeardRepeatsService {
     eventBroadcaster.finish()
   }
 
-  /// Configure the service with device context.
+  /// Configure the service with the connected radio.
   /// Must be called once before processing any RX log entries.
-  /// Thread-safe due to actor isolation.
-  public func configure(radioID: UUID, localNodeName: String) {
+  public func configure(radioID: UUID) {
     self.radioID = radioID
-    self.localNodeName = localNodeName
-    logger.info("Configured with radioID: \(radioID), nodeName: \(localNodeName)")
+    logger.info("Configured with radioID: \(radioID)")
   }
 
   /// Checks if a repeat has already been recorded for this RX log entry.
@@ -72,16 +67,13 @@ public actor HeardRepeatsService {
     guard let channelIndex = entry.channelIndex else { return nil }
     guard let senderTimestamp = entry.senderTimestamp else { return nil }
     guard let radioID else { return nil }
-    guard let localNodeName else { return nil }
 
-    // Parse "NodeName: MessageText" format using shared utility
-    guard let (senderName, messageText) = ChannelMessageFormat.parse(decodedText) else {
+    // Body after the first colon is the stored outgoing text. Sender name
+    // is not a join key: findSentChannelMessage already scopes to this radio.
+    guard let (_, messageText) = ChannelMessageFormat.parse(decodedText) else {
       logger.info("Failed to parse channel message text: \(decodedText.prefix(50))")
       return nil
     }
-
-    // Only match messages from our own node
-    guard senderName == localNodeName else { return nil }
 
     // Check for duplicate (already processed this RX entry)
     if await isDuplicateRepeat(entry.id) {
