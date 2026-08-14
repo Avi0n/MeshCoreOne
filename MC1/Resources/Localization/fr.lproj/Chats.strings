@@ -1121,7 +1121,7 @@
 "chats.channelInfo.region" = "Région";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
-"chats.channelInfo.region.allRegions" = "Toutes les régions";
+"chats.channelInfo.region.allRegions" = "Portée non assignée";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
 "chats.channelInfo.region.useDefaultFormat" = "%@ (par défaut)";

@@ -137,7 +137,7 @@ public enum L10n {
           /// Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button
           public static let addSelected = L10n.tr("Chats", "chats.channelInfo.region.addSelected", fallback: "Add")
           /// Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set
-          public static let allRegions = L10n.tr("Chats", "chats.channelInfo.region.allRegions", fallback: "All Regions")
+          public static let allRegions = L10n.tr("Chats", "chats.channelInfo.region.allRegions", fallback: "Unscoped")
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button
           public static let discover = L10n.tr("Chats", "chats.channelInfo.region.discover", fallback: "Discover Nearby Regions")
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button loading state
@@ -3562,10 +3562,10 @@ public enum L10n {
           public static let addRegion = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addRegion", fallback: "Add Region")
           /// Location: RepeaterSettingsView.swift - Add region alert title
           public static let addRegionTitle = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addRegionTitle", fallback: "Add Region")
-          /// Location: RepeaterSettingsView.swift - Wildcard region display name
-          public static let allTraffic = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTraffic", fallback: "All Traffic")
-          /// Location: RepeaterSettingsView.swift - Wildcard with asterisk display
-          public static let allTrafficWildcard = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTrafficWildcard", fallback: "* (All Traffic)")
+          /// Location: RepeaterSettingsView.swift - Unscoped region display name
+          public static let allTraffic = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTraffic", fallback: "Unscoped")
+          /// Location: RepeaterSettingsView.swift - Unscoped region with asterisk display
+          public static let allTrafficWildcard = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTrafficWildcard", fallback: "* (Unscoped)")
           /// Location: RepeaterSettingsView.swift - Duplicate region name validation
           public static let duplicate = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.duplicate", fallback: "This region already exists.")
           /// Location: RepeaterSettingsViewModel.swift - No regions on device
