@@ -80,6 +80,7 @@ struct ChatConversationMessagesContent: View {
       isAtBottom: $isAtBottom,
       unreadCount: $unreadCount,
       scrollToBottomRequest: scrollToBottomRequest,
+      countsTowardUnread: { !$0.envelope.isOutgoing },
       scrollToTargetRequest: scrollToTargetRequest,
       scrollTargetID: scrollToTargetID,
       initialScrollTargetID: initialScrollTargetID,

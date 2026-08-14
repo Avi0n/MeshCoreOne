@@ -338,7 +338,8 @@ private struct MessagesView: View {
           contentBackground: theme.surfaces?.canvas,
           isAtBottom: $isAtBottom,
           unreadCount: $unreadCount,
-          scrollToBottomRequest: scrollToBottomRequest
+          scrollToBottomRequest: scrollToBottomRequest,
+          countsTowardUnread: { !$0.isFromSelf }
         )
       }
     }
