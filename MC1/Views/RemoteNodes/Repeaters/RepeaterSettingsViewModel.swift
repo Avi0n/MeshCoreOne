@@ -50,8 +50,6 @@ final class RepeaterSettingsViewModel {
   }
 
   var hasUnsavedRegionChanges = false
-  var isAddingRegion = false
-  var newRegionName = ""
   var regionsSaveSuccess = false
 
   // MARK: - Expansion State (repeater-only sections)
@@ -431,11 +429,10 @@ final class RepeaterSettingsViewModel {
       if case .ok = CLIResponse.parse(response) {
         regions.append(RepeaterRegionEntry(
           name: trimmed,
-          floodAllowed: false,
+          floodAllowed: true,
           isHome: false
         ))
         hasUnsavedRegionChanges = true
-        newRegionName = ""
       } else {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.addFailed
       }

@@ -385,6 +385,15 @@
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
 "remoteNodes.settings.regions.addFailed" = "Не вдалося додати регіон";
 
+/* Location: RepeaterSettingsView.swift - Region name charset validation */
+"remoteNodes.settings.regions.invalidName" = "Назви регіонів можуть містити лише літери, цифри та дефіси.";
+
+/* Location: RepeaterSettingsView.swift - Region name length validation */
+"remoteNodes.settings.regions.nameTooLong" = "Назви регіонів обмежені %d байтами.";
+
+/* Location: RepeaterSettingsView.swift - Duplicate region name validation */
+"remoteNodes.settings.regions.duplicate" = "Цей регіон уже існує.";
+
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
 "remoteNodes.settings.regions.removeFailed" = "Не вдалося видалити регіон";
 

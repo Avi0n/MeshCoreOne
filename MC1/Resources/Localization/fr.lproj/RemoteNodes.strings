@@ -388,6 +388,15 @@
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
 "remoteNodes.settings.regions.addFailed" = "Échec de l'ajout de la région";
 
+/* Location: RepeaterSettingsView.swift - Region name charset validation */
+"remoteNodes.settings.regions.invalidName" = "Les noms de région ne peuvent contenir que des lettres, des chiffres et des traits d'union.";
+
+/* Location: RepeaterSettingsView.swift - Region name length validation */
+"remoteNodes.settings.regions.nameTooLong" = "Les noms de région sont limités à %d octets.";
+
+/* Location: RepeaterSettingsView.swift - Duplicate region name validation */
+"remoteNodes.settings.regions.duplicate" = "Cette région existe déjà.";
+
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
 "remoteNodes.settings.regions.removeFailed" = "Échec de la suppression de la région";
 

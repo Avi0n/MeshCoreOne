@@ -336,6 +336,9 @@ private struct BehaviorSection: View {
 
 private struct RegionsSection: View {
   @Bindable var viewModel: RepeaterSettingsViewModel
+  @State private var showingAddAlert = false
+  @State private var newRegionName = ""
+  @State private var validationMessage: String?
 
   /// Regions sorted: wildcard first, then alphabetical
   private var sortedRegions: [RepeaterRegionEntry] {
@@ -419,7 +422,8 @@ private struct RegionsSection: View {
 
       // Add region button
       Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion, systemImage: "plus") {
-        viewModel.isAddingRegion = true
+        newRegionName = ""
+        showingAddAlert = true
       }
       .disabled(viewModel.helper.isApplying)
 
@@ -436,17 +440,43 @@ private struct RegionsSection: View {
         }
         .disabled(viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
       }
+
+      if let error = viewModel.helper.errorMessage {
+        Text(error)
+          .foregroundStyle(.orange)
+          .font(.caption)
+      }
     }
-    .alert(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegionTitle, isPresented: $viewModel.isAddingRegion) {
-      TextField(L10n.RemoteNodes.RemoteNodes.Settings.Regions.regionName, text: $viewModel.newRegionName)
+    .alert(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegionTitle, isPresented: $showingAddAlert) {
+      TextField(L10n.RemoteNodes.RemoteNodes.Settings.Regions.regionName, text: $newRegionName)
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
       Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion) {
-        Task { await viewModel.addRegion(name: viewModel.newRegionName) }
+        if let error = RegionNameValidator.validate(newRegionName, existingRegions: viewModel.regions.map(\.name)) {
+          validationMessage = validationText(for: error)
+          Task { showingAddAlert = true }
+          return
+        }
+        validationMessage = nil
+        let name = newRegionName.trimmingCharacters(in: .whitespaces)
+        Task { await viewModel.addRegion(name: name) }
       }
       Button(L10n.RemoteNodes.RemoteNodes.cancel, role: .cancel) {
-        viewModel.newRegionName = ""
+        validationMessage = nil
       }
+    } message: {
+      if let validationMessage {
+        Text(validationMessage)
+      }
+    }
+  }
+
+  private func validationText(for error: RegionNameValidator.ValidationError) -> String? {
+    switch error {
+    case .empty: nil
+    case .invalidCharacters: L10n.RemoteNodes.RemoteNodes.Settings.Regions.invalidName
+    case let .tooLong(maxBytes): L10n.RemoteNodes.RemoteNodes.Settings.Regions.nameTooLong(maxBytes)
+    case .duplicate: L10n.RemoteNodes.RemoteNodes.Settings.Regions.duplicate
     }
   }
 }
