@@ -57,7 +57,8 @@ struct RegionManagementView: View {
           return
         }
         validationMessage = nil
-        onAddRegion(newRegionName.trimmingCharacters(in: .whitespaces))
+        let name = newRegionName.trimmingCharacters(in: .whitespaces)
+        Task { onAddRegion(name) }
       }
       Button(L10n.Chats.Chats.Common.cancel, role: .cancel) {
         validationMessage = nil
