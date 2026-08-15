@@ -11,6 +11,10 @@ struct AvatarCropView: View {
   /// Side length, in points, of the square crop guide shown on screen.
   private let cropSize: CGFloat = 300
 
+  /// Allowed zoom range, applied both live during a pinch and once it ends.
+  private let minScale: CGFloat = 1
+  private let maxScale: CGFloat = 4
+
   @GestureState private var dragTranslation: CGSize = .zero
   @GestureState private var pinchDelta: CGFloat = 1
 
@@ -19,32 +23,30 @@ struct AvatarCropView: View {
 
   var body: some View {
     NavigationStack {
-      GeometryReader { _ in
-        ZStack {
-          Color.black.ignoresSafeArea()
+      ZStack {
+        Color.black.ignoresSafeArea()
 
-          Image(uiImage: image)
-            .resizable()
-            .scaledToFill()
-            .frame(width: baseDisplaySize.width, height: baseDisplaySize.height)
-            .scaleEffect(scale * pinchDelta)
-            .offset(x: offset.width + dragTranslation.width, y: offset.height + dragTranslation.height)
-            .frame(width: cropSize, height: cropSize)
-            .clipped()
-            .contentShape(Rectangle())
-            .gesture(dragGesture)
-            .simultaneousGesture(magnificationGesture)
+        Image(uiImage: image)
+          .resizable()
+          .scaledToFill()
+          .frame(width: baseDisplaySize.width, height: baseDisplaySize.height)
+          .scaleEffect(clampedScale(scale * pinchDelta))
+          .offset(x: offset.width + dragTranslation.width, y: offset.height + dragTranslation.height)
+          .frame(width: cropSize, height: cropSize)
+          .clipped()
+          .contentShape(Rectangle())
+          .gesture(dragGesture)
+          .simultaneousGesture(magnificationGesture)
 
-          Circle()
-            .strokeBorder(Color.white, lineWidth: 2)
-            .frame(width: cropSize, height: cropSize)
-            .allowsHitTesting(false)
+        Circle()
+          .strokeBorder(Color.white, lineWidth: 2)
+          .frame(width: cropSize, height: cropSize)
+          .allowsHitTesting(false)
 
-          dimmingMask
-            .allowsHitTesting(false)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        dimmingMask
+          .allowsHitTesting(false)
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
       .navigationTitle(L10n.Contacts.Contacts.Detail.Avatar.Crop.title)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
@@ -99,14 +101,18 @@ struct AvatarCropView: View {
   }
 
   private var magnificationGesture: some Gesture {
-    MagnificationGesture()
+    MagnifyGesture()
       .updating($pinchDelta) { value, state, _ in
-        state = value
+        state = value.magnification
       }
       .onEnded { value in
-        scale = min(max(scale * value, 1), 4)
+        scale = clampedScale(scale * value.magnification)
         offset = clampedOffset(offset)
       }
+  }
+
+  private func clampedScale(_ proposed: CGFloat) -> CGFloat {
+    min(max(proposed, minScale), maxScale)
   }
 
   /// Keeps the displayed image covering the crop square at all times, regardless of pan/zoom.
