@@ -134,10 +134,8 @@ final class AppState {
 
   // MARK: - Offline Data Access
 
-  /// Per-conversation coordinator registry. Lives at AppState scope so
-  /// chat detail screens render stored messages while disconnected. The
-  /// registry's dataStore rebinds to services.dataStore on connect and is
-  /// torn down on services-left.
+  /// Process-lifetime coordinator registry. Never nil'd after create — that
+  /// would strand a bound view model via `bindCoordinator`'s guard.
   private(set) var chatCoordinatorRegistry: ChatCoordinatorRegistry?
 
   /// Re-primes warm chat coordinators when messages arrive for closed
@@ -155,37 +153,20 @@ final class AppState {
   /// and the shared decoded caches, same as the `\.linkPreviewCache` default.
   @ObservationIgnored lazy var backgroundLinkPreviewCache: any LinkPreviewCaching = LinkPreviewCache()
 
-  /// Cached standalone persistence store for offline browsing
-  private var cachedOfflineStore: PersistenceStore?
-
   /// Radio ID for data access - returns connected device's radio ID or last-connected radio ID for offline browsing
   var currentRadioID: UUID? {
     connectedDevice?.radioID ?? connectionManager.lastConnectedRadioID
   }
 
-  /// Data store that works regardless of connection state - uses services when connected,
-  /// cached standalone store when disconnected
+  /// Process-lifetime store after a radio has been paired. Nil until then
+  /// so never-paired browsing stays empty.
   var offlineDataStore: PersistenceStore? {
-    if let services {
-      cachedOfflineStore = nil // Clear cache when services available
-      return services.dataStore
-    }
-    guard connectionManager.lastConnectedDeviceID != nil else {
-      cachedOfflineStore = nil
-      return nil
-    }
-    if cachedOfflineStore == nil {
-      cachedOfflineStore = connectionManager.createStandalonePersistenceStore()
-    }
-    return cachedOfflineStore
+    guard connectionManager.lastConnectedDeviceID != nil else { return nil }
+    return connectionManager.persistenceStore
   }
 
-  /// Ensures the chat coordinator registry exists, lazy-building one bound
-  /// to the offline data store if none has been built yet. Used by
-  /// `ChatViewModel` for the cold-launch-while-offline path where
-  /// `wireServicesIfConnected` has not yet run but
-  /// `connectionManager.lastConnectedDeviceID` is set so `offlineDataStore`
-  /// is non-nil.
+  /// Sole lazy factory for the process-lifetime registry. Bound to the
+  /// process store; `wireServicesIfConnected` neither creates nor rebinds it.
   func ensureChatCoordinatorRegistry() -> ChatCoordinatorRegistry? {
     if let chatCoordinatorRegistry { return chatCoordinatorRegistry }
     guard let store = offlineDataStore else { return nil }
@@ -226,18 +207,22 @@ final class AppState {
     }
   }
 
-  /// Signals views observing `contactsVersion` / `conversationsVersion` to reload after
-  /// a backup restore writes directly to the persistence store. The normal sync-path
-  /// events don't fire for batch imports, so without this bump any currently-mounted
-  /// tabs keep showing their pre-restore snapshot until reconnect or relaunch.
-  /// Also re-reads the persisted region selection — the import wrote it to UserDefaults,
-  /// but `regionSelection` is only loaded once during `init`, so Settings → Region and
-  /// the radio-preset views would otherwise show pre-import data until next launch.
+  /// Bumps observer versions after a store-direct backup import so mounted
+  /// tabs reload. Also re-reads `regionSelection`, which `init` loads once.
   func notifyDataRestored() {
     contactsVersion += 1
     conversationsVersion += 1
     loadPersistedRegionSelection()
     themeService.refreshFromUserDefaults()
+    // Restore is refused while connected, so this cannot race a live session.
+    // Empties entries; the registry stays so later opens mint fresh coordinators.
+    chatCoordinatorRegistry?.clear()
+    bumpServicesVersion()
+  }
+
+  /// Bumps `servicesVersion` so observing views re-run `performInitialLoad`.
+  func bumpServicesVersion() {
+    servicesVersion += 1
   }
 
   // MARK: - Connection UI State
@@ -347,22 +332,25 @@ final class AppState {
 
   // MARK: - Initialization
 
-  init(modelContainer: ModelContainer, isPlaceholder: Bool = false) {
-    let bootstrapStore = PersistenceStore(modelContainer: modelContainer)
-    let bootstrapBuffer = DebugLogBuffer(dataStore: bootstrapStore)
+  init(
+    modelContainer: ModelContainer,
+    isPlaceholder: Bool = false,
+    defaults: UserDefaults = .standard
+  ) {
+    let store = StoreService()
+    let theme = ThemeService(store: store)
+    storeState = StoreState(service: store)
+    themeService = theme
+
+    connectionManager = ConnectionManager(modelContainer: modelContainer, defaults: defaults)
+
+    let bootstrapBuffer = DebugLogBuffer(dataStore: connectionManager.persistenceStore)
     bootstrapDebugLogBuffer = bootstrapBuffer
     // The inert environment-default placeholder must not publish the process-global buffer,
     // or it would displace the live one and route logs into a discarded in-memory store.
     if !isPlaceholder {
       DebugLogBuffer.shared = bootstrapBuffer
     }
-
-    let store = StoreService()
-    let theme = ThemeService(store: store)
-    storeState = StoreState(service: store)
-    themeService = theme
-
-    connectionManager = ConnectionManager(modelContainer: modelContainer)
 
     // Provide LiveActivityManager with current radio connection state so
     // its restart/recovery/stale paths consult ground truth instead of
@@ -394,6 +382,13 @@ final class AppState {
     // Wire connection lost callback - updates UI when connection is lost
     connectionManager.onConnectionLost = { [weak self] in
       await self?.wireServicesIfConnected()
+    }
+
+    connectionManager.onLastConnectedDeviceCleared = { [weak self] in
+      guard let self else { return }
+      chatCoordinatorRegistry?.clear()
+      refreshConversations()
+      bumpServicesVersion()
     }
 
     // Wire auto-reconnect entry callback - reflects an out-of-range drop on the
@@ -474,10 +469,9 @@ final class AppState {
     )
   }
 
-  /// Per-session teardown shared by the connection-loss path and explicit
-  /// disconnect, which does not fire onConnectionLost. Cancels the event tasks
-  /// and releases the per-connection coordinators so a suspended task or a
-  /// torn-down store reference cannot survive into the next session.
+  /// Per-session teardown for connection-loss and explicit disconnect.
+  /// Cancels event tasks; the coordinator registry stays so an open chat
+  /// keeps its timeline.
   func tearDownAppStateSessionState() {
     settingsEventsTask?.cancel()
     settingsEventsTask = nil
@@ -488,8 +482,6 @@ final class AppState {
     rxLogEventsTask?.cancel()
     rxLogEventsTask = nil
     messageEventDispatcher.cancelAll()
-    chatCoordinatorRegistry?.tearDown()
-    chatCoordinatorRegistry = nil
     navigation.clearPendingLinks()
   }
 
@@ -553,12 +545,6 @@ final class AppState {
     // process-wide cache so the seeded DM renders it without a network fetch.
     if connectedDevice?.id == MockDataProvider.simulatorDeviceID {
       DemoInlineImageSeeder.seed()
-    }
-
-    if let existing = chatCoordinatorRegistry {
-      existing.rebind(dataStore: services.dataStore)
-    } else {
-      chatCoordinatorRegistry = ChatCoordinatorRegistry(dataStore: services.dataStore)
     }
 
     wireSyncDataEvents(services: services)

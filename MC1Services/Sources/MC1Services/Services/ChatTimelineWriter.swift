@@ -4,10 +4,11 @@ import Foundation
 ///
 /// Minted exclusively by `ChatCoordinator.bindWriter(owner:role:...)`; the
 /// coordinator's mutation methods are internal to MC1Services, so holding a
-/// writer is the only way app code can mutate a timeline. Every forwarder
-/// checks the mint generation against the coordinator's current one: once a
-/// newer writer is bound, this writer's mutations no-op, so a stale prime
-/// (or a superseded view model) can never write over the live conversation.
+/// writer is the only way app code can mutate a timeline. Every mutation
+/// forwarder checks the mint generation against the coordinator's current
+/// one: once a newer writer is bound, this writer's mutations no-op, so a
+/// stale prime (or a superseded view model) can never write over the live
+/// conversation. The window-lane enqueue is not gated.
 ///
 /// Reads are not gated; consumers keep reading `coordinator.renderState`,
 /// `messages`, and `messagesByID` directly.
@@ -29,6 +30,25 @@ public final class ChatTimelineWriter {
   /// Whether this writer still holds write access.
   public var isCurrent: Bool {
     generation == coordinator.writerGeneration
+  }
+
+  #if DEBUG
+    /// Lets populate throw after the entry spinner clear without a production parameter.
+    public var testPopulateFetchError: Error? {
+      coordinator.testPopulateFetchError
+    }
+
+    public var testPopulateAfterFetchHook: (@MainActor () async -> Void)? {
+      coordinator.testPopulateAfterFetchHook
+    }
+  #endif
+
+  /// Runs `operation` on the coordinator's serialized window lane.
+  /// No staleness gate at enqueue: mutations inside are already generation-gated.
+  public func performWindowOperation<T>(
+    _ operation: @MainActor () async throws -> T
+  ) async rethrows -> T {
+    try await coordinator.performWindowOperation(operation)
   }
 
   /// Runs `body` only while this writer is current. A dropped `.prime`

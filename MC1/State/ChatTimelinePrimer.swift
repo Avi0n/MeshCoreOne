@@ -90,7 +90,7 @@ final class ChatTimelinePrimer {
       return ChatTimeline.ReactionIndexing(service: service, scope: scope)
     }
 
-    let outcome = await timeline.open(conversation, reactions: reactions)
+    let outcome = await timeline.open(conversation, reactions: reactions, populateMode: .replace)
 
     switch outcome {
     case .loaded:

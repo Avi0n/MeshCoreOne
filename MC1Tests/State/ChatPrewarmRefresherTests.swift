@@ -184,9 +184,9 @@ struct ChatPrewarmRefresherTests {
     viewModel.applyEnvInputs(.default)
     switch conversation {
     case let .dm(contact):
-      await viewModel.primeInitialMessages(for: contact)
+      await viewModel.primeInitialMessages(for: contact, populateMode: .replace)
     case let .channel(channel):
-      await viewModel.primeInitialChannelMessages(for: channel)
+      await viewModel.primeInitialChannelMessages(for: channel, populateMode: .replace)
     }
   }
 

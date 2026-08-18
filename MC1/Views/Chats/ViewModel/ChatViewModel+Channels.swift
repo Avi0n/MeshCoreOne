@@ -8,14 +8,15 @@ extension ChatViewModel {
   /// populates the coordinator, then clears unread state. Delegates coordinator
   /// population to `primeInitialChannelMessages(for:)`; the unread/badge/notify
   /// side effects here run only when that load succeeded.
-  func loadChannelMessages(for channel: ChannelDTO) async {
+  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
+  func loadChannelMessages(for channel: ChannelDTO, populateMode: ChatPopulateMode) async {
     // Track active channel for notification suppression
     notificationService?.setActiveConversation(
       channelIndex: channel.index,
       channelRadioID: channel.radioID
     )
 
-    let loaded = await primeInitialChannelMessages(for: channel)
+    let loaded = await primeInitialChannelMessages(for: channel, populateMode: populateMode)
 
     // Push the device flood scope after populating the timeline. A device
     // command, so it runs only on real channel open — never during prefetch.
@@ -38,15 +39,15 @@ extension ChatViewModel {
     await notificationService?.updateBadgeCount()
   }
 
-  /// Populates the bound coordinator with the first page for `channel` and builds
-  /// its render items and mention senders — with no notification, flood-scope,
+  /// Populates the bound coordinator for `channel` and builds its render
+  /// items and mention senders — with no notification, flood-scope,
   /// unread-clearing, or badge side effects. Safe to run before navigation to
   /// warm the coordinator so the channel renders populated on the first frame
   /// instead of popping in after the push transition. `loadChannelMessages`
-  /// layers the open-time side effects on top. Returns true when the fetch
-  /// succeeded.
+  /// layers the open-time side effects on top.
+  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
   @discardableResult
-  func primeInitialChannelMessages(for channel: ChannelDTO) async -> Bool {
+  func primeInitialChannelMessages(for channel: ChannelDTO, populateMode: ChatPopulateMode) async -> Bool {
     // Clear preview state only when switching away from a previously loaded
     // conversation. A fresh view model has nothing to clear, and its cells
     // may already be fetching previews for this same conversation (warm
@@ -76,7 +77,11 @@ extension ChatViewModel {
       )
     }
 
-    let outcome = await timeline.open(.channel(channel), reactions: reactions)
+    let outcome = await timeline.open(
+      .channel(channel),
+      reactions: reactions,
+      populateMode: populateMode
+    )
 
     let didLoad: Bool
     switch outcome {

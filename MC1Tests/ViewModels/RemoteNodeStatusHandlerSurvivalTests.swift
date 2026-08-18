@@ -33,7 +33,7 @@ struct RemoteNodeStatusHandlerSurvivalTests {
   private func makeServices() throws -> ServiceContainer {
     try ServiceContainer(
       session: MeshCoreSession(transport: MockTransport()),
-      modelContainer: PersistenceStore.createContainer(inMemory: true),
+      dataStore: PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true)),
       radioID: UUID()
     )
   }

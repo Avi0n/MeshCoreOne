@@ -23,11 +23,12 @@ extension ChatViewModel {
   /// coordinator, then clears unread state. Delegates the coordinator population
   /// to `primeInitialMessages(for:)`; the unread/badge/notify side effects here
   /// run only when that load succeeded.
-  func loadMessages(for contact: ContactDTO) async {
+  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
+  func loadMessages(for contact: ContactDTO, populateMode: ChatPopulateMode) async {
     // Track active conversation for notification suppression
     notificationService?.setActiveConversation(contactID: contact.id)
 
-    guard await primeInitialMessages(for: contact) else { return }
+    guard await primeInitialMessages(for: contact, populateMode: populateMode) else { return }
 
     // Clear unread count and mention badge, then notify UI to refresh chat list.
     // The messages already rendered, so a bookkeeping failure here is logged
@@ -44,14 +45,15 @@ extension ChatViewModel {
     await notificationService?.updateBadgeCount()
   }
 
-  /// Populates the bound coordinator with the first page for `contact` and builds
-  /// its render items — with no notification, unread-clearing, or badge side
-  /// effects. Safe to run before navigation to warm the coordinator so the
+  /// Populates the bound coordinator for `contact` and builds its render
+  /// items — with no notification, unread-clearing, or badge side effects.
+  /// Safe to run before navigation to warm the coordinator so the
   /// conversation renders populated on the first frame instead of popping in a
   /// frame after the push transition. `loadMessages` layers the open-time side
-  /// effects on top. Returns true when the fetch succeeded.
+  /// effects on top.
+  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
   @discardableResult
-  func primeInitialMessages(for contact: ContactDTO) async -> Bool {
+  func primeInitialMessages(for contact: ContactDTO, populateMode: ChatPopulateMode) async -> Bool {
     // Clear preview state only when switching away from a previously loaded
     // conversation. A fresh view model has nothing to clear, and its cells
     // may already be fetching previews for this same conversation (warm
@@ -77,7 +79,11 @@ extension ChatViewModel {
       ChatTimeline.ReactionIndexing(service: $0, scope: .direct(contact))
     }
 
-    let outcome = await timeline.open(.dm(contact), reactions: reactions)
+    let outcome = await timeline.open(
+      .dm(contact),
+      reactions: reactions,
+      populateMode: populateMode
+    )
 
     let didLoad: Bool
     switch outcome {

@@ -29,6 +29,23 @@ public protocol MessagePersisting: Actor {
   /// Fetch messages for a channel
   func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO]
 
+  /// Fetch the newest window for a contact: at least `floorLimit` rows,
+  /// widened to every row with `sortDate` at or newer than `anchorSortDate`
+  /// (nil means the floor alone). `hasMore` is whether older rows remain.
+  func fetchMessageWindow(
+    contactID: UUID,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool)
+
+  /// Fetch the newest window for a channel; see the contact variant.
+  func fetchMessageWindow(
+    radioID: UUID,
+    channelIndex: UInt8,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool)
+
   /// Batch fetch last messages for multiple contacts in a single actor call.
   /// Avoids N actor hops when loading message previews for the conversation list.
   func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]]

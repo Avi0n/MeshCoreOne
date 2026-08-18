@@ -88,7 +88,7 @@ struct ChatTimelineTests {
   func `open on an unbound timeline reports unavailable`() async {
     let timeline = ChatTimeline(role: .interactive)
     let contact = makeContact(radioID: UUID())
-    let outcome = await timeline.open(.dm(contact), reactions: nil)
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     guard case .unavailable = outcome else {
       Issue.record("expected .unavailable, got \(outcome)")
       return
@@ -112,7 +112,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    let outcome = await timeline.open(.dm(contact), reactions: nil)
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     guard case .loaded = outcome else {
       Issue.record("expected .loaded, got \(outcome)")
@@ -120,7 +120,34 @@ struct ChatTimelineTests {
     }
     #expect(timeline.messages.count == ChatCoordinator.pageSize)
     #expect(timeline.messages.first?.text == "m10")
-    #expect(timeline.renderState.hasMoreMessages)
+    #expect(timeline.renderState.hasMoreMessages == true)
+  }
+
+  @Test
+  func `open of exactly one page reports no further history`() async throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    for offset in 0..<ChatCoordinator.pageSize {
+      try await dataStore.saveMessage(makeDirectMessage(
+        radioID: radioID, contactID: contact.id,
+        timestamp: UInt32(1000 + offset), text: "m\(offset)"
+      ))
+    }
+
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
+
+    guard case .loaded = outcome else {
+      Issue.record("expected .loaded, got \(outcome)")
+      return
+    }
+    #expect(timeline.messages.count == ChatCoordinator.pageSize)
+    #expect(timeline.renderState.totalFetchedCount == ChatCoordinator.pageSize)
+    #expect(!timeline.renderState.hasMoreMessages)
   }
 
   // MARK: - Paging
@@ -142,7 +169,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     let older = try await timeline.loadOlder()
 
@@ -172,7 +199,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     _ = try await timeline.loadOlder()
 
     #expect(!timeline.renderState.isLoadingOlder)
@@ -201,7 +228,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     // A row from the older page lands via the live event path first.
     let raced = seeded[2]
@@ -229,7 +256,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     #expect(!timeline.renderState.hasMoreMessages)
 
     let older = try await timeline.loadOlder()
@@ -248,7 +275,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     let message = makeDirectMessage(radioID: radioID, contactID: contact.id, timestamp: 2000, text: "hello")
     #expect(timeline.admit(message))
@@ -269,7 +296,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     #expect(timeline.messages.count == 1)
 
     #expect(!timeline.admit(seeded))
@@ -318,7 +345,7 @@ struct ChatTimelineTests {
     let readContact = makeContact(radioID: radioID, id: contactID, unreadCount: 0)
     firstSession.stageOpen(.dm(readContact))
     firstSession.bind(coordinator, dataStore: { dataStore }, senderTables: { .empty }, postApply: nil)
-    _ = await firstSession.open(.dm(readContact), reactions: nil)
+    _ = await firstSession.open(.dm(readContact), reactions: nil, populateMode: .replace)
     await coordinator.buildItemsTask?.value
     firstSession.releaseWriter()
     #expect(!coordinator.renderState.items.isEmpty)
@@ -336,7 +363,7 @@ struct ChatTimelineTests {
     secondSession.bind(coordinator, dataStore: { dataStore }, senderTables: { .empty }, postApply: nil)
     #expect(secondSession.firstSnapshot == .withhold)
 
-    _ = await secondSession.open(.dm(unreadContact), reactions: nil)
+    _ = await secondSession.open(.dm(unreadContact), reactions: nil, populateMode: .replace)
     await coordinator.buildItemsTask?.value
     let unreadID = try #require(unread?.id)
     #expect(secondSession.firstSnapshot == .present(target: unreadID))
@@ -364,7 +391,7 @@ struct ChatTimelineTests {
     timeline.stageOpen(.dm(staleContact))
     #expect(timeline.firstSnapshot == .withhold)
 
-    _ = await timeline.open(.dm(staleContact), reactions: nil)
+    _ = await timeline.open(.dm(staleContact), reactions: nil, populateMode: .replace)
     #expect(timeline.firstSnapshot == .present(target: nil))
   }
 
@@ -391,7 +418,7 @@ struct ChatTimelineTests {
     timeline.stageOpen(.dm(staleContact))
     #expect(timeline.firstSnapshot == .present(target: nil))
 
-    _ = await timeline.open(.dm(staleContact), reactions: nil)
+    _ = await timeline.open(.dm(staleContact), reactions: nil, populateMode: .replace)
     await timeline.coordinator?.buildItemsTask?.value
 
     // A late divider from the store's fresher count would only grow a row
@@ -418,7 +445,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     timeline.apply(.previewState(messageID: message.id, state: .loading))
     timeline.apply(.resetOrphanedLoading(messageID: message.id))
@@ -448,7 +475,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     timeline.apply(.previewState(messageID: first.id, state: .loading))
     timeline.apply(.previewState(messageID: twin.id, state: .loading))
@@ -474,7 +501,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     timeline.apply(.previewState(messageID: message.id, state: .loading))
     #expect(!timeline.bake.cachedURLs.isEmpty)
 

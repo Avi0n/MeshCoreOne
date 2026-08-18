@@ -124,6 +124,9 @@ public extension PersistenceStore {
     let originalAutosaveEnabled = modelContext.autosaveEnabled
     var didCommit = false
 
+    // Flush pending changes so a failure rollback is scoped to this import.
+    if modelContext.hasChanges { try modelContext.save() }
+
     modelContext.autosaveEnabled = false
 
     defer {

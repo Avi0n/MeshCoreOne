@@ -197,7 +197,7 @@ struct ChatViewModelPaginationTests {
       try await dataStore.saveMessage(message)
     }
 
-    #expect(await viewModel.primeInitialMessages(for: contact), "Initial open must succeed")
+    #expect(await viewModel.primeInitialMessages(for: contact, populateMode: .replace), "Initial open must succeed")
     #expect(viewModel.messages.count == ChatCoordinator.pageSize)
     #expect(viewModel.isLoadingOlder == false)
 
@@ -267,7 +267,7 @@ struct ChatViewModelChannelPaginationTests {
     // the load task runs; an unstaged open reads as already presented at the
     // bottom and bakes no divider.
     viewModel.timeline.stageOpen(.channel(channel))
-    await viewModel.loadChannelMessages(for: channel)
+    await viewModel.loadChannelMessages(for: channel, populateMode: .replace)
 
     #expect(viewModel.messages.count == ChatCoordinator.initialPageSize(unreadCount: unread),
             "Initial load must fetch all unread plus read context, not just one page")
@@ -295,10 +295,10 @@ struct ChatViewModelChannelPaginationTests {
     let contact = createTestContact(id: contactID, radioID: radioID)
 
     // Open the channel, then switch to the DM. loadMessages(for:) must clear currentChannel.
-    await viewModel.loadChannelMessages(for: channel)
+    await viewModel.loadChannelMessages(for: channel, populateMode: .replace)
     #expect(viewModel.currentChannel?.index == channelIndex)
 
-    await viewModel.loadMessages(for: contact)
+    await viewModel.loadMessages(for: contact, populateMode: .replace)
     #expect(viewModel.currentChannel == nil, "Loading a DM must clear the channel axis")
     #expect(viewModel.currentContact?.id == contactID)
 

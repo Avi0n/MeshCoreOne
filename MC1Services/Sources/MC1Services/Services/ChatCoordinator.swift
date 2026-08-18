@@ -20,15 +20,13 @@ public enum ChatWriterRole: String, Sendable {
 /// sheet dismissal, navigation transitions — share one `ChatCoordinator`;
 /// the registry resolves instances by `ChatConversationID`.
 ///
-/// Owned by `ChatCoordinatorRegistry` on `ServiceContainer`. Lives for the
-/// lifetime of the `ServiceContainer` (i.e., the lifetime of a single
-/// connection). Tears down on disconnect.
+/// Owned by `ChatCoordinatorRegistry` on `AppState`. Lifetime is bounded
+/// by LRU eviction and backup restore, not by the connection.
 @Observable
 @MainActor
 public final class ChatCoordinator {
-  /// Number of messages fetched per pagination page. Used by `hardReset`
-  /// to refetch the most recent slice; consumed by `ChatViewModel` for
-  /// initial-load sizing so post-reset renders match the normal load.
+  /// Messages fetched per pagination page. `hardReset` uses this as the
+  /// window-refetch floor; `ChatViewModel` uses it for initial-load sizing.
   public static let pageSize: Int = 50
 
   /// Read messages loaded above the first unread so the "New Messages" divider
@@ -114,11 +112,8 @@ public final class ChatCoordinator {
   @ObservationIgnored
   public internal(set) var buildItemsTask: Task<Void, Never>?
 
-  /// In-flight coalesced-reload drain Task. Stored so the registry can
-  /// cancel it on `tearDown`, releasing the coordinator and any captured
-  /// services in flight. The `reloadInFlight` flag still serves a separate
-  /// concurrency purpose (break-the-running-loop semantics inside
-  /// `coalescedReload`); the Task handle is purely for teardown.
+  /// In-flight coalesced-reload drain Task. Stored so `cancelInFlight`
+  /// can stop it. Distinct from `reloadInFlight`, which breaks the running loop.
   @ObservationIgnored
   public internal(set) var coalescedReloadTask: Task<Void, Never>?
 
@@ -126,6 +121,25 @@ public final class ChatCoordinator {
   /// teardown rationale.
   @ObservationIgnored
   public internal(set) var hardResetTask: Task<Void, Never>?
+
+  /// Completion marker for the latest window operation. `performWindowOperation`
+  /// chains on it so populate, loadOlder, and hardReset never interleave.
+  @ObservationIgnored
+  var windowOperationTask: Task<Void, Never>?
+
+  /// Runs `operation` after prior window operations finish, in the caller's
+  /// task so cancellation and errors propagate. `hardReset` mutates the
+  /// coordinator directly; populate and loadOlder still use a writer.
+  func performWindowOperation<T>(
+    _ operation: @MainActor () async throws -> T
+  ) async rethrows -> T {
+    let prior = windowOperationTask
+    let (turnEnded, turn) = AsyncStream<Void>.makeStream()
+    windowOperationTask = Task { for await _ in turnEnded {} }
+    defer { turn.finish() }
+    await prior?.value
+    return try await operation()
+  }
 
   /// Data store used by `applyReloadedIDs` for per-ID fetches. Bound at
   /// construction by the registry. `@ObservationIgnored` — never read
@@ -252,5 +266,14 @@ public final class ChatCoordinator {
     public func markLoadedForTesting() {
       markLoaded()
     }
+
+    /// When set, populate throws this after the entry spinner clear.
+    public var testPopulateFetchError: Error?
+
+    /// Awaited in populate after the window fetch so a test can cancel before commit.
+    public var testPopulateAfterFetchHook: (@MainActor () async -> Void)?
+
+    /// Awaited in `hardReset` after the window fetch so a test can cancel before `replaceAll`.
+    public var hardResetAfterFetchHook: (@MainActor () async -> Void)?
   #endif
 }

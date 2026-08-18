@@ -123,6 +123,55 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return Array(filtered.dropFirst(offset).prefix(limit))
   }
 
+  public func fetchMessageWindow(
+    contactID: UUID,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    try windowFrom(
+      messages.values.filter { $0.contactID == contactID },
+      anchorSortDate: anchorSortDate,
+      floorLimit: floorLimit
+    )
+  }
+
+  public func fetchMessageWindow(
+    radioID: UUID,
+    channelIndex: UInt8,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    try windowFrom(
+      messages.values.filter { $0.radioID == radioID && $0.channelIndex == channelIndex },
+      anchorSortDate: anchorSortDate,
+      floorLimit: floorLimit
+    )
+  }
+
+  private func windowFrom(
+    _ candidates: some Sequence<MessageDTO>,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) throws -> (messages: [MessageDTO], hasMore: Bool) {
+    if let error = stubbedFetchMessageError {
+      throw error
+    }
+    let newestFirst = candidates.sorted {
+      if $0.sortDate != $1.sortDate { return $0.sortDate > $1.sortDate }
+      if $0.timestamp != $1.timestamp { return $0.timestamp > $1.timestamp }
+      return $0.createdAt > $1.createdAt
+    }
+    let limit: Int = if let anchorSortDate {
+      max(floorLimit, newestFirst.filter { $0.sortDate >= anchorSortDate }.count)
+    } else {
+      floorLimit
+    }
+    let fetched = Array(newestFirst.prefix(limit + 1))
+    let hasMore = fetched.count > limit
+    let window = hasMore ? Array(fetched.dropLast()) : fetched
+    return (MessageDTO.reorderSameSenderClusters(Array(window.reversed())), hasMore)
+  }
+
   public func findChannelMessageForReaction(
     radioID: UUID,
     channelIndex: UInt8,

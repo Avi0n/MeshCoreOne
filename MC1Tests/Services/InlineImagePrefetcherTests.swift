@@ -288,6 +288,23 @@ private actor StubDataStore: PersistenceStoreProtocol {
     []
   }
 
+  func fetchMessageWindow(
+    contactID: UUID,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    ([], false)
+  }
+
+  func fetchMessageWindow(
+    radioID: UUID,
+    channelIndex: UInt8,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    ([], false)
+  }
+
   func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] {
     [:]
   }

@@ -205,6 +205,10 @@ public final class ConnectionManager {
   /// Installed by `AppState` during initialization.
   public var onDeviceSynced: (() async -> Void)?
 
+  /// Called when `clearPersistedConnection(for:)` clears the last-connected slot.
+  /// Installed by `AppState` during initialization.
+  public var onLastConnectedDeviceCleared: (@MainActor @Sendable () -> Void)?
+
   /// Provider for app foreground/background state detection.
   /// Installed by `AppState` during initialization.
   public var appStateProvider: AppStateProvider?
@@ -230,10 +234,9 @@ public final class ConnectionManager {
     pairing.hasSystemPairingRegistry
   }
 
-  /// Creates a standalone persistence store for operations that don't require services
-  public func createStandalonePersistenceStore() -> PersistenceStore {
-    PersistenceStore(modelContainer: modelContainer)
-  }
+  /// Process-lifetime persistence actor, created once in `init`. Session
+  /// services receive this instance; no production path mints a second one.
+  public let persistenceStore: PersistenceStore
 
   // MARK: - Internal Components
 
@@ -438,6 +441,10 @@ public final class ConnectionManager {
     /// Test override for lastConnectedDeviceID
     var testLastConnectedDeviceID: UUID?
 
+    /// When true, `lastConnectedDeviceID` is nil so never-paired tests can
+    /// drive `offlineDataStore` without touching the host UserDefaults.
+    var testForceNeverPaired = false
+
     /// When set, the first watchdog sleep uses this instead of 30s so natural-exit
     /// tests can complete without waiting on production backoff.
     var testWatchdogInitialDelay: Duration?
@@ -466,6 +473,7 @@ public final class ConnectionManager {
   /// The last connected device ID (for auto-reconnect)
   public var lastConnectedDeviceID: UUID? {
     #if DEBUG
+      if testForceNeverPaired { return nil }
       if let testID = testLastConnectedDeviceID {
         return testID
       }
@@ -509,11 +517,15 @@ public final class ConnectionManager {
   /// already observed a true `shouldPersistBondRefresh` still no-ops.
   func clearPersistedConnection(for deviceID: UUID) async {
     bondRefreshPersistEpoch &+= 1
+    let wasLastConnected = lastConnectionStore.deviceID == deviceID
     await stateMachine.clearBondVerification(deviceID: deviceID)
     if await stateMachine.isAppSessionLive(deviceID: deviceID) {
       await stateMachine.setAppSessionLive(deviceID: nil)
     }
     lastConnectionStore.clear(for: deviceID)
+    if wasLastConnected {
+      onLastConnectedDeviceCleared?()
+    }
   }
 
   /// Persist path for RSSI bond refresh: snapshot epoch, re-validate on the SM,
@@ -587,6 +599,7 @@ public final class ConnectionManager {
     pairing: (any DevicePairingService)? = nil
   ) {
     self.modelContainer = modelContainer
+    persistenceStore = PersistenceStore(modelContainer: modelContainer)
     self.defaults = defaults
     lastConnectionStore = LastConnectionStore(defaults: defaults)
     connectionIntent = .restored(from: defaults)
@@ -851,10 +864,9 @@ public final class ConnectionManager {
     // right radio from frame zero. Falls back to publicKey lookup
     // (backup import) and finally to a fresh UUID for first-time
     // pairings.
-    let standaloneStore = PersistenceStore(modelContainer: modelContainer)
-    let existingDevice = try? await standaloneStore.fetchDevice(id: deviceID)
+    let existingDevice = try? await persistenceStore.fetchDevice(id: deviceID)
     let deviceByPublicKey: DeviceDTO? = if existingDevice == nil {
-      try? await standaloneStore.fetchDevice(publicKey: selfInfo.publicKey)
+      try? await persistenceStore.fetchDevice(publicKey: selfInfo.publicKey)
     } else {
       nil
     }
@@ -863,7 +875,7 @@ public final class ConnectionManager {
 
     let newServices = ServiceContainer(
       session: session,
-      modelContainer: modelContainer,
+      dataStore: persistenceStore,
       radioID: resolvedRadioID,
       appStateProvider: appStateProvider,
       connectionStateEvents: connectionStateEvents,

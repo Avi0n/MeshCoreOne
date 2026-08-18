@@ -224,12 +224,12 @@ struct ChatConversationView: View {
         chatViewModel: chatViewModel,
         onClearChannelMessages: {
           guard case let .channel(channel) = conversationType else { return }
-          await chatViewModel.loadChannelMessages(for: channel)
+          await chatViewModel.loadChannelMessages(for: channel, populateMode: .replace)
           parentViewModel?.requestConversationReload()
         },
         onClearDirectMessages: {
           guard case let .dm(contact) = conversationType else { return }
-          await chatViewModel.loadMessages(for: contact)
+          await chatViewModel.loadMessages(for: contact, populateMode: .replace)
           parentViewModel?.requestConversationReload()
         },
         onDeleteChannel: {
@@ -358,7 +358,7 @@ struct ChatConversationView: View {
 
     switch conversationType {
     case let .dm(contact):
-      await chatViewModel.loadMessages(for: contact)
+      await chatViewModel.loadMessages(for: contact, populateMode: .refreshWindow)
       await chatViewModel.loadConversations(radioID: contact.radioID)
       await chatViewModel.loadAllContacts(radioID: contact.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
@@ -366,7 +366,7 @@ struct ChatConversationView: View {
     case let .channel(channel):
       // Load contacts first so contactNameSet is populated before buildChannelSenders runs
       await chatViewModel.loadAllContacts(radioID: channel.radioID)
-      await chatViewModel.loadChannelMessages(for: channel)
+      await chatViewModel.loadChannelMessages(for: channel, populateMode: .refreshWindow)
       await chatViewModel.loadConversations(radioID: channel.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
     }
@@ -733,7 +733,7 @@ struct ChatConversationView: View {
     }
 
     if case let .channel(channel) = conversationType {
-      await chatViewModel.loadChannelMessages(for: channel)
+      await chatViewModel.loadChannelMessages(for: channel, populateMode: .replace)
     }
     services.syncCoordinator.notifyConversationsChanged()
   }

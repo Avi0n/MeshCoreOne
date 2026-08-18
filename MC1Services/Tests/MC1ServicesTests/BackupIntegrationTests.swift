@@ -2471,66 +2471,61 @@ struct BackupIntegrationTests {
   }
 
   @Test
-  func `Concurrent live-store writer during import preserves both datasets`() async throws {
-    // Two @ModelActor instances on the same ModelContainer simulate a radio
-    // connecting mid-import: the backup flow resolved a standalone
-    // PersistenceStore at T=0, then ConnectionManager stood up a second
-    // PersistenceStore on the same container to service the live link.
-    let sharedContainer = try PersistenceStore.createContainer(inMemory: true)
-    let backupStore = PersistenceStore(modelContainer: sharedContainer)
-    let liveStore = PersistenceStore(modelContainer: sharedContainer)
+  func `Import on the process store updates rows already registered in that context`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID)
+    let publicKey = Data(repeating: 0x51, count: 32)
+    let importedDate = Date(timeIntervalSince1970: 1_700_000_000)
 
-    let backupRadioID = UUID()
-    let liveRadioID = UUID()
-    let backupDevicePublicKey = Data(repeating: 0xB0, count: 32)
-    let liveDevicePublicKey = Data(repeating: 0xC0, count: 32)
-
-    let backupContact = ContactDTO.testContact(
-      radioID: backupRadioID,
-      publicKey: Data(repeating: 0xB1, count: 32),
-      name: "From backup"
-    )
-    let envelope = AppBackupEnvelope.test(
-      devices: [
-        DeviceDTO.testDevice(
-          id: backupRadioID,
-          radioID: backupRadioID,
-          publicKey: backupDevicePublicKey
-        )
-      ],
-      contacts: [backupContact]
-    )
-
-    try await liveStore.saveDevice(
-      DeviceDTO.testDevice(
-        id: liveRadioID,
-        radioID: liveRadioID,
-        publicKey: liveDevicePublicKey
+    try await store.saveContact(
+      ContactDTO.testContact(
+        radioID: radioID,
+        publicKey: publicKey,
+        name: "Alice",
+        nickname: nil,
+        isBlocked: false,
+        unreadCount: 0
       )
     )
-    let liveContact = ContactDTO.testContact(
-      radioID: liveRadioID,
-      publicKey: Data(repeating: 0xC1, count: 32),
-      name: "From connect"
+
+    // Warm registered objects the way a process-lifetime store does after
+    // live reads so later fetches see import-mutated fields.
+    let warmed = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect(warmed.nickname == nil)
+    #expect(warmed.isBlocked == false)
+    #expect(warmed.unreadCount == 0)
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [DeviceDTO.testDevice(id: radioID, radioID: radioID)],
+      contacts: [
+        ContactDTO.testContact(
+          radioID: radioID,
+          publicKey: publicKey,
+          name: "Alice",
+          nickname: "Field Ops",
+          isBlocked: true,
+          lastMessageDate: importedDate,
+          unreadCount: 7
+        )
+      ]
     )
 
-    async let importResult: ImportResult = backupStore.importBackupDatabase(envelope)
-    async let liveWrite: Void = liveStore.saveContact(liveContact)
+    let result = try await AppBackupService().importBackup(
+      envelope: envelope,
+      into: store
+    )
+    #expect(result.contactsSkipped == 1)
+    #expect(result.contactsMerged == 1)
 
-    _ = try await importResult
-    try await liveWrite
-
-    // A third actor guarantees we read through the persistent store rather than
-    // either writer's context cache — `fetchAllContacts` on the writers can miss
-    // the other actor's commits until the cache invalidates.
-    let verifier = PersistenceStore(modelContainer: sharedContainer)
-    let liveContacts = try await verifier.fetchAllContacts(radioID: liveRadioID)
-    #expect(liveContacts.contains { $0.publicKey == liveContact.publicKey })
-    let backupContacts = try await verifier.fetchAllContacts(radioID: backupRadioID)
-    #expect(backupContacts.contains { $0.publicKey == backupContact.publicKey })
-
-    let allDevices = try await verifier.fetchAllDevices()
-    #expect(allDevices.count == 2)
+    let after = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect(after.nickname == "Field Ops")
+    #expect(after.isBlocked == true)
+    #expect(after.unreadCount == 7)
+    #expect(after.lastMessageDate == importedDate)
   }
 
   // MARK: - Test 18: Export assigns content-based keys to nil-keyed messages

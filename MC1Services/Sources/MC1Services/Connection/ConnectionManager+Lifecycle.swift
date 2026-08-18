@@ -125,12 +125,11 @@ public extension ConnectionManager {
     """)
 
     // Reset stale room session connections from previous app launch
-    let resetStore = createStandalonePersistenceStore()
-    try? await resetStore.resetAllRemoteNodeSessionConnections()
+    try? await persistenceStore.resetAllRemoteNodeSessionConnections()
 
     // Populate radioID on existing devices and backfill deduplication keys (one-time migration)
     do {
-      try await resetStore.performRadioIDMigration()
+      try await persistenceStore.performRadioIDMigration()
     } catch {
       logger.error("radioID migration failed: \(error)")
     }
@@ -138,7 +137,7 @@ public extension ConnectionManager {
     // Promote legacy per-channel region overrides to `.specific` mode so the
     // corrective flood-scope semantics don't reinterpret them as `.inherit`.
     do {
-      try await resetStore.performChannelFloodScopeMigration()
+      try await persistenceStore.performChannelFloodScopeMigration()
     } catch {
       logger.error("channel flood-scope migration failed: \(error)")
     }
@@ -146,7 +145,7 @@ public extension ConnectionManager {
     // Zero accumulated unread counts on repeater-type contacts and repeater-role
     // sessions so the badge stops including invisible records.
     do {
-      try await resetStore.performRepeaterUnreadCountMigration()
+      try await persistenceStore.performRepeaterUnreadCountMigration()
     } catch {
       logger.error("repeater unread-count migration failed: \(error)")
     }
@@ -154,7 +153,7 @@ public extension ConnectionManager {
     // Backfill sortDate from createdAt on pre-existing messages so date-header
     // grouping keeps their current display order.
     do {
-      try await resetStore.performSortDateBackfillMigration()
+      try await persistenceStore.performSortDateBackfillMigration()
     } catch {
       logger.error("sortDate backfill migration failed: \(error)")
     }
@@ -164,7 +163,7 @@ public extension ConnectionManager {
     // sorted by send time. Must run before stateMachine.activate() so no
     // restoration-driven sync writes a fresh anchor before this resets the baseline.
     do {
-      try await resetStore.performSortDateResetMigration()
+      try await persistenceStore.performSortDateResetMigration()
     } catch {
       logger.error("sortDate reset migration failed: \(error)")
     }
@@ -213,7 +212,7 @@ public extension ConnectionManager {
         connectionIntent = .wantsConnection()
 
         // Check if last device was WiFi - try WiFi first
-        let dataStore = PersistenceStore(modelContainer: modelContainer)
+        let dataStore = persistenceStore
         if let device = try? await dataStore.fetchDevice(id: lastDeviceID),
            let wifiMethod = device.connectionMethods.first(where: { $0.isWiFi }) {
           if case let .wifi(host, port, _) = wifiMethod {
@@ -678,7 +677,7 @@ public extension ConnectionManager {
       // Create services
       let newServices = ServiceContainer(
         session: session,
-        modelContainer: modelContainer,
+        dataStore: persistenceStore,
         radioID: MockDataProvider.simulatorDeviceID,
         appStateProvider: appStateProvider,
         connectionStateEvents: connectionStateEvents,

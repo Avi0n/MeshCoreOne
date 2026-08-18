@@ -20,7 +20,7 @@ struct PairingCancellationTests {
     // Persist a matching device row so the pre-picker stranded-association sweep skips
     // this accessory; the count-one assertion then isolates the cancellation cleanup as
     // the sole remover.
-    let store = manager.createStandalonePersistenceStore()
+    let store = manager.persistenceStore
     try await store.saveDevice(DeviceDTO.testDevice(id: deviceID))
 
     manager.setTestState(
@@ -75,7 +75,7 @@ struct PairingCancellationTests {
     // Persist a matching device row so the pre-picker stranded-association sweep skips
     // this accessory; the count-one assertion then isolates the cancellation cleanup as
     // the sole remover.
-    let store = manager.createStandalonePersistenceStore()
+    let store = manager.persistenceStore
     try await store.saveDevice(DeviceDTO.testDevice(id: deviceID))
 
     manager.setTestState(

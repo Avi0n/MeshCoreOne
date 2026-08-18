@@ -230,13 +230,13 @@ final class AppBackupViewModel {
     guard case let .preview(envelope) = importState else { return }
     // Re-check the connection at the commit point, not only via the disabled import row:
     // a foreground auto-reconnect can connect the radio while the user reads the preview.
-    // Bind the import to a standalone store so its rollback-on-failure runs on its own
-    // per-actor ModelContext and can never discard the live sync store's pending writes.
+    // Import runs in one store-actor turn. Per-operation saves leave no
+    // foreign pending writes, so rollback can only discard this import.
     guard !connectionManager.connectionState.isConnected else {
       dismissImportSheet()
       return
     }
-    let store = connectionManager.createStandalonePersistenceStore()
+    let store = preferredPersistenceStore()
     isCancellingImport = false
     importState = .importing
 
@@ -314,9 +314,7 @@ final class AppBackupViewModel {
   }
 
   private func preferredPersistenceStore() -> PersistenceStore {
-    // Reuse the live store actor when services are active so backup work serializes
-    // with the app's authoritative writer instead of creating a second store actor.
-    connectionManager.services?.dataStore ?? connectionManager.createStandalonePersistenceStore()
+    connectionManager.persistenceStore
   }
 
   private func isUserCancelled(_ error: any Error) -> Bool {

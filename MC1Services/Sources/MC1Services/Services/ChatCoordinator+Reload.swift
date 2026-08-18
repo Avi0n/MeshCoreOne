@@ -80,22 +80,8 @@ extension ChatCoordinator {
     }
   }
 
-  /// Fail-safe: drop all state and re-fetch from the data store.
-  /// Triggered when an internal invariant trips — currently only from
-  /// `applyReloadedIDs` when an expected fetch returns nil for a message
-  /// the coordinator still holds.
-  ///
-  /// Call-site invariant: `hardReset` is intended to be invoked from
-  /// `applyReloadedIDs`, which is itself running inside the in-flight
-  /// `coalescedReload` Task. The `hardResetInFlight` flag plus the
-  /// `coalescedReload` while-loop break ensure that the calling Task
-  /// exits without draining `pendingReloadIDs` after the refetch. A
-  /// future caller invoking `hardReset` from outside the coalescedReload
-  /// loop (a button, a remote-reset event, etc.) must either route
-  /// through the same `applyReloadedIDs` chokepoint or await the active
-  /// reload Task first — otherwise an in-flight `applyReloadedIDs` can
-  /// resume after `replaceAll(fresh)` and stomp the freshly-loaded
-  /// state with stale per-ID `update(messageID:)` writes.
+  /// Drop all state and re-fetch the loaded window. Runs on the window
+  /// lane so it cannot interleave with populate or loadOlder.
   func hardReset(reason: String) {
     logger.warning("ChatCoordinator hardReset: \(reason, privacy: .public)")
     hardResetInFlight = true
@@ -103,49 +89,65 @@ extension ChatCoordinator {
     let dataStore = dataStore
     hardResetTask = Task { [weak self] in
       defer {
-        // Single cleanup site converges success and error paths.
-        // Buffered IDs from the hardReset window are guaranteed to
-        // drain. The Task body is @MainActor-isolated by
-        // ChatCoordinator's @MainActor attribute, so defer fires on
-        // the main actor — no nested Task hop needed.
         self?.hardResetInFlight = false
-        if let self, !self.pendingReloadIDs.isEmpty {
+        if let self, !Task.isCancelled, !self.pendingReloadIDs.isEmpty {
           self.scheduleCoalescedReload()
         }
       }
-      do {
-        let fresh: [MessageDTO] = switch id.conversation {
-        case let .dm(contactID):
-          try await dataStore.fetchMessages(
-            contactID: contactID,
-            limit: Self.pageSize,
-            offset: 0
-          )
-        case let .channel(channelIndex):
-          try await dataStore.fetchMessages(
-            radioID: id.radioID,
-            channelIndex: channelIndex,
-            limit: Self.pageSize,
-            offset: 0
-          )
+      await self?.performWindowOperation {
+        do {
+          try Task.checkCancellation()
+          guard let self else { return }
+          let anchorSortDate = self.messages.map(\.sortDate).min()
+          let window: (messages: [MessageDTO], hasMore: Bool) = switch id.conversation {
+          case let .dm(contactID):
+            try await dataStore.fetchMessageWindow(
+              contactID: contactID,
+              anchorSortDate: anchorSortDate,
+              floorLimit: Self.pageSize
+            )
+          case let .channel(channelIndex):
+            try await dataStore.fetchMessageWindow(
+              radioID: id.radioID,
+              channelIndex: channelIndex,
+              anchorSortDate: anchorSortDate,
+              floorLimit: Self.pageSize
+            )
+          }
+          #if DEBUG
+            await self.hardResetAfterFetchHook?()
+          #endif
+          try Task.checkCancellation()
+          let unfilteredCount = window.messages.count
+          self.replaceAll(self.hidingOutgoingReactions(window.messages))
+          self.updateRenderState {
+            $0.with(
+              hasMoreMessages: window.hasMore,
+              totalFetchedCount: unfilteredCount
+            )
+          }
+          self.renderStateInvalidated?()
+        } catch is CancellationError {
+        } catch {
+          self?.logger.error("hardReset refetch failed: \(String(describing: error))")
         }
-        guard let self else { return }
-        replaceAll(fresh)
-        renderStateInvalidated?()
-      } catch {
-        self?.logger.error("hardReset refetch failed: \(String(describing: error))")
       }
     }
   }
 
-  /// Cancel any in-flight maintenance Tasks owned by this coordinator.
-  /// Called from `ChatCoordinatorRegistry.tearDown` before the registry
-  /// drops its strong references so suspended drain loops do not keep
-  /// the coordinator (and its captured `dataStore`) alive past the
-  /// container's lifetime.
+  /// Cancel in-flight maintenance Tasks. Called from
+  /// `ChatCoordinatorRegistry` before it drops this coordinator.
   func cancelInFlight() {
     buildItemsTask?.cancel()
     coalescedReloadTask?.cancel()
     hardResetTask?.cancel()
+  }
+
+  private func hidingOutgoingReactions(_ messages: [MessageDTO]) -> [MessageDTO] {
+    let isDM = switch conversationID.conversation {
+    case .dm: true
+    case .channel: false
+    }
+    return messages.filter { !$0.isHiddenOutgoingReaction(isDM: isDM) }
   }
 }

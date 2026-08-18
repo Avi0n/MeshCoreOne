@@ -23,9 +23,9 @@ enum ChatTimelinePopulator {
     let rebakeRow: @MainActor (UUID) -> Void
   }
 
-  /// Populates `writer`'s coordinator with the first page for `conversation`
-  /// and bakes render items. Owns the loading bracket (`beginLoading` /
-  /// `markLoaded` on every exit).
+  /// Populates `writer`'s coordinator and bakes render items. Owns the
+  /// loading bracket. `anchorSortDate` is nil for a first-page open; a
+  /// refresh passes the oldest loaded `sortDate` so paged-in history stays.
   static func populate(
     _ conversation: ChatConversationType,
     writer: ChatTimelineWriter,
@@ -33,8 +33,8 @@ enum ChatTimelinePopulator {
     bake: ChatMessageBakeState,
     envInputs: EnvInputs,
     senderTables: ChatSenderTables,
-    reactions: ReactionIndexingContext?,
-    postApply: (@MainActor () -> Void)?
+    postApply: (@MainActor () -> Void)?,
+    anchorSortDate: Date?
   ) async -> Outcome {
     writer.beginLoading()
 
@@ -43,42 +43,58 @@ enum ChatTimelinePopulator {
       return .unavailable
     }
 
-    // Reset pagination state for the new conversation page.
-    writer.updateRenderState { $0.with(hasMoreMessages: true, isLoadingOlder: false, totalFetchedCount: 0) }
+    // Clear a stuck prepend spinner from a loadOlder that raced a disconnect.
+    // Leave the loaded window intact: the next refresh reads `min(sortDate)` from it.
+    writer.updateRenderState { $0.with(isLoadingOlder: false) }
 
     do {
+      #if DEBUG
+        if let error = writer.testPopulateFetchError {
+          throw error
+        }
+      #endif
       let unreadCount = await currentUnreadCount(for: conversation, dataStore: dataStore)
       let isDM: Bool
-      let initialLimit = ChatCoordinator.initialPageSize(unreadCount: unreadCount)
-      var fetchedMessages: [MessageDTO]
+      let floorLimit = ChatCoordinator.initialPageSize(unreadCount: unreadCount)
+      let window: (messages: [MessageDTO], hasMore: Bool)
 
       switch conversation {
       case let .dm(contact):
         isDM = true
-        fetchedMessages = try await dataStore.fetchMessages(
+        window = try await dataStore.fetchMessageWindow(
           contactID: contact.id,
-          limit: initialLimit,
-          offset: 0
+          anchorSortDate: anchorSortDate,
+          floorLimit: floorLimit
         )
       case let .channel(channel):
         isDM = false
-        fetchedMessages = try await dataStore.fetchMessages(
+        window = try await dataStore.fetchMessageWindow(
           radioID: channel.radioID,
           channelIndex: channel.index,
-          limit: initialLimit,
-          offset: 0
+          anchorSortDate: anchorSortDate,
+          floorLimit: floorLimit
         )
       }
 
+      #if DEBUG
+        await writer.testPopulateAfterFetchHook?()
+      #endif
+      try Task.checkCancellation()
+
+      var fetchedMessages = window.messages
       let unfilteredCount = fetchedMessages.count
-      writer.updateRenderState { $0.with(totalFetchedCount: unfilteredCount) }
 
       // Divider from the unfiltered fetch so a hidden outgoing reaction at
       // the boundary still places the line at the correct visual index.
       bake.computeDividerPosition(from: fetchedMessages, unreadCount: unreadCount, isDM: isDM)
       fetchedMessages = bake.filterOutgoingReactionMessages(fetchedMessages, isDM: isDM)
 
-      writer.updateRenderState { $0.with(hasMoreMessages: unfilteredCount == initialLimit) }
+      writer.updateRenderState {
+        $0.with(
+          hasMoreMessages: window.hasMore,
+          totalFetchedCount: unfilteredCount
+        )
+      }
       writer.replaceAll(fetchedMessages)
 
       bake.bakeAll(
@@ -88,17 +104,6 @@ enum ChatTimelinePopulator {
         senderTables: senderTables,
         postApply: postApply
       )
-
-      if let reactions {
-        await indexMessagesForReactions(
-          fetchedMessages,
-          scope: reactions.scope,
-          reactionService: reactions.reactionService,
-          dataStore: dataStore,
-          writer: writer,
-          rebakeRow: reactions.rebakeRow
-        )
-      }
 
       writer.markLoaded()
       return .loaded

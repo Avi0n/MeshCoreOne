@@ -4,12 +4,13 @@ import MC1Services
 extension ChatTimeline {
   // MARK: - Populate
 
-  /// Populates the coordinator with the first page for `conversation` and
-  /// bakes render items, via the shared fetch → divider → filter → write →
-  /// bake sequence. Returns `.unavailable` when unbound.
+  /// Populates the coordinator for `conversation` and bakes render items.
+  /// Returns `.unavailable` when unbound.
+  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
   func open(
     _ conversation: ChatConversationType,
-    reactions: ReactionIndexing?
+    reactions: ReactionIndexing?,
+    populateMode: ChatPopulateMode
   ) async -> ChatTimelinePopulator.Outcome {
     self.conversation = conversation
     // Every outcome settles: a failed or unavailable open has no divider
@@ -22,6 +23,14 @@ extension ChatTimeline {
     if role == .interactive, openUnreadCount == 0 {
       bake.dividerComputed = true
     }
+    #if DEBUG
+      if let error = testPopulateError {
+        writer.beginLoading()
+        writer.markLoaded()
+        return .failed(error)
+      }
+      coordinator?.testPopulateFetchError = testPopulateFetchError
+    #endif
     let context = reactions.map { indexing in
       ChatTimelinePopulator.ReactionIndexingContext(
         reactionService: indexing.service,
@@ -31,16 +40,49 @@ extension ChatTimeline {
         }
       )
     }
-    return await ChatTimelinePopulator.populate(
-      conversation,
-      writer: writer,
-      dataStore: dataStoreProvider(),
-      bake: bake,
-      envInputs: envInputs,
-      senderTables: senderTablesProvider(),
-      reactions: context,
-      postApply: postApply
-    )
+    guard let coordinator else { return .unavailable }
+    let outcome: ChatTimelinePopulator.Outcome
+    do {
+      outcome = try await writer.performWindowOperation {
+        try Task.checkCancellation()
+        // Compute the anchor inside the lane. An earlier loadOlder would
+        // extend the window; an enqueue-time anchor would truncate it.
+        let refreshWindow = populateMode == .refreshWindow
+          && coordinator.conversationID == conversation.coordinatorID
+          && coordinator.renderState.phase == .loaded
+          && !coordinator.messages.isEmpty
+        let anchorSortDate: Date? = refreshWindow
+          ? coordinator.messages.map(\.sortDate).min()
+          : nil
+        return await ChatTimelinePopulator.populate(
+          conversation,
+          writer: writer,
+          dataStore: dataStoreProvider(),
+          bake: bake,
+          envInputs: envInputs,
+          senderTables: senderTablesProvider(),
+          postApply: postApply,
+          anchorSortDate: anchorSortDate
+        )
+      }
+    } catch is CancellationError {
+      return .cancelled
+    } catch {
+      return .failed(error)
+    }
+    if case .loaded = outcome,
+       let context,
+       let dataStore = dataStoreProvider() {
+      await ChatTimelinePopulator.indexMessagesForReactions(
+        coordinator.messages,
+        scope: context.scope,
+        reactionService: context.reactionService,
+        dataStore: dataStore,
+        writer: writer,
+        rebakeRow: context.rebakeRow
+      )
+    }
+    return outcome
   }
 
   // MARK: - Paging
@@ -49,73 +91,97 @@ extension ChatTimeline {
   /// rebakes. Returns the newly loaded messages (reaction-filtered and
   /// deduplicated) for caller-side bookkeeping such as sender registration
   /// and reaction indexing; empty when skipped (already loading, end of
-  /// history, unbound). Throws the fetch error after retiring the spinner.
+  /// history, or unbound). Fetch errors throw after the spinner retires.
   @discardableResult
   func loadOlder() async throws -> [MessageDTO] {
-    guard !renderState.isLoadingOlder, renderState.hasMoreMessages else { return [] }
-    guard let writer, let conversation, let dataStore = dataStoreProvider() else { return [] }
-
-    writer.updateRenderState { $0.with(isLoadingOlder: true) }
-
+    guard let coordinator, let writer, let conversation else { return [] }
+    guard let dataStore = dataStoreProvider() else { return [] }
     do {
-      let currentOffset = renderState.totalFetchedCount
-      var olderMessages: [MessageDTO]
-      let isDM: Bool
+      return try await writer.performWindowOperation {
+        try Task.checkCancellation()
+        guard !coordinator.renderState.isLoadingOlder,
+              coordinator.renderState.hasMoreMessages else { return [] }
 
-      switch conversation {
-      case let .dm(contact):
-        isDM = true
-        olderMessages = try await dataStore.fetchMessages(
-          contactID: contact.id,
-          limit: ChatCoordinator.pageSize,
-          offset: currentOffset
-        )
-      case let .channel(channel):
-        isDM = false
-        olderMessages = try await dataStore.fetchMessages(
-          radioID: channel.radioID,
-          channelIndex: channel.index,
-          limit: ChatCoordinator.pageSize,
-          offset: currentOffset
-        )
+        writer.updateRenderState { $0.with(isLoadingOlder: true) }
+
+        do {
+          let currentOffset = coordinator.renderState.totalFetchedCount
+          var olderMessages: [MessageDTO]
+          let isDM: Bool
+
+          switch conversation {
+          case let .dm(contact):
+            isDM = true
+            olderMessages = try await dataStore.fetchMessages(
+              contactID: contact.id,
+              limit: ChatCoordinator.pageSize,
+              offset: currentOffset
+            )
+          case let .channel(channel):
+            isDM = false
+            olderMessages = try await dataStore.fetchMessages(
+              radioID: channel.radioID,
+              channelIndex: channel.index,
+              limit: ChatCoordinator.pageSize,
+              offset: currentOffset
+            )
+          }
+
+          #if DEBUG
+            await loadOlderInterleaveHook?()
+            if let error = loadOlderTestError {
+              throw error
+            }
+          #endif
+
+          try Task.checkCancellation()
+
+          // Offsets count unfiltered rows, so end-of-history and the next
+          // page's offset both derive from the raw fetch count.
+          let unfilteredCount = olderMessages.count
+          writer.updateRenderState { current in
+            current.with(
+              hasMoreMessages: unfilteredCount < ChatCoordinator.pageSize ? false : current.hasMoreMessages,
+              totalFetchedCount: current.totalFetchedCount + unfilteredCount
+            )
+          }
+
+          olderMessages = bake.filterOutgoingReactionMessages(olderMessages, isDM: isDM)
+
+          // An in-flight admission can land a message this fetch also carries;
+          // drop rows already present so the prepend cannot duplicate them.
+          let existingIDs = Set(coordinator.messages.map(\.id))
+          olderMessages = olderMessages.filter { !existingIDs.contains($0.id) }
+
+          // Re-run same-sender reordering so clusters split across the
+          // page boundary stay grouped.
+          writer.prepend(olderMessages)
+          let reordered = MessageDTO.reorderSameSenderClusters(coordinator.messages)
+          writer.replaceMessagesPreservingByID(reordered)
+
+          // Retire the spinner before rebake. `updateRenderState` bumps
+          // `renderStateID`; doing it after would invalidate the just-launched build.
+          writer.updateRenderState { $0.with(isLoadingOlder: false) }
+
+          bake.bakeAll(
+            messages: coordinator.messages,
+            writer: writer,
+            envInputs: envInputs,
+            senderTables: senderTablesProvider(),
+            postApply: postApply
+          )
+          return olderMessages
+        } catch is CancellationError {
+          writer.updateRenderState { $0.with(isLoadingOlder: false) }
+          return []
+        } catch {
+          writer.updateRenderState { $0.with(isLoadingOlder: false) }
+          throw error
+        }
       }
-
-      // Offsets count unfiltered rows, so end-of-history and the next
-      // page's offset both derive from the raw fetch count.
-      let unfilteredCount = olderMessages.count
-      writer.updateRenderState { current in
-        current.with(
-          hasMoreMessages: unfilteredCount < ChatCoordinator.pageSize ? false : current.hasMoreMessages,
-          totalFetchedCount: current.totalFetchedCount + unfilteredCount
-        )
-      }
-
-      olderMessages = bake.filterOutgoingReactionMessages(olderMessages, isDM: isDM)
-
-      // An in-flight admission can land a message this fetch also carries;
-      // drop rows already present so the prepend cannot duplicate them.
-      let existingIDs = Set(messages.map(\.id))
-      olderMessages = olderMessages.filter { !existingIDs.contains($0.id) }
-
-      // Prepend older messages (they're chronologically earlier), then
-      // re-run same-sender reordering across the page boundary to handle
-      // clusters that were split between the existing and newly loaded pages.
-      writer.prepend(olderMessages)
-      let reordered = MessageDTO.reorderSameSenderClusters(messages)
-      writer.replaceMessagesPreservingByID(reordered)
-
-      // Clear the spinner before rebaking, not after. `updateRenderState`
-      // bumps the coordinator's `renderStateID`; doing it after the rebake
-      // invalidates the just-launched off-main build on apply, forcing a full
-      // duplicate rebuild of the entire timeline. The prepended messages are
-      // already in the canonical array, so the spinner can retire now, and
-      // slower caller-side follow-up (reaction indexing) never gates it.
-      writer.updateRenderState { $0.with(isLoadingOlder: false) }
-
-      rebakeAll()
-      return olderMessages
+    } catch is CancellationError {
+      return []
     } catch {
-      writer.updateRenderState { $0.with(isLoadingOlder: false) }
       throw error
     }
   }

@@ -524,7 +524,7 @@ struct ChatViewModelTests {
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.bindCoordinatorForTesting(coordinator)
 
-    await viewModel.loadMessages(for: createTestContact())
+    await viewModel.loadMessages(for: createTestContact(), populateMode: .replace)
 
     #expect(viewModel.renderState.phase == .loaded)
   }
@@ -540,7 +540,7 @@ struct ChatViewModelTests {
       index: 1,
       name: "Test"
     ))
-    await viewModel.loadChannelMessages(for: channel)
+    await viewModel.loadChannelMessages(for: channel, populateMode: .replace)
 
     #expect(viewModel.renderState.phase == .loaded)
   }

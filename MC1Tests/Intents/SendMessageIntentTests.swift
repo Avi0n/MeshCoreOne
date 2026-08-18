@@ -64,7 +64,7 @@ struct SendMessageIntentTests {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let services = ServiceContainer(
       session: MeshCoreSession(transport: MockTransport()),
-      modelContainer: container,
+      dataStore: PersistenceStore(modelContainer: container),
       radioID: Self.radioID
     )
     appState.connectionManager.setTestState(

@@ -150,8 +150,8 @@ struct ChatTimelineFreshnessTests {
       bake: bake,
       envInputs: .default,
       senderTables: .empty,
-      reactions: nil,
-      postApply: nil
+      postApply: nil,
+      anchorSortDate: nil
     )
     guard case .loaded = outcome else {
       Issue.record("populate outcome was \(outcome), expected .loaded")
@@ -289,7 +289,7 @@ struct ChatTimelineFreshnessTests {
       conversation: .dm(contact)
     )
     viewModel.applyEnvInputs(.default)
-    await viewModel.primeInitialMessages(for: contact)
+    await viewModel.primeInitialMessages(for: contact, populateMode: .replace)
 
     let id = ChatConversationID.dm(radioID: radioID, contactID: contact.id)
     let coordinator = try #require(registry.existingCoordinator(for: id))
