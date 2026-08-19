@@ -140,7 +140,7 @@ public extension MockDataProvider {
         isBlocked: false,
         isMuted: false,
         isFavorite: false,
-        lastMessageDate: now.addingTimeInterval(-7200), // 2 hours ago
+        lastMessageDate: now.addingTimeInterval(-1800),
         unreadCount: 0
       ),
 

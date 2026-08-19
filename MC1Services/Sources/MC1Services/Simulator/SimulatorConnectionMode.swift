@@ -88,12 +88,26 @@ final class SimulatorConnectionMode {
       }
     }
 
+    try await seedRxLogEntries(dataStore)
     try await seedNodeStatusSnapshots(dataStore)
 
     logger.info(
       "Simulator: seeded \(MockDataProvider.contacts.count) contacts and " +
         "\(MockDataProvider.channels.count) channels with messages"
     )
+  }
+
+  /// Inserts the two flood-region RX-log fixtures when they are missing.
+  /// `saveRxLogEntry` is insert-only, so a second connect must skip existing ids.
+  private func seedRxLogEntries(_ dataStore: PersistenceStore) async throws {
+    let existingIDs = try await Set(
+      dataStore.fetchRxLogEntries(
+        radioID: MockDataProvider.simulatorDeviceID
+      ).map(\.id)
+    )
+    for entry in MockDataProvider.rxLogEntries where !existingIDs.contains(entry.id) {
+      try await dataStore.saveRxLogEntry(entry)
+    }
   }
 
   /// Seeds a node's GPS track once so the location History list and map have

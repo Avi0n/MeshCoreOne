@@ -115,6 +115,22 @@ extension MockDataProvider {
         channelIndex: publicChannelIndex,
         ackCode: 50001,
         pathLength: path
+      ),
+      // RX-log correlated flood: hop IDs plus a multi-match region.
+      MockMessageFactory.message(
+        id: publicAmbiguousRegionMessageID,
+        createdAt: now.addingTimeInterval(-600),
+        text: "Flood from a region that matches two names on this radio",
+        direction: .incoming,
+        channelIndex: publicChannelIndex,
+        pathLength: path,
+        snr: 6.2,
+        pathNodes: Data([0x10, 0x20]),
+        senderKeyPrefix: mockPublicKey(seed: 10).prefix(6),
+        senderNodeName: "Alice Chen",
+        routeType: .tcFlood,
+        regionScope: nil,
+        regionScopeMatches: ambiguousRegionNames
       )
     ]
   }

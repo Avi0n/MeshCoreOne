@@ -30,7 +30,8 @@ enum MockMessageFactory {
     timestampCorrected: Bool = false,
     senderTimestamp: UInt32? = nil,
     routeType: RouteType? = nil,
-    regionScope: String? = nil
+    regionScope: String? = nil,
+    regionScopeMatches: [String] = []
   ) -> MessageDTO {
     MessageDTO(
       id: id,
@@ -60,7 +61,8 @@ enum MockMessageFactory {
       timestampCorrected: timestampCorrected,
       senderTimestamp: senderTimestamp,
       routeType: routeType,
-      regionScope: regionScope
+      regionScope: regionScope,
+      regionScopeMatches: regionScopeMatches
     )
   }
 }
