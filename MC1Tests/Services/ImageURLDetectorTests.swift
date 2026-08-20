@@ -2,6 +2,7 @@ import Foundation
 @testable import MC1
 @testable import MC1Services
 import Testing
+import UIKit
 
 struct ImageURLDetectorTests {
   // MARK: - Direct Image URL Detection
@@ -74,6 +75,23 @@ struct ImageURLDetectorTests {
   @Test
   func `Rejects empty data`() {
     #expect(!ImageURLDetector.isGIFData(Data()))
+  }
+
+  // MARK: - Downsample
+
+  @Test
+  func `downsampledImage honors maxPixelSize`() throws {
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = 1
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 64, height: 64), format: format)
+    let source = renderer.image { context in
+      UIColor.red.setFill()
+      context.fill(CGRect(x: 0, y: 0, width: 64, height: 64))
+    }
+    let data = try #require(source.pngData())
+    let downsampled = ImageURLDetector.downsampledImage(from: data, maxPixelSize: 32)
+    let image = try #require(downsampled)
+    #expect(max(image.size.width, image.size.height) <= 32)
   }
 
   // MARK: - Giphy URL Resolution

@@ -1369,10 +1369,20 @@ public enum L10n {
           /// Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved
           public static let savingAnnouncement = L10n.tr("Contacts", "contacts.detail.avatar.savingAnnouncement", fallback: "Saving photo")
           public enum Crop {
-            /// Location: AvatarCropView.swift - Purpose: Crop screen cancel button
-            public static let cancel = L10n.tr("Contacts", "contacts.detail.avatar.crop.cancel", fallback: "Cancel")
             /// Location: AvatarCropView.swift - Purpose: Crop screen confirm button
             public static let choose = L10n.tr("Contacts", "contacts.detail.avatar.crop.choose", fallback: "Choose")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo down
+            public static let moveDown = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveDown", fallback: "Move down")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo left
+            public static let moveLeft = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveLeft", fallback: "Move left")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo right
+            public static let moveRight = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveRight", fallback: "Move right")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo up
+            public static let moveUp = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveUp", fallback: "Move up")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver label for the crop preview
+            public static let preview = L10n.tr("Contacts", "contacts.detail.avatar.crop.preview", fallback: "Profile picture crop")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver hint for zoom and move
+            public static let previewHint = L10n.tr("Contacts", "contacts.detail.avatar.crop.previewHint", fallback: "Swipe up or down to zoom. Use the actions to move the photo.")
             /// Location: AvatarCropView.swift - Purpose: Crop screen navigation title
             public static let title = L10n.tr("Contacts", "contacts.detail.avatar.crop.title", fallback: "Move and Scale")
           }

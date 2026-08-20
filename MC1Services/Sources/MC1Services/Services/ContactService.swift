@@ -645,6 +645,7 @@ public actor ContactService {
     }
 
     try await dataStore.saveContact(existing.with(avatarImageData: imageData))
+    await syncCoordinator?.notifyContactsChanged()
   }
 
   // MARK: - Device Favorite Sync

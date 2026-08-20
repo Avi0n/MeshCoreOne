@@ -138,7 +138,10 @@ struct ContactDetailView: View {
         contactTypeLabel: contactTypeLabel,
         measuredHeight: $headerHeight,
         isSavingAvatar: isSavingAvatar,
-        onEditAvatar: { showAvatarSourceMenu = true }
+        showAvatarSourceMenu: $showAvatarSourceMenu,
+        onChooseAvatarPhoto: { showAvatarPhotosPicker = true },
+        onChooseAvatarFile: { showAvatarFileImporter = true },
+        onRemoveAvatar: { Task { await removeAvatar() } }
       )
 
       // Quick actions
@@ -264,20 +267,6 @@ struct ContactDetailView: View {
     }
     .onAppear {
       nickname = currentContact.nickname ?? ""
-    }
-    .confirmationDialog(
-      L10n.Contacts.Contacts.Detail.Avatar.chooseSource,
-      isPresented: $showAvatarSourceMenu,
-      titleVisibility: .visible
-    ) {
-      Button(L10n.Contacts.Contacts.Detail.Avatar.choosePhoto) { showAvatarPhotosPicker = true }
-      Button(L10n.Contacts.Contacts.Detail.Avatar.chooseFile) { showAvatarFileImporter = true }
-      if currentContact.avatarImageData != nil {
-        Button(L10n.Contacts.Contacts.Detail.Avatar.removePhoto, role: .destructive) {
-          Task { await removeAvatar() }
-        }
-      }
-      Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
     }
     .photosPicker(isPresented: $showAvatarPhotosPicker, selection: $avatarPickerItem, matching: .images)
     .onChange(of: avatarPickerItem) { _, newItem in
@@ -583,21 +572,22 @@ struct ContactDetailView: View {
     }
   }
 
-  /// Decodes off the main actor and downsamples to a display-sized bound before the crop
-  /// screen ever sees the image, so a 12-48MP camera photo doesn't hitch the UI or hold
-  /// its full-resolution bitmap in memory while cropping.
+  /// Decodes off the main actor and downsamples before crop, so a camera photo
+  /// cannot hitch the UI or hold a full-resolution bitmap.
   private func presentCropSheet(data: Data) async {
     let decoded = await Task.detached(priority: .userInitiated) {
-      Self.downsampledImage(data: data, maxPixelSize: Self.cropMaxPixelSize)
+      ImageURLDetector.downsampledImage(
+        from: data,
+        maxPixelSize: AvatarCropGeometry.decodeMaxPixelSize
+      )
     }.value
     guard let image = decoded else {
       errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
       return
     }
     pendingCropImage = image
-    // The picker/importer sheet may still be animating its dismissal; onChange above
-    // presents the pending image once it reports fully closed. If it's already closed
-    // by the time decoding finishes, present immediately.
+    // Both sheets already closed: present now. Otherwise `presentPendingCropIfReady`
+    // runs when `showAvatarPhotosPicker` or `showAvatarFileImporter` becomes false.
     if !showAvatarPhotosPicker, !showAvatarFileImporter {
       presentPendingCropIfReady()
     }
@@ -642,33 +632,17 @@ struct ContactDetailView: View {
     isSavingAvatar = false
   }
 
-  /// Max pixel dimension the crop screen decodes and displays at; well above the 300pt
-  /// on-screen guide to stay sharp under the pinch zoom's 4x cap, but bounded so a raw
-  /// camera photo can't hold its full-resolution bitmap in memory while cropping.
-  private nonisolated static let cropMaxPixelSize: CGFloat = 1024
+  private nonisolated static let avatarMaxDimension: CGFloat = 512
+  private nonisolated static let avatarJPEGQuality: CGFloat = 0.8
 
-  /// Decodes and downsamples via ImageIO instead of `UIImage(data:)`, so a large source
-  /// image is never fully decoded into memory. Mirrors `ImageURLDetector.downsampledImage(from:)`.
-  private nonisolated static func downsampledImage(data: Data, maxPixelSize: CGFloat) -> UIImage? {
-    let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
-    guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions) else { return nil }
-    let downsampleOptions: [CFString: Any] = [
-      kCGImageSourceCreateThumbnailFromImageAlways: true,
-      kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
-      kCGImageSourceCreateThumbnailWithTransform: true,
-      kCGImageSourceShouldCacheImmediately: true
-    ]
-    guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, downsampleOptions as CFDictionary) else {
-      return nil
-    }
-    return UIImage(cgImage: cgImage)
-  }
-
-  /// Downscales to a max 512pt dimension and re-encodes as JPEG so avatars stay small in the store.
-  /// `nonisolated` so it can run on a background thread via `Task.detached` in `saveAvatar`.
+  /// Downscales to `avatarMaxDimension` and re-encodes as JPEG so avatars stay small in the store.
   private nonisolated static func processAvatarImage(image: UIImage) -> Data? {
-    let maxDimension: CGFloat = 512
-    let scale = min(1, maxDimension / max(image.size.width, image.size.height))
+    let longest = max(image.size.width, image.size.height)
+    guard longest > 0 else { return nil }
+    if longest <= avatarMaxDimension {
+      return image.jpegData(compressionQuality: avatarJPEGQuality)
+    }
+    let scale = avatarMaxDimension / longest
     let targetSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)
     let format = UIGraphicsImageRendererFormat()
     format.scale = 1
@@ -676,7 +650,7 @@ struct ContactDetailView: View {
     let resized = renderer.image { _ in
       image.draw(in: CGRect(origin: .zero, size: targetSize))
     }
-    return resized.jpegData(compressionQuality: 0.8)
+    return resized.jpegData(compressionQuality: avatarJPEGQuality)
   }
 
   // MARK: - Helpers
@@ -706,11 +680,16 @@ struct ContactDetailView: View {
 private struct ContactDetailAvatarView: View {
   let contact: ContactDTO
   let isSavingAvatar: Bool
-  let onEditAvatar: () -> Void
+  @Binding var showSourceMenu: Bool
+  let onChoosePhoto: () -> Void
+  let onChooseFile: () -> Void
+  let onRemovePhoto: () -> Void
 
   var body: some View {
     if contact.type == .chat {
-      Button(action: onEditAvatar) {
+      Button {
+        showSourceMenu = true
+      } label: {
         ZStack {
           ContactAvatar(contact: contact, size: 150)
           if isSavingAvatar {
@@ -726,6 +705,18 @@ private struct ContactDetailAvatarView: View {
       .buttonStyle(.plain)
       .disabled(isSavingAvatar)
       .accessibilityLabel(accessibilityLabel)
+      .confirmationDialog(
+        L10n.Contacts.Contacts.Detail.Avatar.chooseSource,
+        isPresented: $showSourceMenu,
+        titleVisibility: .visible
+      ) {
+        Button(L10n.Contacts.Contacts.Detail.Avatar.choosePhoto, action: onChoosePhoto)
+        Button(L10n.Contacts.Contacts.Detail.Avatar.chooseFile, action: onChooseFile)
+        if contact.avatarImageData != nil {
+          Button(L10n.Contacts.Contacts.Detail.Avatar.removePhoto, role: .destructive, action: onRemovePhoto)
+        }
+        Button(L10n.Contacts.Contacts.Common.cancel, role: .cancel) {}
+      }
     } else {
       switch contact.type {
       case .repeater:
@@ -765,7 +756,10 @@ private struct ContactProfileSection: View {
   let contactTypeLabel: String
   @Binding var measuredHeight: CGFloat
   let isSavingAvatar: Bool
-  let onEditAvatar: () -> Void
+  @Binding var showAvatarSourceMenu: Bool
+  let onChooseAvatarPhoto: () -> Void
+  let onChooseAvatarFile: () -> Void
+  let onRemoveAvatar: () -> Void
 
   var body: some View {
     Section {
@@ -773,7 +767,10 @@ private struct ContactProfileSection: View {
         ContactDetailAvatarView(
           contact: currentContact,
           isSavingAvatar: isSavingAvatar,
-          onEditAvatar: onEditAvatar
+          showSourceMenu: $showAvatarSourceMenu,
+          onChoosePhoto: onChooseAvatarPhoto,
+          onChooseFile: onChooseAvatarFile,
+          onRemovePhoto: onRemoveAvatar
         )
 
         VStack(spacing: 4) {

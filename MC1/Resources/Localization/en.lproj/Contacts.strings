@@ -287,11 +287,26 @@
 /* Location: AvatarCropView.swift - Purpose: Crop screen navigation title */
 "contacts.detail.avatar.crop.title" = "Move and Scale";
 
-/* Location: AvatarCropView.swift - Purpose: Crop screen cancel button */
-"contacts.detail.avatar.crop.cancel" = "Cancel";
-
 /* Location: AvatarCropView.swift - Purpose: Crop screen confirm button */
 "contacts.detail.avatar.crop.choose" = "Choose";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver label for the crop preview */
+"contacts.detail.avatar.crop.preview" = "Profile picture crop";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver hint for zoom and move */
+"contacts.detail.avatar.crop.previewHint" = "Swipe up or down to zoom. Use the actions to move the photo.";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo up */
+"contacts.detail.avatar.crop.moveUp" = "Move up";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo down */
+"contacts.detail.avatar.crop.moveDown" = "Move down";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo left */
+"contacts.detail.avatar.crop.moveLeft" = "Move left";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo right */
+"contacts.detail.avatar.crop.moveRight" = "Move right";
 
 /* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
 "contacts.detail.avatar.savingAnnouncement" = "Saving photo";

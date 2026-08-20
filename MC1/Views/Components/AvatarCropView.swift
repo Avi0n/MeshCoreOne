@@ -8,63 +8,111 @@ struct AvatarCropView: View {
   let onCancel: () -> Void
   let onComplete: (UIImage) -> Void
 
-  /// Side length, in points, of the square crop guide shown on screen.
-  private let cropSize: CGFloat = 300
-
-  /// Allowed zoom range, applied both live during a pinch and once it ends.
-  private let minScale: CGFloat = 1
-  private let maxScale: CGFloat = 4
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   @GestureState private var dragTranslation: CGSize = .zero
   @GestureState private var pinchDelta: CGFloat = 1
 
-  @State private var offset: CGSize = .zero
-  @State private var scale: CGFloat = 1
+  @State private var geometry = AvatarCropGeometry(
+    cropSize: AvatarCropGeometry.compactMaxCropSize,
+    imageSize: .zero
+  )
+
+  private let guideLineWidth: CGFloat = 2
+  private let dimOpacity = 0.5
 
   var body: some View {
     NavigationStack {
-      ZStack {
-        Color.black.ignoresSafeArea()
-
-        Image(uiImage: image)
-          .resizable()
-          .scaledToFill()
-          .frame(width: baseDisplaySize.width, height: baseDisplaySize.height)
-          .scaleEffect(clampedScale(scale * pinchDelta))
-          .offset(x: offset.width + dragTranslation.width, y: offset.height + dragTranslation.height)
-          .frame(width: cropSize, height: cropSize)
-          .clipped()
-          .contentShape(Rectangle())
-          .gesture(dragGesture)
-          .simultaneousGesture(magnificationGesture)
-
-        Circle()
-          .strokeBorder(Color.white, lineWidth: 2)
-          .frame(width: cropSize, height: cropSize)
-          .allowsHitTesting(false)
-
-        dimmingMask
-          .allowsHitTesting(false)
+      GeometryReader { proxy in
+        let cropSize = AvatarCropGeometry.cropSize(
+          in: proxy.size,
+          isRegularWidth: horizontalSizeClass == .regular
+        )
+        canvas(cropSize: cropSize)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .onChange(of: cropSize) { _, newSize in
+            applyCropSize(newSize)
+          }
+          .onAppear {
+            applyCropSize(cropSize)
+          }
       }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .background(Color.black.ignoresSafeArea())
       .navigationTitle(L10n.Contacts.Contacts.Detail.Avatar.Crop.title)
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
-          Button(L10n.Contacts.Contacts.Detail.Avatar.Crop.cancel, action: onCancel)
+          Button(L10n.Contacts.Contacts.Common.cancel, action: onCancel)
         }
         ToolbarItem(placement: .confirmationAction) {
           Button(L10n.Contacts.Contacts.Detail.Avatar.Crop.choose) {
-            onComplete(croppedImage())
+            confirmCrop()
           }
         }
       }
+      .toolbarBackground(.hidden, for: .navigationBar)
+      .tint(.white)
+    }
+    .onAppear {
+      geometry.imageSize = image.size
+    }
+  }
+
+  private func canvas(cropSize: CGFloat) -> some View {
+    let resolved = resolvedGeometry(cropSize: cropSize)
+    let live = resolved.liveTransform(pinchDelta: pinchDelta, dragTranslation: dragTranslation)
+    let panStep = cropSize * AvatarCropGeometry.panStepFraction
+
+    return ZStack {
+      Image(uiImage: image)
+        .resizable()
+        .scaledToFill()
+        .frame(width: resolved.baseDisplaySize.width, height: resolved.baseDisplaySize.height)
+        .scaleEffect(live.scale)
+        .offset(x: live.offset.width, y: live.offset.height)
+        .allowsHitTesting(false)
+
+      Circle()
+        .strokeBorder(Color.white, lineWidth: guideLineWidth)
+        .frame(width: cropSize, height: cropSize)
+        .allowsHitTesting(false)
+
+      dimmingMask(cropSize: cropSize)
+        .allowsHitTesting(false)
+    }
+    .contentShape(Rectangle())
+    .gesture(dragGesture(cropSize: cropSize))
+    .simultaneousGesture(magnificationGesture(cropSize: cropSize))
+    .accessibilityElement(children: .ignore)
+    .accessibilityLabel(L10n.Contacts.Contacts.Detail.Avatar.Crop.preview)
+    .accessibilityHint(L10n.Contacts.Contacts.Detail.Avatar.Crop.previewHint)
+    .accessibilityAdjustableAction { direction in
+      switch direction {
+      case .increment:
+        geometry.applyZoomStep(AvatarCropGeometry.zoomStep)
+      case .decrement:
+        geometry.applyZoomStep(-AvatarCropGeometry.zoomStep)
+      default:
+        break
+      }
+    }
+    .accessibilityAction(named: L10n.Contacts.Contacts.Detail.Avatar.Crop.moveUp) {
+      geometry.applyPan(width: 0, height: -panStep)
+    }
+    .accessibilityAction(named: L10n.Contacts.Contacts.Detail.Avatar.Crop.moveDown) {
+      geometry.applyPan(width: 0, height: panStep)
+    }
+    .accessibilityAction(named: L10n.Contacts.Contacts.Detail.Avatar.Crop.moveLeft) {
+      geometry.applyPan(width: -panStep, height: 0)
+    }
+    .accessibilityAction(named: L10n.Contacts.Contacts.Detail.Avatar.Crop.moveRight) {
+      geometry.applyPan(width: panStep, height: 0)
     }
   }
 
   /// A full-bleed dark scrim with a circular window cut out over the crop guide,
   /// drawn with an even-odd fill so the two shapes combine into a single hole-punched path.
-  private var dimmingMask: some View {
+  private func dimmingMask(cropSize: CGFloat) -> some View {
     GeometryReader { proxy in
       Path { path in
         path.addRect(CGRect(origin: .zero, size: proxy.size))
@@ -76,82 +124,72 @@ struct AvatarCropView: View {
         )
         path.addEllipse(in: circleRect)
       }
-      .fill(Color.black.opacity(0.5), style: FillStyle(eoFill: true))
+      .fill(Color.black.opacity(dimOpacity), style: FillStyle(eoFill: true))
     }
   }
 
-  /// The image's size, in points, when scaled (via `.scaledToFill`) to just cover the crop square.
-  private var baseDisplaySize: CGSize {
-    let imageSize = image.size
-    guard imageSize.width > 0, imageSize.height > 0 else { return CGSize(width: cropSize, height: cropSize) }
-    let fillScale = max(cropSize / imageSize.width, cropSize / imageSize.height)
-    return CGSize(width: imageSize.width * fillScale, height: imageSize.height * fillScale)
-  }
-
-  private var dragGesture: some Gesture {
+  private func dragGesture(cropSize: CGFloat) -> some Gesture {
     DragGesture()
       .updating($dragTranslation) { value, state, _ in
         state = value.translation
       }
       .onEnded { value in
-        offset = clampedOffset(
-          CGSize(width: offset.width + value.translation.width, height: offset.height + value.translation.height)
-        )
+        commitLiveTransform(cropSize: cropSize, pinchDelta: pinchDelta, dragTranslation: value.translation)
       }
   }
 
-  private var magnificationGesture: some Gesture {
+  private func magnificationGesture(cropSize: CGFloat) -> some Gesture {
     MagnifyGesture()
       .updating($pinchDelta) { value, state, _ in
         state = value.magnification
       }
       .onEnded { value in
-        scale = clampedScale(scale * value.magnification)
-        offset = clampedOffset(offset)
+        commitLiveTransform(cropSize: cropSize, pinchDelta: value.magnification, dragTranslation: dragTranslation)
       }
   }
 
-  private func clampedScale(_ proposed: CGFloat) -> CGFloat {
-    min(max(proposed, minScale), maxScale)
+  private func confirmCrop() {
+    let live = resolvedGeometry(cropSize: geometry.cropSize)
+      .liveTransform(pinchDelta: pinchDelta, dragTranslation: dragTranslation)
+    var snapshot = resolvedGeometry(cropSize: geometry.cropSize)
+    snapshot.scale = live.scale
+    snapshot.offset = live.offset
+    onComplete(croppedImage(snapshot))
   }
 
-  /// Keeps the displayed image covering the crop square at all times, regardless of pan/zoom.
-  private func clampedOffset(_ proposed: CGSize) -> CGSize {
-    let displayedSize = CGSize(width: baseDisplaySize.width * scale, height: baseDisplaySize.height * scale)
-    let maxOffsetX = max(0, (displayedSize.width - cropSize) / 2)
-    let maxOffsetY = max(0, (displayedSize.height - cropSize) / 2)
-    return CGSize(
-      width: min(max(proposed.width, -maxOffsetX), maxOffsetX),
-      height: min(max(proposed.height, -maxOffsetY), maxOffsetY)
-    )
-  }
-
-  /// Renders the portion of the source image currently visible inside the crop guide.
-  ///
-  /// Draws via `UIImage.draw(in:)` rather than cropping `cgImage` directly, so that EXIF
-  /// orientation (e.g. a portrait photo shot with a rotated sensor) is honored exactly as
-  /// it is in the on-screen preview, which uses the same point-space geometry.
-  private func croppedImage() -> UIImage {
-    let outputSide: CGFloat = 1024
-    let renderScale = outputSide / cropSize
-
-    let displayedSize = CGSize(width: baseDisplaySize.width * scale, height: baseDisplaySize.height * scale)
-    let imageOrigin = CGPoint(
-      x: (cropSize - displayedSize.width) / 2 + offset.width,
-      y: (cropSize - displayedSize.height) / 2 + offset.height
-    )
-
+  /// Draws via `UIImage.draw(in:)` so EXIF orientation matches the on-screen preview.
+  private func croppedImage(_ snapshot: AvatarCropGeometry) -> UIImage {
+    let outputSide = AvatarCropGeometry.outputSide
     let format = UIGraphicsImageRendererFormat()
     format.scale = 1
-    let renderer = UIGraphicsImageRenderer(size: CGSize(width: outputSide, height: outputSide), format: format)
+    let renderer = UIGraphicsImageRenderer(
+      size: CGSize(width: outputSide, height: outputSide),
+      format: format
+    )
     return renderer.image { _ in
-      let drawRect = CGRect(
-        x: imageOrigin.x * renderScale,
-        y: imageOrigin.y * renderScale,
-        width: displayedSize.width * renderScale,
-        height: displayedSize.height * renderScale
-      )
-      image.draw(in: drawRect)
+      image.draw(in: snapshot.imageDrawRect(outputSide: outputSide))
     }
+  }
+
+  private func resolvedGeometry(cropSize: CGFloat) -> AvatarCropGeometry {
+    var resolved = geometry
+    resolved.cropSize = cropSize
+    resolved.imageSize = image.size
+    return resolved
+  }
+
+  private func commitLiveTransform(cropSize: CGFloat, pinchDelta: CGFloat, dragTranslation: CGSize) {
+    let live = resolvedGeometry(cropSize: cropSize)
+      .liveTransform(pinchDelta: pinchDelta, dragTranslation: dragTranslation)
+    geometry.cropSize = cropSize
+    geometry.imageSize = image.size
+    geometry.scale = live.scale
+    geometry.offset = live.offset
+  }
+
+  private func applyCropSize(_ cropSize: CGFloat) {
+    geometry.cropSize = cropSize
+    geometry.imageSize = image.size
+    geometry.offset = geometry.clampedOffset(geometry.offset)
   }
 }
