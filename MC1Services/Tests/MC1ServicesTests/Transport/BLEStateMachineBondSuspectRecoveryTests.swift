@@ -34,6 +34,7 @@ struct BLEStateMachineBondSuspectRecoveryTests {
       recorder.append(deviceID: deviceID, error: error)
     }
 
+    await sm.appDidBecomeActive()
     await sm.primeAutoReconnectTeardown(peripheral: peripheral)
 
     let notified = await pollUntilNotEmpty(recorder, within: observationWindow)

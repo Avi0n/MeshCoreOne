@@ -4,11 +4,9 @@ import Foundation
 import ObjectiveC
 import Testing
 
-/// A transient `didFailToConnect` during `.autoReconnecting` (the common
-/// backgrounded case: `CBError.encryptionTimedOut`) must re-issue the pending
-/// connect and stay in `.autoReconnecting` rather than abandon the OS pending
-/// connection. Only a definitive auth code, or an exhausted retry budget,
-/// tears the episode down and notifies loss.
+/// `didFailToConnect` during `.autoReconnecting` re-issues the pending
+/// connect and stays in the episode. Tear-down is a definitive auth code,
+/// or an exhausted budget while the app is confirmed active.
 @Suite("BLEStateMachine auto-reconnect connect retry")
 struct BLEStateMachineAutoReconnectRetryTests {
   private var encryptionTimedOut: NSError {
@@ -52,6 +50,7 @@ struct BLEStateMachineAutoReconnectRetryTests {
     await sm.injectTestCentralManager()
     let peripheral = makeLeakedRetryPeripheral()
     let recorder = await makeRecorder(on: sm)
+    await sm.appDidBecomeActive()
     await sm.primeAutoReconnecting(peripheral: peripheral)
 
     // Every failure below the cap re-arms silently and stays in the episode.
@@ -61,7 +60,7 @@ struct BLEStateMachineAutoReconnectRetryTests {
     #expect(await sm.currentPhase.name == "autoReconnecting")
     #expect(recorder.events.isEmpty)
 
-    // The failure that reaches the cap gives up.
+    // The failure that reaches the cap tears the episode down.
     await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
 
     #expect(await sm.currentPhase.name == "idle")
@@ -79,6 +78,7 @@ struct BLEStateMachineAutoReconnectRetryTests {
     await sm.injectTestCentralManager()
     let peripheral = makeLeakedRetryPeripheral()
     let recorder = await makeRecorder(on: sm)
+    await sm.appDidBecomeActive()
     await sm.primeAutoReconnecting(peripheral: peripheral)
 
     for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
@@ -115,6 +115,39 @@ struct BLEStateMachineAutoReconnectRetryTests {
       return
     }
     #expect(await sm.currentAutoReconnectConnectFailures == 0)
+  }
+
+  @Test
+  func `exhausting the budget before foreground confirmation keeps auto-reconnecting`() async {
+    let sm = BLEStateMachine()
+    await sm.injectTestCentralManager()
+    let peripheral = makeLeakedRetryPeripheral()
+    let recorder = await makeRecorder(on: sm)
+    await sm.primeAutoReconnecting(peripheral: peripheral)
+
+    for _ in 1...ReconnectPolicy.maxAutoReconnectConnectFailures {
+      await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
+    }
+
+    #expect(await sm.currentPhase.name == "autoReconnecting")
+    #expect(recorder.events.isEmpty)
+  }
+
+  @Test
+  func `exhausting the budget while inactive keeps auto-reconnecting`() async {
+    let sm = BLEStateMachine()
+    await sm.injectTestCentralManager()
+    let peripheral = makeLeakedRetryPeripheral()
+    let recorder = await makeRecorder(on: sm)
+    await sm.primeAutoReconnecting(peripheral: peripheral)
+    await sm.appDidEnterBackground()
+
+    for _ in 1...ReconnectPolicy.maxAutoReconnectConnectFailures {
+      await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
+    }
+
+    #expect(await sm.currentPhase.name == "autoReconnecting")
+    #expect(recorder.events.isEmpty)
   }
 }
 

@@ -19,17 +19,13 @@ struct ReconnectPolicy {
   /// genuinely wedged-but-connected link still tears down eventually.
   static let maxDiscoveryTimeoutExtensions = 2
 
-  /// Max consecutive `didFailToConnect` callbacks tolerated within one
-  /// auto-reconnect episode before the machine gives up and notifies loss.
-  /// Bounds re-arming so a radio that fast-rejects every connect cannot spin here.
+  /// Consecutive `didFailToConnect` callbacks in one auto-reconnect episode
+  /// before `resolveConnectFailure` classifies hold versus tear-down.
   static let maxAutoReconnectConnectFailures = 5
 
-  /// How long after a verified encrypted session an exhausted encryption-timeout
-  /// budget is still treated as transient rather than a suspect bond. Encryption
-  /// timeouts at the edge of BLE range are indistinguishable from an invalidated
-  /// bond attempt-by-attempt; a bond that completed an encrypted session this
-  /// recently is near-certainly healthy, while a genuinely dead bond can never
-  /// refresh the verification and escalates once the grace elapses.
+  /// After a verified encrypted session, an exhausted encryption-timeout
+  /// majority returns `.continueEpisodeAfterBudget` rather than `.bondSuspect`.
+  /// Outside this window a dead bond escalates only while the app is active.
   static let bondVerificationGraceInterval: TimeInterval = 6 * 60 * 60
 
   // MARK: - State
@@ -39,8 +35,7 @@ struct ReconnectPolicy {
   var autoReconnectConnectFailures = 0
 
   /// How many of `autoReconnectConnectFailures` carried `CBError.encryptionTimedOut`.
-  /// A majority routes an exhausted episode to guided re-pair, since repeated
-  /// encryption timeouts are the ambiguous in-app signature of an invalidated bond.
+  /// A majority is the ambiguous dead-bond signature used at budget exhaust.
   var encryptionTimedOutConnectFailures = 0
 
   /// Number of times a discovery watchdog has deferred teardown within the
@@ -98,8 +93,20 @@ struct ReconnectPolicy {
   enum ConnectFailureDecision {
     /// Re-issue the pending connect; the episode continues.
     case retryPendingConnect(failureCount: Int, budget: Int)
+    /// Budget spent: re-issue `connect` and keep the episode.
+    /// `didFailToConnect` already consumed the pending connect; tearing
+    /// down would leave only a watchdog whose sleep freezes when suspended.
+    case continueEpisodeAfterBudget(reason: BudgetHoldReason)
     /// End the episode, surfacing `error` through `onDisconnection`.
     case tearDown(error: BLEError, reason: TeardownReason)
+  }
+
+  /// Why the episode continued after the connect-failure budget was spent.
+  /// `verifiedAge` is the time since the bond's last verified encrypted
+  /// session at decision time, nil when it never verified.
+  enum BudgetHoldReason {
+    case fringeEncryptionGraced(verifiedAge: TimeInterval?)
+    case backgroundHold
   }
 
   /// Why a connect-failure `.tearDown` was chosen; drives the diagnostic log
@@ -107,18 +114,19 @@ struct ReconnectPolicy {
   /// session at decision time, nil when it never verified.
   enum TeardownReason {
     case definitiveBondFailure
-    case fringeEncryptionGraced(verifiedAge: TimeInterval?)
     case bondSuspect(verifiedAge: TimeInterval?)
     case retryBudgetExhausted
   }
 
-  /// `didFailToConnect` arrived while auto-reconnecting. A transient failure
-  /// re-issues the connect and stays in the episode. Only a definitive bond
-  /// failure tears down at once; exhausting the bounded budget on encryption
-  /// timeouts escalates to auth failure — unless the bond verified an
-  /// encrypted session recently — so an invalidated bond still reaches guided
-  /// re-pair.
-  mutating func resolveConnectFailure(deviceID: UUID, error: Error?, now: Date) -> ConnectFailureDecision {
+  /// `didFailToConnect` while auto-reconnecting. A definitive bond failure
+  /// tears down at once; otherwise re-issue until the budget, then hold
+  /// (recently verified, or inactive) or tear down (active and unshielded).
+  mutating func resolveConnectFailure(
+    deviceID: UUID,
+    error: Error?,
+    now: Date,
+    appActive: Bool
+  ) -> ConnectFailureDecision {
     if Self.isDefinitiveAuthFailure(error) {
       resetFailureTallies()
       return .tearDown(error: .authenticationFailed, reason: .definitiveBondFailure)
@@ -136,27 +144,25 @@ struct ReconnectPolicy {
       )
     }
 
-    // An encryption-timeout majority is the ambiguous signature of an
-    // invalidated bond, but it is also what a healthy bond produces when the
-    // user lingers at the edge of BLE range. A recently verified bond tears
-    // down as transient (the watchdog keeps retrying); a dead bond can never
-    // refresh its verification, so it still escalates once the grace elapses.
+    // Encryption-timeout majority is both a dead-bond signature and fringe-range
+    // noise. Keep the pending connect when recently verified or inactive;
+    // escalate to `.bondSuspect` only when the app is active and grace has elapsed.
     let majorityEncryptionTimeouts = encryptionTimedOutConnectFailures * 2 > autoReconnectConnectFailures
     resetFailureTallies()
 
-    guard majorityEncryptionTimeouts else {
-      return .tearDown(error: Self.makeConnectionError(error), reason: .retryBudgetExhausted)
-    }
-
     let lastVerified = bondVerificationDates[deviceID]
     let verifiedAge = lastVerified.map { now.timeIntervalSince($0) }
-    if Self.isBondRecentlyVerified(lastVerified: lastVerified, now: now) {
-      return .tearDown(
-        error: .connectionFailed("Encryption timed out repeatedly near range limit"),
-        reason: .fringeEncryptionGraced(verifiedAge: verifiedAge)
-      )
+
+    if majorityEncryptionTimeouts, Self.isBondRecentlyVerified(lastVerified: lastVerified, now: now) {
+      return .continueEpisodeAfterBudget(reason: .fringeEncryptionGraced(verifiedAge: verifiedAge))
     }
-    return .tearDown(error: .authenticationFailed, reason: .bondSuspect(verifiedAge: verifiedAge))
+    if !appActive {
+      return .continueEpisodeAfterBudget(reason: .backgroundHold)
+    }
+    if majorityEncryptionTimeouts {
+      return .tearDown(error: .authenticationFailed, reason: .bondSuspect(verifiedAge: verifiedAge))
+    }
+    return .tearDown(error: Self.makeConnectionError(error), reason: .retryBudgetExhausted)
   }
 
   // MARK: - Discovery-stall classification
@@ -230,9 +236,8 @@ struct ReconnectPolicy {
   /// Maps a CoreBluetooth error to a typed BLEError. The CBATTError auth/encryption
   /// family and `CBError.peerRemovedPairingInformation` are definitive bond failures
   /// mapped to `.authenticationFailed`, so detection survives iOS localizing the
-  /// description. A lone `CBError.encryptionTimedOut` is transient and stays
-  /// `.connectionFailed`; connect-failure resolution escalates it only when it
-  /// dominates an exhausted auto-reconnect retry budget.
+  /// description. A lone `CBError.encryptionTimedOut` stays `.connectionFailed`;
+  /// `resolveConnectFailure` holds or escalates it from the exhausted budget.
   static func makeConnectionError(_ error: Error?, fallback: String = "Unknown error") -> BLEError {
     if let nsError = error as NSError? {
       if nsError.domain == CBATTErrorDomain {

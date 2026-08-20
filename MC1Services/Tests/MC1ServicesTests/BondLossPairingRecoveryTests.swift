@@ -270,6 +270,7 @@ struct BondLossPairingRecoveryTests {
     await manager.clearPersistedConnection(for: deviceID)
     #expect(await sm.bondVerificationDate(for: deviceID) == nil)
 
+    await sm.appDidBecomeActive()
     await sm.primeBondClearAutoReconnecting(peripheral: peripheral)
     let recorder = BondClearDisconnectionRecorder()
     await sm.setDisconnectionHandler { id, error in

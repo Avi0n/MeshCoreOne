@@ -202,16 +202,18 @@ struct ReconnectPolicyDiscoveryStallTests {
 
 // MARK: - Connect-failure episodes
 
-/// Classification of `didFailToConnect` streaks within one auto-reconnect
-/// episode: transient failures retry, definitive bond failures escalate at
-/// once, and an exhausted encryption-timeout majority escalates to guided
-/// re-pair unless the bond completed a verified encrypted session within the
-/// grace window.
+/// `didFailToConnect` in one auto-reconnect episode: retry below budget,
+/// tear down on a definitive bond error, continue after budget when recently
+/// verified or inactive, else escalate.
 @Suite("ReconnectPolicy connect failures")
 struct ReconnectPolicyConnectFailureTests {
   private let deviceID = UUID()
   private var encryptionTimedOut: NSError {
     NSError(domain: CBErrorDomain, code: CBError.encryptionTimedOut.rawValue)
+  }
+
+  private var genericTimeout: NSError {
+    NSError(domain: CBErrorDomain, code: CBError.connectionTimeout.rawValue)
   }
 
   private func makePolicy(bondVerified: Date?) -> ReconnectPolicy {
@@ -225,11 +227,22 @@ struct ReconnectPolicyConnectFailureTests {
   private func exhaustBudget(
     _ policy: inout ReconnectPolicy,
     error: NSError,
-    now: Date = Date()
+    now: Date = Date(),
+    appActive: Bool = true
   ) -> ReconnectPolicy.ConnectFailureDecision {
-    var last = policy.resolveConnectFailure(deviceID: deviceID, error: error, now: now)
+    var last = policy.resolveConnectFailure(
+      deviceID: deviceID,
+      error: error,
+      now: now,
+      appActive: appActive
+    )
     for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
-      last = policy.resolveConnectFailure(deviceID: deviceID, error: error, now: now)
+      last = policy.resolveConnectFailure(
+        deviceID: deviceID,
+        error: error,
+        now: now,
+        appActive: appActive
+      )
     }
     return last
   }
@@ -238,7 +251,12 @@ struct ReconnectPolicyConnectFailureTests {
   func `failures below the budget retry the pending connect`() {
     var policy = makePolicy(bondVerified: nil)
     for expected in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
-      let decision = policy.resolveConnectFailure(deviceID: deviceID, error: encryptionTimedOut, now: Date())
+      let decision = policy.resolveConnectFailure(
+        deviceID: deviceID,
+        error: encryptionTimedOut,
+        now: Date(),
+        appActive: true
+      )
       guard case let .retryPendingConnect(count, _) = decision else {
         Issue.record("Expected .retryPendingConnect at failure \(expected), got \(decision)")
         return
@@ -252,7 +270,12 @@ struct ReconnectPolicyConnectFailureTests {
     var policy = makePolicy(bondVerified: Date())
     let definitive = NSError(domain: CBErrorDomain, code: CBError.peerRemovedPairingInformation.rawValue)
 
-    let decision = policy.resolveConnectFailure(deviceID: deviceID, error: definitive, now: Date())
+    let decision = policy.resolveConnectFailure(
+      deviceID: deviceID,
+      error: definitive,
+      now: Date(),
+      appActive: true
+    )
 
     guard case let .tearDown(error, .definitiveBondFailure) = decision else {
       Issue.record("Expected definitive-bond teardown, got \(decision)")
@@ -263,36 +286,55 @@ struct ReconnectPolicyConnectFailureTests {
   }
 
   @Test
-  func `exhausted encryption-timeout budget with a recently verified bond stays transient`() {
+  func `exhausted encryption-timeout budget with a recently verified bond keeps the pending connect`() {
     let now = Date()
     var policy = makePolicy(bondVerified: now.addingTimeInterval(-60))
 
     let last = exhaustBudget(&policy, error: encryptionTimedOut, now: now)
 
-    guard case let .tearDown(error, .fringeEncryptionGraced(verifiedAge)) = last else {
-      Issue.record("Expected fringe-graced teardown, got \(last)")
+    guard case let .continueEpisodeAfterBudget(reason) = last,
+          case let .fringeEncryptionGraced(verifiedAge) = reason else {
+      Issue.record("Expected fringe-graced continue, got \(last)")
       return
     }
-    #expect(isConnectionFailed(error))
     #expect(verifiedAge == 60)
+    #expect(policy.autoReconnectConnectFailures == 0)
+  }
+
+  /// Live-bond fringe grace takes precedence over the inactive hold, so a
+  /// suspended app still keeps the pending connect after budget exhaust.
+  @Test
+  func `out-of-range encryption timeouts with a live bond keep retrying the pending connect`() {
+    let now = Date()
+    var policy = makePolicy(bondVerified: now.addingTimeInterval(-60))
+
+    let last = exhaustBudget(&policy, error: encryptionTimedOut, now: now, appActive: false)
+
+    guard case .continueEpisodeAfterBudget(.fringeEncryptionGraced) = last else {
+      Issue.record("Expected fringe-graced continue so a suspended app keeps the OS pending connect, got \(last)")
+      return
+    }
   }
 
   @Test
-  func `a mixed majority of encryption timeouts with a recent bond stays transient`() {
+  func `a mixed majority of encryption timeouts with a recent bond keeps the pending connect`() {
     var policy = makePolicy(bondVerified: Date().addingTimeInterval(-60))
-    let genericTimeout = NSError(domain: CBErrorDomain, code: CBError.connectionTimeout.rawValue)
 
     // 3 of 5 encryption timeouts is a strict majority.
     var last: ReconnectPolicy.ConnectFailureDecision?
     for error in [encryptionTimedOut, genericTimeout, encryptionTimedOut, genericTimeout, encryptionTimedOut] {
-      last = policy.resolveConnectFailure(deviceID: deviceID, error: error, now: Date())
+      last = policy.resolveConnectFailure(
+        deviceID: deviceID,
+        error: error,
+        now: Date(),
+        appActive: true
+      )
     }
 
-    guard case let .tearDown(error, .fringeEncryptionGraced) = last else {
-      Issue.record("Expected fringe-graced teardown, got \(String(describing: last))")
+    guard case .continueEpisodeAfterBudget(.fringeEncryptionGraced) = last else {
+      Issue.record("Expected fringe-graced continue, got \(String(describing: last))")
       return
     }
-    #expect(isConnectionFailed(error))
   }
 
   @Test
@@ -378,7 +420,6 @@ struct ReconnectPolicyConnectFailureTests {
   @Test
   func `an exhausted budget without an encryption-timeout majority surfaces the mapped error`() {
     var policy = makePolicy(bondVerified: nil)
-    let genericTimeout = NSError(domain: CBErrorDomain, code: CBError.connectionTimeout.rawValue)
 
     let last = exhaustBudget(&policy, error: genericTimeout)
 
@@ -390,10 +431,61 @@ struct ReconnectPolicyConnectFailureTests {
   }
 
   @Test
+  func `exhausted encryption-timeout budget with a stale bond while inactive keeps the pending connect`() {
+    let now = Date()
+    let stale = now.addingTimeInterval(-(ReconnectPolicy.bondVerificationGraceInterval + 60))
+    var policy = makePolicy(bondVerified: stale)
+
+    let last = exhaustBudget(&policy, error: encryptionTimedOut, now: now, appActive: false)
+
+    guard case .continueEpisodeAfterBudget(.backgroundHold) = last else {
+      Issue.record("Expected background hold, got \(last)")
+      return
+    }
+    #expect(policy.autoReconnectConnectFailures == 0)
+  }
+
+  @Test
+  func `exhausted generic budget while inactive keeps the pending connect`() {
+    var policy = makePolicy(bondVerified: nil)
+
+    let last = exhaustBudget(&policy, error: genericTimeout, appActive: false)
+
+    guard case .continueEpisodeAfterBudget(.backgroundHold) = last else {
+      Issue.record("Expected background hold, got \(last)")
+      return
+    }
+  }
+
+  @Test
+  func `a definitive bond error escalates immediately while inactive`() {
+    var policy = makePolicy(bondVerified: Date())
+    let definitive = NSError(domain: CBErrorDomain, code: CBError.peerRemovedPairingInformation.rawValue)
+
+    let decision = policy.resolveConnectFailure(
+      deviceID: deviceID,
+      error: definitive,
+      now: Date(),
+      appActive: false
+    )
+
+    guard case let .tearDown(error, .definitiveBondFailure) = decision else {
+      Issue.record("Expected definitive-bond teardown while inactive, got \(decision)")
+      return
+    }
+    #expect(isAuthenticationFailed(error))
+  }
+
+  @Test
   func `a re-established link clears the failure tally mid-episode`() {
     var policy = makePolicy(bondVerified: nil)
     for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
-      _ = policy.resolveConnectFailure(deviceID: deviceID, error: encryptionTimedOut, now: Date())
+      _ = policy.resolveConnectFailure(
+        deviceID: deviceID,
+        error: encryptionTimedOut,
+        now: Date(),
+        appActive: true
+      )
     }
     #expect(policy.autoReconnectConnectFailures == ReconnectPolicy.maxAutoReconnectConnectFailures - 1)
 

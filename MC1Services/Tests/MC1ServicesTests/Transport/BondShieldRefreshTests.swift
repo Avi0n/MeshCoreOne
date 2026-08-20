@@ -126,6 +126,7 @@ struct BondShieldRefreshTests {
     let stale = Date().addingTimeInterval(-ReconnectPolicy.bondVerificationGraceInterval - 60)
     await sm.recordBondVerification(deviceID: Self.deviceID, at: stale)
 
+    await sm.appDidBecomeActive()
     await sm.primeFringeAutoReconnectingForBondTests(peripheral: peripheral)
     let recorder = FringeDisconnectionRecorder()
     await sm.setDisconnectionHandler { deviceID, error in
@@ -192,6 +193,7 @@ struct BondShieldRefreshTests {
     }
     #expect(await sm.bondVerificationDate(for: Self.deviceID) == stale)
 
+    await sm.appDidBecomeActive()
     await sm.primeFringeAutoReconnectingForBondTests(peripheral: peripheral)
     let recorder = FringeDisconnectionRecorder()
     await sm.setDisconnectionHandler { deviceID, error in

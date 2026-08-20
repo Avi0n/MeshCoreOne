@@ -4,13 +4,9 @@ import Foundation
 import ObjectiveC
 import Testing
 
-/// A user lingering at the edge of BLE range accumulates `CBError.encryptionTimedOut`
-/// connect failures on a perfectly healthy bond. When such a bond completed a
-/// verified encrypted session within `bondVerificationGraceInterval`, exhausting the
-/// auto-reconnect budget must tear down as a transient `.connectionFailed` (the
-/// watchdog keeps retrying) instead of `.authenticationFailed` (destructive guided
-/// re-pair). A bond with no recent verification still escalates in bounded steps,
-/// and definitive bond errors are never shielded by the grace.
+/// Exhausting the auto-reconnect budget re-issues the pending connect when
+/// the bond verified within `bondVerificationGraceInterval`, or when the
+/// app is inactive. A foreground unshielded majority still escalates.
 @Suite("BLEStateMachine fringe encryption grace", .serialized)
 struct BLEStateMachineFringeEncryptionGraceTests {
   private var encryptionTimedOut: NSError {
@@ -18,7 +14,8 @@ struct BLEStateMachineFringeEncryptionGraceTests {
   }
 
   private func makeMachine(
-    bondVerified: Date?
+    bondVerified: Date?,
+    appActive: Bool = true
   ) async -> (BLEStateMachine, FringeTestPeripheral, FringeDisconnectionRecorder) {
     FringeTestPeripheral.reset()
     let sm = BLEStateMachine()
@@ -31,30 +28,30 @@ struct BLEStateMachineFringeEncryptionGraceTests {
     if let bondVerified {
       await sm.recordBondVerification(deviceID: FringeTestPeripheral.uuid, at: bondVerified)
     }
+    if appActive {
+      await sm.appDidBecomeActive()
+    }
     await sm.primeFringeAutoReconnecting(peripheral: peripheral)
     return (sm, peripheral, recorder)
   }
 
-  // MARK: - Fringe replay (the regression test for this bug)
+  // MARK: - Fringe replay
 
+  /// A recently verified encryption-timeout majority re-issues connect
+  /// instead of tearing down.
   @Test
-  func `exhausted encryption-timeout budget with a recently verified bond stays transient`() async {
+  func `out-of-range encryption timeouts with a live bond keep auto-reconnecting`() async {
     let (sm, peripheral, recorder) = await makeMachine(bondVerified: Date().addingTimeInterval(-60))
 
-    for _ in 1..<ReconnectPolicy.maxAutoReconnectConnectFailures {
+    for _ in 1...ReconnectPolicy.maxAutoReconnectConnectFailures {
       await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
     }
+
     #expect(await sm.currentPhase.name == "autoReconnecting")
     #expect(recorder.events.isEmpty)
+    #expect(FringeTestCentralManager.connectCallCount == ReconnectPolicy.maxAutoReconnectConnectFailures)
 
-    await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
-
-    #expect(await sm.currentPhase.name == "idle")
-    #expect(recorder.events.count == 1)
-    guard case .connectionFailed = recorder.events.first?.error as? BLEError else {
-      Issue.record("Expected .connectionFailed, got \(String(describing: recorder.events.first?.error))")
-      return
-    }
+    await sm.cancelFringeAutoReconnectTimeout()
   }
 
   @Test
@@ -77,7 +74,7 @@ struct BLEStateMachineFringeEncryptionGraceTests {
   }
 
   @Test
-  func `a mixed majority of encryption timeouts with a recent bond stays transient`() async {
+  func `a mixed majority of encryption timeouts with a recent bond keeps auto-reconnecting`() async {
     let (sm, peripheral, recorder) = await makeMachine(bondVerified: Date().addingTimeInterval(-60))
     let genericTimeout = NSError(domain: CBErrorDomain, code: CBError.connectionTimeout.rawValue)
 
@@ -88,19 +85,33 @@ struct BLEStateMachineFringeEncryptionGraceTests {
     await sm.handleDidFailToConnect(peripheral, error: genericTimeout)
     await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
 
-    #expect(await sm.currentPhase.name == "idle")
-    #expect(recorder.events.count == 1)
-    guard case .connectionFailed = recorder.events.first?.error as? BLEError else {
-      Issue.record("Expected .connectionFailed, got \(String(describing: recorder.events.first?.error))")
-      return
+    #expect(await sm.currentPhase.name == "autoReconnecting")
+    #expect(recorder.events.isEmpty)
+    #expect(FringeTestCentralManager.connectCallCount == ReconnectPolicy.maxAutoReconnectConnectFailures)
+
+    await sm.cancelFringeAutoReconnectTimeout()
+  }
+
+  @Test
+  func `exhausted budget while inactive with no bond verification keeps auto-reconnecting`() async {
+    let (sm, peripheral, recorder) = await makeMachine(bondVerified: nil, appActive: false)
+    await sm.appDidEnterBackground()
+
+    for _ in 1...ReconnectPolicy.maxAutoReconnectConnectFailures {
+      await sm.handleDidFailToConnect(peripheral, error: encryptionTimedOut)
     }
+
+    #expect(await sm.currentPhase.name == "autoReconnecting")
+    #expect(recorder.events.isEmpty)
+    #expect(FringeTestCentralManager.connectCallCount == ReconnectPolicy.maxAutoReconnectConnectFailures)
+
+    await sm.cancelFringeAutoReconnectTimeout()
   }
 
   // MARK: - Dead bond still caught
 
-  /// Bound: with no verification inside the grace window, escalation to guided
-  /// re-pair happens within a single episode — `maxAutoReconnectConnectFailures`
-  /// `didFailToConnect` deliveries — exactly as before the grace existed.
+  /// With no verification inside the grace window, a foreground majority
+  /// escalates within one episode (`maxAutoReconnectConnectFailures` failures).
   @Test
   func `exhausted budget with a stale bond verification escalates within one episode`() async {
     let stale = Date().addingTimeInterval(-ReconnectPolicy.bondVerificationGraceInterval - 60)
@@ -150,6 +161,22 @@ struct BLEStateMachineFringeEncryptionGraceTests {
       return
     }
   }
+
+  @Test
+  func `a definitive bond error escalates immediately while inactive`() async {
+    let (sm, peripheral, recorder) = await makeMachine(bondVerified: Date(), appActive: false)
+    let definitive = NSError(domain: CBErrorDomain, code: CBError.peerRemovedPairingInformation.rawValue)
+    await sm.appDidEnterBackground()
+
+    await sm.handleDidFailToConnect(peripheral, error: definitive)
+
+    #expect(await sm.currentPhase.name == "idle")
+    #expect(recorder.events.count == 1)
+    guard case .authenticationFailed = recorder.events.first?.error as? BLEError else {
+      Issue.record("Expected .authenticationFailed, got \(String(describing: recorder.events.first?.error))")
+      return
+    }
+  }
 }
 
 // MARK: - Test doubles and seams
@@ -166,7 +193,11 @@ private final class FringeDisconnectionRecorder: @unchecked Sendable {
 /// A central-manager double that swallows connect calls so the re-issued
 /// pending connects never reach CoreBluetooth.
 private final class FringeTestCentralManager: CBCentralManager, @unchecked Sendable {
-  override func connect(_ peripheral: CBPeripheral, options: [String: Any]? = nil) {}
+  nonisolated(unsafe) static var connectCallCount = 0
+
+  override func connect(_ peripheral: CBPeripheral, options: [String: Any]? = nil) {
+    Self.connectCallCount += 1
+  }
 
   override func cancelPeripheralConnection(_ peripheral: CBPeripheral) {}
 }
@@ -188,6 +219,7 @@ private final class FringeTestPeripheral: CBPeripheral, @unchecked Sendable {
 
   static func reset() {
     discoverServicesCallCount = 0
+    FringeTestCentralManager.connectCallCount = 0
   }
 
   override var identifier: UUID {
