@@ -588,6 +588,8 @@ public actor ContactService {
     } else if isBeingUnblocked {
       await cleanupCoordinator?.handleCleanup(contactID: contactID, reason: .unblocked, publicKey: existing.publicKey)
     }
+
+    await syncCoordinator?.notifyContactsChanged()
   }
 
   /// Updates OCV settings for a contact
