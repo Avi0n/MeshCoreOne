@@ -1718,6 +1718,11 @@
 "Appearance.Scheme.System" = "Sistema";
 "Appearance.Scheme.Light" = "Chiara";
 "Appearance.Scheme.Dark" = "Scura";
+"Appearance.TextSize.Header" = "Dimensione testo";
+"Appearance.TextSize.System" = "Predefinita";
+"Appearance.TextSize.Large" = "Grande";
+"Appearance.TextSize.XLarge" = "Molto grande";
+"Appearance.TextSize.XXLarge" = "Extra grande";
 "Appearance.Themes.Header" = "Scegli un tema";
 "Appearance.Themes.Selected" = "Selezionato";
 "Appearance.MoreThemes.Link" = "Acquista altri temi";

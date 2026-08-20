@@ -13,6 +13,14 @@ struct PresetStepView: View {
   @State private var commitTrigger = false
   @State private var forceShowPicker = false
 
+  @ScaledMetric(relativeTo: .body) private var cardSpacing = OnboardingMetrics.cardSpacing
+  @ScaledMetric(relativeTo: .body) private var iconSize = OnboardingMetrics.iconSize
+  @ScaledMetric(relativeTo: .body) private var mediumSpacing = OnboardingMetrics.mediumSpacing
+  @ScaledMetric(relativeTo: .body) private var minHitTarget = OnboardingMetrics.minHitTarget
+  @ScaledMetric(relativeTo: .body) private var titleStackSpacing = OnboardingMetrics.titleStackSpacing
+  @ScaledMetric(relativeTo: .body) private var headerTopPadding = OnboardingMetrics.headerTopPadding
+  @ScaledMetric(relativeTo: .body) private var compactSpacing = OnboardingMetrics.compactSpacing
+
   private var region: RegionSelection? {
     appState.regionSelection
   }
@@ -76,10 +84,10 @@ struct PresetStepView: View {
   }
 
   private func alreadyConfiguredState(preset: RadioPreset) -> some View {
-    VStack(spacing: OnboardingMetrics.cardSpacing) {
+    VStack(spacing: cardSpacing) {
       Spacer()
       Image(systemName: "checkmark.circle.fill")
-        .font(.system(size: OnboardingMetrics.iconSize))
+        .font(.system(size: iconSize))
         .foregroundStyle(.tint)
       Text(L10n.Onboarding.Preset.AlreadyConfigured.title)
         .font(.largeTitle)
@@ -96,7 +104,7 @@ struct PresetStepView: View {
 
       Spacer()
 
-      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+      VStack(spacing: mediumSpacing) {
         Button {
           commitTrigger.toggle()
           appState.completeOnboarding()
@@ -113,7 +121,7 @@ struct PresetStepView: View {
         }
         .buttonStyle(.bordered)
         .tint(.accentColor)
-        .frame(minHeight: OnboardingMetrics.minHitTarget)
+        .frame(minHeight: minHitTarget)
       }
       .padding(.horizontal)
       .padding(.bottom)
@@ -121,8 +129,8 @@ struct PresetStepView: View {
   }
 
   private var pickerState: some View {
-    VStack(spacing: OnboardingMetrics.cardSpacing) {
-      VStack(spacing: OnboardingMetrics.titleStackSpacing) {
+    VStack(spacing: cardSpacing) {
+      VStack(spacing: titleStackSpacing) {
         Text(L10n.Onboarding.Preset.title)
           .font(.largeTitle)
           .bold()
@@ -137,10 +145,10 @@ struct PresetStepView: View {
             .foregroundStyle(.secondary)
         }
       }
-      .padding(.top, OnboardingMetrics.headerTopPadding)
+      .padding(.top, headerTopPadding)
 
       ScrollView {
-        VStack(spacing: OnboardingMetrics.mediumSpacing) {
+        VStack(spacing: mediumSpacing) {
           ForEach(visiblePresets) { preset in
             rowCard(preset)
           }
@@ -152,7 +160,7 @@ struct PresetStepView: View {
             .font(.footnote)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
-            .padding(.top, OnboardingMetrics.mediumSpacing)
+            .padding(.top, mediumSpacing)
           }
         }
         .padding(.horizontal)
@@ -189,7 +197,7 @@ struct PresetStepView: View {
       selectedID = preset.id
     } label: {
       HStack {
-        VStack(alignment: .leading, spacing: OnboardingMetrics.compactSpacing) {
+        VStack(alignment: .leading, spacing: compactSpacing) {
           Text(preset.name)
             .font(.body)
           Text("\(preset.frequencyMHz, format: .number.precision(.fractionLength(3)).locale(.posix)) MHz")
@@ -203,7 +211,7 @@ struct PresetStepView: View {
         }
       }
       .padding()
-      .frame(maxWidth: .infinity, minHeight: OnboardingMetrics.minHitTarget)
+      .frame(maxWidth: .infinity, minHeight: minHitTarget)
       .contentShape(.rect)
     }
     .buttonStyle(.plain)

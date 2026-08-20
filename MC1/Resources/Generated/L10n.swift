@@ -3848,6 +3848,18 @@ public enum L10n {
         /// System
         public static let system = L10n.tr("Settings", "Appearance.Scheme.System", fallback: "System")
       }
+      public enum TextSize {
+        /// Text Size
+        public static let header = L10n.tr("Settings", "Appearance.TextSize.Header", fallback: "Text Size")
+        /// Large
+        public static let large = L10n.tr("Settings", "Appearance.TextSize.Large", fallback: "Large")
+        /// Default
+        public static let system = L10n.tr("Settings", "Appearance.TextSize.System", fallback: "Default")
+        /// Extra Large
+        public static let xLarge = L10n.tr("Settings", "Appearance.TextSize.XLarge", fallback: "Extra Large")
+        /// Extra Extra Large
+        public static let xxLarge = L10n.tr("Settings", "Appearance.TextSize.XXLarge", fallback: "Extra Extra Large")
+      }
       public enum Themes {
         /// Choose a theme
         public static let header = L10n.tr("Settings", "Appearance.Themes.Header", fallback: "Choose a theme")

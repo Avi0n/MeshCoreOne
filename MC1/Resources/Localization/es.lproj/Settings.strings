@@ -1720,6 +1720,11 @@
 "Appearance.Scheme.System" = "Sistema";
 "Appearance.Scheme.Light" = "Claro";
 "Appearance.Scheme.Dark" = "Oscuro";
+"Appearance.TextSize.Header" = "Tamaño de texto";
+"Appearance.TextSize.System" = "Predeterminado";
+"Appearance.TextSize.Large" = "Grande";
+"Appearance.TextSize.XLarge" = "Muy grande";
+"Appearance.TextSize.XXLarge" = "Extra grande";
 "Appearance.Themes.Header" = "Elige un tema";
 "Appearance.Themes.Selected" = "Seleccionado";
 "Appearance.MoreThemes.Link" = "Comprar más temas";

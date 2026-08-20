@@ -15,6 +15,13 @@ struct RegionStepView: View {
   @State private var pendingUserRetry = false
   @State private var errorMessage: String?
 
+  @ScaledMetric(relativeTo: .body) private var cardSpacing = OnboardingMetrics.cardSpacing
+  @ScaledMetric(relativeTo: .body) private var titleStackSpacing = OnboardingMetrics.titleStackSpacing
+  @ScaledMetric(relativeTo: .body) private var headerTopPadding = OnboardingMetrics.headerTopPadding
+  @ScaledMetric(relativeTo: .body) private var contentPadding = OnboardingMetrics.contentPadding
+  @ScaledMetric(relativeTo: .body) private var cardCornerRadius = OnboardingMetrics.cardCornerRadius
+  @ScaledMetric(relativeTo: .body) private var minHitTarget = OnboardingMetrics.minHitTarget
+
   private var locationGranted: Bool {
     appState.locationService.isAuthorized
   }
@@ -59,7 +66,7 @@ struct RegionStepView: View {
   }
 
   private var resolvingState: some View {
-    VStack(spacing: OnboardingMetrics.cardSpacing) {
+    VStack(spacing: cardSpacing) {
       Spacer()
       ProgressView().controlSize(.large)
       Text(L10n.Onboarding.Region.resolving)
@@ -70,8 +77,8 @@ struct RegionStepView: View {
   }
 
   private func detectedState(region: RegionSelection) -> some View {
-    VStack(spacing: OnboardingMetrics.cardSpacing) {
-      VStack(spacing: OnboardingMetrics.titleStackSpacing) {
+    VStack(spacing: cardSpacing) {
+      VStack(spacing: titleStackSpacing) {
         Text(L10n.Onboarding.Region.title)
           .font(.largeTitle)
           .bold()
@@ -81,11 +88,11 @@ struct RegionStepView: View {
           .foregroundStyle(.secondary)
           .multilineTextAlignment(.center)
       }
-      .padding(.top, OnboardingMetrics.headerTopPadding)
+      .padding(.top, headerTopPadding)
 
       Spacer()
 
-      VStack(spacing: OnboardingMetrics.titleStackSpacing) {
+      VStack(spacing: titleStackSpacing) {
         Text(L10n.Onboarding.Region.Detected.tag)
           .font(.caption.weight(.medium))
           .foregroundStyle(.tint)
@@ -97,9 +104,9 @@ struct RegionStepView: View {
           .font(.caption)
           .foregroundStyle(.secondary)
       }
-      .padding(OnboardingMetrics.contentPadding)
+      .padding(contentPadding)
       .frame(maxWidth: .infinity)
-      .liquidGlass(in: .rect(cornerRadius: OnboardingMetrics.cardCornerRadius))
+      .liquidGlass(in: .rect(cornerRadius: cardCornerRadius))
       .padding(.horizontal)
       .accessibilityElement(children: .combine)
 
@@ -109,7 +116,7 @@ struct RegionStepView: View {
       .font(.subheadline)
       .buttonStyle(.bordered)
       .tint(.accentColor)
-      .frame(minHeight: OnboardingMetrics.minHitTarget)
+      .frame(minHeight: minHitTarget)
 
       Spacer()
 
@@ -130,8 +137,8 @@ struct RegionStepView: View {
   }
 
   private var manualPickerState: some View {
-    VStack(spacing: OnboardingMetrics.cardSpacing) {
-      VStack(spacing: OnboardingMetrics.titleStackSpacing) {
+    VStack(spacing: cardSpacing) {
+      VStack(spacing: titleStackSpacing) {
         Text(L10n.Onboarding.Region.title)
           .font(.largeTitle)
           .bold()
@@ -141,7 +148,7 @@ struct RegionStepView: View {
           .foregroundStyle(.secondary)
           .multilineTextAlignment(.center)
       }
-      .padding(.top, OnboardingMetrics.headerTopPadding)
+      .padding(.top, headerTopPadding)
 
       RegionPickerView(selection: $manualSelection)
 
@@ -157,7 +164,7 @@ struct RegionStepView: View {
         }
         .font(.subheadline)
         .foregroundStyle(.tint)
-        .frame(minHeight: OnboardingMetrics.minHitTarget)
+        .frame(minHeight: minHitTarget)
       }
 
       Button {

@@ -3,12 +3,15 @@ import SwiftUI
 struct WelcomeView: View {
   @Environment(\.appState) private var appState
 
+  @ScaledMetric(relativeTo: .body) private var heroSize = OnboardingMetrics.heroSize
+  @ScaledMetric(relativeTo: .body) private var cardSpacing = OnboardingMetrics.cardSpacing
+
   var body: some View {
-    VStack(spacing: OnboardingMetrics.cardSpacing * 2) {
+    VStack(spacing: cardSpacing * 2) {
       Spacer()
 
       MeshAnimationView()
-        .frame(height: OnboardingMetrics.heroSize)
+        .frame(height: heroSize)
         .padding(.horizontal)
 
       VStack(spacing: 12) {

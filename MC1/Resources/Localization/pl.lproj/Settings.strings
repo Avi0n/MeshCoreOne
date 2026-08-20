@@ -1720,6 +1720,11 @@
 "Appearance.Scheme.System" = "Systemowy";
 "Appearance.Scheme.Light" = "Jasny";
 "Appearance.Scheme.Dark" = "Ciemny";
+"Appearance.TextSize.Header" = "Rozmiar tekstu";
+"Appearance.TextSize.System" = "Domyślny";
+"Appearance.TextSize.Large" = "Duży";
+"Appearance.TextSize.XLarge" = "Bardzo duży";
+"Appearance.TextSize.XXLarge" = "Ekstra duży";
 "Appearance.Themes.Header" = "Wybierz motyw";
 "Appearance.Themes.Selected" = "Wybrany";
 "Appearance.MoreThemes.Link" = "Kup więcej motywów";

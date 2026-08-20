@@ -1720,6 +1720,11 @@
 "Appearance.Scheme.System" = "Systeem";
 "Appearance.Scheme.Light" = "Licht";
 "Appearance.Scheme.Dark" = "Donker";
+"Appearance.TextSize.Header" = "Tekengrootte";
+"Appearance.TextSize.System" = "Standaard";
+"Appearance.TextSize.Large" = "Groot";
+"Appearance.TextSize.XLarge" = "Extra groot";
+"Appearance.TextSize.XXLarge" = "Extra extra groot";
 "Appearance.Themes.Header" = "Kies een thema";
 "Appearance.Themes.Selected" = "Geselecteerd";
 "Appearance.MoreThemes.Link" = "Meer thema's kopen";

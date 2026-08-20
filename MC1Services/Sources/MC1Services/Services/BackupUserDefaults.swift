@@ -10,6 +10,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var mapStyleSelection: String?
   public var selectedThemeID: String?
   public var appColorSchemePreference: String?
+  public var appUITextSizePreference: String?
   public var mapShowLabels: Bool?
   public var mapNorthLocked: Bool?
   public var showDiscoveredNodesOnMap: Bool?
@@ -150,6 +151,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.tracePathViewMode, AppStorageKey.tracePathViewMode.rawValue),
     (\.selectedThemeID, PersistenceKeys.selectedThemeID),
     (\.appColorSchemePreference, PersistenceKeys.appColorSchemePreference),
+    (\.appUITextSizePreference, PersistenceKeys.appUITextSizePreference),
   ]
 
   /// Key strings used by `stringMappings`. Internal solely for testability —

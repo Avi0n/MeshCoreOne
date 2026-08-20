@@ -243,6 +243,8 @@ private struct PathHopRow: View {
   let index: Int
   let totalCount: Int
 
+  @ScaledMetric(relativeTo: .body) private var tapTarget = PathEditMetrics.tapTarget
+
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
       if let name = hop.resolvedName {
@@ -254,7 +256,7 @@ private struct PathHopRow: View {
         Text(hop.hashHex).font(.body.monospaced())
       }
     }
-    .frame(minHeight: PathEditMetrics.tapTarget)
+    .frame(minHeight: tapTarget)
     .accessibilityElement(children: .combine)
     .accessibilityLabel(accessibilityDescription)
     .accessibilityHint(L10n.Contacts.Contacts.PathEdit.hopHint)

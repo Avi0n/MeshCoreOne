@@ -7,6 +7,9 @@ struct ThemePreviewCard: View {
   let theme: Theme
   let isOwned: Bool
 
+  @ScaledMetric(relativeTo: .body) private var badgeIconSpacing = ThemeCardMetrics.badgeIconSpacing
+  @ScaledMetric(relativeTo: .body) private var contentPadding = ThemeCardMetrics.contentPadding
+
   var body: some View {
     VStack(spacing: 8) {
       ZStack(alignment: .topTrailing) {
@@ -23,7 +26,7 @@ struct ThemePreviewCard: View {
         .font(.subheadline.weight(.medium))
         .lineLimit(1)
       if isOwned {
-        HStack(spacing: ThemeCardMetrics.badgeIconSpacing) {
+        HStack(spacing: badgeIconSpacing) {
           Image(systemName: "checkmark")
           Text(L10n.Settings.Support.Themes.owned)
         }
@@ -31,7 +34,7 @@ struct ThemePreviewCard: View {
         .foregroundStyle(.secondary)
       }
     }
-    .padding(ThemeCardMetrics.contentPadding)
+    .padding(contentPadding)
     .frame(maxWidth: .infinity)
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(accessibilityLabel)

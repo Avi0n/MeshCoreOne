@@ -13,6 +13,8 @@ struct ChatShareMenu: View {
 
   @Environment(\.appState) private var appState
 
+  @ScaledMetric(relativeTo: .body) private var controlHeight = ChatInputMetrics.controlHeight
+
   @State private var isShowingContactPicker = false
   @State private var locationTask: Task<Void, Never>?
 
@@ -98,9 +100,9 @@ struct ChatShareMenu: View {
       .disabled(!canShareMyInfo)
     } label: {
       Image(systemName: "plus")
-        .font(.system(size: 18, weight: .semibold))
+        .font(.body.weight(.semibold))
         .foregroundStyle(plusIconColor)
-        .frame(width: ChatInputMetrics.controlHeight, height: ChatInputMetrics.controlHeight)
+        .frame(width: controlHeight, height: controlHeight)
         .plusButtonBackground()
     }
     .buttonStyle(.plain)
