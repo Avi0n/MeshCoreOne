@@ -73,6 +73,12 @@ struct ContactDetailView: View {
     }
   }
 
+  /// Wraps a decoded avatar image so `fullScreenCover(item:)` can't present an empty cover.
+  private struct AvatarCropRequest: Identifiable {
+    let id = UUID()
+    let image: UIImage
+  }
+
   @State private var currentContact: ContactDTO
   @State private var nickname = ""
   @State private var isEditingNickname = false
@@ -105,6 +111,10 @@ struct ContactDetailView: View {
   @State private var showAvatarFileImporter = false
   @State private var avatarPickerItem: PhotosPickerItem?
   @State private var isSavingAvatar = false
+  /// A decoded image waiting for the photo picker / file importer sheet that produced it
+  /// to finish dismissing, so the crop cover isn't presented while another is still animating out.
+  @State private var pendingCropImage: UIImage?
+  @State private var cropRequest: AvatarCropRequest?
 
   init(contact: ContactDTO, showFromDirectChat: Bool = false, onClearMessages: @escaping () -> Void = {}) {
     self.contact = contact
@@ -273,8 +283,24 @@ struct ContactDetailView: View {
     .onChange(of: avatarPickerItem) { _, newItem in
       Task { await loadPickedAvatarPhoto(newItem) }
     }
+    .onChange(of: showAvatarPhotosPicker) { _, isPresented in
+      if !isPresented { presentPendingCropIfReady() }
+    }
     .fileImporter(isPresented: $showAvatarFileImporter, allowedContentTypes: [.image]) { result in
       Task { await handleAvatarFileImport(result) }
+    }
+    .onChange(of: showAvatarFileImporter) { _, isPresented in
+      if !isPresented { presentPendingCropIfReady() }
+    }
+    .fullScreenCover(item: $cropRequest) { request in
+      AvatarCropView(
+        image: request.image,
+        onCancel: { cropRequest = nil },
+        onComplete: { cropped in
+          cropRequest = nil
+          Task { await saveAvatar(image: cropped) }
+        }
+      )
     }
     .task {
       pathViewModel.configure(
@@ -535,7 +561,7 @@ struct ContactDetailView: View {
         errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
         return
       }
-      await saveAvatar(data: data)
+      await presentCropSheet(data: data)
     } catch {
       errorMessage = error.userFacingMessage
     }
@@ -548,7 +574,7 @@ struct ContactDetailView: View {
       defer { if didAccess { url.stopAccessingSecurityScopedResource() } }
       do {
         let data = try Data(contentsOf: url)
-        await saveAvatar(data: data)
+        await presentCropSheet(data: data)
       } catch {
         errorMessage = error.userFacingMessage
       }
@@ -557,10 +583,36 @@ struct ContactDetailView: View {
     }
   }
 
-  private func saveAvatar(data: Data) async {
+  /// Decodes off the main actor and downsamples to a display-sized bound before the crop
+  /// screen ever sees the image, so a 12-48MP camera photo doesn't hitch the UI or hold
+  /// its full-resolution bitmap in memory while cropping.
+  private func presentCropSheet(data: Data) async {
+    let decoded = await Task.detached(priority: .userInitiated) {
+      Self.downsampledImage(data: data, maxPixelSize: Self.cropMaxPixelSize)
+    }.value
+    guard let image = decoded else {
+      errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
+      return
+    }
+    pendingCropImage = image
+    // The picker/importer sheet may still be animating its dismissal; onChange above
+    // presents the pending image once it reports fully closed. If it's already closed
+    // by the time decoding finishes, present immediately.
+    if !showAvatarPhotosPicker, !showAvatarFileImporter {
+      presentPendingCropIfReady()
+    }
+  }
+
+  private func presentPendingCropIfReady() {
+    guard let image = pendingCropImage else { return }
+    pendingCropImage = nil
+    cropRequest = AvatarCropRequest(image: image)
+  }
+
+  private func saveAvatar(image: UIImage) async {
     isSavingAvatar = true
     let processed = await Task.detached(priority: .userInitiated) {
-      Self.processAvatarImage(data: data)
+      Self.processAvatarImage(image: image)
     }.value
     guard let processed else {
       errorMessage = L10n.Contacts.Contacts.Detail.Avatar.invalidImage
@@ -590,10 +642,31 @@ struct ContactDetailView: View {
     isSavingAvatar = false
   }
 
+  /// Max pixel dimension the crop screen decodes and displays at; well above the 300pt
+  /// on-screen guide to stay sharp under the pinch zoom's 4x cap, but bounded so a raw
+  /// camera photo can't hold its full-resolution bitmap in memory while cropping.
+  private nonisolated static let cropMaxPixelSize: CGFloat = 1024
+
+  /// Decodes and downsamples via ImageIO instead of `UIImage(data:)`, so a large source
+  /// image is never fully decoded into memory. Mirrors `ImageURLDetector.downsampledImage(from:)`.
+  private nonisolated static func downsampledImage(data: Data, maxPixelSize: CGFloat) -> UIImage? {
+    let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions) else { return nil }
+    let downsampleOptions: [CFString: Any] = [
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceShouldCacheImmediately: true
+    ]
+    guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, downsampleOptions as CFDictionary) else {
+      return nil
+    }
+    return UIImage(cgImage: cgImage)
+  }
+
   /// Downscales to a max 512pt dimension and re-encodes as JPEG so avatars stay small in the store.
   /// `nonisolated` so it can run on a background thread via `Task.detached` in `saveAvatar`.
-  private nonisolated static func processAvatarImage(data: Data) -> Data? {
-    guard let image = UIImage(data: data) else { return nil }
+  private nonisolated static func processAvatarImage(image: UIImage) -> Data? {
     let maxDimension: CGFloat = 512
     let scale = min(1, maxDimension / max(image.size.width, image.size.height))
     let targetSize = CGSize(width: image.size.width * scale, height: image.size.height * scale)

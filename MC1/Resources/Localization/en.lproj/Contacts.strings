@@ -284,6 +284,15 @@
 /* Location: ContactDetailView.swift - Purpose: Error shown when the picked file isn't a valid image */
 "contacts.detail.avatar.invalidImage" = "That file couldn't be used as a profile picture.";
 
+/* Location: AvatarCropView.swift - Purpose: Crop screen navigation title */
+"contacts.detail.avatar.crop.title" = "Move and Scale";
+
+/* Location: AvatarCropView.swift - Purpose: Crop screen cancel button */
+"contacts.detail.avatar.crop.cancel" = "Cancel";
+
+/* Location: AvatarCropView.swift - Purpose: Crop screen confirm button */
+"contacts.detail.avatar.crop.choose" = "Choose";
+
 /* Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved */
 "contacts.detail.avatar.savingAnnouncement" = "Saving photo";
 
