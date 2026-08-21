@@ -10,7 +10,10 @@ struct MessagePathViewModelTests {
     prefix: [UInt8],
     name: String,
     type: ContactType = .chat,
-    lastAdvertTimestamp: UInt32 = 0
+    lastAdvertTimestamp: UInt32 = 0,
+    latitude: Double = 0,
+    longitude: Double = 0,
+    isBlocked: Bool = false
   ) -> ContactDTO {
     ContactDTO(
       id: UUID(),
@@ -22,12 +25,12 @@ struct MessagePathViewModelTests {
       outPathLength: 0,
       outPath: Data(),
       lastAdvertTimestamp: lastAdvertTimestamp,
-      latitude: 0,
-      longitude: 0,
+      latitude: latitude,
+      longitude: longitude,
       lastModified: 0,
       lastHeardTimestamp: nil,
       nickname: nil,
-      isBlocked: false,
+      isBlocked: isBlocked,
       isMuted: false,
       isFavorite: false,
       lastMessageDate: nil,
@@ -163,6 +166,172 @@ struct MessagePathViewModelTests {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: Data([0x0A]))
     #expect(viewModel.senderNodeID(for: message) == "0A")
+  }
+
+  // MARK: - locatedSender
+
+  private static let locatedLatitude = 37.7749
+  private static let locatedLongitude = -122.4194
+
+  @Test
+  func `locatedSender matches DM by key prefix`() {
+    let viewModel = MessagePathViewModel()
+    let contact = createContact(
+      prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
+      name: "Alpha",
+      latitude: Self.locatedLatitude,
+      longitude: Self.locatedLongitude
+    )
+    viewModel.contacts = [contact]
+
+    let result = viewModel.locatedSender(for: createMessage(senderKeyPrefix: contact.publicKeyPrefix))
+
+    #expect(result?.id == contact.id)
+  }
+
+  @Test
+  func `locatedSender returns nil for DM prefix match without location`() {
+    let viewModel = MessagePathViewModel()
+    let contact = createContact(prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00], name: "Alpha")
+    viewModel.contacts = [contact]
+
+    let result = viewModel.locatedSender(for: createMessage(senderKeyPrefix: contact.publicKeyPrefix))
+
+    #expect(result == nil)
+  }
+
+  @Test
+  func `locatedSender matches unique channel sender name with location`() {
+    let viewModel = MessagePathViewModel()
+    let contact = createContact(
+      prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
+      name: "RemoteNode",
+      latitude: Self.locatedLatitude,
+      longitude: Self.locatedLongitude
+    )
+    viewModel.contacts = [contact]
+
+    let result = viewModel.locatedSender(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+    )
+
+    #expect(result?.id == contact.id)
+  }
+
+  @Test
+  func `locatedSender returns nil for unique channel name without location`() {
+    let viewModel = MessagePathViewModel()
+    let contact = createContact(prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00], name: "RemoteNode")
+    viewModel.contacts = [contact]
+
+    let result = viewModel.locatedSender(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+    )
+
+    #expect(result == nil)
+  }
+
+  @Test
+  func `locatedSender returns nil when two contacts share the channel sender name`() {
+    let viewModel = MessagePathViewModel()
+    let located = createContact(
+      prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
+      name: "Alice",
+      latitude: Self.locatedLatitude,
+      longitude: Self.locatedLongitude
+    )
+    let unlocated = createContact(prefix: [0xBB, 0x02, 0x00, 0x00, 0x00, 0x00], name: "Alice")
+    viewModel.contacts = [located, unlocated]
+
+    let result = viewModel.locatedSender(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "Alice", channelIndex: 0)
+    )
+
+    #expect(result == nil)
+  }
+
+  @Test
+  func `locatedSender returns nil when no contact matches the channel sender name`() {
+    let viewModel = MessagePathViewModel()
+    viewModel.contacts = [
+      createContact(
+        prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
+        name: "Alpha",
+        latitude: Self.locatedLatitude,
+        longitude: Self.locatedLongitude
+      )
+    ]
+
+    let result = viewModel.locatedSender(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+    )
+
+    #expect(result == nil)
+  }
+
+  @Test
+  func `locatedSender prefers key prefix over channel name when prefix matches`() {
+    let viewModel = MessagePathViewModel()
+    let prefixed = createContact(
+      prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
+      name: "Alpha",
+      latitude: Self.locatedLatitude,
+      longitude: Self.locatedLongitude
+    )
+    let named = createContact(
+      prefix: [0xBB, 0x02, 0x00, 0x00, 0x00, 0x00],
+      name: "RemoteNode",
+      latitude: 37.8,
+      longitude: -122.5
+    )
+    viewModel.contacts = [prefixed, named]
+
+    let result = viewModel.locatedSender(
+      for: createMessage(
+        senderKeyPrefix: prefixed.publicKeyPrefix,
+        senderNodeName: "RemoteNode",
+        channelIndex: 0
+      )
+    )
+
+    #expect(result?.id == prefixed.id)
+  }
+
+  @Test
+  func `locatedSender matches channel sender name case-insensitively`() {
+    let viewModel = MessagePathViewModel()
+    let contact = createContact(
+      prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
+      name: "RemoteNode",
+      latitude: Self.locatedLatitude,
+      longitude: Self.locatedLongitude
+    )
+    viewModel.contacts = [contact]
+
+    let result = viewModel.locatedSender(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "remotenode", channelIndex: 0)
+    )
+
+    #expect(result?.id == contact.id)
+  }
+
+  @Test
+  func `locatedSender includes a unique blocked contact`() {
+    let viewModel = MessagePathViewModel()
+    let contact = createContact(
+      prefix: [0xAA, 0x01, 0x00, 0x00, 0x00, 0x00],
+      name: "RemoteNode",
+      latitude: Self.locatedLatitude,
+      longitude: Self.locatedLongitude,
+      isBlocked: true
+    )
+    viewModel.contacts = [contact]
+
+    let result = viewModel.locatedSender(
+      for: createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+    )
+
+    #expect(result?.id == contact.id)
   }
 
   // MARK: - repeaterName

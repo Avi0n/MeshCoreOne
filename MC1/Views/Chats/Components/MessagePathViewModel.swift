@@ -70,6 +70,28 @@ final class MessagePathViewModel {
     return String(format: "%02X", firstByte)
   }
 
+  /// Pin A contact from a non-empty `senderKeyPrefix`, or a unique `senderNodeName` on a channel row.
+  func locatedSender(for message: MessageDTO) -> ContactDTO? {
+    if let keyPrefix = message.senderKeyPrefix, !keyPrefix.isEmpty {
+      guard let sender = contacts.first(where: { $0.publicKeyPrefix == keyPrefix }),
+            sender.hasLocation else {
+        return nil
+      }
+      return sender
+    }
+
+    guard message.isChannelMessage,
+          let senderName = message.senderNodeName, !senderName.isEmpty else {
+      return nil
+    }
+
+    let matches = SenderContactMatcher.filter(contacts: contacts, senderName: senderName)
+    guard matches.count == 1, let sender = matches.first, sender.hasLocation else {
+      return nil
+    }
+    return sender
+  }
+
   func repeaterResolution(for hashBytes: Data, userLocation: CLLocation?) -> NodeNameResolution {
     NeighborNameResolver.resolve(
       for: hashBytes,
