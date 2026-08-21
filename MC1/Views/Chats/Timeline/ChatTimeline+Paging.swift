@@ -188,16 +188,32 @@ extension ChatTimeline {
 
   // MARK: - Admission
 
+  /// Result of `admit`: whether the row was inserted, and the same-sender
+  /// cluster-end pair when the previous last incoming avatar should drop onto
+  /// the new tail.
+  struct Admission: Equatable {
+    struct Handoff: Equatable, Sendable {
+      let fromID: UUID
+      let toID: UUID
+      let identity: IncomingAvatarIdentity
+    }
+
+    let inserted: Bool
+    let handoff: Handoff?
+
+    static let ignored = Admission(inserted: false, handoff: nil)
+  }
+
   /// Admits a message into the open timeline: dedupes against the loaded
   /// window and appends the message and its baked render item in one call
   /// frame, so the row lands already carrying its preview fragment. Returns
-  /// false when the message was already present or the timeline is unbound
+  /// `.ignored` when the message was already present or the timeline is unbound
   /// (a stale writer drops the append at the coordinator).
   @discardableResult
-  func admit(_ message: MessageDTO) -> Bool {
-    guard coordinator != nil, let writer else { return false }
+  func admit(_ message: MessageDTO) -> Admission {
+    guard coordinator != nil, let writer else { return .ignored }
     let previous = messages.last
-    guard writer.append(message) else { return false }
+    guard writer.append(message) else { return .ignored }
     let newItem = makeItem(for: message, previous: previous, next: nil)
     let shouldHandoff = previous.map {
       ChatMessageBakeState.incomingClusterContinues(from: $0, to: message)
@@ -211,7 +227,16 @@ extension ChatTimeline {
       }
       return next.appendingItem(newItem)
     }
-    return true
+    let handoff: Admission.Handoff? = if shouldHandoff, let previous, let identity = newItem.envelope.incomingAvatar {
+      Admission.Handoff(
+        fromID: previous.id,
+        toID: message.id,
+        identity: identity
+      )
+    } else {
+      nil
+    }
+    return Admission(inserted: true, handoff: handoff)
   }
 
   // MARK: - Message mutations

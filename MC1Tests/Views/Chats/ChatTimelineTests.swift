@@ -278,7 +278,7 @@ struct ChatTimelineTests {
     _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     let message = makeDirectMessage(radioID: radioID, contactID: contact.id, timestamp: 2000, text: "hello")
-    #expect(timeline.admit(message))
+    #expect(timeline.admit(message).inserted)
 
     #expect(timeline.messages.last?.id == message.id)
     #expect(timeline.items.last?.id == message.id)
@@ -299,7 +299,7 @@ struct ChatTimelineTests {
     _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     #expect(timeline.messages.count == 1)
 
-    #expect(!timeline.admit(seeded))
+    #expect(timeline.admit(seeded).inserted == false)
     #expect(timeline.messages.count == 1)
   }
 
@@ -307,7 +307,7 @@ struct ChatTimelineTests {
   func `admit no-ops on an unbound timeline`() {
     let timeline = ChatTimeline(role: .interactive)
     let message = makeDirectMessage(radioID: UUID(), contactID: UUID(), timestamp: 1000, text: "x")
-    #expect(!timeline.admit(message))
+    #expect(timeline.admit(message).inserted == false)
     #expect(timeline.messages.isEmpty)
   }
 

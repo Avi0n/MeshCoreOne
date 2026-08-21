@@ -60,6 +60,10 @@ final class RoomConversationViewModel {
   /// state still feels fresh.
   private static let reloadDebounce: Duration = .milliseconds(50)
 
+  /// View-owned drop animation. Weak so a disappeared room cannot start a
+  /// flight after its overlay is gone.
+  @ObservationIgnored weak var incomingAvatarFlight: IncomingAvatarFlight?
+
   // MARK: - Initialization
 
   init() {}
@@ -113,8 +117,19 @@ final class RoomConversationViewModel {
   /// `[timestamp, createdAt]` sort.
   func appendMessageIfNew(_ message: RoomMessageDTO) {
     guard !messages.contains(where: { $0.id == message.id }) else { return }
+    let previousTail = messages.last
     let index = messages.firstIndex { $0.timestamp > message.timestamp } ?? messages.endIndex
+    let isTailAppend = index == messages.endIndex
     messages.insert(message, at: index)
+    if isTailAppend,
+       let previous = previousTail,
+       Self.incomingClusterContinues(from: previous, to: message) {
+      incomingAvatarFlight?.beginFlight(
+        from: previous.id,
+        to: message.id,
+        identity: .initials(name: message.authorDisplayName)
+      )
+    }
   }
 
   /// Send a message to the current room

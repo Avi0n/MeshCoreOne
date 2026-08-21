@@ -186,7 +186,8 @@ private struct BubbleContent: View {
 
       IncomingAvatarGutter(
         identity: showAvatar ? .initials(name: message.authorDisplayName) : nil,
-        reserveColumn: !isFromSelf
+        reserveColumn: !isFromSelf,
+        messageID: message.id
       ) {
         messageBox
       }

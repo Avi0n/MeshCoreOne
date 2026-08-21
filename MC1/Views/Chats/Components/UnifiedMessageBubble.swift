@@ -253,7 +253,8 @@ struct UnifiedMessageBubble: View, Equatable {
   private var bubbleWithOptionalAvatar: some View {
     IncomingAvatarGutter(
       identity: showAvatar ? item.envelope.incomingAvatar : nil,
-      reserveColumn: reserveAvatarColumn
+      reserveColumn: reserveAvatarColumn,
+      messageID: message.id
     ) {
       stackedBubble
     }

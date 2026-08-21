@@ -207,6 +207,7 @@ struct RoomConversationView: View {
 
   private func makeMessagesView() -> some View {
     MessagesView(
+      viewModel: viewModel,
       hasLoadedOnce: viewModel.hasLoadedOnce,
       messages: viewModel.messages,
       isAtBottom: $isAtBottom,
@@ -307,6 +308,7 @@ extension RoomConversationView {
 // MARK: - Messages View
 
 private struct MessagesView: View {
+  var viewModel: RoomConversationViewModel
   let hasLoadedOnce: Bool
   let messages: [RoomMessageDTO]
   @Binding var isAtBottom: Bool
@@ -318,6 +320,8 @@ private struct MessagesView: View {
   let onLongPress: (RoomMessageDTO) -> Void
 
   @Environment(\.openURL) private var openURL
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @State private var incomingAvatarFlight = IncomingAvatarFlight()
 
   var body: some View {
     Group {
@@ -339,6 +343,7 @@ private struct MessagesView: View {
             )
             .environment(\.appTheme, theme)
             .environment(\.openURL, openURL)
+            .environment(\.incomingAvatarFlight, incomingAvatarFlight)
           },
           contentBackground: theme.surfaces?.canvas,
           isAtBottom: $isAtBottom,
@@ -346,6 +351,20 @@ private struct MessagesView: View {
           scrollToBottomRequest: scrollToBottomRequest,
           countsTowardUnread: { !$0.message.isFromSelf }
         )
+        .overlay {
+          incomingAvatarFlight.overlay()
+        }
+        .onAppear {
+          viewModel.incomingAvatarFlight = incomingAvatarFlight
+          incomingAvatarFlight.isAtBottom = isAtBottom
+          incomingAvatarFlight.reduceMotion = reduceMotion
+        }
+        .onChange(of: isAtBottom, initial: true) { _, atBottom in
+          incomingAvatarFlight.isAtBottom = atBottom
+        }
+        .onChange(of: reduceMotion, initial: true) { _, reduce in
+          incomingAvatarFlight.reduceMotion = reduce
+        }
       }
     }
     .themedCanvas(theme)

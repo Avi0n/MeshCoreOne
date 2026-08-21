@@ -83,6 +83,10 @@ final class ChatViewModel {
   /// Cancel-and-replace token for the serialized reload funnel. No view reads it.
   @ObservationIgnored var reloadTask: Task<Void, Never>?
 
+  /// View-owned drop animation. Weak so a disappeared conversation cannot
+  /// start a flight after its overlay is gone.
+  @ObservationIgnored weak var incomingAvatarFlight: IncomingAvatarFlight?
+
   #if DEBUG
     /// Test-only interleave hook, awaited once mid-reload so a test can suspend reload #1
     /// between fetches and commit reload #2 first. Compiled out of release builds.
