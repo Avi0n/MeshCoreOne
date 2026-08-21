@@ -97,33 +97,14 @@ struct UnifiedMessageBubble: View, Equatable {
              item.grouping.showSenderName {
             SenderNameLabel(resolution: item.envelope.senderResolution, nameColor: senderColor)
               .senderNamePlacement(enclosingStackSpacing: bubbleStackSpacing)
+              .padding(.leading, reserveAvatarColumn ? IncomingBubbleAvatarMetrics.columnWidth : 0)
           }
 
-          bubbleActionsLongPress(
-            BubbleFragmentStack(
-              item: item,
-              layout: layout,
-              bubbleColor: resolvedBubbleColor,
-              timeColor: footerTimeColor,
-              callbacks: callbacks,
-              imageResolver: imageResolver
-            )
-            .shadow(
-              color: Color.black.opacity(isLongPressing ? liftContactShadowOpacity : 0),
-              radius: liftContactShadowRadius,
-              x: 0,
-              y: liftContactShadowYOffset
-            )
-            .shadow(
-              color: Color.black.opacity(isLongPressing ? liftAmbientShadowOpacity : 0),
-              radius: liftAmbientShadowRadius,
-              x: 0,
-              y: liftAmbientShadowYOffset
-            )
-          )
+          bubbleActionsLongPress(bubbleWithOptionalAvatar)
 
           ForEach(Array(layout.siblings.enumerated()), id: \.offset) { _, fragment in
             siblingFragmentView(fragment)
+              .padding(.leading, reserveAvatarColumn ? IncomingBubbleAvatarMetrics.columnWidth : 0)
           }
         }
         .accessibilityElement(children: .combine)
@@ -258,6 +239,47 @@ struct UnifiedMessageBubble: View, Equatable {
     case .reactionSummary, .text, .inlineImage:
       false
     }
+  }
+
+  /// Channel incoming only. DM incoming and every outgoing row skip the column.
+  private var reserveAvatarColumn: Bool {
+    configuration.showsIncomingAvatars && !item.envelope.isOutgoing
+  }
+
+  private var showAvatar: Bool {
+    reserveAvatarColumn && item.envelope.incomingAvatar != nil
+  }
+
+  private var bubbleWithOptionalAvatar: some View {
+    IncomingAvatarGutter(
+      identity: showAvatar ? item.envelope.incomingAvatar : nil,
+      reserveColumn: reserveAvatarColumn
+    ) {
+      stackedBubble
+    }
+  }
+
+  private var stackedBubble: some View {
+    BubbleFragmentStack(
+      item: item,
+      layout: layout,
+      bubbleColor: resolvedBubbleColor,
+      timeColor: footerTimeColor,
+      callbacks: callbacks,
+      imageResolver: imageResolver
+    )
+    .shadow(
+      color: Color.black.opacity(isLongPressing ? liftContactShadowOpacity : 0),
+      radius: liftContactShadowRadius,
+      x: 0,
+      y: liftContactShadowYOffset
+    )
+    .shadow(
+      color: Color.black.opacity(isLongPressing ? liftAmbientShadowOpacity : 0),
+      radius: liftAmbientShadowRadius,
+      x: 0,
+      y: liftAmbientShadowYOffset
+    )
   }
 
   // MARK: - Computed Properties

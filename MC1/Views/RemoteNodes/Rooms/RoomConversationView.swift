@@ -327,44 +327,46 @@ private struct MessagesView: View {
       } else if messages.isEmpty {
         EmptyMessagesView(session: session)
       } else {
-        let timestampVisibleIDs = Self.timestampVisibleIDs(in: messages)
+        let rows = RoomConversationViewModel.tiledRows(in: messages)
         ChatTiledView(
-          items: messages,
-          cellContent: { message in
-            messageBubble(for: message, showTimestamp: timestampVisibleIDs.contains(message.id))
-              .environment(\.appTheme, theme)
-              .environment(\.openURL, openURL)
+          items: rows,
+          cellContent: { row in
+            messageBubble(
+              for: row.message,
+              showTimestamp: row.showTimestamp,
+              showSenderName: row.showSenderName,
+              showAvatar: row.showAvatar
+            )
+            .environment(\.appTheme, theme)
+            .environment(\.openURL, openURL)
           },
           contentBackground: theme.surfaces?.canvas,
           isAtBottom: $isAtBottom,
           unreadCount: $unreadCount,
           scrollToBottomRequest: scrollToBottomRequest,
-          countsTowardUnread: { !$0.isFromSelf }
+          countsTowardUnread: { !$0.message.isFromSelf }
         )
       }
     }
     .themedCanvas(theme)
   }
 
-  private func messageBubble(for message: RoomMessageDTO, showTimestamp: Bool) -> some View {
+  private func messageBubble(
+    for message: RoomMessageDTO,
+    showTimestamp: Bool,
+    showSenderName: Bool,
+    showAvatar: Bool
+  ) -> some View {
     RoomMessageBubble(
       message: message,
       showTimestamp: showTimestamp,
+      showSenderName: showSenderName,
+      showAvatar: showAvatar,
       onRetry: message.status == .failed ? {
         onRetry(message.id)
       } : nil,
       onLongPress: onLongPress
     )
-  }
-
-  /// Single pass over the array producing the set of message IDs whose timestamp is shown,
-  /// so each cell does an O(1) lookup instead of an O(n) `firstIndex` per body evaluation.
-  private static func timestampVisibleIDs(in messages: [RoomMessageDTO]) -> Set<UUID> {
-    var visible = Set<UUID>()
-    for index in messages.indices where RoomConversationViewModel.shouldShowTimestamp(at: index, in: messages) {
-      visible.insert(messages[index].id)
-    }
-    return visible
   }
 }
 

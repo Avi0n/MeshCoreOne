@@ -46,6 +46,13 @@ final class ChatViewModel {
   /// `allContacts` changes so per-message resolution stays O(1).
   var nicknamesByLoweredName: [String: String] = [:]
 
+  /// Unique lowered contact name → channel incoming-avatar identity.
+  var incomingAvatarIdentitiesByLoweredName: [String: IncomingAvatarIdentity] = [:]
+
+  /// Bumped at the start of each `loadAllContacts` so a slower first fetch
+  /// cannot publish after a newer overlapping load.
+  @ObservationIgnored var incomingAvatarLoadGeneration = 0
+
   /// Synthetic contacts for channel senders not in contacts
   var channelSenders: [ContactDTO] = []
 
@@ -258,7 +265,11 @@ final class ChatViewModel {
 
   /// Snapshot of observed contact tables for the item bake.
   func currentSenderTables() -> ChatSenderTables {
-    ChatSenderTables(contacts: allContacts, nicknamesByLoweredName: nicknamesByLoweredName)
+    ChatSenderTables(
+      contacts: allContacts,
+      nicknamesByLoweredName: nicknamesByLoweredName,
+      incomingAvatars: incomingAvatarIdentitiesByLoweredName
+    )
   }
 
   // MARK: - Dependencies

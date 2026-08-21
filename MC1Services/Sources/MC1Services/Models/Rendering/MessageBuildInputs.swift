@@ -49,6 +49,8 @@ public struct MessageBuildInputs: Sendable, Hashable {
   public let showNewMessagesDivider: Bool
   /// True for the first message of a new calendar day; drives the day separator.
   public let showDayDivider: Bool
+  /// Present only on channel incoming cluster-end rows. Never a JPEG.
+  public let incomingAvatar: IncomingAvatarIdentity?
 
   public init(
     messageID: UUID,
@@ -73,7 +75,8 @@ public struct MessageBuildInputs: Sendable, Hashable {
     showDirectionGap: Bool,
     showSenderName: Bool,
     showNewMessagesDivider: Bool,
-    showDayDivider: Bool = false
+    showDayDivider: Bool = false,
+    incomingAvatar: IncomingAvatarIdentity? = nil
   ) {
     self.messageID = messageID
     self.previewState = previewState
@@ -98,5 +101,6 @@ public struct MessageBuildInputs: Sendable, Hashable {
     self.showSenderName = showSenderName
     self.showNewMessagesDivider = showNewMessagesDivider
     self.showDayDivider = showDayDivider
+    self.incomingAvatar = incomingAvatar
   }
 }

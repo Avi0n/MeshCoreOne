@@ -6,6 +6,12 @@ import MC1Services
 struct ChatSenderTables: Equatable {
   let contacts: [ContactDTO]
   let nicknamesByLoweredName: [String: String]
+  /// Unique lowered contact name → channel incoming-avatar identity.
+  let incomingAvatars: [String: IncomingAvatarIdentity]
 
-  static let empty = ChatSenderTables(contacts: [], nicknamesByLoweredName: [:])
+  static let empty = ChatSenderTables(
+    contacts: [],
+    nicknamesByLoweredName: [:],
+    incomingAvatars: [:]
+  )
 }

@@ -198,7 +198,8 @@ public enum MessageFragmentBuilder {
       date: message.senderDate,
       hasFailed: message.hasFailed,
       containsSelfMention: message.containsSelfMention,
-      mentionSeen: message.mentionSeen
+      mentionSeen: message.mentionSeen,
+      incomingAvatar: inputs.incomingAvatar
     )
   }
 

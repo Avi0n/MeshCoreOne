@@ -8,7 +8,7 @@ import Testing
 /// `ChatCoordinator.bindWriter` seam: stale post-resume writes drop, binds deny
 /// under an open interactive owner, and channel primes resolve senders through
 /// contacts.
-@Suite("ChatTimelinePrimer", .serialized)
+@Suite("ChatTimelinePrimer", .serialized, .isolatedIncomingAvatarJPEGStore)
 @MainActor
 struct ChatTimelinePrimerTests {
   // MARK: - Fixtures
@@ -38,7 +38,8 @@ struct ChatTimelinePrimerTests {
     id: UUID = UUID(),
     name: String = "TestContact",
     nickname: String? = nil,
-    unreadCount: Int = 0
+    unreadCount: Int = 0,
+    avatarImageData: Data? = nil
   ) -> ContactDTO {
     ContactDTO(
       id: id,
@@ -59,7 +60,8 @@ struct ChatTimelinePrimerTests {
       isMuted: false,
       isFavorite: false,
       lastMessageDate: nil,
-      unreadCount: unreadCount
+      unreadCount: unreadCount,
+      avatarImageData: avatarImageData
     )
   }
 
@@ -228,7 +230,12 @@ struct ChatTimelinePrimerTests {
     let channel = makeChannel(radioID: radioID)
     let wireName = "AlphaNode"
     let nickname = "Alpha"
-    let contact = makeContact(radioID: radioID, name: wireName, nickname: nickname)
+    let contact = makeContact(
+      radioID: radioID,
+      name: wireName,
+      nickname: nickname,
+      avatarImageData: Data("prime-jpeg".utf8)
+    )
     try await dataStore.saveChannel(channel)
     try await dataStore.saveContact(contact)
 
@@ -256,6 +263,8 @@ struct ChatTimelinePrimerTests {
     #expect(item.envelope.senderResolution.matchKind != .unresolved)
     #expect(item.envelope.senderResolution.displayName == wireName)
     #expect(item.envelope.senderResolution.unverifiedNickname == nickname)
+    #expect(item.envelope.incomingAvatar?.matchedContactID == contact.id)
+    #expect(IncomingAvatarJPEGStore.data(for: contact.id) != nil)
   }
 
   @Test

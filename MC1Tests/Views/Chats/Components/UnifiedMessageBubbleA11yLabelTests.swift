@@ -14,7 +14,8 @@ struct UnifiedMessageBubbleA11yLabelTests {
       regionScope: "NORTHWEST"
     )
     let configuration = MessageBubbleConfiguration(
-      showSenderName: true
+      showSenderName: true,
+      showsIncomingAvatars: false
     )
     let bundle = MessageBubbleTestData.messageItem(
       message: message,
@@ -61,7 +62,8 @@ struct UnifiedMessageBubbleA11yLabelTests {
   func `fallback sender label includes possible-match disclosure`() {
     let message = MessageBubbleTestData.incomingChannel(text: "hi", senderNodeName: nil)
     let configuration = MessageBubbleConfiguration(
-      showSenderName: true
+      showSenderName: true,
+      showsIncomingAvatars: false
     )
     let bundle = MessageBubbleTestData.messageItem(
       message: message,

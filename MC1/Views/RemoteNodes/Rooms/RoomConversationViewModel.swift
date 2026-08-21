@@ -229,4 +229,41 @@ final class RoomConversationViewModel {
     let gap = abs(Int(currentMessage.timestamp) - Int(previousMessage.timestamp))
     return gap > messageGroupingGapSeconds
   }
+
+  /// Incoming rooms cluster on `authorKeyPrefix` plus `messageGroupingGapSeconds`.
+  /// Display-name matches do not merge prefixes.
+  static func incomingClusterContinues(from earlier: RoomMessageDTO, to later: RoomMessageDTO) -> Bool {
+    guard !earlier.isFromSelf, !later.isFromSelf else { return false }
+    let gap = abs(Int(later.timestamp) - Int(earlier.timestamp))
+    guard gap <= messageGroupingGapSeconds else { return false }
+    return earlier.authorKeyPrefix == later.authorKeyPrefix
+  }
+
+  /// Name on cluster-start, avatar on cluster-end.
+  static func incomingBookends(in messages: [RoomMessageDTO]) -> (nameIDs: Set<UUID>, avatarIDs: Set<UUID>) {
+    var nameIDs: Set<UUID> = []
+    var avatarIDs: Set<UUID> = []
+    for (index, message) in messages.enumerated() {
+      guard !message.isFromSelf else { continue }
+      let previous = index > 0 ? messages[index - 1] : nil
+      let next = index + 1 < messages.count ? messages[index + 1] : nil
+      let continuesFromPrevious = previous.map { incomingClusterContinues(from: $0, to: message) } ?? false
+      let continuesToNext = next.map { incomingClusterContinues(from: message, to: $0) } ?? false
+      if !continuesFromPrevious { nameIDs.insert(message.id) }
+      if !continuesToNext { avatarIDs.insert(message.id) }
+    }
+    return (nameIDs, avatarIDs)
+  }
+
+  static func tiledRows(in messages: [RoomMessageDTO]) -> [RoomTiledRow] {
+    let bookends = incomingBookends(in: messages)
+    return messages.enumerated().map { index, message in
+      RoomTiledRow(
+        message: message,
+        showTimestamp: shouldShowTimestamp(at: index, in: messages),
+        showSenderName: bookends.nameIDs.contains(message.id),
+        showAvatar: bookends.avatarIDs.contains(message.id)
+      )
+    }
+  }
 }

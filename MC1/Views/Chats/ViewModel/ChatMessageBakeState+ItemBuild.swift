@@ -20,13 +20,39 @@ extension ChatMessageBakeState {
     let showDirectionGap: Bool
     let showSenderName: Bool
     let showDayDivider: Bool
+    let isClusterEnd: Bool
+  }
+
+  /// Channel-incoming only. Nil names break; empty string vs empty string continues.
+  static func incomingClusterContinues(from earlier: MessageDTO, to later: MessageDTO) -> Bool {
+    guard earlier.isChannelMessage, later.isChannelMessage,
+          !earlier.isOutgoing, !later.isOutgoing else { return false }
+    let timeGap = abs(Int(later.senderDate.timeIntervalSince(earlier.senderDate)))
+    guard timeGap <= messageGroupingGapSeconds else { return false }
+    guard let currentName = later.senderNodeName,
+          let previousName = earlier.senderNodeName else { return false }
+    return currentName == previousName
   }
 
   /// Computes all display flags in a single pass to avoid redundant message lookups.
   /// Used by `bakeAll` for O(n) performance instead of O(3n).
-  static func computeDisplayFlags(for message: MessageDTO, previous: MessageDTO?) -> DisplayFlags {
+  static func computeDisplayFlags(
+    for message: MessageDTO,
+    previous: MessageDTO?,
+    next: MessageDTO?
+  ) -> DisplayFlags {
+    let continuesToNext = next.map { incomingClusterContinues(from: message, to: $0) } ?? false
+    let isClusterEnd =
+      message.isChannelMessage && !message.isOutgoing && !continuesToNext
+
     guard let previous else {
-      return DisplayFlags(showTimestamp: true, showDirectionGap: false, showSenderName: true, showDayDivider: true)
+      return DisplayFlags(
+        showTimestamp: true,
+        showDirectionGap: false,
+        showSenderName: true,
+        showDayDivider: true,
+        isClusterEnd: isClusterEnd
+      )
     }
 
     // Keys on send time (senderDate), not the sortDate sort key. Under block-at-reconnect
@@ -60,7 +86,13 @@ extension ChatMessageBakeState {
       true
     }
 
-    return DisplayFlags(showTimestamp: showTimestamp, showDirectionGap: showDirectionGap, showSenderName: showSenderName, showDayDivider: dayChanged)
+    return DisplayFlags(
+      showTimestamp: showTimestamp,
+      showDirectionGap: showDirectionGap,
+      showSenderName: showSenderName,
+      showDayDivider: dayChanged,
+      isClusterEnd: isClusterEnd
+    )
   }
 
   // MARK: - Item Build
@@ -76,11 +108,12 @@ extension ChatMessageBakeState {
   func makeBuildInputs(
     for message: MessageDTO,
     previous: MessageDTO?,
+    next: MessageDTO?,
     envInputs: EnvInputs,
     senderTables: ChatSenderTables
   ) -> MessageBuildInputs {
     seedPreviewStateIfNeeded(for: message, envInputs: envInputs)
-    let flags = Self.computeDisplayFlags(for: message, previous: previous)
+    let flags = Self.computeDisplayFlags(for: message, previous: previous, next: next)
     let cachedURL = cachedURLs[message.id].flatMap(\.self)
     // Extension-based image classification, minus URLs the fetch path has
     // since discovered serve an HTML page. Computed once and reused for the
@@ -138,6 +171,17 @@ extension ChatMessageBakeState {
       isMapPreviewReady = MapSnapshotStore.shared.isResolved(request)
     }
 
+    let senderResolution = senderResolutionFor(message, senderTables: senderTables)
+    let incomingAvatar: IncomingAvatarIdentity? = if flags.isClusterEnd {
+      IncomingAvatarIdentity.resolve(
+        senderNodeName: message.senderNodeName,
+        displayName: senderResolution.displayName,
+        table: senderTables.incomingAvatars
+      )
+    } else {
+      nil
+    }
+
     return MessageBuildInputs(
       messageID: message.id,
       previewState: previewStates[message.id] ?? .idle,
@@ -158,12 +202,13 @@ extension ChatMessageBakeState {
       formattedPath: (envInputs.showIncomingPath && !message.isOutgoing)
         ? MessagePathFormatter.format(message)
         : nil,
-      senderResolution: senderResolutionFor(message, senderTables: senderTables),
+      senderResolution: senderResolution,
       showTimestamp: flags.showTimestamp,
       showDirectionGap: flags.showDirectionGap,
       showSenderName: flags.showSenderName,
       showNewMessagesDivider: message.id == newMessagesDividerMessageID,
-      showDayDivider: flags.showDayDivider
+      showDayDivider: flags.showDayDivider,
+      incomingAvatar: incomingAvatar
     )
   }
 
@@ -282,11 +327,13 @@ extension ChatMessageBakeState {
     // this loop already carrying its preview fragment at a stable height.
     let inputs: [(MessageDTO, MessageBuildInputs)] = messages.enumerated().map { index, message in
       let previous: MessageDTO? = index > 0 ? messages[index - 1] : nil
+      let next: MessageDTO? = index + 1 < messages.count ? messages[index + 1] : nil
       return (
         message,
         makeBuildInputs(
           for: message,
           previous: previous,
+          next: next,
           envInputs: envInputs,
           senderTables: senderTables
         )

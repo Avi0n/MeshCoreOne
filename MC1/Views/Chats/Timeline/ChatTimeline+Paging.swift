@@ -60,7 +60,7 @@ extension ChatTimeline {
           dataStore: dataStoreProvider(),
           bake: bake,
           envInputs: envInputs,
-          senderTables: senderTablesProvider(),
+          senderTables: senderTablesProvider,
           postApply: postApply,
           anchorSortDate: anchorSortDate
         )
@@ -198,7 +198,19 @@ extension ChatTimeline {
     guard coordinator != nil, let writer else { return false }
     let previous = messages.last
     guard writer.append(message) else { return false }
-    writer.appendRenderItem(makeItem(for: message, previous: previous))
+    let newItem = makeItem(for: message, previous: previous, next: nil)
+    let shouldHandoff = previous.map {
+      ChatMessageBakeState.incomingClusterContinues(from: $0, to: message)
+    } ?? false
+    writer.updateRenderState { state in
+      var next = state
+      if shouldHandoff, let previous {
+        next = next.updatingItem(id: previous.id) { item in
+          item.with(envelope: item.envelope.with(incomingAvatar: nil))
+        }
+      }
+      return next.appendingItem(newItem)
+    }
     return true
   }
 
@@ -230,10 +242,30 @@ extension ChatTimeline {
     writer?.enqueueReload(updatedMessageIDs: updatedMessageIDs)
   }
 
-  /// Removes a message and its render item together.
+  /// Removes a message and rebakes remaining channel neighbors in one items update.
   func removeMessage(_ messageID: UUID) {
-    writer?.remove(messageID: messageID)
-    writer?.removeRenderItem(id: messageID)
+    guard let writer, let coordinator else { return }
+    let messages = coordinator.messages
+    guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
+    let previous = index > 0 ? messages[index - 1] : nil
+    let nextDTO = index + 1 < messages.count ? messages[index + 1] : nil
+    let prevPrev = index > 1 ? messages[index - 2] : nil
+    let nextNext = index + 2 < messages.count ? messages[index + 2] : nil
+    writer.remove(messageID: messageID)
+    writer.updateRenderState { state in
+      var next = state.removingItem(id: messageID)
+      if let previous, previous.isChannelMessage {
+        next = next.updatingItem(id: previous.id) { _ in
+          makeItem(for: previous, previous: prevPrev, next: nextDTO)
+        }
+      }
+      if let nextDTO, nextDTO.isChannelMessage {
+        next = next.updatingItem(id: nextDTO.id) { _ in
+          makeItem(for: nextDTO, previous: previous, next: nextNext)
+        }
+      }
+      return next
+    }
   }
 
   /// Updates a loaded message in place and rebakes its row. No-ops when

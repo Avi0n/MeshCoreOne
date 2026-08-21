@@ -15,6 +15,8 @@ public struct MessageEnvelope: Sendable, Hashable {
   public let hasFailed: Bool
   public let containsSelfMention: Bool
   public let mentionSeen: Bool
+  /// Present only on channel incoming cluster-end rows. Never a JPEG.
+  public let incomingAvatar: IncomingAvatarIdentity?
 
   public init(
     messageID: UUID,
@@ -25,7 +27,8 @@ public struct MessageEnvelope: Sendable, Hashable {
     date: Date,
     hasFailed: Bool,
     containsSelfMention: Bool,
-    mentionSeen: Bool
+    mentionSeen: Bool,
+    incomingAvatar: IncomingAvatarIdentity?
   ) {
     self.messageID = messageID
     self.isOutgoing = isOutgoing
@@ -36,6 +39,7 @@ public struct MessageEnvelope: Sendable, Hashable {
     self.hasFailed = hasFailed
     self.containsSelfMention = containsSelfMention
     self.mentionSeen = mentionSeen
+    self.incomingAvatar = incomingAvatar
   }
 
   /// Returns a new envelope with `status` (and the derived `hasFailed`)
@@ -50,7 +54,23 @@ public struct MessageEnvelope: Sendable, Hashable {
       date: date,
       hasFailed: status == .failed,
       containsSelfMention: containsSelfMention,
-      mentionSeen: mentionSeen
+      mentionSeen: mentionSeen,
+      incomingAvatar: incomingAvatar
+    )
+  }
+
+  public func with(incomingAvatar: IncomingAvatarIdentity?) -> MessageEnvelope {
+    MessageEnvelope(
+      messageID: messageID,
+      isOutgoing: isOutgoing,
+      senderName: senderName,
+      senderResolution: senderResolution,
+      status: status,
+      date: date,
+      hasFailed: hasFailed,
+      containsSelfMention: containsSelfMention,
+      mentionSeen: mentionSeen,
+      incomingAvatar: incomingAvatar
     )
   }
 }

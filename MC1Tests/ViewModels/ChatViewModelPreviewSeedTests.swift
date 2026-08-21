@@ -44,7 +44,7 @@ struct ChatViewModelPreviewSeedTests {
     viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
     let message = makeMessage(text: "look at https://example.com/article")
 
-    let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
+    let inputs = viewModel.makeBuildInputs(for: message, previous: nil, next: nil)
 
     #expect(inputs.cachedURL == URL(string: "https://example.com/article"))
     #expect(viewModel.bake.cachedURLs[message.id] != nil,
@@ -69,7 +69,7 @@ struct ChatViewModelPreviewSeedTests {
       for: url
     )
 
-    let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
+    let inputs = viewModel.makeBuildInputs(for: message, previous: nil, next: nil)
 
     #expect(inputs.previewState == .loaded,
             "a decoded-cache hit must paint .loaded in the same build, skipping the shimmer")
@@ -114,7 +114,7 @@ struct ChatViewModelPreviewSeedTests {
     )
     let message = makeMessage(text: "see \(urlString)")
 
-    let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
+    let inputs = viewModel.makeBuildInputs(for: message, previous: nil, next: nil)
 
     let aspect = try #require(inputs.previewHeroAspect)
     #expect(abs(aspect - 1200.0 / 630.0) < 0.001,
@@ -127,7 +127,7 @@ struct ChatViewModelPreviewSeedTests {
     viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
     let message = makeMessage(text: "no links here")
 
-    let inputs = viewModel.makeBuildInputs(for: message, previous: nil)
+    let inputs = viewModel.makeBuildInputs(for: message, previous: nil, next: nil)
 
     #expect(inputs.cachedURL == nil)
     // The dictionary is `[UUID: URL?]`, so a stored negative result is the double

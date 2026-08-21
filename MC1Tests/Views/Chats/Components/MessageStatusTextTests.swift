@@ -22,7 +22,8 @@ struct MessageStatusTextTests {
         date: Date(timeIntervalSince1970: 1_700_000_000),
         hasFailed: status == .failed,
         containsSelfMention: false,
-        mentionSeen: false
+        mentionSeen: false,
+        incomingAvatar: nil
       ),
       content: [],
       footer: MessageFooter(

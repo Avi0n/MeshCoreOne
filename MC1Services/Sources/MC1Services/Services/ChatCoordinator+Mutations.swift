@@ -117,8 +117,7 @@ extension ChatCoordinator {
   /// single-row append path so the new bubble is visible immediately
   /// without waiting for the next off-main build.
   func appendRenderItem(_ item: MessageItem) {
-    renderState = renderState.appendingItem(item)
-    renderStateID &+= 1
+    updateRenderState { $0.appendingItem(item) }
   }
 
   /// Replace a single render-state item by ID via `transform`. No-op on

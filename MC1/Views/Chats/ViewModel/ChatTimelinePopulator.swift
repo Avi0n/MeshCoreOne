@@ -32,7 +32,7 @@ enum ChatTimelinePopulator {
     dataStore: DataStore?,
     bake: ChatMessageBakeState,
     envInputs: EnvInputs,
-    senderTables: ChatSenderTables,
+    senderTables: @MainActor () -> ChatSenderTables,
     postApply: (@MainActor () -> Void)?,
     anchorSortDate: Date?
   ) async -> Outcome {
@@ -101,7 +101,7 @@ enum ChatTimelinePopulator {
         messages: fetchedMessages,
         writer: writer,
         envInputs: envInputs,
-        senderTables: senderTables,
+        senderTables: senderTables(),
         postApply: postApply
       )
 

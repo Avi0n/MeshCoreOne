@@ -8,13 +8,52 @@ extension ChatViewModel {
   func loadAllContacts(radioID: UUID) async {
     guard let dataStore else { return }
 
+    incomingAvatarLoadGeneration += 1
+    let generation = incomingAvatarLoadGeneration
+
     do {
       allContacts = try await dataStore.fetchContacts(radioID: radioID)
       contactNameSet = Set(allContacts.map(\.name))
       nicknamesByLoweredName = MessageBubbleConfiguration.buildNicknameLookup(from: allContacts)
     } catch {
       logger.warning("Failed to load contacts for mentions: \(error.localizedDescription)")
+      return
     }
+
+    guard case .channel = timeline.conversation else { return }
+    guard !Task.isCancelled, generation == incomingAvatarLoadGeneration else { return }
+    let contacts = allContacts
+    let newMap = await incomingAvatarIdentitiesOffMain(from: contacts)
+    guard !Task.isCancelled, generation == incomingAvatarLoadGeneration else { return }
+    IncomingAvatarJPEGStore.replace(contacts: contacts, identities: Array(newMap.values))
+    guard newMap != incomingAvatarIdentitiesByLoweredName else { return }
+    incomingAvatarIdentitiesByLoweredName = newMap
+    let didChange = patchIncomingAvatarRows(using: newMap)
+    if !didChange, timeline.writer != nil {
+      // Bump renderStateID so an in-flight applyRebuiltItems misses and
+      // rebakeAll reads live senderTablesProvider().
+      timeline.writer?.updateRenderState { $0 }
+    }
+  }
+
+  /// Rewrites cluster-end identities after a channel contact-table change.
+  @discardableResult
+  private func patchIncomingAvatarRows(using map: [String: IncomingAvatarIdentity]) -> Bool {
+    guard let writer = timeline.writer else { return false }
+    var didChange = false
+    for item in items where item.envelope.incomingAvatar != nil {
+      let identity = IncomingAvatarIdentity.resolve(
+        senderNodeName: timeline.messagesByID[item.id]?.senderNodeName,
+        displayName: item.envelope.senderName,
+        table: map
+      )
+      guard item.envelope.incomingAvatar != identity else { continue }
+      writer.updateRenderItem(id: item.id) { item in
+        item.with(envelope: item.envelope.with(incomingAvatar: identity))
+      }
+      didChange = true
+    }
+    return didChange
   }
 
   // MARK: - Messages
@@ -172,4 +211,11 @@ extension ChatViewModel {
       sendErrorMessage = Self.copyForEnqueueFailure(error)
     }
   }
+}
+
+@concurrent
+private func incomingAvatarIdentitiesOffMain(
+  from contacts: [ContactDTO]
+) async -> [String: IncomingAvatarIdentity] {
+  MessageBubbleConfiguration.incomingAvatarIdentities(from: contacts)
 }
