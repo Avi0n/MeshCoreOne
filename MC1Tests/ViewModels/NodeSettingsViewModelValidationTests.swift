@@ -354,3 +354,58 @@ struct NodeSettingsClockSyncTests {
     #expect(viewModel.clockDrift == nil)
   }
 }
+
+@Suite("NodeSettingsViewModel contact info")
+@MainActor
+struct NodeSettingsContactInfoTests {
+  @MainActor
+  final class CommandRecorder {
+    private(set) var commands: [String] = []
+    var reply = "OK"
+    func send(_ id: UUID, _ command: String, _ timeout: Duration) async throws -> String {
+      commands.append(command)
+      return reply
+    }
+  }
+
+  private func makeConfiguredViewModel(recorder: CommandRecorder) -> NodeSettingsViewModel {
+    let session = RemoteNodeSessionDTO(
+      radioID: UUID(),
+      publicKey: Data(repeating: 0x42, count: 32),
+      name: "Test Node",
+      role: .repeater,
+      isConnected: true,
+      permissionLevel: .admin
+    )
+    let viewModel = NodeSettingsViewModel()
+    viewModel.configure(session: session, sendCommand: recorder.send, sendRawCommand: recorder.send)
+    return viewModel
+  }
+
+  @Test
+  func `apply converts display newlines to the pipe wire form`() async {
+    let recorder = CommandRecorder()
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+    viewModel.setNodeInfo(firmwareVersion: "v1.17.1", name: "Repeater", ownerInfo: "KD7ABC")
+    viewModel.ownerInfo = "KD7ABC\nch 31"
+
+    await viewModel.applyContactInfoSettings()
+
+    #expect(recorder.commands == ["set owner.info KD7ABC|ch 31"])
+  }
+
+  @Test
+  func `apply failure sets errorMessage`() async {
+    let recorder = CommandRecorder()
+    recorder.reply = "ERR: not allowed"
+    let viewModel = makeConfiguredViewModel(recorder: recorder)
+    viewModel.setNodeInfo(firmwareVersion: "v1.17.1", name: "Repeater", ownerInfo: "old")
+    viewModel.ownerInfo = "new"
+
+    await viewModel.applyContactInfoSettings()
+
+    #expect(viewModel.errorMessage != nil)
+    #expect(viewModel.contactInfoApplySuccess == false)
+    #expect(viewModel.originalOwnerInfo == "old")
+  }
+}
