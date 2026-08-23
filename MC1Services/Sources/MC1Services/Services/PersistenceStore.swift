@@ -99,6 +99,8 @@ public actor PersistenceStore: PersistenceStoreProtocol {
   ///          user-picked profile picture as a compressed JPEG blob.
   /// - v6→v7: DiscoveredNode.outPathLength changed UInt8→Int so leftover -1
   ///          rows fetch. DTO still exposes UInt8 via truncatingIfNeeded.
+  /// - v7→v8: Contact.outPathLength changed UInt8→Int for the same leftover
+  ///          Int8 flood sentinel. DTO still exposes UInt8 via truncatingIfNeeded.
   public static func createContainer(inMemory: Bool = false) throws -> ModelContainer {
     if !inMemory {
       let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!

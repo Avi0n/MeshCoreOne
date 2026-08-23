@@ -6,10 +6,11 @@ import SwiftData
 import Testing
 
 private let discoveredNodeTable = "ZDISCOVEREDNODE"
+private let contactTable = "ZCONTACT"
 private let outPathLengthColumn = "ZOUTPATHLENGTH"
 private let sqliteBusyTimeoutMilliseconds: Int32 = 5000
 
-@Suite("DiscoveredNode unsigned fetch")
+@Suite("Unsigned path length fetch")
 struct DiscoveredNodeUnsignedFetchTests {
   @Test
   func `Backup export of a leftover Int8 flood sentinel (-1)`() async throws {
@@ -51,6 +52,48 @@ struct DiscoveredNodeUnsignedFetchTests {
     let node = try #require(snapshot.discoveredNodes.first)
     #expect(snapshot.discoveredNodes.count == 1)
     #expect(node.outPathLength == PacketBuilder.floodPathSentinel)
+  }
+
+  @Test
+  func `Backup export of a leftover Contact Int8 flood sentinel (-1)`() async throws {
+    let storeURL = FileManager.default.temporaryDirectory
+      .appendingPathComponent("contact-int8-\(UUID().uuidString).store")
+    defer {
+      let fm = FileManager.default
+      try? fm.removeItem(at: storeURL)
+      try? fm.removeItem(at: storeURL.appendingPathExtension("shm"))
+      try? fm.removeItem(at: storeURL.appendingPathExtension("wal"))
+    }
+
+    let radioID = UUID()
+    do {
+      let cfg = ModelConfiguration(schema: PersistenceStore.schema, url: storeURL)
+      let container = try ModelContainer(for: PersistenceStore.schema, configurations: [cfg])
+      let store = PersistenceStore(modelContainer: container)
+      let frame = ContactFrame(
+        publicKey: Data(repeating: 0x55, count: 32),
+        type: .chat,
+        flags: 0,
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: Data(),
+        name: "LegacyContact",
+        lastAdvertTimestamp: 1,
+        latitude: 0,
+        longitude: 0,
+        lastModified: 0
+      )
+      _ = try await store.saveContact(radioID: radioID, from: frame)
+    }
+
+    _ = try sqlite(storeURL, "UPDATE \(contactTable) SET \(outPathLengthColumn) = -1;")
+    #expect(try sqlite(storeURL, "SELECT \(outPathLengthColumn) FROM \(contactTable);") == "-1")
+
+    let cfg = ModelConfiguration(schema: PersistenceStore.schema, url: storeURL)
+    let reopened = try ModelContainer(for: PersistenceStore.schema, configurations: [cfg])
+    let snapshot = try await PersistenceStore(modelContainer: reopened).fetchBackupExportSnapshot()
+    let contact = try #require(snapshot.contacts.first)
+    #expect(snapshot.contacts.count == 1)
+    #expect(contact.outPathLength == PacketBuilder.floodPathSentinel)
   }
 }
 

@@ -32,8 +32,10 @@ public final class Contact {
   /// Permission flags
   public var flags: UInt8
 
-  /// Encoded outbound path length (0xFF = flood; upper 2 bits = hash mode, lower 6 bits = hop count)
-  public var outPathLength: UInt8
+  /// Encoded outbound path length (0xFF = flood; upper 2 bits = hash mode,
+  /// lower 6 bits = hop count). Stored as Int so leftover Int8 flood sentinels
+  /// (-1) survive SwiftData fetch; the DTO exposes UInt8 via truncatingIfNeeded.
+  public var outPathLength: Int
 
   /// Outgoing routing path (up to 64 bytes)
   public var outPath: Data
@@ -116,7 +118,7 @@ public final class Contact {
     self.name = name
     self.typeRawValue = typeRawValue
     self.flags = flags
-    self.outPathLength = outPathLength
+    self.outPathLength = Int(outPathLength)
     self.outPath = outPath
     self.lastAdvertTimestamp = lastAdvertTimestamp
     self.latitude = latitude
@@ -174,7 +176,7 @@ public final class Contact {
     name = dto.name
     typeRawValue = dto.typeRawValue
     flags = dto.flags
-    outPathLength = dto.outPathLength
+    outPathLength = Int(dto.outPathLength)
     outPath = dto.outPath
     lastAdvertTimestamp = dto.lastAdvertTimestamp
     latitude = dto.latitude
@@ -233,7 +235,7 @@ public extension Contact {
 
   /// Whether this contact uses flood routing
   var isFloodRouted: Bool {
-    outPathLength == PacketBuilder.floodPathSentinel
+    UInt8(truncatingIfNeeded: outPathLength) == PacketBuilder.floodPathSentinel
   }
 
   /// Whether this contact has a known, valid location
@@ -261,7 +263,7 @@ public extension Contact {
     typeRawValue = frame.typeRawValue
     // Preserve bit 0 (favorite) from existing flags, take bits 1-7 from frame
     flags = (flags & 0x01) | (frame.flags & ~0x01)
-    outPathLength = frame.outPathLength
+    outPathLength = Int(frame.outPathLength)
     outPath = frame.outPath
     lastAdvertTimestamp = frame.lastAdvertTimestamp
     latitude = frame.latitude
@@ -276,7 +278,7 @@ public extension Contact {
       type: type,
       typeRawValue: typeRawValue,
       flags: flags,
-      outPathLength: outPathLength,
+      outPathLength: UInt8(truncatingIfNeeded: outPathLength),
       outPath: outPath,
       name: name,
       lastAdvertTimestamp: lastAdvertTimestamp,
@@ -323,7 +325,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     name = contact.name
     typeRawValue = contact.typeRawValue
     flags = contact.flags
-    outPathLength = contact.outPathLength
+    outPathLength = UInt8(truncatingIfNeeded: contact.outPathLength)
     outPath = contact.outPath
     lastAdvertTimestamp = contact.lastAdvertTimestamp
     latitude = contact.latitude
