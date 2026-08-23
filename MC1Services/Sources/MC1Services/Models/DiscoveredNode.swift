@@ -39,8 +39,10 @@ final class DiscoveredNode {
   /// Node longitude
   var longitude: Double
 
-  /// Encoded routing path length (0xFF = flood)
-  var outPathLength: UInt8
+  /// Encoded routing path length (0xFF = flood). Stored as Int so leftover Int8
+  /// flood sentinels (-1) survive SwiftData fetch; the DTO exposes UInt8 via
+  /// truncatingIfNeeded.
+  var outPathLength: Int
 
   /// Routing path data (up to 64 bytes)
   var outPath: Data
@@ -79,7 +81,7 @@ final class DiscoveredNode {
     self.lastAdvertTimestamp = lastAdvertTimestamp
     self.latitude = latitude
     self.longitude = longitude
-    self.outPathLength = outPathLength
+    self.outPathLength = Int(outPathLength)
     self.outPath = outPath
     self.inboundHopCount = inboundHopCount
     self.inboundHopAdvertTimestamp = inboundHopAdvertTimestamp
@@ -188,7 +190,7 @@ public struct DiscoveredNodeDTO: Sendable, Equatable, Identifiable, Codable, Rep
     lastAdvertTimestamp = node.lastAdvertTimestamp
     latitude = node.latitude
     longitude = node.longitude
-    outPathLength = node.outPathLength
+    outPathLength = UInt8(truncatingIfNeeded: node.outPathLength)
     outPath = node.outPath
     inboundHopCount = node.inboundHopCount
     inboundHopAdvertTimestamp = node.inboundHopAdvertTimestamp
