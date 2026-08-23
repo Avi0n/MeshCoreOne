@@ -1,0 +1,628 @@
+/*
+  Localizable.strings
+  MC1
+
+  European Portuguese (pt-PT) translation of common and shared strings.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Generic Buttons
+
+/* Standard confirmation button for dialogs */
+"common.ok" = "OK";
+
+/* Standard cancel button for dialogs and sheets */
+"common.cancel" = "Cancelar";
+
+/* Standard done button for completing an action */
+"common.done" = "OK";
+
+/* Standard save button for persisting changes */
+"common.save" = "Guardar";
+
+/* Standard delete button for removing items */
+"common.delete" = "Eliminar";
+
+/* Standard edit button for entering edit mode */
+"common.edit" = "Editar";
+
+/* Standard close button for dismissing views */
+/* Button to retry a failed operation */
+"common.tryAgain" = "Tentar novamente";
+
+/* Error label when content fails to load */
+"common.error.failedToLoad" = "Falha ao carregar";
+
+/* Network error with underlying error description - %@ is the error description */
+"common.error.networkError" = "Erro de rede: %@";
+
+/* Invalid response from API */
+"common.error.invalidResponse" = "Resposta inválida da API de elevação";
+
+/* API error with message - %@ is the error message */
+"common.error.apiError" = "Erro de API: %@";
+
+/* No data returned from API */
+"common.error.noElevationData" = "Não foram devolvidos dados de elevação";
+
+/* Rate limited by elevation API */
+"common.error.rateLimited" = "Demasiados pedidos. Tente novamente dentro de instantes.";
+
+/* Standard remove button for removing items from a list or group */
+// MARK: - Connection Status
+
+/* Location: SyncingPillView.swift - Status shown when syncing data */
+"common.status.syncing" = "A sincronizar";
+
+/* Location: SyncingPillView.swift - Status shown when connecting to device */
+"common.status.connecting" = "A ligar";
+
+/* Location: SyncingPillView.swift - Status shown when device is ready */
+"common.status.ready" = "Pronto";
+
+/* Location: SyncingPillView.swift - Status shown when device is disconnected */
+"common.status.disconnected" = "Desligado";
+
+// MARK: - Tab Bar
+
+/* Tab bar title for the messaging/conversations screen */
+"tabs.chats" = "Chats";
+
+/* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
+"tabs.chatsUnreadAccessibilityValue" = "%d por ler";
+
+/* Tab bar title for the nodes/contacts list screen */
+"tabs.nodes" = "Nodos";
+
+/* Tab bar title for the map screen showing node locations */
+"tabs.map" = "Mapa";
+
+/* Tab bar title for the tools/utilities screen */
+"tabs.tools" = "Ferramentas";
+
+/* Tab bar title for the app settings screen */
+"tabs.settings" = "Definições";
+
+// MARK: - Connection Alerts
+
+/* Alert title when device connection fails */
+"alert.connectionFailed.title" = "Falha na ligação";
+
+/* Alert title when connection cannot be established */
+"alert.couldNotConnect.title" = "Não foi possível ligar";
+
+/* Alert title when device pairing fails (e.g., wrong PIN) */
+"alert.pairingFailed.title" = "Não foi possível emparelhar";
+
+/* Default message when device connection fails */
+"alert.connectionFailed.defaultMessage" = "Não foi possível ligar ao dispositivo.";
+
+/* Message suggesting another app may be connected to the device */
+"alert.couldNotConnect.otherAppMessage" = "Certifique-se de que nenhum outro app está ligado ao dispositivo e tente novamente.";
+
+/* Button to remove failed pairing and retry connection */
+"alert.connectionFailed.removeAndRetry" = "Remover e tentar novamente";
+
+/* VoiceOver label for the destructive Remove and Try Again button — clarifies that "remove" means removing the device pairing */
+"accessibility.alert.connectionFailed.removeAndRetry" = "Remover o emparelhamento do dispositivo e tentar novamente";
+
+// MARK: - Accessibility
+
+/* Location: SyncingPillView.swift - Accessibility hint for disconnected state */
+"common.accessibility.connectHint" = "Toque duas vezes para ligar o dispositivo";
+
+/* VoiceOver announcement when viewing cached data while disconnected from device */
+/* Location: View+RadioDisabled.swift - VoiceOver hint when a control is disabled because the radio is not connected */
+"accessibility.requiresRadioConnection" = "Requer ligação de rádio";
+
+/* Accessibility value for toggle in On state */
+"accessibility.on" = "Ativado";
+
+/* Accessibility value for toggle in Off state */
+"accessibility.off" = "Desativado";
+
+// MARK: - Node Types
+
+/* Node type for a person or contact */
+/* Node type for a mesh network repeater device */
+/* Node type for a group chat room */
+// MARK: - Permission Levels
+
+/* Permission level with limited access */
+/* Permission level with standard access */
+/* Permission level with full administrative access */
+// MARK: - Reaction Notifications
+
+/* Notification body when someone reacts to your message - %1$@ is the emoji, %2$@ is the message preview */
+"notifications.reaction.body" = "Reagiu %1$@ à sua mensagem: \"%2$@\"";
+
+// MARK: - Discovery Notifications
+
+/* Notification title when a new contact is discovered on the mesh network */
+"notifications.discovery.contact" = "Novo contacto descoberto";
+
+/* Notification title when a new repeater node is discovered on the mesh network */
+"notifications.discovery.repeater" = "Novo repetidor descoberto";
+
+/* Notification title when a new room is discovered on the mesh network */
+"notifications.discovery.room" = "Nova sala descoberta";
+
+// MARK: - Notification Actions
+
+/* Notification action button to reply to a message */
+"notifications.action.reply" = "Responder";
+
+/* Notification action button to send a quick reply */
+"notifications.action.send" = "Enviar";
+
+/* Notification action placeholder for quick reply text input */
+"notifications.action.messagePlaceholder" = "Mensagem...";
+
+/* Notification action button to mark a message as read */
+"notifications.action.markAsRead" = "Marcar como lida";
+
+// MARK: - Low Battery Notifications
+
+/* Notification title for low battery warning */
+"notifications.lowBattery.title" = "Bateria fraca";
+
+/* Notification body for low battery warning - %1$@ is device name, %2$d is battery percentage */
+"notifications.lowBattery.body" = "A bateria de %1$@ está a %2$d%%";
+
+/* Notification title when a quick reply fails to send */
+"notifications.quickReplyFailed.title" = "Mensagem não enviada";
+
+/* Notification body when a quick reply fails - %@ is the contact or channel name */
+"notifications.quickReplyFailed.body" = "A resposta para %@ não pôde ser enviada.";
+
+/* Fallback display name for a discovered contact with no advertised name */
+"notifications.discovery.unknownContact" = "Contacto desconhecido";
+
+// MARK: - Connection VoiceOver Announcements
+
+/* VoiceOver announcement when sync fails and device is disconnecting */
+"accessibility.connection.syncFailedDisconnecting" = "Falha na sincronização. A desligar.";
+
+/* VoiceOver announcement when device connection is lost */
+"accessibility.connection.deviceConnectionLost" = "Ligação ao dispositivo perdida";
+
+/* VoiceOver announcement when device reconnects */
+"accessibility.connection.deviceReconnected" = "Dispositivo religado";
+
+/* VoiceOver signal-strength descriptors for the device picker signal bars */
+"accessibility.signalStrength.weak" = "Sinal fraco";
+"accessibility.signalStrength.medium" = "Sinal médio";
+"accessibility.signalStrength.strong" = "Sinal forte";
+
+// MARK: - Status Pill
+
+/* Status pill message when sync has failed */
+"statusPill.syncFailed" = "Falha na sincronização";
+
+// MARK: - Error Messages
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Session operation timed out */
+"error.meshCore.timeout" = "A operação expirou. Tente novamente.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Device response could not be parsed - %@ is the parse failure detail */
+"error.meshCore.parseError" = "Falha ao analisar a resposta do dispositivo: %@";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - No active connection to the radio */
+"error.meshCore.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - A command failed on the device - %@ is the failure reason */
+"error.meshCore.commandFailed" = "O comando falhou: %@";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Unexpected device response - %1$@ is the expected response, %2$@ is the received response */
+"error.meshCore.invalidResponse" = "Resposta inesperada do dispositivo (esperado %1$@, recebido %2$@).";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Contact missing from the radio */
+"error.meshCore.contactNotFound" = "Contacto não encontrado no dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Payload exceeds device limit - %1$lld is the actual size in bytes, %2$lld is the maximum */
+"error.meshCore.dataTooLarge" = "Dados demasiado grandes (%1$lld bytes, o máximo é %2$lld).";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Cryptographic signing failed - %@ is the failure reason */
+"error.meshCore.signingFailed" = "Falha na assinatura: %@";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Invalid input - %@ is the validation detail */
+"error.meshCore.invalidInput" = "Entrada inválida: %@";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Unknown error - %@ is the error detail */
+"error.meshCore.unknown" = "Ocorreu um erro desconhecido: %@";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Bluetooth hardware unavailable */
+"error.meshCore.bluetoothUnavailable" = "O Bluetooth não está disponível neste dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Bluetooth permission denied */
+"error.meshCore.bluetoothUnauthorized" = "É necessária permissão de Bluetooth. Ative-a em Definições.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Bluetooth radio is off */
+"error.meshCore.bluetoothPoweredOff" = "O Bluetooth está desligado. Ative o Bluetooth para ligar.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Connection lost with detail - %@ is the underlying error message */
+"error.meshCore.connectionLost" = "A ligação ao dispositivo foi perdida: %@";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Connection lost without further detail */
+"error.meshCore.connectionLostNoDetail" = "A ligação ao dispositivo foi perdida.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Session not started */
+"error.meshCore.sessionNotStarted" = "A sessão não foi iniciada.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Feature disabled in device firmware */
+"error.meshCore.featureDisabled" = "Esta funcionalidade está desativada no dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: command unsupported */
+"error.device.unsupportedCommand" = "Comando não suportado pelo firmware do dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: item not found */
+"error.device.notFound" = "Item não encontrado no dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: storage full */
+"error.device.storageFull" = "O armazenamento do dispositivo está cheio.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: invalid state */
+"error.device.invalidState" = "O dispositivo está num estado inválido para esta operação.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: file system error */
+"error.device.fileSystem" = "Erro no sistema de ficheiros do dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift, ProtocolError+UserFacingMessage.swift - Firmware error code: invalid parameter */
+"error.device.invalidParameter" = "Parâmetro inválido enviado ao dispositivo.";
+
+/* Location: MeshCoreError+UserFacingMessage.swift - Firmware error code outside the known range - %lld is the raw code */
+"error.device.unknown" = "Erro do dispositivo (código %lld).";
+
+/* Location: TimeoutError+UserFacingMessage.swift - Generic timeout for async operations */
+"error.timeout.operationTimedOut" = "A operação expirou. Tente novamente.";
+
+/* Location: BLEError+UserFacingMessage.swift - Bluetooth hardware unavailable */
+"error.ble.bluetoothUnavailable" = "O Bluetooth não está disponível neste dispositivo.";
+
+/* Location: BLEError+UserFacingMessage.swift - Bluetooth permission denied */
+"error.ble.bluetoothUnauthorized" = "É necessária permissão de Bluetooth. Ative-a em Definições.";
+
+/* Location: BLEError+UserFacingMessage.swift - Bluetooth radio is off */
+"error.ble.bluetoothPoweredOff" = "O Bluetooth está desligado. Ative o Bluetooth para ligar.";
+
+/* Location: BLEError+UserFacingMessage.swift - Scanned device could not be found */
+"error.ble.deviceNotFound" = "Dispositivo não encontrado. Certifique-se de que está ligado e por perto.";
+
+/* Location: BLEError+UserFacingMessage.swift - BLE connection failed - %@ is the failure detail */
+"error.ble.connectionFailed" = "Falha na ligação: %@";
+
+/* Location: BLEError+UserFacingMessage.swift - BLE connection attempt timed out */
+"error.ble.connectionTimeout" = "A ligação expirou. Tente novamente.";
+
+/* Location: BLEError+UserFacingMessage.swift - No BLE device connected */
+"error.ble.notConnected" = "Não ligado a um dispositivo.";
+
+/* Location: BLEError+UserFacingMessage.swift - Required BLE characteristic missing */
+"error.ble.characteristicNotFound" = "Não foi possível comunicar com o dispositivo. Tente religar.";
+
+/* Location: BLEError+UserFacingMessage.swift - BLE write failed - %@ is the failure detail */
+"error.ble.writeError" = "Falha ao enviar dados: %@";
+
+/* Location: BLEError+UserFacingMessage.swift - Malformed BLE response */
+"error.ble.invalidResponse" = "Resposta inválida do dispositivo. Tente novamente.";
+
+/* Location: BLEError+UserFacingMessage.swift - BLE operation timed out */
+"error.ble.operationTimeout" = "A operação expirou. Tente novamente.";
+
+/* Location: BLEError+UserFacingMessage.swift - BLE PIN authentication failed */
+"error.ble.authenticationFailed" = "Falha na autenticação. Verifique o PIN do dispositivo.";
+
+/* Location: BLEError+UserFacingMessage.swift - Bluetooth pairing failed - %@ is the failure reason */
+"error.ble.pairingFailed" = "Falha no emparelhamento Bluetooth: %@";
+
+/* Location: BLEError+UserFacingMessage.swift - Radio already in use by another app */
+"error.ble.deviceConnectedToOtherApp" = "Este dispositivo está ligado a outro app. Apenas um app pode usar um rádio mesh de cada vez para evitar problemas de comunicação.";
+
+/* Location: ConnectionError+UserFacingMessage.swift - Connection failed - %@ is the failure reason */
+"error.connection.connectionFailed" = "Falha na ligação: %@";
+
+/* Location: ConnectionError+UserFacingMessage.swift - Device to connect to was not found */
+"error.connection.deviceNotFound" = "Dispositivo não encontrado";
+
+/* Location: ConnectionError+UserFacingMessage.swift - No active device connection */
+"error.connection.notConnected" = "Não ligado ao dispositivo";
+
+/* Location: ConnectionError+UserFacingMessage.swift - Post-connect device initialization failed - %@ is the failure reason */
+"error.connection.initializationFailed" = "Falha na inicialização do dispositivo: %@";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection failed - %@ is the failure reason */
+"error.wifi.connectionFailed" = "Falha na ligação: %@";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
+"error.wifi.connectionTimeout" = "A ligação expirou. Verifique o endereço IP e certifique-se de que o dispositivo está na mesma rede.";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
+"error.wifi.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send failed - %@ is the failure reason */
+"error.wifi.sendFailed" = "Falha ao enviar dados: %@";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out */
+"error.wifi.sendTimeout" = "A operação de envio expirou.";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid */
+"error.wifi.invalidHost" = "Endereço IP inválido.";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid */
+"error.wifi.invalidPort" = "Número de porta inválido.";
+
+/* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection info missing */
+"error.wifi.notConfigured" = "Ligação não configurada.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - AccessorySetupKit session not active */
+"error.accessorySetup.sessionNotActive" = "O Bluetooth não está pronto. Certifique-se de que o Bluetooth está ativado e tente novamente.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - AccessorySetupKit session invalidated */
+"error.accessorySetup.sessionInvalidated" = "A sessão Bluetooth terminou inesperadamente. Reinicie o app.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - User dismissed the accessory picker */
+"error.accessorySetup.pickerDismissed" = "A seleção do dispositivo foi cancelada.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory picker could not be shown */
+"error.accessorySetup.pickerRestricted" = "Não é possível mostrar o seletor de dispositivos. Verifique se o Bluetooth está ativado, aguarde um momento e tente novamente.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory picker already on screen */
+"error.accessorySetup.pickerAlreadyActive" = "O seletor de dispositivos já está visível.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory pairing failed - %@ is the failure reason */
+"error.accessorySetup.pairingFailed" = "Falha no emparelhamento: %@";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - Picked accessory lacks a Bluetooth identifier */
+"error.accessorySetup.noBluetoothIdentifier" = "O dispositivo selecionado não suporta ligação Bluetooth.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - Accessory discovery timed out */
+"error.accessorySetup.discoveryTimeout" = "Nenhum dispositivo encontrado. Certifique-se de que o dispositivo está ligado e por perto.";
+
+/* Location: AccessorySetupKitError+UserFacingMessage.swift - Connection to picked accessory failed */
+"error.accessorySetup.connectionFailed" = "Não foi possível ligar ao dispositivo. Tente novamente.";
+
+/* Location: ContactServiceError+UserFacingMessage.swift - No active connection to the radio */
+"error.contactService.notConnected" = "Não ligado ao rádio";
+
+/* Location: ContactServiceError+UserFacingMessage.swift - Contact operation message failed to send */
+"error.contactService.sendFailed" = "Falha ao enviar mensagem";
+
+/* Location: ContactServiceError+UserFacingMessage.swift - Malformed device response during a contact operation */
+"error.contactService.invalidResponse" = "Resposta inválida do dispositivo";
+
+/* Location: ContactServiceError+UserFacingMessage.swift - Contact sync stopped before finishing */
+"error.contactService.syncInterrupted" = "A sincronização foi interrompida";
+
+/* Location: ContactServiceError+UserFacingMessage.swift - Contact missing from the radio */
+"error.contactService.contactNotFound" = "Contacto não encontrado no dispositivo";
+
+/* Location: ContactServiceError+UserFacingMessage.swift - Radio node list has no free slots */
+"error.contactService.contactTableFull" = "A lista de nodos do dispositivo está cheia";
+
+/* Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared */
+"error.contactService.shareContactUnavailable" = "Não foi possível partilhar o nodo. O Advert do nodo pode estar em falta ou desatualizado.";
+
+/* Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio */
+"error.messageService.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: MessageServiceError+UserFacingMessage.swift - Recipient contact missing from the database */
+"error.messageService.contactNotFound" = "Contacto não encontrado.";
+
+/* Location: MessageServiceError+UserFacingMessage.swift - Target channel missing from the database */
+"error.messageService.channelNotFound" = "Canal não encontrado.";
+
+/* Location: MessageServiceError+UserFacingMessage.swift - Message send failed */
+"error.messageService.sendFailed" = "Falha no envio.";
+
+/* Location: MessageServiceError+UserFacingMessage.swift - Recipient cannot receive direct messages */
+"error.messageService.invalidRecipient" = "Não é possível enviar mensagens para este destinatário.";
+
+/* Location: MessageServiceError+UserFacingMessage.swift - Message text exceeds the maximum length */
+"error.messageService.messageTooLong" = "A mensagem excede o comprimento máximo permitido.";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - No active connection to the radio */
+"error.channelService.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - Channel missing from the database */
+"error.channelService.channelNotFound" = "Canal não encontrado.";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - Channel slot index out of range */
+"error.channelService.invalidChannelIndex" = "Índice de canal inválido.";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - Hashing the channel secret key failed */
+"error.channelService.secretHashingFailed" = "Falha ao gerar o hash da chave secreta do canal.";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - Channel save failed - %@ is the failure reason */
+"error.channelService.saveFailed" = "Falha ao guardar o canal: %@";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - Channel message send failed - %@ is the failure reason */
+"error.channelService.sendFailed" = "Falha no envio: %@";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - Channel sync already running */
+"error.channelService.syncAlreadyInProgress" = "A sincronização de canais já está em curso.";
+
+/* Location: ChannelServiceError+UserFacingMessage.swift - Channel sync suspended - %lld is the consecutive failure count */
+"error.channelService.circuitBreakerOpen" = "Sincronização de canais suspensa após %lld falhas consecutivas.";
+
+/* Location: IntentError.swift - No radio is connected, so retrying alone will not help until one is connected */
+"error.intent.notConnected" = "Nenhum rádio está ligado. Ligue o rádio em MeshCore One e tente novamente.";
+
+/* Location: IntentError.swift - No single valid recipient was chosen (none, both, or a recipient that cannot receive messages) */
+"error.intent.invalidRecipient" = "Escolha um único destinatário: um contacto ou um canal que possa receber mensagens.";
+
+/* Location: IntentError.swift - The message text exceeds the maximum length the radio can send */
+"error.intent.messageTooLong" = "A mensagem é demasiado longa para enviar.";
+
+/* Location: IntentError.swift - Persisting the message to the send queue failed, so it was never queued */
+"error.intent.sendFailed" = "A mensagem não pôde ser colocada na fila de envio. Tente novamente.";
+
+/* Title of the radio-status Control Center control that opens the app; resolved in the app process */
+"Open MeshCore One" = "Abrir MeshCore One";
+
+/* Location: ChatSendQueueServiceError+UserFacingMessage.swift - Queueing a message for send failed - %@ is the underlying error message */
+"error.chatSendQueue.persistFailed" = "Falha ao colocar a mensagem na fila de envio: %@";
+
+/* Location: ChatSendQueueServiceError+UserFacingMessage.swift - No active connection to the radio */
+"error.chatSendQueue.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: MessagePollingError+UserFacingMessage.swift - No active connection to the radio */
+"error.messagePolling.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: MessagePollingError+UserFacingMessage.swift - Fetching queued messages from the radio failed */
+"error.messagePolling.pollingFailed" = "Falha ao obter as mensagens em espera.";
+
+/* Location: AdvertisementError+UserFacingMessage.swift - No active connection to the radio */
+"error.advertisement.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: AdvertisementError+UserFacingMessage.swift - Self-advertisement broadcast failed */
+"error.advertisement.sendFailed" = "Falha ao enviar o Advert.";
+
+/* Location: AdvertisementError+UserFacingMessage.swift - Malformed device response to an advertisement command */
+"error.advertisement.invalidResponse" = "Resposta inválida do dispositivo.";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio */
+"error.remoteNode.notConnected" = "Não ligado ao dispositivo mesh";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed */
+"error.remoteNode.loginFailed" = "Falha ao iniciar sessão.";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Sending to the remote node failed */
+"error.remoteNode.sendFailed" = "Falha no envio.";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
+"error.remoteNode.invalidResponse" = "Resposta inválida do nodo remoto";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
+"error.remoteNode.permissionDenied" = "Permissão recusada";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node request timed out */
+"error.remoteNode.timeout" = "O pedido expirou";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - No stored session for the remote node */
+"error.remoteNode.sessionNotFound" = "Sessão do nodo remoto não encontrada";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Saved password missing from the keychain */
+"error.remoteNode.passwordNotFound" = "Palavra-passe não encontrada no Porta-chaves";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Keep-alive needs a direct path but the route is flood-routed */
+"error.remoteNode.floodRouted" = "O keep-alive requer um caminho de encaminhamento direto";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Establishing a direct path to the node failed */
+"error.remoteNode.pathDiscoveryFailed" = "Falha ao estabelecer um caminho direto";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Remote node contact missing from the database */
+"error.remoteNode.contactNotFound" = "Contacto não encontrado na base de dados";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Radio contact table full; cannot auto-add the node during login */
+"error.remoteNode.radioContactsFull" = "O rádio está sem espaços para contactos. Remova um contacto que já não seja necessário e tente iniciar sessão novamente.";
+
+/* Location: RemoteNodeError+UserFacingMessage.swift - Login attempt cancelled by a duplicate attempt or shutdown */
+"error.remoteNode.cancelled" = "Início de sessão cancelado";
+
+/* Location: RoomServerError+UserFacingMessage.swift - No active connection to the radio */
+"error.roomServer.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server */
+"error.roomServer.sessionNotFound" = "Sessão da sala não encontrada.";
+
+/* Location: RoomServerError+UserFacingMessage.swift - Room message send failed */
+"error.roomServer.sendFailed" = "Falha no envio.";
+
+/* Location: RoomServerError+UserFacingMessage.swift - Room server rejected the operation */
+"error.roomServer.permissionDenied" = "Permissão recusada.";
+
+/* Location: RoomServerError+UserFacingMessage.swift - Malformed device response during a room operation */
+"error.roomServer.invalidResponse" = "Resposta inválida do dispositivo.";
+
+/* Location: BinaryProtocolError+UserFacingMessage.swift - No active connection to the radio */
+"error.binaryProtocol.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: BinaryProtocolError+UserFacingMessage.swift - Binary request failed to send */
+"error.binaryProtocol.sendFailed" = "Falha ao enviar o pedido.";
+
+/* Location: BinaryProtocolError+UserFacingMessage.swift - Binary request timed out */
+"error.binaryProtocol.timeout" = "O pedido expirou.";
+
+/* Location: BinaryProtocolError+UserFacingMessage.swift - Malformed device response to a binary request */
+"error.binaryProtocol.invalidResponse" = "Resposta inválida do dispositivo.";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Device row missing from the database */
+"error.persistence.deviceNotFound" = "Dispositivo não encontrado.";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Contact row missing from the database */
+"error.persistence.contactNotFound" = "Contacto não encontrado.";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Message row missing from the database */
+"error.persistence.messageNotFound" = "Mensagem não encontrada.";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Channel row missing from the database */
+"error.persistence.channelNotFound" = "Canal não encontrado.";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Remote node session row missing from the database */
+"error.persistence.remoteNodeSessionNotFound" = "Sessão do nodo remoto não encontrada.";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Database save failed - %@ is the failure reason */
+"error.persistence.saveFailed" = "Falha ao guardar: %@";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Database fetch failed - %@ is the failure reason */
+"error.persistence.fetchFailed" = "Falha ao obter: %@";
+
+/* Location: PersistenceStoreError+UserFacingMessage.swift - Stored data is malformed */
+"error.persistence.invalidData" = "Dados inválidos.";
+
+/* Location: SyncCoordinatorError+UserFacingMessage.swift - No active connection to the radio */
+"error.syncCoordinator.notConnected" = "Não ligado ao dispositivo.";
+
+/* Location: SyncCoordinatorError+UserFacingMessage.swift - Full sync failed - %@ is the failure reason */
+"error.syncCoordinator.syncFailed" = "Falha na sincronização: %@";
+
+/* Location: SyncCoordinatorError+UserFacingMessage.swift - A sync is already running */
+"error.syncCoordinator.alreadySyncing" = "Já está a decorrer uma sincronização.";
+
+/* Location: DeviceServiceError+UserFacingMessage.swift - Device row missing from the database */
+"error.deviceService.deviceNotFound" = "Dispositivo não encontrado";
+
+/* Location: DeviceServiceError+UserFacingMessage.swift - Saving device settings failed - %@ is the failure reason */
+"error.deviceService.persistenceFailed" = "Falha ao guardar as definições do dispositivo: %@";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - No active connection to the radio */
+"error.settings.notConnected" = "Dispositivo não ligado";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - Sending a settings command failed */
+"error.settings.sendFailed" = "Falha ao enviar o comando";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - Malformed device response to a settings command */
+"error.settings.invalidResponse" = "Resposta inválida do dispositivo";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - Setting write-back mismatch - %1$@ is the expected value, %2$@ is the value the device reports */
+"error.settings.verificationFailed" = "A definição não foi guardada. Esperado '%1$@', mas o dispositivo indica '%2$@'.";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - GPS write-back mismatch when GPS should be on */
+"error.settings.gpsNotSavedExpectedOn" = "A definição de GPS do dispositivo não foi guardada. Esperado 'Ativado', mas o dispositivo indica 'Desativado'.";
+
+/* Location: SettingsServiceError+UserFacingMessage.swift - GPS write-back mismatch when GPS should be off */
+"error.settings.gpsNotSavedExpectedOff" = "A definição de GPS do dispositivo não foi guardada. Esperado 'Desativado', mas o dispositivo indica 'Ativado'.";
+
+/* Location: KeychainError+UserFacingMessage.swift - Encoding a password for keychain storage failed */
+"error.keychain.encodingFailed" = "Falha ao codificar a palavra-passe";
+
+/* Location: KeychainError+UserFacingMessage.swift - Keychain write failed - %lld is the OSStatus code */
+"error.keychain.storageFailed" = "Falha ao armazenar a palavra-passe (erro %lld)";
+
+/* Location: KeychainError+UserFacingMessage.swift - Keychain read failed - %lld is the OSStatus code */
+"error.keychain.retrievalFailed" = "Falha ao recuperar a palavra-passe (erro %lld)";
+
+/* Location: KeychainError+UserFacingMessage.swift - Keychain delete failed - %lld is the OSStatus code */
+"error.keychain.deletionFailed" = "Falha ao eliminar a palavra-passe (erro %lld)";
+
+/* Location: KeyGenerationError+UserFacingMessage.swift - Vanity prefix search exhausted its attempt budget */
+"error.keyGeneration.maxAttemptsExceeded" = "Não foi possível gerar uma chave com esse prefixo. Tente outro.";
+
+/* Location: KeyGenerationError+UserFacingMessage.swift - Requested prefix byte is reserved by firmware */
+"error.keyGeneration.reservedPrefix" = "Esse prefixo está reservado e não pode ser usado.";
+
+/* Location: KeyGenerationError+UserFacingMessage.swift - System random number generator failed */
+"error.keyGeneration.randomGenerationFailed" = "Falha na geração segura de números aleatórios. Tente novamente.";
+
+/* Location: KeyGenerationError+UserFacingMessage.swift - Key data is not a valid Ed25519 expanded private key */
+"error.keyGeneration.invalidKey" = "A chave não é uma chave privada Ed25519 válida.";

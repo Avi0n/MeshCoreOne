@@ -1,0 +1,16 @@
+/* Widget localization — European Portuguese (pt-PT)
+   AI-translated - please verify with native speakers.
+*/
+
+/* Connection status shown when radio is disconnected */
+"Disconnected" = "Desligado";
+
+
+/* Accessibility: packet rate */
+"%lld packets per minute" = "%lld pacotes por minuto";
+
+/* Accessibility: battery level */
+"Battery %lld percent" = "Bateria a %lld por cento";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "Abrir MeshCore One";

@@ -1,0 +1,31 @@
+/*
+  WhatsNew.strings
+  MC1
+
+  European Portuguese (pt-PT) translation of strings for the "What's New" sheet shown once after a major update.
+  AI-translated - please verify with native speakers.
+*/
+
+/* Title of the What's New sheet shown once after an app update */
+"whatsNew.title" = "Novidades";
+
+/* Button to dismiss the What's New sheet */
+"whatsNew.continueButton" = "Continuar";
+
+/* Link on the What's New sheet to the full GitHub release notes */
+"whatsNew.fullReleaseNotes" = "Notas de versão completas";
+
+/* What's New v1.3 - Improved chats feature, title */
+"whatsNew.fasterChats.title" = "Chats melhorados";
+/* What's New v1.3 - Improved chats feature, description */
+"whatsNew.fasterChats.description" = "Ao abrir um chat, o ecrã salta para as mensagens novas em vez do fim. A hora aparece em cada balão, e o histórico e as pré-visualizações de ligações carregam mais depressa.";
+
+/* What's New v1.3 - Contact photos feature, title */
+"whatsNew.contactPhotos.title" = "Fotos de contactos";
+/* What's New v1.3 - Contact photos feature, description */
+"whatsNew.contactPhotos.description" = "Defina um avatar em qualquer contacto para reconhecer pessoas mais facilmente em listas e conversas.";
+
+/* What's New v1.3 - Map filters feature, title */
+"whatsNew.mapFilters.title" = "Filtros do mapa";
+/* What's New v1.3 - Map filters feature, description */
+"whatsNew.mapFilters.description" = "Filtre os alfinetes por favoritos, nodos descobertos e tipo de nodo.";
