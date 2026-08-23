@@ -336,7 +336,7 @@
 "error.wifi.connectionFailed" = "Не удалось подключиться: %@";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
-"error.wifi.connectionTimeout" = "Время ожидания подключения истекло. Проверьте IP-адрес и убедитесь, что устройство находится в той же сети.";
+"error.wifi.connectionTimeout" = "Время ожидания подключения истекло. Проверьте имя хоста или IP-адрес и убедитесь, что устройство доступно.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
 "error.wifi.notConnected" = "Нет подключения к устройству.";
@@ -347,8 +347,8 @@
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out */
 "error.wifi.sendTimeout" = "Время ожидания отправки истекло.";
 
-/* Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid */
-"error.wifi.invalidHost" = "Недопустимый IP-адрес.";
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid */
+"error.wifi.invalidHost" = "Недопустимое имя хоста или IP-адрес.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid */
 "error.wifi.invalidPort" = "Недопустимый номер порта.";

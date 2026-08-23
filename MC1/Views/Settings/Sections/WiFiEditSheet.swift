@@ -36,12 +36,12 @@ struct WiFiEditSheet: View {
   }
 
   private var isValidInput: Bool {
-    WiFiAddressFields.isValidIPAddress(ipAddress) && WiFiAddressFields.isValidPort(port)
+    WiFiAddressFields.isValidHost(ipAddress) && WiFiAddressFields.isValidPort(port)
   }
 
   private var hasChanges: Bool {
     guard let host = originalHost, let currentPort = originalPort else { return true }
-    return ipAddress != host || port != String(currentPort)
+    return WiFiAddressFields.normalizedHost(ipAddress) != host || port != String(currentPort)
   }
 
   var body: some View {
@@ -120,7 +120,11 @@ struct WiFiEditSheet: View {
       do {
         // Disconnect from current connection, then connect to new address
         await appState.disconnect(reason: .wifiAddressChange)
-        try await appState.connectViaWiFi(host: ipAddress, port: portNumber, forceFullSync: true)
+        try await appState.connectViaWiFi(
+          host: WiFiAddressFields.normalizedHost(ipAddress),
+          port: portNumber,
+          forceFullSync: true
+        )
         dismiss()
       } catch {
         errorMessage = error.userFacingMessage

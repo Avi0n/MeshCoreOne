@@ -9,7 +9,7 @@ MeshCore One supports two transport types:
 - BLE (Bluetooth Low Energy) via `iOSBLETransport` in MC1Services
 - WiFi/TCP via `WiFiTransport` in MeshCore
 
-WiFi is configured manually (host + port) and is typically used for fixed installations or devices that expose a TCP service.
+WiFi is configured manually (hostname or IPv4 address + port) and is typically used for fixed installations or devices that expose a TCP service. Network.framework resolves the host at connect time, including mDNS `.local` names. The transport does not browse Bonjour services.
 
 ## Where the Code Lives
 
@@ -45,7 +45,7 @@ The framed payload is the same MeshCore binary protocol payload used over BLE.
 import MeshCore
 
 let transport = WiFiTransport()
-await transport.setConnectionInfo(host: "192.168.1.50", port: 5000)
+await transport.setConnectionInfo(host: "radio.local", port: 5000)
 try await transport.connect()
 
 let session = MeshCoreSession(transport: transport)
@@ -54,7 +54,7 @@ try await session.start()
 
 Notes:
 
-- The transport itself does not implement discovery (mDNS/Bonjour) or keep-alives.
+- The transport itself does not implement discovery (mDNS/Bonjour browsing) or keep-alives. Connecting to a hostname still uses Network.framework DNS, including mDNS for `.local`.
 - Reconnect behavior is handled at higher layers (e.g., `ConnectionManager`).
 - Use `Logger` for diagnostics; avoid `print()`.
 
@@ -71,7 +71,7 @@ MeshCore One manages WiFi reconnection and connection health at the app layer:
 ## Troubleshooting
 
 - Verify the iPhone and device are on the same reachable network.
-- Double check the host and port (MeshCore One defaults to port 5000 in the WiFi connection UI).
+- Double check the hostname or IP and port (MeshCore One defaults to port 5000 in the WiFi connection UI).
 - If you have a dev machine on the same network, `nc -zv <host> <port>` can help validate basic reachability.
 
 ## Further Reading

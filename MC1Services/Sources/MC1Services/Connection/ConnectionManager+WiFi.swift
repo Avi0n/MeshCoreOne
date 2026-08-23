@@ -312,6 +312,11 @@ extension ConnectionManager {
   ///   - forceFullSync: When true, performs a complete sync ignoring cached timestamps
   /// - Throws: Connection or session errors
   public func connectViaWiFi(host: String, port: UInt16, forceFullSync: Bool = false) async throws {
+    let host = host.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !host.isEmpty else {
+      throw WiFiTransportError.invalidHost
+    }
+
     logger.info("Connecting via WiFi to \(host):\(port)")
 
     // Disconnect existing connection if any

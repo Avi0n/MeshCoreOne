@@ -335,7 +335,7 @@
 "error.wifi.connectionFailed" = "连接失败：%@";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
-"error.wifi.connectionTimeout" = "连接超时。请检查 IP 地址，并确保设备在同一网络中。";
+"error.wifi.connectionTimeout" = "连接超时。请检查主机名或 IP 地址，并确保可以连接到设备。";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
 "error.wifi.notConnected" = "未连接到设备。";
@@ -346,8 +346,8 @@
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out */
 "error.wifi.sendTimeout" = "发送操作超时。";
 
-/* Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid */
-"error.wifi.invalidHost" = "IP 地址无效。";
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid */
+"error.wifi.invalidHost" = "主机名或 IP 地址无效。";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid */
 "error.wifi.invalidPort" = "端口号无效。";

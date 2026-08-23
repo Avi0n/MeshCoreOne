@@ -235,11 +235,11 @@
 /* Location: WiFiConnectionSheet.swift - Section header for connection details */
 "wifiConnection.connectionDetails.header" = "Szczegóły połączenia";
 
-/* Location: WiFiConnectionSheet.swift - Placeholder for IP address field */
-"wifiConnection.ipAddress.placeholder" = "Adres IP";
+/* Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field */
+"wifiConnection.ipAddress.placeholder" = "Nazwa hosta lub adres IP";
 
-/* Location: WiFiConnectionSheet.swift - Accessibility label for clear IP button */
-"wifiConnection.ipAddress.clearAccessibility" = "Wyczyść adres IP";
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button */
+"wifiConnection.ipAddress.clearAccessibility" = "Wyczyść nazwę hosta lub adres IP";
 
 /* Location: WiFiConnectionSheet.swift - Placeholder for port field */
 "wifiConnection.port.placeholder" = "Port";
@@ -248,7 +248,7 @@
 "wifiConnection.port.clearAccessibility" = "Wyczyść port";
 
 /* Location: WiFiConnectionSheet.swift - Footer explaining connection details */
-"wifiConnection.connectionDetails.footer" = "Wprowadź adres sieci lokalnej urządzenia MeshCore. Domyślny port to 5000.";
+"wifiConnection.connectionDetails.footer" = "Wprowadź nazwę hosta lub adres IP swojego urządzenia MeshCore. Domyślny port to 5000.";
 
 /* Location: WiFiConnectionSheet.swift - Button label while connecting */
 "wifiConnection.connecting" = "Łączenie...";

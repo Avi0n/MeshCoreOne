@@ -68,7 +68,7 @@ private func ipv6AddressesOfBroadcastCapableInterfaces() -> [sockaddr_in6] {
     }
 }
 
-/// Sheet for entering WiFi connection details (IP address and port).
+/// Sheet for entering WiFi connection details (hostname or IP address and port).
 struct WiFiConnectionSheet: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.appState) private var appState
@@ -82,7 +82,7 @@ struct WiFiConnectionSheet: View {
   @FocusState private var focusedField: WiFiField?
 
   private var isValidInput: Bool {
-    WiFiAddressFields.isValidIPAddress(ipAddress) && WiFiAddressFields.isValidPort(port)
+    WiFiAddressFields.isValidHost(ipAddress) && WiFiAddressFields.isValidPort(port)
   }
 
   private var usesFullKeyboardInput: Bool {
@@ -154,7 +154,11 @@ struct WiFiConnectionSheet: View {
 
     Task {
       do {
-        try await appState.connectViaWiFi(host: ipAddress, port: portNumber, forceFullSync: true)
+        try await appState.connectViaWiFi(
+          host: WiFiAddressFields.normalizedHost(ipAddress),
+          port: portNumber,
+          forceFullSync: true
+        )
         await appState.wireServicesIfConnected()
         dismiss()
         // Navigate directly to radio settings

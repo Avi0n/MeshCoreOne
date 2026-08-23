@@ -2630,9 +2630,9 @@ public enum L10n {
           return L10n.tr("Localizable", "error.wifi.connectionFailed", String(describing: p1), fallback: "Connection failed: %@")
         }
         /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out
-        public static let connectionTimeout = L10n.tr("Localizable", "error.wifi.connectionTimeout", fallback: "Connection timed out. Check the IP address and ensure the device is on the same network.")
-        /// Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid
-        public static let invalidHost = L10n.tr("Localizable", "error.wifi.invalidHost", fallback: "Invalid IP address.")
+        public static let connectionTimeout = L10n.tr("Localizable", "error.wifi.connectionTimeout", fallback: "Connection timed out. Check the hostname or IP address and ensure the device is reachable.")
+        /// Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid
+        public static let invalidHost = L10n.tr("Localizable", "error.wifi.invalidHost", fallback: "Invalid hostname or IP address.")
         /// Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid
         public static let invalidPort = L10n.tr("Localizable", "error.wifi.invalidPort", fallback: "Invalid port number.")
         /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection info missing
@@ -3102,7 +3102,7 @@ public enum L10n {
       public static let title = L10n.tr("Onboarding", "wifiConnection.title", fallback: "Connect via WiFi")
       public enum ConnectionDetails {
         /// Location: WiFiConnectionSheet.swift - Footer explaining connection details
-        public static let footer = L10n.tr("Onboarding", "wifiConnection.connectionDetails.footer", fallback: "Enter your MeshCore device's local network address. The default port is 5000.")
+        public static let footer = L10n.tr("Onboarding", "wifiConnection.connectionDetails.footer", fallback: "Enter your MeshCore device's hostname or IP address. The default port is 5000.")
         /// Location: WiFiConnectionSheet.swift - Section header for connection details
         public static let header = L10n.tr("Onboarding", "wifiConnection.connectionDetails.header", fallback: "Connection Details")
       }
@@ -3111,10 +3111,10 @@ public enum L10n {
         public static let invalidPort = L10n.tr("Onboarding", "wifiConnection.error.invalidPort", fallback: "Invalid port number")
       }
       public enum IpAddress {
-        /// Location: WiFiConnectionSheet.swift - Accessibility label for clear IP button
-        public static let clearAccessibility = L10n.tr("Onboarding", "wifiConnection.ipAddress.clearAccessibility", fallback: "Clear IP address")
-        /// Location: WiFiConnectionSheet.swift - Placeholder for IP address field
-        public static let placeholder = L10n.tr("Onboarding", "wifiConnection.ipAddress.placeholder", fallback: "IP Address")
+        /// Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button
+        public static let clearAccessibility = L10n.tr("Onboarding", "wifiConnection.ipAddress.clearAccessibility", fallback: "Clear hostname or IP")
+        /// Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field
+        public static let placeholder = L10n.tr("Onboarding", "wifiConnection.ipAddress.placeholder", fallback: "Hostname or IP")
       }
       public enum Port {
         /// Location: WiFiConnectionSheet.swift - Accessibility label for clear port button
