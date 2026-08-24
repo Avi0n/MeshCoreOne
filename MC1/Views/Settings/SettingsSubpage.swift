@@ -15,8 +15,7 @@ enum SettingsSubpage: Hashable {
 extension View {
   /// Registers the `SettingsSubpage` destinations on the enclosing navigation stack. Each
   /// hosting page applies this to its own `List` so the pushes resolve in every stack that
-  /// hosts the page (the compact Settings stack, the iPad detail column, and the status-menu
-  /// push of `AdvancedSettingsView`).
+  /// hosts the page (the compact Settings stack and the iPad detail column).
   @MainActor
   func settingsSubpageDestinations() -> some View {
     navigationDestination(for: SettingsSubpage.self) { subpage in
