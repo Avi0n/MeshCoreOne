@@ -16,12 +16,18 @@ struct ChatCoordinatorTests {
 
   @Test
   func `initialPageSize grows to cover all unread plus read context`() {
-    // Unread beyond one page must all load at once, else the first-unread message
-    // (where the divider sits) would only page in later and the jump would have no target.
+    // Under the cap, unread beyond one page loads at once so the divider has a
+    // materialized target. Past maxInitialPageSize the fetch clamps.
     let unread = ChatCoordinator.pageSize + 70
     let limit = ChatCoordinator.initialPageSize(unreadCount: unread)
     #expect(limit == unread + ChatCoordinator.dividerReadContext)
-    #expect(limit > unread, "Every unread message plus context must fit in the first page")
+    #expect(limit > unread, "Under the cap, unread plus context must fit in the first page")
+  }
+
+  @Test
+  func `initialPageSize caps a huge unread backlog`() {
+    let unread = ChatCoordinator.maxInitialPageSize * 10
+    #expect(ChatCoordinator.initialPageSize(unreadCount: unread) == ChatCoordinator.maxInitialPageSize)
   }
 
   @Test

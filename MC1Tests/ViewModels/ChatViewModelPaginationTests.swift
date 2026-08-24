@@ -217,10 +217,8 @@ struct ChatViewModelPaginationTests {
 struct ChatViewModelChannelPaginationTests {
   @Test
   func `Opening a channel with more unread than one page loads the divider target`() async throws {
-    // When unread exceeds pageSize, the first-unread message (where the divider
-    // belongs) is older than a standard page. The initial load must be sized to
-    // cover all unread so the divider has a materialized message to scroll to,
-    // instead of clamping the divider onto the oldest loaded row.
+    // Unread past pageSize but under maxInitialPageSize: grow the first page so
+    // the divider lands on the true first-unread row, not the oldest loaded.
     let container = try PersistenceStore.createContainer(inMemory: true)
     let dataStore = PersistenceStore(modelContainer: container)
     let radioID = UUID()
@@ -270,13 +268,68 @@ struct ChatViewModelChannelPaginationTests {
     await viewModel.loadChannelMessages(for: channel, populateMode: .replace)
 
     #expect(viewModel.messages.count == ChatCoordinator.initialPageSize(unreadCount: unread),
-            "Initial load must fetch all unread plus read context, not just one page")
+            "Under the cap, initial load must fetch unread plus read context, not one page")
     #expect(viewModel.bake.newMessagesDividerMessageID == expectedDividerID,
             "Divider must land on the true first-unread message")
     #expect(viewModel.messages.contains { $0.id == expectedDividerID },
             "Divider target must be within the loaded messages")
     #expect(viewModel.messages.contains { $0.id == idsOldestFirst[total - 1] },
             "Newest message must still be loaded")
+  }
+
+  @Test
+  func `Opening a channel with unread past the initial-page cap loads the newest window only`() async throws {
+    // Past the cap only the newest window loads. The divider clamps to the oldest
+    // loaded row and stays there; remaining unread sits above it after loadOlder.
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dataStore = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let total = ChatCoordinator.maxInitialPageSize + 100
+    let unread = ChatCoordinator.maxInitialPageSize + 50
+    #expect(unread > ChatCoordinator.maxInitialPageSize)
+
+    let channel = ChannelDTO(
+      id: UUID(),
+      radioID: radioID,
+      index: channelIndex,
+      name: "Public Channel",
+      secret: Data(),
+      isEnabled: true,
+      lastMessageDate: Date(),
+      unreadCount: unread,
+      unreadMentionCount: 0,
+      notificationLevel: .all,
+      isFavorite: false
+    )
+    try await dataStore.saveChannel(channel)
+
+    var idsOldestFirst: [UUID] = []
+    for index in 0..<total {
+      let message = createChannelMessage(
+        radioID: radioID,
+        channelIndex: channelIndex,
+        timestamp: UInt32(1000 + index),
+        senderName: "MM:\(index)"
+      )
+      idsOldestFirst.append(message.id)
+      try await dataStore.saveMessage(message)
+    }
+    let trueFirstUnreadID = idsOldestFirst[total - unread]
+    let oldestLoadedID = idsOldestFirst[total - ChatCoordinator.maxInitialPageSize]
+    let newestID = idsOldestFirst[total - 1]
+
+    let viewModel = ChatViewModel()
+    viewModel.configureForTesting(dependencies: .testDefaults(dataStore: { dataStore }))
+    viewModel.bindCoordinatorForTesting(ChatCoordinator.makeForTesting())
+    viewModel.timeline.stageOpen(.channel(channel))
+    await viewModel.loadChannelMessages(for: channel, populateMode: .replace)
+
+    #expect(viewModel.messages.count == ChatCoordinator.maxInitialPageSize)
+    #expect(!viewModel.messages.contains { $0.id == trueFirstUnreadID })
+    #expect(viewModel.messages.contains { $0.id == newestID })
+    #expect(viewModel.bake.newMessagesDividerMessageID == oldestLoadedID)
+    #expect(viewModel.hasMoreMessages)
   }
 
   @Test

@@ -33,13 +33,14 @@ public final class ChatCoordinator {
   /// has a little context to sit beneath rather than pinning to the very top.
   public static let dividerReadContext: Int = 12
 
-  /// Initial fetch size for opening a conversation. Guarantees every unread
-  /// message (plus a little read context) lands in the first page: otherwise a
-  /// conversation with more than `pageSize` unread would place the divider on a
-  /// message that only pages in later, leaving the jump-to-divider button with no
-  /// materialized target to scroll to.
+  /// Ceiling on the first-page fetch. Remaining unread pages in via `loadOlder`;
+  /// the divider stays on the oldest row of this window and is not recomputed.
+  public static let maxInitialPageSize: Int = 200
+
+  /// Initial fetch size: at least `pageSize`, enough unread plus read context
+  /// to land the divider when that fits, otherwise `maxInitialPageSize`.
   public static func initialPageSize(unreadCount: Int) -> Int {
-    max(pageSize, unreadCount + dividerReadContext)
+    min(max(pageSize, unreadCount + dividerReadContext), maxInitialPageSize)
   }
 
   public let conversationID: ChatConversationID
