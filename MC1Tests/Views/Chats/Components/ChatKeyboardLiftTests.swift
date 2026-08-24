@@ -130,4 +130,34 @@ struct ChatKeyboardLiftTests {
     )
     #expect(animation == nil)
   }
+
+  @Test
+  func `interactive pop keeps current lift on a drop`() {
+    let resolved = ChatKeyboardLift.resolvedLift(
+      current: 302,
+      proposed: 0,
+      isInteractivePopActive: true
+    )
+    #expect(resolved == 302)
+  }
+
+  @Test
+  func `hide without interactive pop applies proposed lift`() {
+    let resolved = ChatKeyboardLift.resolvedLift(
+      current: 302,
+      proposed: 0,
+      isInteractivePopActive: false
+    )
+    #expect(resolved == 0)
+  }
+
+  @Test
+  func `interactive pop still applies a higher lift`() {
+    let resolved = ChatKeyboardLift.resolvedLift(
+      current: 200,
+      proposed: 302,
+      isInteractivePopActive: true
+    )
+    #expect(resolved == 302)
+  }
 }

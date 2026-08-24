@@ -66,6 +66,19 @@ enum ChatKeyboardLift {
       for: nil
     )
   }
+
+  /// Interactive pop posts willHide while the keyboard window stays; keep the
+  /// current lift. Back-button and drag-to-dismiss still apply `proposed`.
+  static func resolvedLift(
+    current: CGFloat,
+    proposed: CGFloat,
+    isInteractivePopActive: Bool
+  ) -> CGFloat {
+    if isInteractivePopActive, proposed < current {
+      return current
+    }
+    return proposed
+  }
 }
 
 extension EnvironmentValues {
@@ -79,11 +92,18 @@ private struct ChatKeyboardOwnedLiftModifier: ViewModifier {
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @State private var lift: CGFloat = 0
+  @State private var interactivePop = InteractivePopProbe()
 
   func body(content: Content) -> some View {
     content
       .environment(\.chatKeyboardLift, lift)
       .ignoresSafeArea(.keyboard, edges: .bottom)
+      .background {
+        InteractiveNavigationPopObserver(probe: interactivePop)
+          .frame(width: 0, height: 0)
+          .accessibilityHidden(true)
+          .allowsHitTesting(false)
+      }
       .onReceive(
         NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)
       ) { notification in
@@ -92,7 +112,7 @@ private struct ChatKeyboardOwnedLiftModifier: ViewModifier {
       .onReceive(
         NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
       ) { notification in
-        setLift(0, userInfo: notification.userInfo)
+        applyProposedLift(0, userInfo: notification.userInfo)
       }
       .onChange(of: scenePhase) { _, phase in
         switch phase {
@@ -113,7 +133,7 @@ private struct ChatKeyboardOwnedLiftModifier: ViewModifier {
       let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
       let window = ChatKeyboardLift.keyWindow()
     else {
-      setLift(0, userInfo: notification.userInfo)
+      applyProposedLift(0, userInfo: notification.userInfo)
       return
     }
     let keyboardInWindow = window.convert(frame, from: nil)
@@ -122,7 +142,16 @@ private struct ChatKeyboardOwnedLiftModifier: ViewModifier {
       windowBounds: window.bounds,
       bottomSafeArea: window.safeAreaInsets.bottom
     )
-    setLift(next, userInfo: notification.userInfo)
+    applyProposedLift(next, userInfo: notification.userInfo)
+  }
+
+  private func applyProposedLift(_ proposed: CGFloat, userInfo: [AnyHashable: Any]?) {
+    let next = ChatKeyboardLift.resolvedLift(
+      current: lift,
+      proposed: proposed,
+      isInteractivePopActive: interactivePop.isInteractivePopActive
+    )
+    setLift(next, userInfo: userInfo)
   }
 
   private func setLift(_ value: CGFloat, userInfo: [AnyHashable: Any]?) {
@@ -147,6 +176,84 @@ private struct ChatKeyboardLiftPaddingModifier: ViewModifier {
   func body(content: Content) -> some View {
     // Animate at the lift source so duration-0 interactive frames stay immediate.
     content.padding(.bottom, lift)
+  }
+}
+
+/// Live pop signal: `initiallyInteractive` covers swipe through cancel/commit;
+/// gesture `.began`/`.changed` covers willHide before a coordinator exists.
+@MainActor
+private final class InteractivePopProbe {
+  weak var navigationController: UINavigationController?
+
+  var isInteractivePopActive: Bool {
+    guard let navigationController else { return false }
+    if navigationController.transitionCoordinator?.initiallyInteractive == true {
+      return true
+    }
+    if isPopGestureActive(navigationController.interactivePopGestureRecognizer) {
+      return true
+    }
+    if #available(iOS 26, *) {
+      if isPopGestureActive(navigationController.interactiveContentPopGestureRecognizer) {
+        return true
+      }
+    }
+    return false
+  }
+
+  private func isPopGestureActive(_ gesture: UIGestureRecognizer?) -> Bool {
+    switch gesture?.state {
+    case .began, .changed:
+      true
+    default:
+      false
+    }
+  }
+}
+
+private struct InteractiveNavigationPopObserver: UIViewControllerRepresentable {
+  let probe: InteractivePopProbe
+
+  func makeUIViewController(context: Context) -> Controller {
+    Controller(probe: probe)
+  }
+
+  func updateUIViewController(_ uiViewController: Controller, context: Context) {
+    uiViewController.probe = probe
+  }
+
+  static func dismantleUIViewController(_ uiViewController: Controller, coordinator: Void) {
+    uiViewController.clearNavigationController()
+  }
+
+  final class Controller: UIViewController {
+    var probe: InteractivePopProbe
+
+    init(probe: InteractivePopProbe) {
+      self.probe = probe
+      super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+      nil
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+      super.viewDidAppear(animated)
+      probe.navigationController = navigationController
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+      super.viewDidDisappear(animated)
+      clearNavigationController()
+    }
+
+    func clearNavigationController() {
+      if probe.navigationController === navigationController {
+        probe.navigationController = nil
+      }
+    }
   }
 }
 
