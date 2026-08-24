@@ -112,6 +112,24 @@ struct SimulatorSeedTests {
   }
 
   @Test
+  func `reseeding preserves a user-set avatarImageData`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let mode = SimulatorConnectionMode()
+    try await mode.seedDataStore(store)
+
+    let jpeg = Data(repeating: 0xCD, count: 16)
+    let aliceID = MockDataProvider.aliceChenID
+    let existing = try #require(try await store.fetchContact(id: aliceID))
+    try await store.saveContact(existing.with(avatarImageData: jpeg))
+    #expect(try await store.fetchContact(id: aliceID)?.avatarImageData == jpeg)
+
+    try await mode.seedDataStore(store)
+
+    #expect(try await store.fetchContact(id: aliceID)?.avatarImageData == jpeg)
+  }
+
+  @Test
   func `reseeding is idempotent`() async throws {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let store = PersistenceStore(modelContainer: container)
