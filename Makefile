@@ -106,12 +106,18 @@ generate: dev.yml ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
 
 test: test-app test-store ## Run everything: full app suite (iOS 26) + StoreKit suites (iOS 18)
 
+# Skip sysdiagnose collection. xcodebuild can spawn simctl diagnose after the
+# suite and block the recipe for minutes even when every test passed.
 test-app: generate ## Run the full app suite on iOS 26 (StoreKit suites auto-skip here)
 	@dest='$(SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
-		-destination "$$dest" 2>&1 | $(XCSIFT_WITH_HEARTBEAT)
+		-destination "$$dest" \
+		-collect-test-diagnostics never \
+		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
 
 test-store: generate ## Run every StoreKit/IAP SKTestSession suite on iOS 18.x
 	@dest='$(STORE_SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
-		-destination "$$dest" $(STORE_SUITES) 2>&1 | $(XCSIFT_WITH_HEARTBEAT)
+		-destination "$$dest" $(STORE_SUITES) \
+		-collect-test-diagnostics never \
+		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
