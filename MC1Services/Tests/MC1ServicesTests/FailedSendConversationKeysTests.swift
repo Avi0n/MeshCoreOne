@@ -261,31 +261,57 @@ struct FailedSendConversationKeysTests {
   }
 
   @Test
-  func `markFailedSendsSeen drops a room session`() async throws {
+  func `markFailedSendsSeen drops only that channel index on that radio`() async throws {
+    let store = try await createTestStore()
+    let radioA = UUID()
+    let radioB = UUID()
+    let channelA0 = ChannelDTO.testChannel(radioID: radioA, index: 0, name: "A0")
+    let channelA1 = ChannelDTO.testChannel(radioID: radioA, index: 1, name: "A1")
+    let channelB0 = ChannelDTO.testChannel(radioID: radioB, index: 0, name: "B0")
+    try await store.saveChannel(channelA0)
+    try await store.saveChannel(channelA1)
+    try await store.saveChannel(channelB0)
+    try await store.saveMessage(
+      .testChannelMessage(radioID: radioA, channelIndex: 0, status: .failed)
+    )
+    try await store.saveMessage(
+      .testChannelMessage(radioID: radioA, channelIndex: 1, status: .failed)
+    )
+    try await store.saveMessage(
+      .testChannelMessage(radioID: radioB, channelIndex: 0, status: .failed)
+    )
+
+    try await store.markFailedSendsSeen(radioID: radioA, channelIndex: 0)
+    let keysA = try await store.fetchFailedSendConversationKeys(radioID: radioA)
+    let keysB = try await store.fetchFailedSendConversationKeys(radioID: radioB)
+
+    #expect(keysA.channelIDs == [channelA1.id])
+    #expect(keysB.channelIDs == [channelB0.id])
+  }
+
+  @Test
+  func `markFailedSendsSeen drops only that room session`() async throws {
     let store = try await createTestStore()
     let radioID = UUID()
-    let sessionID = UUID()
-    try await store.saveRemoteNodeSessionDTO(
-      RemoteNodeSessionDTO(
-        id: sessionID,
-        radioID: radioID,
-        publicKey: Data(repeating: 0x11, count: 32),
-        name: "Room",
-        role: .roomServer
-      )
+    let seen = RemoteNodeSessionDTO.testSession(radioID: radioID)
+    let other = RemoteNodeSessionDTO.testSession(
+      radioID: radioID,
+      publicKey: Data(repeating: 0xDD, count: 32),
+      name: "OtherRoom"
+    )
+    try await store.saveRemoteNodeSessionDTO(seen)
+    try await store.saveRemoteNodeSessionDTO(other)
+    try await store.saveRoomMessage(
+      .testRoomMessage(sessionID: seen.id, isFromSelf: true, status: .failed)
     )
     try await store.saveRoomMessage(
-      .testRoomMessage(
-        sessionID: sessionID,
-        isFromSelf: true,
-        status: .failed
-      )
+      .testRoomMessage(sessionID: other.id, isFromSelf: true, status: .failed)
     )
 
-    try await store.markFailedSendsSeen(roomSessionID: sessionID)
+    try await store.markFailedSendsSeen(roomSessionID: seen.id)
     let keys = try await store.fetchFailedSendConversationKeys(radioID: radioID)
 
-    #expect(keys.roomSessionIDs.isEmpty)
+    #expect(keys.roomSessionIDs == [other.id])
   }
 
   @Test
