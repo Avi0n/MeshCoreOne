@@ -72,6 +72,13 @@ struct ChatsListModifiers: ViewModifier {
         onHandlePendingChannelNavigation()
         onHandlePendingRoomNavigation()
       }
+      .task {
+        for await event in appState.messageEventStream.events() {
+          if viewModel.shouldRefreshFailedSendIndicators(for: event) {
+            await viewModel.refreshFailedSendIndicators()
+          }
+        }
+      }
       .onChange(of: appState.navigation.pendingChatContact) { _, _ in
         onHandlePendingNavigation()
       }

@@ -1,10 +1,13 @@
 import MC1Services
+import OSLog
 import SwiftUI
 
 /// ViewModel for room conversation operations
 @Observable
 @MainActor
 final class RoomConversationViewModel {
+  private let logger = Logger(subsystem: "com.mc1", category: "RoomConversationViewModel")
+
   // MARK: - Properties
 
   /// Current room session
@@ -99,6 +102,7 @@ final class RoomConversationViewModel {
       // Clear unread count, remove any delivered notifications for this
       // room still in the tray, and update the badge
       try await roomServerService.markAsRead(sessionID: session.id)
+      try await dataStore?.markFailedSendsSeen(roomSessionID: session.id)
       await notificationService?.removeDeliveredNotifications(forRoomSessionID: session.id)
       await notificationService?.updateBadgeCount()
       syncCoordinator?.notifyConversationsChanged()
@@ -187,6 +191,12 @@ final class RoomConversationViewModel {
     case let .roomMessageFailed(messageID):
       if messages.contains(where: { $0.id == messageID }) {
         scheduleCoalescedReload()
+        do {
+          try await dataStore?.markFailedSendsSeen(roomSessionID: session.id)
+          syncCoordinator?.notifyConversationsChanged()
+        } catch {
+          logger.warning("Failed to mark in-thread room failed send seen: \(error.localizedDescription)")
+        }
       }
 
     case .directMessageReceived, .channelMessageReceived,

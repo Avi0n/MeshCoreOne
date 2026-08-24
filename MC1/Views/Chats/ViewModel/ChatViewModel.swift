@@ -91,6 +91,14 @@ final class ChatViewModel {
     /// Test-only interleave hook, awaited once mid-reload so a test can suspend reload #1
     /// between fetches and commit reload #2 first. Compiled out of release builds.
     @ObservationIgnored var reloadInterleaveHook: (@MainActor () async -> Void)?
+
+    /// Test-only interleave hook, awaited after the failed-send keys fetch so a
+    /// test can suspend refresh #1 until a newer refresh has applied.
+    @ObservationIgnored var failedSendRefreshInterleaveHook: (@MainActor () async -> Void)?
+
+    /// Test-only fault injection fired immediately before the failed-send keys
+    /// fetch so tests can exercise the keep-last-known catch path.
+    @ObservationIgnored var failedSendRefreshFaultInjection: (@MainActor () throws -> Void)?
   #endif
 
   // MARK: - Conversation Cache Storage
@@ -221,6 +229,14 @@ final class ChatViewModel {
 
   /// Last message previews cache
   var lastMessageCache: [UUID: MessageDTO] = [:]
+
+  /// Conversation ids (contact, channel, or room session) with at least one
+  /// unseen outgoing `.failed` send. Observed so list rows invalidate like previews.
+  var failedSendConversationIDs: Set<UUID> = []
+
+  /// Bumped at the start of each failed-send indicator refresh so a slower
+  /// first fetch cannot publish after a newer overlapping refresh.
+  @ObservationIgnored var failedSendRefreshGeneration = 0
 
   /// Scope preferences (master + per-conversation-type auto-resolve) read by
   /// the image fetch sites so inline images honor the same DM/channel gate the

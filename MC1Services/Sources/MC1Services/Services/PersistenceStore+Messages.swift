@@ -395,6 +395,9 @@ public extension PersistenceStore {
     descriptor.fetchLimit = 1
 
     if let message = try modelContext.fetch(descriptor).first {
+      if status == .failed, message.status != .failed {
+        message.failureSeen = false
+      }
       message.status = status
       try modelContext.save()
     }
@@ -417,6 +420,9 @@ public extension PersistenceStore {
 
     guard let message = try modelContext.fetch(descriptor).first, message.status != .delivered else {
       return false
+    }
+    if status == .failed, message.status != .failed {
+      message.failureSeen = false
     }
     message.status = status
     try modelContext.save()

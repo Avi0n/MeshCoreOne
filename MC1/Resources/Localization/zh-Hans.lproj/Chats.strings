@@ -322,6 +322,9 @@
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "暂无消息";
 
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator */
+"chats.row.failedSend" = "发送失败";
+
 /* Location: MutedIndicator.swift - Accessibility label for muted indicator */
 "chats.row.muted" = "已静音";
 

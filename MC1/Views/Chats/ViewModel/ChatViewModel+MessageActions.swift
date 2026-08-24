@@ -72,10 +72,7 @@ extension ChatViewModel {
       do {
         try await enqueueChannel(envelope)
       } catch {
-        logger.error("enqueueChannel sendAgain failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
-        _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-        timeline.applyStatusUpdate(messageID: message.id, status: .failed)
-        sendErrorMessage = Self.copyForEnqueueFailure(error)
+        await recordLocalEnqueueFailure(messageID: message.id, error: error)
       }
     } else {
       // Identity-preserving DM resend. Mirrors retryMessage: route through

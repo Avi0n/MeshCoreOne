@@ -941,6 +941,8 @@ public enum L10n {
         }
       }
       public enum Row {
+        /// Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator
+        public static let failedSend = L10n.tr("Chats", "chats.row.failedSend", fallback: "Failed to send")
         /// Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator
         public static let favorite = L10n.tr("Chats", "chats.row.favorite", fallback: "Favorite")
         /// Location: MutedIndicator.swift - Accessibility label for mentions-only indicator

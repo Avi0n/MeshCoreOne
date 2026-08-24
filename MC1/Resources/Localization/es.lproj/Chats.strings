@@ -322,6 +322,9 @@
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Sin mensajes aún";
 
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator */
+"chats.row.failedSend" = "Error al enviar";
+
 /* Location: MutedIndicator.swift - Accessibility label for muted indicator */
 "chats.row.muted" = "Silenciado";
 

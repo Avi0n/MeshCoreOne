@@ -134,6 +134,10 @@ public final class Message {
   /// Whether the user has scrolled to see this mention (for tracking unread mentions)
   public var mentionSeen: Bool = false
 
+  /// Whether the user has opened the conversation after this outgoing send failed.
+  /// The conversation-list badge shows only unseen `.failed` rows.
+  public var failureSeen: Bool = false
+
   /// Whether the timestamp was corrected due to sender clock being invalid
   public var timestampCorrected: Bool = false
 
@@ -195,6 +199,7 @@ public final class Message {
     linkPreviewFetched: Bool = false,
     containsSelfMention: Bool = false,
     mentionSeen: Bool = false,
+    failureSeen: Bool = false,
     timestampCorrected: Bool = false,
     senderTimestamp: UInt32? = nil,
     reactionSummary: String? = nil,
@@ -234,6 +239,7 @@ public final class Message {
     self.linkPreviewFetched = linkPreviewFetched
     self.containsSelfMention = containsSelfMention
     self.mentionSeen = mentionSeen
+    self.failureSeen = failureSeen
     self.timestampCorrected = timestampCorrected
     self.senderTimestamp = senderTimestamp
     self.reactionSummary = reactionSummary
@@ -280,6 +286,7 @@ public final class Message {
       linkPreviewFetched: false,
       containsSelfMention: dto.containsSelfMention,
       mentionSeen: dto.mentionSeen,
+      failureSeen: dto.failureSeen,
       timestampCorrected: dto.timestampCorrected,
       senderTimestamp: dto.senderTimestamp,
       reactionSummary: dto.reactionSummary,
@@ -366,6 +373,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
   public var linkPreviewFetched: Bool
   public var containsSelfMention: Bool
   public var mentionSeen: Bool
+  public var failureSeen: Bool
   public var timestampCorrected: Bool
   public var senderTimestamp: UInt32?
   public var reactionSummary: String?
@@ -385,8 +393,8 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
          roundTripTime, heardRepeats, sendCount, retryAttempt, maxRetryAttempts,
          deduplicationKey, linkPreviewURL, linkPreviewTitle, linkPreviewImageData,
          linkPreviewIconData, linkPreviewFetched, containsSelfMention, mentionSeen,
-         timestampCorrected, senderTimestamp, reactionSummary, routeType, regionScope,
-         regionScopeMatches
+         failureSeen, timestampCorrected, senderTimestamp, reactionSummary, routeType,
+         regionScope, regionScopeMatches
   }
 
   public init(from decoder: Decoder) throws {
@@ -424,6 +432,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     linkPreviewFetched = try container.decode(Bool.self, forKey: .linkPreviewFetched)
     containsSelfMention = try container.decode(Bool.self, forKey: .containsSelfMention)
     mentionSeen = try container.decode(Bool.self, forKey: .mentionSeen)
+    failureSeen = try container.decodeIfPresent(Bool.self, forKey: .failureSeen) ?? false
     timestampCorrected = try container.decode(Bool.self, forKey: .timestampCorrected)
     senderTimestamp = try container.decodeIfPresent(UInt32.self, forKey: .senderTimestamp)
     reactionSummary = try container.decodeIfPresent(String.self, forKey: .reactionSummary)
@@ -475,6 +484,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     }
     containsSelfMention = message.containsSelfMention
     mentionSeen = message.mentionSeen
+    failureSeen = message.failureSeen
     timestampCorrected = message.timestampCorrected
     senderTimestamp = message.senderTimestamp
     reactionSummary = message.reactionSummary
@@ -518,6 +528,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     linkPreviewFetched: Bool = false,
     containsSelfMention: Bool = false,
     mentionSeen: Bool = false,
+    failureSeen: Bool = false,
     timestampCorrected: Bool = false,
     senderTimestamp: UInt32? = nil,
     reactionSummary: String? = nil,
@@ -557,6 +568,7 @@ public struct MessageDTO: Sendable, Equatable, Hashable, Identifiable, Codable {
     self.linkPreviewFetched = linkPreviewFetched
     self.containsSelfMention = containsSelfMention
     self.mentionSeen = mentionSeen
+    self.failureSeen = failureSeen
     self.timestampCorrected = timestampCorrected
     self.senderTimestamp = senderTimestamp
     self.reactionSummary = reactionSummary

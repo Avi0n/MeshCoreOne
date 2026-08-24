@@ -30,6 +30,7 @@ extension ChatViewModel {
     do {
       try await dataStore?.clearChannelUnreadCount(channelID: channel.id)
       try await dataStore?.clearChannelUnreadMentionCount(channelID: channel.id)
+      try await dataStore?.markFailedSendsSeen(radioID: channel.radioID, channelIndex: channel.index)
     } catch {
       logger.warning("loadChannelMessages: failed to clear unread counts - \(error.localizedDescription)")
     }
@@ -170,10 +171,7 @@ extension ChatViewModel {
     do {
       try await enqueueChannel(envelope)
     } catch {
-      logger.error("enqueueChannel failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
-      _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      timeline.applyStatusUpdate(messageID: message.id, status: .failed)
-      sendErrorMessage = Self.copyForEnqueueFailure(error)
+      await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
   }
 
@@ -233,10 +231,7 @@ extension ChatViewModel {
     do {
       try await enqueueChannel(envelope)
     } catch {
-      logger.error("enqueueChannel retry failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
-      _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      timeline.applyStatusUpdate(messageID: message.id, status: .failed)
-      sendErrorMessage = Self.copyForEnqueueFailure(error)
+      await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
   }
 

@@ -290,6 +290,9 @@ public extension PersistenceStore {
     guard let message = try modelContext.fetch(descriptor).first else {
       return
     }
+    if status == .failed, message.status != .failed {
+      message.failureSeen = false
+    }
     message.statusRawValue = status.rawValue
     if let ackCode {
       message.ackCode = ackCode
@@ -315,6 +318,9 @@ public extension PersistenceStore {
     descriptor.fetchLimit = 1
     guard let message = try modelContext.fetch(descriptor).first else {
       return
+    }
+    if status == .failed, message.status != .failed {
+      message.failureSeen = false
     }
     message.statusRawValue = status.rawValue
     message.retryAttempt = retryAttempt

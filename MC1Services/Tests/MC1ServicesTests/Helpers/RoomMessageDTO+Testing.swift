@@ -17,7 +17,8 @@ extension RoomMessageDTO {
     timestamp: UInt32 = 1_700_000_000,
     createdAt: Date = Date(),
     isFromSelf: Bool = false,
-    status: MessageStatus = .delivered
+    status: MessageStatus = .delivered,
+    failureSeen: Bool = false
   ) -> RoomMessageDTO {
     RoomMessageDTO(
       id: id,
@@ -28,7 +29,8 @@ extension RoomMessageDTO {
       timestamp: timestamp,
       createdAt: createdAt,
       isFromSelf: isFromSelf,
-      status: status
+      status: status,
+      failureSeen: failureSeen
     )
   }
 }

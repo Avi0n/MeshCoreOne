@@ -3363,6 +3363,76 @@ struct BackupIntegrationTests {
     #expect(model.regionScopeMatches == ["de-by", "de-hh"])
   }
 
+  // MARK: - failureSeen round-trip
+
+  @Test
+  func `MessageDTO Codable: failureSeen true round-trips`() throws {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Failed")
+    dto.failureSeen = true
+    dto.status = .failed
+
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: encoded)
+    #expect(decoded.failureSeen == true)
+  }
+
+  @Test
+  func `Legacy MessageDTO envelope without failureSeen decodes as false`() throws {
+    let baseDTO = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Legacy")
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "failureSeen")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(MessageDTO.self, from: stripped)
+    #expect(decoded.failureSeen == false)
+  }
+
+  @Test
+  func `Message(dto:) forwards failureSeen verbatim through DTO to model`() {
+    var dto = MessageDTO.testDirectMessage(radioID: UUID(), contactID: UUID(), text: "Forward")
+    dto.failureSeen = true
+    let model = Message(dto: dto)
+    #expect(model.failureSeen == true)
+  }
+
+  @Test
+  func `RoomMessageDTO Codable: failureSeen true round-trips`() throws {
+    let dto = RoomMessageDTO.testRoomMessage(
+      sessionID: UUID(),
+      isFromSelf: true,
+      status: .failed,
+      failureSeen: true
+    )
+    let encoded = try JSONEncoder().encode(dto)
+    let decoded = try JSONDecoder().decode(RoomMessageDTO.self, from: encoded)
+    #expect(decoded.failureSeen == true)
+  }
+
+  @Test
+  func `Legacy RoomMessageDTO envelope without failureSeen decodes as false`() throws {
+    let baseDTO = RoomMessageDTO.testRoomMessage(sessionID: UUID(), isFromSelf: true, status: .failed)
+    let encoded = try JSONEncoder().encode(baseDTO)
+    var json = try #require(try JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+    json.removeValue(forKey: "failureSeen")
+
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(RoomMessageDTO.self, from: stripped)
+    #expect(decoded.failureSeen == false)
+  }
+
+  @Test
+  func `RoomMessage(dto:) forwards failureSeen verbatim through DTO to model`() {
+    let dto = RoomMessageDTO.testRoomMessage(
+      sessionID: UUID(),
+      isFromSelf: true,
+      status: .failed,
+      failureSeen: true
+    )
+    let model = RoomMessage(dto: dto)
+    #expect(model.failureSeen == true)
+  }
+
   // MARK: - MessageDTO.sortDate round-trip
 
   @Test

@@ -54,6 +54,10 @@ public final class RoomMessage {
   /// Maximum retry attempts configured
   public var maxRetryAttempts: Int = 0
 
+  /// Whether the user has opened the room after this outgoing send failed.
+  /// The conversation-list badge shows only unseen `.failed` rows.
+  public var failureSeen: Bool = false
+
   public init(
     id: UUID = UUID(),
     sessionID: UUID,
@@ -99,6 +103,7 @@ public final class RoomMessage {
     roundTripTime = dto.roundTripTime
     retryAttempt = dto.retryAttempt
     maxRetryAttempts = dto.maxRetryAttempts
+    failureSeen = dto.failureSeen
   }
 }
 
@@ -156,6 +161,7 @@ public struct RoomMessageDTO: Sendable, Equatable, Identifiable, Hashable, Codab
   public let roundTripTime: UInt32?
   public let retryAttempt: Int
   public let maxRetryAttempts: Int
+  public let failureSeen: Bool
 
   public init(from model: RoomMessage) {
     id = model.id
@@ -172,6 +178,7 @@ public struct RoomMessageDTO: Sendable, Equatable, Identifiable, Hashable, Codab
     roundTripTime = model.roundTripTime
     retryAttempt = model.retryAttempt
     maxRetryAttempts = model.maxRetryAttempts
+    failureSeen = model.failureSeen
   }
 
   public init(
@@ -187,7 +194,8 @@ public struct RoomMessageDTO: Sendable, Equatable, Identifiable, Hashable, Codab
     ackCode: UInt32? = nil,
     roundTripTime: UInt32? = nil,
     retryAttempt: Int = 0,
-    maxRetryAttempts: Int = 0
+    maxRetryAttempts: Int = 0,
+    failureSeen: Bool = false
   ) {
     self.id = id
     self.sessionID = sessionID
@@ -202,11 +210,37 @@ public struct RoomMessageDTO: Sendable, Equatable, Identifiable, Hashable, Codab
     self.roundTripTime = roundTripTime
     self.retryAttempt = retryAttempt
     self.maxRetryAttempts = maxRetryAttempts
+    self.failureSeen = failureSeen
     deduplicationKey = RoomMessage.generateDeduplicationKey(
       timestamp: timestamp,
       authorKeyPrefix: authorKeyPrefix,
       text: text
     )
+  }
+
+  private enum CodingKeys: String, CodingKey {
+    case id, sessionID, authorKeyPrefix, authorName, text, timestamp, createdAt,
+         isFromSelf, deduplicationKey, statusRawValue, ackCode, roundTripTime,
+         retryAttempt, maxRetryAttempts, failureSeen
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(UUID.self, forKey: .id)
+    sessionID = try container.decode(UUID.self, forKey: .sessionID)
+    authorKeyPrefix = try container.decode(Data.self, forKey: .authorKeyPrefix)
+    authorName = try container.decodeIfPresent(String.self, forKey: .authorName)
+    text = try container.decode(String.self, forKey: .text)
+    timestamp = try container.decode(UInt32.self, forKey: .timestamp)
+    createdAt = try container.decode(Date.self, forKey: .createdAt)
+    isFromSelf = try container.decode(Bool.self, forKey: .isFromSelf)
+    deduplicationKey = try container.decode(String.self, forKey: .deduplicationKey)
+    statusRawValue = try container.decode(Int.self, forKey: .statusRawValue)
+    ackCode = try container.decodeIfPresent(UInt32.self, forKey: .ackCode)
+    roundTripTime = try container.decodeIfPresent(UInt32.self, forKey: .roundTripTime)
+    retryAttempt = try container.decode(Int.self, forKey: .retryAttempt)
+    maxRetryAttempts = try container.decode(Int.self, forKey: .maxRetryAttempts)
+    failureSeen = try container.decodeIfPresent(Bool.self, forKey: .failureSeen) ?? false
   }
 
   public var authorDisplayName: String {

@@ -75,6 +75,7 @@ extension ChatViewModel {
     do {
       try await dataStore?.clearUnreadCount(contactID: contact.id)
       try await dataStore?.clearUnreadMentionCount(contactID: contact.id)
+      try await dataStore?.markFailedSendsSeen(contactID: contact.id)
     } catch {
       logger.warning("loadMessages: failed to clear unread counts - \(error.localizedDescription)")
     }
@@ -205,10 +206,7 @@ extension ChatViewModel {
     do {
       try await enqueueDM(envelope)
     } catch {
-      logger.error("enqueueDM failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
-      _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      timeline.applyStatusUpdate(messageID: message.id, status: .failed)
-      sendErrorMessage = Self.copyForEnqueueFailure(error)
+      await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
   }
 }
