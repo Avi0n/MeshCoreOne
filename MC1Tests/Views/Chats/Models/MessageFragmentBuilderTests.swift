@@ -21,6 +21,54 @@ struct MessageFragmentBuilderTests {
   }
 
   @Test
+  func `translation chrome copies onto the payload and leaves raw original`() {
+    let original = "Guten Morgen, wie geht es dir heute?"
+    let message = makeMessage(text: original)
+    let offer = MessageFragmentBuilder.makeItem(
+      for: message,
+      inputs: makeInputs(
+        messageID: message.id,
+        translation: MessageTranslationChrome(phase: .offer, sourceLanguageCode: "de")
+      ),
+      envInputs: makeEnvInputs()
+    )
+    let showing = MessageFragmentBuilder.makeItem(
+      for: message,
+      inputs: makeInputs(
+        messageID: message.id,
+        translation: MessageTranslationChrome(
+          phase: .showing(translatedText: "Hello", targetLanguageCode: "en"),
+          sourceLanguageCode: "de"
+        )
+      ),
+      envInputs: makeEnvInputs()
+    )
+    let none = MessageFragmentBuilder.makeItem(
+      for: message,
+      inputs: makeInputs(messageID: message.id, translation: nil),
+      envInputs: makeEnvInputs()
+    )
+    guard case let .text(offerPayload) = offer.content[0],
+          case let .text(showingPayload) = showing.content[0],
+          case let .text(nonePayload) = none.content[0] else {
+      Issue.record("expected .text fragment")
+      return
+    }
+    #expect(offerPayload.raw == original)
+    #expect(offerPayload.translation?.phase == .offer)
+    #expect(showingPayload.raw == original)
+    #expect(
+      showingPayload.translation?.phase
+        == .showing(translatedText: "Hello", targetLanguageCode: "en")
+    )
+    #expect(nonePayload.raw == original)
+    #expect(nonePayload.translation == nil)
+    #expect(offer != showing)
+    #expect(offer != none)
+    #expect(showing != none)
+  }
+
+  @Test
   func `reaction summary appears after the text fragment`() {
     let message = makeMessage(text: "hi", reactionSummary: "👍:1")
     let inputs = makeInputs(messageID: message.id)
@@ -669,7 +717,8 @@ struct MessageFragmentBuilderTests {
       isOffline: isOffline,
       currentUserName: currentUserName,
       themeID: "default",
-      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory,
+      preferredLanguageCode: EnvInputs.defaultPreferredLanguageCode
     )
   }
 
@@ -726,7 +775,8 @@ struct MessageFragmentBuilderTests {
     showTimestamp: Bool = false,
     showDirectionGap: Bool = false,
     showSenderName: Bool = false,
-    showNewMessagesDivider: Bool = false
+    showNewMessagesDivider: Bool = false,
+    translation: MessageTranslationChrome? = nil
   ) -> MessageBuildInputs {
     MessageBuildInputs(
       messageID: messageID,
@@ -745,7 +795,8 @@ struct MessageFragmentBuilderTests {
       showTimestamp: showTimestamp,
       showDirectionGap: showDirectionGap,
       showSenderName: showSenderName,
-      showNewMessagesDivider: showNewMessagesDivider
+      showNewMessagesDivider: showNewMessagesDivider,
+      translation: translation
     )
   }
 

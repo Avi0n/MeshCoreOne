@@ -49,6 +49,18 @@ final class ChatMessageBakeState {
   /// Cached URL detection results to avoid re-running NSDataDetector on rebuilds
   var cachedURLs: [UUID: URL?] = [:]
 
+  /// Detected language keyed by message id. Missing key = not yet run;
+  /// `.undetermined` = ran, no code.
+  var detectedLanguages: [UUID: DetectedLanguage] = [:]
+
+  /// Per-message Translation offer phase. Missing means bake decides from
+  /// detection (typically `.offer` or no row).
+  var translationPhases: [UUID: MessageTranslationChrome.Phase] = [:]
+
+  /// Last successful translation per message, keyed by collapsed target
+  /// language code. A DE→EN result must not be reused as DE→FR.
+  var translationCache: [UUID: [String: String]] = [:]
+
   /// Image-extension URLs the fetch path has discovered serve an HTML page,
   /// not image bytes (imgur, pasteboard, prnt.sc). Keyed by URL string so one
   /// discovery reroutes every loaded message sharing it. Gates the synchronous

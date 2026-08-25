@@ -1,5 +1,6 @@
 import MC1Services
 import SwiftUI
+import Translation
 import UIKit
 
 /// Full room chat interface
@@ -8,6 +9,7 @@ struct RoomConversationView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.scenePhase) private var scenePhase
   @Environment(\.appTheme) private var theme
+  @Environment(\.locale) private var locale
 
   @State private var session: RemoteNodeSessionDTO
   @State private var viewModel = RoomConversationViewModel()
@@ -20,6 +22,9 @@ struct RoomConversationView: View {
   @State private var isAtBottom = true
   @State private var unreadCount = 0
   @State private var scrollToBottomRequest = 0
+  @State private var translationConfiguration: TranslationSession.Configuration?
+  @State private var systemTranslationText = ""
+  @State private var showSystemTranslation = false
 
   @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
 
@@ -81,7 +86,10 @@ struct RoomConversationView: View {
       .sheet(item: $selectedRoomMessage) { message in
         RoomMessageActionsSheet(
           message: message,
-          availability: RoomMessageActionAvailability(message: message, session: session),
+          availability: RoomMessageActionAvailability(
+            message: message,
+            session: session
+          ),
           onAction: { dispatch($0, for: message) }
         )
       }
@@ -125,8 +133,24 @@ struct RoomConversationView: View {
           conversation: nil
         )
         await chatViewModel.loadAllContacts(radioID: session.radioID)
+        viewModel.applyPreferredLanguageCode(EnvInputs.preferredLanguageCode(from: locale))
         await viewModel.loadMessages(for: session)
       }
+      .conversationTranslationSession(
+        configuration: $translationConfiguration,
+        request: $viewModel.translationSessionRequest,
+        perform: { translator, request in
+          await viewModel.performPendingTranslation(using: translator, for: request)
+        }
+      )
+      .translationPresentation(
+        isPresented: $showSystemTranslation,
+        text: systemTranslationText
+      )
+      .onChange(of: locale) { _, newLocale in
+        viewModel.applyPreferredLanguageCode(EnvInputs.preferredLanguageCode(from: newLocale))
+      }
+      .errorAlert($viewModel.errorMessage)
       .onChange(of: appState.contactsVersion) { _, _ in
         // Keep the mention-resolution snapshot fresh: a contact added after the
         // room opened must be tappable without reopening the screen.
@@ -183,6 +207,7 @@ struct RoomConversationView: View {
         }
       }
       .onDisappear {
+        viewModel.cancelPendingTranslation()
         // Only clear if this room still owns the active slot; a newer room's
         // .task may have already claimed it before this view tears down.
         if appState.services?.notificationService.activeRoomSessionID == session.id {
@@ -209,7 +234,7 @@ struct RoomConversationView: View {
     MessagesView(
       viewModel: viewModel,
       hasLoadedOnce: viewModel.hasLoadedOnce,
-      messages: viewModel.messages,
+      tiledRows: viewModel.tiledRows,
       isAtBottom: $isAtBottom,
       unreadCount: $unreadCount,
       scrollToBottomRequest: scrollToBottomRequest,
@@ -218,7 +243,8 @@ struct RoomConversationView: View {
       onRetry: { id in
         Task { await viewModel.retryMessage(id: id) }
       },
-      onLongPress: { selectedRoomMessage = $0 }
+      onLongPress: { selectedRoomMessage = $0 },
+      onTranslationAction: { viewModel.performTranslationAction(for: $0) }
     )
   }
 
@@ -264,13 +290,23 @@ extension RoomConversationView {
   private func dispatch(_ action: RoomMessageAction, for message: RoomMessageDTO) {
     switch action {
     case .copy:
-      UIPasteboard.general.string = message.text
+      UIPasteboard.general.string = viewModel.displayedText(for: message)
+    case .translate:
+      presentSystemTranslation(text: message.text)
     case .reply:
       handleReply(for: message)
     case .sendDM:
       handleSendDM(for: message)
     case .sendAgain:
       Task { await viewModel.sendMessage(text: message.text) }
+    }
+  }
+
+  private func presentSystemTranslation(text: String) {
+    systemTranslationText = text
+    Task {
+      try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+      showSystemTranslation = true
     }
   }
 
@@ -310,7 +346,7 @@ extension RoomConversationView {
 private struct MessagesView: View {
   var viewModel: RoomConversationViewModel
   let hasLoadedOnce: Bool
-  let messages: [RoomMessageDTO]
+  let tiledRows: [RoomTiledRow]
   @Binding var isAtBottom: Bool
   @Binding var unreadCount: Int
   let scrollToBottomRequest: Int
@@ -318,6 +354,7 @@ private struct MessagesView: View {
   let theme: Theme
   let onRetry: (UUID) -> Void
   let onLongPress: (RoomMessageDTO) -> Void
+  let onTranslationAction: (UUID) -> Void
 
   @Environment(\.openURL) private var openURL
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -328,22 +365,16 @@ private struct MessagesView: View {
       if !hasLoadedOnce {
         ProgressView()
           .frame(maxWidth: .infinity, maxHeight: .infinity)
-      } else if messages.isEmpty {
+      } else if tiledRows.isEmpty {
         EmptyMessagesView(session: session)
       } else {
-        let rows = RoomConversationViewModel.tiledRows(in: messages)
         ChatTiledView(
-          items: rows,
+          items: tiledRows,
           cellContent: { row in
-            messageBubble(
-              for: row.message,
-              showTimestamp: row.showTimestamp,
-              showSenderName: row.showSenderName,
-              showAvatar: row.showAvatar
-            )
-            .environment(\.appTheme, theme)
-            .environment(\.openURL, openURL)
-            .environment(\.incomingAvatarFlight, incomingAvatarFlight)
+            messageBubble(for: row)
+              .environment(\.appTheme, theme)
+              .environment(\.openURL, openURL)
+              .environment(\.incomingAvatarFlight, incomingAvatarFlight)
           },
           contentBackground: theme.surfaces?.canvas,
           isAtBottom: $isAtBottom,
@@ -370,21 +401,18 @@ private struct MessagesView: View {
     .themedCanvas(theme)
   }
 
-  private func messageBubble(
-    for message: RoomMessageDTO,
-    showTimestamp: Bool,
-    showSenderName: Bool,
-    showAvatar: Bool
-  ) -> some View {
+  private func messageBubble(for row: RoomTiledRow) -> some View {
     RoomMessageBubble(
-      message: message,
-      showTimestamp: showTimestamp,
-      showSenderName: showSenderName,
-      showAvatar: showAvatar,
-      onRetry: message.status == .failed ? {
-        onRetry(message.id)
+      message: row.message,
+      showTimestamp: row.showTimestamp,
+      showSenderName: row.showSenderName,
+      showAvatar: row.showAvatar,
+      translation: row.translation,
+      onRetry: row.message.status == .failed ? {
+        onRetry(row.message.id)
       } : nil,
-      onLongPress: onLongPress
+      onLongPress: onLongPress,
+      onTranslationAction: { onTranslationAction(row.message.id) }
     )
   }
 }

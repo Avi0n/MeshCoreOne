@@ -16,6 +16,30 @@ final class RoomConversationViewModel {
   /// Room messages
   var messages: [RoomMessageDTO] = []
 
+  /// Materialized tiled rows. Chrome including Translation offer lives here
+  /// so `ChatTiledView` reconfigures when a phase changes.
+  var tiledRows: [RoomTiledRow] = []
+
+  /// Pending Translation session request. Observed so the view can invalidate
+  /// `TranslationSession.Configuration`.
+  var translationSessionRequest: TranslationSessionRequest?
+
+  var preferredLanguageCode: String = EnvInputs.defaultPreferredLanguageCode
+
+  /// Monotonic generation for in-flight translation. Apply a result only
+  /// when it still matches `translationSessionRequest.generation`.
+  @ObservationIgnored var translationGeneration: UInt64 = 0
+
+  /// Detected language keyed by message id. Missing key = not yet run;
+  /// `.undetermined` = ran, no code.
+  var detectedLanguages: [UUID: DetectedLanguage] = [:]
+  /// Per-message Translation offer phase. Missing lets
+  /// `MessageTranslationChrome.resolved` decide from detection.
+  var translationPhases: [UUID: MessageTranslationChrome.Phase] = [:]
+  /// Last successful translation per message, keyed by collapsed target
+  /// language code. A DE→EN result must not be reused as DE→FR.
+  var translationCache: [UUID: [String: String]] = [:]
+
   /// Loading state
   var isLoading = false
 
@@ -98,6 +122,7 @@ final class RoomConversationViewModel {
 
     do {
       messages = try await roomServerService.fetchMessages(sessionID: session.id)
+      refreshTiledRows()
 
       // Clear unread count, remove any delivered notifications for this
       // room still in the tray, and update the badge
@@ -125,6 +150,7 @@ final class RoomConversationViewModel {
     let index = messages.firstIndex { $0.timestamp > message.timestamp } ?? messages.endIndex
     let isTailAppend = index == messages.endIndex
     messages.insert(message, at: index)
+    refreshTiledRows()
     if isTailAppend,
        let previous = previousTail,
        Self.incomingClusterContinues(from: previous, to: message) {
@@ -232,6 +258,7 @@ final class RoomConversationViewModel {
       // Update local array
       if let index = messages.firstIndex(where: { $0.id == id }) {
         messages[index] = updatedMessage
+        refreshTiledRows()
       }
     } catch {
       errorMessage = error.userFacingMessage
@@ -280,14 +307,18 @@ final class RoomConversationViewModel {
     return (nameIDs, avatarIDs)
   }
 
-  static func tiledRows(in messages: [RoomMessageDTO]) -> [RoomTiledRow] {
+  static func tiledRows(
+    in messages: [RoomMessageDTO],
+    translations: [UUID: MessageTranslationChrome] = [:]
+  ) -> [RoomTiledRow] {
     let bookends = incomingBookends(in: messages)
     return messages.enumerated().map { index, message in
       RoomTiledRow(
         message: message,
         showTimestamp: shouldShowTimestamp(at: index, in: messages),
         showSenderName: bookends.nameIDs.contains(message.id),
-        showAvatar: bookends.avatarIDs.contains(message.id)
+        showAvatar: bookends.avatarIDs.contains(message.id),
+        translation: translations[message.id]
       )
     }
   }

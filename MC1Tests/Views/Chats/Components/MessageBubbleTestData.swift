@@ -167,7 +167,8 @@ enum MessageBubbleTestData {
       isOffline: false,
       currentUserName: currentUserName,
       themeID: "default",
-      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory,
+      preferredLanguageCode: EnvInputs.defaultPreferredLanguageCode
     )
     let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: envInputs)
 

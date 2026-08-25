@@ -504,11 +504,52 @@ struct ChatTimelineTests {
     _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     timeline.apply(.previewState(messageID: message.id, state: .loading))
     #expect(!timeline.bake.cachedURLs.isEmpty)
+    timeline.bake.detectedLanguages[message.id] = .identified(languageCode: "de")
+    timeline.bake.translationPhases[message.id] = .offer
+    timeline.bake.translationCache[message.id] = ["en": "Hello"]
 
     timeline.clearBakeState()
 
     #expect(timeline.bake.previewStates.isEmpty)
     #expect(timeline.bake.cachedURLs.isEmpty)
     #expect(timeline.bake.loadedPreviews.isEmpty)
+    #expect(timeline.bake.detectedLanguages.isEmpty)
+    #expect(timeline.bake.translationPhases.isEmpty)
+    #expect(timeline.bake.translationCache.isEmpty)
+  }
+
+  @Test
+  func `removeBakeState drops one message translation maps and leaves others`() async throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    let message = makeDirectMessage(
+      radioID: radioID, contactID: contact.id,
+      timestamp: 1000, text: "https://example.com/article"
+    )
+    try await dataStore.saveMessage(message)
+
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
+
+    let otherID = UUID()
+    timeline.bake.detectedLanguages[message.id] = .identified(languageCode: "de")
+    timeline.bake.detectedLanguages[otherID] = .identified(languageCode: "fr")
+    timeline.bake.translationPhases[message.id] = .offer
+    timeline.bake.translationPhases[otherID] = .inProgress
+    timeline.bake.translationCache[message.id] = ["en": "Hello"]
+    timeline.bake.translationCache[otherID] = ["en": "Bonjour"]
+
+    timeline.removeBakeState(for: message.id)
+
+    #expect(timeline.bake.detectedLanguages[message.id] == nil)
+    #expect(timeline.bake.detectedLanguages[otherID] == .identified(languageCode: "fr"))
+    #expect(timeline.bake.translationPhases[message.id] == nil)
+    #expect(timeline.bake.translationPhases[otherID] == .inProgress)
+    #expect(timeline.bake.translationCache[message.id] == nil)
+    #expect(timeline.bake.translationCache[otherID]?["en"] == "Bonjour")
   }
 }

@@ -8,6 +8,7 @@ struct RoomTiledRow: Identifiable, Hashable, Sendable {
   let showTimestamp: Bool
   let showSenderName: Bool
   let showAvatar: Bool
+  let translation: MessageTranslationChrome?
 
   var id: UUID {
     message.id

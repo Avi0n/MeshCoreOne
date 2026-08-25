@@ -137,7 +137,8 @@ private func envInputsChangingAppearance() -> EnvInputs {
     isOffline: base.isOffline,
     currentUserName: base.currentUserName,
     themeID: base.themeID,
-    contentSizeCategory: base.contentSizeCategory
+    contentSizeCategory: base.contentSizeCategory,
+    preferredLanguageCode: base.preferredLanguageCode
   )
 }
 

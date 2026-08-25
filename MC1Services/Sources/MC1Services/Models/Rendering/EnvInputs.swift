@@ -33,6 +33,9 @@ public struct EnvInputs: Sendable, Hashable {
   /// `Color`, which would pull SwiftUI into MC1Services and break `Hashable`. The MC1 side
   /// resolves it back to a `Theme` to bake outgoing-text/hashtag colors into `MessageTextPayload`.
   public let themeID: String
+  /// App-locale language code (`"en"`, `"de"`, `"zh"`), never a region qualifier.
+  /// A change forces a full `buildItems()` so Translation chrome re-evaluates.
+  public let preferredLanguageCode: String
 
   /// Dynamic Type size fingerprint. A `Sendable, Hashable` token (a `DynamicTypeSize` case
   /// name string supplied by the MC1 side, never the SwiftUI type itself) so a Dynamic Type
@@ -55,7 +58,8 @@ public struct EnvInputs: Sendable, Hashable {
     isOffline: Bool,
     currentUserName: String,
     themeID: String,
-    contentSizeCategory: String
+    contentSizeCategory: String,
+    preferredLanguageCode: String
   ) {
     self.autoPlayGIFs = autoPlayGIFs
     self.showIncomingPath = showIncomingPath
@@ -70,6 +74,7 @@ public struct EnvInputs: Sendable, Hashable {
     self.currentUserName = currentUserName
     self.themeID = themeID
     self.contentSizeCategory = contentSizeCategory
+    self.preferredLanguageCode = preferredLanguageCode
   }
 
   /// Identifier of the built-in default theme. Shared so `EnvInputs.default` and `Theme.default.id`
@@ -80,6 +85,14 @@ public struct EnvInputs: Sendable, Hashable {
   /// `EnvInputs.default` and the MC1-side token mapper agree on the baseline string and
   /// cannot drift apart.
   public static let defaultContentSizeCategory = "large"
+
+  /// Fallback language code when `Locale.Language.languageCode` is missing.
+  public static let defaultPreferredLanguageCode = "en"
+
+  /// App-locale language subtag used as the Translation target (`en-US` → `en`).
+  public static func preferredLanguageCode(from locale: Locale) -> String {
+    locale.language.languageCode?.identifier ?? defaultPreferredLanguageCode
+  }
 
   public static let `default` = EnvInputs(
     autoPlayGIFs: AppStorageKey.defaultAutoPlayGIFs,
@@ -94,6 +107,7 @@ public struct EnvInputs: Sendable, Hashable {
     isOffline: false,
     currentUserName: "",
     themeID: defaultThemeID,
-    contentSizeCategory: defaultContentSizeCategory
+    contentSizeCategory: defaultContentSizeCategory,
+    preferredLanguageCode: defaultPreferredLanguageCode
   )
 }

@@ -585,6 +585,10 @@ public enum L10n {
         }
       }
       public enum Message {
+        /// Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text
+        public static func translatedAccessibility(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.message.translatedAccessibility", String(describing: p1), fallback: "Translated: %@")
+        }
         /// Location: ChatConversationView.swift - Placeholder when message data is unavailable
         public static let unavailable = L10n.tr("Chats", "chats.message.unavailable", fallback: "Message unavailable")
         /// Location: ChatConversationView.swift - Accessibility label for unavailable message
@@ -640,6 +644,12 @@ public enum L10n {
           public static let sendAgain = L10n.tr("Chats", "chats.message.action.sendAgain", fallback: "Send Again")
           /// Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender
           public static let sendDM = L10n.tr("Chats", "chats.message.action.sendDM", fallback: "Send DM")
+          /// Location: BubbleTranslationControl.swift - Restore the stored message body
+          public static let showOriginal = L10n.tr("Chats", "chats.message.action.showOriginal", fallback: "Show original")
+          /// Location: BubbleTranslationControl.swift - In-bubble Translation offer
+          public static let translate = L10n.tr("Chats", "chats.message.action.translate", fallback: "Translate")
+          /// Location: BubbleTranslationControl.swift - Translation in progress
+          public static let translating = L10n.tr("Chats", "chats.message.action.translating", fallback: "Translating")
           /// Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen
           public static let viewImage = L10n.tr("Chats", "chats.message.action.viewImage", fallback: "View Image")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view path

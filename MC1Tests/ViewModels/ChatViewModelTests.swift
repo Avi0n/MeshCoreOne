@@ -338,7 +338,8 @@ struct ChatViewModelTests {
       isOffline: EnvInputs.default.isOffline,
       currentUserName: EnvInputs.default.currentUserName,
       themeID: EnvInputs.default.themeID,
-      contentSizeCategory: EnvInputs.default.contentSizeCategory
+      contentSizeCategory: EnvInputs.default.contentSizeCategory,
+      preferredLanguageCode: EnvInputs.default.preferredLanguageCode
     )
     viewModel.applyEnvInputs(darkEnv)
     await coordinator.buildItemsTask?.value
@@ -376,7 +377,8 @@ struct ChatViewModelTests {
       isOffline: EnvInputs.default.isOffline,
       currentUserName: EnvInputs.default.currentUserName,
       themeID: Theme.ember.id,
-      contentSizeCategory: EnvInputs.default.contentSizeCategory
+      contentSizeCategory: EnvInputs.default.contentSizeCategory,
+      preferredLanguageCode: EnvInputs.default.preferredLanguageCode
     )
     viewModel.applyEnvInputs(emberEnv)
     await coordinator.buildItemsTask?.value
@@ -934,7 +936,8 @@ struct ChatViewModelImageGatingTests {
       isOffline: false,
       currentUserName: "Me",
       themeID: EnvInputs.defaultThemeID,
-      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory,
+      preferredLanguageCode: EnvInputs.defaultPreferredLanguageCode
     )
   }
 
@@ -1103,7 +1106,8 @@ struct ChatViewModelOrphanRecoveryTests {
       isOffline: false,
       currentUserName: "Me",
       themeID: EnvInputs.defaultThemeID,
-      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory,
+      preferredLanguageCode: EnvInputs.defaultPreferredLanguageCode
     )
   }
 

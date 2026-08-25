@@ -594,6 +594,18 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to copy */
 "chats.message.action.copy" = "Copiar";
 
+/* Location: BubbleTranslationControl.swift - In-bubble Translation offer */
+"chats.message.action.translate" = "Traduzir";
+
+/* Location: BubbleTranslationControl.swift - Restore the stored message body */
+"chats.message.action.showOriginal" = "Mostrar original";
+
+/* Location: BubbleTranslationControl.swift - Translation in progress */
+"chats.message.action.translating" = "A traduzir...";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text */
+"chats.message.translatedAccessibility" = "Traduzido: %@";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to view repeat details */
 "chats.message.action.repeatDetails" = "Detalhes da repetição";
 

@@ -8,7 +8,10 @@ struct RoomMessageActionAvailability {
   let canSendDM: Bool
   let canSendAgain: Bool
 
-  init(message: RoomMessageDTO, session: RemoteNodeSessionDTO) {
+  init(
+    message: RoomMessageDTO,
+    session: RemoteNodeSessionDTO
+  ) {
     canReply = !message.isFromSelf && session.canPost
     canSendDM = !message.isFromSelf && message.authorName != nil
     canSendAgain = message.isFromSelf

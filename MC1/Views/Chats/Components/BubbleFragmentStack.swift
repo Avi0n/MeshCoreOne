@@ -51,6 +51,15 @@ struct BubbleFragmentStack: View, Equatable {
     if case let .disabled(url) = layout.inlineImage?.state { url } else { nil }
   }
 
+  /// Showing uses the translated string as plain `Text` so mention/hashtag runs are not applied.
+  private func translationBody(_ textPayload: MessageTextPayload) -> Text {
+    if case let .showing(translated, _) = textPayload.translation?.phase {
+      Text(translated)
+    } else {
+      Text(textPayload.formatted ?? AttributedString(textPayload.raw))
+    }
+  }
+
   var body: some View {
     let stack = VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 0) {
       // Stack alignment carries the footer placement: the time sits at the
@@ -60,11 +69,18 @@ struct BubbleFragmentStack: View, Equatable {
       // self-sizing hosting cell without a resolvable intrinsic width, which
       // SwiftUI surfaces as a fatal "invalid reuse after initialization failure".
       VStack(alignment: item.envelope.isOutgoing ? .trailing : .leading, spacing: 2) {
+        if let chrome = layout.textPayload?.translation {
+          BubbleTranslationControl(
+            phase: chrome.phase,
+            isOutgoing: item.envelope.isOutgoing,
+            onTap: { callbacks.onTranslationAction?() }
+          )
+        }
         if let textPayload = layout.textPayload {
           // Native `Text`: the precomputed `formatted` string already carries every run's color,
           // underline, bold, and `.link`, so link taps route through the injected `\.openURL` and
           // Dynamic Type scales for free. `foregroundStyle` colors the raw fallback when unformatted.
-          Text(textPayload.formatted ?? AttributedString(textPayload.raw))
+          translationBody(textPayload)
             .font(.body)
             .foregroundStyle(textPayload.baseColor.swiftUIColor)
         }

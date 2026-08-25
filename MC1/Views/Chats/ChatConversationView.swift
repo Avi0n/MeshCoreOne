@@ -1,6 +1,7 @@
 import MC1Services
 import OSLog
 import SwiftUI
+import Translation
 import UIKit // UIPasteboard for .copy action
 
 private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationView")
@@ -44,6 +45,9 @@ struct ChatConversationView: View {
   @State private var blockSenderContext: BlockSenderContext?
   @State private var sendDMContext: SendDMContext?
   @State private var imageViewerData: ImageViewerData?
+  @State private var translationConfiguration: TranslationSession.Configuration?
+  @State private var systemTranslationText = ""
+  @State private var showSystemTranslation = false
 
   // MARK: - Other State
 
@@ -70,6 +74,7 @@ struct ChatConversationView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.appTheme) private var theme
+  @Environment(\.locale) private var locale
 
   /// Snapshot of env-derived inputs the view model needs to construct
   /// MessageItems at write time. Recomputed on every render — Equatable
@@ -92,7 +97,8 @@ struct ChatConversationView: View {
       isOffline: !appState.offlineMapService.isNetworkAvailable,
       currentUserName: appState.localNodeName,
       themeID: theme.id,
-      contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize)
+      contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize),
+      preferredLanguageCode: EnvInputs.preferredLanguageCode(from: locale)
     )
   }
 
@@ -276,11 +282,23 @@ struct ChatConversationView: View {
     .task(id: appState.servicesVersion) {
       await performInitialLoad()
     }
+    .conversationTranslationSession(
+      configuration: $translationConfiguration,
+      request: $chatViewModel.translationSessionRequest,
+      perform: { translator, request in
+        await chatViewModel.performPendingTranslation(using: translator, for: request)
+      }
+    )
+    .translationPresentation(
+      isPresented: $showSystemTranslation,
+      text: systemTranslationText
+    )
     .onDisappear {
       // Load-bearing on iPad: MainSidebarView pins the Chats detail stack with
       // `.id(chatsSelectedRoute.conversationID)`, so a detail swap tears down this view's
       // @State (including draftSaveTask) before the debounce fires — flush here.
       flushDraft()
+      chatViewModel.cancelPendingTranslation()
       performCleanup()
     }
     .onChange(of: chatViewModel.composingText) { _, _ in
@@ -615,6 +633,8 @@ struct ChatConversationView: View {
       handleReply(for: message)
     case .copy:
       handleCopy(for: message)
+    case .translate:
+      presentSystemTranslation(text: message.text)
     case .sendAgain:
       handleSendAgain(for: message)
     case .blockSender:
@@ -655,7 +675,15 @@ struct ChatConversationView: View {
   }
 
   private func handleCopy(for message: MessageDTO) {
-    UIPasteboard.general.string = message.text
+    UIPasteboard.general.string = chatViewModel.displayedText(for: message)
+  }
+
+  private func presentSystemTranslation(text: String) {
+    systemTranslationText = text
+    Task {
+      try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+      showSystemTranslation = true
+    }
   }
 
   private func handleSendAgain(for message: MessageDTO) {

@@ -101,7 +101,8 @@ public enum MessageFragmentBuilder {
       formatted: inputs.formattedText,
       baseColor: inputs.baseColor,
       isOutgoing: message.isOutgoing,
-      currentUserName: envInputs.currentUserName
+      currentUserName: envInputs.currentUserName,
+      translation: inputs.translation
     )
   }
 

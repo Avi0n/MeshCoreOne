@@ -51,6 +51,9 @@ public struct MessageBuildInputs: Sendable, Hashable {
   public let showDayDivider: Bool
   /// Present only on channel incoming cluster-end rows. Never a JPEG.
   public let incomingAvatar: IncomingAvatarIdentity?
+  /// Already-decided Translation chrome. The builder copies this onto the
+  /// text payload and never calls the detector.
+  public let translation: MessageTranslationChrome?
 
   public init(
     messageID: UUID,
@@ -76,7 +79,8 @@ public struct MessageBuildInputs: Sendable, Hashable {
     showSenderName: Bool,
     showNewMessagesDivider: Bool,
     showDayDivider: Bool = false,
-    incomingAvatar: IncomingAvatarIdentity? = nil
+    incomingAvatar: IncomingAvatarIdentity? = nil,
+    translation: MessageTranslationChrome? = nil
   ) {
     self.messageID = messageID
     self.previewState = previewState
@@ -102,5 +106,6 @@ public struct MessageBuildInputs: Sendable, Hashable {
     self.showNewMessagesDivider = showNewMessagesDivider
     self.showDayDivider = showDayDivider
     self.incomingAvatar = incomingAvatar
+    self.translation = translation
   }
 }

@@ -40,7 +40,8 @@ struct MessageBubbleView: View, Equatable {
           onMapPreviewTap: { coordinate in actions.onMapPreviewTap(coordinate) },
           snapshotResolver: actions.snapshotResolver,
           requestSnapshot: actions.requestSnapshot,
-          retrySnapshot: actions.retrySnapshot
+          retrySnapshot: actions.retrySnapshot,
+          onTranslationAction: { actions.onTranslationAction(message.id) }
         )
       )
     } else {

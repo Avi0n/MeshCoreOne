@@ -113,6 +113,7 @@ extension ChatMessageBakeState {
     senderTables: ChatSenderTables
   ) -> MessageBuildInputs {
     seedPreviewStateIfNeeded(for: message, envInputs: envInputs)
+    seedDetectedLanguageIfNeeded(for: message)
     let flags = Self.computeDisplayFlags(for: message, previous: previous, next: next)
     let cachedURL = cachedURLs[message.id].flatMap(\.self)
     // Extension-based image classification, minus URLs the fetch path has
@@ -208,8 +209,20 @@ extension ChatMessageBakeState {
       showSenderName: flags.showSenderName,
       showNewMessagesDivider: message.id == newMessagesDividerMessageID,
       showDayDivider: flags.showDayDivider,
-      incomingAvatar: incomingAvatar
+      incomingAvatar: incomingAvatar,
+      translation: MessageTranslationChrome.resolved(
+        detected: detectedLanguages[message.id],
+        phase: translationPhases[message.id],
+        preferredLanguageCode: envInputs.preferredLanguageCode
+      )
     )
+  }
+
+  /// Writes a missing detection key. Stores `.undetermined` so a locale
+  /// change does not re-run the recognizer.
+  func seedDetectedLanguageIfNeeded(for message: MessageDTO) {
+    guard detectedLanguages[message.id] == nil else { return }
+    detectedLanguages[message.id] = MessageLanguageDetector.dominantLanguage(for: message.text)
   }
 
   /// Whether `url` routes to the inline-image fragment and fetch path: an

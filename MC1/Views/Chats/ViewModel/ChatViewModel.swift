@@ -145,6 +145,12 @@ final class ChatViewModel {
   /// Update env-derived inputs and trigger a full rebuild when the value
   /// changes and there are messages to rebuild. Idempotent on no-change.
   func applyEnvInputs(_ new: EnvInputs) {
+    if !MessageLanguageDetector.isSameLanguage(
+      envInputs.preferredLanguageCode,
+      new.preferredLanguageCode
+    ) {
+      invalidateTranslations(preferredLanguageCode: new.preferredLanguageCode)
+    }
     timeline.applyEnvInputs(new)
   }
 
@@ -195,6 +201,14 @@ final class ChatViewModel {
 
   /// Error message if any
   var errorMessage: String?
+
+  /// Pending Translation session request. Observed by the conversation view
+  /// so it can invalidate `TranslationSession.Configuration`.
+  var translationSessionRequest: TranslationSessionRequest?
+
+  /// Monotonic generation for in-flight translation. Apply a result only
+  /// when it still matches `translationSessionRequest.generation`.
+  @ObservationIgnored var translationGeneration: UInt64 = 0
 
   /// Error state for send-only failures (queue drains, retry call site).
   /// Separate from `errorMessage`, which surfaces load and fetch errors

@@ -7,8 +7,10 @@ struct RoomMessageBubble: View {
   let showTimestamp: Bool
   let showSenderName: Bool
   let showAvatar: Bool
+  var translation: MessageTranslationChrome?
   var onRetry: (() -> Void)?
   var onLongPress: ((RoomMessageDTO) -> Void)?
+  var onTranslationAction: (() -> Void)?
 
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
   @Environment(\.appTheme) private var theme
@@ -43,6 +45,20 @@ struct RoomMessageBubble: View {
           onLongPress?(message)
         }
         .accessibilityActions {
+          if let chrome = translation {
+            switch chrome.phase {
+            case .offer:
+              Button(L10n.Chats.Chats.Message.Action.translate) {
+                onTranslationAction?()
+              }
+            case .showing:
+              Button(L10n.Chats.Chats.Message.Action.showOriginal) {
+                onTranslationAction?()
+              }
+            case .inProgress:
+              EmptyView()
+            }
+          }
           if accessibilityShowsRetryAction {
             Button(L10n.Chats.Chats.Message.Action.retry) { performAccessibilityRetry() }
           }
@@ -66,10 +82,18 @@ struct RoomMessageBubble: View {
   }
 
   var accessibilityMessageLabel: String {
-    if isFromSelf {
-      return "\(message.text), \(message.accessibilityStatusLabel)"
+    let body: String = switch translation?.phase {
+    case let .showing(translated, _):
+      L10n.Chats.Chats.Message.translatedAccessibility(translated)
+    case .inProgress:
+      "\(message.text), \(L10n.Chats.Chats.Message.Action.translating)"
+    default:
+      message.text
     }
-    return "\(message.authorDisplayName): \(message.text)"
+    if isFromSelf {
+      return "\(body), \(message.accessibilityStatusLabel)"
+    }
+    return "\(message.authorDisplayName): \(body)"
   }
 
   var accessibilityShowsRetryAction: Bool {
@@ -107,7 +131,9 @@ struct RoomMessageBubble: View {
       showSenderName: showSenderName,
       showAvatar: showAvatar,
       highContrast: colorSchemeContrast == .increased,
-      formattedBodyText: formattedBodyText
+      formattedBodyText: formattedBodyText,
+      translation: translation,
+      onTranslationAction: onTranslationAction
     )
     .messageBubbleLongPressGesture(
       isPressing: $isLongPressing,
@@ -150,6 +176,8 @@ private struct BubbleContent: View {
   let showAvatar: Bool
   let highContrast: Bool
   let formattedBodyText: AttributedString
+  var translation: MessageTranslationChrome?
+  var onTranslationAction: (() -> Void)?
 
   @Environment(\.appTheme) private var theme
   @Environment(\.colorScheme) private var colorScheme
@@ -195,11 +223,31 @@ private struct BubbleContent: View {
   }
 
   private var messageBox: some View {
-    MessageText(message.text, baseColor: textColor, isOutgoing: isFromSelf, precomputedText: formattedBodyText)
-      .padding(.horizontal, 12)
-      .padding(.vertical, 8)
-      .background(bubbleBackground)
-      .clipShape(.rect(cornerRadius: 16, style: .continuous))
+    VStack(alignment: isFromSelf ? .trailing : .leading, spacing: 2) {
+      if let chrome = translation {
+        BubbleTranslationControl(
+          phase: chrome.phase,
+          isOutgoing: isFromSelf,
+          onTap: { onTranslationAction?() }
+        )
+      }
+      messageBody
+    }
+    .padding(.horizontal, 12)
+    .padding(.vertical, 8)
+    .background(bubbleBackground)
+    .clipShape(.rect(cornerRadius: 16, style: .continuous))
+  }
+
+  @ViewBuilder
+  private var messageBody: some View {
+    if case let .showing(translated, _) = translation?.phase {
+      Text(translated)
+        .font(.body)
+        .foregroundStyle(textColor)
+    } else {
+      MessageText(message.text, baseColor: textColor, isOutgoing: isFromSelf, precomputedText: formattedBodyText)
+    }
   }
 }
 

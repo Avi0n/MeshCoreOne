@@ -113,6 +113,20 @@ struct UnifiedMessageBubble: View, Equatable {
           callbacks.onLongPress?()
         }
         .accessibilityActions {
+          if let chrome = layout.textPayload?.translation {
+            switch chrome.phase {
+            case .offer:
+              Button(L10n.Chats.Chats.Message.Action.translate) {
+                callbacks.onTranslationAction?()
+              }
+            case .showing:
+              Button(L10n.Chats.Chats.Message.Action.showOriginal) {
+                callbacks.onTranslationAction?()
+              }
+            case .inProgress:
+              EmptyView()
+            }
+          }
           if item.footer.showStatusRow,
              item.footer.status == .failed,
              let onRetry = callbacks.onRetry {
@@ -336,7 +350,14 @@ struct UnifiedMessageBubble: View, Equatable {
         }
       }
     }
-    label += message.text
+    switch layout.textPayload?.translation?.phase {
+    case let .showing(translated, _):
+      label += L10n.Chats.Chats.Message.translatedAccessibility(translated)
+    case .inProgress:
+      label += "\(message.text), \(L10n.Chats.Chats.Message.Action.translating)"
+    default:
+      label += message.text
+    }
     if item.envelope.isOutgoing {
       label += ", \(MessageStatusText.text(for: item.footer))"
     }

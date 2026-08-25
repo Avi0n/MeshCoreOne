@@ -94,7 +94,8 @@ extension AppState {
       isOffline: !offlineMapService.isNetworkAvailable,
       currentUserName: localNodeName,
       themeID: themeID,
-      contentSizeCategory: contentSizeCategory
+      contentSizeCategory: contentSizeCategory,
+      preferredLanguageCode: EnvInputs.preferredLanguageCode(from: Locale.current)
     )
   }
 

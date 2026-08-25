@@ -299,7 +299,8 @@ struct ChatViewModelAdmissionTests {
       isOffline: false,
       currentUserName: "Me",
       themeID: EnvInputs.defaultThemeID,
-      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory,
+      preferredLanguageCode: EnvInputs.defaultPreferredLanguageCode
     )
   }
 

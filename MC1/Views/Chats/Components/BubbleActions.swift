@@ -31,4 +31,5 @@ struct BubbleActions {
   let snapshotResolver: (MapSnapshotRequest) -> UIImage?
   let requestSnapshot: (MapSnapshotRequest) -> Void
   let retrySnapshot: (MapSnapshotRequest) -> Void
+  let onTranslationAction: (UUID) -> Void
 }

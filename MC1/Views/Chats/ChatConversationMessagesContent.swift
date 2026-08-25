@@ -157,7 +157,10 @@ struct ChatConversationMessagesContent: View {
         },
         snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
         requestSnapshot: { MapSnapshotStore.shared.request($0) },
-        retrySnapshot: { MapSnapshotStore.shared.retry($0) }
+        retrySnapshot: { MapSnapshotStore.shared.retry($0) },
+        onTranslationAction: { messageID in
+          viewModel.performTranslationAction(for: messageID)
+        }
       )
     )
   }

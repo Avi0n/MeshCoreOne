@@ -19,4 +19,5 @@ struct MessageBubbleCallbacks {
   var snapshotResolver: ((MapSnapshotRequest) -> UIImage?)?
   var requestSnapshot: ((MapSnapshotRequest) -> Void)?
   var retrySnapshot: ((MapSnapshotRequest) -> Void)?
+  var onTranslationAction: (() -> Void)?
 }
