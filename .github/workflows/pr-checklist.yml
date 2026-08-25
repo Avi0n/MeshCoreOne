@@ -30,9 +30,9 @@ jobs:
             const BODY_MARKER = '<!-- pr-checklist-template -->';
 
             // PRs opened via the API/CLI (incl. AI agents) bypass the repository
-            // template, so the checklist never appears. When it is absent we inject
-            // this into the body once; editing the body re-fires this workflow,
-            // which then enforces the checkbox state.
+            // template, so the checklist never appears. Inject it so the
+            // contributor has boxes to check; GITHUB_TOKEN body edits do not
+            // re-fire this workflow, so the same run must also close below.
             const TEMPLATE = [
               BODY_MARKER,
               '## Tested on',
@@ -78,8 +78,8 @@ jobs:
             const common = { owner: context.repo.owner, repo: context.repo.repo, issue_number: pr.number };
 
             // The checklist is partly or wholly absent (template was bypassed).
-            // Inject it once so the contributor actually sees the boxes; the
-            // resulting body edit re-fires this workflow to enforce them.
+            // Inject it so the contributor sees the boxes, then fall through and
+            // close. A later human checkbox edit still retriggers `edited`.
             if (pr.state === 'open' && !allPresent && !body.includes(BODY_MARKER)) {
               await github.rest.pulls.update({
                 owner: context.repo.owner,
@@ -87,8 +87,7 @@ jobs:
                 pull_number: pr.number,
                 body: body ? `${body}\n\n${TEMPLATE}` : TEMPLATE,
               });
-              core.info(`Injected checklist template into PR #${pr.number}; awaiting completion.`);
-              return;
+              core.info(`Injected checklist template into PR #${pr.number}.`);
             }
 
             // Was this PR previously closed by the bot? Only those are eligible for auto-reopen.
