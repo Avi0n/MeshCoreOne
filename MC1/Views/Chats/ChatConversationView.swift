@@ -289,10 +289,16 @@ struct ChatConversationView: View {
         await chatViewModel.performPendingTranslation(using: translator, for: request)
       }
     )
-    .translationPresentation(
-      isPresented: $showSystemTranslation,
-      text: systemTranslationText
-    )
+    // Overlay after `.conversationTranslationSession`: `.translationPresentation`
+    // must not sit in that modifier's `.translationTask` content tree.
+    .background {
+      Color.clear
+        .accessibilityHidden(true)
+        .translationPresentation(
+          isPresented: $showSystemTranslation,
+          text: systemTranslationText
+        )
+    }
     .onDisappear {
       // Load-bearing on iPad: MainSidebarView pins the Chats detail stack with
       // `.id(chatsSelectedRoute.conversationID)`, so a detail swap tears down this view's

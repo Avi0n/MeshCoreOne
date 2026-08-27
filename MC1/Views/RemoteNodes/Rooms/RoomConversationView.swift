@@ -143,10 +143,16 @@ struct RoomConversationView: View {
           await viewModel.performPendingTranslation(using: translator, for: request)
         }
       )
-      .translationPresentation(
-        isPresented: $showSystemTranslation,
-        text: systemTranslationText
-      )
+      // Overlay after `.conversationTranslationSession`: `.translationPresentation`
+      // must not sit in that modifier's `.translationTask` content tree.
+      .background {
+        Color.clear
+          .accessibilityHidden(true)
+          .translationPresentation(
+            isPresented: $showSystemTranslation,
+            text: systemTranslationText
+          )
+      }
       .onChange(of: locale) { _, newLocale in
         viewModel.applyPreferredLanguageCode(EnvInputs.preferredLanguageCode(from: newLocale))
       }
