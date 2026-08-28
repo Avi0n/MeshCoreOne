@@ -21,9 +21,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>Isto irá eliminar permanentemente %d nodo não marcado como favorito do dispositivo e da app, juntamente com as respetivas mensagens.</string>
+            <string>Isto irá eliminar permanentemente do dispositivo e da app %d nó não marcado como favorito, juntamente com as respetivas mensagens.</string>
             <key>other</key>
-            <string>Isto irá eliminar permanentemente %d nodos não marcados como favoritos do dispositivo e da app, juntamente com as respetivas mensagens.</string>
+            <string>Isto irá eliminar permanentemente do dispositivo e da app %d nós não marcados como favoritos, juntamente com as respetivas mensagens.</string>
         </dict>
     </dict>
     <key>dangerZone.alert.removeUnfavorited.partial</key>
@@ -37,9 +37,9 @@
             <key>NSStringFormatValueTypeKey</key>
             <string>d</string>
             <key>one</key>
-            <string>Removido %1$d de %2$d nodo. A ligação foi interrompida — toque novamente no botão para tentar de novo.</string>
+            <string>Removido %1$d de %2$d nó. A ligação foi interrompida. Toque novamente no botão para tentar de novo.</string>
             <key>other</key>
-            <string>Removidos %1$d de %2$d nodos. A ligação foi interrompida — toque novamente no botão para tentar remover os nodos restantes.</string>
+            <string>Removidos %1$d de %2$d nós. A ligação foi interrompida. Toque novamente no botão para tentar remover os nós restantes.</string>
         </dict>
     </dict>
     <key>settings.backup.import.success.subtitle_added</key>

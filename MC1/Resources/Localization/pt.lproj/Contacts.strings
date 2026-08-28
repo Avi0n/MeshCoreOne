@@ -18,7 +18,7 @@
 "contacts.common.save" = "Guardar";
 
 /* Location: Multiple files - Purpose: Generic Done button */
-"contacts.common.done" = "OK";
+"contacts.common.done" = "Concluído";
 
 /* Location: Multiple files - Purpose: Generic Delete button */
 "contacts.common.delete" = "Eliminar";
@@ -53,7 +53,7 @@
 // MARK: - Route Types
 
 /* Location: ContactDetailView.swift, ContactRowView.swift - Purpose: Flood routing label */
-"contacts.route.flood" = "Flood";
+"contacts.route.flood" = "Difusão";
 
 /* Location: ContactDetailView.swift, ContactRowView.swift - Purpose: Direct routing label */
 "contacts.route.direct" = "Direto";
@@ -76,12 +76,12 @@
 "contacts.segment.rooms" = "Salas";
 
 /* Location: NodeSegmentPicker.swift - Purpose: VoiceOver label for the Nodes tab segment filter picker (iOS 18 fallback) */
-"contacts.segment.pickerLabel" = "Filtrar nodos";
+"contacts.segment.pickerLabel" = "Filtrar nós";
 
 // MARK: - Sort Order
 
 /* Location: ContactsViewModel.swift - Purpose: Last heard sort option */
-"contacts.sort.lastHeard" = "Última receção";
+"contacts.sort.lastHeard" = "Última alteração";
 
 /* Location: ContactsViewModel.swift - Purpose: Name sort option */
 "contacts.sort.name" = "Nome";
@@ -95,13 +95,13 @@
 // MARK: - Contacts List
 
 /* Location: ContactsListView.swift - Purpose: Navigation title */
-"contacts.list.title" = "Nodos";
+"contacts.list.title" = "Nós";
 
 /* Location: ContactsListView.swift - Purpose: Search prompt */
-"contacts.list.searchPrompt" = "Pesquisar nodos";
+"contacts.list.searchPrompt" = "Pesquisar nós";
 
 /* Location: ContactsListView.swift - Purpose: Search prompt with count */
-"contacts.list.searchPromptWithCount" = "Pesquisar nodos (%d)";
+"contacts.list.searchPromptWithCount" = "Pesquisar nós (%d)";
 
 /* Location: ContactsListView.swift - Purpose: Sort menu label */
 "contacts.list.sort" = "Ordenar";
@@ -122,10 +122,10 @@
 "contacts.list.discover" = "Descobrir";
 
 /* Location: ContactsListView.swift - Purpose: Menu item to sync nodes */
-"contacts.list.syncNodes" = "Sincronizar nodos";
+"contacts.list.syncNodes" = "Sincronizar nós";
 
 /* Location: ContactsListView.swift - Purpose: Empty state for split view */
-"contacts.list.selectNode" = "Selecione um nodo";
+"contacts.list.selectNode" = "Selecione um nó";
 
 /* Location: ContactsListView.swift - Purpose: Refresh alert title */
 "contacts.list.cannotRefresh" = "Não é possível atualizar";
@@ -151,7 +151,7 @@
 "contacts.list.empty.favorites.title" = "Ainda não há favoritos";
 
 /* Location: ContactsListView.swift - Purpose: No favorites empty description */
-"contacts.list.empty.favorites.description" = "Toque e mantenha premido qualquer nodo para o adicionar aos favoritos.";
+"contacts.list.empty.favorites.description" = "Mantenha premido qualquer nó para o adicionar aos favoritos.";
 
 /* Location: ContactsListView.swift - Purpose: No contacts empty title */
 "contacts.list.empty.contacts.title" = "Nenhum contacto";
@@ -175,7 +175,7 @@
 "contacts.list.empty.search.title" = "Nenhum resultado";
 
 /* Location: ContactsListView.swift - Purpose: No search results description */
-"contacts.list.empty.search.description" = "Nenhum nodo corresponde a '%@'";
+"contacts.list.empty.search.description" = "Nenhum nó corresponde a '%@'";
 
 // MARK: - Contacts List Row
 
@@ -244,7 +244,7 @@
 "contacts.detail.shareViaAdvert" = "Partilhar contacto via Advert";
 
 /* Location: ContactDetailView.swift - Purpose: Share contact error when advert is missing or stale */
-"contacts.detail.shareContactUnavailable" = "Não foi possível partilhar o nodo. O Advert do nodo pode estar em falta ou ser demasiado antigo.";
+"contacts.detail.shareContactUnavailable" = "Não foi possível partilhar o nó. O Advert do nó pode estar em falta ou ser demasiado antigo.";
 
 /* Location: ContactDetailView.swift - Purpose: Generalized ping button for non-repeater nodes */
 "contacts.detail.ping" = "Ping zero-hop";
@@ -343,7 +343,7 @@
 // MARK: - Contact Detail Network Path Section
 
 /* Location: ContactDetailView.swift - Purpose: Outbound path section header */
-"contacts.detail.outboundPath" = "Caminho de saída";
+"contacts.detail.outboundPath" = "Rota de saída";
 
 /* Location: ContactDetailView.swift - Purpose: Route label */
 "contacts.detail.route" = "Rota";
@@ -355,28 +355,28 @@
 "contacts.detail.hopsAway" = "Distância em saltos";
 
 /* Location: ContactDetailView.swift - Purpose: Path discovery in progress */
-"contacts.detail.discoveringPath" = "A descobrir o caminho...";
+"contacts.detail.discoveringPath" = "A descobrir a rota...";
 
 /* Location: ContactDetailView.swift - Purpose: Discovery countdown */
 "contacts.detail.secondsRemaining" = "Até %d segundos restantes";
 
 /* Location: ContactDetailView.swift - Purpose: Discover path button */
-"contacts.detail.discoverPath" = "Descobrir caminho";
+"contacts.detail.discoverPath" = "Descobrir rota";
 
 /* Location: ContactDetailView.swift - Purpose: Edit path button */
-"contacts.detail.editPath" = "Editar caminho";
+"contacts.detail.editPath" = "Editar rota";
 
 /* Location: ContactDetailView.swift - Purpose: Reset path button */
-"contacts.detail.resetPath" = "Repor caminho";
+"contacts.detail.resetPath" = "Repor rota";
 
 /* Location: ContactDetailView.swift - Purpose: Footer for flood routing */
-"contacts.detail.floodFooter" = "As mensagens são enviadas a todos os nodos. Use Descobrir caminho para encontrar uma rota ideal.";
+"contacts.detail.floodFooter" = "As mensagens são enviadas a todos os nós. Use Descobrir rota para encontrar a melhor.";
 
 /* Location: ContactDetailView.swift - Purpose: Footer for path routing */
-"contacts.detail.pathFooter" = "As mensagens seguem o caminho mostrado. Repor o caminho para usar o encaminhamento Flood.";
+"contacts.detail.pathFooter" = "As mensagens seguem a rota mostrada. Reponha-a para voltar à difusão.";
 
 /* Location: ContactDetailView.swift - Purpose: Accessibility label for flood route */
-"contacts.detail.routeFlood" = "Rota: Flood";
+"contacts.detail.routeFlood" = "Rota: Difusão";
 
 /* Location: ContactDetailView.swift - Purpose: Accessibility label for direct route */
 "contacts.detail.routeDirect" = "Rota: Direto";
@@ -387,7 +387,7 @@
 // MARK: - Contact Detail Technical Section
 
 /* Location: ContactDetailView.swift - Purpose: Technical section header */
-"contacts.detail.technical" = "Técnico";
+"contacts.detail.technical" = "Detalhes técnicos";
 
 /* Location: ContactDetailView.swift - Purpose: Public key label */
 "contacts.detail.publicKey" = "Chave pública";
@@ -398,7 +398,7 @@
 // MARK: - Contact Detail Danger Section
 
 /* Location: ContactDetailView.swift - Purpose: Danger zone section header */
-"contacts.detail.dangerZone" = "Zona de perigo";
+"contacts.detail.dangerZone" = "Zona perigosa";
 
 /* Location: ContactDetailView.swift - Purpose: Clear messages button */
 "contacts.detail.clearMessages" = "Limpar mensagens";
@@ -421,25 +421,25 @@
 "contacts.detail.alert.block.title" = "Bloquear contacto";
 
 /* Location: ContactDetailView.swift - Purpose: Block contact alert message */
-"contacts.detail.alert.block.message" = "Não serão recebidas mensagens de %@. As conversas desse contacto ficam ocultas na lista de Chats e as novas mensagens de canal são descartadas. Ao desbloquear, as novas mensagens passam a ser permitidas, mas as mensagens descartadas não podem ser recuperadas.";
+"contacts.detail.alert.block.message" = "Deixará de receber mensagens de %@. A conversa fica oculta na lista e as mensagens deste contacto nos canais são ignoradas. Se desbloquear, volta a receber mensagens, mas as que foram ignoradas não são recuperadas.";
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert title */
 "contacts.detail.alert.delete.title" = "Eliminar %@";
 
 /* Location: ContactDetailView.swift - Purpose: Delete contact alert message */
-"contacts.detail.alert.delete.message" = "Isto irá remover %@ e eliminar todos os dados associados. Esta ação não pode ser anulada.";
+"contacts.detail.alert.delete.message" = "%@ e todos os dados associados são eliminados. Esta ação não pode ser anulada.";
 
 /* Location: ContactDetailView.swift - Purpose: Clear messages alert title */
 "contacts.detail.alert.clearMessages.title" = "Limpar mensagens?";
 
 /* Location: ContactDetailView.swift - Purpose: Clear messages alert message */
-"contacts.detail.alert.clearMessages.message" = "Todas as mensagens com %@ serão eliminadas de forma permanente.";
+"contacts.detail.alert.clearMessages.message" = "Todas as mensagens com %@ são eliminadas de forma permanente.";
 
 /* Location: ContactDetailView.swift - Purpose: Path error alert title */
-"contacts.detail.alert.pathError" = "Erro de caminho";
+"contacts.detail.alert.pathError" = "Erro de rota";
 
 /* Location: ContactDetailView.swift - Purpose: Path discovery alert title */
-"contacts.detail.alert.pathDiscovery" = "Descoberta de caminho";
+"contacts.detail.alert.pathDiscovery" = "Descoberta de rota";
 
 // MARK: - Blocked Contacts
 
@@ -459,13 +459,13 @@
 
 /* Location: AddContactSheet.swift - Purpose: Navigation title */
 "contacts.add.title" = "Adicionar contacto";
-"contacts.add.nodeTitle" = "Adicionar nodo";
+"contacts.add.nodeTitle" = "Adicionar nó";
 
 /* Location: AddContactSheet.swift - Purpose: Add button */
 "contacts.add.add" = "Adicionar";
 
 /* Location: AddContactSheet.swift - Purpose: Scan QR button label */
-"contacts.add.scanQR" = "Digitalizar código QR";
+"contacts.add.scanQR" = "Ler código QR";
 
 /* Location: AddContactSheet.swift - Purpose: Type section header */
 "contacts.add.type" = "Tipo";
@@ -501,10 +501,10 @@
 "contacts.add.error.invalidSize" = "A chave pública tem de ter %d bytes (%d caracteres hexadecimais)";
 
 /* Location: AddContactSheet.swift, DiscoveryView.swift - Purpose: Node list full error with max count */
-"contacts.add.error.nodeListFull" = "A lista de nodos está cheia (máximo de %d nodos)";
+"contacts.add.error.nodeListFull" = "A lista de nós está cheia (máximo de %d nós)";
 
 /* Location: AddContactSheet.swift, DiscoveryView.swift - Purpose: Node list full error without max count */
-"contacts.add.error.nodeListFullSimple" = "A lista de nodos está cheia";
+"contacts.add.error.nodeListFullSimple" = "A lista de nós está cheia";
 
 /* Location: AddContactSheet.swift - Purpose: Paste URL button label */
 "contacts.add.pasteURL" = "Colar URL do contacto";
@@ -541,13 +541,13 @@
 // MARK: - Scan Contact QR
 
 /* Location: ScanContactQRView.swift - Purpose: Navigation title */
-"contacts.scan.title" = "Digitalizar código QR";
+"contacts.scan.title" = "Ler código QR";
 
 /* Location: ScanContactQRView.swift - Purpose: Scanner not available title */
 "contacts.scan.unavailable.title" = "Scanner indisponível";
 
 /* Location: ScanContactQRView.swift - Purpose: Scanner not available description */
-"contacts.scan.unavailable.description" = "A digitalização de códigos QR não é suportada neste dispositivo";
+"contacts.scan.unavailable.description" = "A leitura de códigos QR não é suportada neste dispositivo";
 
 /* Location: ScanContactQRView.swift - Purpose: Importing progress */
 "contacts.scan.importing" = "A importar o contacto...";
@@ -559,7 +559,7 @@
 "contacts.scan.permission.title" = "É necessário o acesso à câmara";
 
 /* Location: ScanContactQRView.swift - Purpose: Camera permission description */
-"contacts.scan.permission.description" = "Ative o acesso à câmara em Definições para digitalizar códigos QR.";
+"contacts.scan.permission.description" = "Ative o acesso à câmara em Definições para ler códigos QR.";
 
 /* Location: ScanContactQRView.swift - Purpose: Invalid QR format error */
 "contacts.scan.error.invalidFormat" = "Formato de código QR inválido";
@@ -575,10 +575,10 @@
 "contacts.discovery.title" = "Descobrir";
 
 /* Location: DiscoveryView.swift - Purpose: Empty state title */
-"contacts.discovery.empty.title" = "Nenhum nodo descoberto";
+"contacts.discovery.empty.title" = "Nenhum nó descoberto";
 
 /* Location: DiscoveryView.swift - Purpose: Empty state description */
-"contacts.discovery.empty.description" = "Os nodos aparecem aqui à medida que os respetivos Adverts são descobertos.";
+"contacts.discovery.empty.description" = "Os nós aparecem aqui à medida que os respetivos Adverts são descobertos.";
 
 /* Location: DiscoveryView.swift - Purpose: Add button */
 "contacts.discovery.add" = "Adicionar";
@@ -603,7 +603,7 @@
 "contacts.discovery.segment.rooms" = "Salas";
 
 /* Location: DiscoverSegmentPicker.swift - Purpose: VoiceOver label for the Discovery segment filter picker (iOS 18 fallback) */
-"contacts.discovery.segment.pickerLabel" = "Filtrar nodos descobertos";
+"contacts.discovery.segment.pickerLabel" = "Filtrar nós descobertos";
 
 /* Location: DiscoveryView.swift - Purpose: Search prompt */
 "contacts.discovery.searchPrompt" = "Pesquisar descobertos";
@@ -615,10 +615,10 @@
 "contacts.discovery.clear" = "Limpar tudo";
 
 /* Location: DiscoveryView.swift - Purpose: Clear confirmation title */
-"contacts.discovery.clear.title" = "Limpar todos os nodos descobertos?";
+"contacts.discovery.clear.title" = "Limpar todos os nós descobertos?";
 
 /* Location: DiscoveryView.swift - Purpose: Clear confirmation message */
-"contacts.discovery.clear.message" = "Os nodos descobertos serão removidos desta lista, mas podem ser descobertos novamente na rede mesh.";
+"contacts.discovery.clear.message" = "Os nós descobertos serão removidos desta lista, mas podem ser descobertos novamente na rede mesh.";
 
 /* Location: DiscoveryView.swift - Purpose: Clear confirmation button */
 "contacts.discovery.clear.confirm" = "Limpar";
@@ -630,10 +630,10 @@
 "contacts.discovery.sortMenu" = "Opções de ordenação";
 
 /* Location: DiscoveryView.swift - Purpose: Sort menu accessibility hint */
-"contacts.discovery.sortMenuHint" = "Escolha como ordenar os nodos descobertos";
+"contacts.discovery.sortMenuHint" = "Escolha como ordenar os nós descobertos";
 
 /* Location: DiscoveryView.swift - Purpose: VoiceOver announcement after clearing */
-"contacts.discovery.clearedAllNodes" = "Todos os nodos descobertos foram limpos";
+"contacts.discovery.clearedAllNodes" = "Todos os nós descobertos foram limpos";
 
 /* Location: DiscoveryView.swift - Purpose: Swipe action to remove discovered node */
 "contacts.discovery.remove" = "Remover";
@@ -642,18 +642,18 @@
 "contacts.discovery.empty.search.title" = "Nenhum resultado";
 
 /* Location: DiscoveryView.swift - Purpose: Search empty state description */
-"contacts.discovery.empty.search.description" = "Nenhum nodo descoberto corresponde a '%@'";
+"contacts.discovery.empty.search.description" = "Nenhum nó descoberto corresponde a '%@'";
 
 // MARK: - Path Editing Sheet
 
 /* Location: PathEditingSheet.swift - Purpose: Navigation title */
-"contacts.pathEdit.title" = "Editar caminho";
+"contacts.pathEdit.title" = "Editar rota";
 
 /* Location: PathEditingSheet.swift - Purpose: Description with contact name */
 "contacts.pathEdit.description" = "Personalize a rota que as mensagens seguem para chegar a %@.";
 
 /* Location: PathEditingSheet.swift - Purpose: Current path section header */
-"contacts.pathEdit.currentPath" = "Caminho atual";
+"contacts.pathEdit.currentPath" = "Rota atual";
 
 /* Location: AddHopPickerView.swift - Purpose: No repeaters empty title */
 "contacts.pathEdit.noRepeaters.title" = "Nenhum repetidor disponível";
@@ -671,7 +671,7 @@
 "contacts.pathEdit.noRecent.title" = "Nenhum repetidor recente";
 
 /* Location: AddHopPickerView.swift - Purpose: No recent repeaters empty description */
-"contacts.pathEdit.noRecent.description" = "Os repetidores adicionados a um caminho aparecem aqui.";
+"contacts.pathEdit.noRecent.description" = "Os repetidores adicionados a uma rota aparecem aqui.";
 
 /* Location: PathEditingSheet.swift - Purpose: Hop accessibility with name */
 "contacts.pathEdit.hopWithName" = "Salto %d de %d: %@";
@@ -686,13 +686,13 @@
 "contacts.pathEdit.paste" = "Colar da área de transferência";
 
 /* Location: PathEditingSheet.swift - Purpose: Use-direct-routing empty-state button */
-"contacts.pathEdit.useDirectRouting" = "Usar encaminhamento direto";
+"contacts.pathEdit.useDirectRouting" = "Usar rota direta";
 
 /* Location: PathEditingSheet.swift - Purpose: Use-flood-routing empty-state button */
-"contacts.pathEdit.useFloodRouting" = "Usar encaminhamento Flood";
+"contacts.pathEdit.useFloodRouting" = "Usar difusão";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert title */
-"contacts.pathEdit.directRouting.confirm.title" = "Guardar como encaminhamento direto?";
+"contacts.pathEdit.directRouting.confirm.title" = "Guardar como rota direta?";
 
 /* Location: PathEditingSheet.swift - Purpose: Direct-routing confirmation alert message, %@ is contact name */
 "contacts.pathEdit.directRouting.confirm.message" = "As mensagens para %@ serão enviadas diretamente, sem passar por nenhum repetidor. Use apenas se %@ for um vizinho direto (0-hop).";
@@ -701,13 +701,13 @@
 "contacts.pathEdit.directRouting.confirm.confirm" = "Guardar como direto";
 
 /* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert title */
-"contacts.pathEdit.floodRouting.confirm.title" = "Usar encaminhamento Flood?";
+"contacts.pathEdit.floodRouting.confirm.title" = "Usar rota por difusão?";
 
 /* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation alert message, %@ is contact name */
-"contacts.pathEdit.floodRouting.confirm.message" = "As mensagens para %@ serão enviadas a todos os nodos próximos até ser encontrado um caminho. Use quando não for conhecida nenhuma rota de repetidor.";
+"contacts.pathEdit.floodRouting.confirm.message" = "As mensagens para %@ serão enviadas a todos os nós próximos até ser encontrada uma rota. Use quando não for conhecida nenhuma rota de repetidor.";
 
 /* Location: PathEditingSheet.swift - Purpose: Flood-routing confirmation confirm label */
-"contacts.pathEdit.floodRouting.confirm.confirm" = "Usar encaminhamento Flood";
+"contacts.pathEdit.floodRouting.confirm.confirm" = "Usar rota por difusão";
 
 /* Location: AddHopPickerView.swift - Purpose: Position banner when appending, %d is target hop number */
 "contacts.pathEdit.positionAppend" = "A adicionar como salto %d";
@@ -722,7 +722,7 @@
 "contacts.pathEdit.empty.title" = "Ainda não há saltos";
 
 /* Location: PathEditingSheet.swift - Purpose: Empty-state description, %@ is contact name */
-"contacts.pathEdit.empty.description" = "Adicione repetidores para controlar como as mensagens chegam a %@ ou use o encaminhamento Flood se o caminho não for conhecido.";
+"contacts.pathEdit.empty.description" = "Adicione repetidores para controlar como as mensagens chegam a %@, ou use a difusão se a rota não for conhecida.";
 
 /* Location: AddHopSegmentPicker.swift - Purpose: All filter */
 "contacts.pathEdit.filter.all" = "Todos";
@@ -758,7 +758,7 @@
 "contacts.pathEdit.search.noMatches.descriptionWithRoomsHint" = "Tente um nome ou um prefixo hexadecimal como 'a3'. As salas só aparecem no filtro Todos.";
 
 /* Location: AddHopPickerView.swift - Purpose: Picker row accessibility label, %1$@ is name, %2$d is target hop number */
-"contacts.pathEdit.addToPathAsHop" = "Adicionar %1$@ ao caminho como salto %2$d";
+"contacts.pathEdit.addToPathAsHop" = "Adicionar %1$@ à rota como salto %2$d";
 
 /* Location: PathEditingSheet.swift - Purpose: VoiceOver hint for a hop row describing swipe + drag actions */
 "contacts.pathEdit.hopHint" = "Deslize para eliminar. Arraste para reordenar.";
@@ -770,13 +770,13 @@
 "contacts.pathEdit.maxHops.reached" = "Máximo de saltos atingido";
 
 /* Location: AddHopPickerView.swift - Purpose: Max-hops reached description, %d is the cap */
-"contacts.pathEdit.maxHops.description" = "Este caminho atingiu o máximo de %d saltos no modo de hash atual. Remova um salto para adicionar outro.";
+"contacts.pathEdit.maxHops.description" = "Esta rota atingiu o máximo de %d saltos no modo de hash atual. Remova um salto para adicionar outro.";
 
 /* Location: PathEditingSheet.swift - Purpose: Add Hop CTA footer explaining the hop cap, %d is the cap */
 "contacts.pathEdit.maxHops.footer" = "Máximo de %d saltos atingido. Remova um salto para adicionar outro.";
 
 /* Location: AddHopPickerView.swift - Purpose: Bulk-add action button, %@ is the comma-joined codes */
-"contacts.pathEdit.bulkAdd.action" = "Adicionar nodos: %@";
+"contacts.pathEdit.bulkAdd.action" = "Adicionar nós: %@";
 
 /* Location: AddHopPickerView.swift - Purpose: Bulk-add row, code will be added, %@ is the code */
 "contacts.pathEdit.bulkAdd.willAdd" = "%@ será adicionado";
@@ -785,7 +785,7 @@
 "contacts.pathEdit.bulkAdd.pathFull" = "%@ excede o limite de saltos";
 
 /* Location: AddHopPickerView.swift - Purpose: Bulk-add action button when nothing is addable */
-"contacts.pathEdit.bulkAdd.empty" = "Não há nodos novos para adicionar";
+"contacts.pathEdit.bulkAdd.empty" = "Não há nós novos para adicionar";
 
 // MARK: - Path Discovery Results
 
@@ -799,7 +799,7 @@
 "contacts.pathDiscovery.hops.plural" = "%d saltos";
 
 /* Location: PathManagementViewModel.swift - Purpose: No response message */
-"contacts.pathDiscovery.noResponse" = "O nodo remoto não respondeu. Os nodos precisam de ter os pedidos de telemetria ativados para responder à descoberta de caminho.";
+"contacts.pathDiscovery.noResponse" = "O nó remoto não respondeu. Só é possível traçar a rota se o nó tiver os pedidos de telemetria ativados.";
 
 /* Location: PathManagementViewModel.swift - Purpose: Failed prefix */
 "contacts.pathDiscovery.failed" = "Falha: %@";
@@ -807,25 +807,25 @@
 // MARK: - Saved Paths Sheet
 
 /* Location: SavedPathsSheet.swift - Purpose: Navigation title */
-"contacts.savedPaths.title" = "Caminhos guardados";
+"contacts.savedPaths.title" = "Rotas guardadas";
 
 /* Location: SavedPathsSheet.swift - Purpose: Delete dialog title */
-"contacts.savedPaths.deleteTitle" = "Eliminar caminho";
+"contacts.savedPaths.deleteTitle" = "Eliminar rota";
 
 /* Location: SavedPathsSheet.swift - Purpose: Delete dialog message */
-"contacts.savedPaths.deleteMessage" = "Eliminar \"%@\"? Isto irá remover o caminho e todo o histórico de execuções.";
+"contacts.savedPaths.deleteMessage" = "Eliminar \"%@\"? Isto remove a rota e todo o histórico de execuções.";
 
 /* Location: SavedPathsSheet.swift - Purpose: Rename alert title */
-"contacts.savedPaths.renameTitle" = "Renomear caminho";
+"contacts.savedPaths.renameTitle" = "Renomear rota";
 
 /* Location: SavedPathsSheet.swift - Purpose: Rename context menu */
 "contacts.savedPaths.rename" = "Renomear";
 
 /* Location: SavedPathsSheet.swift - Purpose: Empty state title */
-"contacts.savedPaths.empty.title" = "Nenhum caminho guardado";
+"contacts.savedPaths.empty.title" = "Nenhuma rota guardada";
 
 /* Location: SavedPathsSheet.swift - Purpose: Empty state description */
-"contacts.savedPaths.empty.description" = "Guarde caminhos depois de executar traçados para os voltar a executar mais tarde.";
+"contacts.savedPaths.empty.description" = "Guarde as rotas depois de as traçar, para as voltar a executar mais tarde.";
 
 /* Location: SavedPathsSheet.swift - Purpose: Run count singular */
 "contacts.savedPaths.runs.singular" = "1 execução";
@@ -846,7 +846,7 @@
 "contacts.savedPaths.health.poor" = "fraco";
 
 /* Location: SavedPathsSheet.swift - Purpose: Health accessibility label */
-"contacts.savedPaths.healthLabel" = "Estado do caminho: %@, taxa de sucesso de %d%%";
+"contacts.savedPaths.healthLabel" = "Estado da rota: %@, taxa de sucesso de %d%%";
 
 /* Location: SavedPathsSheet.swift - Purpose: Response times accessibility */
 "contacts.savedPaths.responseTimes" = "Tempos de resposta: média de %dms, %@";
@@ -866,7 +866,7 @@
 // MARK: - Saved Path Detail
 
 /* Location: SavedPathDetailView.swift - Purpose: Path section header */
-"contacts.pathDetail.path" = "Caminho";
+"contacts.pathDetail.path" = "Rota";
 
 /* Location: SavedPathDetailView.swift - Purpose: Performance section header */
 "contacts.pathDetail.performance" = "Desempenho";
@@ -913,7 +913,7 @@
 // MARK: - Trace Path View
 
 /* Location: TracePathView.swift - Purpose: Navigation title */
-"contacts.trace.title" = "Traçar caminho";
+"contacts.trace.title" = "Traçar rota";
 
 /* Location: TracePathView.swift - Purpose: View mode picker label */
 "contacts.trace.viewMode" = "Modo de visualização";
@@ -928,45 +928,45 @@
 "contacts.trace.saved" = "Guardados";
 
 /* Location: TracePathView.swift - Purpose: Clear path dialog title */
-"contacts.trace.clearPath" = "Limpar caminho";
+"contacts.trace.clearPath" = "Limpar rota";
 
 /* Location: TracePathView.swift - Purpose: Clear path dialog message */
-"contacts.trace.clearPathMessage" = "Remover todos os repetidores do caminho?";
+"contacts.trace.clearPathMessage" = "Remover todos os repetidores da rota?";
 
 /* Location: TracePathView.swift - Purpose: Trace failed alert title */
-"contacts.trace.failed" = "Falha no traçado";
+"contacts.trace.failed" = "Falha ao traçar";
 
 /* Location: TracePathView.swift - Purpose: Jump button label */
 "contacts.trace.runBelow" = "Ir para Executar";
 
 /* Location: TracePathView.swift - Purpose: Jump button accessibility label */
-"contacts.trace.jumpLabel" = "Ir para o botão Executar traçado";
+"contacts.trace.jumpLabel" = "Ir para o botão Traçar rota";
 
 /* Location: TracePathView.swift - Purpose: Jump button accessibility hint */
-"contacts.trace.jumpHint" = "Toque duas vezes para ir até ao fim do caminho";
+"contacts.trace.jumpHint" = "Toque duas vezes para ir até ao fim da rota";
 
 // MARK: - Trace Path List View
 
 /* Location: TracePathListView.swift - Purpose: Empty path instruction */
-"contacts.trace.list.emptyPath" = "Adicione um salto para começar a montar o caminho.";
+"contacts.trace.list.emptyPath" = "Adicione um salto para começar a montar a rota.";
 
 /* Location: TracePathListView.swift - Purpose: Round trip path section header */
-"contacts.trace.list.roundTripPath" = "Caminho de ida e volta";
+"contacts.trace.list.roundTripPath" = "Rota de ida e volta";
 
 /* Location: TracePathListView.swift - Purpose: Auto return toggle label */
-"contacts.trace.list.autoReturn" = "Caminho de regresso automático";
+"contacts.trace.list.autoReturn" = "Rota de regresso automático";
 
 /* Location: TracePathListView.swift - Purpose: Auto return toggle description */
-"contacts.trace.list.autoReturnDescription" = "Espelhar o caminho de saída no regresso";
+"contacts.trace.list.autoReturnDescription" = "Espelhar a rota de saída no regresso";
 
 /* Location: TracePathListView.swift - Purpose: Batch trace toggle label */
-"contacts.trace.list.batchTrace" = "Traçado em lote";
+"contacts.trace.list.batchTrace" = "Traçar em lote";
 
 /* Location: TracePathListView.swift - Purpose: Batch trace toggle description */
-"contacts.trace.list.batchTraceDescription" = "Executar vários traçados e calcular a média dos resultados";
+"contacts.trace.list.batchTraceDescription" = "Traçar a rota várias vezes e calcular a média dos resultados";
 
 /* Location: TracePathListView.swift - Purpose: Traces count label */
-"contacts.trace.list.traces" = "Traçados:";
+"contacts.trace.list.traces" = "Tentativas:";
 
 /* Location: PathActionsSectionView.swift - Purpose: Trace hash size picker label */
 "contacts.trace.list.hashSize" = "Tamanho do hash";
@@ -981,37 +981,37 @@
 "contacts.trace.list.hashSizeFourBytes" = "4 bytes";
 
 /* Location: PathActionsSectionView.swift - Purpose: Caveat shown for multi-byte trace hash sizes */
-"contacts.trace.list.hashSizeFooter" = "Os repetidores com firmware anterior a 1.11.0 não reencaminham traçados com um tamanho de hash superior a 1 byte.";
+"contacts.trace.list.hashSizeFooter" = "Os repetidores com firmware anterior a 1.11.0 não reencaminham pedidos com um tamanho do hash da rota superior a 1 byte.";
 
 /* Location: TracePathListView.swift - Purpose: Copy path button */
-"contacts.trace.list.copyPath" = "Copiar caminho";
+"contacts.trace.list.copyPath" = "Copiar rota";
 
 /* Location: TracePathListView.swift - Purpose: Range warning footer */
 "contacts.trace.list.rangeWarning" = "É necessário estar ao alcance do último repetidor para receber uma resposta.";
 
 /* Location: TracePathListView.swift - Purpose: Running trace progress */
-"contacts.trace.list.runningTrace" = "A executar o traçado";
+"contacts.trace.list.runningTrace" = "A traçar a rota";
 
 /* Location: TracePathListView.swift - Purpose: Running trace with batch count */
-"contacts.trace.list.runningBatch" = "A executar o traçado %d de %d";
+"contacts.trace.list.runningBatch" = "A traçar %d de %d";
 
 /* Location: TracePathListView.swift - Purpose: Run trace button */
-"contacts.trace.list.runTrace" = "Executar traçado";
+"contacts.trace.list.runTrace" = "Traçar";
 
 /* Location: TracePathListView.swift - Purpose: Run trace accessibility label */
-"contacts.trace.list.runTraceLabel" = "Executar traçado";
+"contacts.trace.list.runTraceLabel" = "Traçar rota";
 
 /* Location: TracePathListView.swift - Purpose: Batch run accessibility hint */
-"contacts.trace.list.batchHint" = "Toque duas vezes para executar %d traçados";
+"contacts.trace.list.batchHint" = "Toque duas vezes para traçar %d vezes";
 
 /* Location: TracePathListView.swift - Purpose: Single run accessibility hint */
-"contacts.trace.list.singleHint" = "Toque duas vezes para traçar o caminho";
+"contacts.trace.list.singleHint" = "Toque duas vezes para traçar a rota";
 
 /* Location: TracePathListView.swift - Purpose: Running accessibility label */
-"contacts.trace.list.runningLabel" = "A executar o traçado, aguarde";
+"contacts.trace.list.runningLabel" = "A traçar a rota, aguarde";
 
 /* Location: TracePathListView.swift - Purpose: Running batch accessibility label */
-"contacts.trace.list.runningBatchLabel" = "A executar o traçado %d de %d";
+"contacts.trace.list.runningBatchLabel" = "A traçar %d de %d";
 
 /* Location: TracePathListView.swift - Purpose: Hop row accessibility label */
 "contacts.trace.list.hopLabel" = "Salto %d: %@";
@@ -1022,7 +1022,7 @@
 // MARK: - Trace Path List Accessibility
 
 /* Location: TracePathListView.swift - Accessibility hint when trace is running */
-"contacts.trace.list.runningHint" = "O traçado está em curso";
+"contacts.trace.list.runningHint" = "A traçar a rota";
 
 // MARK: - Trace Path Cluster View
 
@@ -1046,39 +1046,39 @@
 /* Location: TracePathMapView.swift - Purpose: Hide labels accessibility */
 /* Location: TracePathMapView.swift - Purpose: Show labels accessibility */
 /* Location: TracePathMapView.swift - Purpose: Center on path accessibility */
-"contacts.trace.map.centerOnPath" = "Centrar no caminho";
+"contacts.trace.map.centerOnPath" = "Centrar na rota";
 
 /* Location: TracePathMapView.swift - Purpose: Save path alert title */
-"contacts.trace.map.saveTitle" = "Guardar caminho";
+"contacts.trace.map.saveTitle" = "Guardar rota";
 
 /* Location: TracePathMapView.swift - Purpose: Save path alert message */
-"contacts.trace.map.saveMessage" = "Introduza um nome para este caminho";
+"contacts.trace.map.saveMessage" = "Introduza um nome para esta rota";
 
 /* Location: TracePathMapView.swift - Purpose: Path name placeholder */
-"contacts.trace.map.pathName" = "Nome do caminho";
+"contacts.trace.map.pathName" = "Nome da rota";
 
 /* Location: TracePathMapView.swift - Purpose: Path saved alert title */
-"contacts.trace.map.savedTitle" = "Caminho guardado";
+"contacts.trace.map.savedTitle" = "Rota guardada";
 
 /* Location: TracePathMapView.swift - Purpose: Path saved alert message */
-"contacts.trace.map.savedMessage" = "O caminho foi guardado.";
+"contacts.trace.map.savedMessage" = "A rota foi guardada.";
 
 /* Location: TracePathMapView.swift - Purpose: Save failed alert title */
 "contacts.trace.map.saveFailedTitle" = "Falha ao guardar";
 
 /* Location: TracePathMapView.swift - Purpose: Save failed alert message */
-"contacts.trace.map.saveFailedMessage" = "Não foi possível guardar o caminho. Tente novamente.";
+"contacts.trace.map.saveFailedMessage" = "Não foi possível guardar a rota. Tente novamente.";
 
 /* Location: TracePathMapView.swift - Purpose: View results button */
 "contacts.trace.map.viewResults" = "Resultados";
 
 /* Location: TracePathMapViewModel.swift - Purpose: Default path name fallback */
-"contacts.trace.map.defaultPathName" = "Caminho";
+"contacts.trace.map.defaultPathName" = "Rota";
 
 // MARK: - Trace Results Sheet
 
 /* Location: TraceResultsSheet.swift - Purpose: Navigation title */
-"contacts.results.title" = "Resultados do traçado";
+"contacts.results.title" = "Resultados";
 
 /* Location: TraceResultsSheet.swift - Purpose: Dismiss button */
 "contacts.results.dismiss" = "Fechar";
@@ -1087,13 +1087,13 @@
 "contacts.results.batchSuccess" = "%d de %d bem-sucedidos (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress */
-"contacts.results.batchProgress" = "A executar o traçado %d de %d...";
+"contacts.results.batchProgress" = "A traçar %d de %d...";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch complete accessibility */
-"contacts.results.batchCompleteLabel" = "Lote concluído: %d de %d traçados bem-sucedidos (%d%%)";
+"contacts.results.batchCompleteLabel" = "Lote concluído: %d de %d tentativas bem-sucedidas (%d%%)";
 
 /* Location: TraceResultsSheet.swift - Purpose: Batch progress accessibility */
-"contacts.results.batchProgressLabel" = "Progresso do lote: traçado %d de %d";
+"contacts.results.batchProgressLabel" = "Progresso do lote: %d de %d";
 
 /* Location: TraceResultsSheet.swift - Purpose: Average round trip label */
 "contacts.results.avgRoundTrip" = "Ida e volta média";
@@ -1139,10 +1139,10 @@
 "contacts.results.partialDistanceHeader" = "Distância parcial";
 
 /* Location: TraceResultsSheet.swift - Purpose: Full path tip */
-"contacts.results.fullPathTip" = "Ative os serviços de localização ou defina uma localização para o dispositivo para ver a distância completa do caminho.";
+"contacts.results.fullPathTip" = "Ative os serviços de localização ou defina manualmente a localização do dispositivo, para ver a distância completa da rota.";
 
 /* Location: TraceResultsSheet.swift - Purpose: Full path section header */
-"contacts.results.fullPathHeader" = "Para incluir o caminho completo";
+"contacts.results.fullPathHeader" = "Para incluir a rota completa";
 
 /* Location: TraceResultsSheet.swift - Purpose: Partial distance accessibility label */
 "contacts.results.partialDistanceLabel" = "Distância parcial";
@@ -1151,7 +1151,7 @@
 "contacts.results.partialDistanceHint" = "Toque duas vezes para saber porque é que a localização do dispositivo está excluída";
 
 /* Location: TraceResultsSheet.swift - Purpose: Distance needs repeaters message */
-"contacts.results.needsRepeaters" = "O cálculo da distância exige pelo menos 2 repetidores no caminho.";
+"contacts.results.needsRepeaters" = "O cálculo da distância exige pelo menos 2 repetidores na rota.";
 
 /* Location: TraceResultsSheet.swift - Purpose: Distance error message */
 "contacts.results.distanceError" = "Não é possível calcular a distância. Todos os repetidores têm coordenadas, mas ocorreu um erro.";
@@ -1163,7 +1163,7 @@
 "contacts.results.repeatersWithoutLocations" = "Repetidores sem localização";
 
 /* Location: TraceResultsSheet.swift - Purpose: Save path button */
-"contacts.results.savePath" = "Guardar caminho";
+"contacts.results.savePath" = "Guardar rota";
 
 // MARK: - Trace Result Hop Row
 
@@ -1171,13 +1171,13 @@
 "contacts.results.hop.myDevice" = "O meu dispositivo";
 
 /* Location: TraceResultsSheet.swift - Purpose: Started trace label */
-"contacts.results.hop.started" = "Traçado iniciado";
+"contacts.results.hop.started" = "Início";
 
 /* Location: TraceResultsSheet.swift - Purpose: Received response label */
 "contacts.results.hop.received" = "Resposta recebida";
 
 /* Location: TraceResultsSheet.swift - Purpose: Repeated label */
-"contacts.results.hop.repeated" = "Repetido";
+"contacts.results.hop.repeated" = "Retransmitido";
 
 /* Location: TraceResultsSheet.swift - Purpose: Average SNR display */
 "contacts.results.hop.avgSNR" = "SNR médio: %@ dB (%@ – %@)";
@@ -1194,10 +1194,10 @@
 "contacts.trace.error.noResponse" = "Nenhuma resposta recebida";
 
 /* Location: TracePathViewModel.swift - Purpose: All traces failed error */
-"contacts.trace.error.allFailed" = "Todos os %d traçados falharam";
+"contacts.trace.error.allFailed" = "Falharam as %d tentativas";
 
 /* Location: TracePathViewModel.swift - Purpose: Send failed error */
-"contacts.trace.error.sendFailed" = "Falha ao enviar o pacote de traçado";
+"contacts.trace.error.sendFailed" = "Falha ao enviar o pacote";
 
 // MARK: - Stats Badge Accessibility
 
@@ -1205,24 +1205,24 @@
 // MARK: - Contact ViewModel Errors
 
 /* Location: ContactsViewModel.swift - Purpose: Delete requires connection error */
-"contacts.viewModel.connectToDelete" = "Ligue o dispositivo para eliminar nodos";
+"contacts.viewModel.connectToDelete" = "Ligue o dispositivo para eliminar nós";
 
 /* Location: ContactsViewModel.swift - Purpose: Delete radio command timed out error */
-"contacts.viewModel.removeTimedOut" = "A eliminação do nodo expirou. Tente novamente.";
+"contacts.viewModel.removeTimedOut" = "A eliminação do nó expirou. Tente novamente.";
 
 // MARK: - Path Management ViewModel Errors
 
 /* Location: PathManagementViewModel.swift - Purpose: Save path error prefix */
-"contacts.pathManagement.error.saveFailed" = "Falha ao guardar o caminho: %@";
+"contacts.pathManagement.error.saveFailed" = "Falha ao guardar a rota: %@";
 
 /* Location: PathManagementViewModel.swift - Purpose: Reset path error prefix */
-"contacts.pathManagement.error.resetFailed" = "Falha ao repor o caminho: %@";
+"contacts.pathManagement.error.resetFailed" = "Falha ao repor a rota: %@";
 
 /* Location: PathManagementViewModel.swift - Purpose: Set path error prefix */
-"contacts.pathManagement.error.setFailed" = "Falha ao definir o caminho: %@";
+"contacts.pathManagement.error.setFailed" = "Falha ao definir a rota: %@";
 
 /* Location: PathManagementViewModel.swift - Purpose: Shown when a stored path's hop can't be resized to the device's current hash size */
-"contacts.pathManagement.error.hopResizeRequired" = "O tamanho do hash do caminho mudou — remova e volte a adicionar os saltos para guardar.";
+"contacts.pathManagement.error.hopResizeRequired" = "O tamanho do hash da rota mudou. Remova e volte a adicionar os saltos para guardar.";
 
 /* Location: PathManagementViewModel.swift - Purpose: Shown when the existing path has more hops than the current hash mode supports */
 "contacts.pathManagement.error.tooManyHops" = "Demasiados saltos. O modo de hash atual suporta no máximo %d.";
@@ -1236,12 +1236,12 @@
 "contacts.codeInput.error.notFound" = "%@ não encontrado";
 
 /* Location: TracePathViewModel.swift - Purpose: Already in path error */
-"contacts.codeInput.error.alreadyInPath" = "%@ já está no caminho";
+"contacts.codeInput.error.alreadyInPath" = "%@ já está na rota";
 
 // MARK: - Path Name Generation
 
 /* Location: TracePathViewModel.swift - Purpose: Default path name prefix for hash-only paths */
-"contacts.pathName.prefix" = "Caminho %@";
+"contacts.pathName.prefix" = "Rota %@";
 
 /* Location: TracePathViewModel.swift - Purpose: Path name with two endpoints */
 "contacts.pathName.twoEndpoints" = "%@ → %@";

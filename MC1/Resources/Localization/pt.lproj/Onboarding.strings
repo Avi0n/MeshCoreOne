@@ -25,13 +25,13 @@
 "permissions.title" = "Algumas permissões";
 
 /* Location: PermissionsView.swift - Subtitle encouraging notification permission */
-"permissions.subtitle" = "As duas são opcionais. É possível mudar de ideia em Definições a qualquer momento.";
+"permissions.subtitle" = "As duas são opcionais. É possível mudar de ideias nas Definições a qualquer momento.";
 
 /* Location: PermissionsView.swift - Permission card title for notifications */
 "permissions.notifications.title" = "Notificações";
 
 /* Location: PermissionsView.swift - Permission card description for notifications */
-"permissions.notifications.description" = "Receba alertas de novas mensagens e bateria fraca, mesmo com o app fechado.";
+"permissions.notifications.description" = "Receba alertas de novas mensagens e bateria fraca, mesmo com a app fechada.";
 
 /* Location: PermissionsView.swift - Permission card title for location */
 "permissions.location.title" = "Localização";
@@ -67,7 +67,7 @@
 "deviceScan.title" = "Emparelhe o dispositivo";
 
 /* Location: DeviceScanView.swift - Subtitle with pairing instructions */
-"deviceScan.subtitle" = "Ligue a alimentação do rádio, desligue-o de todas as outras apps e dispositivos e toque em Adicionar dispositivo.";
+"deviceScan.subtitle" = "Ligue o rádio, desemparelhe-o de todas as outras apps e dispositivos e toque em Adicionar dispositivo.";
 
 /* Location: DeviceScanView.swift - Message shown when device is already paired */
 "deviceScan.alreadyPaired" = "O dispositivo já está emparelhado";
@@ -91,7 +91,7 @@
 "deviceScan.addDevice" = "Adicionar dispositivo";
 
 /* Location: DeviceScanView.swift - Button to retry connection after other-app conflict */
-"deviceScan.retryConnection" = "Tentar ligação novamente";
+"deviceScan.retryConnection" = "Tentar ligar novamente";
 
 /* Location: DeviceScanView.swift - Button for troubleshooting */
 "deviceScan.deviceNotAppearing" = "Ajuda";
@@ -106,8 +106,8 @@
 "deviceScan.demoModeAlert.message" = "Agora é possível continuar sem um dispositivo. Ative ou desative o modo demo em Definições a qualquer momento.";
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
-"deviceScan.error.authenticationFailed" = "O emparelhamento guardado com este rádio deixou de funcionar. Toque em Remover e tentar novamente para emparelhar de novo no app; o rádio pode mostrar um novo código de emparelhamento.";
-"deviceScan.error.pinRejected" = "O PIN não foi aceite. Verifique o PIN mostrado no dispositivo e tente novamente. Primeiro, o iOS pede a confirmação da remoção do emparelhamento que falhou.";
+"deviceScan.error.authenticationFailed" = "O emparelhamento guardado com este rádio deixou de funcionar. Toque em Remover e tentar novamente para emparelhar de novo na app; o rádio pode mostrar um novo código de emparelhamento.";
+"deviceScan.error.pinRejected" = "O PIN não foi aceite. Verifique o PIN mostrado no dispositivo e tente novamente. O iOS vai primeiro pedir para confirmar a remoção do emparelhamento anterior.";
 "deviceScan.error.connectionFailed" = "Não foi possível ligar ao dispositivo. Tente novamente ou remova-o se o problema continuar.";
 
 // MARK: - Troubleshooting Sheet
@@ -131,13 +131,13 @@
 "troubleshooting.basicChecks.restart" = "Reinicie o dispositivo MeshCore";
 
 /* Location: DeviceScanView.swift - Section header for factory reset help */
-"troubleshooting.factoryReset.header" = "Repor o dispositivo para os valores de fábrica?";
+"troubleshooting.factoryReset.header" = "Repor o dispositivo para as definições de fábrica?";
 
 /* Location: DeviceScanView.swift - Explanation about stale pairings */
-"troubleshooting.factoryReset.explanation" = "Se o dispositivo MeshCore for reposto para os valores de fábrica, o iOS ainda pode ter o emparelhamento antigo. Limpar isto em Definições do sistema permite que o dispositivo volte a aparecer.";
+"troubleshooting.factoryReset.explanation" = "Se o dispositivo MeshCore for reposto para as definições de fábrica, o iOS ainda pode ter o emparelhamento antigo. Limpar isto em Definições do sistema permite que o dispositivo volte a aparecer.";
 
 /* Location: DeviceScanView.swift - Additional explanation about removal confirmation */
-"troubleshooting.factoryReset.confirmationNote" = "Ao tocar abaixo, será necessário confirmar a remoção do emparelhamento antigo. Isto é normal — permite que o dispositivo reposto volte a aparecer.";
+"troubleshooting.factoryReset.confirmationNote" = "Ao tocar abaixo, terá de confirmar a remoção do emparelhamento antigo. Isto é normal: permite que o dispositivo reposto volte a aparecer.";
 
 /* Location: DeviceScanView.swift - Button to clear previous pairing */
 "troubleshooting.factoryReset.clearPairing" = "Limpar emparelhamento anterior";
@@ -167,7 +167,7 @@
 "troubleshooting.stillNotAppearing.header" = "Ainda não aparece?";
 
 /* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
-"troubleshooting.stillNotAppearing.body" = "Se já tentou tudo acima, faça uma cópia de segurança da configuração do rádio no app MeshCore de Liam Cottle e depois apague o rádio e volte a gravar o firmware no computador em https://flasher.meshcore.io";
+"troubleshooting.stillNotAppearing.body" = "Se já tentou tudo acima, faça uma cópia de segurança da configuração do rádio na app MeshCore de Liam Cottle e depois apague e volte a instalar o firmware a partir do computador em https://flasher.meshcore.io";
 
 
 // MARK: - Mesh Animation View
@@ -182,7 +182,7 @@
 "noDevice.sheet.title" = "Dê uma vista de olhos";
 
 /* Location: NoDeviceSheet.swift - Sheet body */
-"noDevice.sheet.body" = "É necessário um rádio emparelhado para enviar e receber mensagens. Explore o app por agora e emparelhe a qualquer momento em Definições.";
+"noDevice.sheet.body" = "É necessário um rádio emparelhado para enviar e receber mensagens. Explore a app por agora e emparelhe a qualquer momento em Definições.";
 
 /* Location: NoDeviceSheet.swift - Primary CTA */
 "noDevice.sheet.confirm" = "Continuar";
@@ -203,7 +203,7 @@
 "preset.subtitle.locale" = "Escolha uma predefinição para o rádio.";
 
 /* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
-"preset.discordHelp" = "Não sabe qual predefinição escolher? Entre no Discord oficial do MeshCore e pergunte! [https://meshcore.gg](https://meshcore.gg)";
+"preset.discordHelp" = "Não sabe que predefinição escolher? Entre no Discord oficial do MeshCore e pergunte! [https://meshcore.gg](https://meshcore.gg)";
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "Usar %@";
@@ -215,7 +215,7 @@
 "preset.alreadyConfigured.subtitle" = "O rádio já está em %@, a predefinição recomendada para %@.";
 
 /* Location: PresetStepView.swift - Already-configured primary CTA */
-"preset.alreadyConfigured.done" = "OK";
+"preset.alreadyConfigured.done" = "Concluído";
 
 /* Location: PresetStepView.swift - Already-configured secondary link */
 "preset.alreadyConfigured.choose" = "Escolher outra predefinição";
@@ -277,7 +277,7 @@
 "region.title" = "Escolha a região";
 
 /* Location: RegionStepView.swift - Subtitle for the region step */
-"region.subtitle" = "Serão mostradas predefinições que funcionam na sua área.";
+"region.subtitle" = "Só aparecem as predefinições que funcionam na sua área.";
 
 /* Location: RegionStepView.swift - "Detected" tag */
 "region.detected.tag" = "Detetada";
@@ -298,7 +298,7 @@
 "region.resolving" = "A procurar a região…";
 
 /* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
-"region.useMyLocation.failure" = "A pesquisa de localização não devolveu uma região. Escolha manualmente abaixo.";
+"region.useMyLocation.failure" = "Não foi possível determinar a região a partir da sua localização. Escolha manualmente abaixo.";
 
 
 // MARK: - Device Scanner Sheet (macOS)

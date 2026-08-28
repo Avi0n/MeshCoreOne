@@ -9,7 +9,7 @@
 // MARK: - Navigation & Titles
 
 /* Location: ChatsView.swift - Navigation title for main chat list */
-"chats.title" = "Chats";
+"chats.title" = "Conversas";
 
 /* Location: ChatsView.swift - Search placeholder */
 "chats.search.placeholder" = "Pesquisar conversas";
@@ -27,7 +27,7 @@
 "chats.filter.unread" = "Por ler";
 
 /* Location: ChatsView.swift - Filter option for direct messages */
-"chats.filter.directMessages" = "DMs";
+"chats.filter.directMessages" = "Mensagens diretas";
 
 /* Location: ChatsView.swift - Filter option for channels */
 "chats.filter.channels" = "Canais";
@@ -38,7 +38,7 @@
 // MARK: - Compose Menu
 
 /* Location: ChatsView.swift - Button to start a new direct chat */
-"chats.compose.newChat" = "Novo chat";
+"chats.compose.newChat" = "Nova conversa";
 
 /* Location: ChatsView.swift - Button to create or join a channel */
 "chats.compose.newChannel" = "Novo canal";
@@ -52,7 +52,7 @@
 "chats.emptyState.noConversations.title" = "Nenhuma conversa";
 
 /* Location: ChatsView.swift - Description when no conversations exist */
-"chats.emptyState.noConversations.description" = "Inicie uma conversa a partir de Contactos";
+"chats.emptyState.noConversations.description" = "Inicie uma conversa a partir do separador Nós";
 
 /* Location: ChatsView.swift - Title when no unread messages */
 "chats.emptyState.noUnread.title" = "Sem mensagens por ler";
@@ -61,22 +61,22 @@
 "chats.emptyState.noUnread.description" = "Tudo lido";
 
 /* Location: ChatsView.swift - Title when no direct messages */
-"chats.emptyState.noDirectMessages.title" = "Sem DMs";
+"chats.emptyState.noDirectMessages.title" = "Sem mensagens diretas";
 
 /* Location: ChatsView.swift - Description when no direct messages */
-"chats.emptyState.noDirectMessages.description" = "Inicie um chat a partir de Contactos";
+"chats.emptyState.noDirectMessages.description" = "Inicie uma conversa a partir do separador Nós";
 
 /* Location: ChatsView.swift - Title when no channels */
 "chats.emptyState.noChannels.title" = "Nenhum canal";
 
 /* Location: ChatsView.swift - Description when no channels */
-"chats.emptyState.noChannels.description" = "Aderir ou criar um canal";
+"chats.emptyState.noChannels.description" = "Adira ou crie um canal";
 
 /* Location: ChatsView.swift - Title when no rooms exist */
 "chats.emptyState.noRooms.title" = "Nenhuma sala";
 
 /* Location: ChatsView.swift - Description when no rooms exist */
-"chats.emptyState.noRooms.description" = "Entre numa sala a partir de Contactos";
+"chats.emptyState.noRooms.description" = "Entre numa sala a partir do separador Nós";
 
 /* Location: ChatsView.swift - Split view placeholder when no conversation selected */
 "chats.emptyState.selectConversation" = "Selecione uma conversa";
@@ -123,7 +123,7 @@
 "chats.alert.unableToSend.message" = "Certifique-se de que há uma ligação ao dispositivo e tente novamente.";
 
 /* Location: ChatConversationView.swift - Connection status for flood routed contacts */
-"chats.connectionStatus.floodRouting" = "Encaminhamento Flood";
+"chats.connectionStatus.floodRouting" = "Encaminhamento por difusão";
 
 /* Location: ChatConversationView.swift - Connection status format for direct path - %d is hop count */
 "chats.connectionStatus.direct" = "Direto • %d saltos";
@@ -141,7 +141,7 @@
 "chats.contactInfo.hasLocation" = "Tem localização";
 
 /* Location: ChatConversationView.swift - Input bar placeholder for direct messages */
-"chats.input.placeholder.directMessage" = "DM";
+"chats.input.placeholder.directMessage" = "Mensagem direta";
 
 // MARK: - Channel Chat View
 
@@ -187,7 +187,7 @@
 /* Location: ChannelInfoSheet.swift - Label for channel slot */
 /* Location: ChannelInfoSheet.swift - Label for last message date */
 /* Location: ChannelInfoSheet.swift - QR code instruction text */
-"chats.channelInfo.scanToJoin" = "Digitalize para aderir a este canal";
+"chats.channelInfo.scanToJoin" = "Leia o código QR para aderir a este canal";
 
 /* Location: ChannelInfoSheet.swift - Section header for QR sharing */
 "chats.channelInfo.shareChannel" = "Partilhar canal";
@@ -264,10 +264,10 @@
 "chats.channelOptions.joinPrivate.description" = "Introduza o nome do canal e a chave secreta";
 
 /* Location: ChannelOptionsSheet.swift - Scan QR code option title */
-"chats.channelOptions.scanQR.title" = "Digitalizar um código QR";
+"chats.channelOptions.scanQR.title" = "Ler um código QR";
 
 /* Location: ChannelOptionsSheet.swift - Scan QR code option description */
-"chats.channelOptions.scanQR.description" = "Aderir a um canal ao digitalizar o código QR";
+"chats.channelOptions.scanQR.description" = "Aderir a um canal lendo o código QR";
 
 /* Location: ChannelOptionsSheet.swift - Section header for private channels */
 "chats.channelOptions.section.private" = "Canais privados";
@@ -302,7 +302,7 @@
 "chats.newChat.emptyState.description" = "Os contactos aparecem quando forem descobertos";
 
 /* Location: NewChatView.swift - Navigation title */
-"chats.newChat.title" = "Novo chat";
+"chats.newChat.title" = "Nova conversa";
 
 /* Location: NewChatView.swift - Search placeholder */
 "chats.newChat.search.placeholder" = "Pesquisar contactos";
@@ -480,7 +480,7 @@
 "chats.joinHashtag.section.header" = "Canal hashtag";
 
 /* Location: JoinHashtagChannelView.swift - Footer explaining hashtag channels */
-"chats.joinHashtag.footer" = "Os canais hashtag são públicos. Qualquer pessoa pode aderir ao introduzir o mesmo nome. Só são permitidas letras minúsculas, números e hífenes.";
+"chats.joinHashtag.footer" = "Os canais hashtag são públicos. Qualquer pessoa pode aderir introduzindo o mesmo nome. Só são permitidas letras minúsculas, números e hífenes.";
 
 /* Location: JoinHashtagChannelView.swift - Description about encryption */
 "chats.joinHashtag.encryptionDescription" = "O nome do canal é usado para gerar a chave de encriptação. Qualquer pessoa com o mesmo nome pode ler as mensagens.";
@@ -501,7 +501,7 @@
 "chats.joinHashtag.alreadyJoined" = "Já aderiu";
 
 /* Location: JoinHashtagChannelView.swift - Accessibility label for already joined */
-"chats.joinHashtag.alreadyJoinedAccessibility" = "Canal já aderido";
+"chats.joinHashtag.alreadyJoinedAccessibility" = "Já aderiu a este canal";
 
 /* Location: JoinHashtagChannelView.swift - Navigation title */
 "chats.joinHashtag.title" = "Aderir a canal hashtag";
@@ -527,7 +527,7 @@
 "chats.joinFromMessage.noSlots.description" = "Todos os slots de canal estão cheios. Remova um canal existente para aderir a %@.";
 
 /* Location: JoinHashtagFromMessageView.swift - Description of hashtag channels */
-"chats.joinFromMessage.description" = "Os canais hashtag são públicos. Qualquer pessoa pode aderir ao introduzir o mesmo nome.";
+"chats.joinFromMessage.description" = "Os canais hashtag são públicos. Qualquer pessoa pode aderir introduzindo o mesmo nome.";
 
 /* Location: JoinHashtagFromMessageView.swift - Button to join channel - %@ is channel name */
 "chats.joinFromMessage.joinButton" = "Aderir a %@";
@@ -550,25 +550,25 @@
 // MARK: - Scan Channel QR View
 
 /* Location: ScanChannelQRView.swift - Navigation title */
-"chats.scanQR.title" = "Digitalizar código QR";
+"chats.scanQR.title" = "Ler código QR";
 
 /* Location: ScanChannelQRView.swift - Error when scanner not available */
 "chats.scanQR.notAvailable.title" = "Scanner indisponível";
 
 /* Location: ScanChannelQRView.swift - Error description when scanner not available */
-"chats.scanQR.notAvailable.description" = "A digitalização de QR não é suportada neste dispositivo";
+"chats.scanQR.notAvailable.description" = "A leitura de códigos QR não é suportada neste dispositivo";
 
 /* Location: ScanChannelQRView.swift - Instruction to point camera */
 "chats.scanQR.instruction" = "Aponte a câmara para o código QR de um canal";
 
 /* Location: ScanChannelQRView.swift - Button to scan again */
-"chats.scanQR.scanAgain" = "Digitalizar novamente";
+"chats.scanQR.scanAgain" = "Ler novamente";
 
 /* Location: ScanChannelQRView.swift - Camera permission denied title */
 "chats.scanQR.permissionDenied.title" = "É necessário acesso à câmara";
 
 /* Location: ScanChannelQRView.swift - Camera permission denied message */
-"chats.scanQR.permissionDenied.message" = "Ative o acesso à câmara em Definições para digitalizar códigos QR.";
+"chats.scanQR.permissionDenied.message" = "Ative o acesso à câmara em Definições para ler códigos QR.";
 
 /* Location: ScanChannelQRView.swift - Button to open settings */
 "chats.scanQR.openSettings" = "Abrir Definições";
@@ -607,7 +607,7 @@
 "chats.message.translatedAccessibility" = "Traduzido: %@";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to view repeat details */
-"chats.message.action.repeatDetails" = "Detalhes da repetição";
+"chats.message.action.repeatDetails" = "Detalhes da retransmissão";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to send again */
 "chats.message.action.sendAgain" = "Enviar novamente";
@@ -616,10 +616,10 @@
 "chats.message.info.heardRepeats" = "Receção: %d %@";
 
 /* Location: UnifiedMessageBubble.swift - Singular form of repeat */
-"chats.message.repeat.singular" = "repetição";
+"chats.message.repeat.singular" = "retransmissão";
 
 /* Location: UnifiedMessageBubble.swift - Plural form of repeats */
-"chats.message.repeat.plural" = "repetições";
+"chats.message.repeat.plural" = "retransmissões";
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing sent time - %@ is formatted date */
 "chats.message.info.sent" = "Enviado: %@";
@@ -628,13 +628,13 @@
 "chats.message.info.roundTrip" = "Ida e volta: %dms";
 
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
-"chats.message.action.viewPath" = "Ver caminho";
+"chats.message.action.viewPath" = "Ver rota";
 
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Saltos: %@";
 
 /* Location: ActionsDetailsSection.swift - Info row showing the path hash size in bytes - %d is 1, 2, or 3 */
-"chats.message.info.pathHash" = "Hash do caminho: %d byte";
+"chats.message.info.pathHash" = "Hash da rota: %d byte";
 
 /* Location: UnifiedMessageBubble.swift - Indicator that timestamp was adjusted */
 "chats.message.info.adjusted" = "(ajustado)";
@@ -675,7 +675,7 @@
 "chats.message.action.blockSender" = "Bloquear remetente";
 
 /* Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender */
-"chats.message.action.sendDM" = "Enviar DM";
+"chats.message.action.sendDM" = "Enviar mensagem direta";
 
 /* Location: UnifiedMessageBubble.swift - VoiceOver action to retry a failed send */
 "chats.message.action.retry" = "Tentar novamente";
@@ -753,12 +753,12 @@
 /* Location: UnifiedMessageBubble.swift - Path footer for direct messages (no hops) */
 "chats.message.path.direct" = "Direto";
 /* Routing strategy where the radio rebroadcasts the message to every neighbor (no specific path). UI displays this as a label in the per-message details sheet. Prefer a localized term over the English loanword if one exists in your locale's networking terminology. */
-"chats.message.path.flood" = "Flood";
+"chats.message.path.flood" = "Difusão";
 
 /* Location: UnifiedMessageBubble.swift - Fallback path showing hop count - %d is number */
 /* Location: MessagePathFormatter.swift - Fallback when path nodes unavailable */
 /* Location: UnifiedMessageBubble.swift - Accessibility label for routing path - %@ is the path */
-"chats.message.path.accessibilityLabel" = "Caminho de encaminhamento: %@";
+"chats.message.path.accessibilityLabel" = "Rota de encaminhamento: %@";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count */
 "chats.message.hopCount.accessibilityLabel" = "Número de saltos: %d";
@@ -773,13 +773,13 @@
 "chats.message.region.ambiguous.possibleMatch" = "Várias regiões correspondentes";
 
 /* Location: FallbackMatchIndicatorView.swift - Accessibility hint for region multi-match */
-"chats.message.region.ambiguous.possibleMatchHint" = "Mais de uma região da lista corresponde ao código de transporte deste pacote. A aplicação não consegue identificar qual foi usada.";
+"chats.message.region.ambiguous.possibleMatchHint" = "Mais do que uma região da lista corresponde ao código de transporte deste pacote. A app não consegue identificar qual foi usada.";
 
 /* Location: FallbackMatchIndicatorView.swift - Popover title for region multi-match */
 "chats.message.region.ambiguous.popoverTitle" = "Várias regiões correspondentes";
 
 /* Location: FallbackMatchIndicatorView.swift - Popover body; %@ is newline-prefixed list of candidate names */
-"chats.message.region.ambiguous.popoverBody" = "Mais de uma região da lista corresponde ao código de transporte deste pacote. A aplicação não consegue identificar qual foi usada.%@";
+"chats.message.region.ambiguous.popoverBody" = "Mais do que uma região da lista corresponde ao código de transporte deste pacote. A app não consegue identificar qual foi usada.%@";
 
 /* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
 "chats.message.sendTime.accessibilityLabel" = "Hora de envio: %@";
@@ -862,7 +862,7 @@
 "chats.share.contact" = "Partilhar contacto";
 
 /* Location: ChatShareMenu.swift - Share menu action to share the user's own node info */
-"chats.share.myInfo" = "Partilhar as minhas informações";
+"chats.share.myInfo" = "Partilhar os meus dados";
 
 // MARK: - Contact Picker
 
@@ -878,26 +878,26 @@
 // MARK: - Message Path Sheet
 
 /* Location: MessagePathSheet.swift - Empty state title */
-"chats.path.unavailable.title" = "Caminho indisponível";
+"chats.path.unavailable.title" = "Rota indisponível";
 
 /* Location: MessagePathSheet.swift - Empty state description */
-"chats.path.unavailable.description" = "Os dados do caminho não estão disponíveis para esta mensagem";
+"chats.path.unavailable.description" = "Os dados da rota não estão disponíveis para esta mensagem";
 
 /* Location: MessagePathSheet.swift - Button to copy path */
-"chats.path.copyButton" = "Copiar caminho";
+"chats.path.copyButton" = "Copiar rota";
 
 /* Location: MessagePathSheet.swift - Accessibility label for copy button */
-"chats.path.copyAccessibility" = "Copiar caminho para a área de transferência";
+"chats.path.copyAccessibility" = "Copiar rota para a área de transferência";
 
 /* Location: MessagePathSheet.swift - Accessibility hint for copy button */
-"chats.path.copyHint" = "Copia os IDs dos nodos como valores hexadecimais";
+"chats.path.copyHint" = "Copia os IDs dos nós como valores hexadecimais";
 
 /* Location: MessagePathSheet.swift - Section header for path */
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
-"chats.path.map" = "Mapa do caminho";
+"chats.path.map" = "Mapa da rota";
 
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
-"chats.path.centerOnPath" = "Centrar no caminho";
+"chats.path.centerOnPath" = "Centrar na rota";
 
 // MARK: - Path Hop Row View
 
@@ -911,7 +911,7 @@
 "chats.path.hop.possibleMatchTitle" = "Possível correspondência";
 
 /* Location: FallbackMatchIndicatorView.swift - Explanation of what a possible match means */
-"chats.path.hop.possibleMatchExplanation" = "Vários nodos partilham este prefixo. O nome apresentado pode não estar correto.";
+"chats.path.hop.possibleMatchExplanation" = "Vários nós partilham este prefixo. O nome apresentado pode não estar correto.";
 
 /* Location: PathHopRowView.swift - Label for sender (first hop) */
 "chats.path.hop.sender" = "Remetente";
@@ -920,13 +920,13 @@
 "chats.path.hop.number" = "Salto %d";
 
 /* Location: PathHopRowView.swift - Accessibility value format for last hop - %@ is quality, %@ is SNR */
-"chats.path.hop.signalQuality" = "Qualidade do sinal: %@, SNR %@ dB";
+"chats.path.hop.signalQuality" = "Sinal: %@, SNR %@ dB";
 
 /* Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID */
-"chats.path.hop.nodeId" = "ID do nodo: %@";
+"chats.path.hop.nodeId" = "ID do nó: %@";
 
 /* Location: PathHopRowView.swift - Unknown signal quality */
-"chats.path.hop.signalUnknown" = "Desconhecida";
+"chats.path.hop.signalUnknown" = "Desconhecido";
 
 /* Location: PathHopRowView.swift - Label for receiver (your device) */
 "chats.path.receiver.label" = "Destinatário";
@@ -937,16 +937,16 @@
 // MARK: - Repeat Details Sheet
 
 /* Location: RepeatDetailsSheet.swift - Empty state title */
-"chats.repeats.emptyState.title" = "Ainda sem repetições";
+"chats.repeats.emptyState.title" = "Ainda sem retransmissões";
 
 /* Location: RepeatDetailsSheet.swift - Empty state description */
-"chats.repeats.emptyState.description" = "As repetições aparecem aqui à medida que a mensagem se propaga pela mesh";
+"chats.repeats.emptyState.description" = "As retransmissões aparecem aqui à medida que a mensagem se propaga pela mesh";
 
 /* Location: RepeatDetailsSheet.swift - Navigation title */
 // MARK: - Repeat Row View
 
 /* Location: RepeatRowView.swift - Accessibility label format - %@ is repeater name */
-"chats.repeats.row.accessibility" = "Repetição de %@";
+"chats.repeats.row.accessibility" = "Retransmissão de %@";
 
 /* Location: RepeatRowView.swift - Accessibility value format - %@ is quality, %@ is SNR, %@ is RSSI */
 "chats.repeats.row.accessibilityValue" = "Sinal %@, SNR %@, RSSI %@";
@@ -1026,7 +1026,7 @@
 "chats.common.cancel" = "Cancelar";
 
 /* Location: Various - Done button (use L10n.Localizable.Common.done) */
-"chats.common.done" = "OK";
+"chats.common.done" = "Concluído";
 
 // MARK: - Reaction Details Sheet
 
@@ -1085,7 +1085,7 @@
 "chats.tip.deviceMenu.title" = "Menu do dispositivo";
 
 /* Location: DeviceMenuTip.swift - Purpose: Tip message explaining device menu features */
-"chats.tip.deviceMenu.message" = "Faça a gestão da ligação, envie Adverts e consulte a bateria. O rádio permanece ligado mesmo depois de sair da aplicação à força. Toque em Desligar para interromper a ligação.";
+"chats.tip.deviceMenu.message" = "Faça a gestão da ligação, envie Adverts e consulte a bateria. O rádio permanece ligado mesmo depois de forçar o encerramento da app. Toque em Desligar para interromper a ligação.";
 
 // MARK: - Block Sender Sheet
 
@@ -1093,7 +1093,7 @@
 "chats.blockSender.title" = "Bloquear \"%@\"";
 
 /* Location: BlockSenderSheet.swift - Purpose: Explanation of name-based blocking limitation */
-"chats.blockSender.limitation" = "As mensagens de canal não incluem a identidade do remetente. Este bloqueio corresponde apenas pelo nome — o remetente pode alterar o nome para o contornar.";
+"chats.blockSender.limitation" = "As mensagens de canal não incluem a identidade do remetente. Este bloqueio baseia-se apenas no nome, que o remetente pode alterar para o contornar.";
 
 /* Location: BlockSenderSheet.swift - Purpose: Section header when matching contacts found */
 "chats.blockSender.matchingContacts" = "Os contactos seguintes partilham este nome. Selecione os que também devem ser bloqueados:";
@@ -1118,10 +1118,10 @@
 // MARK: - Send DM Sheet
 
 /* Location: SendDMSheet.swift - Purpose: Sheet title with sender name */
-"chats.sendDM.title" = "Enviar DM a \"%@\"";
+"chats.sendDM.title" = "Enviar mensagem direta a \"%@\"";
 
 /* Location: SendDMSheet.swift - Purpose: Name-based matching limitation warning */
-"chats.sendDM.limitation" = "As mensagens de canal não incluem a identidade do remetente. Esta correspondência é apenas pelo nome — o contacto pode ser outra pessoa com o mesmo nome.";
+"chats.sendDM.limitation" = "As mensagens de canal não incluem a identidade do remetente. O contacto é identificado apenas pelo nome, por isso pode ser outra pessoa com o mesmo nome.";
 
 /* Location: SendDMSheet.swift - Purpose: Section header listing matching contacts */
 "chats.sendDM.matchingContacts" = "Selecione um contacto para enviar mensagem:";
@@ -1146,7 +1146,7 @@
 "chats.channelInfo.region" = "Região";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
-"chats.channelInfo.region.allRegions" = "Sem âmbito";
+"chats.channelInfo.region.allRegions" = "Sem scope";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
 "chats.channelInfo.region.useDefaultFormat" = "%@ (predefinição)";
@@ -1188,7 +1188,7 @@
 "chats.channelInfo.region.errLoadingRepeaters" = "Não foi possível carregar os repetidores próximos";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Some queries failed because radio contact list is full */
-"chats.channelInfo.region.errRadioContactsFull" = "A lista de contactos do rádio está cheia — alguns repetidores não puderam ser consultados";
+"chats.channelInfo.region.errRadioContactsFull" = "A lista de contactos do rádio está cheia. Não foi possível obter dados de alguns repetidores";
 
 /* Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button */
 "chats.channelInfo.region.addSelected" = "Adicionar";
@@ -1231,10 +1231,10 @@
 "chats.mention.picker.notSavedSubtitle" = "@%@ não corresponde a nenhum contacto neste rádio.";
 
 /* Location: ChatConversationView.swift - Mention picker title when the tapped name is the user's own node */
-"chats.mention.picker.selfTitle" = "É o nodo local";
+"chats.mention.picker.selfTitle" = "É o seu nó";
 
 /* Location: ChatConversationView.swift - Mention picker description when the tapped name is the user's own node */
-"chats.mention.picker.selfSubtitle" = "@%@ é o nome deste nodo.";
+"chats.mention.picker.selfSubtitle" = "@%@ é o nome deste nó.";
 
 /* Location: ChatConversationView.swift - Mention picker section header above the list of matching contacts */
 "chats.mention.picker.matchingContacts" = "Contactos correspondentes";
@@ -1245,7 +1245,7 @@
 "chats.message.sender.unverifiedNickname" = "Nome não verificado";
 
 /* Location: UnifiedMessageBubble.swift - Explanation of why the sender name is unverified */
-"chats.message.sender.unverifiedNicknameExplanation" = "Os remetentes de mensagens de canal não podem ser verificados. Pode ser outra pessoa.";
+"chats.message.sender.unverifiedNicknameExplanation" = "Os remetentes das mensagens do canal não podem ser verificados. Pode tratar-se de outra pessoa.";
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for unverified nickname indicator */
 "chats.message.sender.unverifiedNicknameAccessibilityLabel" = "Correspondência de nome não verificado";

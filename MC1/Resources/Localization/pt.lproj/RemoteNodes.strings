@@ -18,7 +18,7 @@
 "remoteNodes.auth.cancel" = "Cancelar";
 
 /* Location: NodeAuthenticationSheet.swift - Node details section header */
-"remoteNodes.auth.nodeDetails" = "Detalhes do nodo";
+"remoteNodes.auth.nodeDetails" = "Detalhes do nó";
 
 /* Location: NodeAuthenticationSheet.swift - Name label */
 "remoteNodes.auth.name" = "Nome";
@@ -57,24 +57,24 @@
 "remoteNodes.auth.connect" = "Ligar";
 
 /* Location: NodeAuthenticationSheet.swift - Path section header */
-"remoteNodes.auth.path" = "Caminho";
+"remoteNodes.auth.path" = "Rota";
 
 /* Location: NodeAuthenticationSheet.swift - Flood routing toggle */
-"remoteNodes.auth.floodRouting" = "Encaminhamento Flood";
-"remoteNodes.auth.floodRetryStatus" = "Sem resposta pelo caminho conhecido. A tentar novamente com encaminhamento flood.";
-"remoteNodes.auth.floodFooter" = "O encaminhamento flood é mais lento e usa mais tempo no ar da rede. Utilize-o quando o caminho conhecido não funcionar a partir da localização atual. Um novo caminho é aprendido automaticamente após iniciar sessão.";
+"remoteNodes.auth.floodRouting" = "Encaminhamento por difusão";
+"remoteNodes.auth.floodRetryStatus" = "Sem resposta pela rota conhecida. A tentar novamente com encaminhamento por difusão.";
+"remoteNodes.auth.floodFooter" = "O encaminhamento por difusão é mais lento e usa mais tempo de antena da rede. Utilize-o quando a rota conhecida não funcionar a partir da localização atual. Uma nova rota é aprendida automaticamente após iniciar sessão.";
 
 /* Location: NodeAuthenticationSheet.swift - Path section footer when stored path exists */
-"remoteNodes.auth.pathFooter" = "Utilize o caminho conhecido até este nodo, ou mude para o encaminhamento flood para que a rede encontre um caminho.";
+"remoteNodes.auth.pathFooter" = "Utilize a rota conhecida até este nó, ou mude para o encaminhamento por difusão e deixe que a rede encontre outra.";
 
 /* Location: NodeAuthenticationSheet.swift - Path hop whose repeater is not known */
 "remoteNodes.auth.pathHopUnknown" = "<desconhecido>";
 
 /* Location: NodeAuthenticationSheet.swift - Label when no route is set */
-"remoteNodes.auth.noRouteSet" = "Nenhum caminho definido";
+"remoteNodes.auth.noRouteSet" = "Nenhuma rota definida";
 
 /* Location: NodeAuthenticationSheet.swift - Path section footer when no route is set */
-"remoteNodes.auth.noRouteFooter" = "Nenhum caminho conhecido até este nodo. A rede irá encontrar um caminho automaticamente.";
+"remoteNodes.auth.noRouteFooter" = "Nenhuma rota conhecida até este nó. A rede irá encontrar uma automaticamente.";
 
 /* Location: NodeAuthenticationSheet.swift - Accessibility announcement for countdown */
 "remoteNodes.auth.secondsRemainingAnnouncement" = "%d segundos restantes";
@@ -85,7 +85,7 @@
 "remoteNodes.settings.title" = "Definições do repetidor";
 
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
-"remoteNodes.settings.done" = "OK";
+"remoteNodes.settings.done" = "Concluído";
 
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "Definições";
@@ -139,10 +139,10 @@
 "remoteNodes.settings.bandwidthKHz" = "Largura de banda (kHz)";
 
 /* Location: RepeaterSettingsView.swift - Accessibility label for bandwidth picker options - %@ is formatted bandwidth */
-"remoteNodes.settings.accessibility.bandwidthLabel" = "%@ quilohertz";
+"remoteNodes.settings.accessibility.bandwidthLabel" = "%@ kilohertz";
 
 /* Location: RepeaterSettingsView.swift - Bandwidth accessibility hint */
-"remoteNodes.settings.bandwidthHint" = "Valores mais baixos aumentam o alcance, mas diminuem a velocidade";
+"remoteNodes.settings.bandwidthHint" = "Valores menores aumentam o alcance, mas diminuem a velocidade";
 
 /* Location: RepeaterSettingsView.swift - Spreading factor label */
 "remoteNodes.settings.spreadingFactor" = "Fator de espalhamento";
@@ -151,7 +151,7 @@
 "remoteNodes.settings.accessibility.spreadingFactorLabel" = "Fator de espalhamento %d";
 
 /* Location: RepeaterSettingsView.swift - Spreading factor accessibility hint */
-"remoteNodes.settings.spreadingFactorHint" = "Valores mais altos aumentam o alcance, mas diminuem a velocidade";
+"remoteNodes.settings.spreadingFactorHint" = "Valores maiores aumentam o alcance, mas diminuem a velocidade";
 
 /* Location: RepeaterSettingsView.swift - Coding rate label */
 "remoteNodes.settings.codingRate" = "Taxa de codificação";
@@ -160,7 +160,7 @@
 "remoteNodes.settings.accessibility.codingRateLabel" = "Taxa de codificação %d";
 
 /* Location: RepeaterSettingsView.swift - Coding rate accessibility hint */
-"remoteNodes.settings.codingRateHint" = "Valores mais altos adicionam correção de erros, mas diminuem a velocidade";
+"remoteNodes.settings.codingRateHint" = "Valores maiores adicionam correção de erros, mas diminuem a velocidade";
 
 /* Location: RepeaterSettingsView.swift - TX power label */
 "remoteNodes.settings.txPowerDbm" = "Potência TX (dBm)";
@@ -195,7 +195,7 @@
 "remoteNodes.settings.contactInfoPlaceholder" = "Frequência, nome do operador, sítio web...";
 
 /* Location: RepeaterSettingsView.swift - Contact info footer */
-"remoteNodes.settings.contactInfoFooter" = "Dados de contacto públicos visíveis para outros nodos. Utilize quebras de linha para separar os campos.";
+"remoteNodes.settings.contactInfoFooter" = "Dados de contacto públicos visíveis para outros nós. Utilize quebras de linha para separar os campos.";
 
 /* Location: RepeaterSettingsView.swift - Apply contact info button */
 "remoteNodes.settings.applyContactInfo" = "Aplicar informações de contacto";
@@ -214,13 +214,13 @@
 "remoteNodes.settings.min" = "min";
 
 /* Location: RepeaterSettingsView.swift - Advert interval (flood) label */
-"remoteNodes.settings.advertIntervalFlood" = "Intervalo de Advert (flood)";
+"remoteNodes.settings.advertIntervalFlood" = "Intervalo de Advert (difusão)";
 
 /* Location: RepeaterSettingsView.swift - Hours unit */
 "remoteNodes.settings.hrs" = "h";
 
 /* Location: RepeaterSettingsView.swift - Max flood hops label */
-"remoteNodes.settings.maxFloodHops" = "Máximo de saltos Flood";
+"remoteNodes.settings.maxFloodHops" = "Máximo de saltos por difusão";
 
 /* Location: RepeaterSettingsView.swift - Hops unit */
 "remoteNodes.settings.hops" = "saltos";
@@ -253,7 +253,7 @@
 "remoteNodes.settings.identityFooter" = "Nome do repetidor e coordenadas GPS para apresentação no mapa.";
 
 /* Location: RepeaterSettingsView.swift - Behavior section footer */
-"remoteNodes.settings.behaviorFooter" = "Intervalos de Advert, saltos flood e modo repetidor.";
+"remoteNodes.settings.behaviorFooter" = "Intervalos de Advert, saltos por difusão e modo repetidor.";
 
 /* Location: RepeaterSettingsView.swift - Device actions section header */
 "remoteNodes.settings.deviceActions" = "Ações do dispositivo";
@@ -350,10 +350,10 @@
 "remoteNodes.settings.regionsFooter" = "Guarde no repetidor para manter as alterações após os reinícios.";
 
 /* Location: RepeaterSettingsView.swift - Unscoped region display name */
-"remoteNodes.settings.regions.allTraffic" = "Sem âmbito";
+"remoteNodes.settings.regions.allTraffic" = "Sem scope";
 
 /* Location: RepeaterSettingsView.swift - Unscoped region with asterisk display */
-"remoteNodes.settings.regions.allTrafficWildcard" = "* (Sem âmbito)";
+"remoteNodes.settings.regions.allTrafficWildcard" = "* (Sem scope)";
 
 /* Location: RepeaterSettingsView.swift - Home region picker label */
 "remoteNodes.settings.regions.homeRegion" = "Região home";
@@ -361,7 +361,7 @@
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
-"remoteNodes.settings.regions.floodToggleHint" = "Quando desligado, os pacotes flood desta região são descartados";
+"remoteNodes.settings.regions.floodToggleHint" = "Quando desligado, os pacotes por difusão desta região são descartados";
 
 /* Location: RepeaterSettingsView.swift - Add region button */
 "remoteNodes.settings.regions.addRegion" = "Adicionar região";
@@ -410,8 +410,8 @@
 
 /* Location: RepeaterStatusView.swift - Guest mode badge in header */
 "remoteNodes.status.guestMode" = "Modo convidado";
-"remoteNodes.status.clockAhead" = "O relógio deste nodo está %@ adiantado em relação ao seu rádio. Um nodo com o relógio impreciso pode ignorar comandos ou mostrar horas de mensagem erradas.";
-"remoteNodes.status.clockBehind" = "O relógio deste nodo está %@ atrasado em relação ao seu rádio. Um nodo com o relógio impreciso pode ignorar comandos ou mostrar horas de mensagem erradas.";
+"remoteNodes.status.clockAhead" = "O relógio deste nó está %@ adiantado em relação ao seu rádio. Um nó com o relógio impreciso pode ignorar comandos ou mostrar horas erradas nas mensagens.";
+"remoteNodes.status.clockBehind" = "O relógio deste nó está %@ atrasado em relação ao seu rádio. Um nó com o relógio impreciso pode ignorar comandos ou mostrar horas erradas nas mensagens.";
 
 /* Location: RepeaterStatusView.swift - Owner info section label */
 "remoteNodes.status.ownerInfo" = "Informações de contacto";
@@ -432,10 +432,10 @@
 "remoteNodes.status.uptime" = "Tempo de atividade";
 
 /* Location: SharedNodeViews.swift - Airtime label */
-"remoteNodes.status.airtime" = "Tempo no ar";
+"remoteNodes.status.airtime" = "Tempo de antena";
 
 /* Location: SharedNodeViews.swift - Airtime percent label */
-"remoteNodes.status.airtimePercent" = "Tempo no ar %%";
+"remoteNodes.status.airtimePercent" = "Tempo de antena %%";
 
 /* Location: RepeaterStatusView.swift - Last RSSI label */
 "remoteNodes.status.lastRssi" = "Último RSSI";
@@ -459,11 +459,11 @@
 /* Location: SharedNodeStatusViews.swift - Sent (direct) packets label */
 "remoteNodes.status.sentDirect" = "Enviados (direto)";
 /* Location: SharedNodeStatusViews.swift - Sent (flood) packets label */
-"remoteNodes.status.sentFlood" = "Enviados (Flood)";
+"remoteNodes.status.sentFlood" = "Enviados (Difusão)";
 /* Location: SharedNodeStatusViews.swift - Received (direct) packets label */
 "remoteNodes.status.receivedDirect" = "Recebidos (direto)";
 /* Location: SharedNodeStatusViews.swift - Received (flood) packets label */
-"remoteNodes.status.receivedFlood" = "Recebidos (Flood)";
+"remoteNodes.status.receivedFlood" = "Recebidos (Difusão)";
 /* Location: SharedNodeStatusViews.swift - Duplicate packets label */
 "remoteNodes.status.duplicates" = "Duplicados";
 
@@ -507,7 +507,7 @@
 "remoteNodes.status.possibleMatchTitle" = "Possível correspondência";
 
 /* Location: RepeaterStatusView.swift - Explanation of what a possible match means */
-"remoteNodes.status.possibleMatchExplanation" = "Vários nodos partilham este prefixo. O nome apresentado pode não estar correto.";
+"remoteNodes.status.possibleMatchExplanation" = "Vários nós partilham este prefixo. O nome apresentado pode não estar correto.";
 
 // MARK: - Repeater Status ViewModel Messages
 
@@ -572,7 +572,7 @@
 "remoteNodes.status.sensor.switchValue" = "Interruptor";
 
 /* Location: RepeaterStatusView.swift - Neighbors section footer */
-"remoteNodes.status.neighborsFooter" = "Outros nodos descobertos por este repetidor e a qualidade do respetivo sinal.";
+"remoteNodes.status.neighborsFooter" = "Outros nós descobertos por este repetidor e a qualidade do respetivo sinal.";
 
 /* Location: RepeaterStatusView.swift - Discover neighbours button label */
 "remoteNodes.status.discoverNeighbors" = "Descobrir vizinhos";
@@ -682,7 +682,7 @@
 /* Location: RadioMetricCharts.swift - Direct packet series legend */
 "remoteNodes.history.direct" = "Direto";
 /* Location: RadioMetricCharts.swift - Flood packet series legend */
-"remoteNodes.history.flood" = "Flood";
+"remoteNodes.history.flood" = "Difusão";
 /* Location: RadioMetricCharts.swift - Duplicates chart title, under the Packets group header */
 "remoteNodes.history.duplicates" = "Duplicados";
 /* Location: RadioMetricCharts.swift - Section header grouping the packet-count charts */
@@ -728,7 +728,7 @@
 "remoteNodes.history.locationReportsHeader" = "Histórico de localização";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when no snapshots exist */
-"remoteNodes.history.noSnapshotsMessage" = "Ligue a este nodo pelo menos uma vez para ver o histórico.";
+"remoteNodes.history.noSnapshotsMessage" = "Ligue a este nó pelo menos uma vez para ver o histórico.";
 
 /* Location: TelemetryHistoryOverviewView.swift - Purpose: Empty state when section data not captured */
 "remoteNodes.history.sectionNotCaptured" = "Estes dados são capturados ao visualizar a secção %@ durante uma sessão de telemetria em direto.";
@@ -751,7 +751,7 @@
 "remoteNodes.room.publicMessage" = "Mensagem pública";
 
 /* Location: RoomConversationView.swift - Read-only banner */
-"remoteNodes.room.viewOnlyBanner" = "Só de leitura - entre como membro para publicar";
+"remoteNodes.room.viewOnlyBanner" = "Só de leitura. Entre como membro para publicar";
 
 /* Location: RoomConversationView.swift - Hint text for read-only banner */
 "remoteNodes.room.viewOnlyHint" = "Toque para iniciar sessão";
@@ -850,7 +850,7 @@
 "remoteNodes.roomSettings.applyRoomSettings" = "Aplicar definições da sala";
 
 /* Location: RoomSettingsView.swift - Room behavior section footer */
-"remoteNodes.roomSettings.behaviorFooter" = "Intervalos de Advert e saltos flood.";
+"remoteNodes.roomSettings.behaviorFooter" = "Intervalos de Advert e saltos por difusão.";
 
 /* Location: RoomSettingsView.swift - Identity section footer */
 /* Location: RoomSettingsView.swift - Reboot confirmation title */
@@ -893,13 +893,13 @@
 "remoteNodes.nodeCli.helpClear" = "  clear\n    Limpar o terminal";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'clear stats' command */
-"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Repor as estatísticas do nodo";
+"remoteNodes.nodeCli.helpClearStats" = "  clear stats\n    Repor as estatísticas do nó";
 
 /* Location: NodeCliViewModel.swift - Help entry for 'reboot' command */
-"remoteNodes.nodeCli.helpReboot" = "  reboot\n    Reiniciar este nodo";
+"remoteNodes.nodeCli.helpReboot" = "  reboot\n    Reiniciar este nó";
 
 /* Location: NodeCliViewModel.swift - Passthrough note at end of help output */
-"remoteNodes.nodeCli.helpPassthrough" = "Qualquer outra entrada é enviada ao nodo.";
+"remoteNodes.nodeCli.helpPassthrough" = "Qualquer outra entrada é enviada ao nó.";
 
 // MARK: - Shared
 
@@ -907,7 +907,7 @@
 "remoteNodes.cancel" = "Cancelar";
 
 /* Location: Multiple files - Done button */
-"remoteNodes.done" = "OK";
+"remoteNodes.done" = "Concluído";
 
 /* Location: Multiple files - Name label */
 "remoteNodes.name" = "Nome";
