@@ -54,16 +54,18 @@ struct ChatViewModelTranslationTests {
   }
 
   @Test
-  func `translator throw sets errorMessage and returns to offer`() async throws {
+  func `translator throw presents system overlay and returns to offer`() async throws {
     let (viewModel, coordinator, message, translator) = try await seededGermanChat()
     translator.result = .failure(TranslationTestError.failed)
 
     viewModel.performTranslationAction(for: message.id)
-    try await performCurrent(viewModel, using: translator)
+    let result = try await performCurrent(viewModel, using: translator)
     await coordinator.buildItemsTask?.value
 
-    #expect(viewModel.errorMessage != nil)
+    #expect(result == .presentSystemOverlay(text: german))
+    #expect(viewModel.errorMessage == nil)
     #expect(viewModel.translation(for: message.id)?.phase == .offer)
+    #expect(viewModel.translationSessionRequest == nil)
     #expect(viewModel.messagesByID[message.id]?.text == german)
   }
 
@@ -88,9 +90,10 @@ struct ChatViewModelTranslationTests {
     translator.result = .failure(CancellationError())
 
     viewModel.performTranslationAction(for: message.id)
-    try await performCurrent(viewModel, using: translator)
+    let result = try await performCurrent(viewModel, using: translator)
     await coordinator.buildItemsTask?.value
 
+    #expect(result == .finished)
     #expect(viewModel.errorMessage == nil)
     #expect(viewModel.translation(for: message.id)?.phase == .offer)
   }
@@ -101,9 +104,10 @@ struct ChatViewModelTranslationTests {
     translator.result = .failure(CocoaError(.userCancelled))
 
     viewModel.performTranslationAction(for: message.id)
-    try await performCurrent(viewModel, using: translator)
+    let result = try await performCurrent(viewModel, using: translator)
     await coordinator.buildItemsTask?.value
 
+    #expect(result == .finished)
     #expect(viewModel.errorMessage == nil)
     #expect(viewModel.translation(for: message.id)?.phase == .offer)
     #expect(viewModel.translationSessionRequest == nil)
@@ -137,7 +141,7 @@ struct ChatViewModelTranslationTests {
     #expect(viewModel.translationSessionRequest?.messageID == second.id)
 
     gated.resume(returning: "Stale hello")
-    await pending
+    #expect(await pending == .finished)
     await coordinator.buildItemsTask?.value
 
     #expect(viewModel.bake.translationCache[first.id] == nil)

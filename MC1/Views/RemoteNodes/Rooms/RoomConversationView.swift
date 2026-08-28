@@ -140,7 +140,12 @@ struct RoomConversationView: View {
         configuration: $translationConfiguration,
         request: $viewModel.translationSessionRequest,
         perform: { translator, request in
-          await viewModel.performPendingTranslation(using: translator, for: request)
+          let result = await viewModel.performPendingTranslation(using: translator, for: request)
+          if case let .presentSystemOverlay(text: text) = result {
+            systemTranslationText = text
+            showSystemTranslation = true
+          }
+          return result
         }
       )
       // Overlay after `.conversationTranslationSession`: `.translationPresentation`

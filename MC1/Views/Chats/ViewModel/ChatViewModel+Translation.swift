@@ -43,7 +43,6 @@ extension ChatViewModel {
 
   /// Apply `translator` only while `request.generation` is still current.
   /// Never writes `MessageDTO.text`.
-  @discardableResult
   func performPendingTranslation(
     using translator: any MessageTranslating,
     for request: TranslationSessionRequest
@@ -80,12 +79,12 @@ extension ChatViewModel {
     } catch {
       guard isCurrent(request) else { return .finished }
       bake.translationPhases[capturedID] = .offer
-      if !isQuietTranslationCancel(error) {
-        errorMessage = error.userFacingMessage
-      }
       translationSessionRequest = nil
       timeline.rebakeRow(capturedID)
-      return .finished
+      if isQuietTranslationCancel(error) {
+        return .finished
+      }
+      return .presentSystemOverlay(text: text)
     }
   }
 

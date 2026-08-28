@@ -44,7 +44,6 @@ extension RoomConversationViewModel {
     )
   }
 
-  @discardableResult
   func performPendingTranslation(
     using translator: any MessageTranslating,
     for request: TranslationSessionRequest
@@ -81,12 +80,12 @@ extension RoomConversationViewModel {
     } catch {
       guard isCurrent(request) else { return .finished }
       translationPhases[capturedID] = .offer
-      if !isQuietTranslationCancel(error) {
-        errorMessage = error.userFacingMessage
-      }
       translationSessionRequest = nil
       refreshTiledRows()
-      return .finished
+      if isQuietTranslationCancel(error) {
+        return .finished
+      }
+      return .presentSystemOverlay(text: text)
     }
   }
 

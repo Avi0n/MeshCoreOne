@@ -85,19 +85,52 @@ struct RoomConversationViewModelTranslationTests {
   }
 
   @Test
-  func `translator throw sets errorMessage and returns to offer`() async throws {
+  func `translator throw presents system overlay and returns to offer`() async throws {
     let viewModel = seededGermanRoom()
     let message = try #require(viewModel.messages.first)
     let translator = CountingMessageTranslator()
     translator.result = .failure(RoomTranslationTestError.failed)
 
     viewModel.performTranslationAction(for: message.id)
-    try await performCurrent(viewModel, using: translator)
+    let result = try await performCurrent(viewModel, using: translator)
 
-    #expect(viewModel.errorMessage != nil)
+    #expect(result == .presentSystemOverlay(text: german))
+    #expect(viewModel.errorMessage == nil)
     #expect(viewModel.tiledRows.first?.translation?.phase == .offer)
-    #expect(viewModel.messages.first?.text == german)
     #expect(viewModel.translationSessionRequest == nil)
+    #expect(viewModel.messages.first?.text == german)
+  }
+
+  @Test
+  func `cancellation leaves offer without errorMessage`() async throws {
+    let viewModel = seededGermanRoom()
+    let message = try #require(viewModel.messages.first)
+    let translator = CountingMessageTranslator()
+    translator.result = .failure(CancellationError())
+
+    viewModel.performTranslationAction(for: message.id)
+    let result = try await performCurrent(viewModel, using: translator)
+
+    #expect(result == .finished)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.tiledRows.first?.translation?.phase == .offer)
+  }
+
+  @Test
+  func `download UI cancel leaves offer without errorMessage`() async throws {
+    let viewModel = seededGermanRoom()
+    let message = try #require(viewModel.messages.first)
+    let translator = CountingMessageTranslator()
+    translator.result = .failure(CocoaError(.userCancelled))
+
+    viewModel.performTranslationAction(for: message.id)
+    let result = try await performCurrent(viewModel, using: translator)
+
+    #expect(result == .finished)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.tiledRows.first?.translation?.phase == .offer)
+    #expect(viewModel.translationSessionRequest == nil)
+    #expect(viewModel.messages.first?.text == german)
   }
 
   @discardableResult

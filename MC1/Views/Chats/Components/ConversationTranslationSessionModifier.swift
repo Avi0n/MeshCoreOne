@@ -17,6 +17,8 @@ struct ConversationTranslationSessionModifier: ViewModifier {
       .translationTask(configuration) { session in
         guard let sessionBoundRequest,
               request?.generation == sessionBoundRequest.generation else { return }
+        // Overlay presentation is a `perform` side effect so `.translationTask`
+        // and TranslationSessionLauncher share one closure.
         _ = await perform(
           TranslationSessionMessageTranslator(session: session),
           sessionBoundRequest

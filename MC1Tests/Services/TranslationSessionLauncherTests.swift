@@ -64,4 +64,41 @@ struct TranslationSessionLauncherTests {
     let remapped = MessageTranslationNeedsDownloadError.wrapping(TranslationError.notInstalled)
     #expect(remapped is MessageTranslationNeedsDownloadError)
   }
+
+  @Test
+  func `presentSystemOverlay returns no configuration`() async {
+    guard #available(iOS 26.0, *) else { return }
+    let request = TranslationSessionRequest(
+      messageID: UUID(),
+      sourceLanguageCode: "de",
+      targetLanguageCode: "en",
+      generation: 1
+    )
+    let configuration = await TranslationSessionLauncher.launch(
+      request: request,
+      replacing: nil
+    ) { _ in .presentSystemOverlay(text: "Guten Morgen") }
+    #expect(configuration == nil)
+  }
+
+  @Test
+  func `presentSystemOverlay on the first installed session does not try the second`() async {
+    guard #available(iOS 26.4, *) else { return }
+    let request = TranslationSessionRequest(
+      messageID: UUID(),
+      sourceLanguageCode: "de",
+      targetLanguageCode: "en",
+      generation: 1
+    )
+    var performCount = 0
+    let configuration = await TranslationSessionLauncher.launch(
+      request: request,
+      replacing: nil
+    ) { _ in
+      performCount += 1
+      return .presentSystemOverlay(text: "Guten Morgen")
+    }
+    #expect(configuration == nil)
+    #expect(performCount == 1)
+  }
 }

@@ -27,7 +27,7 @@ enum TranslationSessionLauncher {
         let result = await perform(InstalledPackTranslator(session: session))
         guard !Task.isCancelled else { return nil }
         switch result {
-        case .finished:
+        case .finished, .presentSystemOverlay:
           return nil
         case .needsDownload:
           continue
