@@ -3596,6 +3596,10 @@ public enum L10n {
           public static let allTraffic = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTraffic", fallback: "Unscoped")
           /// Location: RepeaterSettingsView.swift - Unscoped region with asterisk display
           public static let allTrafficWildcard = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTrafficWildcard", fallback: "* (Unscoped)")
+          /// Location: RepeaterSettingsView.swift - Default scope picker label
+          public static let defaultScope = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.defaultScope", fallback: "Default Scope")
+          /// Location: RepeaterSettingsView.swift - Caption under default scope picker
+          public static let defaultScopeCaption = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.defaultScopeCaption", fallback: "Scopes packets this node originates, such as adverts. This setting saves to the repeater immediately.")
           /// Location: RepeaterSettingsView.swift - Duplicate region name validation
           public static let duplicate = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.duplicate", fallback: "This region already exists.")
           /// Location: RepeaterSettingsViewModel.swift - No regions on device
@@ -3610,6 +3614,8 @@ public enum L10n {
           public static func nameTooLong(_ p1: Int) -> String {
             return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.nameTooLong", p1, fallback: "Region names are limited to %d bytes.")
           }
+          /// Location: RepeaterSettingsView.swift - No default scope
+          public static let noDefault = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.noDefault", fallback: "None")
           /// Location: RepeaterSettingsViewModel.swift - Region has children error
           public static let notEmpty = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.notEmpty", fallback: "Remove child regions first")
           /// Location: RepeaterSettingsView.swift - Region name placeholder

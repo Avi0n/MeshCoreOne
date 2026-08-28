@@ -358,6 +358,15 @@
 /* Location: RepeaterSettingsView.swift - Home region picker label */
 "remoteNodes.settings.regions.homeRegion" = "Thuisregio";
 
+/* Location: RepeaterSettingsView.swift - Default scope picker label */
+"remoteNodes.settings.regions.defaultScope" = "Standaardregio";
+
+/* Location: RepeaterSettingsView.swift - No default scope */
+"remoteNodes.settings.regions.noDefault" = "Geen";
+
+/* Location: RepeaterSettingsView.swift - Caption under default scope picker */
+"remoteNodes.settings.regions.defaultScopeCaption" = "Past een regio toe op pakketten die dit knooppunt zelf verzendt, zoals advertenties. Deze instelling wordt meteen op de repeater opgeslagen.";
+
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */

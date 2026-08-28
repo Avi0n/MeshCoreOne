@@ -355,6 +355,15 @@
 /* Location: RepeaterSettingsView.swift - Home region picker label */
 "remoteNodes.settings.regions.homeRegion" = "Region domowy";
 
+/* Location: RepeaterSettingsView.swift - Default scope picker label */
+"remoteNodes.settings.regions.defaultScope" = "Domyślny zakres";
+
+/* Location: RepeaterSettingsView.swift - No default scope */
+"remoteNodes.settings.regions.noDefault" = "Brak";
+
+/* Location: RepeaterSettingsView.swift - Caption under default scope picker */
+"remoteNodes.settings.regions.defaultScopeCaption" = "Stosuje zakres do pakietów pochodzących z tego węzła, np. ogłoszeń. To ustawienie jest od razu zapisywane w przekaźniku.";
+
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */

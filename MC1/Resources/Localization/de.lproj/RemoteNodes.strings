@@ -358,6 +358,15 @@
 /* Location: RepeaterSettingsView.swift - Home region picker label */
 "remoteNodes.settings.regions.homeRegion" = "Heimatregion";
 
+/* Location: RepeaterSettingsView.swift - Default scope picker label */
+"remoteNodes.settings.regions.defaultScope" = "Standardbereich";
+
+/* Location: RepeaterSettingsView.swift - No default scope */
+"remoteNodes.settings.regions.noDefault" = "Keine";
+
+/* Location: RepeaterSettingsView.swift - Caption under default scope picker */
+"remoteNodes.settings.regions.defaultScopeCaption" = "Bestimmt den Bereich für Pakete, die dieser Knoten selbst erzeugt, etwa Ankündigungen. Diese Einstellung wird sofort im Repeater gespeichert.";
+
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */

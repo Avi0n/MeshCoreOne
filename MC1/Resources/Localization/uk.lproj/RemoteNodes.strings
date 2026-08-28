@@ -355,6 +355,15 @@
 /* Location: RepeaterSettingsView.swift - Home region picker label */
 "remoteNodes.settings.regions.homeRegion" = "Домашній регіон";
 
+/* Location: RepeaterSettingsView.swift - Default scope picker label */
+"remoteNodes.settings.regions.defaultScope" = "Область за замовчуванням";
+
+/* Location: RepeaterSettingsView.swift - No default scope */
+"remoteNodes.settings.regions.noDefault" = "Немає";
+
+/* Location: RepeaterSettingsView.swift - Caption under default scope picker */
+"remoteNodes.settings.regions.defaultScopeCaption" = "Застосовує область до пакетів, що походять від цього вузла, наприклад оголошень. Це налаштування одразу зберігається на ретрансляторі.";
+
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */

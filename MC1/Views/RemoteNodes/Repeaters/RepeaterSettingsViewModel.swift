@@ -41,6 +41,12 @@ final class RepeaterSettingsViewModel {
   // MARK: - Repeater-Only: Region Settings
 
   nonisolated static let wildcardName = "*"
+  /// CLI argument when default scope is unset (`region default <null>`).
+  private static let firmwareNullToken = "<null>"
+  /// GET substring. SET replies use `defaultScopeSetReplyMarker`, which also matches this.
+  private static let defaultScopeReplyMarker = "default scope is"
+  private static let defaultScopeSetReplyMarker = "default scope is now"
+
   var regions: [RepeaterRegionEntry] = []
   private var originalRegions: [RepeaterRegionEntry]?
   var isLoadingRegions = false
@@ -51,6 +57,10 @@ final class RepeaterSettingsViewModel {
 
   var hasUnsavedRegionChanges = false
   var regionsSaveSuccess = false
+  /// Unset when nil. Scopes flood traffic this node originates, not which regions it repeats.
+  var defaultScopeName: String?
+  /// False until a `region default` reply parses. Distinct from `defaultScopeName == nil`.
+  var defaultScopeLoaded = false
 
   // MARK: - Expansion State (repeater-only sections)
 
@@ -317,6 +327,20 @@ final class RepeaterSettingsViewModel {
       let parsed = Self.parseRegionTree(treeResponse)
       regions = parsed
       originalRegions = parsed
+      do {
+        let defaultReply = try await helper.sendAndWait(
+          "region default",
+          timeout: .seconds(10),
+          rawMatching: true
+        )
+        if let parsed = Self.parseDefaultScopeReply(defaultReply) {
+          applyParsedDefaultScope(parsed)
+        } else {
+          logger.warning("Unparsed region default reply: \(defaultReply)")
+        }
+      } catch {
+        logger.warning("Failed to fetch default scope: \(error)")
+      }
     } catch {
       if case RemoteNodeError.timeout = error {
         regionsError = true
@@ -364,6 +388,39 @@ final class RepeaterSettingsViewModel {
     return entries
   }
 
+  /// Unset (`<null>` or `*`) versus a named region.
+  enum ParsedDefaultScope: Equatable {
+    case cleared
+    case named(String)
+  }
+
+  /// Nil is an unparsed reply, not an unset scope.
+  static func parseDefaultScopeReply(_ response: String) -> ParsedDefaultScope? {
+    let lines = response.split(separator: "\n", omittingEmptySubsequences: true)
+    guard let last = lines.last else { return nil }
+    var line = last.trimmingCharacters(in: .whitespaces)
+    if line.hasPrefix(">") {
+      line = String(line.dropFirst()).trimmingCharacters(in: .whitespaces)
+    }
+    guard line.localizedCaseInsensitiveContains(defaultScopeReplyMarker) else { return nil }
+
+    let tokens = line.split(separator: " ", omittingEmptySubsequences: true).map(String.init)
+    guard let lastToken = tokens.last else { return nil }
+    // Firmware treats a default of `*` as unset, same as `<null>`.
+    if lastToken == firmwareNullToken || lastToken == wildcardName { return .cleared }
+    return .named(lastToken)
+  }
+
+  private func applyParsedDefaultScope(_ parsed: ParsedDefaultScope) {
+    switch parsed {
+    case .cleared:
+      defaultScopeName = nil
+    case let .named(name):
+      defaultScopeName = name
+    }
+    defaultScopeLoaded = true
+  }
+
   func toggleRegionFlood(name: String) async {
     guard let index = regions.firstIndex(where: { $0.name == name }) else { return }
     let currentlyAllowed = regions[index].floodAllowed
@@ -387,19 +444,24 @@ final class RepeaterSettingsViewModel {
     helper.isApplying = false
   }
 
-  func setHomeRegion(name: String) async {
-    let command = "region home \(name)"
+  func setDefaultScope(name: String?) async {
+    if name == Self.wildcardName { return }
+    if name == defaultScopeName { return }
+
+    let argument = name ?? Self.firmwareNullToken
+    let command = "region default \(argument)"
 
     helper.isApplying = true
     helper.errorMessage = nil
 
     do {
       let response = try await helper.sendAndWait(command, rawMatching: true)
-      if response.contains("home is now") {
-        for i in regions.indices {
-          regions[i].isHome = (regions[i].name == name)
+      if response.contains(Self.defaultScopeSetReplyMarker) {
+        defaultScopeName = name
+        defaultScopeLoaded = true
+        if let name, let index = regions.firstIndex(where: { $0.name == name }) {
+          regions[index].floodAllowed = true
         }
-        hasUnsavedRegionChanges = true
       } else {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
       }
@@ -446,12 +508,24 @@ final class RepeaterSettingsViewModel {
   func removeRegion(name: String) async {
     helper.isApplying = true
     helper.errorMessage = nil
+    let wasDefault = defaultScopeName == name
 
     do {
       let response = try await helper.sendAndWait("region remove \(name)")
       if case .ok = CLIResponse.parse(response) {
         regions.removeAll { $0.name == name }
         hasUnsavedRegionChanges = true
+        if wasDefault {
+          let clearReply = try await helper.sendAndWait(
+            "region default \(Self.firmwareNullToken)",
+            rawMatching: true
+          )
+          if clearReply.contains(Self.defaultScopeSetReplyMarker) {
+            defaultScopeName = nil
+          } else {
+            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
+          }
+        }
       } else if response.contains("not empty") {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.notEmpty
       } else {

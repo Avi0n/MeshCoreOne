@@ -358,6 +358,15 @@
 /* Location: RepeaterSettingsView.swift - Home region picker label */
 "remoteNodes.settings.regions.homeRegion" = "region principale";
 
+/* Location: RepeaterSettingsView.swift - Default scope picker label */
+"remoteNodes.settings.regions.defaultScope" = "Ambito flood predefinito";
+
+/* Location: RepeaterSettingsView.swift - No default scope */
+"remoteNodes.settings.regions.noDefault" = "Nessuno";
+
+/* Location: RepeaterSettingsView.swift - Caption under default scope picker */
+"remoteNodes.settings.regions.defaultScopeCaption" = "Applica l'ambito ai pacchetti originati da questo nodo, come gli annunci. Questa impostazione viene salvata subito sul ripetitore.";
+
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */

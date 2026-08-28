@@ -356,6 +356,17 @@ private struct RegionsSection: View {
       : region.name
   }
 
+  private var defaultScopePickerNames: [String] {
+    var names = sortedRegions.filter { !$0.isWildcard }.map(\.name)
+    if let current = viewModel.defaultScopeName,
+       current != RepeaterSettingsViewModel.wildcardName,
+       !current.isEmpty,
+       !names.contains(current) {
+      names.append(current)
+    }
+    return names
+  }
+
   var body: some View {
     ExpandableSettingsSection(
       title: L10n.RemoteNodes.RemoteNodes.Settings.regions,
@@ -372,24 +383,41 @@ private struct RegionsSection: View {
           .foregroundStyle(.secondary)
       }
 
-      // Home region picker
       if !viewModel.regions.isEmpty {
-        Picker(L10n.RemoteNodes.RemoteNodes.Settings.Regions.homeRegion, selection: Binding(
-          get: {
-            viewModel.regions.first(where: \.isHome)?.name
-              ?? RepeaterSettingsViewModel.wildcardName
-          },
-          set: { newValue in
-            Task { await viewModel.setHomeRegion(name: newValue) }
+        if viewModel.defaultScopeLoaded {
+          Picker(
+            L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope,
+            selection: Binding(
+              get: { viewModel.defaultScopeName },
+              set: { newValue in
+                Task { await viewModel.setDefaultScope(name: newValue) }
+              }
+            )
+          ) {
+            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.noDefault)
+              .tag(String?.none)
+            ForEach(defaultScopePickerNames, id: \.self) { name in
+              Text(name)
+                .tag(Optional(name))
+            }
           }
-        )) {
-          ForEach(sortedRegions) { region in
-            Text(displayName(for: region))
-              .tag(region.name)
+          .pickerStyle(.menu)
+          .tint(.primary)
+          .disabled(viewModel.isLoadingRegions || viewModel.helper.isApplying)
+        } else {
+          HStack {
+            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope)
+            Spacer()
+            SettingsLoadPlaceholder(
+              isLoading: viewModel.isLoadingRegions,
+              hasError: !viewModel.isLoadingRegions
+            )
           }
         }
-        .pickerStyle(.menu)
-        .tint(.primary)
+
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScopeCaption)
+          .font(.caption)
+          .foregroundStyle(.secondary)
       }
 
       // Region list with flood toggles
