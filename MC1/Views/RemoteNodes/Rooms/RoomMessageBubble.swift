@@ -227,7 +227,6 @@ private struct BubbleContent: View {
       if let chrome = translation {
         BubbleTranslationControl(
           phase: chrome.phase,
-          isOutgoing: isFromSelf,
           onTap: { onTranslationAction?() }
         )
       }

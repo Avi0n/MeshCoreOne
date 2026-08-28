@@ -5,19 +5,16 @@ import SwiftUI
 /// yield to the bubble long-press. VoiceOver-hidden; the bubble exposes the action.
 struct BubbleTranslationControl: View {
   let phase: MessageTranslationChrome.Phase
-  let isOutgoing: Bool
   let onTap: () -> Void
-
-  @Environment(\.appTheme) private var theme
 
   var body: some View {
     label
       .font(.caption)
       .imageScale(.small)
       .labelStyle(.titleAndIcon)
-      .foregroundStyle(foreground)
-      .tint(isOutgoing ? theme.outgoingTextColor : .accentColor)
-      .multilineTextAlignment(isOutgoing ? .trailing : .leading)
+      .foregroundStyle(Color.accentColor)
+      .tint(Color.accentColor)
+      .multilineTextAlignment(.leading)
       .contentShape(.rect)
       .accessibilityHidden(true)
       .tapYieldingToLongPress {
@@ -35,10 +32,6 @@ struct BubbleTranslationControl: View {
     case .showing:
       L10n.Chats.Chats.Message.Action.showOriginal
     }
-  }
-
-  private var foreground: Color {
-    isOutgoing ? theme.outgoingTextColor : .accentColor
   }
 
   @ViewBuilder

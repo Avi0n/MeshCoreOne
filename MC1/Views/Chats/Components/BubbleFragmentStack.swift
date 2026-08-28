@@ -72,7 +72,6 @@ struct BubbleFragmentStack: View, Equatable {
         if let chrome = layout.textPayload?.translation {
           BubbleTranslationControl(
             phase: chrome.phase,
-            isOutgoing: item.envelope.isOutgoing,
             onTap: { callbacks.onTranslationAction?() }
           )
         }

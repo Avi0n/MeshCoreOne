@@ -210,17 +210,20 @@ extension ChatMessageBakeState {
       showNewMessagesDivider: message.id == newMessagesDividerMessageID,
       showDayDivider: flags.showDayDivider,
       incomingAvatar: incomingAvatar,
-      translation: MessageTranslationChrome.resolved(
-        detected: detectedLanguages[message.id],
-        phase: translationPhases[message.id],
-        preferredLanguageCode: envInputs.preferredLanguageCode
-      )
+      translation: message.isOutgoing
+        ? nil
+        : MessageTranslationChrome.resolved(
+          detected: detectedLanguages[message.id],
+          phase: translationPhases[message.id],
+          preferredLanguageCode: envInputs.preferredLanguageCode
+        )
     )
   }
 
   /// Writes a missing detection key. Stores `.undetermined` so a locale
   /// change does not re-run the recognizer.
   func seedDetectedLanguageIfNeeded(for message: MessageDTO) {
+    guard !message.isOutgoing else { return }
     guard detectedLanguages[message.id] == nil else { return }
     detectedLanguages[message.id] = MessageLanguageDetector.dominantLanguage(for: message.text)
   }

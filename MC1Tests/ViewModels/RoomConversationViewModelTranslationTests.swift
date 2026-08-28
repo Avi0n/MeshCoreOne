@@ -34,6 +34,18 @@ struct RoomConversationViewModelTranslationTests {
   }
 
   @Test
+  func `from-self foreign-language message has no translation chrome`() throws {
+    let viewModel = RoomConversationViewModel()
+    viewModel.preferredLanguageCode = "en"
+    let message = roomMessage(text: german, isFromSelf: true)
+    viewModel.appendMessageIfNew(message)
+
+    let row = try #require(viewModel.tiledRows.first)
+    #expect(row.translation == nil)
+    #expect(viewModel.detectedLanguages[message.id] == nil)
+  }
+
+  @Test
   func `detector maps land chrome on the materialized row`() throws {
     let viewModel = RoomConversationViewModel()
     viewModel.preferredLanguageCode = "en"
@@ -149,13 +161,18 @@ struct RoomConversationViewModelTranslationTests {
     return viewModel
   }
 
-  private func roomMessage(text: String, timestamp: UInt32 = 100) -> RoomMessageDTO {
+  private func roomMessage(
+    text: String,
+    timestamp: UInt32 = 100,
+    isFromSelf: Bool = false
+  ) -> RoomMessageDTO {
     RoomMessageDTO(
       sessionID: sessionID,
       authorKeyPrefix: Data([0xAA]),
       authorName: "Alice",
       text: text,
-      timestamp: timestamp
+      timestamp: timestamp,
+      isFromSelf: isFromSelf
     )
   }
 }

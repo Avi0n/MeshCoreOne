@@ -233,6 +233,20 @@ struct ChatViewModelTranslationTests {
   }
 
   @Test
+  func `outgoing foreign-language message has no translation chrome`() async throws {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(coordinator)
+    let message = germanMessage(timestamp: 1000, direction: .outgoing)
+    viewModel.appendMessageIfNew(message)
+    await coordinator.buildItemsTask?.value
+
+    let item = try #require(viewModel.items.first { $0.id == message.id })
+    #expect(item.translation == nil)
+    #expect(viewModel.bake.detectedLanguages[message.id] == nil)
+  }
+
+  @Test
   func `stale needs-download does not consume the newer request`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
@@ -283,8 +297,11 @@ struct ChatViewModelTranslationTests {
     return (viewModel, coordinator, message, CountingMessageTranslator())
   }
 
-  private func germanMessage(timestamp: UInt32) -> MessageDTO {
-    makeMessage(timestamp: timestamp, text: german)
+  private func germanMessage(
+    timestamp: UInt32,
+    direction: MessageDirection = .incoming
+  ) -> MessageDTO {
+    makeMessage(timestamp: timestamp, text: german, direction: direction)
   }
 
   private func envInputs(preferredLanguageCode: String) -> EnvInputs {
@@ -307,7 +324,11 @@ struct ChatViewModelTranslationTests {
     )
   }
 
-  private func makeMessage(timestamp: UInt32, text: String) -> MessageDTO {
+  private func makeMessage(
+    timestamp: UInt32,
+    text: String,
+    direction: MessageDirection = .incoming
+  ) -> MessageDTO {
     MessageDTO(
       id: UUID(),
       radioID: UUID(),
@@ -316,8 +337,8 @@ struct ChatViewModelTranslationTests {
       text: text,
       timestamp: timestamp,
       createdAt: Date(timeIntervalSince1970: TimeInterval(timestamp)),
-      direction: .incoming,
-      status: .delivered,
+      direction: direction,
+      status: direction == .outgoing ? .sent : .delivered,
       textType: .plain,
       ackCode: nil,
       pathLength: 0,
