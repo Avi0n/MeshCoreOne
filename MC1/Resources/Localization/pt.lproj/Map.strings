@@ -9,7 +9,7 @@
 // MARK: - Common
 
 /* Location: MapView.swift - Purpose: Done button for sheets */
-"map.common.done" = "OK";
+"map.common.done" = "Concluído";
 
 // MARK: - Map Controls
 
@@ -93,16 +93,16 @@
 "map.detail.longitude" = "Longitude";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Section header for outbound path info */
-"map.detail.section.outboundPath" = "Caminho de saída";
+"map.detail.section.outboundPath" = "Rota de saída";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for routing type */
 "map.detail.routing" = "Encaminhamento";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Flood routing type value */
-"map.detail.routingFlood" = "Flood";
+"map.detail.routingFlood" = "Difusão";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for path length */
-"map.detail.pathLength" = "Comprimento do caminho";
+"map.detail.pathLength" = "Comprimento da rota";
 
 /* Location: MapView.swift ContactDetailSheet - Purpose: Path length value with hop count */
 "map.detail.hops" = "%d saltos";
@@ -163,13 +163,13 @@
 "map.callout.discovered" = "Descoberto";
 
 /* Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail */
-"map.discoveredDetail.title" = "Nodo descoberto";
+"map.discoveredDetail.title" = "Nó descoberto";
 
 /* Location: DiscoveredNodeDetailSheet.swift - Purpose: Primary action to add discovered node to the radio table */
-"map.discoveredDetail.add" = "Adicionar aos nodos";
+"map.discoveredDetail.add" = "Adicionar aos nós";
 
 /* Location: DiscoveredNodeCalloutContent.swift - Purpose: Accessibility label for discovered pins */
-"map.pin.accessibility.discovered" = "Descoberto, não está na lista de nodos";
+"map.pin.accessibility.discovered" = "Descoberto, não está na lista de nós";
 
 // MARK: - Contact Annotation
 

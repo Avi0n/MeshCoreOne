@@ -15,7 +15,7 @@
 "common.cancel" = "Cancelar";
 
 /* Standard done button for completing an action */
-"common.done" = "OK";
+"common.done" = "Concluído";
 
 /* Standard save button for persisting changes */
 "common.save" = "Guardar";
@@ -37,13 +37,13 @@
 "common.error.networkError" = "Erro de rede: %@";
 
 /* Invalid response from API */
-"common.error.invalidResponse" = "Resposta inválida da API de elevação";
+"common.error.invalidResponse" = "Resposta inválida da API de altitude";
 
 /* API error with message - %@ is the error message */
 "common.error.apiError" = "Erro de API: %@";
 
 /* No data returned from API */
-"common.error.noElevationData" = "Não foram devolvidos dados de elevação";
+"common.error.noElevationData" = "Não foram devolvidos dados de altitude";
 
 /* Rate limited by elevation API */
 "common.error.rateLimited" = "Demasiados pedidos. Tente novamente dentro de instantes.";
@@ -66,13 +66,13 @@
 // MARK: - Tab Bar
 
 /* Tab bar title for the messaging/conversations screen */
-"tabs.chats" = "Chats";
+"tabs.chats" = "Conversas";
 
 /* VoiceOver value announcing the unread message count on the Chats sidebar icon. %d is the count. */
 "tabs.chatsUnreadAccessibilityValue" = "%d por ler";
 
 /* Tab bar title for the nodes/contacts list screen */
-"tabs.nodes" = "Nodos";
+"tabs.nodes" = "Nós";
 
 /* Tab bar title for the map screen showing node locations */
 "tabs.map" = "Mapa";
@@ -98,7 +98,7 @@
 "alert.connectionFailed.defaultMessage" = "Não foi possível ligar ao dispositivo.";
 
 /* Message suggesting another app may be connected to the device */
-"alert.couldNotConnect.otherAppMessage" = "Certifique-se de que nenhum outro app está ligado ao dispositivo e tente novamente.";
+"alert.couldNotConnect.otherAppMessage" = "Certifique-se de que nenhuma app está ligada ao dispositivo e tente novamente.";
 
 /* Button to remove failed pairing and retry connection */
 "alert.connectionFailed.removeAndRetry" = "Remover e tentar novamente";
@@ -173,7 +173,7 @@
 "notifications.quickReplyFailed.title" = "Mensagem não enviada";
 
 /* Notification body when a quick reply fails - %@ is the contact or channel name */
-"notifications.quickReplyFailed.body" = "A resposta para %@ não pôde ser enviada.";
+"notifications.quickReplyFailed.body" = "Não foi possível enviar a resposta para %@.";
 
 /* Fallback display name for a discovered contact with no advertised name */
 "notifications.discovery.unknownContact" = "Contacto desconhecido";
@@ -187,7 +187,7 @@
 "accessibility.connection.deviceConnectionLost" = "Ligação ao dispositivo perdida";
 
 /* VoiceOver announcement when device reconnects */
-"accessibility.connection.deviceReconnected" = "Dispositivo religado";
+"accessibility.connection.deviceReconnected" = "Ligação restabelecida";
 
 /* VoiceOver signal-strength descriptors for the device picker signal bars */
 "accessibility.signalStrength.weak" = "Sinal fraco";
@@ -208,7 +208,7 @@
 "error.meshCore.parseError" = "Falha ao analisar a resposta do dispositivo: %@";
 
 /* Location: MeshCoreError+UserFacingMessage.swift - No active connection to the radio */
-"error.meshCore.notConnected" = "Não ligado ao dispositivo.";
+"error.meshCore.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: MeshCoreError+UserFacingMessage.swift - A command failed on the device - %@ is the failure reason */
 "error.meshCore.commandFailed" = "O comando falhou: %@";
@@ -295,10 +295,10 @@
 "error.ble.connectionTimeout" = "A ligação expirou. Tente novamente.";
 
 /* Location: BLEError+UserFacingMessage.swift - No BLE device connected */
-"error.ble.notConnected" = "Não ligado a um dispositivo.";
+"error.ble.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: BLEError+UserFacingMessage.swift - Required BLE characteristic missing */
-"error.ble.characteristicNotFound" = "Não foi possível comunicar com o dispositivo. Tente religar.";
+"error.ble.characteristicNotFound" = "Não foi possível comunicar com o dispositivo. Tente restabelecer a ligação.";
 
 /* Location: BLEError+UserFacingMessage.swift - BLE write failed - %@ is the failure detail */
 "error.ble.writeError" = "Falha ao enviar dados: %@";
@@ -316,7 +316,7 @@
 "error.ble.pairingFailed" = "Falha no emparelhamento Bluetooth: %@";
 
 /* Location: BLEError+UserFacingMessage.swift - Radio already in use by another app */
-"error.ble.deviceConnectedToOtherApp" = "Este dispositivo está ligado a outro app. Apenas um app pode usar um rádio mesh de cada vez para evitar problemas de comunicação.";
+"error.ble.deviceConnectedToOtherApp" = "Este dispositivo está ligado a outra app. Apenas uma app pode usar um rádio mesh de cada vez para evitar problemas de comunicação.";
 
 /* Location: ConnectionError+UserFacingMessage.swift - Connection failed - %@ is the failure reason */
 "error.connection.connectionFailed" = "Falha na ligação: %@";
@@ -325,7 +325,7 @@
 "error.connection.deviceNotFound" = "Dispositivo não encontrado";
 
 /* Location: ConnectionError+UserFacingMessage.swift - No active device connection */
-"error.connection.notConnected" = "Não ligado ao dispositivo";
+"error.connection.notConnected" = "Sem ligação ao dispositivo";
 
 /* Location: ConnectionError+UserFacingMessage.swift - Post-connect device initialization failed - %@ is the failure reason */
 "error.connection.initializationFailed" = "Falha na inicialização do dispositivo: %@";
@@ -337,7 +337,7 @@
 "error.wifi.connectionTimeout" = "A ligação expirou. Verifique o hostname ou o endereço IP e certifique-se de que o dispositivo está acessível.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
-"error.wifi.notConnected" = "Não ligado ao dispositivo.";
+"error.wifi.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send failed - %@ is the failure reason */
 "error.wifi.sendFailed" = "Falha ao enviar dados: %@";
@@ -358,7 +358,7 @@
 "error.accessorySetup.sessionNotActive" = "O Bluetooth não está pronto. Certifique-se de que o Bluetooth está ativado e tente novamente.";
 
 /* Location: AccessorySetupKitError+UserFacingMessage.swift - AccessorySetupKit session invalidated */
-"error.accessorySetup.sessionInvalidated" = "A sessão Bluetooth terminou inesperadamente. Reinicie o app.";
+"error.accessorySetup.sessionInvalidated" = "A sessão Bluetooth terminou inesperadamente. Reinicie a app.";
 
 /* Location: AccessorySetupKitError+UserFacingMessage.swift - User dismissed the accessory picker */
 "error.accessorySetup.pickerDismissed" = "A seleção do dispositivo foi cancelada.";
@@ -382,7 +382,7 @@
 "error.accessorySetup.connectionFailed" = "Não foi possível ligar ao dispositivo. Tente novamente.";
 
 /* Location: ContactServiceError+UserFacingMessage.swift - No active connection to the radio */
-"error.contactService.notConnected" = "Não ligado ao rádio";
+"error.contactService.notConnected" = "Sem ligação ao rádio";
 
 /* Location: ContactServiceError+UserFacingMessage.swift - Contact operation message failed to send */
 "error.contactService.sendFailed" = "Falha ao enviar mensagem";
@@ -397,13 +397,13 @@
 "error.contactService.contactNotFound" = "Contacto não encontrado no dispositivo";
 
 /* Location: ContactServiceError+UserFacingMessage.swift - Radio node list has no free slots */
-"error.contactService.contactTableFull" = "A lista de nodos do dispositivo está cheia";
+"error.contactService.contactTableFull" = "A lista de nós do dispositivo está cheia";
 
 /* Location: ContactServiceError+UserFacingMessage.swift - Node advertisement missing or stale, so the node cannot be shared */
-"error.contactService.shareContactUnavailable" = "Não foi possível partilhar o nodo. O Advert do nodo pode estar em falta ou desatualizado.";
+"error.contactService.shareContactUnavailable" = "Não foi possível partilhar o nó. O Advert do nó pode estar em falta ou desatualizado.";
 
 /* Location: MessageServiceError+UserFacingMessage.swift - No active connection to the radio */
-"error.messageService.notConnected" = "Não ligado ao dispositivo.";
+"error.messageService.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: MessageServiceError+UserFacingMessage.swift - Recipient contact missing from the database */
 "error.messageService.contactNotFound" = "Contacto não encontrado.";
@@ -421,7 +421,7 @@
 "error.messageService.messageTooLong" = "A mensagem excede o comprimento máximo permitido.";
 
 /* Location: ChannelServiceError+UserFacingMessage.swift - No active connection to the radio */
-"error.channelService.notConnected" = "Não ligado ao dispositivo.";
+"error.channelService.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: ChannelServiceError+UserFacingMessage.swift - Channel missing from the database */
 "error.channelService.channelNotFound" = "Canal não encontrado.";
@@ -463,16 +463,16 @@
 "error.chatSendQueue.persistFailed" = "Falha ao colocar a mensagem na fila de envio: %@";
 
 /* Location: ChatSendQueueServiceError+UserFacingMessage.swift - No active connection to the radio */
-"error.chatSendQueue.notConnected" = "Não ligado ao dispositivo.";
+"error.chatSendQueue.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: MessagePollingError+UserFacingMessage.swift - No active connection to the radio */
-"error.messagePolling.notConnected" = "Não ligado ao dispositivo.";
+"error.messagePolling.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: MessagePollingError+UserFacingMessage.swift - Fetching queued messages from the radio failed */
 "error.messagePolling.pollingFailed" = "Falha ao obter as mensagens em espera.";
 
 /* Location: AdvertisementError+UserFacingMessage.swift - No active connection to the radio */
-"error.advertisement.notConnected" = "Não ligado ao dispositivo.";
+"error.advertisement.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: AdvertisementError+UserFacingMessage.swift - Self-advertisement broadcast failed */
 "error.advertisement.sendFailed" = "Falha ao enviar o Advert.";
@@ -481,7 +481,7 @@
 "error.advertisement.invalidResponse" = "Resposta inválida do dispositivo.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - No active connection to the mesh radio */
-"error.remoteNode.notConnected" = "Não ligado ao dispositivo mesh";
+"error.remoteNode.notConnected" = "Sem ligação ao dispositivo mesh";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node login failed */
 "error.remoteNode.loginFailed" = "Falha ao iniciar sessão.";
@@ -490,7 +490,7 @@
 "error.remoteNode.sendFailed" = "Falha no envio.";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Malformed response from the remote node */
-"error.remoteNode.invalidResponse" = "Resposta inválida do nodo remoto";
+"error.remoteNode.invalidResponse" = "Resposta inválida do nó remoto";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node rejected the operation */
 "error.remoteNode.permissionDenied" = "Permissão recusada";
@@ -499,16 +499,16 @@
 "error.remoteNode.timeout" = "O pedido expirou";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - No stored session for the remote node */
-"error.remoteNode.sessionNotFound" = "Sessão do nodo remoto não encontrada";
+"error.remoteNode.sessionNotFound" = "Sessão do nó remoto não encontrada";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Saved password missing from the keychain */
 "error.remoteNode.passwordNotFound" = "Palavra-passe não encontrada no Porta-chaves";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Keep-alive needs a direct path but the route is flood-routed */
-"error.remoteNode.floodRouted" = "O keep-alive requer um caminho de encaminhamento direto";
+"error.remoteNode.floodRouted" = "O keep-alive requer uma rota de encaminhamento direto";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Establishing a direct path to the node failed */
-"error.remoteNode.pathDiscoveryFailed" = "Falha ao estabelecer um caminho direto";
+"error.remoteNode.pathDiscoveryFailed" = "Falha ao estabelecer uma rota direta";
 
 /* Location: RemoteNodeError+UserFacingMessage.swift - Remote node contact missing from the database */
 "error.remoteNode.contactNotFound" = "Contacto não encontrado na base de dados";
@@ -520,7 +520,7 @@
 "error.remoteNode.cancelled" = "Início de sessão cancelado";
 
 /* Location: RoomServerError+UserFacingMessage.swift - No active connection to the radio */
-"error.roomServer.notConnected" = "Não ligado ao dispositivo.";
+"error.roomServer.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: RoomServerError+UserFacingMessage.swift - No stored session for the room server */
 "error.roomServer.sessionNotFound" = "Sessão da sala não encontrada.";
@@ -535,7 +535,7 @@
 "error.roomServer.invalidResponse" = "Resposta inválida do dispositivo.";
 
 /* Location: BinaryProtocolError+UserFacingMessage.swift - No active connection to the radio */
-"error.binaryProtocol.notConnected" = "Não ligado ao dispositivo.";
+"error.binaryProtocol.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: BinaryProtocolError+UserFacingMessage.swift - Binary request failed to send */
 "error.binaryProtocol.sendFailed" = "Falha ao enviar o pedido.";
@@ -559,7 +559,7 @@
 "error.persistence.channelNotFound" = "Canal não encontrado.";
 
 /* Location: PersistenceStoreError+UserFacingMessage.swift - Remote node session row missing from the database */
-"error.persistence.remoteNodeSessionNotFound" = "Sessão do nodo remoto não encontrada.";
+"error.persistence.remoteNodeSessionNotFound" = "Sessão do nó remoto não encontrada.";
 
 /* Location: PersistenceStoreError+UserFacingMessage.swift - Database save failed - %@ is the failure reason */
 "error.persistence.saveFailed" = "Falha ao guardar: %@";
@@ -571,7 +571,7 @@
 "error.persistence.invalidData" = "Dados inválidos.";
 
 /* Location: SyncCoordinatorError+UserFacingMessage.swift - No active connection to the radio */
-"error.syncCoordinator.notConnected" = "Não ligado ao dispositivo.";
+"error.syncCoordinator.notConnected" = "Sem ligação ao dispositivo.";
 
 /* Location: SyncCoordinatorError+UserFacingMessage.swift - Full sync failed - %@ is the failure reason */
 "error.syncCoordinator.syncFailed" = "Falha na sincronização: %@";

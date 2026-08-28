@@ -12,19 +12,19 @@
 "tools.title" = "Ferramentas";
 
 /* Location: ToolsView.swift - Tool selection label */
-"tools.tracePath" = "Traçar caminho";
+"tools.tracePath" = "Traçar rota";
 
 /* Location: ToolsView.swift - Tool selection label */
 "tools.lineOfSight" = "Linha de vista";
 
 /* Location: ToolsView.swift - Tool selection label */
-"tools.rxLog" = "Registo RX";
+"tools.rxLog" = "Log RX";
 
 /* Location: ToolsView.swift - Tool selection label */
 "tools.noiseFloor" = "Ruído de fundo";
 
 /* Location: ToolsView.swift - Tool selection label */
-"tools.nodeDiscovery" = "Descobrir nodos";
+"tools.nodeDiscovery" = "Descobrir nós";
 
 /* Location: ToolsView.swift - Empty state when no tool selected */
 "tools.selectTool" = "Selecione uma ferramenta";
@@ -38,7 +38,7 @@
 "tools.rxLog.listeningDescription" = "Os pacotes RF aparecem aqui à medida que chegam.";
 
 /* Location: RxLogView.swift - Disconnected state title */
-"tools.rxLog.notConnected" = "Não ligado";
+"tools.rxLog.notConnected" = "Sem ligação";
 
 /* Location: RxLogView.swift - Disconnected state description */
 "tools.rxLog.notConnectedDescription" = "Ligue o rádio mesh para ver os pacotes RF.";
@@ -86,7 +86,7 @@
 "tools.rxLog.hopPlural" = "saltos";
 
 /* Location: RxLogView.swift - Signal strength accessibility label, %@ is quality */
-"tools.rxLog.signalStrength" = "Intensidade do sinal: %@";
+"tools.rxLog.signalStrength" = "Sinal: %@";
 
 /* Location: RxLogView.swift - Duplicate count accessibility label, %lld is count */
 "tools.rxLog.receivedTimes" = "Recebido %lld vezes";
@@ -110,7 +110,7 @@
 "tools.rxLog.sizeLabel" = "Tamanho:";
 
 /* Location: RxLogView.swift - Path label */
-"tools.rxLog.pathLabel" = "Caminho:";
+"tools.rxLog.pathLabel" = "Rota:";
 
 /* Location: RxLogView.swift - Hash label */
 "tools.rxLog.hashLabel" = "Hash:";
@@ -145,7 +145,7 @@
 "tools.rxLog.filter.all" = "Todos";
 
 /* Location: RxLogViewModel.swift - Route filter: flood only */
-"tools.rxLog.filter.floodOnly" = "Só Flood";
+"tools.rxLog.filter.floodOnly" = "Só difusão";
 
 /* Location: RxLogViewModel.swift - Route filter: direct only */
 "tools.rxLog.filter.directOnly" = "Só direto";
@@ -157,7 +157,7 @@
 "tools.rxLog.filter.failed" = "Falhou";
 
 /* Location: DecryptStatus+Display.swift - Decrypt status: not a decryptable packet */
-"tools.rxLog.decryptStatus.notApplicable" = "N/A";
+"tools.rxLog.decryptStatus.notApplicable" = "N/D";
 
 /* Location: DecryptStatus+Display.swift - Decrypt status: no stored channel key matches */
 "tools.rxLog.decryptStatus.noKey" = "Sem chave";
@@ -175,7 +175,7 @@
 "tools.rxLog.decryptStatus.hasKey" = "Com chave";
 
 /* Location: DecryptStatus+Display.swift - Decrypt status: missing direct message key */
-"tools.rxLog.decryptStatus.noDmKey" = "Sem chave DM";
+"tools.rxLog.decryptStatus.noDmKey" = "Sem chave de contacto";
 
 /* Location: RxLogRowView - Label for local device in path display */
 "tools.rxLog.pathYou" = "Eu";
@@ -274,7 +274,7 @@
 "tools.nodeDiscovery.noResults" = "Sem resultados para %@";
 
 /* Location: NodeDiscoveryView.swift - No results empty state description */
-"tools.nodeDiscovery.noResultsDescription" = "%@ não responderam ao ping de descoberta. Tente novamente ou aproxime-se da mesh.";
+"tools.nodeDiscovery.noResultsDescription" = "Nenhum dos %@ respondeu ao ping de descoberta. Tente novamente ou aproxime-se de um nó da mesh.";
 
 /* Location: NodeDiscoveryView.swift - Scan button label (idle) */
 "tools.nodeDiscovery.scanButton" = "Procurar %@";
@@ -295,10 +295,10 @@
 "tools.nodeDiscovery.sortName" = "Nome";
 
 /* Location: NodeDiscoveryView.swift - Sort menu accessibility label */
-"tools.nodeDiscovery.sortMenu" = "Ordenar nodos";
+"tools.nodeDiscovery.sortMenu" = "Ordenar nós";
 
 /* Location: NodeDiscoveryView.swift - Sort menu accessibility hint */
-"tools.nodeDiscovery.sortMenuHint" = "Altera a ordem dos nodos descobertos";
+"tools.nodeDiscovery.sortMenuHint" = "Altera a ordem dos nós descobertos";
 
 /* Location: NodeDiscoveryRowView.swift - Unknown node name fallback */
 "tools.nodeDiscovery.unknownNode" = "Desconhecido";
@@ -356,7 +356,7 @@
 "tools.lineOfSight.loadingElevation" = "A carregar altitude...";
 
 /* Location: LineOfSightView.swift - Long press points hint */
-"tools.lineOfSight.longPressPointsHint" = "Toque e mantenha premido no mapa para adicionar um local";
+"tools.lineOfSight.longPressPointsHint" = "Toque sem soltar no mapa para adicionar um local";
 
 /* Location: LineOfSightView.swift - Elevation unavailable warning */
 "tools.lineOfSight.elevationUnavailable" = "Dados de altitude indisponíveis. A utilizar o nível do mar (0 m) como aproximação.";
@@ -377,7 +377,7 @@
 "tools.lineOfSight.relocate" = "Reposicionar";
 
 /* Location: LineOfSightView.swift - Done button */
-"tools.lineOfSight.done" = "OK";
+"tools.lineOfSight.done" = "Concluído";
 
 /* Location: LineOfSightView.swift - Edit button */
 "tools.lineOfSight.edit" = "Editar";
@@ -428,10 +428,10 @@
 "tools.lineOfSight.refraction.standard" = "Padrão (k=1,33)";
 
 /* Location: LineOfSightView.swift - Refraction: ducting */
-"tools.lineOfSight.refraction.ducting" = "Ducting (k=4)";
+"tools.lineOfSight.refraction.ducting" = "Conduta (k=4)";
 
 /* Location: LineOfSightView.swift - Analyzing progress */
-"tools.lineOfSight.analyzing" = "A analisar o caminho...";
+"tools.lineOfSight.analyzing" = "A analisar o percurso...";
 
 /* Location: LineOfSightView.swift - Analysis failed title */
 "tools.lineOfSight.analysisFailed" = "A análise falhou";
@@ -443,7 +443,7 @@
 "tools.lineOfSight.repeaterLocation" = "Localização do repetidor";
 
 /* Location: LineOfSightViewModel.swift - Dropped pin display name */
-"tools.lineOfSight.droppedPin" = "Alfinete largado";
+"tools.lineOfSight.droppedPin" = "Ponto no mapa";
 
 /* Location: LOSRepeaterPinView.swift - Accessibility hint for repeater pins */
 /* Location: LOSPointPinView.swift - Accessibility hint for point pins */
@@ -483,7 +483,7 @@
 "tools.lineOfSight.loss" = "perda";
 
 /* Location: ResultsCardView.swift - Path loss breakdown section */
-"tools.lineOfSight.pathLossBreakdown" = "Detalhe da perda de caminho";
+"tools.lineOfSight.pathLossBreakdown" = "Detalhe da perda de percurso";
 
 /* Location: ResultsCardView.swift - Free space loss label */
 "tools.lineOfSight.freeSpaceLoss" = "Perda em espaço livre";
@@ -519,7 +519,7 @@
 "tools.lineOfSight.status.clear" = "Livre";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: marginal */
-"tools.lineOfSight.status.marginal" = "Marginal";
+"tools.lineOfSight.status.marginal" = "No limite";
 
 /* Location: ClearanceStatusView.swift, ResultsCardView.swift - Clearance status: partial obstruction */
 "tools.lineOfSight.status.partialObstruction" = "Obstrução parcial";
@@ -528,7 +528,7 @@
 "tools.lineOfSight.status.blocked" = "Bloqueado";
 
 /* Location: ResultsCardView.swift - Subtitle shown when path is blocked */
-"tools.lineOfSight.status.blockedSubtitle" = "O caminho direto intersecta o terreno";
+"tools.lineOfSight.status.blockedSubtitle" = "O percurso direto intersecta o terreno";
 
 // MARK: - CLI Tool View
 
@@ -536,7 +536,7 @@
 "tools.cli" = "CLI";
 
 /* Location: CLIToolView.swift - Disconnected state title */
-"tools.cli.notConnected" = "Não ligado";
+"tools.cli.notConnected" = "Sem ligação";
 
 /* Location: CLIToolView.swift - Disconnected state description */
 "tools.cli.notConnectedDescription" = "Ligue o rádio mesh para utilizar a CLI.";
@@ -572,7 +572,7 @@
 "tools.cli.loginFailedAuth" = "Falha na autenticação";
 
 /* Location: CLIToolView.swift - Node not found error */
-"tools.cli.nodeNotFound" = "Nodo não encontrado:";
+"tools.cli.nodeNotFound" = "Nó não encontrado:";
 
 /* Location: CLIToolView.swift - Password required error */
 "tools.cli.passwordRequired" = "Palavra-passe necessária";
@@ -681,13 +681,13 @@
 "tools.cli.helpRepeaterList4" = "  setperm, tempradio, neighbor.remove";
 
 /* Location: CLIToolViewModel+Sessions.swift - Nodes header with count */
-"tools.cli.nodesHeader" = "Nodos (%lld):";
+"tools.cli.nodesHeader" = "Nós (%lld):";
 
 /* Location: CLIToolViewModel+Sessions.swift - Channels header with count */
 "tools.cli.channelsHeader" = "Canais (%lld):";
 
 /* Location: CLIToolViewModel+Sessions.swift - No nodes found */
-"tools.cli.noNodes" = "Nenhum nodo encontrado";
+"tools.cli.noNodes" = "Nenhum nó encontrado";
 
 /* Location: CLIToolViewModel+Sessions.swift - No channels found */
 "tools.cli.noChannels" = "Nenhum canal encontrado";
@@ -705,7 +705,7 @@
 "tools.cli.welcomeHint" = "Introduza 'help' para ver os comandos disponíveis.";
 
 /* Location: CLIToolView.swift - Jump to bottom button */
-"tools.cli.jumpToBottom" = "Ir para o fundo";
+"tools.cli.jumpToBottom" = "Ir para o fim";
 
 /* Location: CLIToolView.swift - Accessibility label for command input */
 "tools.cli.commandInput" = "Introdução de comando";
@@ -763,13 +763,13 @@
 // MARK: - Saved Paths
 
 /* Location: SavedPathsViewModel.swift - Error loading saved paths */
-"tools.savedPaths.loadFailed" = "Não foi possível carregar os caminhos guardados.";
+"tools.savedPaths.loadFailed" = "Não foi possível carregar as rotas guardadas.";
 
 /* Location: SavedPathsViewModel.swift - Error renaming a saved path */
-"tools.savedPaths.renameFailed" = "Não foi possível mudar o nome do caminho.";
+"tools.savedPaths.renameFailed" = "Não foi possível mudar o nome da rota.";
 
 /* Location: SavedPathsViewModel.swift - Error deleting a saved path */
-"tools.savedPaths.deleteFailed" = "Não foi possível eliminar o caminho.";
+"tools.savedPaths.deleteFailed" = "Não foi possível eliminar a rota.";
 
 // MARK: - App Intents
 
@@ -842,22 +842,22 @@
 "intent.advert.shortTitle" = "Enviar Advert";
 
 /* Location: SendAdvertIntent.swift - App Intents: description of the send advert intent */
-"intent.advert.description" = "Emite um Advert deste rádio para que os nodos da mesh próximos o possam descobrir.";
+"intent.advert.description" = "Emite um Advert deste rádio para que os nós da mesh próximos o possam descobrir.";
 
 /* Location: SendAdvertIntent.swift - App Intents: title of the advert reach parameter (zero-hop or flood) */
-"intent.advert.param.reach" = "Âmbito";
+"intent.advert.param.reach" = "Alcance";
 
 /* Location: AdvertReach.swift - App Intents: type name for the advert reach enum */
-"intent.advert.reach.type" = "Âmbito do Advert";
+"intent.advert.reach.type" = "Alcance do Advert";
 
 /* Location: AdvertReach.swift - App Intents: zero-hop reach case (direct neighbors only) */
 "intent.advert.reach.zeroHop" = "Zero-hop";
 
 /* Location: AdvertReach.swift - App Intents: flood reach case (entire mesh) */
-"intent.advert.reach.flood" = "Flood";
+"intent.advert.reach.flood" = "Difusão";
 
 /* Location: SendAdvertIntent.swift - Spoken after a zero-hop advert is sent */
-"intent.advert.dialog.sentZeroHop" = "Advert enviado para os nodos próximos.";
+"intent.advert.dialog.sentZeroHop" = "Advert enviado para os nós próximos.";
 
 /* Location: SendAdvertIntent.swift - Spoken after a flood advert is sent */
 "intent.advert.dialog.sentFlood" = "Advert enviado por toda a mesh.";

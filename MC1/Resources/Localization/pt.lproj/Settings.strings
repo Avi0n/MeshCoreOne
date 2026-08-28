@@ -58,7 +58,7 @@
 // MARK: - Device Info View
 
 /* Navigation title for device info screen */
-"deviceInfo.title" = "Informações do dispositivo";
+"deviceInfo.title" = "Sobre o dispositivo";
 
 /* Section header for connection status */
 "deviceInfo.connection.header" = "Ligação";
@@ -97,10 +97,10 @@
 "deviceInfo.capabilities.header" = "Capacidades";
 
 /* Label for max nodes capability */
-"deviceInfo.maxNodes" = "Máximo de nodos";
+"deviceInfo.maxNodes" = "Capacidade máxima de nós";
 
 /* Label for max channels capability */
-"deviceInfo.maxChannels" = "Máximo de canais";
+"deviceInfo.maxChannels" = "Capacidade máxima de canais";
 
 /* Label for max TX power capability */
 "deviceInfo.maxTxPower" = "Potência de TX máxima";
@@ -205,7 +205,7 @@
 "locationPicker.clearLocation" = "Limpar localização";
 
 /* Button to drop a pin at the map center */
-"locationPicker.dropPin" = "Colocar alfinete no centro";
+"locationPicker.dropPin" = "Colocar ponto no centro";
 
 /* Label for latitude display */
 "locationPicker.latitude" = "Latitude:";
@@ -271,10 +271,10 @@
 "advancedRadio.bandwidth" = "Largura de banda (kHz)";
 
 /* Label for spreading factor picker */
-"advancedRadio.spreadingFactor" = "Fator de espalhamento";
+"advancedRadio.spreadingFactor" = "Fator de espalhamento (SF)";
 
 /* Label for coding rate picker */
-"advancedRadio.codingRate" = "Taxa de codificação";
+"advancedRadio.codingRate" = "Taxa de codificação (CR)";
 
 /* Label for TX power input */
 "advancedRadio.txPower" = "Potência de TX (dBm)";
@@ -283,7 +283,7 @@
 "advancedRadio.txPowerPlaceholder" = "dBm";
 
 /* Accessibility label for bandwidth picker options - %@ is formatted bandwidth value */
-"advancedRadio.accessibility.bandwidthLabel" = "%@ quilohertz";
+"advancedRadio.accessibility.bandwidthLabel" = "%@ kilohertz";
 
 /* Accessibility label for spreading factor picker options - %d is the factor value */
 "advancedRadio.accessibility.spreadingFactorLabel" = "Fator de espalhamento %d";
@@ -313,12 +313,12 @@
 "advancedRadio.repeatMode" = "Modo de repetidor";
 
 /* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Cria um repetidor local numa frequência dedicada. Útil para trilhos e zonas remotas. Frequências válidas: 433, 869.495, 918 MHz.";
+"advancedRadio.repeatMode.footer" = "Cria um repetidor local numa frequência dedicada. Útil para zonas remotas. Frequências válidas: 433, 869.495, 918 MHz.";
 
 // MARK: - Path Hash Mode Section
 
 /* Section header for path hash mode */
-"pathHashMode.header" = "Tamanho do hash do caminho";
+"pathHashMode.header" = "Tamanho do hash da rota";
 
 /* Label for path hash mode picker */
 "pathHashMode.label" = "Tamanho do hash";
@@ -333,15 +333,15 @@
 "pathHashMode.threeBytes" = "3 bytes";
 
 /* Footer explaining path hash mode tradeoff */
-"pathHashMode.footer" = "Hashes maiores reduzem colisões de routing, mas limitam o número máximo de saltos por caminho. Os repetidores com firmware anterior a 1.14.0 não repetem mensagens com hash maior que 1 byte.";
+"pathHashMode.footer" = "Hashes maiores reduzem colisões de encaminhamento, mas limitam o número máximo de saltos por rota. Os repetidores com firmware anterior a 1.14.0 não retransmitem mensagens com hash superior a 1 byte.";
 
 // MARK: - Default Flood Scope Section
 
 /* Section header for default flood scope picker */
-"defaultFloodScope.header" = "Âmbito de flood predefinido";
+"defaultFloodScope.header" = "Scope de difusão predefinido";
 
 /* Footer explaining default flood scope */
-"defaultFloodScope.footer" = "Quando definido, o dispositivo aplica este âmbito aos envios flood, a menos que um âmbito específico do canal o substitua. O âmbito é guardado no dispositivo e mantém-se após reinícios.";
+"defaultFloodScope.footer" = "Quando definido, o dispositivo aplica este scope aos envios por difusão, a menos que um scope específico do canal o substitua. O scope é guardado no dispositivo e mantém-se após reinícios.";
 
 /* Option to clear the persisted default flood scope */
 "defaultFloodScope.disabled" = "Nenhum";
@@ -445,7 +445,7 @@
 // MARK: - Nodes Settings Section
 
 /* Section header for nodes settings */
-"nodes.header" = "Nodos";
+"nodes.header" = "Nós";
 
 /* Label for auto-add mode picker */
 "nodes.autoAddMode" = "Modo de adição automática";
@@ -454,7 +454,7 @@
 "nodes.autoAddMode.manual" = "Manual";
 
 /* Auto-add mode: manual description */
-"nodes.autoAddMode.manualDescription" = "Reveja todos os nodos em Descobrir antes de adicionar";
+"nodes.autoAddMode.manualDescription" = "Reveja todos os nós em Descobrir antes de adicionar";
 
 /* Auto-add mode: selected types */
 "nodes.autoAddMode.selectedTypes" = "Tipos selecionados";
@@ -466,7 +466,7 @@
 "nodes.autoAddMode.all" = "Todos";
 
 /* Auto-add mode: all description */
-"nodes.autoAddMode.allDescription" = "Adicionar automaticamente todos os nodos descobertos";
+"nodes.autoAddMode.allDescription" = "Adicionar automaticamente todos os nós descobertos";
 
 /* Section header for auto-add types */
 /* Toggle label for auto-add contacts */
@@ -483,7 +483,7 @@
 "nodes.overwriteOldest" = "Substituir o mais antigo";
 
 /* Description for overwrite oldest toggle */
-"nodes.overwriteOldestDescription" = "Quando o armazenamento estiver cheio, substitui o nodo não favorito mais antigo";
+"nodes.overwriteOldestDescription" = "Quando o armazenamento estiver cheio, substituir o nó não favorito mais antigo";
 
 /* Picker label for max hop distance */
 "nodes.maxHops" = "Limite máximo de saltos na adição automática";
@@ -501,15 +501,15 @@
 "nodes.maxHops.hops" = "%d saltos";
 
 /* Footer text when hop limit is active */
-"nodes.maxHops.footerActive" = "Os nodos além da distância de saltos selecionada não serão adicionados automaticamente.";
+"nodes.maxHops.footerActive" = "Os nós acima do limite de saltos selecionado não serão adicionados automaticamente.";
 
 // MARK: - Auto-Remove Old Nodes Section
 
 /* Toggle label / section header for stale node cleanup */
-"nodes.staleCleanup.header" = "Remover automaticamente nodos antigos";
+"nodes.staleCleanup.header" = "Remover automaticamente nós antigos";
 
 /* Label for threshold picker */
-"nodes.staleCleanup.threshold" = "Remover nodos mais antigos que";
+"nodes.staleCleanup.threshold" = "Remover nós mais antigos do que";
 
 /* Picker placeholder when no threshold is selected */
 "nodes.staleCleanup.select" = "Selecionar";
@@ -518,16 +518,16 @@
 "nodes.staleCleanup.days" = "%d dias";
 
 /* Footer when auto-remove is enabled (%d = day count) */
-"nodes.staleCleanup.footerEnabled" = "Os nodos não favoritos não modificados em %d dias são removidos automaticamente na ligação.";
+"nodes.staleCleanup.footerEnabled" = "Os nós não favoritos sem alterações em %d dias são removidos automaticamente ao estabelecer ligação.";
 
 /* Footer describing the auto-remove feature (shown when toggle is off) */
-"nodes.staleCleanup.footerDisabled" = "Remove automaticamente nodos não favoritos que não foram modificados num período definido. Os favoritos nunca são removidos.";
+"nodes.staleCleanup.footerDisabled" = "Remove automaticamente nós não favoritos sem alterações durante o período definido. Os favoritos nunca são removidos.";
 
 /* Footer when toggle is on but no threshold selected yet */
-"nodes.staleCleanup.footerSelect" = "Escolha durante quanto tempo manter os nodos. Os favoritos nunca são removidos.";
+"nodes.staleCleanup.footerSelect" = "Escolha durante quanto tempo manter os nós. Os favoritos nunca são removidos.";
 
 /* Footer when enabled but device is disconnected */
-"nodes.staleCleanup.footerDisconnected" = "Irá verificar nodos antigos na próxima ligação. Os favoritos nunca são removidos.";
+"nodes.staleCleanup.footerDisconnected" = "Irá verificar nós antigos ao estabelecer ligação. Os favoritos nunca são removidos.";
 
 /* Last cleanup date row (%@ = relative date) */
 "nodes.staleCleanup.lastRun" = "Última verificação %@";
@@ -555,13 +555,13 @@
 // MARK: - Danger Zone Section
 
 /* Section header for danger zone */
-"dangerZone.header" = "Zona de perigo";
+"dangerZone.header" = "Zona perigosa";
 
 /* Button to forget/unpair the device */
 "dangerZone.forgetDevice" = "Esquecer dispositivo";
 
 /* Button to factory reset the device */
-"dangerZone.factoryReset" = "Repor o dispositivo de fábrica";
+"dangerZone.factoryReset" = "Repor definições de fábrica";
 
 /* Text shown while resetting */
 "dangerZone.resetting" = "A repor…";
@@ -582,7 +582,7 @@
 "dangerZone.dialog.forget.deleteAll" = "Esquecer dispositivo e eliminar dados";
 
 /* Alert title for factory reset confirmation */
-"dangerZone.alert.reset.title" = "Repor de fábrica";
+"dangerZone.alert.reset.title" = "Reposição de fábrica";
 
 /* Button to confirm reset */
 "dangerZone.alert.reset.confirm" = "Repor";
@@ -594,31 +594,31 @@
 "dangerZone.error.servicesUnavailable" = "Serviços indisponíveis";
 
 /* Button to remove non-favorite nodes */
-"dangerZone.removeUnfavorited" = "Remover nodos não favoritos";
+"dangerZone.removeUnfavorited" = "Remover nós não favoritos";
 
 /* Text shown while removing unfavorited nodes */
 "dangerZone.removing" = "A remover…";
 
 /* Label shown after successful removal */
-"dangerZone.removed" = "Nodos removidos";
+"dangerZone.removed" = "Nós removidos";
 
 /* Alert title for remove non-favorite confirmation */
-"dangerZone.alert.removeUnfavorited.title" = "Remover nodos não favoritos";
+"dangerZone.alert.removeUnfavorited.title" = "Remover nós não favoritos";
 
 /* Button to confirm removal */
-"dangerZone.alert.removeUnfavorited.confirm" = "Remover nodos";
+"dangerZone.alert.removeUnfavorited.confirm" = "Remover nós";
 
 /* Alert title for removal result */
 "dangerZone.alert.removeUnfavorited.resultTitle" = "Resultado da remoção";
 
 /* Alert message for remove unfavorited (%d = count) */
-"dangerZone.alert.removeUnfavorited.message" = "Isto irá eliminar permanentemente %d nodos não marcados como favoritos do dispositivo e da app, juntamente com as respetivas mensagens.";
+"dangerZone.alert.removeUnfavorited.message" = "Isto irá eliminar permanentemente do dispositivo e da app %d nós não marcados como favoritos, juntamente com as respetivas mensagens.";
 
 /* Partial success message (%d = removed, %d = total) */
-"dangerZone.alert.removeUnfavorited.partial" = "Removidos %d de %d nodos. A ligação foi interrompida — toque novamente no botão para tentar remover os nodos restantes.";
+"dangerZone.alert.removeUnfavorited.partial" = "Removidos %d de %d nós. A ligação foi interrompida. Toque novamente no botão para tentar remover os nós restantes.";
 
 /* Message when no non-favorite nodes to remove */
-"dangerZone.alert.removeUnfavorited.noneFound" = "Não há nodos não favoritos para remover.";
+"dangerZone.alert.removeUnfavorited.noneFound" = "Não há nós não favoritos para remover.";
 
 // MARK: - Diagnostics Section
 
@@ -660,7 +660,7 @@
 "linkPreviews.toggle" = "Mostrar conteúdo de ligações";
 
 /* Toggle label for showing link content in DMs */
-"linkPreviews.showInDMs" = "Mostrar em DMs";
+"linkPreviews.showInDMs" = "Mostrar em mensagens diretas";
 
 /* Toggle label for showing link content in channels */
 "linkPreviews.showInChannels" = "Mostrar em canais";
@@ -669,7 +669,7 @@
 "linkPreviews.footer" = "As pré-visualizações de ligações e as imagens são obtidas através da ligação à Internet do telemóvel, não da mesh. Isto pode revelar o endereço IP ao servidor que aloja o conteúdo e pode usar dados móveis.";
 
 /* Footer note shown when Reduce Motion is enabled */
-"linkPreviews.reduceMotionNote" = "Reduzir movimento está ativado, por isso os GIFs não serão reproduzidos automaticamente.";
+"linkPreviews.reduceMotionNote" = "A opção Reduzir movimento está ativada, por isso os GIFs não são reproduzidos automaticamente.";
 
 // MARK: - Inline Image Settings Section
 
@@ -685,15 +685,15 @@
 "mapPreviews.toggle" = "Mostrar miniaturas do mapa";
 
 /* Footer explaining map preview privacy implications */
-"mapPreviews.footer" = "Mostrar miniaturas do mapa obtém mosaicos do mapa para a coordenada a partir de um servidor de terceiros, o que pode revelar o endereço IP.";
+"mapPreviews.footer" = "Mostrar miniaturas do mapa vai buscar os mosaicos dessa coordenada a um servidor de terceiros, o que pode revelar o seu endereço IP.";
 
 // MARK: - Node Settings Section
 
 /* Section header for node settings */
-"node.header" = "Nodo";
+"node.header" = "Nó";
 
 /* Label for node name */
-"node.name" = "Nome do nodo";
+"node.name" = "Nome do nó";
 
 /* Default node name when unknown */
 /* Button text to copy */
@@ -710,10 +710,10 @@
 "node.shareLocationPublicly" = "Partilhar localização publicamente";
 
 /* Footer explaining node visibility */
-"node.footer" = "O nome do nodo fica visível para outros utilizadores da mesh quando é partilhado.";
+"node.footer" = "O nome do nó fica visível para outros utilizadores da mesh quando é partilhado.";
 
 /* Alert title for editing node name */
-"node.alert.editName.title" = "Editar nome do nodo";
+"node.alert.editName.title" = "Editar nome do nó";
 
 // MARK: - Location Settings Section
 
@@ -721,7 +721,7 @@
 "location.header" = "Localização";
 
 /* Footer for location settings section */
-"location.footer" = "Quando Partilhar localização publicamente está ativado, a localização será transmitida pela mesh ao enviar Adverts. Ativar Atualizar localização automaticamente atualiza a localização do dispositivo antes de enviar Adverts.";
+"location.footer" = "Com a opção «Partilhar localização publicamente» ativada, a localização é transmitida na mesh ao enviar Adverts. A opção «Atualizar localização automaticamente» atualiza a posição do dispositivo antes de cada Advert.";
 
 /* Toggle label for auto-update location */
 "location.autoUpdate" = "Atualizar localização automaticamente";
@@ -745,10 +745,10 @@
 "location.deviceGps.footer" = "Liga ou desliga o GPS integrado do rádio. Guardar uma localização manual no mapa desliga o GPS do dispositivo.";
 
 /* Detail text when location is being shared publicly */
-"location.sharingPublicly" = "Partilha pública";
+"location.sharingPublicly" = "Partilhada publicamente";
 
 /* Detail text when location is not being shared */
-"location.notSharing" = "Sem partilha";
+"location.notSharing" = "Não partilhada";
 
 // MARK: - Notification Settings Section
 
@@ -768,7 +768,7 @@
 "notifications.newContactDiscovered" = "Novo contacto descoberto";
 
 /* Toggle label for companion discovery notifications */
-"notifications.discoveryContact" = "Companion";
+"notifications.discoveryContact" = "Contacto";
 
 /* Toggle label for repeater discovery notifications */
 "notifications.discoveryRepeater" = "Repetidor";
@@ -808,7 +808,7 @@
 "radio.repeatMode" = "Modo de repetidor";
 
 /* Footer explaining repeat mode */
-"radio.repeatMode.footer" = "Cria um repetidor local numa frequência dedicada. Útil para trilhos e zonas remotas.";
+"radio.repeatMode.footer" = "Cria um repetidor local numa frequência dedicada. Útil para zonas remotas.";
 
 /* Accessibility hint for repeat mode toggle */
 "radio.repeatMode.accessibilityHint" = "Ativar isto irá desligar da rede mesh principal";
@@ -837,7 +837,7 @@
 "telemetry.allowRequests" = "Permitir pedidos de telemetria";
 
 /* Description for telemetry requests toggle */
-"telemetry.allowRequestsDescription" = "Necessário para que outros utilizadores possam traçar manualmente um caminho até si. Partilha o nível da bateria.";
+"telemetry.allowRequestsDescription" = "Necessário para que outros utilizadores possam traçar manualmente uma rota até si. Partilha o nível da bateria.";
 
 /* Toggle label for including location in telemetry */
 "telemetry.includeLocation" = "Incluir localização";
@@ -861,7 +861,7 @@
 "telemetry.manageTrusted" = "Gerir contactos de confiança";
 
 /* Footer explaining telemetry */
-"telemetry.footer" = "Quando ativado, outros nodos podem pedir os dados de telemetria do dispositivo.";
+"telemetry.footer" = "Quando ativado, outros nós podem pedir os dados de telemetria do dispositivo.";
 
 // MARK: - WiFi Section
 
@@ -896,7 +896,7 @@
 "wifiEdit.footer" = "Alterar estes valores irá desligar e voltar a ligar ao novo endereço.";
 
 /* Text shown while reconnecting */
-"wifiEdit.reconnecting" = "A religar…";
+"wifiEdit.reconnecting" = "A restabelecer ligação…";
 
 /* Button to save changes */
 "wifiEdit.saveChanges" = "Guardar alterações";
@@ -944,27 +944,27 @@
 
 /* Toggle label for showing the raw uncorrected wire send time on incoming messages */
 /* Toggle label for showing routing path on incoming messages */
-"messages.showIncomingPath" = "Caminho de entrada";
+"messages.showIncomingPath" = "Rota";
 
 /* Toggle label for showing hop count on incoming messages */
-"messages.showIncomingHopCount" = "Número de saltos de entrada";
+"messages.showIncomingHopCount" = "Número de saltos";
 
 /* Toggle label for showing the radio region an incoming message was flooded under */
-"messages.showIncomingRegion" = "Região de entrada";
+"messages.showIncomingRegion" = "Região";
 
 /* Footer explaining what the message display options show */
-"messages.footer" = "Mostra informações de routing e de tempo nos balões das mensagens recebidas.";
+"messages.footer" = "Mostra informações de encaminhamento e de tempo nos balões das mensagens recebidas.";
 
 // MARK: - Direct Messages Settings Section
 
 /* Section header for direct message settings */
-"directMessages.header" = "DMs";
+"directMessages.header" = "Mensagens diretas";
 
 /* Picker label for number of acknowledgments */
 "directMessages.acknowledgments" = "Confirmações";
 
 /* Footer explaining the acknowledgments setting */
-"directMessages.footer" = "Número de confirmações enviadas por DM. Use 2 para melhor confirmação de entrega em ligações pouco fiáveis.";
+"directMessages.footer" = "Número de confirmações enviadas por mensagem direta. Use 2 para melhor confirmação de entrega em ligações pouco fiáveis.";
 
 // MARK: - BLE Status Indicator
 
@@ -972,7 +972,7 @@
 "bleStatus.sendZeroHopAdvert" = "Enviar Advert zero-hop";
 
 /* Menu item to send a flood advertisement */
-"bleStatus.sendFloodAdvert" = "Enviar Advert flood";
+"bleStatus.sendFloodAdvert" = "Enviar Advert por difusão";
 
 /* Menu item to change the connected device */
 "bleStatus.changeDevice" = "Mudar de dispositivo";
@@ -981,7 +981,7 @@
 "bleStatus.disconnect" = "Desligar";
 
 /* Status shown when device is disconnected */
-"bleStatus.status.disconnected" = "Desligado";
+"bleStatus.status.disconnected" = "Sem ligação";
 
 /* Status shown when device is connecting */
 "bleStatus.status.connecting" = "A ligar…";
@@ -1019,7 +1019,7 @@
 "configExport.sectionTitle" = "Configuração do dispositivo";
 
 /* Section footer explaining config export/import */
-"configExport.sectionFooter" = "Exporte ou importe definições do dispositivo, canais e contactos como um ficheiro JSON.";
+"configExport.sectionFooter" = "Exporte ou importe definições do dispositivo, canais e contactos através de um ficheiro JSON.";
 
 /* Export navigation row label */
 "configExport.export" = "Exportar config";
@@ -1038,7 +1038,7 @@
 "configExport.selectAll" = "Selecionar tudo";
 
 /* Toggle labels for export sections */
-"configExport.nodeIdentity" = "Identidade do nodo (nome e chaves)";
+"configExport.nodeIdentity" = "Identidade do nó (nome e chaves)";
 "configExport.nodeIdentity.description" = "Nome do dispositivo, chave pública e chave privada";
 "configExport.radioSettings" = "Definições do rádio";
 "configExport.radioSettings.description" = "Frequência, largura de banda, fator de espalhamento, taxa de codificação, potência de TX";
@@ -1105,7 +1105,7 @@
 "configImport.importSuccess" = "Configuração importada com êxito";
 
 /* Private key warning */
-"configImport.privateKeyWarning" = "Isto irá substituir a identidade criptográfica do nodo";
+"configImport.privateKeyWarning" = "Isto irá substituir a identidade criptográfica do nó";
 
 "configImport.current" = "Atual: %@";
 "configImport.new" = "Novo: %@";
@@ -1135,7 +1135,7 @@
 "configImport.stepPrivateKey" = "A importar a chave privada";
 
 /* Import progress: setting the node name */
-"configImport.stepNodeName" = "A definir o nome do nodo";
+"configImport.stepNodeName" = "A definir o nome do nó";
 
 /* Import progress: applying radio parameters */
 "configImport.stepRadioParameters" = "A definir os parâmetros do rádio";
@@ -1153,13 +1153,13 @@
 "configImport.field.frequency" = "Frequência";
 
 /* Validation field label: radio bandwidth */
-"configImport.field.bandwidth" = "Largura de banda";
+"configImport.field.bandwidth" = "Largura de banda (BW)";
 
 /* Validation field label: spreading factor */
-"configImport.field.spreadingFactor" = "Fator de espalhamento";
+"configImport.field.spreadingFactor" = "Fator de espalhamento (SF)";
 
 /* Validation field label: coding rate */
-"configImport.field.codingRate" = "Taxa de codificação";
+"configImport.field.codingRate" = "Taxa de codificação (CR)";
 
 /* Validation field label: TX power */
 "configImport.field.txPower" = "Potência de TX";
@@ -1180,7 +1180,7 @@
 "configImport.error.contactCoordinateInvalid" = "O contacto \"%@\" %@ tem uma coordenada inválida ou fora do intervalo";
 
 /* Validation error: contact has an invalid routing path (param: contact name) */
-"configImport.error.invalidOutPath" = "O contacto \"%@\" tem um caminho de routing inválido";
+"configImport.error.invalidOutPath" = "O contacto \"%@\" tem uma rota inválida";
 
 /* Validation error: not enough free contact slots (params: needed count, available count) */
 "configImport.error.contactCapacityExceeded" = "A importação precisa de %d slot(s) de contacto livre(s), mas restam apenas %d no dispositivo";
@@ -1192,7 +1192,7 @@
 "configImport.error.invalidContactPublicKey" = "O contacto \"%@\" tem uma chave pública inválida";
 
 /* Validation error: unsupported path hash mode (params: contact name, mode value) */
-"configImport.error.invalidPathHashMode" = "O contacto \"%1$@\" tem um modo de hash do caminho não suportado %2$lld (esperado 0, 1 ou 2)";
+"configImport.error.invalidPathHashMode" = "O contacto \"%1$@\" tem um modo de hash da rota inválido %2$lld (esperado 0, 1 ou 2)";
 
 /* Validation error: private key wrong length (params: hex char count, expected hex char count) */
 "configImport.error.invalidPrivateKey" = "Chave privada inválida (%1$lld caracteres hex, esperados %2$lld)";
@@ -1215,7 +1215,7 @@
 "blocking.channelSenders.title" = "Remetentes de canal bloqueados";
 
 /* Location: BlockedChannelSendersView.swift - Purpose: Empty state title */
-"blocking.channelSenders.empty.title" = "Nenhum utilizador bloqueado";
+"blocking.channelSenders.empty.title" = "Nenhum remetente bloqueado";
 
 /* Location: BlockedChannelSendersView.swift - Purpose: Empty state description */
 "blocking.channelSenders.empty.description" = "Os nomes de remetentes de canal que bloquear aparecem aqui.";
@@ -1251,7 +1251,7 @@
 "liveActivity.tip.title" = "Estado do rádio num relance";
 
 /* Message for the Live Activity tip */
-"liveActivity.tip.message" = "A ligação, a bateria e as mensagens ficam visíveis — mesmo sem abrir a app.";
+"liveActivity.tip.message" = "A ligação, a bateria e as mensagens ficam visíveis, mesmo sem abrir a app.";
 
 // MARK: - Regenerate Identity
 
@@ -1427,7 +1427,7 @@
 "offlineMaps.downloadHint" = "Introduza um nome e selecione uma área para transferir.";
 
 /* Download exceeds available storage */
-"offlineMaps.exceedsStorage" = "Não há armazenamento suficiente neste dispositivo. Aproxime o zoom para selecionar uma área menor.";
+"offlineMaps.exceedsStorage" = "Não há armazenamento suficiente neste dispositivo. Aumente o zoom para selecionar uma área menor.";
 
 /* Layer type labels */
 "offlineMaps.layer.base" = "Mapa base";
@@ -1452,7 +1452,7 @@
 "settings.backup.file_backup.header" = "Backup em ficheiro";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Exporte ou restaure mensagens, contactos, canais, caminhos guardados e definições. A configuração do rádio é lida do dispositivo em cada ligação.";
+"settings.backup.file_backup.footer" = "Exporte ou restaure mensagens, contactos, canais, rotas guardadas e definições. A configuração do rádio é lida do dispositivo em cada ligação.";
 
 /* Export row title */
 "settings.backup.export.title" = "Exportar dados da app";
@@ -1473,7 +1473,7 @@
 "settings.backup.export.alert.title" = "Aviso de segurança";
 
 /* Export confirmation alert message */
-"settings.backup.export.alert.message" = "Este backup inclui as chaves de encriptação dos canais, o histórico de mensagens, a lista de contactos e o endereço de rede local e a porta do nodo Wi-Fi. Guarde o ficheiro exportado de forma segura.";
+"settings.backup.export.alert.message" = "Este backup inclui as chaves de encriptação dos canais, o histórico de mensagens, a lista de contactos, o endereço de rede local e a porta do nó Wi-Fi. Guarde o ficheiro exportado de forma segura.";
 
 /* Export confirmation alert export button */
 "settings.backup.export.alert.export" = "Exportar";
@@ -1518,10 +1518,10 @@
 "settings.backup.import.preview.reactions" = "Reações";
 
 /* Import preview manifest label: saved paths */
-"settings.backup.import.preview.saved_paths" = "Caminhos guardados";
+"settings.backup.import.preview.saved_paths" = "Rotas guardadas";
 
 /* Import preview manifest label: remote node sessions */
-"settings.backup.import.preview.remote_node_sessions" = "Sessões de nodos remotos";
+"settings.backup.import.preview.remote_node_sessions" = "Sessões de nós remotos";
 
 /* Import preview info text */
 "settings.backup.import.preview.info" = "Apenas os dados novos são adicionados; os registos existentes não são substituídos. Os contactos eliminados depois de este backup ter sido criado voltam a aparecer, e quaisquer estados de bloqueio, silenciado ou favorito do backup são reaplicados.";
@@ -1572,13 +1572,13 @@
 "settings.backup.import.success.dropped_footer" = "Estes canais não tinham slot livre neste rádio, por isso eles e as respetivas mensagens não foram importados. Liberte um slot de canal e importe novamente para os restaurar.";
 
 /* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
-"settings.backup.import.success.dropped_footer_discovered_nodes" = "Estes nodos descobertos não puderam ser restaurados porque a lista de descoberta deste rádio está cheia (%d nodos). Os nodos locais existentes foram mantidos; a mesh voltará a emitir Adverts dos que faltam.";
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "Estes nós descobertos não puderam ser restaurados porque a lista de descoberta deste rádio está cheia (%d nós). Os nós locais existentes foram mantidos; a mesh voltará a emitir Adverts dos nós que faltam.";
 
 /* Import success footer when both channel slots and the discover-list cap caused drops */
-"settings.backup.import.success.dropped_footer_mixed" = "Alguns itens não puderam ser restaurados: canais sem slot livre no rádio e nodos descobertos que excederam a capacidade da lista de descoberta deste rádio (%d nodos). Liberte um slot de canal e importe novamente os canais; a mesh voltará a emitir Adverts dos nodos descobertos em falta.";
+"settings.backup.import.success.dropped_footer_mixed" = "Alguns itens não puderam ser restaurados: canais sem slot livre no rádio e nós descobertos que excederam a capacidade da lista de descoberta deste rádio (%d nós). Liberte um slot de canal e importe novamente os canais; a mesh voltará a emitir Adverts dos nós descobertos em falta.";
 
 /* Import success done button */
-"settings.backup.import.success.done" = "OK";
+"settings.backup.import.success.done" = "Concluído";
 
 /* Import failure title */
 "settings.backup.import.error.title" = "Falha na importação";
@@ -1597,13 +1597,13 @@
 "settings.backup.import.preview.blocked_senders" = "Remetentes bloqueados";
 
 /* Import preview manifest label: node status snapshots */
-"settings.backup.import.preview.node_status_snapshots" = "Instantâneos de nodos";
+"settings.backup.import.preview.node_status_snapshots" = "Instantâneos de nós";
 
 /* Import preview manifest label: discovered nodes */
-"settings.backup.import.preview.discovered_nodes" = "Nodos descobertos";
+"settings.backup.import.preview.discovered_nodes" = "Nós descobertos";
 
 /* Import preview manifest label: message repeats */
-"settings.backup.import.preview.message_repeats" = "Repetições de mensagens";
+"settings.backup.import.preview.message_repeats" = "Retransmissões de mensagens";
 
 /* Import header title when the backup had nothing new to add (every record was skipped) */
 "settings.backup.import.nothing_to_import.title" = "Já está tudo aqui";
@@ -1644,7 +1644,7 @@
 "settings.backup.export.success.included_section" = "Incluído no backup";
 
 /* Primary button on the export success sheet */
-"settings.backup.export.success.done" = "OK";
+"settings.backup.export.success.done" = "Concluído";
 
 /* VoiceOver announcement when the export success sheet appears; %@ is the filename */
 "settings.backup.export.success.announcement" = "Backup guardado como %@";
@@ -1705,10 +1705,10 @@
 "Support.Accessibility.ThemeCard.LockedLabel" = "Tema %@, bloqueado";
 "Support.Accessibility.ThemeCard.OwnedLabel" = "Tema %@, adquirido";
 "Support.Accessibility.BundleCard.LockedLabel" = "Pacote Todos os temas, bloqueado, %@";
-"Support.Accessibility.BundleCard.LockedHint" = "Compra o pacote Todos os temas";
+"Support.Accessibility.BundleCard.LockedHint" = "Compre o pacote Todos os temas";
 "Support.Accessibility.BundleCard.LoadingLabel" = "Pacote Todos os temas, a carregar o preço";
 "Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
-"Support.Accessibility.ContributionRow.Hint" = "Envia um donativo de agradecimento";
+"Support.Accessibility.ContributionRow.Hint" = "Envie um donativo de agradecimento";
 "Support.Accessibility.TipConfirmAnnouncement" = "Obrigado pelo donativo.";
 
 /* MARK: Appearance (selection) screen */
