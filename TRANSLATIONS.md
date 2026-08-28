@@ -12,7 +12,7 @@ MeshCore One supports multiple languages. You can help improve translations enti
 | German                | de      | AI-translated      |
 | Italian               | it      | Verified by corradoignoti #376 |
 | Polish                | pl      | AI-translated      |
-| Portuguese (Portugal) | pt      | AI-translated      |
+| Portuguese (Portugal) | pt      | Verified by zadoke #413 |
 | Russian               | ru      | AI-translated      |
 | Simplified Chinese    | zh-Hans | Verified by MGJ520 #225 |
 | Spanish               | es      | AI-translated      |
