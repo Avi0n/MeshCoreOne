@@ -14,19 +14,19 @@
 "whatsNew.continueButton" = "继续";
 
 /* Link on the What's New sheet to the full GitHub release notes */
-"whatsNew.fullReleaseNotes" = "完整发布说明";
+"whatsNew.fullReleaseNotes" = "查看全部新变化";
 
-/* What's New v1.3 - Improved chats feature, title */
-"whatsNew.fasterChats.title" = "聊天体验改进";
-/* What's New v1.3 - Improved chats feature, description */
-"whatsNew.fasterChats.description" = "打开聊天会定位到新消息，而不是滚到最底部。每条气泡都会显示时间，历史记录和链接预览加载也更快。";
+/* What's New v1.4 - Incoming message translation feature, title */
+"whatsNew.messageTranslation.title" = "收到消息翻译";
+/* What's New v1.4 - Incoming message translation feature, description */
+"whatsNew.messageTranslation.description" = "可将收到的消息翻译成设备语言。iOS 26.4 及以上会先使用 Apple Intelligence，再使用“翻译”语言包。";
 
-/* What's New v1.3 - Contact photos feature, title */
-"whatsNew.contactPhotos.title" = "联系人照片";
-/* What's New v1.3 - Contact photos feature, description */
-"whatsNew.contactPhotos.description" = "为任意联系人设置头像，方便在列表和对话中快速认出对方。";
+/* What's New v1.4 - Sender avatars in channels and rooms, title */
+"whatsNew.senderAvatars.title" = "频道和房间头像";
+/* What's New v1.4 - Sender avatars in channels and rooms, description */
+"whatsNew.senderAvatars.description" = "频道和房间中的收到消息会显示发送者头像。";
 
-/* What's New v1.3 - Map filters feature, title */
-"whatsNew.mapFilters.title" = "地图筛选";
-/* What's New v1.3 - Map filters feature, description */
-"whatsNew.mapFilters.description" = "按收藏、发现的节点和节点类型筛选地图标记。";
+/* What's New v1.4 - Failed-send badges on the Chats list, title */
+"whatsNew.failedSends.title" = "聊天列表发送失败";
+/* What's New v1.4 - Failed-send badges on the Chats list, description */
+"whatsNew.failedSends.description" = "消息发送失败时，聊天列表会标记该对话。";

@@ -5,25 +5,25 @@ import Foundation
 enum WhatsNewCatalog {
   static let releases: [WhatsNewRelease] = [
     WhatsNewRelease(
-      version: WhatsNewVersion(major: 1, minor: 3),
+      version: WhatsNewVersion(major: 1, minor: 4),
       items: [
         WhatsNewItem(
-          symbol: "bubble.left.and.bubble.right",
-          title: L10n.WhatsNew.WhatsNew.FasterChats.title,
-          description: L10n.WhatsNew.WhatsNew.FasterChats.description
+          symbol: "translate",
+          title: L10n.WhatsNew.WhatsNew.MessageTranslation.title,
+          description: L10n.WhatsNew.WhatsNew.MessageTranslation.description
         ),
         WhatsNewItem(
-          symbol: "person.crop.circle.badge.plus",
-          title: L10n.WhatsNew.WhatsNew.ContactPhotos.title,
-          description: L10n.WhatsNew.WhatsNew.ContactPhotos.description
+          symbol: "person.crop.circle",
+          title: L10n.WhatsNew.WhatsNew.SenderAvatars.title,
+          description: L10n.WhatsNew.WhatsNew.SenderAvatars.description
         ),
         WhatsNewItem(
-          symbol: "map",
-          title: L10n.WhatsNew.WhatsNew.MapFilters.title,
-          description: L10n.WhatsNew.WhatsNew.MapFilters.description
+          symbol: "arrow.clockwise",
+          title: L10n.WhatsNew.WhatsNew.FailedSends.title,
+          description: L10n.WhatsNew.WhatsNew.FailedSends.description
         )
       ],
-      releaseNotesURL: URL(string: "https://github.com/Avi0n/MeshCoreOne/releases/tag/v1.3.0")!
+      releaseNotesURL: URL(string: "https://github.com/Avi0n/MeshCoreOne/releases/tag/v1.4.0")!
     )
   ]
 }

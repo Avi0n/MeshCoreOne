@@ -14,19 +14,19 @@
 "whatsNew.continueButton" = "Continua";
 
 /* Link on the What's New sheet to the full GitHub release notes */
-"whatsNew.fullReleaseNotes" = "Note di rilascio complete";
+"whatsNew.fullReleaseNotes" = "Vedi tutte le nuove modifiche";
 
-/* What's New v1.3 - Improved chats feature, title */
-"whatsNew.fasterChats.title" = "Chat migliorate";
-/* What's New v1.3 - Improved chats feature, description */
-"whatsNew.fasterChats.description" = "Aprendo una chat arrivi ai nuovi messaggi invece che in fondo. L'ora compare su ogni bolla, e cronologia e anteprime dei link si caricano più in fretta.";
+/* What's New v1.4 - Incoming message translation feature, title */
+"whatsNew.messageTranslation.title" = "Traduzione dei messaggi in arrivo";
+/* What's New v1.4 - Incoming message translation feature, description */
+"whatsNew.messageTranslation.description" = "Traduci i messaggi in arrivo nella lingua del dispositivo. Su iOS 26.4 o successivo, viene usato prima Apple Intelligence, poi i pacchetti lingua di Traduci.";
 
-/* What's New v1.3 - Contact photos feature, title */
-"whatsNew.contactPhotos.title" = "Foto dei contatti";
-/* What's New v1.3 - Contact photos feature, description */
-"whatsNew.contactPhotos.description" = "Imposta un avatar su qualsiasi contatto per riconoscere le persone più facilmente in elenchi e conversazioni.";
+/* What's New v1.4 - Sender avatars in channels and rooms, title */
+"whatsNew.senderAvatars.title" = "Avatar in canali e stanze";
+/* What's New v1.4 - Sender avatars in channels and rooms, description */
+"whatsNew.senderAvatars.description" = "I messaggi in arrivo nei canali e nelle stanze mostrano l’avatar del mittente.";
 
-/* What's New v1.3 - Map filters feature, title */
-"whatsNew.mapFilters.title" = "Filtri mappa";
-/* What's New v1.3 - Map filters feature, description */
-"whatsNew.mapFilters.description" = "Filtra i pin per preferiti, nodi scoperti e tipo di nodo.";
+/* What's New v1.4 - Failed-send badges on the Chats list, title */
+"whatsNew.failedSends.title" = "Invii non riusciti in Chat";
+/* What's New v1.4 - Failed-send badges on the Chats list, description */
+"whatsNew.failedSends.description" = "L’elenco Chat segnala una conversazione quando l’invio di un messaggio non riesce.";

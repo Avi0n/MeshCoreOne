@@ -14,19 +14,19 @@
 "whatsNew.continueButton" = "Продолжить";
 
 /* Link on the What's New sheet to the full GitHub release notes */
-"whatsNew.fullReleaseNotes" = "Полные примечания к выпуску";
+"whatsNew.fullReleaseNotes" = "Смотреть все новые изменения";
 
-/* What's New v1.3 - Improved chats feature, title */
-"whatsNew.fasterChats.title" = "Улучшенные чаты";
-/* What's New v1.3 - Improved chats feature, description */
-"whatsNew.fasterChats.description" = "Открытие чата переносит вас к новым сообщениям, а не в самый низ. Время отображается на каждом пузыре, а история и превью ссылок загружаются быстрее.";
+/* What's New v1.4 - Incoming message translation feature, title */
+"whatsNew.messageTranslation.title" = "Перевод входящих сообщений";
+/* What's New v1.4 - Incoming message translation feature, description */
+"whatsNew.messageTranslation.description" = "Переводите входящие сообщения на язык устройства. В iOS 26.4 и новее сначала используется Apple Intelligence, затем языковые пакеты «Перевод».";
 
-/* What's New v1.3 - Contact photos feature, title */
-"whatsNew.contactPhotos.title" = "Фото контактов";
-/* What's New v1.3 - Contact photos feature, description */
-"whatsNew.contactPhotos.description" = "Задайте аватар любому контакту, чтобы легче узнавать людей в списках и переписках.";
+/* What's New v1.4 - Sender avatars in channels and rooms, title */
+"whatsNew.senderAvatars.title" = "Аватары в каналах и комнатах";
+/* What's New v1.4 - Sender avatars in channels and rooms, description */
+"whatsNew.senderAvatars.description" = "Входящие сообщения в каналах и комнатах показывают аватар отправителя.";
 
-/* What's New v1.3 - Map filters feature, title */
-"whatsNew.mapFilters.title" = "Фильтры карты";
-/* What's New v1.3 - Map filters feature, description */
-"whatsNew.mapFilters.description" = "Фильтруйте метки по избранным, обнаруженным узлам и типу узла.";
+/* What's New v1.4 - Failed-send badges on the Chats list, title */
+"whatsNew.failedSends.title" = "Ошибки отправки в Чатах";
+/* What's New v1.4 - Failed-send badges on the Chats list, description */
+"whatsNew.failedSends.description" = "Список Чатов отмечает переписку, если отправка сообщения не удаётся.";

@@ -14,19 +14,19 @@
 "whatsNew.continueButton" = "Continue";
 
 /* Link on the What's New sheet to the full GitHub release notes */
-"whatsNew.fullReleaseNotes" = "Full release notes";
+"whatsNew.fullReleaseNotes" = "See all new changes";
 
-/* What's New v1.3 - Improved chats feature, title */
-"whatsNew.fasterChats.title" = "Improved chats";
-/* What's New v1.3 - Improved chats feature, description */
-"whatsNew.fasterChats.description" = "Opening a chat lands you at new messages instead of the bottom. Times show on every bubble, and history and link previews load faster.";
+/* What's New v1.4 - Incoming message translation feature, title */
+"whatsNew.messageTranslation.title" = "Incoming message translation";
+/* What's New v1.4 - Incoming message translation feature, description */
+"whatsNew.messageTranslation.description" = "Translate incoming messages into your device's language. On iOS 26.4+, Apple Intelligence is used first, then Translate language packs.";
 
-/* What's New v1.3 - Contact photos feature, title */
-"whatsNew.contactPhotos.title" = "Contact photos";
-/* What's New v1.3 - Contact photos feature, description */
-"whatsNew.contactPhotos.description" = "Set an avatar on any contact so people are easier to spot in lists and conversations.";
+/* What's New v1.4 - Sender avatars in channels and rooms, title */
+"whatsNew.senderAvatars.title" = "Channel & room avatars";
+/* What's New v1.4 - Sender avatars in channels and rooms, description */
+"whatsNew.senderAvatars.description" = "Incoming messages in channels and rooms show the sender's avatar.";
 
-/* What's New v1.3 - Map filters feature, title */
-"whatsNew.mapFilters.title" = "Map filters";
-/* What's New v1.3 - Map filters feature, description */
-"whatsNew.mapFilters.description" = "Filter pins by favorites, discovered nodes, and node type.";
+/* What's New v1.4 - Failed-send badges on the Chats list, title */
+"whatsNew.failedSends.title" = "Failed sends in Chats";
+/* What's New v1.4 - Failed-send badges on the Chats list, description */
+"whatsNew.failedSends.description" = "The Chats list marks a conversation when a message fails to send.";
