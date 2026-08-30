@@ -14,19 +14,19 @@
 "whatsNew.continueButton" = "Doorgaan";
 
 /* Link on the What's New sheet to the full GitHub release notes */
-"whatsNew.fullReleaseNotes" = "Volledige release notes";
+"whatsNew.fullReleaseNotes" = "Bekijk alle nieuwe wijzigingen";
 
-/* What's New v1.3 - Improved chats feature, title */
-"whatsNew.fasterChats.title" = "Verbeterde chats";
-/* What's New v1.3 - Improved chats feature, description */
-"whatsNew.fasterChats.description" = "Als je een chat opent, kom je bij nieuwe berichten terecht in plaats van onderaan. Tijden staan op elke bubbel, en geschiedenis en linkvoorbeelden laden sneller.";
+/* What's New v1.4 - Incoming message translation feature, title */
+"whatsNew.messageTranslation.title" = "Vertaling van inkomende berichten";
+/* What's New v1.4 - Incoming message translation feature, description */
+"whatsNew.messageTranslation.description" = "Vertaal inkomende berichten naar de taal van je apparaat. Op iOS 26.4+ wordt eerst Apple Intelligence gebruikt, daarna de taalpakketten van Vertalen.";
 
-/* What's New v1.3 - Contact photos feature, title */
-"whatsNew.contactPhotos.title" = "Contactfoto's";
-/* What's New v1.3 - Contact photos feature, description */
-"whatsNew.contactPhotos.description" = "Stel een avatar in voor elk contact zodat mensen makkelijker te herkennen zijn in lijsten en gesprekken.";
+/* What's New v1.4 - Sender avatars in channels and rooms, title */
+"whatsNew.senderAvatars.title" = "Avatars in kanalen en kamers";
+/* What's New v1.4 - Sender avatars in channels and rooms, description */
+"whatsNew.senderAvatars.description" = "Inkomende berichten in kanalen en kamers tonen de avatar van de afzender.";
 
-/* What's New v1.3 - Map filters feature, title */
-"whatsNew.mapFilters.title" = "Kaartfilters";
-/* What's New v1.3 - Map filters feature, description */
-"whatsNew.mapFilters.description" = "Filter pins op favorieten, ontdekte knooppunten en type knooppunt.";
+/* What's New v1.4 - Failed-send badges on the Chats list, title */
+"whatsNew.failedSends.title" = "Mislukte verzendingen in Chats";
+/* What's New v1.4 - Failed-send badges on the Chats list, description */
+"whatsNew.failedSends.description" = "De Chatlijst markeert een gesprek als het verzenden van een bericht mislukt.";

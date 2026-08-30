@@ -116,31 +116,10 @@ private struct WhatsNewRow: View {
 }
 
 #Preview {
-  Color.clear.sheet(isPresented: .constant(true)) {
-    WhatsNewSheet(release: .preview)
+  if let release = WhatsNewCatalog.releases.first {
+    Color.clear.sheet(isPresented: .constant(true)) {
+      WhatsNewSheet(release: release)
+    }
+    .environment(\.appState, AppState())
   }
-}
-
-private extension WhatsNewRelease {
-  static let preview = WhatsNewRelease(
-    version: WhatsNewVersion(major: 1, minor: 1),
-    items: [
-      WhatsNewItem(
-        symbol: "sparkles",
-        title: "Faster Messaging",
-        description: "Messages now send and sync more quickly across your mesh."
-      ),
-      WhatsNewItem(
-        symbol: "antenna.radiowaves.left.and.right",
-        title: "Stronger Multi-Hop Routing",
-        description: "Improved route handling keeps distant nodes connected."
-      ),
-      WhatsNewItem(
-        symbol: "lock.shield",
-        title: "Private by Default",
-        description: "Your messages stay encrypted end to end, on device."
-      )
-    ],
-    releaseNotesURL: URL(string: "https://github.com/Avi0n/MeshCoreOne/releases/tag/v1.3.0")!
-  )
 }

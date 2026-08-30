@@ -6117,26 +6117,26 @@ public enum L10n {
       /// Button to dismiss the What's New sheet
       public static let continueButton = L10n.tr("WhatsNew", "whatsNew.continueButton", fallback: "Continue")
       /// Link on the What's New sheet to the full GitHub release notes
-      public static let fullReleaseNotes = L10n.tr("WhatsNew", "whatsNew.fullReleaseNotes", fallback: "Full release notes")
+      public static let fullReleaseNotes = L10n.tr("WhatsNew", "whatsNew.fullReleaseNotes", fallback: "See all new changes")
       /// Title of the What's New sheet shown once after an app update
       public static let title = L10n.tr("WhatsNew", "whatsNew.title", fallback: "What's New")
-      public enum ContactPhotos {
-        /// What's New v1.3 - Contact photos feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.contactPhotos.description", fallback: "Set an avatar on any contact so people are easier to spot in lists and conversations.")
-        /// What's New v1.3 - Contact photos feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.contactPhotos.title", fallback: "Contact photos")
+      public enum FailedSends {
+        /// What's New v1.4 - Failed-send badges on the Chats list, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.failedSends.description", fallback: "The Chats list marks a conversation when a message fails to send.")
+        /// What's New v1.4 - Failed-send badges on the Chats list, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.failedSends.title", fallback: "Failed sends in Chats")
       }
-      public enum FasterChats {
-        /// What's New v1.3 - Improved chats feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.fasterChats.description", fallback: "Opening a chat lands you at new messages instead of the bottom. Times show on every bubble, and history and link previews load faster.")
-        /// What's New v1.3 - Improved chats feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.fasterChats.title", fallback: "Improved chats")
+      public enum MessageTranslation {
+        /// What's New v1.4 - Incoming message translation feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.messageTranslation.description", fallback: "Translate incoming messages into your device's language. On iOS 26.4+, Apple Intelligence is used first, then Translate language packs.")
+        /// What's New v1.4 - Incoming message translation feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.messageTranslation.title", fallback: "Incoming message translation")
       }
-      public enum MapFilters {
-        /// What's New v1.3 - Map filters feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.mapFilters.description", fallback: "Filter pins by favorites, discovered nodes, and node type.")
-        /// What's New v1.3 - Map filters feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.mapFilters.title", fallback: "Map filters")
+      public enum SenderAvatars {
+        /// What's New v1.4 - Sender avatars in channels and rooms, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.senderAvatars.description", fallback: "Incoming messages in channels and rooms show the sender's avatar.")
+        /// What's New v1.4 - Sender avatars in channels and rooms, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.senderAvatars.title", fallback: "Channel & room avatars")
       }
     }
   }

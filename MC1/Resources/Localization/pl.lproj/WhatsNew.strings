@@ -14,19 +14,19 @@
 "whatsNew.continueButton" = "Dalej";
 
 /* Link on the What's New sheet to the full GitHub release notes */
-"whatsNew.fullReleaseNotes" = "Pełne informacje o wydaniu";
+"whatsNew.fullReleaseNotes" = "Zobacz wszystkie nowe zmiany";
 
-/* What's New v1.3 - Improved chats feature, title */
-"whatsNew.fasterChats.title" = "Ulepszone czaty";
-/* What's New v1.3 - Improved chats feature, description */
-"whatsNew.fasterChats.description" = "Otwarcie czatu przenosi Cię do nowych wiadomości zamiast na sam dół. Godzina jest widoczna na każdym dymku, a historia i podglądy linków ładują się szybciej.";
+/* What's New v1.4 - Incoming message translation feature, title */
+"whatsNew.messageTranslation.title" = "Tłumaczenie przychodzących wiadomości";
+/* What's New v1.4 - Incoming message translation feature, description */
+"whatsNew.messageTranslation.description" = "Tłumacz przychodzące wiadomości na język Twojego urządzenia. W iOS 26.4+ najpierw używane jest Apple Intelligence, a potem pakiety językowe Tłumacza.";
 
-/* What's New v1.3 - Contact photos feature, title */
-"whatsNew.contactPhotos.title" = "Zdjęcia kontaktów";
-/* What's New v1.3 - Contact photos feature, description */
-"whatsNew.contactPhotos.description" = "Ustaw awatar dla dowolnego kontaktu, aby łatwiej rozpoznawać osoby na listach i w rozmowach.";
+/* What's New v1.4 - Sender avatars in channels and rooms, title */
+"whatsNew.senderAvatars.title" = "Awatary w kanałach i pokojach";
+/* What's New v1.4 - Sender avatars in channels and rooms, description */
+"whatsNew.senderAvatars.description" = "Przychodzące wiadomości w kanałach i pokojach pokazują awatar nadawcy.";
 
-/* What's New v1.3 - Map filters feature, title */
-"whatsNew.mapFilters.title" = "Filtry mapy";
-/* What's New v1.3 - Map filters feature, description */
-"whatsNew.mapFilters.description" = "Filtruj pinezki według ulubionych, odkrytych węzłów i typu węzła.";
+/* What's New v1.4 - Failed-send badges on the Chats list, title */
+"whatsNew.failedSends.title" = "Nieudane wysyłki w Czatach";
+/* What's New v1.4 - Failed-send badges on the Chats list, description */
+"whatsNew.failedSends.description" = "Lista Czatów oznacza rozmowę, gdy wysyłanie wiadomości się nie powiedzie.";

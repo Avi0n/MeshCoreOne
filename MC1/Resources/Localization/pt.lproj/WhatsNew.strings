@@ -13,19 +13,19 @@
 "whatsNew.continueButton" = "Continuar";
 
 /* Link on the What's New sheet to the full GitHub release notes */
-"whatsNew.fullReleaseNotes" = "Ver as notas de versão completas";
+"whatsNew.fullReleaseNotes" = "Ver todas as novas alterações";
 
-/* What's New v1.3 - Improved chats feature, title */
-"whatsNew.fasterChats.title" = "Conversas melhoradas";
-/* What's New v1.3 - Improved chats feature, description */
-"whatsNew.fasterChats.description" = "Ao abrir uma conversa, o ecrã salta para as mensagens novas em vez de ir para o fim. A hora aparece em cada balão, e o histórico e as pré-visualizações de links carregam mais depressa.";
+/* What's New v1.4 - Incoming message translation feature, title */
+"whatsNew.messageTranslation.title" = "Tradução de mensagens recebidas";
+/* What's New v1.4 - Incoming message translation feature, description */
+"whatsNew.messageTranslation.description" = "Traduza as mensagens recebidas para o idioma do dispositivo. No iOS 26.4 ou posterior, usa-se primeiro o Apple Intelligence e depois os pacotes de idioma do Traduzir.";
 
-/* What's New v1.3 - Contact photos feature, title */
-"whatsNew.contactPhotos.title" = "Fotos de contactos";
-/* What's New v1.3 - Contact photos feature, description */
-"whatsNew.contactPhotos.description" = "Defina um avatar em qualquer contacto para reconhecer pessoas mais facilmente em listas e conversas.";
+/* What's New v1.4 - Sender avatars in channels and rooms, title */
+"whatsNew.senderAvatars.title" = "Avatares em canais e salas";
+/* What's New v1.4 - Sender avatars in channels and rooms, description */
+"whatsNew.senderAvatars.description" = "As mensagens recebidas em canais e salas mostram o avatar do remetente.";
 
-/* What's New v1.3 - Map filters feature, title */
-"whatsNew.mapFilters.title" = "Filtros do mapa";
-/* What's New v1.3 - Map filters feature, description */
-"whatsNew.mapFilters.description" = "Filtre os pontos por favoritos, nós descobertos e tipo de nó.";
+/* What's New v1.4 - Failed-send badges on the Chats list, title */
+"whatsNew.failedSends.title" = "Falhas de envio nas Conversas";
+/* What's New v1.4 - Failed-send badges on the Chats list, description */
+"whatsNew.failedSends.description" = "A lista de Conversas assinala uma conversa quando o envio de uma mensagem falha.";
