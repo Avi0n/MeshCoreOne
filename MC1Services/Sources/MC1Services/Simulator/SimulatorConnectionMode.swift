@@ -39,8 +39,13 @@ final class SimulatorConnectionMode {
   func seedDataStore(_ dataStore: PersistenceStore) async throws {
     try await dataStore.saveDevice(MockDataProvider.simulatorDevice)
 
+    // Mock contacts omit avatarImageData; copy any existing value onto the upsert so saveContact(_:) does not apply nil.
     for contact in MockDataProvider.contacts {
-      try await dataStore.saveContact(contact)
+      if let existingAvatar = try await dataStore.fetchContact(id: contact.id)?.avatarImageData {
+        try await dataStore.saveContact(contact.with(avatarImageData: existingAvatar))
+      } else {
+        try await dataStore.saveContact(contact)
+      }
     }
 
     for channel in MockDataProvider.channels {
