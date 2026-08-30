@@ -214,7 +214,11 @@ struct ConnectionManagerReconnectAbandonmentTests {
 
     // Guard-exit: intent no longer wants connection when the sleep completes.
     env.manager.setTestState(connectionIntent: .userDisconnected)
-    try await Task.sleep(for: .milliseconds(80))
+    // After testWatchdogInitialDelay the watchdog Task resumes on MainActor.
+    // Wait until the natural-exit defer has niled reconnectionWatchdogTask.
+    try await waitUntil(timeout: .seconds(2), "watchdog should nil after natural exit") {
+      !env.manager.isReconnectionWatchdogRunning
+    }
 
     // Natural-exit defer must nil the finished Task (not isCancelled).
     #expect(!env.manager.isReconnectionWatchdogRunning)
