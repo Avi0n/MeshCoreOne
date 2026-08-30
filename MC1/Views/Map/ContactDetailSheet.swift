@@ -77,6 +77,12 @@ struct ContactDetailSheet: View {
             }
           }
 
+          if let lastHeard = contact.lastHeardTimestamp, lastHeard > 0 {
+            LabeledContent(L10n.Map.Map.Detail.lastHeard) {
+              ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(lastHeard)), font: .body)
+            }
+          }
+
           if contact.lastAdvertTimestamp > 0 {
             LabeledContent(L10n.Map.Map.Detail.lastAdvert) {
               ConversationTimestamp(date: Date(timeIntervalSince1970: TimeInterval(contact.lastAdvertTimestamp)), font: .body)

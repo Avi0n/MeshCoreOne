@@ -1,6 +1,7 @@
 import MC1Services
 import OSLog
 import SwiftUI
+import Translation
 import UIKit // UIPasteboard for .copy action
 
 private let logger = Logger(subsystem: "com.mc1", category: "ChatConversationView")
@@ -44,6 +45,9 @@ struct ChatConversationView: View {
   @State private var blockSenderContext: BlockSenderContext?
   @State private var sendDMContext: SendDMContext?
   @State private var imageViewerData: ImageViewerData?
+  @State private var translationConfiguration: TranslationSession.Configuration?
+  @State private var systemTranslationText = ""
+  @State private var showSystemTranslation = false
 
   // MARK: - Other State
 
@@ -70,6 +74,7 @@ struct ChatConversationView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.appTheme) private var theme
+  @Environment(\.locale) private var locale
 
   /// Snapshot of env-derived inputs the view model needs to construct
   /// MessageItems at write time. Recomputed on every render — Equatable
@@ -92,7 +97,8 @@ struct ChatConversationView: View {
       isOffline: !appState.offlineMapService.isNetworkAvailable,
       currentUserName: appState.localNodeName,
       themeID: theme.id,
-      contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize)
+      contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize),
+      preferredLanguageCode: EnvInputs.preferredLanguageCode(from: locale)
     )
   }
 
@@ -224,12 +230,12 @@ struct ChatConversationView: View {
         chatViewModel: chatViewModel,
         onClearChannelMessages: {
           guard case let .channel(channel) = conversationType else { return }
-          await chatViewModel.loadChannelMessages(for: channel)
+          await chatViewModel.loadChannelMessages(for: channel, populateMode: .replace)
           parentViewModel?.requestConversationReload()
         },
         onClearDirectMessages: {
           guard case let .dm(contact) = conversationType else { return }
-          await chatViewModel.loadMessages(for: contact)
+          await chatViewModel.loadMessages(for: contact, populateMode: .replace)
           parentViewModel?.requestConversationReload()
         },
         onDeleteChannel: {
@@ -276,11 +282,34 @@ struct ChatConversationView: View {
     .task(id: appState.servicesVersion) {
       await performInitialLoad()
     }
+    .conversationTranslationSession(
+      configuration: $translationConfiguration,
+      request: $chatViewModel.translationSessionRequest,
+      perform: { translator, request in
+        let result = await chatViewModel.performPendingTranslation(using: translator, for: request)
+        if case let .presentSystemOverlay(text: text) = result {
+          systemTranslationText = text
+          showSystemTranslation = true
+        }
+        return result
+      }
+    )
+    // Overlay after `.conversationTranslationSession`: `.translationPresentation`
+    // must not sit in that modifier's `.translationTask` content tree.
+    .background {
+      Color.clear
+        .accessibilityHidden(true)
+        .translationPresentation(
+          isPresented: $showSystemTranslation,
+          text: systemTranslationText
+        )
+    }
     .onDisappear {
       // Load-bearing on iPad: MainSidebarView pins the Chats detail stack with
       // `.id(chatsSelectedRoute.conversationID)`, so a detail swap tears down this view's
       // @State (including draftSaveTask) before the debounce fires — flush here.
       flushDraft()
+      chatViewModel.cancelPendingTranslation()
       performCleanup()
     }
     .onChange(of: chatViewModel.composingText) { _, _ in
@@ -358,7 +387,7 @@ struct ChatConversationView: View {
 
     switch conversationType {
     case let .dm(contact):
-      await chatViewModel.loadMessages(for: contact)
+      await chatViewModel.loadMessages(for: contact, populateMode: .refreshWindow)
       await chatViewModel.loadConversations(radioID: contact.radioID)
       await chatViewModel.loadAllContacts(radioID: contact.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
@@ -366,7 +395,7 @@ struct ChatConversationView: View {
     case let .channel(channel):
       // Load contacts first so contactNameSet is populated before buildChannelSenders runs
       await chatViewModel.loadAllContacts(radioID: channel.radioID)
-      await chatViewModel.loadChannelMessages(for: channel)
+      await chatViewModel.loadChannelMessages(for: channel, populateMode: .refreshWindow)
       await chatViewModel.loadConversations(radioID: channel.radioID)
       chatViewModel.restoreComposerDraft(from: appState.draftStore, id: conversationType.draftConversationID)
     }
@@ -615,6 +644,8 @@ struct ChatConversationView: View {
       handleReply(for: message)
     case .copy:
       handleCopy(for: message)
+    case .translate:
+      presentSystemTranslation(text: message.text)
     case .sendAgain:
       handleSendAgain(for: message)
     case .blockSender:
@@ -655,7 +686,15 @@ struct ChatConversationView: View {
   }
 
   private func handleCopy(for message: MessageDTO) {
-    UIPasteboard.general.string = message.text
+    UIPasteboard.general.string = chatViewModel.displayedText(for: message)
+  }
+
+  private func presentSystemTranslation(text: String) {
+    systemTranslationText = text
+    Task {
+      try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
+      showSystemTranslation = true
+    }
   }
 
   private func handleSendAgain(for message: MessageDTO) {
@@ -733,7 +772,7 @@ struct ChatConversationView: View {
     }
 
     if case let .channel(channel) = conversationType {
-      await chatViewModel.loadChannelMessages(for: channel)
+      await chatViewModel.loadChannelMessages(for: channel, populateMode: .replace)
     }
     services.syncCoordinator.notifyConversationsChanged()
   }
@@ -772,7 +811,8 @@ private extension View {
       conversationType: .dm(ContactDTO(from: Contact(
         radioID: UUID(),
         publicKey: Data(repeating: 0x42, count: 32),
-        name: "Alice"
+        name: "Alice",
+        lastHeardTimestamp: 0
       )))
     )
   }

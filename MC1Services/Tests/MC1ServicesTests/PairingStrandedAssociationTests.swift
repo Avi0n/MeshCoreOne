@@ -23,7 +23,7 @@ struct PairingStrandedAssociationTests {
     // sweep treats it as a saved radio and leaves the accessory in place, so only a
     // reintroduced auth-arm cleanup could remove it. The count-zero assertion below
     // would then fail, guarding against that regression.
-    let store = manager.createStandalonePersistenceStore()
+    let store = manager.persistenceStore
     try await store.saveDevice(DeviceDTO.testDevice(id: deviceID))
     mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "test")])
 
@@ -144,7 +144,7 @@ struct PairingStrandedAssociationTests {
     let mockASK = env.accessorySetupKit
     let savedID = UUID()
 
-    let store = manager.createStandalonePersistenceStore()
+    let store = manager.persistenceStore
     try await store.saveDevice(DeviceDTO.testDevice(id: savedID))
 
     mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: savedID, displayName: "saved")])

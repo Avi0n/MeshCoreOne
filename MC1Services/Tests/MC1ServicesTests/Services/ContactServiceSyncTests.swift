@@ -120,4 +120,198 @@ struct ContactServiceSyncTests {
     let stored = try await store.fetchContacts(radioID: radioID)
     #expect(Set(stored.map(\.name)) == ["Alice", "Existing"])
   }
+
+  @Test
+  func `Manual refresh waits for an in-flight advert delta sync`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(
+      radioID: radioID,
+      maxChannels: 8,
+      lastContactSync: 1_704_067_200
+    )
+    let coordinator = SyncCoordinator()
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([meshContact(0xAA, name: "Alice")])
+    let service = ContactService(
+      session: session,
+      dataStore: store,
+      syncCoordinator: coordinator,
+      cleanupCoordinator: nil
+    )
+
+    let gated = GatedSyncContactService()
+    let advertTask = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: radioID,
+        dataStore: store,
+        contactService: gated
+      )
+    }
+    await gated.waitForSyncStart()
+
+    let refreshTask = Task { try await service.syncContactsForRefresh(radioID: radioID) }
+
+    try await Task.sleep(for: .milliseconds(200))
+    #expect(
+      await session.getContactsInvocations.isEmpty,
+      "A manual refresh must not fetch while an advert delta sync holds the claim"
+    )
+
+    await gated.release()
+    #expect(await advertTask.value == .synced)
+    _ = try await refreshTask.value
+    #expect(await session.getContactsInvocations.count == 1)
+  }
+
+  @Test
+  func `Manual refresh claim is atomic so a racing advert delta returns busy`() async throws {
+    // claimManualContactSync waits and sets the flag in one actor method so a racing
+    // performAdvertContactSync either waits behind the claim or sees manual = true.
+    // Separate wait and claim hops leave a gap where a delta can pass both.
+    //
+    // The refresh body is gated at getContacts so the test can observe the claim held
+    // before racing a second advert. Without that barrier the refresh can finish (and
+    // clear the flag) or not yet claim before the race is evaluated.
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(
+      radioID: radioID,
+      maxChannels: 8,
+      lastContactSync: 1_704_067_200
+    )
+    let coordinator = SyncCoordinator()
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([meshContact(0xAA, name: "Alice")])
+    await session.holdNextGetContacts()
+    let service = ContactService(
+      session: session,
+      dataStore: store,
+      syncCoordinator: coordinator,
+      cleanupCoordinator: nil
+    )
+
+    let gated = GatedSyncContactService()
+    let firstAdvert = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: radioID,
+        dataStore: store,
+        contactService: gated
+      )
+    }
+    await gated.waitForSyncStart()
+
+    let refreshTask = Task { try await service.syncContactsForRefresh(radioID: radioID) }
+    // Refresh is parked in the claim wait; release the first advert so the claim lands.
+    await gated.release()
+    #expect(await firstAdvert.value == .synced)
+
+    // Claim + set manual finished, refresh body parked in getContacts.
+    await session.waitForGetContactsStart()
+    #expect(await session.isGetContactsHeld())
+
+    // Claim is held for the whole refresh body. A new advert round must return .busy
+    // rather than entering syncContacts and racing progress events.
+    let secondAdvert = await coordinator.performAdvertContactSync(
+      fullRefetch: false,
+      radioID: radioID,
+      dataStore: store,
+      contactService: MockContactService()
+    )
+    #expect(secondAdvert == .busy, "Manual claim must block advert delta for the whole refresh")
+
+    await session.releaseGetContacts()
+    _ = try await refreshTask.value
+    #expect(await session.getContactsInvocations.count == 1)
+  }
+
+  @Test
+  func `Manual refresh surfaces syncInterrupted when the advert claim wait times out`() async throws {
+    // ContactService maps a timed-out claim to syncInterrupted so the refresh
+    // spinner stops with an error rather than hanging or racing the advert stream.
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(
+      radioID: radioID,
+      maxChannels: 8,
+      lastContactSync: 1_704_067_200
+    )
+    let coordinator = SyncCoordinator()
+    await coordinator.setAdvertContactSyncWaitTimeoutOverride(.milliseconds(40))
+
+    let session = MockMeshCoreSession()
+    await session.setStubbedContacts([meshContact(0xAA, name: "Alice")])
+    let service = ContactService(
+      session: session,
+      dataStore: store,
+      syncCoordinator: coordinator,
+      cleanupCoordinator: nil
+    )
+
+    let gated = GatedSyncContactService()
+    let advertTask = Task {
+      await coordinator.performAdvertContactSync(
+        fullRefetch: false,
+        radioID: radioID,
+        dataStore: store,
+        contactService: gated
+      )
+    }
+    await gated.waitForSyncStart()
+
+    var surfaced: ContactServiceError?
+    do {
+      _ = try await service.syncContactsForRefresh(radioID: radioID)
+    } catch let error as ContactServiceError {
+      surfaced = error
+    } catch {
+      Issue.record("Expected ContactServiceError.syncInterrupted, got \(error)")
+    }
+
+    guard case .syncInterrupted = surfaced else {
+      Issue.record("Refresh must map wait timeout to syncInterrupted, got \(String(describing: surfaced))")
+      await gated.release()
+      _ = await advertTask.value
+      return
+    }
+    #expect(
+      await session.getContactsInvocations.isEmpty,
+      "Timed-out refresh must not start a contact fetch"
+    )
+
+    await gated.release()
+    _ = await advertTask.value
+  }
+}
+
+/// Contact service stub that parks inside `syncContacts` until released, so a test can
+/// hold an advert-driven delta sync open.
+private actor GatedSyncContactService: ContactServiceProtocol {
+  private var hasStarted = false
+  private var startWaiters: [CheckedContinuation<Void, Never>] = []
+  private var gate: CheckedContinuation<Void, Never>?
+  private var isReleased = false
+
+  func waitForSyncStart() async {
+    if hasStarted { return }
+    await withCheckedContinuation { startWaiters.append($0) }
+  }
+
+  func release() {
+    isReleased = true
+    gate?.resume()
+    gate = nil
+  }
+
+  func syncContacts(radioID _: UUID, since _: Date?) async throws -> ContactSyncResult {
+    hasStarted = true
+    while !startWaiters.isEmpty {
+      startWaiters.removeFirst().resume()
+    }
+    if !isReleased {
+      await withCheckedContinuation { gate = $0 }
+    }
+    return ContactSyncResult(contactsReceived: 0, lastSyncTimestamp: 0, isIncremental: true)
+  }
 }

@@ -86,6 +86,12 @@ struct RoomMessageActionsSheet: View {
       action: { performAction(.copy) }
     )
 
+    ActionButton(
+      title: L10n.Chats.Chats.Message.Action.translate,
+      icon: "translate",
+      action: { performAction(.translate) }
+    )
+
     if availability.canSendAgain {
       ActionButton(
         title: L10n.Chats.Chats.Message.Action.sendAgain,

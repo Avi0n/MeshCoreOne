@@ -20,12 +20,10 @@ struct RepeaterStatusContent: View {
   let connectedDeviceID: UUID?
   /// Contact whose login route is shown at the bottom; nil hides the route section.
   var routePathContact: ContactDTO?
-  /// Clock drift measured at login; nil when no login carried the node's clock.
-  var clockDrift: TimeInterval?
 
   var body: some View {
     List {
-      NodeStatusHeaderSection(session: session, clockDrift: clockDrift)
+      NodeStatusHeaderSection(session: session)
       StatusSection(viewModel: viewModel, session: session, connectionState: connectionState)
       NodeTelemetryDisclosureSection(helper: viewModel.helper, connectionState: connectionState) {
         await viewModel.requestTelemetry(for: session)
@@ -61,7 +59,8 @@ struct RepeaterStatusContent: View {
         neighbors: viewModel.neighbors,
         contacts: contacts,
         discoveredNodes: discoveredNodes,
-        userLocation: userLocation
+        userLocation: userLocation,
+        keyDisplayByteCount: viewModel.neighborKeyDisplayByteCount
       )
     }
     .themedCanvas(theme)
@@ -215,6 +214,7 @@ private struct NeighborsSection: View {
                 neighbor: neighbor,
                 displayName: resolution?.displayName ?? L10n.RemoteNodes.RemoteNodes.Status.unknown,
                 matchKind: resolution?.matchKind ?? .unresolved,
+                keyDisplayByteCount: viewModel.neighborKeyDisplayByteCount,
                 previousNeighbor: viewModel.helper.previousNeighborSnapshot?.neighborSnapshots?.first {
                   $0.publicKeyPrefix == neighbor.publicKeyPrefix
                 },
@@ -236,7 +236,10 @@ private struct NeighborsSection: View {
               )
               DisappearedNeighborRow(
                 neighbor: old,
-                displayName: resolution?.displayName ?? NeighborNameResolver.fallbackName(for: old.publicKeyPrefix),
+                displayName: resolution?.displayName ?? NeighborNameResolver.fallbackName(
+                  for: old.publicKeyPrefix,
+                  byteCount: viewModel.neighborKeyDisplayByteCount
+                ),
                 matchKind: resolution?.matchKind ?? .unresolved
               )
             }

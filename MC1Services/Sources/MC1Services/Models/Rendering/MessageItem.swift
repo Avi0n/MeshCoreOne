@@ -50,18 +50,28 @@ public struct MessageItem: Identifiable, Sendable, Hashable {
     shouldRequestPreviewFetch ? id : nil
   }
 
-  /// Returns a new item with the supplied envelope and/or footer overridden.
-  /// Eliminates the 6-field rebuild at single-row mutation sites.
+  public var translation: MessageTranslationChrome? {
+    for fragment in content {
+      if case let .text(payload) = fragment {
+        return payload.translation
+      }
+    }
+    return nil
+  }
+
+  /// Returns a new item with the supplied envelope, footer, and/or grouping
+  /// overridden. Eliminates the 6-field rebuild at single-row mutation sites.
   public func with(
     envelope: MessageEnvelope? = nil,
-    footer: MessageFooter? = nil
+    footer: MessageFooter? = nil,
+    grouping: GroupingFlags? = nil
   ) -> MessageItem {
     MessageItem(
       id: id,
       envelope: envelope ?? self.envelope,
       content: content,
       footer: footer ?? self.footer,
-      grouping: grouping,
+      grouping: grouping ?? self.grouping,
       shouldRequestPreviewFetch: shouldRequestPreviewFetch
     )
   }

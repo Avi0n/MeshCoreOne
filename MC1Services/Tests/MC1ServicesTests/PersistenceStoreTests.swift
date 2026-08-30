@@ -1539,6 +1539,7 @@ struct PersistenceStoreTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: true,
       isMuted: false,
@@ -2105,10 +2106,12 @@ struct PersistenceStoreTests {
     radioID: UUID,
     senderTimestamp: UInt32? = nil,
     regionScope: String? = nil,
+    regionScopeMatches: [String] = [],
     payloadTypeBits: UInt8 = 5,
     transportCode: Data? = nil,
     channelIndex: UInt8? = 1,
-    packetPayload: Data = Data([0xAB, 0xCD, 0xEF])
+    packetPayload: Data = Data([0xAB, 0xCD, 0xEF]),
+    receivedAt: Date = Date()
   ) -> RxLogEntryDTO {
     // Create minimal ParsedRxLogData for the DTO
     let parsed = ParsedRxLogData(
@@ -2127,12 +2130,14 @@ struct PersistenceStoreTests {
 
     return RxLogEntryDTO(
       radioID: radioID,
+      receivedAt: receivedAt,
       from: parsed,
       channelIndex: channelIndex,
       channelName: "TestChannel",
       decryptStatus: .success,
       senderTimestamp: senderTimestamp,
       regionScope: regionScope,
+      regionScopeMatches: regionScopeMatches,
       decodedText: "Hello mesh!"
     )
   }
@@ -2315,12 +2320,78 @@ struct PersistenceStoreTests {
     let dto = createTestRxLogEntryDTO(
       radioID: device.id,
       senderTimestamp: 1_703_000_000,
-      regionScope: "Germany"
+      regionScope: "Germany",
+      regionScopeMatches: ["Germany"]
     )
     try await store.saveRxLogEntry(dto)
 
     let entries = try await store.fetchRxLogEntries(radioID: device.id)
     #expect(entries.first?.regionScope == "Germany")
+    #expect(entries.first?.regionScopeMatches == ["Germany"])
+  }
+
+  @Test
+  func `batchUpdateRxLogRegion writes dual region fields`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let dto = createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 1_703_000_050,
+      regionScope: "Germany",
+      regionScopeMatches: ["Germany"],
+      transportCode: Data([0x12, 0x34])
+    )
+    try await store.saveRxLogEntry(dto)
+    let id = try #require(try await store.fetchRxLogEntries(radioID: device.id).first?.id)
+
+    try await store.batchUpdateRxLogRegion(updates: [(
+      id: id,
+      regionScope: nil,
+      regionScopeMatches: ["de-by", "de-hh"]
+    )])
+
+    let updated = try #require(try await store.fetchRxLogEntries(radioID: device.id).first)
+    #expect(updated.regionScope == nil)
+    #expect(updated.regionScopeMatches == ["de-by", "de-hh"])
+  }
+
+  @Test
+  func `fetchEntriesWithTransportCode includes labeled rows and honors limit`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let base = Date(timeIntervalSince1970: 1_700_000_000)
+    // Five transport-coded rows with distinct receivedAt; one nil-code row to exclude.
+    for index in 0..<5 {
+      try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+        radioID: device.id,
+        senderTimestamp: UInt32(index),
+        regionScope: index == 0 ? "Germany" : nil,
+        regionScopeMatches: index == 0 ? ["Germany"] : [],
+        transportCode: Data([UInt8(index), 0x02]),
+        receivedAt: base.addingTimeInterval(TimeInterval(index))
+      ))
+    }
+    try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 99,
+      transportCode: nil,
+      receivedAt: base.addingTimeInterval(100)
+    ))
+
+    let limit = 2
+    let entries = try await store.fetchEntriesWithTransportCode(radioID: device.id, limit: limit)
+    #expect(entries.count == limit)
+    #expect(entries.allSatisfy { $0.transportCode != nil })
+    // Newest-first by receivedAt: index 4 then 3 when sort is .reverse and fetchLimit applies.
+    #expect(entries.map(\.receivedAt) == [
+      base.addingTimeInterval(4),
+      base.addingTimeInterval(3)
+    ])
+    #expect(entries.map(\.senderTimestamp) == [4, 3])
   }
 
   @Test
@@ -2359,11 +2430,12 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateChannelMessageRegion(
       radioID: device.id,
-      updates: [(channelIndex: 0, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+      updates: [(channelIndex: 0, senderTimestamp: wireTimestamp, regionScope: "Germany", regionScopeMatches: ["Germany"])]
     )
 
     let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 0)
     #expect(saved.first?.regionScope == "Germany")
+    #expect(saved.first?.regionScopeMatches == ["Germany"])
   }
 
   @Test
@@ -2385,11 +2457,43 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateChannelMessageRegion(
       radioID: device.id,
-      updates: [(channelIndex: 1, senderTimestamp: originalWire, regionScope: "USA")]
+      updates: [(channelIndex: 1, senderTimestamp: originalWire, regionScope: "USA", regionScopeMatches: ["USA"])]
     )
 
     let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 1)
     #expect(saved.first?.regionScope == "USA")
+    #expect(saved.first?.regionScopeMatches == ["USA"])
+  }
+
+  @Test
+  func `batchUpdateChannelMessageRegion writes multi-match regionScopeMatches with nil scope`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let wireTimestamp: UInt32 = 1_703_666_666
+    let dto = MessageDTO.testChannelMessage(
+      radioID: device.id,
+      channelIndex: 3,
+      timestamp: wireTimestamp,
+      direction: .incoming,
+      status: .delivered
+    )
+    try await store.saveMessage(dto)
+
+    try await store.batchUpdateChannelMessageRegion(
+      radioID: device.id,
+      updates: [(
+        channelIndex: 3,
+        senderTimestamp: wireTimestamp,
+        regionScope: nil,
+        regionScopeMatches: ["First", "Second"]
+      )]
+    )
+
+    let saved = try #require(try await store.fetchMessages(radioID: device.id, channelIndex: 3).first)
+    #expect(saved.regionScope == nil)
+    #expect(Set(saved.regionScopeMatches) == Set(["First", "Second"]))
   }
 
   @Test
@@ -2410,7 +2514,7 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateChannelMessageRegion(
       radioID: device.id,
-      updates: [(channelIndex: 2, senderTimestamp: wireTimestamp, regionScope: "France")]
+      updates: [(channelIndex: 2, senderTimestamp: wireTimestamp, regionScope: "France", regionScopeMatches: ["France"])]
     )
 
     let saved = try await store.fetchMessages(radioID: device.id, channelIndex: 2)
@@ -2438,11 +2542,12 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateDMMessageRegion(
       radioID: device.id,
-      updates: [(senderPrefixByte: 0xAB, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+      updates: [(senderPrefixByte: 0xAB, senderTimestamp: wireTimestamp, regionScope: "Germany", regionScopeMatches: ["Germany"])]
     )
 
     let saved = try await store.fetchMessages(contactID: contactID)
     #expect(saved.first?.regionScope == "Germany")
+    #expect(saved.first?.regionScopeMatches == ["Germany"])
   }
 
   @Test
@@ -2480,7 +2585,7 @@ struct PersistenceStoreTests {
 
     try await store.batchUpdateDMMessageRegion(
       radioID: device.id,
-      updates: [(senderPrefixByte: 0xAA, senderTimestamp: wireTimestamp, regionScope: "Germany")]
+      updates: [(senderPrefixByte: 0xAA, senderTimestamp: wireTimestamp, regionScope: "Germany", regionScopeMatches: ["Germany"])]
     )
 
     let aliceSaved = try await store.fetchMessages(contactID: aliceContact)
@@ -2490,6 +2595,450 @@ struct PersistenceStoreTests {
   }
 
   // MARK: - saveContact isNew / deleteContactIfUnreferenced
+
+  @Test
+  func `deleteContactIfUnreferenced skips when messages exist and deletes when none`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let withMessagesID = try await store.saveContact(
+      radioID: device.id, from: createTestContactFrame(name: "WithMsgs")
+    ).id
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: device.id, contactID: withMessagesID, text: "keep")
+    )
+    try await store.deleteContactIfUnreferenced(id: withMessagesID)
+    #expect(try await store.fetchContact(id: withMessagesID) != nil)
+    #expect(try await store.fetchMessages(contactID: withMessagesID, limit: 10, offset: 0).count == 1)
+
+    let bareID = try await store.saveContact(
+      radioID: device.id, from: createTestContactFrame(name: "Bare")
+    ).id
+    try await store.deleteContactIfUnreferenced(id: bareID)
+    #expect(try await store.fetchContact(id: bareID) == nil)
+  }
+
+  // MARK: - adoptOrphanedDirectMessages
+
+  @Test
+  func `adoptOrphanedDirectMessages links orphan DM and updates unread`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let frame = createTestContactFrame(name: "LateContact")
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
+    let prefix = Data(frame.publicKey.prefix(6))
+    let stamp = UInt32(1_700_000_200)
+    let orphan = MessageDTO(
+      id: UUID(),
+      radioID: device.id,
+      contactID: nil,
+      channelIndex: nil,
+      text: "hello orphan",
+      timestamp: stamp,
+      createdAt: Date(timeIntervalSince1970: TimeInterval(stamp)),
+      sortDate: Date(timeIntervalSince1970: TimeInterval(stamp)),
+      direction: .incoming,
+      status: .delivered,
+      textType: .plain,
+      ackCode: nil,
+      pathLength: 0,
+      snr: nil,
+      pathNodes: nil,
+      senderKeyPrefix: prefix,
+      senderNodeName: nil,
+      isRead: false,
+      replyToID: nil,
+      roundTripTime: nil,
+      heardRepeats: 0,
+      sendCount: 1,
+      retryAttempt: 0,
+      maxRetryAttempts: 0,
+      containsSelfMention: true
+    )
+    try await store.saveMessage(orphan)
+
+    let adopted = try await store.adoptOrphanedDirectMessages(
+      radioID: device.id,
+      contacts: [(id: contactID, publicKey: frame.publicKey)]
+    )
+    #expect(adopted[contactID] == 1)
+
+    let messages = try await store.fetchMessages(contactID: contactID, limit: 10, offset: 0)
+    #expect(messages.count == 1)
+    #expect(messages[0].contactID == contactID)
+    #expect(messages[0].deduplicationKey?.contains(contactID.uuidString) == true)
+
+    let contact = try #require(await store.fetchContact(id: contactID))
+    #expect(contact.unreadCount == 1)
+    #expect(contact.unreadMentionCount == 1)
+    #expect(contact.lastMessageDate != nil)
+
+    // Idempotent: second run adopts nothing and does not double-count.
+    let second = try await store.adoptOrphanedDirectMessages(
+      radioID: device.id,
+      contacts: [(id: contactID, publicKey: frame.publicKey)]
+    )
+    #expect(second.isEmpty)
+    let after = try #require(await store.fetchContact(id: contactID))
+    #expect(after.unreadCount == 1)
+    #expect(after.unreadMentionCount == 1)
+  }
+
+  @Test
+  func `newestUnreadIncomingMessage returns the newest unread incoming only`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let contactID = try await store.saveContact(
+      radioID: device.id, from: createTestContactFrame(name: "A")
+    ).id
+    let otherID = try await store.saveContact(
+      radioID: device.id, from: createTestContactFrame(name: "B")
+    ).id
+
+    let base = Date(timeIntervalSince1970: 1_700_000_000)
+    func save(
+      _ text: String, contact: UUID, direction: MessageDirection, read: Bool, at offset: TimeInterval
+    ) async throws -> UUID {
+      let date = base.addingTimeInterval(offset)
+      let message = MessageDTO(from: Message(
+        radioID: device.id,
+        contactID: contact,
+        text: text,
+        timestamp: UInt32(date.timeIntervalSince1970),
+        createdAt: date,
+        sortDate: date,
+        directionRawValue: direction.rawValue,
+        isRead: read
+      ))
+      try await store.saveMessage(message)
+      return message.id
+    }
+
+    _ = try await save("old unread incoming", contact: contactID, direction: .incoming, read: false, at: 10)
+    let newest = try await save("new unread incoming", contact: contactID, direction: .incoming, read: false, at: 30)
+    _ = try await save("newer but read", contact: contactID, direction: .incoming, read: true, at: 40)
+    _ = try await save("newer but outgoing", contact: contactID, direction: .outgoing, read: false, at: 50)
+    _ = try await save("other contact unread", contact: otherID, direction: .incoming, read: false, at: 60)
+
+    let result = try await store.newestUnreadIncomingMessage(contactID: contactID)
+    #expect(result?.id == newest)
+    #expect(result?.text == "new unread incoming")
+  }
+
+  @Test
+  func `newestUnreadIncomingMessage returns nil when no unread incoming exists`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let contactID = try await store.saveContact(radioID: device.id, from: createTestContactFrame()).id
+
+    let read = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: contactID,
+      text: "already read",
+      timestamp: 1_700_000_100,
+      directionRawValue: MessageDirection.incoming.rawValue,
+      isRead: true
+    ))
+    try await store.saveMessage(read)
+
+    #expect(try await store.newestUnreadIncomingMessage(contactID: contactID) == nil)
+  }
+
+  @Test
+  func `adoptOrphanedDirectMessages never adopts a channel message`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let frame = createTestContactFrame(name: "Only")
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
+    let prefix = Data(frame.publicKey.prefix(6))
+    let messageID = UUID()
+    try await store.saveMessage(
+      MessageDTO(
+        id: messageID,
+        radioID: device.id,
+        contactID: nil,
+        channelIndex: 1,
+        text: "channel",
+        timestamp: 1_700_000_300,
+        createdAt: Date(),
+        direction: .incoming,
+        status: .delivered,
+        textType: .plain,
+        ackCode: nil,
+        pathLength: 0,
+        snr: nil,
+        pathNodes: nil,
+        senderKeyPrefix: prefix,
+        senderNodeName: "Sender",
+        isRead: false,
+        replyToID: nil,
+        roundTripTime: nil,
+        heardRepeats: 0,
+        retryAttempt: 0,
+        maxRetryAttempts: 0
+      )
+    )
+
+    let adopted = try await store.adoptOrphanedDirectMessages(
+      radioID: device.id,
+      contacts: [(id: contactID, publicKey: frame.publicKey)]
+    )
+    #expect(adopted.isEmpty)
+    let all = try await store.fetchAllMessages(radioID: device.id)
+    let row = try #require(all.first { $0.id == messageID })
+    #expect(row.contactID == nil)
+    #expect(row.channelIndex == 1)
+  }
+
+  @Test
+  func `adoptOrphanedDirectMessages never adopts an outgoing message`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let frame = createTestContactFrame(name: "Only")
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
+    let prefix = Data(frame.publicKey.prefix(6))
+    let messageID = UUID()
+    try await store.saveMessage(
+      MessageDTO(
+        id: messageID,
+        radioID: device.id,
+        contactID: nil,
+        channelIndex: nil,
+        text: "outgoing",
+        timestamp: 1_700_000_301,
+        createdAt: Date(),
+        direction: .outgoing,
+        status: .sent,
+        textType: .plain,
+        ackCode: nil,
+        pathLength: 0,
+        snr: nil,
+        pathNodes: nil,
+        senderKeyPrefix: prefix,
+        senderNodeName: nil,
+        isRead: true,
+        replyToID: nil,
+        roundTripTime: nil,
+        heardRepeats: 0,
+        retryAttempt: 0,
+        maxRetryAttempts: 0
+      )
+    )
+
+    let adopted = try await store.adoptOrphanedDirectMessages(
+      radioID: device.id,
+      contacts: [(id: contactID, publicKey: frame.publicKey)]
+    )
+    #expect(adopted.isEmpty)
+    let all = try await store.fetchAllMessages(radioID: device.id)
+    let row = try #require(all.first { $0.id == messageID })
+    #expect(row.contactID == nil)
+  }
+
+  @Test
+  func `adoptOrphanedDirectMessages never adopts reaction wire text`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let frame = createTestContactFrame(name: "Only")
+    let contactID = try await store.saveContact(radioID: device.id, from: frame).id
+    let prefix = Data(frame.publicKey.prefix(6))
+    let messageID = UUID()
+    // Sole contact match: only the reaction skip can leave this row unlinked.
+    #expect(ReactionParser.isReactionText("r:abcd:01", isDM: true))
+    try await store.saveMessage(
+      MessageDTO(
+        id: messageID,
+        radioID: device.id,
+        contactID: nil,
+        channelIndex: nil,
+        text: "r:abcd:01",
+        timestamp: 1_700_000_302,
+        createdAt: Date(),
+        direction: .incoming,
+        status: .delivered,
+        textType: .plain,
+        ackCode: nil,
+        pathLength: 0,
+        snr: nil,
+        pathNodes: nil,
+        senderKeyPrefix: prefix,
+        senderNodeName: nil,
+        isRead: false,
+        replyToID: nil,
+        roundTripTime: nil,
+        heardRepeats: 0,
+        retryAttempt: 0,
+        maxRetryAttempts: 0
+      )
+    )
+
+    let adopted = try await store.adoptOrphanedDirectMessages(
+      radioID: device.id,
+      contacts: [(id: contactID, publicKey: frame.publicKey)]
+    )
+    #expect(adopted.isEmpty)
+    let all = try await store.fetchAllMessages(radioID: device.id)
+    let row = try #require(all.first { $0.id == messageID })
+    #expect(row.contactID == nil)
+  }
+
+  @Test
+  func `adoptOrphanedDirectMessages skips multi-match prefix`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let frameA = createTestContactFrame(name: "A")
+    let idA = try await store.saveContact(radioID: device.id, from: frameA).id
+    var keyB = frameA.publicKey
+    keyB[6] = keyB[6] &+ 1
+    let frameB = ContactFrame(
+      publicKey: keyB,
+      type: frameA.type,
+      flags: frameA.flags,
+      outPathLength: 0,
+      outPath: Data(),
+      name: "B",
+      lastAdvertTimestamp: frameA.lastAdvertTimestamp,
+      latitude: 0,
+      longitude: 0,
+      lastModified: frameA.lastModified
+    )
+    let idB = try await store.saveContact(radioID: device.id, from: frameB).id
+    let prefix = Data(frameA.publicKey.prefix(6))
+    let messageID = UUID()
+    try await store.saveMessage(
+      MessageDTO(
+        id: messageID,
+        radioID: device.id,
+        contactID: nil,
+        channelIndex: nil,
+        text: "ambiguous",
+        timestamp: 1_700_000_303,
+        createdAt: Date(),
+        direction: .incoming,
+        status: .delivered,
+        textType: .plain,
+        ackCode: nil,
+        pathLength: 0,
+        snr: nil,
+        pathNodes: nil,
+        senderKeyPrefix: prefix,
+        senderNodeName: nil,
+        isRead: false,
+        replyToID: nil,
+        roundTripTime: nil,
+        heardRepeats: 0,
+        retryAttempt: 0,
+        maxRetryAttempts: 0
+      )
+    )
+
+    let multi = try await store.adoptOrphanedDirectMessages(
+      radioID: device.id,
+      contacts: [(id: idA, publicKey: frameA.publicKey), (id: idB, publicKey: frameB.publicKey)]
+    )
+    #expect(multi.isEmpty, "shared prefix must leave orphans unlinked")
+    let all = try await store.fetchAllMessages(radioID: device.id)
+    #expect(all.first { $0.id == messageID }?.contactID == nil)
+  }
+
+  @Test
+  func `adoptOrphanedDirectMessages adopts blocked contact without unread bump`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let frameC = createTestContactFrame(name: "Blocked")
+    let idC = try await store.saveContact(radioID: device.id, from: frameC).id
+    let blockedDTO = try #require(await store.fetchContact(id: idC))
+    try await store.saveContact(
+      ContactDTO.testContact(
+        id: idC,
+        radioID: device.id,
+        publicKey: frameC.publicKey,
+        name: "Blocked",
+        typeRawValue: blockedDTO.typeRawValue,
+        flags: blockedDTO.flags,
+        outPathLength: blockedDTO.outPathLength,
+        outPath: blockedDTO.outPath,
+        lastAdvertTimestamp: blockedDTO.lastAdvertTimestamp,
+        lastModified: blockedDTO.lastModified,
+        isBlocked: true
+      )
+    )
+    let cPrefix = Data(frameC.publicKey.prefix(6))
+    try await store.saveMessage(
+      MessageDTO(
+        id: UUID(),
+        radioID: device.id,
+        contactID: nil,
+        channelIndex: nil,
+        text: "blocked orphan",
+        timestamp: 1_700_000_304,
+        createdAt: Date(),
+        direction: .incoming,
+        status: .delivered,
+        textType: .plain,
+        ackCode: nil,
+        pathLength: 0,
+        snr: nil,
+        pathNodes: nil,
+        senderKeyPrefix: cPrefix,
+        senderNodeName: nil,
+        isRead: false,
+        replyToID: nil,
+        roundTripTime: nil,
+        heardRepeats: 0,
+        retryAttempt: 0,
+        maxRetryAttempts: 0
+      )
+    )
+    let blockedAdopted = try await store.adoptOrphanedDirectMessages(
+      radioID: device.id,
+      contacts: [(id: idC, publicKey: frameC.publicKey)]
+    )
+    #expect(blockedAdopted[idC] == 1)
+    let blocked = try #require(await store.fetchContact(id: idC))
+    #expect(blocked.unreadCount == 0)
+    #expect(try await store.fetchMessages(contactID: idC, limit: 5, offset: 0).count == 1)
+  }
+
+  @Test
+  func `phone clock clamp agrees between touch and backup helpers`() async throws {
+    let store = try await createTestStore()
+    let farFuture = UInt32(Date().timeIntervalSince1970) &+ (60 * 60 * 24 * 30)
+    let now = Date()
+    let fromStatic = PersistenceStore.clampedPhoneClockTimestamp(farFuture, at: now)
+    let fromBackup = await store.clampedBackupLastHeardTimestamp(farFuture, at: now)
+    #expect(fromStatic == fromBackup)
+    #expect(fromStatic < farFuture)
+  }
+
+  @Test
+  func `updateDeviceLastContactSync stores radio-ahead watermark without phone clamp`() async throws {
+    // lastContactSync is max(contact.lastmod) from the radio RTC, not the phone clock.
+    // Phone-clamping it pins the watermark below every contact lastmod when the radio
+    // leads the phone, so firmware lastmod > since matches the whole table every delta.
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let phoneNow = UInt32(Date().timeIntervalSince1970)
+    let radioAhead = phoneNow &+ (30 * 24 * 60 * 60)
+    try await store.updateDeviceLastContactSync(radioID: device.radioID, timestamp: radioAhead)
+
+    let fetched = try #require(await store.fetchDevice(radioID: device.radioID))
+    #expect(fetched.lastContactSync == radioAhead)
+  }
 
   @Test
   func `saveContact from frame returns isNew true then false with stable id`() async throws {
@@ -2522,26 +3071,58 @@ struct PersistenceStoreTests {
   }
 
   @Test
-  func `deleteContactIfUnreferenced skips when messages exist and deletes when none`() async throws {
+  func `touchContactHeard bumps contact and existing discovered node`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()
     try await store.saveDevice(device)
 
-    let withMessagesID = try await store.saveContact(
-      radioID: device.id, from: createTestContactFrame(name: "WithMsgs")
-    ).id
-    try await store.saveMessage(
-      MessageDTO.testDirectMessage(radioID: device.id, contactID: withMessagesID, text: "keep")
-    )
-    try await store.deleteContactIfUnreferenced(id: withMessagesID)
-    #expect(try await store.fetchContact(id: withMessagesID) != nil)
-    #expect(try await store.fetchMessages(contactID: withMessagesID, limit: 10, offset: 0).count == 1)
+    let frame = createTestContactFrame(name: "Heard")
+    _ = try await store.saveContact(radioID: device.id, from: frame)
+    _ = try await store.upsertDiscoveredNode(radioID: device.id, from: frame)
 
-    let bareID = try await store.saveContact(
-      radioID: device.id, from: createTestContactFrame(name: "Bare")
-    ).id
-    try await store.deleteContactIfUnreferenced(id: bareID)
-    #expect(try await store.fetchContact(id: bareID) == nil)
+    let stamp = Date(timeIntervalSince1970: 1_800_000_000)
+    let known = try await store.touchContactHeard(
+      radioID: device.id, publicKey: frame.publicKey, at: stamp
+    )
+    #expect(known == true)
+
+    let contact = try #require(await store.fetchContact(radioID: device.id, publicKey: frame.publicKey))
+    #expect(contact.lastHeardTimestamp == 1_800_000_000)
+
+    let nodes = try await store.fetchDiscoveredNodes(radioID: device.id)
+    let node = try #require(nodes.first { $0.publicKey == frame.publicKey })
+    #expect(node.lastHeard == stamp)
+
+    let unknown = try await store.touchContactHeard(
+      radioID: device.id, publicKey: Data(repeating: 0xEE, count: 32), at: stamp
+    )
+    #expect(unknown == false)
+  }
+
+  @Test
+  func `touchContactHeard creates a missing discovered node`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let frame = createTestContactFrame(name: "NoDiscoverRow")
+    _ = try await store.saveContact(radioID: device.id, from: frame)
+    #expect(try await store.fetchDiscoveredNodes(radioID: device.id).isEmpty)
+
+    let stamp = Date(timeIntervalSince1970: 1_800_000_500)
+    let known = try await store.touchContactHeard(
+      radioID: device.id, publicKey: frame.publicKey, at: stamp
+    )
+    #expect(known == true)
+
+    let nodes = try await store.fetchDiscoveredNodes(radioID: device.id)
+    let node = try #require(nodes.first { $0.publicKey == frame.publicKey })
+    #expect(node.name == frame.name)
+    #expect(node.typeRawValue == frame.type.rawValue)
+    #expect(node.lastAdvertTimestamp == frame.lastAdvertTimestamp)
+    #expect(node.latitude == frame.latitude)
+    #expect(node.longitude == frame.longitude)
+    #expect(node.lastHeard == stamp)
   }
 
   // MARK: - Mute Tests

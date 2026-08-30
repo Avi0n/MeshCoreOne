@@ -15,7 +15,7 @@ import Testing
 /// `AppState.ensureChatPrewarmRefresher()` wiring end to end; the unit tests
 /// in ChatPrewarmRefresherTests inject test hooks and cannot catch a
 /// production-wiring failure.
-@Suite("ChatTimelineFreshness", .serialized)
+@Suite("ChatTimelineFreshness", .serialized, .isolatedIncomingAvatarJPEGStore)
 @MainActor
 struct ChatTimelineFreshnessTests {
   // MARK: - Fixtures
@@ -39,6 +39,7 @@ struct ChatTimelineFreshnessTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -90,7 +91,13 @@ struct ChatTimelineFreshnessTests {
     )
   }
 
-  private func makeChannelMessage(radioID: UUID, channelIndex: UInt8 = 0, timestamp: UInt32, text: String) -> MessageDTO {
+  private func makeChannelMessage(
+    radioID: UUID,
+    channelIndex: UInt8 = 0,
+    timestamp: UInt32,
+    text: String,
+    senderNodeName: String = "Sender"
+  ) -> MessageDTO {
     MessageDTO(
       id: UUID(),
       radioID: radioID,
@@ -106,7 +113,7 @@ struct ChatTimelineFreshnessTests {
       pathLength: 0,
       snr: nil,
       senderKeyPrefix: nil,
-      senderNodeName: "Sender",
+      senderNodeName: senderNodeName,
       isRead: false,
       replyToID: nil,
       roundTripTime: nil,
@@ -148,9 +155,9 @@ struct ChatTimelineFreshnessTests {
       dataStore: dataStore,
       bake: bake,
       envInputs: .default,
-      senderTables: .empty,
-      reactions: nil,
-      postApply: nil
+      senderTables: { .empty },
+      postApply: nil,
+      anchorSortDate: nil
     )
     guard case .loaded = outcome else {
       Issue.record("populate outcome was \(outcome), expected .loaded")
@@ -160,6 +167,73 @@ struct ChatTimelineFreshnessTests {
     await coordinator.buildItemsTask?.value
     let dividerItemID = coordinator.renderState.items.first { $0.grouping.showNewMessagesDivider }?.id
     #expect(dividerItemID == newMessage.id)
+  }
+
+  @Test
+  func `populate bakeAll reads sender tables after the fetch await`() async throws {
+    let dataStore = try makeStore()
+    let registry = ChatCoordinatorRegistry(dataStore: dataStore)
+    let radioID = UUID()
+    let channel = makeChannel(radioID: radioID)
+    try await dataStore.saveChannel(channel)
+
+    let alice = makeChannelMessage(
+      radioID: radioID,
+      timestamp: 1000,
+      text: "hi",
+      senderNodeName: "Alice"
+    )
+    try await dataStore.saveMessage(alice)
+
+    let contactID = UUID()
+    let stale = IncomingAvatarIdentity(
+      name: "Alice",
+      matchedContactID: contactID,
+      imageRevision: 1
+    )
+    let live = IncomingAvatarIdentity(
+      name: "Alice",
+      matchedContactID: contactID,
+      imageRevision: 2
+    )
+    var tables = ChatSenderTables(
+      contacts: [],
+      nicknamesByLoweredName: [:],
+      incomingAvatars: ["alice": stale]
+    )
+
+    let coordinator = registry.coordinator(for: .channel(radioID: radioID, channelIndex: channel.index))
+    let owner = WriterOwner()
+    let writer = try #require(coordinator.bindWriter(owner: owner, role: .prime))
+    let bake = ChatMessageBakeState()
+
+    coordinator.testPopulateAfterFetchHook = {
+      tables = ChatSenderTables(
+        contacts: [],
+        nicknamesByLoweredName: [:],
+        incomingAvatars: ["alice": live]
+      )
+    }
+    defer { coordinator.testPopulateAfterFetchHook = nil }
+
+    let outcome = await ChatTimelinePopulator.populate(
+      .channel(channel),
+      writer: writer,
+      dataStore: dataStore,
+      bake: bake,
+      envInputs: .default,
+      senderTables: { tables },
+      postApply: nil,
+      anchorSortDate: nil
+    )
+    guard case .loaded = outcome else {
+      Issue.record("populate outcome was \(outcome), expected .loaded")
+      return
+    }
+
+    await coordinator.buildItemsTask?.value
+    let item = coordinator.renderState.items.first { $0.id == alice.id }
+    #expect(item?.envelope.incomingAvatar == live)
   }
 
   // MARK: - Production hook chain, arrival-time refresh
@@ -288,7 +362,7 @@ struct ChatTimelineFreshnessTests {
       conversation: .dm(contact)
     )
     viewModel.applyEnvInputs(.default)
-    await viewModel.primeInitialMessages(for: contact)
+    await viewModel.primeInitialMessages(for: contact, populateMode: .replace)
 
     let id = ChatConversationID.dm(radioID: radioID, contactID: contact.id)
     let coordinator = try #require(registry.existingCoordinator(for: id))

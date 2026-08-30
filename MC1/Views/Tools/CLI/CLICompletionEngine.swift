@@ -58,7 +58,7 @@ final class CLICompletionEngine {
 
   /// Per MeshCore CLI Reference - region subcommands
   private static let regionSubcommands = [
-    "load", "get", "put", "remove", "allowf", "denyf", "home", "save", "list"
+    "load", "get", "put", "remove", "allowf", "denyf", "home", "default", "save", "list"
   ]
 
   /// Per MeshCore CLI Reference - gps subcommands

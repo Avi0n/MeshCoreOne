@@ -346,14 +346,23 @@
 /* Location: RepeaterSettingsView.swift - Regions section footer */
 "remoteNodes.settings.regionsFooter" = "Збережіть на ретранслятор, щоб зберегти зміни після перезавантажень.";
 
-/* Location: RepeaterSettingsView.swift - Wildcard region display name */
-"remoteNodes.settings.regions.allTraffic" = "Увесь трафік";
+/* Location: RepeaterSettingsView.swift - Unscoped region display name */
+"remoteNodes.settings.regions.allTraffic" = "Без області";
 
-/* Location: RepeaterSettingsView.swift - Wildcard with asterisk display */
-"remoteNodes.settings.regions.allTrafficWildcard" = "* (Увесь трафік)";
+/* Location: RepeaterSettingsView.swift - Unscoped region with asterisk display */
+"remoteNodes.settings.regions.allTrafficWildcard" = "* (Без області)";
 
 /* Location: RepeaterSettingsView.swift - Home region picker label */
 "remoteNodes.settings.regions.homeRegion" = "Домашній регіон";
+
+/* Location: RepeaterSettingsView.swift - Default scope picker label */
+"remoteNodes.settings.regions.defaultScope" = "Область за замовчуванням";
+
+/* Location: RepeaterSettingsView.swift - No default scope */
+"remoteNodes.settings.regions.noDefault" = "Немає";
+
+/* Location: RepeaterSettingsView.swift - Caption under default scope picker */
+"remoteNodes.settings.regions.defaultScopeCaption" = "Застосовує область до пакетів, що походять від цього вузла, наприклад оголошень. Це налаштування одразу зберігається на ретрансляторі.";
 
 /* Location: RepeaterSettingsView.swift - No home region set */
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
@@ -384,6 +393,15 @@
 
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
 "remoteNodes.settings.regions.addFailed" = "Не вдалося додати регіон";
+
+/* Location: RepeaterSettingsView.swift - Region name charset validation */
+"remoteNodes.settings.regions.invalidName" = "Назви регіонів можуть містити лише літери, цифри та дефіси.";
+
+/* Location: RepeaterSettingsView.swift - Region name length validation */
+"remoteNodes.settings.regions.nameTooLong" = "Назви регіонів обмежені %d байтами.";
+
+/* Location: RepeaterSettingsView.swift - Duplicate region name validation */
+"remoteNodes.settings.regions.duplicate" = "Цей регіон уже існує.";
 
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
 "remoteNodes.settings.regions.removeFailed" = "Не вдалося видалити регіон";

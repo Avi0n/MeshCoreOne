@@ -129,7 +129,7 @@ struct TransportCodeRegionResolverTests {
   // MARK: - Region matching
 
   @Test
-  func `Round-trip: compute code then resolve back to region name`() throws {
+  func `Round-trip: compute code then resolve back to unique region name`() throws {
     let regionName = "Germany"
     let scopeKey = try #require(TransportCodeRegionResolver.deriveScopeKey(regionName: regionName))
     let expectedCode = TransportCodeRegionResolver.calcTransportCode(
@@ -139,28 +139,28 @@ struct TransportCodeRegionResolverTests {
     )
 
     let scopeKeys: [(name: String, key: Data)] = [(regionName, scopeKey)]
-    let match = TransportCodeRegionResolver.findMatchingRegion(
+    let match = TransportCodeRegionResolver.matchRegions(
       scopeKeys: scopeKeys,
       expectedTransportCode0: expectedCode,
       payloadTypeBits: groupTextPayloadBits,
       payload: samplePayload
     )
-    #expect(match == regionName)
+    #expect(match == .unique(regionName))
   }
 
   @Test
-  func `Empty scopeKeys returns nil`() {
-    let match = TransportCodeRegionResolver.findMatchingRegion(
+  func `Empty scopeKeys returns none`() {
+    let match = TransportCodeRegionResolver.matchRegions(
       scopeKeys: [],
       expectedTransportCode0: 0x1234,
       payloadTypeBits: groupTextPayloadBits,
       payload: samplePayload
     )
-    #expect(match == nil)
+    #expect(match == .none)
   }
 
   @Test
-  func `No matching region returns nil`() throws {
+  func `No matching region returns none`() throws {
     let germany = try #require(TransportCodeRegionResolver.deriveScopeKey(regionName: "Germany"))
     let usa = try #require(TransportCodeRegionResolver.deriveScopeKey(regionName: "USA"))
     let actualCode = TransportCodeRegionResolver.calcTransportCode(
@@ -174,17 +174,17 @@ struct TransportCodeRegionResolverTests {
       ("Germany", germany),
       ("USA", usa)
     ]
-    let match = TransportCodeRegionResolver.findMatchingRegion(
+    let match = TransportCodeRegionResolver.matchRegions(
       scopeKeys: scopeKeys,
       expectedTransportCode0: wrongCode,
       payloadTypeBits: groupTextPayloadBits,
       payload: samplePayload
     )
-    #expect(match == nil)
+    #expect(match == .none)
   }
 
   @Test
-  func `First match wins when iterating scopeKeys`() throws {
+  func `Ambiguous match returns all names sorted independent of input order`() throws {
     let scopeKey = try #require(TransportCodeRegionResolver.deriveScopeKey(regionName: "Germany"))
     let expectedCode = TransportCodeRegionResolver.calcTransportCode(
       scopeKey: scopeKey,
@@ -192,17 +192,45 @@ struct TransportCodeRegionResolverTests {
       payload: samplePayload
     )
 
-    // Same key listed twice under different names — first one wins.
-    let scopeKeys: [(name: String, key: Data)] = [
-      ("FirstName", scopeKey),
-      ("SecondName", scopeKey)
+    // Same key under two names — both verify the transport code; never first-match only.
+    let forward: [(name: String, key: Data)] = [
+      ("de-by", scopeKey),
+      ("de-hh", scopeKey)
     ]
-    let match = TransportCodeRegionResolver.findMatchingRegion(
-      scopeKeys: scopeKeys,
+    let reverse: [(name: String, key: Data)] = [
+      ("de-hh", scopeKey),
+      ("de-by", scopeKey)
+    ]
+
+    let forwardMatch = TransportCodeRegionResolver.matchRegions(
+      scopeKeys: forward,
       expectedTransportCode0: expectedCode,
       payloadTypeBits: groupTextPayloadBits,
       payload: samplePayload
     )
-    #expect(match == "FirstName")
+    let reverseMatch = TransportCodeRegionResolver.matchRegions(
+      scopeKeys: reverse,
+      expectedTransportCode0: expectedCode,
+      payloadTypeBits: groupTextPayloadBits,
+      payload: samplePayload
+    )
+
+    #expect(forwardMatch == .ambiguous(["de-by", "de-hh"]))
+    #expect(reverseMatch == .ambiguous(["de-by", "de-hh"]))
+    #expect(forwardMatch == reverseMatch)
+  }
+
+  @Test
+  func `Dollar-prefixed private regions never match via empty scope key`() {
+    // deriveScopeKey returns nil for $ names, so callers never put them in the
+    // cache; matchRegions with an empty list is the production path.
+    #expect(TransportCodeRegionResolver.deriveScopeKey(regionName: "$secret") == nil)
+    let match = TransportCodeRegionResolver.matchRegions(
+      scopeKeys: [],
+      expectedTransportCode0: 0x1234,
+      payloadTypeBits: groupTextPayloadBits,
+      payload: samplePayload
+    )
+    #expect(match == .none)
   }
 }

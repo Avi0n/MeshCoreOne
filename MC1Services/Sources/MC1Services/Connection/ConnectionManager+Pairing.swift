@@ -114,7 +114,7 @@ public extension ConnectionManager {
     if let connectedID = connectedDevice?.id { protectedIDs.insert(connectedID) }
     if let attemptID = activeConnectionAttemptDeviceID { protectedIDs.insert(attemptID) }
 
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
 
     for info in pairing.registeredDeviceInfos() where !protectedIDs.contains(info.id) {
       let existingDevice: DeviceDTO?
@@ -152,7 +152,7 @@ public extension ConnectionManager {
       logger.warning("Failed to remove from pairing registry: \(error.localizedDescription)")
     }
 
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
     try? await dataStore.demoteDeviceToGhost(id: deviceID)
 
     // Always clear this device's bond verification; store keys are holder-matched.
@@ -221,7 +221,7 @@ public extension ConnectionManager {
     await disconnect(reason: .forgetDevice)
     try await pairing.removeDevice(deviceID)
 
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
     do {
       if deleteData {
         try await dataStore.deleteDeviceAndData(id: deviceID)
@@ -250,7 +250,7 @@ public extension ConnectionManager {
       logger.warning("Failed to remove device from pairing registry: \(error.localizedDescription)")
     }
 
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
     do {
       try await dataStore.deleteDeviceAndData(id: id)
     } catch {
@@ -272,7 +272,7 @@ public extension ConnectionManager {
       throw ConnectionError.notConnected
     }
 
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
     let allContacts = try await dataStore.fetchContacts(radioID: radioID)
     return allContacts.count(where: { !$0.isFavorite })
   }
@@ -284,14 +284,14 @@ public extension ConnectionManager {
     try await removeContacts(matching: { !$0.isFavorite })
   }
 
-  /// Removes non-favorite contacts whose `lastModified` timestamp is older than the given threshold.
+  /// Removes non-favorite contacts whose recency timestamp is older than the given threshold.
   /// - Parameter days: Number of days. Contacts not heard from in this many days are removed.
   /// - Returns: Count of removed vs total stale contacts
   /// - Throws: `ConnectionError.notConnected` if no device is connected
   func removeStaleNodes(olderThanDays days: Int) async throws -> RemoveUnfavoritedResult {
     let cutoff = UInt32(Date().addingTimeInterval(-Double(days) * 86400).timeIntervalSince1970)
-    return try await removeContacts(matching: { !$0.isFavorite && $0.lastModified < cutoff }) { contact in
-      let ageDays = (Int(Date().timeIntervalSince1970) - Int(contact.lastModified)) / 86400
+    return try await removeContacts(matching: { $0.matchesStaleNodePrune(cutoff: cutoff) }) { contact in
+      let ageDays = (Int(Date().timeIntervalSince1970) - Int(contact.recencyTimestamp)) / 86400
       let keyPrefix = contact.publicKeyHex.prefix(8)
       self.logger.info("Auto-removed stale node '\(contact.name)' [\(keyPrefix)] (last heard \(ageDays)d ago)")
     }
@@ -314,7 +314,7 @@ public extension ConnectionManager {
       throw ConnectionError.notConnected
     }
 
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
     let allContacts = try await dataStore.fetchContacts(radioID: radioID)
     // Never bulk-remove the ZephCore V-contact: CMD_REMOVE turns firmware v.contact off.
     let selfPublicKey = connectedDevice?.publicKey
@@ -531,7 +531,7 @@ public extension ConnectionManager {
   /// Available even when disconnected, for device selection UI.
   func fetchSavedDevices() async throws -> [DeviceDTO] {
     logger.info("fetchSavedDevices called, connectionState: \(String(describing: connectionState))")
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
     let devices = try await dataStore.fetchDevices()
     logger.info("fetchSavedDevices returning \(devices.count) devices")
     return devices
@@ -542,7 +542,7 @@ public extension ConnectionManager {
   /// - Parameter id: The device UUID to demote
   func deleteDevice(id: UUID) async throws {
     logger.info("deleteDevice called for device: \(id)")
-    let dataStore = PersistenceStore(modelContainer: modelContainer)
+    let dataStore = persistenceStore
     try await dataStore.demoteDeviceToGhost(id: id)
 
     // Always clear this device's bond verification; store keys are holder-matched
@@ -595,7 +595,7 @@ extension ConnectionManager: DevicePairingDelegate {
       }
 
       // Demote to ghost — preserve publicKey ↔ radioID bridge
-      let dataStore = PersistenceStore(modelContainer: modelContainer)
+      let dataStore = persistenceStore
       do {
         try await dataStore.demoteDeviceToGhost(id: bluetoothID)
       } catch {
@@ -621,7 +621,7 @@ extension ConnectionManager: DevicePairingDelegate {
       }
 
       // Delete device record only — no data exists for a failed pairing
-      let dataStore = PersistenceStore(modelContainer: modelContainer)
+      let dataStore = persistenceStore
       do {
         try await dataStore.deleteDevice(id: bluetoothID)
         logger.info("Deleted device record after failed pairing")

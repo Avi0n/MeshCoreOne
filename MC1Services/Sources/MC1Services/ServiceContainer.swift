@@ -1,6 +1,5 @@
 import Foundation
 import MeshCore
-import OSLog
 import SwiftData
 
 /// Dependency injection container for MC1Services.
@@ -14,9 +13,11 @@ import SwiftData
 /// The container is per-connection, not a singleton: `ConnectionManager` builds a
 /// fresh `ServiceContainer` (and a fresh session) on every connection in
 /// `buildServicesAndSaveDevice`, and tears it down via `tearDown()` on disconnect
-/// before nilling its reference. Anything that must survive reconnects (for example
-/// detected platform or last-clean-sync state) lives on `ConnectionManager`, not here.
-/// `init` also reassigns the `DebugLogBuffer.shared` global to this container's buffer,
+/// before nilling its reference. The `PersistenceStore` is injected and
+/// process-lifetime on `ConnectionManager`; it is not minted here. Anything
+/// else that must survive reconnects (for example detected platform or
+/// last-clean-sync state) lives on `ConnectionManager`, not here. `init` also
+/// reassigns the `DebugLogBuffer.shared` global to this container's buffer,
 /// so a stale container's services must not keep running past teardown.
 ///
 /// ## Usage
@@ -25,7 +26,7 @@ import SwiftData
 /// // Create container with session and model container
 /// let container = ServiceContainer(
 ///     session: meshCoreSession,
-///     modelContainer: modelContainer,
+///     dataStore: persistenceStore,
 ///     radioID: radioUUID
 /// )
 ///
@@ -205,7 +206,8 @@ public final class ServiceContainer {
   ///
   /// - Parameters:
   ///   - session: The MeshCoreSession for device communication
-  ///   - modelContainer: The SwiftData model container for persistence
+  ///   - dataStore: Process-lifetime persistence store. Injected by
+  ///     `ConnectionManager`; the container does not mint its own.
   ///   - radioID: The connected device's radio ID. Used to scope the
   ///     chat send queue's pending-send rows so two radios cannot share
   ///     drain state across reconnects.
@@ -219,7 +221,7 @@ public final class ServiceContainer {
   ///     already-connected initial value as a fired edge.
   init(
     session: MeshCoreSession,
-    modelContainer: ModelContainer,
+    dataStore: PersistenceStore,
     radioID: UUID,
     appStateProvider: AppStateProvider? = nil,
     connectionStateEvents: EventBroadcaster<DeviceConnectionState>? = nil,
@@ -227,7 +229,7 @@ public final class ServiceContainer {
   ) {
     self.session = session
     self.appStateProvider = appStateProvider
-    dataStore = PersistenceStore(modelContainer: modelContainer)
+    self.dataStore = dataStore
     inlineImageDimensionsStore = InlineImageDimensionsStore()
 
     // Independent services (no dependencies)
@@ -346,21 +348,7 @@ public final class ServiceContainer {
     guard eventMonitoringState == .stopped else { return }
     eventMonitoringState = .starting
 
-    let logger = Logger(subsystem: "com.mc1", category: "ServiceContainer")
-
-    // Configure HeardRepeatsService with device info
-    do {
-      if let device = try await dataStore.fetchDevice(radioID: radioID) {
-        await heardRepeatsService.configure(
-          radioID: radioID,
-          localNodeName: device.nodeName
-        )
-      } else {
-        logger.warning("Device not found for HeardRepeatsService configuration")
-      }
-    } catch {
-      logger.warning("Failed to fetch device for HeardRepeatsService: \(error)")
-    }
+    await heardRepeatsService.configure(radioID: radioID)
 
     // Start event monitoring for services that need it
     if enableAdvertisementMonitoring {
@@ -370,10 +358,6 @@ public final class ServiceContainer {
     await messageService.startEventMonitoring()
     await messageService.startAckExpiryChecking()
 
-    let meshSession = session
-    await remoteNodeService.setRadioClockProvider { [weak meshSession] in
-      try? await meshSession?.getTime()
-    }
     await remoteNodeService.startEventMonitoring()
 
     // Always start message event monitoring so handlers are ready for polled messages
@@ -427,9 +411,8 @@ public final class ServiceContainer {
   }
 
   /// Full container teardown. Must be awaited before nulling the container
-  /// so chat send queue drains and chat coordinator off-main builds release
-  /// the strong references they hold on `MessageService` and `dataStore`.
-  /// `stopEventMonitoring()` alone does not cover those.
+  /// so the chat send queue drains. `stopEventMonitoring()` alone does not
+  /// cover that.
   func tearDown() async {
     await stopEventMonitoring()
 
@@ -499,9 +482,10 @@ extension ServiceContainer {
     radioID: UUID = UUID()
   ) async throws -> ServiceContainer {
     let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
     return ServiceContainer(
       session: session,
-      modelContainer: container,
+      dataStore: store,
       radioID: radioID
     )
   }

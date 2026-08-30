@@ -124,8 +124,13 @@ struct MessagePathMapView: View {
           Button(L10n.Localizable.Common.done) { dismiss() }
         }
       }
+      .navigationBarTitleDisplayMode(.inline)
       .onAppear {
-        locatedNodes = buildLocatedNodes()
+        rebuildLocatedNodes()
+      }
+      .onChange(of: pathViewModel.isLoading) { _, isLoading in
+        guard !isLoading else { return }
+        rebuildLocatedNodes()
       }
       .onChange(of: isStyleLoaded) { _, loaded in
         guard loaded, !hasInitiallyFit else { return }
@@ -167,13 +172,16 @@ struct MessagePathMapView: View {
     cameraRegionVersion += 1
   }
 
-  private func buildLocatedNodes() -> [(point: MapPoint, coordinate: CLLocationCoordinate2D)] {
+  private func rebuildLocatedNodes() {
+    locatedNodes = buildLocatedNodes(sender: pathViewModel.locatedSender(for: message))
+  }
+
+  private func buildLocatedNodes(
+    sender: ContactDTO?
+  ) -> [(point: MapPoint, coordinate: CLLocationCoordinate2D)] {
     var nodes: [(MapPoint, CLLocationCoordinate2D)] = []
 
-    // Sender
-    if let keyPrefix = message.senderKeyPrefix,
-       let sender = pathViewModel.contacts.first(where: { $0.publicKeyPrefix == keyPrefix }),
-       sender.hasLocation {
+    if let sender {
       let coord = CLLocationCoordinate2D(latitude: sender.latitude, longitude: sender.longitude)
       nodes.append((MapPoint(
         id: sender.id,

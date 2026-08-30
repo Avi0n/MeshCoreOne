@@ -1,14 +1,14 @@
 import Foundation
 
 /// Owns `ChatCoordinator` instances keyed by `ChatConversationID`.
-/// Owned by `AppState`; tears down on disconnect/radio-switch and rebinds
-/// its dataStore when services arrive. Multiple consumers resolving the
-/// same `ChatConversationID` share one `ChatCoordinator`, so canonical
-/// chat state stays unified across views.
+/// Owned by `AppState` and outlives connections. Multiple consumers
+/// resolving the same `ChatConversationID` share one `ChatCoordinator`,
+/// so canonical chat state stays unified across views.
 ///
 /// Capped by an LRU policy (default 16 entries) so the steady-state memory
 /// footprint stays bounded even on long sessions across many conversations.
-/// Evicted coordinators have their in-flight builds cancelled.
+/// Evicted coordinators have their in-flight builds cancelled. `clear()`
+/// empties entries; the registry stays and later lookups mint fresh ones.
 ///
 /// Intentionally not `@Observable` — views resolve one coordinator and
 /// observe that coordinator's properties. The registry is a lookup table;
@@ -19,7 +19,7 @@ public final class ChatCoordinatorRegistry {
 
   private var entries: [(id: ChatConversationID, coordinator: ChatCoordinator)] = []
   private let capacity: Int
-  private(set) var dataStore: PersistenceStore
+  private let dataStore: PersistenceStore
 
   public init(
     dataStore: PersistenceStore,
@@ -58,14 +58,9 @@ public final class ChatCoordinatorRegistry {
     entries.first(where: { $0.id == id })?.coordinator
   }
 
-  public func rebind(dataStore: PersistenceStore) {
-    tearDown()
-    self.dataStore = dataStore
-  }
-
-  /// Cancel in-flight builds and drain Tasks on every coordinator and
-  /// drop all entries.
-  public func tearDown() {
+  /// Cancel in-flight builds and drop all entries. The registry stays
+  /// usable; `coordinator(for:)` mints fresh empty entries.
+  public func clear() {
     for entry in entries {
       entry.coordinator.cancelInFlight()
     }

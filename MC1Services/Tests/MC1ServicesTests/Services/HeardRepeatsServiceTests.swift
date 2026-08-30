@@ -126,7 +126,7 @@ struct HeardRepeatsServiceTests {
       text: "north repeater check",
       timestamp: sendTimestamp
     ))
-    await service.configure(radioID: radioID, localNodeName: Self.testNodeName)
+    await service.configure(radioID: radioID)
 
     let events = service.events()
     let echo = makeEcho(
@@ -162,7 +162,7 @@ struct HeardRepeatsServiceTests {
       text: "hello",
       timestamp: sendTimestamp
     ))
-    await service.configure(radioID: radioID, localNodeName: Self.testNodeName)
+    await service.configure(radioID: radioID)
 
     let echo = makeEcho(
       radioID: radioID,
@@ -180,7 +180,7 @@ struct HeardRepeatsServiceTests {
   }
 
   @Test
-  func `no match for unknown timestamp or foreign sender`() async throws {
+  func `no match for unknown timestamp`() async throws {
     let (store, service) = try makeStoreAndService()
     let radioID = UUID()
     let channelIndex: UInt8 = 1
@@ -191,7 +191,7 @@ struct HeardRepeatsServiceTests {
       text: "hello",
       timestamp: sendTimestamp
     ))
-    await service.configure(radioID: radioID, localNodeName: Self.testNodeName)
+    await service.configure(radioID: radioID)
 
     let wrongTimestamp = makeEcho(
       radioID: radioID,
@@ -200,15 +200,6 @@ struct HeardRepeatsServiceTests {
       body: "hello"
     )
     #expect(await service.processForRepeats(wrongTimestamp) == nil)
-
-    let foreignSender = makeEcho(
-      radioID: radioID,
-      channelIndex: channelIndex,
-      senderTimestamp: sendTimestamp,
-      body: "hello",
-      senderName: "SomeoneElse"
-    )
-    #expect(await service.processForRepeats(foreignSender) == nil)
   }
 
   @Test
@@ -235,5 +226,39 @@ struct HeardRepeatsServiceTests {
       radioID: radioID, channelIndex: channelIndex, timestamp: timestamp, text: "message A"
     )
     #expect(matchA?.id == aID)
+  }
+
+  /// Air prefix is not a join key. Body, timestamp, and channel still match.
+  @Test
+  func `new-node rename then three TEST Hello echoes attach`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let sendTimestamp = UInt32(Date().timeIntervalSince1970)
+    let messageID = UUID()
+    try await store.saveMessage(MessageDTO.testChannelMessage(
+      id: messageID,
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "Hello",
+      timestamp: sendTimestamp
+    ))
+    await service.configure(radioID: radioID)
+
+    var lastCount: Int?
+    for _ in 0..<3 {
+      let echo = makeEcho(
+        radioID: radioID,
+        channelIndex: channelIndex,
+        senderTimestamp: sendTimestamp,
+        body: "Hello",
+        senderName: "TEST"
+      )
+      lastCount = await service.processForRepeats(echo)
+    }
+
+    #expect(lastCount == 3)
+    let repeats = try await store.fetchMessageRepeats(messageID: messageID)
+    #expect(repeats.count == 3)
   }
 }

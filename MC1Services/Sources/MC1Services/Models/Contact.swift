@@ -32,8 +32,10 @@ public final class Contact {
   /// Permission flags
   public var flags: UInt8
 
-  /// Encoded outbound path length (0xFF = flood; upper 2 bits = hash mode, lower 6 bits = hop count)
-  public var outPathLength: UInt8
+  /// Encoded outbound path length (0xFF = flood; upper 2 bits = hash mode,
+  /// lower 6 bits = hop count). Stored as Int so leftover Int8 flood sentinels
+  /// (-1) survive SwiftData fetch; the DTO exposes UInt8 via truncatingIfNeeded.
+  public var outPathLength: Int
 
   /// Outgoing routing path (up to 64 bytes)
   public var outPath: Data
@@ -49,6 +51,11 @@ public final class Contact {
 
   /// Last modification timestamp (for sync watermarking)
   public var lastModified: UInt32
+
+  /// Phone-clock epoch seconds of the last mesh liveness evidence this phone
+  /// recorded for the contact (advert receive, inbound DM, successful ping,
+  /// path-discovery response). Monotonic; 0 means never heard by this phone.
+  public var lastHeardTimestamp: UInt32 = 0
 
   /// Local nickname override (optional)
   public var nickname: String?
@@ -93,6 +100,7 @@ public final class Contact {
     latitude: Double = 0,
     longitude: Double = 0,
     lastModified: UInt32 = 0,
+    lastHeardTimestamp: UInt32,
     nickname: String? = nil,
     isBlocked: Bool = false,
     isMuted: Bool = false,
@@ -110,12 +118,13 @@ public final class Contact {
     self.name = name
     self.typeRawValue = typeRawValue
     self.flags = flags
-    self.outPathLength = outPathLength
+    self.outPathLength = Int(outPathLength)
     self.outPath = outPath
     self.lastAdvertTimestamp = lastAdvertTimestamp
     self.latitude = latitude
     self.longitude = longitude
     self.lastModified = lastModified
+    self.lastHeardTimestamp = lastHeardTimestamp
     self.nickname = nickname
     self.isBlocked = isBlocked
     self.isMuted = isMuted
@@ -144,6 +153,7 @@ public final class Contact {
       latitude: dto.latitude,
       longitude: dto.longitude,
       lastModified: dto.lastModified,
+      lastHeardTimestamp: dto.lastHeardTimestamp ?? 0,
       nickname: dto.nickname,
       isBlocked: dto.isBlocked,
       isMuted: dto.isMuted,
@@ -166,12 +176,13 @@ public final class Contact {
     name = dto.name
     typeRawValue = dto.typeRawValue
     flags = dto.flags
-    outPathLength = dto.outPathLength
+    outPathLength = Int(dto.outPathLength)
     outPath = dto.outPath
     lastAdvertTimestamp = dto.lastAdvertTimestamp
     latitude = dto.latitude
     longitude = dto.longitude
     lastModified = dto.lastModified
+    lastHeardTimestamp = max(lastHeardTimestamp, dto.lastHeardTimestamp ?? 0)
     nickname = dto.nickname
     isBlocked = dto.isBlocked
     isMuted = dto.isMuted
@@ -198,6 +209,7 @@ public final class Contact {
       latitude: frame.latitude,
       longitude: frame.longitude,
       lastModified: frame.lastModified,
+      lastHeardTimestamp: 0,
       isFavorite: (frame.flags & 0x01) != 0
     )
   }
@@ -223,7 +235,7 @@ public extension Contact {
 
   /// Whether this contact uses flood routing
   var isFloodRouted: Bool {
-    outPathLength == PacketBuilder.floodPathSentinel
+    UInt8(truncatingIfNeeded: outPathLength) == PacketBuilder.floodPathSentinel
   }
 
   /// Whether this contact has a known, valid location
@@ -251,7 +263,7 @@ public extension Contact {
     typeRawValue = frame.typeRawValue
     // Preserve bit 0 (favorite) from existing flags, take bits 1-7 from frame
     flags = (flags & 0x01) | (frame.flags & ~0x01)
-    outPathLength = frame.outPathLength
+    outPathLength = Int(frame.outPathLength)
     outPath = frame.outPath
     lastAdvertTimestamp = frame.lastAdvertTimestamp
     latitude = frame.latitude
@@ -266,7 +278,7 @@ public extension Contact {
       type: type,
       typeRawValue: typeRawValue,
       flags: flags,
-      outPathLength: outPathLength,
+      outPathLength: UInt8(truncatingIfNeeded: outPathLength),
       outPath: outPath,
       name: name,
       lastAdvertTimestamp: lastAdvertTimestamp,
@@ -293,6 +305,8 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
   public let latitude: Double
   public let longitude: Double
   public let lastModified: UInt32
+  /// Phone-clock epoch seconds; nil in legacy backup envelopes means never heard.
+  public let lastHeardTimestamp: UInt32?
   public let nickname: String?
   public let isBlocked: Bool
   public let isMuted: Bool
@@ -311,12 +325,13 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     name = contact.name
     typeRawValue = contact.typeRawValue
     flags = contact.flags
-    outPathLength = contact.outPathLength
+    outPathLength = UInt8(truncatingIfNeeded: contact.outPathLength)
     outPath = contact.outPath
     lastAdvertTimestamp = contact.lastAdvertTimestamp
     latitude = contact.latitude
     longitude = contact.longitude
     lastModified = contact.lastModified
+    lastHeardTimestamp = contact.lastHeardTimestamp
     nickname = contact.nickname
     isBlocked = contact.isBlocked
     isMuted = contact.isMuted
@@ -343,6 +358,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     latitude: Double,
     longitude: Double,
     lastModified: UInt32,
+    lastHeardTimestamp: UInt32?,
     nickname: String?,
     isBlocked: Bool,
     isMuted: Bool,
@@ -366,6 +382,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
     self.latitude = latitude
     self.longitude = longitude
     self.lastModified = lastModified
+    self.lastHeardTimestamp = lastHeardTimestamp
     self.nickname = nickname
     self.isBlocked = isBlocked
     self.isMuted = isMuted
@@ -451,6 +468,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
       typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
       outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
       latitude: latitude, longitude: longitude, lastModified: lastModified,
+      lastHeardTimestamp: lastHeardTimestamp,
       nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
       isFavorite: isFavorite, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
@@ -466,6 +484,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
       typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
       outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
       latitude: latitude, longitude: longitude, lastModified: lastModified,
+      lastHeardTimestamp: lastHeardTimestamp,
       nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
       isFavorite: isFavorite, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
@@ -481,6 +500,7 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
       typeRawValue: typeRawValue, flags: flags, outPathLength: outPathLength,
       outPath: outPath, lastAdvertTimestamp: lastAdvertTimestamp,
       latitude: latitude, longitude: longitude, lastModified: lastModified,
+      lastHeardTimestamp: lastHeardTimestamp,
       nickname: nickname, isBlocked: isBlocked, isMuted: isMuted,
       isFavorite: isFavorite, lastMessageDate: lastMessageDate,
       unreadCount: unreadCount, unreadMentionCount: unreadMentionCount,
@@ -511,8 +531,20 @@ public struct ContactDTO: Sendable, Equatable, Identifiable, Hashable, Codable, 
 
   // MARK: - RepeaterResolvable
 
+  /// Max of radio `lastModified` and phone-clock `lastHeardTimestamp`.
+  /// Legacy rows with a nil/0 heard stamp keep `lastModified` behavior.
+  public var recencyTimestamp: UInt32 {
+    max(lastModified, lastHeardTimestamp ?? 0)
+  }
+
+  /// Match used by `ConnectionManager.removeStaleNodes` for the given cutoff
+  /// (epoch seconds). Favorites never match.
+  public func matchesStaleNodePrune(cutoff: UInt32) -> Bool {
+    !isFavorite && recencyTimestamp < cutoff
+  }
+
   public var recencyDate: Date {
-    Date(timeIntervalSince1970: Double(lastModified))
+    Date(timeIntervalSince1970: Double(recencyTimestamp))
   }
 
   public var resolvableName: String {

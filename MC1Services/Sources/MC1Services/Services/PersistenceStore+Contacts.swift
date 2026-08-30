@@ -174,7 +174,8 @@ public extension PersistenceStore {
   }
 
   /// Insert-only rollback: probe for messages and delete in one ModelActor
-  /// region with no suspension between them.
+  /// region with no suspension between them. Prefer an orphan contact over a
+  /// cascade that wipes a concurrent DM.
   func deleteContactIfUnreferenced(id: UUID) throws {
     let targetID = id
     let messagePredicate = #Predicate<Message> { message in
@@ -186,6 +187,159 @@ public extension PersistenceStore {
       return
     }
     try deleteContact(id: id)
+  }
+
+  /// Links direct messages stored before their contact row existed. Channel
+  /// rows are excluded by their non-nil channelIndex; the sender-key prefix
+  /// match runs in memory because `#Predicate` cannot express `Data.prefix`.
+  /// A prefix matching two contacts is left orphaned rather than guessed.
+  ///
+  /// Once a DM is adopted, `deleteContactIfUnreferenced` cannot roll that
+  /// contact back. Ghost contacts become permanent. That is the intended trade.
+  ///
+  /// Reaction-format wire text is skipped so it does not become a chat bubble.
+  /// Blocked contacts get no unread or mention bump. Dedup keys are recomputed
+  /// with the adopted contact id so a later re-delivery does not duplicate.
+  @discardableResult
+  func adoptOrphanedDirectMessages(
+    radioID: UUID,
+    contacts: [(id: UUID, publicKey: Data)]
+  ) async throws -> [UUID: Int] {
+    guard !contacts.isEmpty else { return [:] }
+
+    let targetRadioID = radioID
+    let nilContactID: UUID? = nil
+    let nilChannel: UInt8? = nil
+    let incoming = MessageDirection.incoming.rawValue
+    // Scoped predicate with typed nils. Prefix match stays in memory because
+    // #Predicate cannot express Data.prefix.
+    let predicate = #Predicate<Message> { message in
+      message.radioID == targetRadioID
+        && message.contactID == nilContactID
+        && message.channelIndex == nilChannel
+        && message.directionRawValue == incoming
+    }
+    let orphans = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    guard !orphans.isEmpty else { return [:] }
+
+    var contactByID: [UUID: Contact] = [:]
+    contactByID.reserveCapacity(contacts.count)
+    for candidate in contacts {
+      let targetID = candidate.id
+      let contactPredicate = #Predicate<Contact> { contact in
+        contact.id == targetID
+      }
+      var descriptor = FetchDescriptor(predicate: contactPredicate)
+      descriptor.fetchLimit = 1
+      if let row = try modelContext.fetch(descriptor).first {
+        contactByID[row.id] = row
+      }
+    }
+
+    var adoptedCounts: [UUID: Int] = [:]
+    var newestDateByContact: [UUID: Date] = [:]
+    var unreadByContact: [UUID: Int] = [:]
+    var mentionByContact: [UUID: Int] = [:]
+
+    for message in orphans {
+      guard let prefix = message.senderKeyPrefix, !prefix.isEmpty else { continue }
+      if ReactionParser.isReactionText(message.text, isDM: true) {
+        continue
+      }
+
+      let matches = contacts.filter { candidate in
+        candidate.publicKey.starts(with: prefix)
+      }
+      guard matches.count == 1, let match = matches.first else { continue }
+      guard contactByID[match.id] != nil else { continue }
+
+      message.contactID = match.id
+      message.deduplicationKey = DeduplicationKey.contentBased(
+        contactID: match.id,
+        channelIndex: nil,
+        senderNodeName: message.senderNodeName,
+        timestamp: message.timestamp,
+        content: message.text
+      )
+
+      adoptedCounts[match.id, default: 0] += 1
+      let messageDate = message.sortDate
+      if let existing = newestDateByContact[match.id] {
+        newestDateByContact[match.id] = max(existing, messageDate)
+      } else {
+        newestDateByContact[match.id] = messageDate
+      }
+      if !message.isRead {
+        unreadByContact[match.id, default: 0] += 1
+      }
+      if message.containsSelfMention, !message.mentionSeen {
+        mentionByContact[match.id, default: 0] += 1
+      }
+    }
+
+    guard !adoptedCounts.isEmpty else { return [:] }
+
+    for contactID in adoptedCounts.keys {
+      guard let contact = contactByID[contactID] else { continue }
+      if let newest = newestDateByContact[contactID] {
+        if let existing = contact.lastMessageDate {
+          contact.lastMessageDate = max(existing, newest)
+        } else {
+          contact.lastMessageDate = newest
+        }
+      }
+      // Blocked contacts gain no unread or mention bump (live path parity).
+      if !contact.isBlocked {
+        if let unread = unreadByContact[contactID], unread > 0 {
+          contact.unreadCount += unread
+        }
+        if let mentions = mentionByContact[contactID], mentions > 0 {
+          contact.unreadMentionCount += mentions
+        }
+      }
+    }
+
+    try modelContext.save()
+    return adoptedCounts
+  }
+
+  /// Stamps phone-clock recency for a contact heard on air and the matching
+  /// DiscoveredNode lastHeard, creating that row from stored radio fields when missing.
+  /// Returns true when a Contact row existed.
+  @discardableResult
+  func touchContactHeard(radioID: UUID, publicKey: Data, at date: Date) throws -> Bool {
+    let targetRadioID = radioID
+    let targetKey = publicKey
+    let contactPredicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID && contact.publicKey == targetKey
+    }
+    var contactDescriptor = FetchDescriptor(predicate: contactPredicate)
+    contactDescriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(contactDescriptor).first else {
+      return false
+    }
+
+    let rawStamp = UInt32(date.timeIntervalSince1970)
+    let stamp = Self.clampedPhoneClockTimestamp(rawStamp, at: date)
+    contact.lastHeardTimestamp = max(contact.lastHeardTimestamp, stamp)
+
+    let nodePredicate = #Predicate<DiscoveredNode> { node in
+      node.radioID == targetRadioID && node.publicKey == targetKey
+    }
+    var nodeDescriptor = FetchDescriptor(predicate: nodePredicate)
+    nodeDescriptor.fetchLimit = 1
+    if try modelContext.fetch(nodeDescriptor).first == nil {
+      // A known contact can lack a Discover row (paired before the row existed,
+      // or restored from a backup). Hearing it on air makes it discoverable.
+      _ = try upsertDiscoveredNode(radioID: radioID, from: contact.toContactFrame())
+    }
+    if let node = try modelContext.fetch(nodeDescriptor).first {
+      node.lastHeard = date
+    }
+
+    try modelContext.save()
+    return true
   }
 
   /// Fetch all blocked contacts for a device

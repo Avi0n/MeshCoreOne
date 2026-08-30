@@ -25,9 +25,13 @@ struct ContactAvatar: View {
   }
 
   init(name: String, size: CGFloat) {
+    self.init(name: name, size: size, imageData: nil)
+  }
+
+  init(name: String, size: CGFloat, imageData: Data?) {
     self.name = name
     self.size = size
-    imageData = nil
+    self.imageData = imageData
   }
 
   var body: some View {

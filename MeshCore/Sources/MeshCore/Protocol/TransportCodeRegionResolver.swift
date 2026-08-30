@@ -76,30 +76,54 @@ public enum TransportCodeRegionResolver {
     return rawCode
   }
 
-  /// Find the matching region name for a packet, given a precomputed
-  /// `[(regionName, scopeKey)]` array. First match wins (mirrors firmware
-  /// iteration order).
+  /// Match a packet against every precomputed `[(regionName, scopeKey)]` entry.
   ///
-  /// Empty-array input short-circuits to nil. Callers (e.g. `RxLogService`)
-  /// own the cache and must rebuild it whenever the known-regions list
-  /// changes.
-  public static func findMatchingRegion(
+  /// Collects every name whose `calcTransportCode` equals
+  /// `expectedTransportCode0` (no first-hit early exit). Blank names are
+  /// dropped. Names are sorted with `localizedStandardCompare` so ambiguous
+  /// sets are order-stable. Empty input returns `.none`. Live cost is O(R)
+  /// HMACs per transport-coded packet; callers own and rebuild the cache.
+  public static func matchRegions(
     scopeKeys: [(name: String, key: Data)],
     expectedTransportCode0: UInt16,
     payloadTypeBits: UInt8,
     payload: Data
-  ) -> String? {
-    guard !scopeKeys.isEmpty else { return nil }
+  ) -> RegionMatchResult {
+    guard !scopeKeys.isEmpty else { return .none }
+
+    var matchedNames: [String] = []
     for (name, key) in scopeKeys {
+      let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !trimmed.isEmpty else { continue }
       let code = calcTransportCode(
         scopeKey: key,
         payloadTypeBits: payloadTypeBits,
         payload: payload
       )
       if code == expectedTransportCode0 {
-        return name
+        matchedNames.append(trimmed)
       }
     }
-    return nil
+
+    let uniqueSorted = Array(Set(matchedNames)).sorted {
+      $0.localizedStandardCompare($1) == .orderedAscending
+    }
+
+    switch uniqueSorted.count {
+    case 0:
+      return .none
+    case 1:
+      return .unique(uniqueSorted[0])
+    default:
+      return .ambiguous(uniqueSorted)
+    }
   }
+}
+
+/// Result of matching a packet's `transport_codes[0]` against known public
+/// region scope keys. Ambiguous sets always carry at least two sorted names.
+public enum RegionMatchResult: Equatable, Sendable {
+  case none
+  case unique(String)
+  case ambiguous([String])
 }

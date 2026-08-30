@@ -218,8 +218,8 @@ extension MockDataProvider {
     ]
   }
 
-  /// Frank "Dad" (2-hop): weak/very-weak SNR, a flood-routed incoming with a region
-  /// scope, and a heard-repeat-backed outgoing (repeats seeded separately).
+  /// Frank "Dad" (2-hop): weak/very-weak SNR, unique and ambiguous flood-region
+  /// incoming, and a heard-repeat-backed outgoing (repeats seeded separately).
   private static func frankMessages(now: Date) -> [MessageDTO] {
     let key = mockPublicKey(seed: 60).prefix(6)
     return [
@@ -258,9 +258,9 @@ extension MockDataProvider {
         pathNodes: Data([0x10, 0x4F, 0x60, 0x9C]),
         senderKeyPrefix: key
       ),
-      // Flood-routed incoming carrying a region scope.
+      // Flood-routed incoming carrying a unique region.
       MockMessageFactory.message(
-        id: UUID(uuidString: "60000000-0000-0000-0000-000000000004")!,
+        id: frankFloodUniqueMessageID,
         createdAt: now.addingTimeInterval(-3600),
         text: "Storm warning for the ridge tonight ⛈️",
         direction: .incoming,
@@ -270,7 +270,23 @@ extension MockDataProvider {
         pathNodes: Data([0x10, 0x44, 0x60]),
         senderKeyPrefix: key,
         routeType: .tcFlood,
-        regionScope: "US915"
+        regionScope: uniqueRegionName,
+        regionScopeMatches: [uniqueRegionName]
+      ),
+      // Flood-routed incoming whose transport code matches two known regions.
+      MockMessageFactory.message(
+        id: frankFloodAmbiguousMessageID,
+        createdAt: now.addingTimeInterval(-1800),
+        text: "Same storm, heard under two regions",
+        direction: .incoming,
+        contactID: frankWilsonID,
+        pathLength: encodePathLen(hashSize: 1, hopCount: 3),
+        snr: 3.0,
+        pathNodes: Data([0x10, 0x44, 0x60]),
+        senderKeyPrefix: key,
+        routeType: .tcFlood,
+        regionScope: nil,
+        regionScopeMatches: ambiguousRegionNames
       )
     ]
   }

@@ -335,7 +335,7 @@
 "error.wifi.connectionFailed" = "Connection failed: %@";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
-"error.wifi.connectionTimeout" = "Connection timed out. Check the IP address and ensure the device is on the same network.";
+"error.wifi.connectionTimeout" = "Connection timed out. Check the hostname or IP address and ensure the device is reachable.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
 "error.wifi.notConnected" = "Not connected to device.";
@@ -346,8 +346,8 @@
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out */
 "error.wifi.sendTimeout" = "Send operation timed out.";
 
-/* Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid */
-"error.wifi.invalidHost" = "Invalid IP address.";
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid */
+"error.wifi.invalidHost" = "Invalid hostname or IP address.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid */
 "error.wifi.invalidPort" = "Invalid port number.";

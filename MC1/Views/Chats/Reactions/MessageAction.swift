@@ -4,6 +4,7 @@ enum MessageAction: Equatable {
   case react(String)
   case reply
   case copy
+  case translate
   case sendAgain
   case sendDM
   case blockSender

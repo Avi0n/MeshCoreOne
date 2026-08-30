@@ -8,13 +8,52 @@ extension ChatViewModel {
   func loadAllContacts(radioID: UUID) async {
     guard let dataStore else { return }
 
+    incomingAvatarLoadGeneration += 1
+    let generation = incomingAvatarLoadGeneration
+
     do {
       allContacts = try await dataStore.fetchContacts(radioID: radioID)
       contactNameSet = Set(allContacts.map(\.name))
       nicknamesByLoweredName = MessageBubbleConfiguration.buildNicknameLookup(from: allContacts)
     } catch {
       logger.warning("Failed to load contacts for mentions: \(error.localizedDescription)")
+      return
     }
+
+    guard case .channel = timeline.conversation else { return }
+    guard !Task.isCancelled, generation == incomingAvatarLoadGeneration else { return }
+    let contacts = allContacts
+    let newMap = await incomingAvatarIdentitiesOffMain(from: contacts)
+    guard !Task.isCancelled, generation == incomingAvatarLoadGeneration else { return }
+    IncomingAvatarJPEGStore.replace(contacts: contacts, identities: Array(newMap.values))
+    guard newMap != incomingAvatarIdentitiesByLoweredName else { return }
+    incomingAvatarIdentitiesByLoweredName = newMap
+    let didChange = patchIncomingAvatarRows(using: newMap)
+    if !didChange, timeline.writer != nil {
+      // Bump renderStateID so an in-flight applyRebuiltItems misses and
+      // rebakeAll reads live senderTablesProvider().
+      timeline.writer?.updateRenderState { $0 }
+    }
+  }
+
+  /// Rewrites cluster-end identities after a channel contact-table change.
+  @discardableResult
+  private func patchIncomingAvatarRows(using map: [String: IncomingAvatarIdentity]) -> Bool {
+    guard let writer = timeline.writer else { return false }
+    var didChange = false
+    for item in items where item.envelope.incomingAvatar != nil {
+      let identity = IncomingAvatarIdentity.resolve(
+        senderNodeName: timeline.messagesByID[item.id]?.senderNodeName,
+        displayName: item.envelope.senderName,
+        table: map
+      )
+      guard item.envelope.incomingAvatar != identity else { continue }
+      writer.updateRenderItem(id: item.id) { item in
+        item.with(envelope: item.envelope.with(incomingAvatar: identity))
+      }
+      didChange = true
+    }
+    return didChange
   }
 
   // MARK: - Messages
@@ -23,11 +62,12 @@ extension ChatViewModel {
   /// coordinator, then clears unread state. Delegates the coordinator population
   /// to `primeInitialMessages(for:)`; the unread/badge/notify side effects here
   /// run only when that load succeeded.
-  func loadMessages(for contact: ContactDTO) async {
+  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
+  func loadMessages(for contact: ContactDTO, populateMode: ChatPopulateMode) async {
     // Track active conversation for notification suppression
     notificationService?.setActiveConversation(contactID: contact.id)
 
-    guard await primeInitialMessages(for: contact) else { return }
+    guard await primeInitialMessages(for: contact, populateMode: populateMode) else { return }
 
     // Clear unread count and mention badge, then notify UI to refresh chat list.
     // The messages already rendered, so a bookkeeping failure here is logged
@@ -35,6 +75,7 @@ extension ChatViewModel {
     do {
       try await dataStore?.clearUnreadCount(contactID: contact.id)
       try await dataStore?.clearUnreadMentionCount(contactID: contact.id)
+      try await dataStore?.markFailedSendsSeen(contactID: contact.id)
     } catch {
       logger.warning("loadMessages: failed to clear unread counts - \(error.localizedDescription)")
     }
@@ -44,14 +85,15 @@ extension ChatViewModel {
     await notificationService?.updateBadgeCount()
   }
 
-  /// Populates the bound coordinator with the first page for `contact` and builds
-  /// its render items — with no notification, unread-clearing, or badge side
-  /// effects. Safe to run before navigation to warm the coordinator so the
+  /// Populates the bound coordinator for `contact` and builds its render
+  /// items — with no notification, unread-clearing, or badge side effects.
+  /// Safe to run before navigation to warm the coordinator so the
   /// conversation renders populated on the first frame instead of popping in a
   /// frame after the push transition. `loadMessages` layers the open-time side
-  /// effects on top. Returns true when the fetch succeeded.
+  /// effects on top.
+  /// `populateMode` selects first-page replacement or an in-place window refresh; see `ChatPopulateMode`.
   @discardableResult
-  func primeInitialMessages(for contact: ContactDTO) async -> Bool {
+  func primeInitialMessages(for contact: ContactDTO, populateMode: ChatPopulateMode) async -> Bool {
     // Clear preview state only when switching away from a previously loaded
     // conversation. A fresh view model has nothing to clear, and its cells
     // may already be fetching previews for this same conversation (warm
@@ -77,7 +119,11 @@ extension ChatViewModel {
       ChatTimeline.ReactionIndexing(service: $0, scope: .direct(contact))
     }
 
-    let outcome = await timeline.open(.dm(contact), reactions: reactions)
+    let outcome = await timeline.open(
+      .dm(contact),
+      reactions: reactions,
+      populateMode: populateMode
+    )
 
     let didLoad: Bool
     switch outcome {
@@ -160,10 +206,14 @@ extension ChatViewModel {
     do {
       try await enqueueDM(envelope)
     } catch {
-      logger.error("enqueueDM failed for messageID=\(message.id, privacy: .public): \(String(describing: error))")
-      _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: message.id, status: .failed)
-      timeline.applyStatusUpdate(messageID: message.id, status: .failed)
-      sendErrorMessage = Self.copyForEnqueueFailure(error)
+      await recordLocalEnqueueFailure(messageID: message.id, error: error)
     }
   }
+}
+
+@concurrent
+private func incomingAvatarIdentitiesOffMain(
+  from contacts: [ContactDTO]
+) async -> [String: IncomingAvatarIdentity] {
+  MessageBubbleConfiguration.incomingAvatarIdentities(from: contacts)
 }

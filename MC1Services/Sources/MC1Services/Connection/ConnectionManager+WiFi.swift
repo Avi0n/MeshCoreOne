@@ -287,7 +287,7 @@ extension ConnectionManager {
     if connectionState == .disconnected,
        connectionIntent.wantsConnection,
        let lastDeviceID = lastConnectedDeviceID {
-      let dataStore = PersistenceStore(modelContainer: modelContainer)
+      let dataStore = persistenceStore
       if let device = try? await dataStore.fetchDevice(id: lastDeviceID),
          let wifiMethod = device.connectionMethods.first(where: { $0.isWiFi }) {
         if case let .wifi(host, port, _) = wifiMethod {
@@ -312,6 +312,11 @@ extension ConnectionManager {
   ///   - forceFullSync: When true, performs a complete sync ignoring cached timestamps
   /// - Throws: Connection or session errors
   public func connectViaWiFi(host: String, port: UInt16, forceFullSync: Bool = false) async throws {
+    let host = host.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !host.isEmpty else {
+      throw WiFiTransportError.invalidHost
+    }
+
     logger.info("Connecting via WiFi to \(host):\(port)")
 
     // Disconnect existing connection if any

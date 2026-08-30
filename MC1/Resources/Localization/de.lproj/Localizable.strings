@@ -328,7 +328,7 @@
 "error.wifi.connectionFailed" = "Verbindung fehlgeschlagen: %@";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
-"error.wifi.connectionTimeout" = "Zeitüberschreitung bei der Verbindung. Überprüfe die IP-Adresse und stelle sicher, dass sich das Gerät im selben Netzwerk befindet.";
+"error.wifi.connectionTimeout" = "Zeitüberschreitung bei der Verbindung. Überprüfe den Hostnamen oder die IP-Adresse und stelle sicher, dass das Gerät erreichbar ist.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
 "error.wifi.notConnected" = "Nicht mit dem Gerät verbunden.";
@@ -339,8 +339,8 @@
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out */
 "error.wifi.sendTimeout" = "Zeitüberschreitung beim Senden.";
 
-/* Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid */
-"error.wifi.invalidHost" = "Ungültige IP-Adresse.";
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid */
+"error.wifi.invalidHost" = "Ungültiger Hostname oder ungültige IP-Adresse.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid */
 "error.wifi.invalidPort" = "Ungültige Portnummer.";

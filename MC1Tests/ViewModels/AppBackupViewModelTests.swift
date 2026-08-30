@@ -128,7 +128,7 @@ struct AppBackupViewModelTests {
     let radioID = UUID()
     let services = try ServiceContainer(
       session: MeshCoreSession(transport: MockTransport()),
-      modelContainer: PersistenceStore.createContainer(inMemory: true),
+      dataStore: manager.persistenceStore,
       radioID: radioID
     )
     try await services.dataStore.saveContact(
@@ -145,6 +145,7 @@ struct AppBackupViewModelTests {
         latitude: 0,
         longitude: 0,
         lastModified: 0,
+        lastHeardTimestamp: nil,
         nickname: nil,
         isBlocked: false,
         isMuted: false,
@@ -185,10 +186,94 @@ struct AppBackupViewModelTests {
     if case .importing = vm.importState { Issue.record("import ran while connected") }
   }
 
+  @Test
+  func `performImport writes through the process persistence store`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let manager = ConnectionManager(modelContainer: container)
+    let radioID = UUID()
+    let publicKey = Data(repeating: 0x51, count: 32)
+    try await manager.persistenceStore.saveContact(
+      makeContact(
+        radioID: radioID,
+        publicKey: publicKey,
+        nickname: nil,
+        isBlocked: false,
+        unreadCount: 0
+      )
+    )
+
+    let vm = AppBackupViewModel(connectionManager: manager)
+    vm.importState = .preview(
+      AppBackupEnvelope(
+        appVersion: "test",
+        appBuild: "1",
+        contacts: [
+          makeContact(
+            radioID: radioID,
+            publicKey: publicKey,
+            nickname: "Field Ops",
+            isBlocked: true,
+            unreadCount: 7
+          )
+        ]
+      )
+    )
+    vm.performImport()
+
+    try await waitUntil("Import never completed") {
+      switch vm.importState {
+      case .success, .failed, .cancelled: true
+      default: false
+      }
+    }
+
+    guard case .success = vm.importState else {
+      Issue.record("import did not succeed: \(String(describing: vm.importState))")
+      return
+    }
+
+    let after = try #require(
+      await manager.persistenceStore.fetchContact(radioID: radioID, publicKey: publicKey)
+    )
+    #expect(after.nickname == "Field Ops")
+    #expect(after.isBlocked == true)
+    #expect(after.unreadCount == 7)
+  }
+
   private func makeViewModel() throws -> AppBackupViewModel {
     let container = try PersistenceStore.createContainer(inMemory: true)
     let manager = ConnectionManager(modelContainer: container)
     return AppBackupViewModel(connectionManager: manager)
+  }
+
+  private func makeContact(
+    radioID: UUID,
+    publicKey: Data,
+    nickname: String?,
+    isBlocked: Bool,
+    unreadCount: Int
+  ) -> ContactDTO {
+    ContactDTO(
+      id: UUID(),
+      radioID: radioID,
+      publicKey: publicKey,
+      name: "Alice",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      lastHeardTimestamp: nil,
+      nickname: nickname,
+      isBlocked: isBlocked,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: unreadCount
+    )
   }
 
   private func makeReadableBackupURL() throws -> URL {

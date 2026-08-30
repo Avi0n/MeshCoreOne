@@ -45,13 +45,20 @@ extension ChatViewModel {
       // not coalescer-eligible because attempt/maxAttempts are per-event.
       timeline.enqueueReload(messageID: messageID)
 
-    case let .messageResent(messageID),
-         let .messageFailed(messageID):
+    case let .messageResent(messageID):
       timeline.enqueueReload(messageID: messageID)
+
+    case let .messageFailed(messageID):
+      timeline.enqueueReload(messageID: messageID)
+      await markFailedSendSeenIfCurrent(messageID: messageID)
 
     case let .heardRepeatRecorded(messageID, _),
          let .reactionReceived(messageID, _):
       timeline.enqueueReload(messageID: messageID)
+
+    case let .messagesRegionUpdated(messageIDs):
+      // Region reprocess rewrote dual fields; re-fetch to re-bake region chips.
+      timeline.enqueueReload(updatedMessageIDs: Set(messageIDs))
 
     case let .routingChanged(contactID, _):
       guard let current = currentContact, current.id == contactID else { return }
@@ -68,6 +75,41 @@ extension ChatViewModel {
 
   private func requestContactRefresh() {
     contactRefreshSignal &+= 1
+  }
+
+  /// Local enqueue/retry threw before the send queue could emit `.messageFailed`.
+  /// Writes `.failed` (which resets `failureSeen`) then marks the open thread
+  /// seen so the list badge does not reappear on pop-back.
+  func recordLocalEnqueueFailure(messageID: UUID, error: Error) async {
+    logger.error("enqueue failed for messageID=\(messageID, privacy: .public): \(String(describing: error))")
+    _ = try? await dataStore?.updateMessageStatusUnlessDelivered(id: messageID, status: .failed)
+    timeline.applyStatusUpdate(messageID: messageID, status: .failed)
+    sendErrorMessage = Self.copyForEnqueueFailure(error)
+    await markFailedSendSeenIfCurrent(messageID: messageID)
+  }
+
+  /// A fail that lands while this thread is open is already on screen; mark it
+  /// seen so the list badge does not reappear on pop-back.
+  private func markFailedSendSeenIfCurrent(messageID: UUID) async {
+    guard let dataStore, let message = try? await dataStore.fetchMessage(id: messageID) else {
+      return
+    }
+    do {
+      if let contact = currentContact, message.contactID == contact.id {
+        try await dataStore.markFailedSendsSeen(contactID: contact.id)
+        syncCoordinator?.notifyConversationsChanged()
+      } else if let channel = currentChannel,
+                message.channelIndex == channel.index,
+                message.radioID == channel.radioID {
+        try await dataStore.markFailedSendsSeen(
+          radioID: channel.radioID,
+          channelIndex: channel.index
+        )
+        syncCoordinator?.notifyConversationsChanged()
+      }
+    } catch {
+      logger.warning("Failed to mark in-thread failed send seen: \(error.localizedDescription)")
+    }
   }
 
   private func recordIncomingMentionIfNeeded(_ message: MessageDTO) {

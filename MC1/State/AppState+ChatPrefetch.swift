@@ -94,7 +94,8 @@ extension AppState {
       isOffline: !offlineMapService.isNetworkAvailable,
       currentUserName: localNodeName,
       themeID: themeID,
-      contentSizeCategory: contentSizeCategory
+      contentSizeCategory: contentSizeCategory,
+      preferredLanguageCode: EnvInputs.preferredLanguageCode(from: Locale.current)
     )
   }
 
@@ -152,7 +153,7 @@ extension AppState {
   /// Lazily builds the refresher that re-primes warm coordinators when
   /// messages arrive for closed conversations (see `ChatPrewarmRefresher`).
   /// Every hook resolves through `self` weakly at call time, so the refresher
-  /// stays valid across reconnects and registry rebinds.
+  /// stays valid across reconnects.
   func ensureChatPrewarmRefresher() -> ChatPrewarmRefresher {
     if let chatPrewarmRefresher { return chatPrewarmRefresher }
     let refresher = ChatPrewarmRefresher(hooks: ChatPrewarmRefresher.Hooks(

@@ -216,6 +216,28 @@ struct PersistenceStoreBatchSyncTests {
   }
 
   @Test
+  func `batchSaveContacts preserves existing avatarImageData`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let jpeg = Data(repeating: 0xAB, count: 32)
+    let contact = ContactDTO.testContact(
+      radioID: radioID,
+      publicKey: publicKey(0x01),
+      name: "Original",
+      avatarImageData: jpeg
+    )
+    try await store.saveContact(contact)
+
+    _ = try await store.batchSaveContacts(radioID: radioID, from: [
+      contactFrame(0x01, name: "Renamed")
+    ])
+
+    let stored = try #require(try await store.fetchContact(radioID: radioID, publicKey: publicKey(0x01)))
+    #expect(stored.name == "Renamed")
+    #expect(stored.avatarImageData == jpeg)
+  }
+
+  @Test
   func `batchSaveContacts with empty frames returns zero`() async throws {
     let radioID = UUID()
     let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)

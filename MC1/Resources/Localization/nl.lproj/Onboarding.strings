@@ -235,11 +235,11 @@
 /* Location: WiFiConnectionSheet.swift - Section header for connection details */
 "wifiConnection.connectionDetails.header" = "Verbindingsgegevens";
 
-/* Location: WiFiConnectionSheet.swift - Placeholder for IP address field */
-"wifiConnection.ipAddress.placeholder" = "IP-adres";
+/* Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field */
+"wifiConnection.ipAddress.placeholder" = "Hostnaam of IP-adres";
 
-/* Location: WiFiConnectionSheet.swift - Accessibility label for clear IP button */
-"wifiConnection.ipAddress.clearAccessibility" = "IP-adres wissen";
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button */
+"wifiConnection.ipAddress.clearAccessibility" = "Hostnaam of IP-adres wissen";
 
 /* Location: WiFiConnectionSheet.swift - Placeholder for port field */
 "wifiConnection.port.placeholder" = "Poort";
@@ -248,7 +248,7 @@
 "wifiConnection.port.clearAccessibility" = "Poort wissen";
 
 /* Location: WiFiConnectionSheet.swift - Footer explaining connection details */
-"wifiConnection.connectionDetails.footer" = "Voer het lokale netwerkadres van je MeshCore-apparaat in. De standaardpoort is 5000.";
+"wifiConnection.connectionDetails.footer" = "Voer de hostnaam of het IP-adres van je MeshCore-apparaat in. De standaardpoort is 5000.";
 
 /* Location: WiFiConnectionSheet.swift - Button label while connecting */
 "wifiConnection.connecting" = "Verbinden...";

@@ -99,6 +99,8 @@ struct CLICompletionEngineTests {
     #expect(suggestions.contains("load"))
     #expect(suggestions.contains("get"))
     #expect(suggestions.contains("put"))
+    #expect(suggestions.contains("home"))
+    #expect(suggestions.contains("default"))
     #expect(suggestions.contains("save"))
   }
 

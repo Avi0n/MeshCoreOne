@@ -27,6 +27,9 @@ struct ContactMatchRow: View {
             .bold()
             .foregroundStyle(.primary)
 
+          // On-air last advert only. `recencyTimestamp` includes lastModified
+          // (path updates, favorite toggles) and would claim a freshness the
+          // node did not earn when the user is picking among name matches.
           RelativeTimestampText(timestamp: contact.lastAdvertTimestamp)
 
           HStack(spacing: 4) {

@@ -238,32 +238,36 @@ extension BLEStateMachine {
     )
 
     // didFailToConnect consumes the OS pending connect, and a suspended app's
-    // watchdog cannot retry, so a transient failure re-issues the connect and
-    // stays in the episode; the reconnect policy owns the transient-vs-escalate
-    // classification, including the encryption-timeout grace.
+    // watchdog cannot retry, so a non-definitive failure re-issues the connect
+    // and stays in the episode unless the reconnect policy escalates.
     if case let .autoReconnecting(expected, _, _) = phase,
        expected.identifier == peripheral.identifier {
-      switch reconnectPolicy.resolveConnectFailure(deviceID: peripheral.identifier, error: error, now: Date()) {
+      switch reconnectPolicy.resolveConnectFailure(
+        deviceID: peripheral.identifier,
+        error: error,
+        now: Date(),
+        appActive: isAppActive
+      ) {
       case let .retryPendingConnect(failureCount, budget):
         logger.info("[BLE] Transient auto-reconnect connect failure (\(failureCount)/\(budget)) for \(peripheral.identifier.uuidString.prefix(8)); re-issuing pending connect")
-        let options: [String: Any] = [
-          CBConnectPeripheralOptionNotifyOnDisconnectionKey: true,
-          CBConnectPeripheralOptionEnableAutoReconnect: true
-        ]
-        centralManager.connect(peripheral, options: options)
+        reissueAutoReconnectConnect(peripheral)
+
+      case let .continueEpisodeAfterBudget(reason):
+        switch reason {
+        case let .fringeEncryptionGraced(verifiedAge):
+          logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(Self.verifiedAgeDescription(verifiedAge)), within grace; re-issuing pending connect")
+        case .backgroundHold:
+          logger.warning("[BLE] Auto-reconnect connect failures exhausted budget for \(peripheral.identifier.uuidString.prefix(8)) while inactive; re-issuing pending connect")
+        }
+        reissueAutoReconnectConnect(peripheral)
 
       case let .tearDown(teardownError, reason):
         switch reason {
         case .definitiveBondFailure:
           logger.warning("Auto-reconnect failed with definitive auth error for \(peripheral.identifier) - transitioning to idle")
-        case let .fringeEncryptionGraced(verifiedAge):
-          logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(Self.verifiedAgeDescription(verifiedAge)), within grace; classifying as transient")
         case let .bondSuspect(verifiedAge):
           logger.warning("[BLE] Encryption-timeout budget exhausted for \(peripheral.identifier.uuidString.prefix(8)); bond verified \(Self.verifiedAgeDescription(verifiedAge)), outside grace; escalating to bond-suspect")
         case .retryBudgetExhausted:
-          break
-        }
-        if case .definitiveBondFailure = reason {} else {
           logger.warning("Auto-reconnect connect failures exhausted budget for \(peripheral.identifier) - transitioning to idle")
         }
         transition(to: .idle)
@@ -281,6 +285,14 @@ extension BLEStateMachine {
     timeoutTask.cancel()
     transition(to: .idle)
     continuation.resume(throwing: ReconnectPolicy.makeConnectionError(error))
+  }
+
+  private func reissueAutoReconnectConnect(_ peripheral: CBPeripheral) {
+    let options: [String: Any] = [
+      CBConnectPeripheralOptionNotifyOnDisconnectionKey: true,
+      CBConnectPeripheralOptionEnableAutoReconnect: true
+    ]
+    centralManager.connect(peripheral, options: options)
   }
 
   /// Renders a bond-verification age for debug-log export, so a later export

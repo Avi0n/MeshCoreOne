@@ -184,9 +184,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// Consecutive RSSI read failures. Reset on success. Logged for diagnostics.
   var consecutiveRSSIFailures = 0
 
-  /// Tracks whether the app is in the foreground. Used to gate
-  /// keepalive and timeout behavior.
-  private var isAppActive = true
+  /// Confirmed foreground. Starts false: a BLE process relaunch is already
+  /// background, and scene `.onChange` does not fire for the initial phase.
+  private(set) var isAppActive = false
 
   /// Tracks whether CBCentralManager has been created
   private var isActivated = false
@@ -446,10 +446,9 @@ actor BLEStateMachine: BLEStateMachineProtocol {
     onAutoReconnecting = handler
   }
 
-  /// Records that a device's bond completed a verified encrypted session, so an
-  /// exhausted encryption-timeout budget within the grace window classifies as
-  /// transient. `ConnectionManager` seeds the persisted date at wiring time and
-  /// pushes a fresh one after every verified session.
+  /// Records a verified encrypted session. An exhausted encryption-timeout
+  /// budget within the grace window then continues the episode rather than
+  /// tearing down. `ConnectionManager` seeds and refreshes this stamp.
   func recordBondVerification(deviceID: UUID, at date: Date) {
     reconnectPolicy.recordBondVerification(deviceID: deviceID, at: date)
   }

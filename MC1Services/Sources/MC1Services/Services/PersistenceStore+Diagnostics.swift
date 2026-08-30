@@ -118,6 +118,7 @@ public extension PersistenceStore {
       toContactName: dto.toContactName,
       senderTimestamp: dto.senderTimestamp.map { Int($0) },
       regionScope: dto.regionScope,
+      regionScopeMatches: dto.regionScopeMatches,
       payloadTypeBits: Int(dto.payloadTypeBits)
     )
     modelContext.insert(entry)
@@ -152,8 +153,8 @@ public extension PersistenceStore {
   /// retention bounded to `keepCount + pruneThreshold` entries between prune passes.
   func pruneRxLogEntries(
     radioID: UUID,
-    keepCount: Int = 1000,
-    pruneThreshold: Int = 100
+    keepCount: Int = RxLogRetention.keepCount,
+    pruneThreshold: Int = RxLogRetention.pruneThreshold
   ) throws {
     let count = try cachedRxLogEntryCount(radioID: radioID)
     guard count > keepCount + pruneThreshold else { return }
@@ -319,48 +320,59 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
-  /// Fetch RX log entries that have a transport code but no resolved
-  /// region yet — the back-fill candidate set.
-  func fetchEntriesWithMissingRegion(radioID: UUID) throws -> [RxLogEntryDTO] {
+  /// Fetch transport-coded RX log entries for region reprocess.
+  /// Bound by prune retention; includes rows that already have a label so
+  /// unique, multi-match, and clear rewrites all work.
+  func fetchEntriesWithTransportCode(radioID: UUID, limit: Int) throws -> [RxLogEntryDTO] {
     let targetRadioID = radioID
-    let descriptor = FetchDescriptor<RxLogEntry>(
+    var descriptor = FetchDescriptor<RxLogEntry>(
       predicate: #Predicate {
         $0.radioID == targetRadioID &&
-          $0.transportCode != nil &&
-          $0.regionScope == nil
+          $0.transportCode != nil
       },
-      sortBy: [SortDescriptor(\.receivedAt, order: .forward)]
+      sortBy: [SortDescriptor(\.receivedAt, order: .reverse)]
     )
+    descriptor.fetchLimit = limit
     let entries = try modelContext.fetch(descriptor)
     return entries.map { RxLogEntryDTO(from: $0) }
   }
 
-  /// Batch update `regionScope` on RX log entries by id.
+  /// Batch update dual region fields on RX log entries by id.
   func batchUpdateRxLogRegion(
-    updates: [(id: UUID, regionScope: String?)]
+    updates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])]
   ) throws {
-    for update in updates {
-      let targetID = update.id
+    guard !updates.isEmpty else { return }
+    let byID = Dictionary(uniqueKeysWithValues: updates.map { ($0.id, $0) })
+    let targetIDs = Array(byID.keys)
+    // Chunk for SQLite variable limits on large reprocess writes.
+    let chunkSize = 200
+    for start in stride(from: 0, to: targetIDs.count, by: chunkSize) {
+      let chunk = Array(targetIDs[start..<min(start + chunkSize, targetIDs.count)])
       let descriptor = FetchDescriptor<RxLogEntry>(
-        predicate: #Predicate { $0.id == targetID }
+        predicate: #Predicate { chunk.contains($0.id) }
       )
-      guard let entry = try modelContext.fetch(descriptor).first else { continue }
-      entry.regionScope = update.regionScope
+      for entry in try modelContext.fetch(descriptor) {
+        guard let update = byID[entry.id] else { continue }
+        entry.regionScope = update.regionScope
+        entry.regionScopeMatches = update.regionScopeMatches
+      }
     }
     try modelContext.save()
   }
 
-  /// Batch update `regionScope` on incoming **channel** `Message` rows
+  /// Batch update dual region fields on incoming channel `Message` rows
   /// correlated by `(channelIndex, senderTimestamp)`. The wire timestamp
   /// fallback is required because `Message.senderTimestamp` is only
   /// populated for the rare timestamp-corrected case; the normal case puts
   /// the wire timestamp on `Message.timestamp`.
+  @discardableResult
   func batchUpdateChannelMessageRegion(
     radioID: UUID,
-    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) throws {
+    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) throws -> [UUID] {
     let targetRadioID = radioID
     let incoming = MessageDirection.incoming.rawValue
+    var touchedIDs: [UUID] = []
     for update in updates {
       let targetIndex: UInt8? = update.channelIndex
       let targetSenderTimestamp: UInt32? = update.senderTimestamp
@@ -376,24 +388,29 @@ public extension PersistenceStore {
       )
       for message in try modelContext.fetch(descriptor) {
         message.regionScope = update.regionScope
+        message.regionScopeMatches = update.regionScopeMatches
+        touchedIDs.append(message.id)
       }
     }
     try modelContext.save()
+    return touchedIDs
   }
 
-  /// Batch update `regionScope` on incoming **DM** `Message` rows. DMs
+  /// Batch update dual region fields on incoming DM `Message` rows. DMs
   /// carry the sender prefix byte at `RxLogEntry.packetPayload[1]` but
   /// the Message side stores the full multi-byte `senderKeyPrefix`, so
   /// the predicate fetches by timestamp + DM channel and an in-memory
   /// pass disambiguates by first-byte equality. Mirrors the correlation
   /// key used by `findRxLogEntryBySenderPrefix`.
+  @discardableResult
   func batchUpdateDMMessageRegion(
     radioID: UUID,
-    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) throws {
+    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) throws -> [UUID] {
     let targetRadioID = radioID
     let nilChannel: UInt8? = nil
     let incoming = MessageDirection.incoming.rawValue
+    var touchedIDs: [UUID] = []
     for update in updates {
       let targetSenderTimestamp: UInt32? = update.senderTimestamp
       let targetWireTimestamp: UInt32 = update.senderTimestamp
@@ -410,9 +427,12 @@ public extension PersistenceStore {
       let candidates = try modelContext.fetch(descriptor)
       for message in candidates where message.senderKeyPrefix?.first == prefixByte {
         message.regionScope = update.regionScope
+        message.regionScopeMatches = update.regionScopeMatches
+        touchedIDs.append(message.id)
       }
     }
     try modelContext.save()
+    return touchedIDs
   }
 
   // MARK: - Debug Log Entries

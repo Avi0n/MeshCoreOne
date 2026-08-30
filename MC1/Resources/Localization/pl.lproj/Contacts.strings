@@ -287,6 +287,30 @@
 /* Location: ContactDetailView.swift - Purpose: Error shown when the picked file is not a valid image */
 "contacts.detail.avatar.invalidImage" = "Tego pliku nie można użyć jako zdjęcia profilowego.";
 
+/* Location: AvatarCropView.swift - Purpose: Crop screen navigation title */
+"contacts.detail.avatar.crop.title" = "Przesuń i skaluj";
+
+/* Location: AvatarCropView.swift - Purpose: Crop screen confirm button */
+"contacts.detail.avatar.crop.choose" = "Wybierz";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver label for the crop preview */
+"contacts.detail.avatar.crop.preview" = "Kadrowanie zdjęcia profilowego";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver hint for zoom and move */
+"contacts.detail.avatar.crop.previewHint" = "Przesuń palcem w górę lub w dół, aby zmienić powiększenie. Użyj czynności, aby przesunąć zdjęcie.";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo up */
+"contacts.detail.avatar.crop.moveUp" = "Przesuń w górę";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo down */
+"contacts.detail.avatar.crop.moveDown" = "Przesuń w dół";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo left */
+"contacts.detail.avatar.crop.moveLeft" = "Przesuń w lewo";
+
+/* Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo right */
+"contacts.detail.avatar.crop.moveRight" = "Przesuń w prawo";
+
 /* Location: ContactDetailView.swift - Purpose: Nickname label */
 "contacts.detail.nickname" = "Pseudonim";
 
@@ -298,6 +322,9 @@
 
 /* Location: ContactDetailView.swift - Purpose: Last advert label */
 "contacts.detail.lastAdvert" = "Ostatnie ogłoszenie";
+
+/* Location: ContactDetailView.swift - Purpose: Last heard (phone-clock on-air) label */
+"contacts.detail.lastHeard" = "Ostatnio usłyszany";
 
 /* Location: ContactDetailView.swift - Purpose: Unread messages label */
 "contacts.detail.unreadMessages" = "Nieprzeczytane wiadomości";

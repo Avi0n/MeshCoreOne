@@ -322,6 +322,9 @@
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "No messages yet";
 
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator */
+"chats.row.failedSend" = "Failed to send";
+
 /* Location: MutedIndicator.swift - Accessibility label for muted indicator */
 "chats.row.muted" = "Muted";
 
@@ -591,6 +594,18 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to copy */
 "chats.message.action.copy" = "Copy";
 
+/* Location: BubbleTranslationControl.swift - In-bubble Translation offer */
+"chats.message.action.translate" = "Translate";
+
+/* Location: BubbleTranslationControl.swift - Restore the stored message body */
+"chats.message.action.showOriginal" = "Show original";
+
+/* Location: BubbleTranslationControl.swift - Translation in progress */
+"chats.message.action.translating" = "Translating";
+
+/* Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text */
+"chats.message.translatedAccessibility" = "Translated: %@";
+
 /* Location: UnifiedMessageBubble.swift - Context menu action to view repeat details */
 "chats.message.action.repeatDetails" = "Repeat Details";
 
@@ -640,6 +655,9 @@
 
 /* Location: MessageActionsSheet.swift - Details row shown when region could not be resolved */
 "chats.message.info.regionUnresolved" = "Region: Unknown";
+
+/* Location: ActionsDetailsSection.swift - Details row when multiple known regions match the packet transport code - %@ is localized list of names */
+"chats.message.info.regionAmbiguous" = "Region (ambiguous): %@";
 
 /* Location: UnifiedMessageBubble.swift - Context menu submenu label */
 "chats.message.action.details" = "Details";
@@ -747,6 +765,21 @@
 
 /* Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name */
 "chats.message.region.accessibilityLabel" = "Region %@";
+
+/* Location: BubbleFooterRow.swift - VoiceOver when multiple regions match - %@ is localized list of names */
+"chats.message.region.ambiguousAccessibilityLabel" = "Region, ambiguous: %@";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility label for region multi-match */
+"chats.message.region.ambiguous.possibleMatch" = "Multiple matching regions";
+
+/* Location: FallbackMatchIndicatorView.swift - Accessibility hint for region multi-match */
+"chats.message.region.ambiguous.possibleMatchHint" = "More than one region in your list matches this packet’s transport code. The app cannot tell which one was used.";
+
+/* Location: FallbackMatchIndicatorView.swift - Popover title for region multi-match */
+"chats.message.region.ambiguous.popoverTitle" = "Multiple matching regions";
+
+/* Location: FallbackMatchIndicatorView.swift - Popover body; %@ is newline-prefixed list of candidate names */
+"chats.message.region.ambiguous.popoverBody" = "More than one region in your list matches this packet’s transport code. The app cannot tell which one was used.%@";
 
 /* Location: BubbleFooterRow.swift - Accessibility label for the raw send time footer - %@ is the time */
 "chats.message.sendTime.accessibilityLabel" = "Send time: %@";
@@ -1113,7 +1146,7 @@
 "chats.channelInfo.region" = "Region";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set */
-"chats.channelInfo.region.allRegions" = "All Regions";
+"chats.channelInfo.region.allRegions" = "Unscoped";
 
 /* Location: ChannelInfoSheet.swift - Purpose: Picker row and summary when channel inherits the device default flood scope */
 "chats.channelInfo.region.useDefaultFormat" = "%@ (default)";

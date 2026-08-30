@@ -218,8 +218,23 @@ enum NeighborNameResolver {
     )?.displayName
   }
 
-  static func fallbackName(for prefix: Data) -> String {
-    prefix.prefix(4).uppercaseHexString()
+  static let minimumKeyDisplayByteCount = 2
+  static let maximumKeyDisplayByteCount = 3
+
+  /// Bytes of public-key prefix to show for a neighbour identity hex string.
+  /// Uses `DeviceDTO.hashSize` when present, clamped between `minimumKeyDisplayByteCount`
+  /// and `maximumKeyDisplayByteCount`.
+  static func keyDisplayByteCount(deviceHashSize: Int?) -> Int {
+    guard let size = deviceHashSize else { return minimumKeyDisplayByteCount }
+    return min(max(size, minimumKeyDisplayByteCount), maximumKeyDisplayByteCount)
+  }
+
+  /// Uppercase hex of the leading `byteCount` bytes.
+  /// Clamps to `maximumKeyDisplayByteCount` and the available prefix so the full wire
+  /// prefix is never shown as a fallback title.
+  static func fallbackName(for prefix: Data, byteCount: Int) -> String {
+    let n = min(max(byteCount, 0), maximumKeyDisplayByteCount, prefix.count)
+    return prefix.prefix(n).uppercaseHexString()
   }
 
   /// Resolves every hop of a node's stored path to a repeater name, falling back to a placeholder

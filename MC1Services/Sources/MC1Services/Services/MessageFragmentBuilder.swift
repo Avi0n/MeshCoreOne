@@ -101,7 +101,8 @@ public enum MessageFragmentBuilder {
       formatted: inputs.formattedText,
       baseColor: inputs.baseColor,
       isOutgoing: message.isOutgoing,
-      currentUserName: envInputs.currentUserName
+      currentUserName: envInputs.currentUserName,
+      translation: inputs.translation
     )
   }
 
@@ -198,7 +199,8 @@ public enum MessageFragmentBuilder {
       date: message.senderDate,
       hasFailed: message.hasFailed,
       containsSelfMention: message.containsSelfMention,
-      mentionSeen: message.mentionSeen
+      mentionSeen: message.mentionSeen,
+      incomingAvatar: inputs.incomingAvatar
     )
   }
 
@@ -208,10 +210,20 @@ public enum MessageFragmentBuilder {
     envInputs: EnvInputs
   ) -> MessageFooter {
     let showHop = envInputs.showIncomingHopCount && message.isFloodRouted && !message.isOutgoing
-    let region: String? = if envInputs.showIncomingRegion, message.isFloodRouted {
-      message.regionScope
+    // Region chip: flood routes only, when the setting is on. Coalesce dual
+    // fields; bake the slash join here so the scroll path does not re-filter.
+    let regionToShow: String?
+    let regionMatchNames: [String]
+    if envInputs.showIncomingRegion, message.isFloodRouted {
+      let resolved = RegionScopeSemantics.coalesce(
+        scope: message.regionScope,
+        matches: message.regionScopeMatches
+      )
+      regionToShow = RegionScopeSemantics.chipLabel(from: resolved)
+      regionMatchNames = RegionScopeSemantics.matchNames(from: resolved)
     } else {
-      nil
+      regionToShow = nil
+      regionMatchNames = []
     }
     // Send time shows inside every bubble — incoming and outgoing, DM and
     // channel. It is the sole time surface now that the centered cluster
@@ -225,7 +237,8 @@ public enum MessageFragmentBuilder {
       showHop: showHop,
       hopCount: message.hopCount,
       formattedPath: inputs.formattedPath,
-      regionToShow: region,
+      regionToShow: regionToShow,
+      regionMatchNames: regionMatchNames,
       sendTimeToShow: sendTimeToShow,
       sendTimeWasCorrected: message.timestampCorrected,
       showStatusRow: message.isOutgoing,

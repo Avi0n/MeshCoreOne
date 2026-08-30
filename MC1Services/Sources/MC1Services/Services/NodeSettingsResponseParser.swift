@@ -34,6 +34,14 @@ public enum NodeSettingsResponseParser {
 
   private static let clockResponseDateFormat = "HH:mm d/M/yyyy"
 
+  /// The UTC clock shape in firmware text, including inside an `OK - clock set:` reply.
+  public static func clockResponseText(in text: String) -> String? {
+    // Regex isn't Sendable, so the literal lives here instead of in a static.
+    let clockResponseRegex = /(\d{1,2}:\d{2}) - (\d{1,2}\/\d{1,2}\/\d{4}) UTC/
+    guard let match = text.firstMatch(of: clockResponseRegex) else { return nil }
+    return String(match.output.0)
+  }
+
   /// Parses a firmware clock response like "06:40 - 18/4/2025 UTC" into a `Date`.
   /// Returns `nil` when the text doesn't carry the expected UTC clock shape.
   public static func utcDate(fromClockResponse response: String) -> Date? {
@@ -46,6 +54,15 @@ public enum NodeSettingsResponseParser {
     formatter.dateFormat = clockResponseDateFormat
     formatter.timeZone = TimeZone(identifier: "UTC")
     return formatter.date(from: "\(match.output.1) \(match.output.2)")
+  }
+
+  /// Seconds the node's clock is ahead of `now`. Nil when `response` has no clock shape.
+  public static func clockDrift(
+    fromClockResponse response: String,
+    relativeTo now: Date
+  ) -> TimeInterval? {
+    guard let nodeDate = utcDate(fromClockResponse: response) else { return nil }
+    return nodeDate.timeIntervalSince(now)
   }
 
   // MARK: - Clock Sync

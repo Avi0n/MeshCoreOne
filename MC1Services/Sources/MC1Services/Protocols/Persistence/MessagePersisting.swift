@@ -21,8 +21,30 @@ public protocol MessagePersisting: Actor {
   /// Fetch messages for a contact
   func fetchMessages(contactID: UUID, limit: Int, offset: Int) async throws -> [MessageDTO]
 
+  /// Newest unread incoming message for a contact, or nil when none.
+  /// Used to post a direct-message banner after orphan DMs are adopted to a
+  /// contact that did not exist when they arrived.
+  func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO?
+
   /// Fetch messages for a channel
   func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO]
+
+  /// Fetch the newest window for a contact: at least `floorLimit` rows,
+  /// widened to every row with `sortDate` at or newer than `anchorSortDate`
+  /// (nil means the floor alone). `hasMore` is whether older rows remain.
+  func fetchMessageWindow(
+    contactID: UUID,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool)
+
+  /// Fetch the newest window for a channel; see the contact variant.
+  func fetchMessageWindow(
+    radioID: UUID,
+    channelIndex: UInt8,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool)
 
   /// Batch fetch last messages for multiple contacts in a single actor call.
   /// Avoids N actor hops when loading message previews for the conversation list.
@@ -159,5 +181,12 @@ extension MessagePersisting {
   /// Update message ACK info with no round-trip time
   func updateMessageAck(id: UUID, ackCode: UInt32, status: MessageStatus) async throws {
     try await updateMessageAck(id: id, ackCode: ackCode, status: status, roundTripTime: nil)
+  }
+
+  /// Default no-op for lightweight stubs. Concrete stores override; the method
+  /// must be `async throws` on the store so overload resolution does not pick
+  /// this empty default over the real implementation.
+  func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO? {
+    nil
   }
 }

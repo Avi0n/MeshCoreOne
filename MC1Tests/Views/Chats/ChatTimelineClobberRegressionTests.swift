@@ -189,9 +189,10 @@ struct ChatTimelineClobberRegressionTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     ))
-    _ = await viewModel.primeInitialMessages(for: contact)
+    _ = await viewModel.primeInitialMessages(for: contact, populateMode: .replace)
 
     #expect(!fetchStandIn.isCancelled)
     #expect(viewModel.bake.previewStates[message.id] == .loading)
@@ -212,9 +213,10 @@ struct ChatTimelineClobberRegressionTests {
       lastAdvertTimestamp: 0,
       latitude: 0,
       longitude: 0,
-      lastModified: 0
+      lastModified: 0,
+      lastHeardTimestamp: 0
     ))
-    _ = await viewModel.primeInitialMessages(for: otherContact)
+    _ = await viewModel.primeInitialMessages(for: otherContact, populateMode: .replace)
     #expect(viewModel.bake.previewStates[message.id] == nil)
   }
 

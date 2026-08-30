@@ -15,7 +15,15 @@ extension ChatViewModel {
   /// invalidates dependent views once per change cycle without an explicit
   /// transaction.
   func appendMessageIfNew(_ message: MessageDTO) {
-    guard timeline.admit(message) else { return }
+    let admission = timeline.admit(message)
+    guard admission.inserted else { return }
+    if let handoff = admission.handoff {
+      incomingAvatarFlight?.beginFlight(
+        from: handoff.fromID,
+        to: handoff.toID,
+        identity: handoff.identity
+      )
+    }
     if let senderName = message.senderNodeName,
        let radioID = currentChannel?.radioID {
       addChannelSenderIfNew(senderName, radioID: radioID, timestamp: message.timestamp)

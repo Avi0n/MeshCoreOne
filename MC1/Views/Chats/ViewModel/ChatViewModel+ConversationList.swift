@@ -182,6 +182,9 @@ extension ChatViewModel {
     channelSenderOrder = [:]
     contactNameSet = []
     lastMessageCache = [:]
+    // Invalidates in-flight indicator refreshes; the list event task is not `reloadTask`.
+    failedSendRefreshGeneration &+= 1
+    failedSendConversationIDs = []
     recomputeSnapshot()
   }
 
@@ -320,6 +323,8 @@ extension ChatViewModel {
     // Skip the trailing preview load if this reload was superseded.
     if Task.isCancelled { return }
     await loadLastMessagePreviews()
+    if Task.isCancelled { return }
+    await refreshFailedSendIndicators()
   }
 
   // MARK: - Message Previews
@@ -389,6 +394,63 @@ extension ChatViewModel {
       } catch {
         logger.warning("Failed to load channel message previews: \(error)")
       }
+    }
+  }
+
+  // MARK: - Failed-send indicators
+
+  /// True when the conversation row for `id` should show the failed-send badge.
+  func conversationHasFailedSend(_ id: UUID) -> Bool {
+    failedSendConversationIDs.contains(id)
+  }
+
+  /// Replaces `failedSendConversationIDs` with the union of the store's list ids.
+  func applyFailedSendKeys(_ keys: FailedSendConversationKeys) {
+    failedSendConversationIDs = keys.contactIDs
+      .union(keys.channelIDs)
+      .union(keys.roomSessionIDs)
+  }
+
+  /// Re-runs the failed-send query and applies the keys. Does not reload
+  /// contacts, channels, or rooms.
+  func refreshFailedSendIndicators() async {
+    failedSendRefreshGeneration &+= 1
+    let generation = failedSendRefreshGeneration
+    guard let dataStore, let radioID = currentRadioIDProvider() else {
+      failedSendConversationIDs = []
+      return
+    }
+    do {
+      #if DEBUG
+        try failedSendRefreshFaultInjection?()
+      #endif
+      let keys = try await dataStore.fetchFailedSendConversationKeys(radioID: radioID)
+      #if DEBUG
+        await failedSendRefreshInterleaveHook?()
+      #endif
+      guard generation == failedSendRefreshGeneration, !Task.isCancelled else { return }
+      applyFailedSendKeys(keys)
+    } catch is CancellationError {
+      return
+    } catch {
+      guard generation == failedSendRefreshGeneration, !Task.isCancelled else { return }
+      logger.warning("Failed to load failed-send indicators: \(error)")
+    }
+  }
+
+  /// Whether a list `MessageEvent` should trigger `refreshFailedSendIndicators()`.
+  /// Status-resolved ACKs (DM and room) only requery when a badge is already
+  /// showing, so a retry success can drop it without hitting the store on every ACK.
+  func shouldRefreshFailedSendIndicators(for event: MessageEvent) -> Bool {
+    switch event {
+    case .messageFailed, .messageResent, .roomMessageFailed:
+      true
+    case .messageStatusResolved, .roomMessageStatusUpdated:
+      !failedSendConversationIDs.isEmpty
+    case .directMessageReceived, .channelMessageReceived, .roomMessageReceived,
+         .messageRetrying, .heardRepeatRecorded, .reactionReceived,
+         .messagesRegionUpdated, .routingChanged:
+      false
     }
   }
 }

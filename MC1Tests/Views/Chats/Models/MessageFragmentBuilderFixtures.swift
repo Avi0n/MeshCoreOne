@@ -142,7 +142,8 @@ enum MessageFragmentBuilderFixtures {
       isOffline: false,
       currentUserName: isOutgoing ? "Me" : "Sender",
       themeID: "default",
-      contentSizeCategory: EnvInputs.defaultContentSizeCategory
+      contentSizeCategory: EnvInputs.defaultContentSizeCategory,
+      preferredLanguageCode: EnvInputs.defaultPreferredLanguageCode
     )
   }
 }

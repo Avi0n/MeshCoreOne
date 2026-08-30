@@ -3,11 +3,15 @@ import MC1Services
 /// View-layer formatting flags for a message bubble.
 struct MessageBubbleConfiguration {
   var showSenderName: Bool
+  var showsIncomingAvatars: Bool
 
-  static let directMessage = MessageBubbleConfiguration(showSenderName: false)
+  static let directMessage = MessageBubbleConfiguration(
+    showSenderName: false,
+    showsIncomingAvatars: false
+  )
 
   static func channel(isPublic: Bool) -> MessageBubbleConfiguration {
-    MessageBubbleConfiguration(showSenderName: true)
+    MessageBubbleConfiguration(showSenderName: true, showsIncomingAvatars: true)
   }
 
   /// Builds a `loweredName -> nickname` lookup for channel sender matching.
@@ -31,9 +35,30 @@ struct MessageBubbleConfiguration {
     return lookup
   }
 
+  /// Unique lowered `contact.name` → avatar identity. Unlike `buildNicknameLookup`,
+  /// a nickname is not required. Colliding names are omitted.
+  nonisolated static func incomingAvatarIdentities(
+    from contacts: [ContactDTO]
+  ) -> [String: IncomingAvatarIdentity] {
+    var counts: [String: Int] = [:]
+    for contact in contacts {
+      counts[contact.name.lowercased(), default: 0] += 1
+    }
+    var lookup: [String: IncomingAvatarIdentity] = [:]
+    for contact in contacts {
+      let key = contact.name.lowercased()
+      guard counts[key] == 1 else { continue }
+      lookup[key] = IncomingAvatarIdentity(
+        name: contact.name,
+        matchedContactID: contact.id,
+        imageRevision: IncomingAvatarIdentity.revision(of: contact.avatarImageData)
+      )
+    }
+    return lookup
+  }
+
   /// Resolves the display name for a message's sender from the contacts list.
-  /// Used by `ChatViewModel+ItemBuild` to bake the resolved name into
-  /// `MessageItem.envelope.senderResolution` upstream.
+  /// Baked into `MessageItem.envelope.senderResolution` upstream of the bubble.
   static func resolveSenderName(
     for message: MessageDTO,
     contacts: [ContactDTO],

@@ -1,9 +1,8 @@
 import Foundation
 
 extension MockDataProvider {
-  /// Generate mock channel messages for a channel slot index. Channel messages
-  /// carry `channelIndex` (not `contactID`); incoming rows populate `senderNodeName`
-  /// and `senderKeyPrefix` for sender resolution.
+  /// Mock channel rows for a slot index. Incoming messages use `channelIndex` and
+  /// `senderNodeName`; `senderKeyPrefix` stays nil, matching the MeshCore channel payload.
   public static func channelMessages(for index: UInt8) -> [MessageDTO] {
     let now = Date()
     switch index {
@@ -24,9 +23,9 @@ extension MockDataProvider {
 
   private static func meshHQChannelMessages(now: Date) -> [MessageDTO] {
     let path = encodePathLen(hashSize: 1, hopCount: 2)
-    let senders: [(name: String, seed: UInt8)] = [
-      ("Alice Chen", 10), ("Bob Martinez", 20), ("Carol Diaz", 90),
-      ("Frank Wilson", 60), ("Hannah Lee", 80)
+    let senders = [
+      "Alice Chen", "Bob Martinez", "Carol Diaz",
+      "Frank Wilson", "Hannah Lee"
     ]
     let lines = [
       "Morning net check — who's on frequency?",
@@ -71,8 +70,7 @@ extension MockDataProvider {
         channelIndex: meshHQChannelIndex,
         pathLength: path,
         snr: 6.5 + Double(i % 5) * 0.4,
-        senderKeyPrefix: mockPublicKey(seed: sender.seed).prefix(6),
-        senderNodeName: sender.name,
+        senderNodeName: sender,
         isRead: isRead
       )
     }
@@ -91,20 +89,20 @@ extension MockDataProvider {
         "C0000000-0000-0000-0000-000000000001",
         now.addingTimeInterval(-9000),
         "Anyone monitoring the north repeater today?",
-        sender: "Alice Chen", keySeed: 10, snr: 7.4, path: path
+        sender: "Alice Chen", snr: 7.4, path: path
       ),
       // Same-sender cluster (consecutive messages from Alice).
       channelIncoming(
         "C0000000-0000-0000-0000-000000000002",
         now.addingTimeInterval(-8940),
         "Signal's been solid on my end all morning.",
-        sender: "Alice Chen", keySeed: 10, snr: 7.6, path: path
+        sender: "Alice Chen", snr: 7.6, path: path
       ),
       channelIncoming(
         "C0000000-0000-0000-0000-000000000003",
         now.addingTimeInterval(-6000),
         "Same here, clear copy from the south ridge.",
-        sender: "Bob Martinez", keySeed: 20, snr: 6.9, path: path
+        sender: "Bob Martinez", snr: 6.9, path: path
       ),
       MockMessageFactory.message(
         id: UUID(uuidString: "C0000000-0000-0000-0000-000000000004")!,
@@ -115,6 +113,21 @@ extension MockDataProvider {
         channelIndex: publicChannelIndex,
         ackCode: 50001,
         pathLength: path
+      ),
+      // RX-log correlated flood: hop IDs plus a multi-match region.
+      MockMessageFactory.message(
+        id: publicAmbiguousRegionMessageID,
+        createdAt: now.addingTimeInterval(-600),
+        text: "Flood from a region that matches two names on this radio",
+        direction: .incoming,
+        channelIndex: publicChannelIndex,
+        pathLength: path,
+        snr: 6.2,
+        pathNodes: Data([0x10, 0x20]),
+        senderNodeName: "Alice Chen",
+        routeType: .tcFlood,
+        regionScope: nil,
+        regionScopeMatches: ambiguousRegionNames
       )
     ]
   }
@@ -127,21 +140,21 @@ extension MockDataProvider {
         "C1000000-0000-0000-0000-000000000001",
         now.addingTimeInterval(-7200),
         "Welcome to all the new members this week!",
-        sender: "Carol Diaz", keySeed: 90, snr: 9.1, path: path
+        sender: "Carol Diaz", snr: 9.1, path: path
       ),
       // Reacted message (badge applied via updateMessageReactionSummary).
       channelIncoming(
         "C1000000-0000-0000-0000-000000000002",
         now.addingTimeInterval(-5400),
         "We just passed 50 active nodes in the area 🎉",
-        sender: "Carol Diaz", keySeed: 90, snr: 9.0, path: path
+        sender: "Carol Diaz", snr: 9.0, path: path
       ),
       // Self-mention drives the mention highlight and unread-mention badge; also reacted.
       channelIncoming(
         bayAreaMentionMessageID.uuidString,
         now.addingTimeInterval(-3600),
         "@[Sim] can you cover the cleanup this Saturday?",
-        sender: "Carol Diaz", keySeed: 90, snr: 8.8, path: path,
+        sender: "Carol Diaz", snr: 8.8, path: path,
         isRead: false, containsSelfMention: true, mentionSeen: false
       )
     ]
@@ -155,7 +168,7 @@ extension MockDataProvider {
         "C2000000-0000-0000-0000-000000000001",
         now.addingTimeInterval(-9600),
         "Bridge repair is done. Trail's open again.",
-        sender: "Frank Wilson", keySeed: 60, snr: 5.2, path: path
+        sender: "Frank Wilson", snr: 5.2, path: path
       ),
       MockMessageFactory.message(
         id: UUID(uuidString: "C2000000-0000-0000-0000-000000000002")!,
@@ -176,7 +189,6 @@ extension MockDataProvider {
     _ createdAt: Date,
     _ text: String,
     sender: String,
-    keySeed: UInt8,
     snr: Double,
     path: UInt8,
     isRead: Bool = true,
@@ -194,7 +206,6 @@ extension MockDataProvider {
       channelIndex: index,
       pathLength: path,
       snr: snr,
-      senderKeyPrefix: mockPublicKey(seed: keySeed).prefix(6),
       senderNodeName: sender,
       isRead: isRead,
       containsSelfMention: containsSelfMention,

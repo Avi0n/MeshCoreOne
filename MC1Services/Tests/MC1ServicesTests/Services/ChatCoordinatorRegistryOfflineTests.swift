@@ -27,29 +27,4 @@ struct ChatCoordinatorRegistryOfflineTests {
     #expect(messages.first?.text == "hello")
     #expect(coordinator.dataStore === store)
   }
-
-  @Test func `rebind services arrives replaces coordinator against new store`() async throws {
-    let radioID = UUID()
-    let contactID = UUID()
-    let offlineStore = try await PersistenceStore.createTestDataStore(radioID: radioID)
-    try await offlineStore.saveContact(ContactDTO.testContact(id: contactID, radioID: radioID))
-    try await offlineStore.saveMessage(MessageDTO.testDirectMessage(
-      radioID: radioID,
-      contactID: contactID,
-      text: "offline",
-      status: .delivered
-    ))
-
-    let registry = ChatCoordinatorRegistry(dataStore: offlineStore)
-    let id = ChatConversationID.dm(radioID: radioID, contactID: contactID)
-    let beforeRebind = registry.coordinator(for: id)
-
-    let onlineContainer = try PersistenceStore.createContainer(inMemory: true)
-    let onlineStore = PersistenceStore(modelContainer: onlineContainer)
-    registry.rebind(dataStore: onlineStore)
-
-    let afterRebind = registry.coordinator(for: id)
-    #expect(beforeRebind !== afterRebind, "rebind should tear down the offline coordinator")
-    #expect(afterRebind.dataStore === onlineStore, "fresh coordinator binds to new store")
-  }
 }

@@ -33,7 +33,7 @@ struct RemoteNodeStatusHandlerSurvivalTests {
   private func makeServices() throws -> ServiceContainer {
     try ServiceContainer(
       session: MeshCoreSession(transport: MockTransport()),
-      modelContainer: PersistenceStore.createContainer(inMemory: true),
+      dataStore: PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true)),
       radioID: UUID()
     )
   }
@@ -64,6 +64,7 @@ struct RemoteNodeStatusHandlerSurvivalTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -85,7 +86,8 @@ struct RemoteNodeStatusHandlerSurvivalTests {
     viewModel.configure(
       repeaterAdminService: { service },
       contactService: { nil },
-      nodeSnapshotService: { nil }
+      nodeSnapshotService: { nil },
+      deviceHashSize: { nil }
     )
     await viewModel.registerHandlers()
 
@@ -152,7 +154,8 @@ struct RemoteNodeStatusHandlerSurvivalTests {
     viewModel.configure(
       repeaterAdminService: { service },
       contactService: { services.contactService },
-      nodeSnapshotService: { services.nodeSnapshotService }
+      nodeSnapshotService: { services.nodeSnapshotService },
+      deviceHashSize: { nil }
     )
     await viewModel.registerHandlers()
     await service.setStatusHandler { _ in statusFlag.set() }
@@ -205,7 +208,8 @@ struct RemoteNodeStatusHandlerSurvivalTests {
     viewModel.configure(
       repeaterAdminService: { service },
       contactService: { services.contactService },
-      nodeSnapshotService: { services.nodeSnapshotService }
+      nodeSnapshotService: { services.nodeSnapshotService },
+      deviceHashSize: { nil }
     )
     await viewModel.cleanup()
 

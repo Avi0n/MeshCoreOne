@@ -21,6 +21,9 @@ struct NeighborSNRMapView: View {
   let contacts: [ContactDTO]
   let discoveredNodes: [DiscoveredNodeDTO]
   let userLocation: CLLocation?
+  /// Hex width for unresolved identity prefixes. Captured with the neighbours fetch so map
+  /// titles and no-location rows use the same value.
+  let keyDisplayByteCount: Int
 
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
@@ -86,7 +89,10 @@ struct NeighborSNRMapView: View {
     .navigationBarTitleDisplayMode(.inline)
     .navigationDestination(isPresented: $showingNoLocationList) {
       if let unplottable = plotted?.unplottable {
-        NeighborsNoLocationList(unplottable: unplottable)
+        NeighborsNoLocationList(
+          unplottable: unplottable,
+          keyDisplayByteCount: keyDisplayByteCount
+        )
       }
     }
     .onAppear {
@@ -114,7 +120,8 @@ struct NeighborSNRMapView: View {
       contacts: contacts,
       discoveredNodes: discoveredNodes,
       userLocation: userLocation,
-      filter: mapFilter
+      filter: mapFilter,
+      keyDisplayByteCount: keyDisplayByteCount
     )
   }
 
@@ -185,13 +192,15 @@ struct NeighborSNRMapView: View {
 /// unresolved). Reuses `NeighborRow`, including its "?" fallback-match affordance.
 private struct NeighborsNoLocationList: View {
   let unplottable: [NeighborSNRMapBuilder.UnplottableNeighbor]
+  let keyDisplayByteCount: Int
 
   var body: some View {
     List(unplottable, id: \.neighbor.publicKeyPrefix) { item in
       NeighborRow(
         neighbor: item.neighbor,
         displayName: item.displayName,
-        matchKind: item.matchKind
+        matchKind: item.matchKind,
+        keyDisplayByteCount: keyDisplayByteCount
       )
     }
     .navigationTitle(L10n.RemoteNodes.RemoteNodes.Status.neighborsNotShown(unplottable.count))

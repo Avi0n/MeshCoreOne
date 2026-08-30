@@ -242,6 +242,23 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     []
   }
 
+  func fetchMessageWindow(
+    contactID: UUID,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    ([], false)
+  }
+
+  func fetchMessageWindow(
+    radioID: UUID,
+    channelIndex: UInt8,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    ([], false)
+  }
+
   func fetchLastMessages(contactIDs: [UUID], limit: Int) throws -> [UUID: [MessageDTO]] {
     [:]
   }
@@ -283,6 +300,11 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
 
   func saveContact(_ dto: ContactDTO) async throws {}
   func deleteContact(id: UUID) async throws {}
+  @discardableResult
+  func touchContactHeard(radioID: UUID, publicKey: Data, at date: Date) async throws -> Bool {
+    false
+  }
+
   func updateContactLastMessage(contactID: UUID, date: Date?) async throws {}
   func incrementUnreadCount(contactID: UUID) async throws {}
   func clearUnreadCount(contactID: UUID) async throws {}
@@ -551,7 +573,7 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
 
   func clearRxLogEntries(radioID: UUID) async throws {}
   func pruneRxLogEntries(radioID: UUID, keepCount: Int, pruneThreshold: Int) async throws {}
-  func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] {
+  func fetchEntriesWithTransportCode(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] {
     []
   }
 
@@ -559,10 +581,17 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     []
   }
 
-  func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {}
+  func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])]) async throws {}
   func batchUpdateRxLogDecryption(_ updates: [(id: UUID, channelIndex: UInt8?, channelName: String?, senderTimestamp: UInt32?)]) async throws {}
-  func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
-  func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]) async throws {}
+  @discardableResult
+  func batchUpdateChannelMessageRegion(radioID: UUID, updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]) async throws -> [UUID] {
+    []
+  }
+
+  @discardableResult
+  func batchUpdateDMMessageRegion(radioID: UUID, updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]) async throws -> [UUID] {
+    []
+  }
 
   /// Channel Message Deletion
   func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) async throws {}

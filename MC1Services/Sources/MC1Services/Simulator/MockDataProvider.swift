@@ -37,8 +37,18 @@ public enum MockDataProvider {
   static let aliceReactedMessageID = UUID(uuidString: "10000000-0000-0000-0000-000000000002")!
   static let aliceLinkPreviewMessageID = UUID(uuidString: "10000000-0000-0000-0000-00000000000A")!
   static let frankRepeatMessageID = UUID(uuidString: "60000000-0000-0000-0000-000000000002")!
+  static let frankFloodUniqueMessageID = UUID(uuidString: "60000000-0000-0000-0000-000000000004")!
+  static let frankFloodAmbiguousMessageID = UUID(uuidString: "60000000-0000-0000-0000-000000000005")!
   static let bayAreaReactedMessageID = UUID(uuidString: "C1000000-0000-0000-0000-000000000002")!
   static let bayAreaMentionMessageID = UUID(uuidString: "C1000000-0000-0000-0000-000000000003")!
+  static let publicAmbiguousRegionMessageID = UUID(uuidString: "C0000000-0000-0000-0000-000000000005")!
+  static let uniqueRxLogEntryID = UUID(uuidString: "A0000000-0000-0000-0000-000000000001")!
+  static let ambiguousRxLogEntryID = UUID(uuidString: "A0000000-0000-0000-0000-000000000002")!
+
+  /// Seed values matching `RegionScopeSemantics.storageFields`: unique is
+  /// `(name, [name])`, ambiguous is `(nil, sorted names)`.
+  static let uniqueRegionName = "US915"
+  static let ambiguousRegionNames = ["de-by", "de-hh"]
 
   // MARK: - Mock Public Keys
 

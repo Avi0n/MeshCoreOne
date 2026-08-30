@@ -1,4 +1,3 @@
-// MC1/Views/Chats/Components/RepeatRowView.swift
 import CoreLocation
 import MC1Services
 import SwiftUI
@@ -11,16 +10,19 @@ struct RepeatRowView: View {
   let userLocation: CLLocation?
 
   var body: some View {
+    let resolution = repeaterResolution
     HStack(alignment: .top) {
-      // Left side: Repeater ID + name, hop count
       VStack(alignment: .leading, spacing: 2) {
-        HStack {
+        HStack(spacing: 6) {
           Text(repeatEntry.repeaterHashFormatted)
             .font(.body)
             .foregroundStyle(.secondary)
             .monospaced()
-          Text(repeaterName)
+          Text(resolution.displayName)
             .font(.body)
+          if resolution.matchKind == .fallback {
+            FallbackMatchIndicatorView()
+          }
         }
 
         Text(hopCountText)
@@ -30,7 +32,6 @@ struct RepeatRowView: View {
 
       Spacer()
 
-      // Right side: Signal bars and metrics
       VStack(alignment: .trailing, spacing: 2) {
         Image(systemName: "cellularbars", variableValue: repeatEntry.snrLevel)
           .foregroundStyle(signalColor)
@@ -45,12 +46,46 @@ struct RepeatRowView: View {
       }
     }
     .padding(.vertical, 4)
-    .accessibilityElement(children: .combine)
-    .accessibilityLabel(L10n.Chats.Chats.Repeats.Row.accessibility(repeaterName))
+    // .combine would swallow FallbackMatchIndicatorView; .contain keeps the popover a rotor stop.
+    .accessibilityElement(children: resolution.isFallback ? .contain : .combine)
+    .accessibilityLabel(L10n.Chats.Chats.Repeats.Row.accessibility(resolution.displayName))
     .accessibilityValue(L10n.Chats.Chats.Repeats.Row.accessibilityValue(signalQuality, repeatEntry.snrFormatted, repeatEntry.rssiFormatted))
   }
 
+  /// NeighborNameResolver, not RepeaterResolver.bestMatch: only the former reports `.fallback`.
+  static func resolution(
+    repeaterHash: Data?,
+    repeaters: [ContactDTO],
+    discoveredRepeaters: [DiscoveredNodeDTO],
+    userLocation: CLLocation?
+  ) -> NodeNameResolution {
+    guard let repeaterHash else {
+      return NodeNameResolution(
+        displayName: L10n.Chats.Chats.Repeats.unknownRepeater,
+        matchKind: .unresolved
+      )
+    }
+    return NeighborNameResolver.resolve(
+      for: repeaterHash,
+      contacts: repeaters,
+      discoveredNodes: discoveredRepeaters,
+      userLocation: userLocation
+    ) ?? NodeNameResolution(
+      displayName: L10n.Chats.Chats.Repeats.unknownRepeater,
+      matchKind: .unresolved
+    )
+  }
+
   // MARK: - Helpers
+
+  private var repeaterResolution: NodeNameResolution {
+    Self.resolution(
+      repeaterHash: repeatEntry.repeaterHash,
+      repeaters: repeaters,
+      discoveredRepeaters: discoveredRepeaters,
+      userLocation: userLocation
+    )
+  }
 
   private var snrQuality: SNRQuality {
     repeatEntry.snrQuality
@@ -60,32 +95,13 @@ struct RepeatRowView: View {
     snrQuality.color
   }
 
-  /// Signal quality description for accessibility
   private var signalQuality: String {
     snrQuality.localizedLabel
   }
 
-  /// Hop count text with proper pluralization
   private var hopCountText: String {
     let count = repeatEntry.hopCount
     return count == 1 ? L10n.Chats.Chats.Repeats.Hop.singular : L10n.Chats.Chats.Repeats.Hop.plural(count)
-  }
-
-  /// Resolve repeater name from repeaters list or show placeholder
-  private var repeaterName: String {
-    guard let repeaterHash = repeatEntry.repeaterHash else {
-      return L10n.Chats.Chats.Repeats.unknownRepeater
-    }
-
-    if let repeater = RepeaterResolver.bestMatch(for: repeaterHash, in: repeaters, userLocation: userLocation) {
-      return repeater.resolvableName
-    }
-
-    if let node = RepeaterResolver.bestMatch(for: repeaterHash, in: discoveredRepeaters, userLocation: userLocation) {
-      return node.resolvableName
-    }
-
-    return L10n.Chats.Chats.Repeats.unknownRepeater
   }
 }
 

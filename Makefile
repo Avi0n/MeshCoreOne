@@ -51,14 +51,32 @@ STORE_SUITES := \
 # wedge every later run. The calling recipe sets `dest` first.
 SIM_LOCK = if [ -z "$$CI" ]; then \
 		lock="/tmp/mc1-xcodebuild-$$(printf '%s' "$$dest" | tr -c 'A-Za-z0-9' '-').lock"; \
+		waited=0; \
 		while :; do \
 			if ( set -C; echo $$$$ > "$$lock" ) 2>/dev/null; then break; fi; \
 			owner=$$(cat "$$lock" 2>/dev/null); \
 			if [ -z "$$owner" ] || ! ps -p "$$owner" >/dev/null 2>&1; then rm -f "$$lock"; continue; fi; \
-			echo "==> waiting for simulator lock ($$dest), held by pid $$owner"; sleep 2; \
+			echo "==> waiting for simulator lock ($$dest), held by pid $$owner, $${waited}s elapsed"; sleep 2; \
+			waited=$$((waited + 2)); \
 		done; \
 		trap 'rm -f "$$lock"' EXIT INT TERM HUP; \
 	fi
+
+# Heartbeat runs in the pipe consumer so its trap cannot replace SIM_LOCK's
+# lock-release trap. Kill it after xcsift; macOS bash skips pipeline exit traps.
+XCODEBUILD_HEARTBEAT_SEC ?= 30
+XCSIFT_WITH_HEARTBEAT = { \
+		echo "==> xcodebuild test ($$dest); xcsift summary at EOF" >&2; \
+		SECONDS=0; \
+		( while sleep $(XCODEBUILD_HEARTBEAT_SEC); do echo "==> still running $${SECONDS}s" >&2; done ) & \
+		hb=$$!; \
+		trap 'kill $$hb 2>/dev/null || true' EXIT; \
+		xcsift -f toon; \
+		sift=$$?; \
+		kill $$hb 2>/dev/null || true; \
+		wait $$hb 2>/dev/null || true; \
+		exit $$sift; \
+	}
 
 .DEFAULT_GOAL := help
 .PHONY: help generate test test-app test-store
@@ -88,12 +106,18 @@ generate: dev.yml ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
 
 test: test-app test-store ## Run everything: full app suite (iOS 26) + StoreKit suites (iOS 18)
 
+# Skip sysdiagnose collection. xcodebuild can spawn simctl diagnose after the
+# suite and block the recipe for minutes even when every test passed.
 test-app: generate ## Run the full app suite on iOS 26 (StoreKit suites auto-skip here)
 	@dest='$(SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
-		-destination "$$dest" 2>&1 | xcsift -f toon
+		-destination "$$dest" \
+		-collect-test-diagnostics never \
+		2>&1 | $(XCSIFT_WITH_HEARTBEAT)
 
 test-store: generate ## Run every StoreKit/IAP SKTestSession suite on iOS 18.x
 	@dest='$(STORE_SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
-		-destination "$$dest" $(STORE_SUITES) 2>&1 | xcsift -f toon
+		-destination "$$dest" $(STORE_SUITES) \
+		-collect-test-diagnostics never \
+		2>&1 | $(XCSIFT_WITH_HEARTBEAT)

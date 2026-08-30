@@ -41,6 +41,12 @@
             "value" : "Wyślij ogłoszenie w ${applicationName}"
           }
         },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar um Advert em ${applicationName}"
+          }
+        },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
@@ -99,6 +105,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wyślij ogłoszenie ${reach} w ${applicationName}"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar um Advert ${reach} em ${applicationName}"
           }
         },
         "ru" : {
@@ -161,6 +173,12 @@
             "value" : "Sprawdź stan radia w ${applicationName}"
           }
         },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verificar o estado do rádio em ${applicationName}"
+          }
+        },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
@@ -219,6 +237,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Czy moje radio jest połączone w ${applicationName}"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O meu rádio está ligado em ${applicationName}?"
           }
         },
         "ru" : {
@@ -281,6 +305,12 @@
             "value" : "Wyślij wiadomość do ${target} w ${applicationName}"
           }
         },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar uma mensagem a ${target} em ${applicationName}"
+          }
+        },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
@@ -341,6 +371,12 @@
             "value" : "Wyślij wiadomość w ${applicationName}"
           }
         },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar uma mensagem em ${applicationName}"
+          }
+        },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
@@ -399,6 +435,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jaki jest poziom baterii radia w ${applicationName}"
+          }
+        },
+        "pt" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qual é a bateria do meu rádio em ${applicationName}?"
           }
         },
         "ru" : {

@@ -1,10 +1,13 @@
 import MC1Services
+import OSLog
 import SwiftUI
 
 /// ViewModel for room conversation operations
 @Observable
 @MainActor
 final class RoomConversationViewModel {
+  private let logger = Logger(subsystem: "com.mc1", category: "RoomConversationViewModel")
+
   // MARK: - Properties
 
   /// Current room session
@@ -12,6 +15,30 @@ final class RoomConversationViewModel {
 
   /// Room messages
   var messages: [RoomMessageDTO] = []
+
+  /// Materialized tiled rows. Chrome including Translation offer lives here
+  /// so `ChatTiledView` reconfigures when a phase changes.
+  var tiledRows: [RoomTiledRow] = []
+
+  /// Pending Translation session request. Observed so the view can invalidate
+  /// `TranslationSession.Configuration`.
+  var translationSessionRequest: TranslationSessionRequest?
+
+  var preferredLanguageCode: String = EnvInputs.defaultPreferredLanguageCode
+
+  /// Monotonic generation for in-flight translation. Apply a result only
+  /// when it still matches `translationSessionRequest.generation`.
+  @ObservationIgnored var translationGeneration: UInt64 = 0
+
+  /// Detected language keyed by message id. Missing key = not yet run;
+  /// `.undetermined` = ran, no code.
+  var detectedLanguages: [UUID: DetectedLanguage] = [:]
+  /// Per-message Translation offer phase. Missing lets
+  /// `MessageTranslationChrome.resolved` decide from detection.
+  var translationPhases: [UUID: MessageTranslationChrome.Phase] = [:]
+  /// Last successful translation per message, keyed by collapsed target
+  /// language code. A DE→EN result must not be reused as DE→FR.
+  var translationCache: [UUID: [String: String]] = [:]
 
   /// Loading state
   var isLoading = false
@@ -60,6 +87,10 @@ final class RoomConversationViewModel {
   /// state still feels fresh.
   private static let reloadDebounce: Duration = .milliseconds(50)
 
+  /// View-owned drop animation. Weak so a disappeared room cannot start a
+  /// flight after its overlay is gone.
+  @ObservationIgnored weak var incomingAvatarFlight: IncomingAvatarFlight?
+
   // MARK: - Initialization
 
   init() {}
@@ -91,10 +122,12 @@ final class RoomConversationViewModel {
 
     do {
       messages = try await roomServerService.fetchMessages(sessionID: session.id)
+      refreshTiledRows()
 
       // Clear unread count, remove any delivered notifications for this
       // room still in the tray, and update the badge
       try await roomServerService.markAsRead(sessionID: session.id)
+      try await dataStore?.markFailedSendsSeen(roomSessionID: session.id)
       await notificationService?.removeDeliveredNotifications(forRoomSessionID: session.id)
       await notificationService?.updateBadgeCount()
       syncCoordinator?.notifyConversationsChanged()
@@ -113,8 +146,20 @@ final class RoomConversationViewModel {
   /// `[timestamp, createdAt]` sort.
   func appendMessageIfNew(_ message: RoomMessageDTO) {
     guard !messages.contains(where: { $0.id == message.id }) else { return }
+    let previousTail = messages.last
     let index = messages.firstIndex { $0.timestamp > message.timestamp } ?? messages.endIndex
+    let isTailAppend = index == messages.endIndex
     messages.insert(message, at: index)
+    refreshTiledRows()
+    if isTailAppend,
+       let previous = previousTail,
+       Self.incomingClusterContinues(from: previous, to: message) {
+      incomingAvatarFlight?.beginFlight(
+        from: previous.id,
+        to: message.id,
+        identity: .initials(name: message.authorDisplayName)
+      )
+    }
   }
 
   /// Send a message to the current room
@@ -172,11 +217,17 @@ final class RoomConversationViewModel {
     case let .roomMessageFailed(messageID):
       if messages.contains(where: { $0.id == messageID }) {
         scheduleCoalescedReload()
+        do {
+          try await dataStore?.markFailedSendsSeen(roomSessionID: session.id)
+          syncCoordinator?.notifyConversationsChanged()
+        } catch {
+          logger.warning("Failed to mark in-thread room failed send seen: \(error.localizedDescription)")
+        }
       }
 
     case .directMessageReceived, .channelMessageReceived,
          .messageStatusResolved, .messageResent, .messageFailed, .messageRetrying,
-         .heardRepeatRecorded, .reactionReceived, .routingChanged:
+         .heardRepeatRecorded, .reactionReceived, .messagesRegionUpdated, .routingChanged:
       // Non-Room events are not Room-scoped. Enumerated explicitly so
       // adding a new MessageEvent case surfaces as a non-exhaustive
       // switch compile error rather than a silent skip.
@@ -207,6 +258,7 @@ final class RoomConversationViewModel {
       // Update local array
       if let index = messages.firstIndex(where: { $0.id == id }) {
         messages[index] = updatedMessage
+        refreshTiledRows()
       }
     } catch {
       errorMessage = error.userFacingMessage
@@ -228,5 +280,46 @@ final class RoomConversationViewModel {
 
     let gap = abs(Int(currentMessage.timestamp) - Int(previousMessage.timestamp))
     return gap > messageGroupingGapSeconds
+  }
+
+  /// Incoming rooms cluster on `authorKeyPrefix` plus `messageGroupingGapSeconds`.
+  /// Display-name matches do not merge prefixes.
+  static func incomingClusterContinues(from earlier: RoomMessageDTO, to later: RoomMessageDTO) -> Bool {
+    guard !earlier.isFromSelf, !later.isFromSelf else { return false }
+    let gap = abs(Int(later.timestamp) - Int(earlier.timestamp))
+    guard gap <= messageGroupingGapSeconds else { return false }
+    return earlier.authorKeyPrefix == later.authorKeyPrefix
+  }
+
+  /// Name on cluster-start, avatar on cluster-end.
+  static func incomingBookends(in messages: [RoomMessageDTO]) -> (nameIDs: Set<UUID>, avatarIDs: Set<UUID>) {
+    var nameIDs: Set<UUID> = []
+    var avatarIDs: Set<UUID> = []
+    for (index, message) in messages.enumerated() {
+      guard !message.isFromSelf else { continue }
+      let previous = index > 0 ? messages[index - 1] : nil
+      let next = index + 1 < messages.count ? messages[index + 1] : nil
+      let continuesFromPrevious = previous.map { incomingClusterContinues(from: $0, to: message) } ?? false
+      let continuesToNext = next.map { incomingClusterContinues(from: message, to: $0) } ?? false
+      if !continuesFromPrevious { nameIDs.insert(message.id) }
+      if !continuesToNext { avatarIDs.insert(message.id) }
+    }
+    return (nameIDs, avatarIDs)
+  }
+
+  static func tiledRows(
+    in messages: [RoomMessageDTO],
+    translations: [UUID: MessageTranslationChrome] = [:]
+  ) -> [RoomTiledRow] {
+    let bookends = incomingBookends(in: messages)
+    return messages.enumerated().map { index, message in
+      RoomTiledRow(
+        message: message,
+        showTimestamp: shouldShowTimestamp(at: index, in: messages),
+        showSenderName: bookends.nameIDs.contains(message.id),
+        showAvatar: bookends.avatarIDs.contains(message.id),
+        translation: translations[message.id]
+      )
+    }
   }
 }

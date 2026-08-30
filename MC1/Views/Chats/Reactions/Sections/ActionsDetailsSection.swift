@@ -190,11 +190,21 @@ private struct ActionsIncomingDetailsRows: View {
     }
 
     if message.routeType == .tcFlood {
-      ActionInfoRow(
-        text: message.regionScope.map { L10n.Chats.Chats.Message.Info.floodedUnder($0) }
-          ?? L10n.Chats.Chats.Message.Info.regionUnresolved,
-        icon: "globe"
-      )
+      let regionText: String = {
+        switch RegionScopeSemantics.coalesce(
+          scope: message.regionScope,
+          matches: message.regionScopeMatches
+        ) {
+        case .none:
+          return L10n.Chats.Chats.Message.Info.regionUnresolved
+        case let .unique(name):
+          return L10n.Chats.Chats.Message.Info.floodedUnder(name)
+        case let .ambiguous(names):
+          let list = ListFormatter.localizedString(byJoining: names)
+          return L10n.Chats.Chats.Message.Info.regionAmbiguous(list)
+        }
+      }()
+      ActionInfoRow(text: regionText, icon: "globe")
     }
 
     let sentText = L10n.Chats.Chats.Message.Info.sent(

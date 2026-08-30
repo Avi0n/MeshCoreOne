@@ -158,6 +158,8 @@ final class ContactsViewModel {
     syncProgress = nil
     errorMessage = nil
 
+    // `setSyncingContacts(true)` then `syncContactsForRefresh` so an advert-driven
+    // sync cannot interleave progress events with this refresh.
     if let advertisementService {
       await advertisementService.setSyncingContacts(true)
     }
@@ -175,7 +177,7 @@ final class ContactsViewModel {
     defer { progressTask.cancel() }
 
     do {
-      _ = try await contactService.syncContacts(radioID: radioID)
+      _ = try await contactService.syncContactsForRefresh(radioID: radioID)
 
       // Reload from database
       await loadContacts(radioID: radioID)
@@ -350,7 +352,7 @@ final class ContactsViewModel {
   ) -> [ContactDTO] {
     switch order {
     case .lastHeard:
-      contacts.sorted { $0.lastModified > $1.lastModified }
+      contacts.sorted { $0.recencyTimestamp > $1.recencyTimestamp }
     case .name:
       contacts.sorted {
         $0.displayName.localizedCompare($1.displayName) == .orderedAscending

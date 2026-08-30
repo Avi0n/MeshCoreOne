@@ -46,6 +46,13 @@ final class ChatViewModel {
   /// `allContacts` changes so per-message resolution stays O(1).
   var nicknamesByLoweredName: [String: String] = [:]
 
+  /// Unique lowered contact name → channel incoming-avatar identity.
+  var incomingAvatarIdentitiesByLoweredName: [String: IncomingAvatarIdentity] = [:]
+
+  /// Bumped at the start of each `loadAllContacts` so a slower first fetch
+  /// cannot publish after a newer overlapping load.
+  @ObservationIgnored var incomingAvatarLoadGeneration = 0
+
   /// Synthetic contacts for channel senders not in contacts
   var channelSenders: [ContactDTO] = []
 
@@ -76,10 +83,22 @@ final class ChatViewModel {
   /// Cancel-and-replace token for the serialized reload funnel. No view reads it.
   @ObservationIgnored var reloadTask: Task<Void, Never>?
 
+  /// View-owned drop animation. Weak so a disappeared conversation cannot
+  /// start a flight after its overlay is gone.
+  @ObservationIgnored weak var incomingAvatarFlight: IncomingAvatarFlight?
+
   #if DEBUG
     /// Test-only interleave hook, awaited once mid-reload so a test can suspend reload #1
     /// between fetches and commit reload #2 first. Compiled out of release builds.
     @ObservationIgnored var reloadInterleaveHook: (@MainActor () async -> Void)?
+
+    /// Test-only interleave hook, awaited after the failed-send keys fetch so a
+    /// test can suspend refresh #1 until a newer refresh has applied.
+    @ObservationIgnored var failedSendRefreshInterleaveHook: (@MainActor () async -> Void)?
+
+    /// Test-only fault injection fired immediately before the failed-send keys
+    /// fetch so tests can exercise the keep-last-known catch path.
+    @ObservationIgnored var failedSendRefreshFaultInjection: (@MainActor () throws -> Void)?
   #endif
 
   // MARK: - Conversation Cache Storage
@@ -126,6 +145,12 @@ final class ChatViewModel {
   /// Update env-derived inputs and trigger a full rebuild when the value
   /// changes and there are messages to rebuild. Idempotent on no-change.
   func applyEnvInputs(_ new: EnvInputs) {
+    if !MessageLanguageDetector.isSameLanguage(
+      envInputs.preferredLanguageCode,
+      new.preferredLanguageCode
+    ) {
+      invalidateTranslations(preferredLanguageCode: new.preferredLanguageCode)
+    }
     timeline.applyEnvInputs(new)
   }
 
@@ -177,6 +202,14 @@ final class ChatViewModel {
   /// Error message if any
   var errorMessage: String?
 
+  /// Pending Translation session request. Observed by the conversation view
+  /// so it can invalidate `TranslationSession.Configuration`.
+  var translationSessionRequest: TranslationSessionRequest?
+
+  /// Monotonic generation for in-flight translation. Apply a result only
+  /// when it still matches `translationSessionRequest.generation`.
+  @ObservationIgnored var translationGeneration: UInt64 = 0
+
   /// Error state for send-only failures (queue drains, retry call site).
   /// Separate from `errorMessage`, which surfaces load and fetch errors
   /// with the generic "Error" alert title. `sendErrorMessage` surfaces
@@ -210,6 +243,14 @@ final class ChatViewModel {
 
   /// Last message previews cache
   var lastMessageCache: [UUID: MessageDTO] = [:]
+
+  /// Conversation ids (contact, channel, or room session) with at least one
+  /// unseen outgoing `.failed` send. Observed so list rows invalidate like previews.
+  var failedSendConversationIDs: Set<UUID> = []
+
+  /// Bumped at the start of each failed-send indicator refresh so a slower
+  /// first fetch cannot publish after a newer overlapping refresh.
+  @ObservationIgnored var failedSendRefreshGeneration = 0
 
   /// Scope preferences (master + per-conversation-type auto-resolve) read by
   /// the image fetch sites so inline images honor the same DM/channel gate the
@@ -258,7 +299,11 @@ final class ChatViewModel {
 
   /// Snapshot of observed contact tables for the item bake.
   func currentSenderTables() -> ChatSenderTables {
-    ChatSenderTables(contacts: allContacts, nicknamesByLoweredName: nicknamesByLoweredName)
+    ChatSenderTables(
+      contacts: allContacts,
+      nicknamesByLoweredName: nicknamesByLoweredName,
+      incomingAvatars: incomingAvatarIdentitiesByLoweredName
+    )
   }
 
   // MARK: - Dependencies

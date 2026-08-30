@@ -339,7 +339,7 @@
 "error.wifi.connectionFailed" = "Не вдалося під'єднатися: %@";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
-"error.wifi.connectionTimeout" = "Час очікування з'єднання вичерпано. Перевірте IP-адресу та переконайтеся, що пристрій у тій самій мережі.";
+"error.wifi.connectionTimeout" = "Час очікування з'єднання вичерпано. Перевірте ім'я хоста або IP-адресу та переконайтеся, що пристрій доступний.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
 "error.wifi.notConnected" = "Немає з'єднання з пристроєм.";
@@ -350,8 +350,8 @@
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out */
 "error.wifi.sendTimeout" = "Час очікування надсилання вичерпано.";
 
-/* Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid */
-"error.wifi.invalidHost" = "Неприпустима IP-адреса.";
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid */
+"error.wifi.invalidHost" = "Неприпустиме ім'я хоста або IP-адреса.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid */
 "error.wifi.invalidPort" = "Неприпустимий номер порту.";

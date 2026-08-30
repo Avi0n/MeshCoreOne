@@ -76,7 +76,7 @@ final class ChatTimelinePrimer {
       // DM bubbles never show the sender row.
       senderTables = .empty
     case let .channel(channel):
-      // Contacts before the bake so `senderResolutionFor` resolves names.
+      // Contacts before bake so `senderResolutionFor` and `IncomingAvatarJPEGStore` see the table.
       senderTables = await fetchSenderTables(radioID: channel.radioID)
     }
 
@@ -90,7 +90,7 @@ final class ChatTimelinePrimer {
       return ChatTimeline.ReactionIndexing(service: service, scope: scope)
     }
 
-    let outcome = await timeline.open(conversation, reactions: reactions)
+    let outcome = await timeline.open(conversation, reactions: reactions, populateMode: .replace)
 
     switch outcome {
     case .loaded:
@@ -123,10 +123,20 @@ final class ChatTimelinePrimer {
     guard let dataStore = dependencies.dataStore() else { return .empty }
     do {
       let contacts = try await dataStore.fetchContacts(radioID: radioID)
+      try Task.checkCancellation()
+      let incomingAvatars = await incomingAvatarIdentitiesOffMain(from: contacts)
+      IncomingAvatarJPEGStore.replace(
+        contacts: contacts,
+        identities: Array(incomingAvatars.values)
+      )
+      if Task.isCancelled { return .empty }
       return ChatSenderTables(
         contacts: contacts,
-        nicknamesByLoweredName: MessageBubbleConfiguration.buildNicknameLookup(from: contacts)
+        nicknamesByLoweredName: MessageBubbleConfiguration.buildNicknameLookup(from: contacts),
+        incomingAvatars: incomingAvatars
       )
+    } catch is CancellationError {
+      return .empty
     } catch {
       logger.warning("Failed to load contacts for channel prime: \(error.localizedDescription)")
       return .empty
@@ -159,4 +169,11 @@ final class ChatTimelinePrimer {
       )
     }
   }
+}
+
+@concurrent
+private func incomingAvatarIdentitiesOffMain(
+  from contacts: [ContactDTO]
+) async -> [String: IncomingAvatarIdentity] {
+  MessageBubbleConfiguration.incomingAvatarIdentities(from: contacts)
 }

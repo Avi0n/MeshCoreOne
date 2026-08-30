@@ -21,7 +21,6 @@ struct RepeaterSettingsView: View {
   /// The node's contact, kept live so the route section reflects the path the firmware learns after
   /// a flood login (delivered asynchronously as a contact update).
   @State private var routeContact: ContactDTO?
-  @State private var clockDrift: TimeInterval?
 
   var body: some View {
     // ZStack, not Group: a stable container keeps the navigation title hosted on one
@@ -40,8 +39,7 @@ struct RepeaterSettingsView: View {
           discoveredNodes: discoveredNodes,
           userLocation: appState.bestAvailableLocation,
           connectedDeviceID: appState.connectedDevice?.radioID,
-          routePathContact: routeContact,
-          clockDrift: clockDrift
+          routePathContact: routeContact
         )
       }
     }
@@ -70,7 +68,6 @@ struct RepeaterSettingsView: View {
         contacts = await (try? dataStore.fetchContacts(radioID: radioID)) ?? []
         discoveredNodes = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
       }
-      clockDrift = await appState.services?.remoteNodeService.loginClockDrift(sessionID: session.id)
       await refreshRouteContact()
     }
     .onChange(of: appState.contactsVersion) {
@@ -87,7 +84,8 @@ struct RepeaterSettingsView: View {
       statusViewModel.configure(
         repeaterAdminService: { appState.services?.repeaterAdminService },
         contactService: { appState.services?.contactService },
-        nodeSnapshotService: { appState.services?.nodeSnapshotService }
+        nodeSnapshotService: { appState.services?.nodeSnapshotService },
+        deviceHashSize: { appState.connectedDevice?.hashSize }
       )
       Task {
         await statusViewModel.registerHandlers()
@@ -338,6 +336,9 @@ private struct BehaviorSection: View {
 
 private struct RegionsSection: View {
   @Bindable var viewModel: RepeaterSettingsViewModel
+  @State private var showingAddAlert = false
+  @State private var newRegionName = ""
+  @State private var validationMessage: String?
 
   /// Regions sorted: wildcard first, then alphabetical
   private var sortedRegions: [RepeaterRegionEntry] {
@@ -353,6 +354,17 @@ private struct RegionsSection: View {
     region.isWildcard
       ? L10n.RemoteNodes.RemoteNodes.Settings.Regions.allTrafficWildcard
       : region.name
+  }
+
+  private var defaultScopePickerNames: [String] {
+    var names = sortedRegions.filter { !$0.isWildcard }.map(\.name)
+    if let current = viewModel.defaultScopeName,
+       current != RepeaterSettingsViewModel.wildcardName,
+       !current.isEmpty,
+       !names.contains(current) {
+      names.append(current)
+    }
+    return names
   }
 
   var body: some View {
@@ -371,24 +383,41 @@ private struct RegionsSection: View {
           .foregroundStyle(.secondary)
       }
 
-      // Home region picker
       if !viewModel.regions.isEmpty {
-        Picker(L10n.RemoteNodes.RemoteNodes.Settings.Regions.homeRegion, selection: Binding(
-          get: {
-            viewModel.regions.first(where: \.isHome)?.name
-              ?? RepeaterSettingsViewModel.wildcardName
-          },
-          set: { newValue in
-            Task { await viewModel.setHomeRegion(name: newValue) }
+        if viewModel.defaultScopeLoaded {
+          Picker(
+            L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope,
+            selection: Binding(
+              get: { viewModel.defaultScopeName },
+              set: { newValue in
+                Task { await viewModel.setDefaultScope(name: newValue) }
+              }
+            )
+          ) {
+            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.noDefault)
+              .tag(String?.none)
+            ForEach(defaultScopePickerNames, id: \.self) { name in
+              Text(name)
+                .tag(Optional(name))
+            }
           }
-        )) {
-          ForEach(sortedRegions) { region in
-            Text(displayName(for: region))
-              .tag(region.name)
+          .pickerStyle(.menu)
+          .tint(.primary)
+          .disabled(viewModel.isLoadingRegions || viewModel.helper.isApplying)
+        } else {
+          HStack {
+            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope)
+            Spacer()
+            SettingsLoadPlaceholder(
+              isLoading: viewModel.isLoadingRegions,
+              hasError: !viewModel.isLoadingRegions
+            )
           }
         }
-        .pickerStyle(.menu)
-        .tint(.primary)
+
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScopeCaption)
+          .font(.caption)
+          .foregroundStyle(.secondary)
       }
 
       // Region list with flood toggles
@@ -421,7 +450,8 @@ private struct RegionsSection: View {
 
       // Add region button
       Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion, systemImage: "plus") {
-        viewModel.isAddingRegion = true
+        newRegionName = ""
+        showingAddAlert = true
       }
       .disabled(viewModel.helper.isApplying)
 
@@ -438,17 +468,43 @@ private struct RegionsSection: View {
         }
         .disabled(viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
       }
+
+      if let error = viewModel.helper.errorMessage {
+        Text(error)
+          .foregroundStyle(.orange)
+          .font(.caption)
+      }
     }
-    .alert(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegionTitle, isPresented: $viewModel.isAddingRegion) {
-      TextField(L10n.RemoteNodes.RemoteNodes.Settings.Regions.regionName, text: $viewModel.newRegionName)
+    .alert(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegionTitle, isPresented: $showingAddAlert) {
+      TextField(L10n.RemoteNodes.RemoteNodes.Settings.Regions.regionName, text: $newRegionName)
         .autocorrectionDisabled()
         .textInputAutocapitalization(.never)
       Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion) {
-        Task { await viewModel.addRegion(name: viewModel.newRegionName) }
+        if let error = RegionNameValidator.validate(newRegionName, existingRegions: viewModel.regions.map(\.name)) {
+          validationMessage = validationText(for: error)
+          Task { showingAddAlert = true }
+          return
+        }
+        validationMessage = nil
+        let name = newRegionName.trimmingCharacters(in: .whitespaces)
+        Task { await viewModel.addRegion(name: name) }
       }
       Button(L10n.RemoteNodes.RemoteNodes.cancel, role: .cancel) {
-        viewModel.newRegionName = ""
+        validationMessage = nil
       }
+    } message: {
+      if let validationMessage {
+        Text(validationMessage)
+      }
+    }
+  }
+
+  private func validationText(for error: RegionNameValidator.ValidationError) -> String? {
+    switch error {
+    case .empty: nil
+    case .invalidCharacters: L10n.RemoteNodes.RemoteNodes.Settings.Regions.invalidName
+    case let .tooLong(maxBytes): L10n.RemoteNodes.RemoteNodes.Settings.Regions.nameTooLong(maxBytes)
+    case .duplicate: L10n.RemoteNodes.RemoteNodes.Settings.Regions.duplicate
     }
   }
 }

@@ -8,7 +8,6 @@ struct RoomStatusView: View {
 
   let session: RemoteNodeSessionDTO
   @State private var viewModel = RoomStatusViewModel()
-  @State private var clockDrift: TimeInterval?
 
   var body: some View {
     NavigationStack {
@@ -16,8 +15,7 @@ struct RoomStatusView: View {
         viewModel: viewModel,
         session: session,
         connectionState: appState.connectionState,
-        connectedDeviceID: appState.connectedDevice?.radioID,
-        clockDrift: clockDrift
+        connectedDeviceID: appState.connectedDevice?.radioID
       )
       .navigationTitle(L10n.RemoteNodes.RemoteNodes.RoomStatus.title)
       .navigationBarTitleDisplayMode(.inline)
@@ -50,7 +48,6 @@ struct RoomStatusView: View {
         if let radioID = appState.connectedDevice?.radioID {
           await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
-        clockDrift = await appState.services?.remoteNodeService.loginClockDrift(sessionID: session.id)
       }
     }
     .onDisappear {

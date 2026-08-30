@@ -235,11 +235,11 @@
 /* Location: WiFiConnectionSheet.swift - Section header for connection details */
 "wifiConnection.connectionDetails.header" = "Данные подключения";
 
-/* Location: WiFiConnectionSheet.swift - Placeholder for IP address field */
-"wifiConnection.ipAddress.placeholder" = "IP-адрес";
+/* Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field */
+"wifiConnection.ipAddress.placeholder" = "Имя хоста или IP-адрес";
 
-/* Location: WiFiConnectionSheet.swift - Accessibility label for clear IP button */
-"wifiConnection.ipAddress.clearAccessibility" = "Очистить IP-адрес";
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button */
+"wifiConnection.ipAddress.clearAccessibility" = "Очистить имя хоста или IP-адрес";
 
 /* Location: WiFiConnectionSheet.swift - Placeholder for port field */
 "wifiConnection.port.placeholder" = "Порт";
@@ -248,7 +248,7 @@
 "wifiConnection.port.clearAccessibility" = "Очистить порт";
 
 /* Location: WiFiConnectionSheet.swift - Footer explaining connection details */
-"wifiConnection.connectionDetails.footer" = "Введите адрес локальной сети вашего устройства MeshCore. Порт по умолчанию: 5000.";
+"wifiConnection.connectionDetails.footer" = "Введите имя хоста или IP-адрес устройства MeshCore. Порт по умолчанию — 5000.";
 
 /* Location: WiFiConnectionSheet.swift - Button label while connecting */
 "wifiConnection.connecting" = "Подключение...";

@@ -237,11 +237,11 @@
 /* Location: WiFiConnectionSheet.swift - Section header for connection details */
 "wifiConnection.connectionDetails.header" = "Dettagli connessione";
 
-/* Location: WiFiConnectionSheet.swift - Placeholder for IP address field */
-"wifiConnection.ipAddress.placeholder" = "Indirizzo IP";
+/* Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field */
+"wifiConnection.ipAddress.placeholder" = "Nome host o indirizzo IP";
 
-/* Location: WiFiConnectionSheet.swift - Accessibility label for clear IP button */
-"wifiConnection.ipAddress.clearAccessibility" = "Cancella indirizzo IP";
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button */
+"wifiConnection.ipAddress.clearAccessibility" = "Cancella nome host o indirizzo IP";
 
 /* Location: WiFiConnectionSheet.swift - Placeholder for port field */
 "wifiConnection.port.placeholder" = "Porta";
@@ -250,7 +250,7 @@
 "wifiConnection.port.clearAccessibility" = "Cancella porta";
 
 /* Location: WiFiConnectionSheet.swift - Footer explaining connection details */
-"wifiConnection.connectionDetails.footer" = "Inserisci l'indirizzo di rete locale del tuo dispositivo MeshCore. La porta predefinita è 5000.";
+"wifiConnection.connectionDetails.footer" = "Inserisci il nome host o l'indirizzo IP del tuo dispositivo MeshCore. La porta predefinita è 5000.";
 
 /* Location: WiFiConnectionSheet.swift - Button label while connecting */
 "wifiConnection.connecting" = "Connessione...";

@@ -4,6 +4,7 @@ import SwiftUI
 struct RoomConversationRow: View {
   @Environment(\.appState) private var appState
   let session: RemoteNodeSessionDTO
+  let viewModel: ChatViewModel
   var referenceDate: Date?
 
   var body: some View {
@@ -44,6 +45,10 @@ struct RoomConversationRow: View {
           }
 
           Spacer()
+
+          if viewModel.conversationHasFailedSend(session.id) {
+            FailedSendIndicator()
+          }
 
           UnreadBadges(
             unreadCount: session.unreadCount,

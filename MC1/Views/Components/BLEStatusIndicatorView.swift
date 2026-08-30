@@ -10,7 +10,6 @@ private let logger = Logger(subsystem: "com.mc1", category: "BLEStatus")
 struct BLEStatusIndicatorView: View {
   @Environment(\.appState) private var appState
   @State private var showingDeviceSelection = false
-  @State private var showingAdvancedSettings = false
   @State private var isSendingAdvert = false
   @State private var successFeedbackTrigger = false
   @State private var errorFeedbackTrigger = false
@@ -41,9 +40,6 @@ struct BLEStatusIndicatorView: View {
       DeviceSelectionSheet()
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)
-    }
-    .navigationDestination(isPresented: $showingAdvancedSettings) {
-      AdvancedSettingsView()
     }
   }
 
@@ -106,7 +102,7 @@ struct BLEStatusIndicatorView: View {
 
       Section {
         Button {
-          showingAdvancedSettings = true
+          appState.navigation.navigateToSetting(.advanced)
         } label: {
           Label(L10n.Settings.AdvancedSettings.title, systemImage: "gearshape")
         }

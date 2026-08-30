@@ -12,6 +12,7 @@ MeshCore One supports multiple languages. You can help improve translations enti
 | German                | de      | AI-translated      |
 | Italian               | it      | Verified by corradoignoti #376 |
 | Polish                | pl      | AI-translated      |
+| Portuguese (Portugal) | pt      | Verified by zadoke #413 |
 | Russian               | ru      | AI-translated      |
 | Simplified Chinese    | zh-Hans | Verified by MGJ520 #225 |
 | Spanish               | es      | AI-translated      |
@@ -152,7 +153,7 @@ Add the same key to all other language files. You can use AI translation as a st
 
 Use `.stringsdict` files for strings that change based on quantity.
 
-#### Simple Languages (English, German, Dutch, Spanish, French)
+#### Simple Languages (English, German, Dutch, Spanish, French, Italian, Portuguese)
 
 These languages use two forms: `one` (exactly 1) and `other` (0, 2+).
 

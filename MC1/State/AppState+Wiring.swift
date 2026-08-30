@@ -92,12 +92,17 @@ extension AppState {
           contactsVersion += 1
           PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
             .info("B4 contactUpdated bump contactsVersion=\(contactsVersion)")
+        case .conversationsChanged:
+          refreshConversations()
         case let .contactDeletedCleanup(contactID, _):
           logger.info("Overwrite oldest: running cleanup for deleted contact \(contactID) - removing notifications and updating badge")
           await self.services?.notificationService.removeDeliveredNotifications(forContactID: contactID)
           await self.services?.notificationService.updateBadgeCount()
         case .newContactDiscovered, .nodeStorageFullChanged,
-             .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:
+             .pathDiscoveryResponse, .traceResponse, .traceSnrObserved,
+             .orphanDirectMessagesAdopted:
+          // The paired .conversationsChanged already refreshes the list; the
+          // banner and badge are handled by the SyncCoordinator consumer.
           break
         }
       }

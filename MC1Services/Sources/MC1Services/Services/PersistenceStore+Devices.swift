@@ -100,6 +100,12 @@ public extension PersistenceStore {
 
   /// Update the lastContactSync timestamp for a device.
   /// Used to track incremental sync progress.
+  ///
+  /// The stamp is radio-RTC `max(contact.lastmod)`, not phone time. Store it
+  /// verbatim. Firmware filters with `contact.lastmod > since`; a phone-clock
+  /// upper bound can pin the watermark below every lastmod when the radio RTC
+  /// leads the phone, so every delta re-matches the full table and never
+  /// converges.
   func updateDeviceLastContactSync(radioID: UUID, timestamp: UInt32) throws {
     let targetRadioID = radioID
     let predicate = #Predicate<Device> { device in

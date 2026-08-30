@@ -137,7 +137,7 @@ public enum L10n {
           /// Location: RegionDiscoveryResultsView.swift - Purpose: Add selected regions button
           public static let addSelected = L10n.tr("Chats", "chats.channelInfo.region.addSelected", fallback: "Add")
           /// Location: ChannelInfoSheet.swift - Purpose: Region value when no scope set
-          public static let allRegions = L10n.tr("Chats", "chats.channelInfo.region.allRegions", fallback: "All Regions")
+          public static let allRegions = L10n.tr("Chats", "chats.channelInfo.region.allRegions", fallback: "Unscoped")
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button
           public static let discover = L10n.tr("Chats", "chats.channelInfo.region.discover", fallback: "Discover Nearby Regions")
           /// Location: ChannelInfoSheet.swift - Purpose: Discover button loading state
@@ -585,6 +585,10 @@ public enum L10n {
         }
       }
       public enum Message {
+        /// Location: UnifiedMessageBubble.swift - VoiceOver prefix when the visible body is a translation - %@ is the translated text
+        public static func translatedAccessibility(_ p1: Any) -> String {
+          return L10n.tr("Chats", "chats.message.translatedAccessibility", String(describing: p1), fallback: "Translated: %@")
+        }
         /// Location: ChatConversationView.swift - Placeholder when message data is unavailable
         public static let unavailable = L10n.tr("Chats", "chats.message.unavailable", fallback: "Message unavailable")
         /// Location: ChatConversationView.swift - Accessibility label for unavailable message
@@ -640,6 +644,12 @@ public enum L10n {
           public static let sendAgain = L10n.tr("Chats", "chats.message.action.sendAgain", fallback: "Send Again")
           /// Location: MessageActionsSheet.swift - Purpose: Action to start a DM with the channel sender
           public static let sendDM = L10n.tr("Chats", "chats.message.action.sendDM", fallback: "Send DM")
+          /// Location: BubbleTranslationControl.swift - Restore the stored message body
+          public static let showOriginal = L10n.tr("Chats", "chats.message.action.showOriginal", fallback: "Show original")
+          /// Location: BubbleTranslationControl.swift - In-bubble Translation offer
+          public static let translate = L10n.tr("Chats", "chats.message.action.translate", fallback: "Translate")
+          /// Location: BubbleTranslationControl.swift - Translation in progress
+          public static let translating = L10n.tr("Chats", "chats.message.action.translating", fallback: "Translating")
           /// Location: UnifiedMessageBubble.swift - VoiceOver action to open an attached image full-screen
           public static let viewImage = L10n.tr("Chats", "chats.message.action.viewImage", fallback: "View Image")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view path
@@ -684,6 +694,10 @@ public enum L10n {
           public static func received(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.info.received", String(describing: p1), fallback: "Received: %@")
           }
+          /// Location: ActionsDetailsSection.swift - Details row when multiple known regions match the packet transport code - %@ is localized list of names
+          public static func regionAmbiguous(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.info.regionAmbiguous", String(describing: p1), fallback: "Region (ambiguous): %@")
+          }
           /// Location: MessageActionsSheet.swift - Details row shown when region could not be resolved
           public static let regionUnresolved = L10n.tr("Chats", "chats.message.info.regionUnresolved", fallback: "Region: Unknown")
           /// Location: UnifiedMessageBubble.swift - Context menu text showing round trip time - %d is milliseconds
@@ -713,6 +727,22 @@ public enum L10n {
           /// Location: UnifiedMessageBubble.swift - Accessibility label for region footer - %@ is region name
           public static func accessibilityLabel(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.region.accessibilityLabel", String(describing: p1), fallback: "Region %@")
+          }
+          /// Location: BubbleFooterRow.swift - VoiceOver when multiple regions match - %@ is localized list of names
+          public static func ambiguousAccessibilityLabel(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.message.region.ambiguousAccessibilityLabel", String(describing: p1), fallback: "Region, ambiguous: %@")
+          }
+          public enum Ambiguous {
+            /// Location: FallbackMatchIndicatorView.swift - Popover body; %@ is newline-prefixed list of candidate names
+            public static func popoverBody(_ p1: Any) -> String {
+              return L10n.tr("Chats", "chats.message.region.ambiguous.popoverBody", String(describing: p1), fallback: "More than one region in your list matches this packet’s transport code. The app cannot tell which one was used.%@")
+            }
+            /// Location: FallbackMatchIndicatorView.swift - Popover title for region multi-match
+            public static let popoverTitle = L10n.tr("Chats", "chats.message.region.ambiguous.popoverTitle", fallback: "Multiple matching regions")
+            /// Location: FallbackMatchIndicatorView.swift - Accessibility label for region multi-match
+            public static let possibleMatch = L10n.tr("Chats", "chats.message.region.ambiguous.possibleMatch", fallback: "Multiple matching regions")
+            /// Location: FallbackMatchIndicatorView.swift - Accessibility hint for region multi-match
+            public static let possibleMatchHint = L10n.tr("Chats", "chats.message.region.ambiguous.possibleMatchHint", fallback: "More than one region in your list matches this packet’s transport code. The app cannot tell which one was used.")
           }
         }
         public enum Repeat {
@@ -921,6 +951,8 @@ public enum L10n {
         }
       }
       public enum Row {
+        /// Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator
+        public static let failedSend = L10n.tr("Chats", "chats.row.failedSend", fallback: "Failed to send")
         /// Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator
         public static let favorite = L10n.tr("Chats", "chats.row.favorite", fallback: "Favorite")
         /// Location: MutedIndicator.swift - Accessibility label for mentions-only indicator
@@ -1225,6 +1257,8 @@ public enum L10n {
         public static let joinRoom = L10n.tr("Contacts", "contacts.detail.joinRoom", fallback: "Join Room")
         /// Location: ContactDetailView.swift - Purpose: Last advert label
         public static let lastAdvert = L10n.tr("Contacts", "contacts.detail.lastAdvert", fallback: "Last Advert")
+        /// Location: ContactDetailView.swift - Purpose: Last heard (phone-clock on-air) label
+        public static let lastHeard = L10n.tr("Contacts", "contacts.detail.lastHeard", fallback: "Last Heard")
         /// Location: ContactDetailView.swift - Purpose: Location section header
         public static let location = L10n.tr("Contacts", "contacts.detail.location", fallback: "Location")
         /// Location: ContactDetailView.swift - Purpose: Management button
@@ -1346,6 +1380,24 @@ public enum L10n {
           public static let removePhoto = L10n.tr("Contacts", "contacts.detail.avatar.removePhoto", fallback: "Remove Photo")
           /// Location: ContactDetailView.swift - Purpose: VoiceOver suffix announced while a new profile picture is being saved
           public static let savingAnnouncement = L10n.tr("Contacts", "contacts.detail.avatar.savingAnnouncement", fallback: "Saving photo")
+          public enum Crop {
+            /// Location: AvatarCropView.swift - Purpose: Crop screen confirm button
+            public static let choose = L10n.tr("Contacts", "contacts.detail.avatar.crop.choose", fallback: "Choose")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo down
+            public static let moveDown = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveDown", fallback: "Move down")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo left
+            public static let moveLeft = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveLeft", fallback: "Move left")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo right
+            public static let moveRight = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveRight", fallback: "Move right")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver action that pans the photo up
+            public static let moveUp = L10n.tr("Contacts", "contacts.detail.avatar.crop.moveUp", fallback: "Move up")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver label for the crop preview
+            public static let preview = L10n.tr("Contacts", "contacts.detail.avatar.crop.preview", fallback: "Profile picture crop")
+            /// Location: AvatarCropView.swift - Purpose: VoiceOver hint for zoom and move
+            public static let previewHint = L10n.tr("Contacts", "contacts.detail.avatar.crop.previewHint", fallback: "Swipe up or down to zoom. Use the actions to move the photo.")
+            /// Location: AvatarCropView.swift - Purpose: Crop screen navigation title
+            public static let title = L10n.tr("Contacts", "contacts.detail.avatar.crop.title", fallback: "Move and Scale")
+          }
         }
         public enum Error {
           /// Location: ContactDetailView.swift - Purpose: Clear messages services-unavailable error
@@ -2590,9 +2642,9 @@ public enum L10n {
           return L10n.tr("Localizable", "error.wifi.connectionFailed", String(describing: p1), fallback: "Connection failed: %@")
         }
         /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out
-        public static let connectionTimeout = L10n.tr("Localizable", "error.wifi.connectionTimeout", fallback: "Connection timed out. Check the IP address and ensure the device is on the same network.")
-        /// Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid
-        public static let invalidHost = L10n.tr("Localizable", "error.wifi.invalidHost", fallback: "Invalid IP address.")
+        public static let connectionTimeout = L10n.tr("Localizable", "error.wifi.connectionTimeout", fallback: "Connection timed out. Check the hostname or IP address and ensure the device is reachable.")
+        /// Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid
+        public static let invalidHost = L10n.tr("Localizable", "error.wifi.invalidHost", fallback: "Invalid hostname or IP address.")
         /// Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid
         public static let invalidPort = L10n.tr("Localizable", "error.wifi.invalidPort", fallback: "Invalid port number.")
         /// Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection info missing
@@ -2725,6 +2777,8 @@ public enum L10n {
         public static let hopSingular = L10n.tr("Map", "map.detail.hopSingular", fallback: "1 hop")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp
         public static let lastAdvert = L10n.tr("Map", "map.detail.lastAdvert", fallback: "Last Advert")
+        /// Location: MapView.swift ContactDetailSheet - Purpose: Last heard (phone-clock on-air) label
+        public static let lastHeard = L10n.tr("Map", "map.detail.lastHeard", fallback: "Last Heard")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for latitude coordinate
         public static let latitude = L10n.tr("Map", "map.detail.latitude", fallback: "Latitude")
         /// Location: MapView.swift ContactDetailSheet - Purpose: Label for longitude coordinate
@@ -3060,7 +3114,7 @@ public enum L10n {
       public static let title = L10n.tr("Onboarding", "wifiConnection.title", fallback: "Connect via WiFi")
       public enum ConnectionDetails {
         /// Location: WiFiConnectionSheet.swift - Footer explaining connection details
-        public static let footer = L10n.tr("Onboarding", "wifiConnection.connectionDetails.footer", fallback: "Enter your MeshCore device's local network address. The default port is 5000.")
+        public static let footer = L10n.tr("Onboarding", "wifiConnection.connectionDetails.footer", fallback: "Enter your MeshCore device's hostname or IP address. The default port is 5000.")
         /// Location: WiFiConnectionSheet.swift - Section header for connection details
         public static let header = L10n.tr("Onboarding", "wifiConnection.connectionDetails.header", fallback: "Connection Details")
       }
@@ -3069,10 +3123,10 @@ public enum L10n {
         public static let invalidPort = L10n.tr("Onboarding", "wifiConnection.error.invalidPort", fallback: "Invalid port number")
       }
       public enum IpAddress {
-        /// Location: WiFiConnectionSheet.swift - Accessibility label for clear IP button
-        public static let clearAccessibility = L10n.tr("Onboarding", "wifiConnection.ipAddress.clearAccessibility", fallback: "Clear IP address")
-        /// Location: WiFiConnectionSheet.swift - Placeholder for IP address field
-        public static let placeholder = L10n.tr("Onboarding", "wifiConnection.ipAddress.placeholder", fallback: "IP Address")
+        /// Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button
+        public static let clearAccessibility = L10n.tr("Onboarding", "wifiConnection.ipAddress.clearAccessibility", fallback: "Clear hostname or IP")
+        /// Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field
+        public static let placeholder = L10n.tr("Onboarding", "wifiConnection.ipAddress.placeholder", fallback: "Hostname or IP")
       }
       public enum Port {
         /// Location: WiFiConnectionSheet.swift - Accessibility label for clear port button
@@ -3538,16 +3592,30 @@ public enum L10n {
           public static let addRegion = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addRegion", fallback: "Add Region")
           /// Location: RepeaterSettingsView.swift - Add region alert title
           public static let addRegionTitle = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addRegionTitle", fallback: "Add Region")
-          /// Location: RepeaterSettingsView.swift - Wildcard region display name
-          public static let allTraffic = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTraffic", fallback: "All Traffic")
-          /// Location: RepeaterSettingsView.swift - Wildcard with asterisk display
-          public static let allTrafficWildcard = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTrafficWildcard", fallback: "* (All Traffic)")
+          /// Location: RepeaterSettingsView.swift - Unscoped region display name
+          public static let allTraffic = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTraffic", fallback: "Unscoped")
+          /// Location: RepeaterSettingsView.swift - Unscoped region with asterisk display
+          public static let allTrafficWildcard = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTrafficWildcard", fallback: "* (Unscoped)")
+          /// Location: RepeaterSettingsView.swift - Default scope picker label
+          public static let defaultScope = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.defaultScope", fallback: "Default Scope")
+          /// Location: RepeaterSettingsView.swift - Caption under default scope picker
+          public static let defaultScopeCaption = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.defaultScopeCaption", fallback: "Scopes packets this node originates, such as adverts. This setting saves to the repeater immediately.")
+          /// Location: RepeaterSettingsView.swift - Duplicate region name validation
+          public static let duplicate = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.duplicate", fallback: "This region already exists.")
           /// Location: RepeaterSettingsViewModel.swift - No regions on device
           public static let empty = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.empty", fallback: "No regions configured")
           /// Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle
           public static let floodToggleHint = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.floodToggleHint", fallback: "When off, flood packets from this region are dropped")
           /// Location: RepeaterSettingsView.swift - Home region picker label
           public static let homeRegion = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.homeRegion", fallback: "Home Region")
+          /// Location: RepeaterSettingsView.swift - Region name charset validation
+          public static let invalidName = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.invalidName", fallback: "Region names can only contain letters, numbers, and hyphens.")
+          /// Location: RepeaterSettingsView.swift - Region name length validation
+          public static func nameTooLong(_ p1: Int) -> String {
+            return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.nameTooLong", p1, fallback: "Region names are limited to %d bytes.")
+          }
+          /// Location: RepeaterSettingsView.swift - No default scope
+          public static let noDefault = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.noDefault", fallback: "None")
           /// Location: RepeaterSettingsViewModel.swift - Region has children error
           public static let notEmpty = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.notEmpty", fallback: "Remove child regions first")
           /// Location: RepeaterSettingsView.swift - Region name placeholder

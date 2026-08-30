@@ -14,7 +14,7 @@ extension MockDataProvider {
         name: "Public",
         secret: channelSecret(seed: 0xA0),
         isEnabled: true,
-        lastMessageDate: now.addingTimeInterval(-1200),
+        lastMessageDate: now.addingTimeInterval(-600),
         unreadCount: 2,
         notificationLevel: .all,
         isFavorite: false

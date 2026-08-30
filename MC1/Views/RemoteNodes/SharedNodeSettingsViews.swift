@@ -47,6 +47,9 @@ struct NodeSettingsHeaderSection: View {
 // MARK: - Device Info Section
 
 struct NodeDeviceInfoSection: View {
+  /// Clock drift below this magnitude is normal RTC scatter and not shown.
+  private static let clockDriftWarningThreshold: TimeInterval = 300
+
   @Bindable var settings: NodeSettingsViewModel
 
   var body: some View {
@@ -62,7 +65,23 @@ struct NodeDeviceInfoSection: View {
     ) {
       LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.firmware, value: settings.firmwareVersion ?? NodeStatusViewModel.emDash)
       LabeledContent(L10n.RemoteNodes.RemoteNodes.Settings.deviceTime, value: settings.deviceTime ?? NodeStatusViewModel.emDash)
+      if let drift = settings.clockDrift, abs(drift) >= Self.clockDriftWarningThreshold {
+        Label(clockDriftWarning(drift), systemImage: "clock.badge.exclamationmark")
+          .font(.footnote)
+          .foregroundStyle(.orange)
+          .multilineTextAlignment(.center)
+          .frame(maxWidth: .infinity)
+      }
     }
+  }
+
+  private func clockDriftWarning(_ drift: TimeInterval) -> String {
+    let magnitude = Duration.seconds(abs(drift)).formatted(
+      .units(allowed: [.days, .hours, .minutes, .seconds], width: .abbreviated, maximumUnitCount: 2)
+    )
+    return drift > 0
+      ? L10n.RemoteNodes.RemoteNodes.Status.clockAhead(magnitude)
+      : L10n.RemoteNodes.RemoteNodes.Status.clockBehind(magnitude)
   }
 }
 
@@ -311,7 +330,6 @@ struct RemoteNodeIdentitySection: View {
 struct NodeContactInfoSection: View {
   @Bindable var settings: NodeSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
-  @State private var contactText = ""
 
   var body: some View {
     ExpandableSettingsSection(
@@ -324,21 +342,47 @@ struct NodeContactInfoSection: View {
       onLoad: { await settings.fetchContactInfo() },
       footer: L10n.RemoteNodes.RemoteNodes.Settings.contactInfoFooter
     ) {
-      TextField(L10n.RemoteNodes.RemoteNodes.Settings.contactInfoPlaceholder, text: $contactText, axis: .vertical)
-        .lineLimit(3...6)
-        .focused(focusedField, equals: .contactInfo)
-        .overlay(alignment: .bottomTrailing) {
+      Fields(settings: settings, focusedField: focusedField)
+    }
+  }
+
+  /// Separate view so `errorMessage` invalidates these rows, not only the
+  /// stored ExpandableSettingsSection content closure.
+  private struct Fields: View {
+    @Bindable var settings: NodeSettingsViewModel
+    var focusedField: FocusState<NodeSettingsField?>.Binding
+
+    var body: some View {
+      if settings.ownerInfo != nil {
+        VStack(alignment: .leading, spacing: 4) {
+          TextField(
+            L10n.RemoteNodes.RemoteNodes.Settings.contactInfoPlaceholder,
+            text: Binding(
+              get: { settings.ownerInfo ?? "" },
+              set: { settings.ownerInfo = $0 }
+            ),
+            axis: .vertical
+          )
+          .lineLimit(3...6)
+          .focused(focusedField, equals: .contactInfo)
+
           Text("\(settings.ownerInfoCharCount)/\(NodeSettingsViewModel.ownerInfoMaxLength)")
             .font(.caption2)
             .foregroundStyle(settings.isOwnerInfoTooLong ? .red : .secondary)
-            .padding(4)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .onChange(of: settings.ownerInfo, initial: true) { _, newValue in
-          contactText = newValue ?? ""
-        }
-        .onChange(of: contactText) { _, newValue in
-          settings.ownerInfo = newValue
-        }
+      } else {
+        SettingsLoadPlaceholder(
+          isLoading: settings.isLoadingContactInfo,
+          hasError: settings.contactInfoError
+        )
+      }
+
+      if let applyError = settings.errorMessage {
+        Text(applyError)
+          .foregroundStyle(.orange)
+          .font(.caption)
+      }
 
       Button {
         Task { await settings.applyContactInfoSettings() }

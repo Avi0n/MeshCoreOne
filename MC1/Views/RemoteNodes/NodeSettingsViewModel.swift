@@ -18,6 +18,10 @@ final class NodeSettingsViewModel {
 
   var firmwareVersion: String?
   private var deviceTimeUTC: String?
+  /// Positive means the node's clock is ahead of `now`.
+  var clockDrift: TimeInterval?
+  /// Reference clock used when measuring `clockDrift`.
+  var now: () -> Date = Date.init
   var isLoadingDeviceInfo = false
   var deviceInfoError = false
   var deviceInfoLoaded: Bool {
@@ -37,6 +41,13 @@ final class NodeSettingsViewModel {
     let timeString = date.formatted(date: .omitted, time: .shortened)
     let dateString = date.formatted(.dateTime.year(.twoDigits).month(.twoDigits).day(.twoDigits))
     return "\(timeString) - \(dateString)"
+  }
+
+  func applyDeviceTime(_ raw: String) {
+    if let text = NodeSettingsResponseParser.clockResponseText(in: raw) {
+      deviceTimeUTC = text
+      clockDrift = NodeSettingsResponseParser.clockDrift(fromClockResponse: text, relativeTo: now())
+    }
   }
 
   // MARK: - Identity
@@ -225,7 +236,7 @@ final class NodeSettingsViewModel {
     do {
       let response = try await sendAndWait("clock")
       if case let .deviceTime(time) = CLIResponse.parse(response, forQuery: "clock") {
-        deviceTimeUTC = time
+        applyDeviceTime(time)
       }
     } catch {
       if case RemoteNodeError.timeout = error {
@@ -546,9 +557,16 @@ final class NodeSettingsViewModel {
     errorMessage = nil
 
     do {
-      let response = try await sendAndWait("clock sync")
+      let response = try await sendAndWait(
+        RemoteCLICommandRewriter.rewrite(RemoteCLICommandRewriter.clockSyncCommand)
+      )
       switch NodeSettingsResponseParser.classifyClockSyncResponse(response) {
       case .synced:
+        if NodeSettingsResponseParser.clockResponseText(in: response) != nil {
+          applyDeviceTime(response)
+        } else {
+          clockDrift = nil
+        }
         successMessage = L10n.RemoteNodes.RemoteNodes.Settings.timeSynced
         showSuccessAlert = true
       case .clockAhead:
@@ -699,7 +717,7 @@ final class NodeSettingsViewModel {
     }
     registerLateRecovery(query: "clock") { [weak self] value in
       guard let self, case let .deviceTime(time) = value else { return }
-      deviceTimeUTC = time
+      applyDeviceTime(time)
       deviceInfoError = firmwareVersion == nil
     }
   }

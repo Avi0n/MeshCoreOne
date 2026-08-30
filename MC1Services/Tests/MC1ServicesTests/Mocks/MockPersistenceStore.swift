@@ -21,7 +21,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   public var stubbedUpdateMessageStatusError: Error?
   public var stubbedSaveContactError: Error?
   public var stubbedFetchContactError: Error?
+  public var stubbedFetchContactPublicKeysError: Error?
   public var stubbedDeleteContactError: Error?
+  public var stubbedTouchContactHeardError: Error?
   public var stubbedSaveChannelError: Error?
   public var stubbedFetchChannelError: Error?
   public var stubbedDeleteChannelError: Error?
@@ -43,6 +45,16 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   // MARK: - Initialization
 
   public init() {}
+
+  // MARK: - Stub Configuration
+
+  public func setStubbedFetchContactError(_ error: Error?) {
+    stubbedFetchContactError = error
+  }
+
+  public func setStubbedTouchContactHeardError(_ error: Error?) {
+    stubbedTouchContactHeardError = error
+  }
 
   // MARK: - Message Operations
 
@@ -96,6 +108,12 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return Array(filtered.dropFirst(offset).prefix(limit))
   }
 
+  public func newestUnreadIncomingMessage(contactID: UUID) async throws -> MessageDTO? {
+    messages.values
+      .filter { $0.contactID == contactID && $0.direction == .incoming && !$0.isRead }
+      .max { $0.sortDate < $1.sortDate }
+  }
+
   public func fetchMessages(radioID: UUID, channelIndex: UInt8, limit: Int, offset: Int) async throws -> [MessageDTO] {
     if let error = stubbedFetchMessageError {
       throw error
@@ -103,6 +121,55 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     let filtered = messages.values.filter { $0.radioID == radioID && $0.channelIndex == channelIndex }
       .sorted { $0.timestamp < $1.timestamp }
     return Array(filtered.dropFirst(offset).prefix(limit))
+  }
+
+  public func fetchMessageWindow(
+    contactID: UUID,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    try windowFrom(
+      messages.values.filter { $0.contactID == contactID },
+      anchorSortDate: anchorSortDate,
+      floorLimit: floorLimit
+    )
+  }
+
+  public func fetchMessageWindow(
+    radioID: UUID,
+    channelIndex: UInt8,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) async throws -> (messages: [MessageDTO], hasMore: Bool) {
+    try windowFrom(
+      messages.values.filter { $0.radioID == radioID && $0.channelIndex == channelIndex },
+      anchorSortDate: anchorSortDate,
+      floorLimit: floorLimit
+    )
+  }
+
+  private func windowFrom(
+    _ candidates: some Sequence<MessageDTO>,
+    anchorSortDate: Date?,
+    floorLimit: Int
+  ) throws -> (messages: [MessageDTO], hasMore: Bool) {
+    if let error = stubbedFetchMessageError {
+      throw error
+    }
+    let newestFirst = candidates.sorted {
+      if $0.sortDate != $1.sortDate { return $0.sortDate > $1.sortDate }
+      if $0.timestamp != $1.timestamp { return $0.timestamp > $1.timestamp }
+      return $0.createdAt > $1.createdAt
+    }
+    let limit: Int = if let anchorSortDate {
+      max(floorLimit, newestFirst.filter { $0.sortDate >= anchorSortDate }.count)
+    } else {
+      floorLimit
+    }
+    let fetched = Array(newestFirst.prefix(limit + 1))
+    let hasMore = fetched.count > limit
+    let window = hasMore ? Array(fetched.dropLast()) : fetched
+    return (MessageDTO.reorderSameSenderClusters(Array(window.reversed())), hasMore)
   }
 
   public func findChannelMessageForReaction(
@@ -568,6 +635,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       latitude: frame.latitude,
       longitude: frame.longitude,
       lastModified: frame.lastModified,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -580,12 +648,68 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     return (id: id, isNew: true)
   }
 
-  public func deleteContactIfUnreferenced(id: UUID) async throws {
-    // Same actor region as the message map: probe and delete with no suspension between.
-    if messages.values.contains(where: { $0.contactID == id }) {
-      return
+  public var touchContactHeardCalls: [(radioID: UUID, publicKey: Data, date: Date)] = []
+
+  @discardableResult
+  public func touchContactHeard(radioID: UUID, publicKey: Data, at date: Date) async throws -> Bool {
+    touchContactHeardCalls.append((radioID, publicKey, date))
+    if let error = stubbedTouchContactHeardError {
+      throw error
     }
-    try await deleteContact(id: id)
+    let stamp = UInt32(date.timeIntervalSince1970)
+    guard let existing = contacts.values.first(where: { $0.radioID == radioID && $0.publicKey == publicKey }) else {
+      return false
+    }
+    let merged = max(existing.lastHeardTimestamp ?? 0, stamp)
+    contacts[existing.id] = ContactDTO(
+      id: existing.id,
+      radioID: existing.radioID,
+      publicKey: existing.publicKey,
+      name: existing.name,
+      typeRawValue: existing.typeRawValue,
+      flags: existing.flags,
+      outPathLength: existing.outPathLength,
+      outPath: existing.outPath,
+      lastAdvertTimestamp: existing.lastAdvertTimestamp,
+      latitude: existing.latitude,
+      longitude: existing.longitude,
+      lastModified: existing.lastModified,
+      lastHeardTimestamp: merged,
+      nickname: existing.nickname,
+      isBlocked: existing.isBlocked,
+      isMuted: existing.isMuted,
+      isFavorite: existing.isFavorite,
+      lastMessageDate: existing.lastMessageDate,
+      unreadCount: existing.unreadCount,
+      unreadMentionCount: existing.unreadMentionCount,
+      ocvPreset: existing.ocvPreset,
+      customOCVArrayString: existing.customOCVArrayString,
+      avatarImageData: existing.avatarImageData
+    )
+    // Mirrors PersistenceStore: a known contact without a Discover row gets one.
+    let node: DiscoveredNodeDTO = if let existingNode = discoveredNodes.values.first(
+      where: { $0.radioID == radioID && $0.publicKey == publicKey }
+    ) {
+      existingNode
+    } else {
+      try await upsertDiscoveredNode(radioID: radioID, from: existing.toContactFrame()).node
+    }
+    discoveredNodes[node.id] = DiscoveredNodeDTO(
+      id: node.id,
+      radioID: node.radioID,
+      publicKey: node.publicKey,
+      name: node.name,
+      typeRawValue: node.typeRawValue,
+      lastHeard: date,
+      lastAdvertTimestamp: node.lastAdvertTimestamp,
+      latitude: node.latitude,
+      longitude: node.longitude,
+      outPathLength: node.outPathLength,
+      outPath: node.outPath,
+      inboundHopCount: node.inboundHopCount,
+      inboundHopAdvertTimestamp: node.inboundHopAdvertTimestamp
+    )
+    return true
   }
 
   public func saveContact(_ dto: ContactDTO) async throws {
@@ -603,6 +727,101 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
     cascadeDeleteContactData(contactID: id)
     contacts.removeValue(forKey: id)
+  }
+
+  public func deleteContactIfUnreferenced(id: UUID) async throws {
+    // Same actor region as the message map: probe and delete with no suspension between.
+    if messages.values.contains(where: { $0.contactID == id }) {
+      return
+    }
+    try await deleteContact(id: id)
+  }
+
+  public func adoptOrphanedDirectMessages(
+    radioID: UUID,
+    contacts: [(id: UUID, publicKey: Data)]
+  ) async throws -> [UUID: Int] {
+    let candidates = contacts
+    guard !candidates.isEmpty else { return [:] }
+    var adoptedCounts: [UUID: Int] = [:]
+    var newestDateByContact: [UUID: Date] = [:]
+    var unreadByContact: [UUID: Int] = [:]
+    var mentionByContact: [UUID: Int] = [:]
+
+    for (id, message) in messages {
+      guard message.radioID == radioID,
+            message.contactID == nil,
+            message.channelIndex == nil,
+            message.direction == .incoming,
+            let prefix = message.senderKeyPrefix,
+            !prefix.isEmpty,
+            !ReactionParser.isReactionText(message.text, isDM: true)
+      else { continue }
+
+      let matches = candidates.filter {
+        $0.publicKey.count >= prefix.count && $0.publicKey.prefix(prefix.count) == prefix
+      }
+      guard matches.count == 1, let match = matches.first else { continue }
+
+      var updated = message
+      updated.contactID = match.id
+      updated.deduplicationKey = DeduplicationKey.contentBased(
+        contactID: match.id,
+        channelIndex: nil,
+        senderNodeName: message.senderNodeName,
+        timestamp: message.timestamp,
+        content: message.text
+      )
+      messages[id] = updated
+      adoptedCounts[match.id, default: 0] += 1
+      let messageDate = message.sortDate
+      if let existing = newestDateByContact[match.id] {
+        newestDateByContact[match.id] = max(existing, messageDate)
+      } else {
+        newestDateByContact[match.id] = messageDate
+      }
+      if !message.isRead {
+        unreadByContact[match.id, default: 0] += 1
+      }
+      if message.containsSelfMention, !message.mentionSeen {
+        mentionByContact[match.id, default: 0] += 1
+      }
+    }
+
+    for (contactID, _) in adoptedCounts {
+      guard let contact = self.contacts[contactID] else { continue }
+      let newest = newestDateByContact[contactID]
+      let lastMessageDate: Date? = if let newest, let existing = contact.lastMessageDate {
+        max(existing, newest)
+      } else {
+        newest ?? contact.lastMessageDate
+      }
+      let unreadBump = contact.isBlocked ? 0 : (unreadByContact[contactID] ?? 0)
+      let mentionBump = contact.isBlocked ? 0 : (mentionByContact[contactID] ?? 0)
+      self.contacts[contactID] = ContactDTO(
+        id: contact.id,
+        radioID: contact.radioID,
+        publicKey: contact.publicKey,
+        name: contact.name,
+        typeRawValue: contact.typeRawValue,
+        flags: contact.flags,
+        outPathLength: contact.outPathLength,
+        outPath: contact.outPath,
+        lastAdvertTimestamp: contact.lastAdvertTimestamp,
+        latitude: contact.latitude,
+        longitude: contact.longitude,
+        lastModified: contact.lastModified,
+        lastHeardTimestamp: contact.lastHeardTimestamp,
+        nickname: contact.nickname,
+        isBlocked: contact.isBlocked,
+        isMuted: contact.isMuted,
+        isFavorite: contact.isFavorite,
+        lastMessageDate: lastMessageDate,
+        unreadCount: contact.unreadCount + unreadBump,
+        unreadMentionCount: contact.unreadMentionCount + mentionBump
+      )
+    }
+    return adoptedCounts
   }
 
   /// Mirrors the real store's cascade: messages, their pending sends, and
@@ -633,6 +852,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         latitude: contact.latitude,
         longitude: contact.longitude,
         lastModified: contact.lastModified,
+        lastHeardTimestamp: contact.lastHeardTimestamp,
         nickname: contact.nickname,
         isBlocked: contact.isBlocked,
         isMuted: contact.isMuted,
@@ -659,6 +879,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         latitude: contact.latitude,
         longitude: contact.longitude,
         lastModified: contact.lastModified,
+        lastHeardTimestamp: contact.lastHeardTimestamp,
         nickname: contact.nickname,
         isBlocked: contact.isBlocked,
         isMuted: contact.isMuted,
@@ -685,6 +906,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         latitude: contact.latitude,
         longitude: contact.longitude,
         lastModified: contact.lastModified,
+        lastHeardTimestamp: contact.lastHeardTimestamp,
         nickname: contact.nickname,
         isBlocked: contact.isBlocked,
         isMuted: contact.isMuted,
@@ -749,6 +971,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         latitude: contact.latitude,
         longitude: contact.longitude,
         lastModified: contact.lastModified,
+        lastHeardTimestamp: contact.lastHeardTimestamp,
         nickname: contact.nickname,
         isBlocked: contact.isBlocked,
         isMuted: contact.isMuted,
@@ -775,6 +998,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         latitude: contact.latitude,
         longitude: contact.longitude,
         lastModified: contact.lastModified,
+        lastHeardTimestamp: contact.lastHeardTimestamp,
         nickname: contact.nickname,
         isBlocked: contact.isBlocked,
         isMuted: contact.isMuted,
@@ -801,6 +1025,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         latitude: contact.latitude,
         longitude: contact.longitude,
         lastModified: contact.lastModified,
+        lastHeardTimestamp: contact.lastHeardTimestamp,
         nickname: contact.nickname,
         isBlocked: contact.isBlocked,
         isMuted: contact.isMuted,
@@ -1132,9 +1357,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   // MARK: - RX Log
 
-  public private(set) var updatedRxLogRegions: [(id: UUID, regionScope: String?)] = []
-  public private(set) var updatedChannelMessageRegions: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
-  public private(set) var updatedDMMessageRegions: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
+  public private(set) var updatedRxLogRegions: [(id: UUID, regionScope: String?, regionScopeMatches: [String])] = []
+  public private(set) var updatedChannelMessageRegions: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
+  public private(set) var updatedDMMessageRegions: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
 
   public func saveRxLogEntry(_ dto: RxLogEntryDTO) async throws {
     mockRxLogEntries.append(dto)
@@ -1160,15 +1385,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     mockRxLogEntries.removeAll { $0.radioID == radioID && !keptIDs.contains($0.id) }
   }
 
-  public func fetchEntriesWithMissingRegion(radioID: UUID) async throws -> [RxLogEntryDTO] {
-    mockRxLogEntries.filter { $0.radioID == radioID && $0.transportCode != nil && $0.regionScope == nil }
+  public func fetchEntriesWithTransportCode(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO] {
+    Array(
+      mockRxLogEntries
+        .filter { $0.radioID == radioID && $0.transportCode != nil }
+        .sorted { $0.receivedAt > $1.receivedAt }
+        .prefix(limit)
+    )
   }
 
   public func fetchRecentEntriesByDecryptStatus(radioID: UUID, status: DecryptStatus, since: Date) async throws -> [RxLogEntryDTO] {
     mockRxLogEntries.filter { $0.radioID == radioID && $0.decryptStatus == status && $0.receivedAt >= since }
   }
 
-  public func batchUpdateRxLogRegion(updates: [(id: UUID, regionScope: String?)]) async throws {
+  public func batchUpdateRxLogRegion(
+    updates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws {
     updatedRxLogRegions.append(contentsOf: updates)
   }
 
@@ -1183,18 +1415,22 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
+  @discardableResult
   public func batchUpdateChannelMessageRegion(
     radioID: UUID,
-    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) async throws {
+    updates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws -> [UUID] {
     updatedChannelMessageRegions.append(contentsOf: updates)
+    return []
   }
 
+  @discardableResult
   public func batchUpdateDMMessageRegion(
     radioID: UUID,
-    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)]
-  ) async throws {
+    updates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])]
+  ) async throws -> [UUID] {
     updatedDMMessageRegions.append(contentsOf: updates)
+    return []
   }
 
   // MARK: - Saved Trace Paths
@@ -1678,7 +1914,14 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
+  public func setStubbedFetchContactPublicKeysError(_ error: Error?) {
+    stubbedFetchContactPublicKeysError = error
+  }
+
   public func fetchContactPublicKeys(radioID: UUID) async throws -> Set<Data> {
+    if let error = stubbedFetchContactPublicKeysError {
+      throw error
+    }
     if let error = stubbedFetchContactError {
       throw error
     }

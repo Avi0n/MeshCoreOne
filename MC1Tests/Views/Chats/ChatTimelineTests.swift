@@ -30,6 +30,7 @@ struct ChatTimelineTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -87,7 +88,7 @@ struct ChatTimelineTests {
   func `open on an unbound timeline reports unavailable`() async {
     let timeline = ChatTimeline(role: .interactive)
     let contact = makeContact(radioID: UUID())
-    let outcome = await timeline.open(.dm(contact), reactions: nil)
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     guard case .unavailable = outcome else {
       Issue.record("expected .unavailable, got \(outcome)")
       return
@@ -111,7 +112,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    let outcome = await timeline.open(.dm(contact), reactions: nil)
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     guard case .loaded = outcome else {
       Issue.record("expected .loaded, got \(outcome)")
@@ -119,7 +120,34 @@ struct ChatTimelineTests {
     }
     #expect(timeline.messages.count == ChatCoordinator.pageSize)
     #expect(timeline.messages.first?.text == "m10")
-    #expect(timeline.renderState.hasMoreMessages)
+    #expect(timeline.renderState.hasMoreMessages == true)
+  }
+
+  @Test
+  func `open of exactly one page reports no further history`() async throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    for offset in 0..<ChatCoordinator.pageSize {
+      try await dataStore.saveMessage(makeDirectMessage(
+        radioID: radioID, contactID: contact.id,
+        timestamp: UInt32(1000 + offset), text: "m\(offset)"
+      ))
+    }
+
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
+
+    guard case .loaded = outcome else {
+      Issue.record("expected .loaded, got \(outcome)")
+      return
+    }
+    #expect(timeline.messages.count == ChatCoordinator.pageSize)
+    #expect(timeline.renderState.totalFetchedCount == ChatCoordinator.pageSize)
+    #expect(!timeline.renderState.hasMoreMessages)
   }
 
   // MARK: - Paging
@@ -141,7 +169,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     let older = try await timeline.loadOlder()
 
@@ -171,7 +199,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     _ = try await timeline.loadOlder()
 
     #expect(!timeline.renderState.isLoadingOlder)
@@ -200,7 +228,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     // A row from the older page lands via the live event path first.
     let raced = seeded[2]
@@ -228,7 +256,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     #expect(!timeline.renderState.hasMoreMessages)
 
     let older = try await timeline.loadOlder()
@@ -247,10 +275,10 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     let message = makeDirectMessage(radioID: radioID, contactID: contact.id, timestamp: 2000, text: "hello")
-    #expect(timeline.admit(message))
+    #expect(timeline.admit(message).inserted)
 
     #expect(timeline.messages.last?.id == message.id)
     #expect(timeline.items.last?.id == message.id)
@@ -268,10 +296,10 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     #expect(timeline.messages.count == 1)
 
-    #expect(!timeline.admit(seeded))
+    #expect(timeline.admit(seeded).inserted == false)
     #expect(timeline.messages.count == 1)
   }
 
@@ -279,7 +307,7 @@ struct ChatTimelineTests {
   func `admit no-ops on an unbound timeline`() {
     let timeline = ChatTimeline(role: .interactive)
     let message = makeDirectMessage(radioID: UUID(), contactID: UUID(), timestamp: 1000, text: "x")
-    #expect(!timeline.admit(message))
+    #expect(timeline.admit(message).inserted == false)
     #expect(timeline.messages.isEmpty)
   }
 
@@ -317,7 +345,7 @@ struct ChatTimelineTests {
     let readContact = makeContact(radioID: radioID, id: contactID, unreadCount: 0)
     firstSession.stageOpen(.dm(readContact))
     firstSession.bind(coordinator, dataStore: { dataStore }, senderTables: { .empty }, postApply: nil)
-    _ = await firstSession.open(.dm(readContact), reactions: nil)
+    _ = await firstSession.open(.dm(readContact), reactions: nil, populateMode: .replace)
     await coordinator.buildItemsTask?.value
     firstSession.releaseWriter()
     #expect(!coordinator.renderState.items.isEmpty)
@@ -335,7 +363,7 @@ struct ChatTimelineTests {
     secondSession.bind(coordinator, dataStore: { dataStore }, senderTables: { .empty }, postApply: nil)
     #expect(secondSession.firstSnapshot == .withhold)
 
-    _ = await secondSession.open(.dm(unreadContact), reactions: nil)
+    _ = await secondSession.open(.dm(unreadContact), reactions: nil, populateMode: .replace)
     await coordinator.buildItemsTask?.value
     let unreadID = try #require(unread?.id)
     #expect(secondSession.firstSnapshot == .present(target: unreadID))
@@ -363,7 +391,7 @@ struct ChatTimelineTests {
     timeline.stageOpen(.dm(staleContact))
     #expect(timeline.firstSnapshot == .withhold)
 
-    _ = await timeline.open(.dm(staleContact), reactions: nil)
+    _ = await timeline.open(.dm(staleContact), reactions: nil, populateMode: .replace)
     #expect(timeline.firstSnapshot == .present(target: nil))
   }
 
@@ -390,7 +418,7 @@ struct ChatTimelineTests {
     timeline.stageOpen(.dm(staleContact))
     #expect(timeline.firstSnapshot == .present(target: nil))
 
-    _ = await timeline.open(.dm(staleContact), reactions: nil)
+    _ = await timeline.open(.dm(staleContact), reactions: nil, populateMode: .replace)
     await timeline.coordinator?.buildItemsTask?.value
 
     // A late divider from the store's fresher count would only grow a row
@@ -417,7 +445,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     timeline.apply(.previewState(messageID: message.id, state: .loading))
     timeline.apply(.resetOrphanedLoading(messageID: message.id))
@@ -447,7 +475,7 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
 
     timeline.apply(.previewState(messageID: first.id, state: .loading))
     timeline.apply(.previewState(messageID: twin.id, state: .loading))
@@ -473,14 +501,55 @@ struct ChatTimelineTests {
       dataStore: dataStore,
       conversationID: .dm(radioID: radioID, contactID: contact.id)
     )
-    _ = await timeline.open(.dm(contact), reactions: nil)
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
     timeline.apply(.previewState(messageID: message.id, state: .loading))
     #expect(!timeline.bake.cachedURLs.isEmpty)
+    timeline.bake.detectedLanguages[message.id] = .identified(languageCode: "de")
+    timeline.bake.translationPhases[message.id] = .offer
+    timeline.bake.translationCache[message.id] = ["en": "Hello"]
 
     timeline.clearBakeState()
 
     #expect(timeline.bake.previewStates.isEmpty)
     #expect(timeline.bake.cachedURLs.isEmpty)
     #expect(timeline.bake.loadedPreviews.isEmpty)
+    #expect(timeline.bake.detectedLanguages.isEmpty)
+    #expect(timeline.bake.translationPhases.isEmpty)
+    #expect(timeline.bake.translationCache.isEmpty)
+  }
+
+  @Test
+  func `removeBakeState drops one message translation maps and leaves others`() async throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    let message = makeDirectMessage(
+      radioID: radioID, contactID: contact.id,
+      timestamp: 1000, text: "https://example.com/article"
+    )
+    try await dataStore.saveMessage(message)
+
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    _ = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
+
+    let otherID = UUID()
+    timeline.bake.detectedLanguages[message.id] = .identified(languageCode: "de")
+    timeline.bake.detectedLanguages[otherID] = .identified(languageCode: "fr")
+    timeline.bake.translationPhases[message.id] = .offer
+    timeline.bake.translationPhases[otherID] = .inProgress
+    timeline.bake.translationCache[message.id] = ["en": "Hello"]
+    timeline.bake.translationCache[otherID] = ["en": "Bonjour"]
+
+    timeline.removeBakeState(for: message.id)
+
+    #expect(timeline.bake.detectedLanguages[message.id] == nil)
+    #expect(timeline.bake.detectedLanguages[otherID] == .identified(languageCode: "fr"))
+    #expect(timeline.bake.translationPhases[message.id] == nil)
+    #expect(timeline.bake.translationPhases[otherID] == .inProgress)
+    #expect(timeline.bake.translationCache[message.id] == nil)
+    #expect(timeline.bake.translationCache[otherID]?["en"] == "Bonjour")
   }
 }

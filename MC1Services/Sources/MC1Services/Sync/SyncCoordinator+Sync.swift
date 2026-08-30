@@ -10,6 +10,78 @@ extension SyncCoordinator {
     let channelRetryIndices: [UInt8]
   }
 
+  /// Contact watermark value meaning no contact sync has ever succeeded.
+  static let noContactWatermark: UInt32 = 0
+
+  /// `since` value for a prune-free full contact fetch: the device reports every
+  /// contact while local rows the device omits are kept.
+  private static let pruneFreeFullFetchSince = Date(timeIntervalSince1970: 0)
+
+  /// Seconds the incremental `since` filter is rewound from the stored watermark.
+  /// The device reports a contact only when `lastmod > since`, so a contact modified
+  /// in the same second as the watermark would never be reported. One second of
+  /// overlap re-reports that second; the upsert behind it is idempotent.
+  private static let incrementalSinceOverlap: TimeInterval = 1
+
+  /// Max lead over the plausibility reference before a stored watermark is
+  /// treated as unusable for incremental `since`. Multi-day residual lastmod
+  /// from a radio RTC far ahead of the phone is broken; minute-scale lead is
+  /// normal drift.
+  static let contactWatermarkPlausibilitySkew: TimeInterval = 2 * 24 * 60 * 60
+
+  /// Bound for waiting out an advert-owned contact-sync claim.
+  /// Above `SessionConfiguration.contactStreamHardTimeout` (180s) so a large
+  /// contact table can finish streaming, but a wedged wait cannot hang forever.
+  static let advertContactSyncWaitTimeout: Duration = .seconds(200)
+
+  /// Developer-facing reason when the advert claim wait hits its bound.
+  static let advertContactSyncWaitTimedOutMessage =
+    "Timed out waiting for background contact sync"
+
+  /// How to use a stored contact-sync watermark for one fetch round.
+  /// Does not rewrite storage — only decides the `since` filter for this round.
+  enum ContactWatermarkUse: Equatable, Sendable {
+    /// No successful contact sync stamp yet.
+    case none
+    /// Stamp is usable for incremental `since = watermark - 1`.
+    case incremental(UInt32)
+    /// Stamp is implausibly ahead of the reference. Fetch with `since == nil`
+    /// this round; leave the stored value alone until write-back of the new max.
+    case invalid(stored: UInt32)
+  }
+
+  /// The `since` filter for an incremental contact fetch from a stored watermark.
+  private static func incrementalSince(watermark: UInt32) -> Date {
+    Date(timeIntervalSince1970: Double(watermark) - incrementalSinceOverlap)
+  }
+
+  /// Decides whether a stored contact-sync watermark can drive incremental sync.
+  ///
+  /// Reference clock: **phone `Date`**. `syncDeviceTimeIfNeeded` holds the radio
+  /// within `deviceClockDriftTolerance` (5 s) of the phone on connect and sync
+  /// retry, so the phone is a local proxy for radio time without an extra
+  /// `getTime` BLE round on every contact sync and advert delta.
+  ///
+  /// When the stamp leads the reference by more than
+  /// `contactWatermarkPlausibilitySkew`, return `.invalid` so the caller fetches
+  /// with `since == nil` once. Never rewrite the stored stamp downward here —
+  /// phone-clock clamps pin below radio lastmods and loop full-table deltas.
+  nonisolated static func contactWatermarkUse(
+    fromLastContactSync raw: UInt32?,
+    referenceNow: Date = Date()
+  ) -> ContactWatermarkUse {
+    guard let raw, raw != noContactWatermark else { return .none }
+    let referenceSeconds = UInt32(referenceNow.timeIntervalSince1970)
+    let maxSkew = UInt32(contactWatermarkPlausibilitySkew)
+    let upperBound = referenceSeconds > UInt32.max - maxSkew
+      ? UInt32.max
+      : referenceSeconds + maxSkew
+    if raw > upperBound {
+      return .invalid(stored: raw)
+    }
+    return .incremental(raw)
+  }
+
   // MARK: - Full Sync
 
   /// Performs full sync of contacts, channels, and messages from device.
@@ -42,6 +114,8 @@ extension SyncCoordinator {
     channelSyncConfig: ChannelSyncConfig = .none,
     platformName: String = "unknown"
   ) async throws -> FullSyncResult {
+    try await waitForAdvertContactSync()
+
     // Prevent concurrent syncs — actor-local flag avoids the TOCTOU window
     // that existed when guarding via `await state.isSyncing`
     guard !isSyncInProgress else {
@@ -283,6 +357,8 @@ extension SyncCoordinator {
   ) async throws -> FullSyncResult {
     logger.info("Connection established for device \(radioID)")
 
+    try await waitForAdvertContactSync()
+
     // Claim synchronously before the wiring awaits below. A read-only guard
     // let two racing calls (rapid auto-reconnect cycles) both pass and
     // double-wire handlers; the claim makes the loser skip immediately.
@@ -302,11 +378,25 @@ extension SyncCoordinator {
     startSuppressionWatchdog(notificationService: dependencies.notificationService)
 
     do {
-      // Defer advert-driven contact fetches during sync to avoid BLE contention
+      // Defer advert-driven contact sync during full sync to avoid BLE contention
       await dependencies.advertisementService.setSyncingContacts(true)
 
-      // 1. Wire message handlers first (before events can arrive)
+      // 1. Wire message handlers and advert delta-sync first (before events can arrive).
+      // Delta-sync wiring must not wait until after runFullSync: if the initial sync
+      // throws, performResync never rewires handlers and the handler would stay dead.
       await wireMessageHandlers(dependencies: dependencies, radioID: radioID)
+      let dataStore = dependencies.dataStore
+      let contactService = dependencies.contactService
+      await dependencies.advertisementService.setDeltaSyncHandler { [weak self] fullRefetch in
+        // A released coordinator means the connection is gone; retrying cannot help.
+        guard let self else { return .failed }
+        return await self.performAdvertContactSync(
+          fullRefetch: fullRefetch,
+          radioID: radioID,
+          dataStore: dataStore,
+          contactService: contactService
+        )
+      }
 
       // Clean up legacy blocked sender messages still in DB from older app versions
       await deleteBlockedSenderMessages(radioID: radioID, dataStore: dependencies.dataStore)
@@ -383,11 +473,20 @@ extension SyncCoordinator {
       "[Sync] onDisconnected called - syncState: \(String(describing: currentState)), hasEndedSyncActivity: \(hasEndedSyncActivity)"
     )
 
-    // Safety net: clear sync guard flag on disconnect
+    // Safety net: clear sync guard flags on disconnect and wake any waiters so
+    // pull-to-refresh / full-sync cannot stay suspended after the connection drops.
     if isSyncInProgress {
       logger.warning("isSyncInProgress still true at disconnect — clearing as safety net")
     }
     isSyncInProgress = false
+    advertContactSyncActive = false
+    manualContactSyncActive = false
+    resumeAllAdvertSyncWaiters()
+
+    // The next session must prove its own full contact fetch before delta sync runs.
+    fullContactSyncCompletedRadioID = nil
+    invalidWatermarkRecoveryRadioID = nil
+    invalidWatermarkRecoveryExhaustedLoggedRadioID = nil
 
     // Note: pending reactions are not cleared on disconnect - they persist for the app session
     // This handles temporary BLE disconnects without losing queued reactions
@@ -432,32 +531,80 @@ extension SyncCoordinator {
     // Fetch device once for both contacts (lastContactSync) and channels (maxChannels)
     let device = try await dataStore.fetchDevice(radioID: radioID)
 
-    // Phase 1: Contacts (incremental unless forced full)
-    let lastContactSync: Date? = forceFullSync ? nil : {
-      guard let timestamp = device?.lastContactSync, timestamp > 0 else { return nil }
-      return Date(timeIntervalSince1970: Double(timestamp))
-    }()
-    if let watermark = lastContactSync {
-      logger.info("[Sync] Phase start: contacts (incremental, watermark=\(watermark.formatted(.iso8601)))")
-    } else {
-      let reason = forceFullSync ? "forceFullSync" : "no watermark"
-      logger.notice("[Sync] Phase start: contacts (FULL sync, reason=\(reason)) — local contacts not on device will be pruned")
+    // At capacity, force a pruning contact fetch (`since == nil`). Offline
+    // eviction is invisible to the incremental watermark. Keep this contacts-
+    // only: do not set `forceFullSync`, which also forces channel sync.
+    // Decide here, before the watermark switch, so the one-shot invalid-
+    // watermark recovery token is not spent. Exclude the virtual V-contact
+    // from the count. Skip when maxContacts is unknown or zero; a count-read
+    // failure leaves atCapacity false.
+    var atCapacity = false
+    var realContactCount = 0
+    if let maxContacts = device?.maxContacts, maxContacts > 0 {
+      do {
+        let keys = try await dataStore.fetchContactPublicKeys(radioID: radioID)
+        realContactCount = keys.count
+        if let selfPublicKey = device?.publicKey,
+           let vContactKey = VContactIdentity.publicKey(forSelfPublicKey: selfPublicKey),
+           keys.contains(vContactKey) {
+          realContactCount -= 1
+        }
+        atCapacity = realContactCount >= Int(maxContacts)
+      } catch {
+        logger.error("Failed to read local contact count for capacity check: \(error)")
+      }
     }
 
-    let contactStart = ContinuousClock.now
-    let contactResult = try await contactService.syncContacts(radioID: radioID, since: lastContactSync)
-    let contactElapsed = ContinuousClock.now - contactStart
-    let syncType = contactResult.isIncremental ? "incremental" : "full"
-    let forced = forceFullSync ? ", forced" : ""
-    logger.info("[Sync] Phase end: contacts - \(contactResult.contactsReceived) (\(syncType)\(forced)) in \(contactElapsed)")
-    await notifyContactsChanged()
+    // Phase 1: Contacts (incremental unless forced full or at capacity)
+    var ranInvalidWatermarkRecovery = false
+    let lastContactSync: Date?
+    if forceFullSync || atCapacity {
+      lastContactSync = nil
+      if forceFullSync {
+        logger.notice(
+          "[Sync] Phase start: contacts (FULL sync, reason=forceFullSync) — local contacts not on device will be pruned"
+        )
+      } else {
+        let maxContacts = device?.maxContacts ?? 0
+        logger.notice(
+          "[Sync] Phase start: contacts (FULL sync, reason=at capacity (local \(realContactCount) of max \(maxContacts))) — local contacts not on device will be pruned"
+        )
+      }
+    } else {
+      switch Self.contactWatermarkUse(fromLastContactSync: device?.lastContactSync) {
+      case .none:
+        lastContactSync = nil
+        logger.notice(
+          "[Sync] Phase start: contacts (FULL sync, reason=no watermark) — local contacts not on device will be pruned"
+        )
+      case let .incremental(watermark):
+        lastContactSync = Self.incrementalSince(watermark: watermark)
+      case let .invalid(stored):
+        // Connect full-sync may prune (`since == nil`). Advert recovery must not —
+        // see performAdvertContactSync. Bound to one recovery per radio lifetime.
+        if invalidWatermarkRecoveryRadioID == radioID {
+          lastContactSync = Self.incrementalSince(watermark: stored)
+          logInvalidWatermarkRecoveryExhaustedIfNeeded(radioID: radioID, stored: stored)
+        } else {
+          ranInvalidWatermarkRecovery = true
+          lastContactSync = nil
+          logger.notice(
+            "[Sync] Phase start: contacts (FULL sync, reason=invalid watermark \(stored) exceeds phone reference + \(Int(Self.contactWatermarkPlausibilitySkew))s) — one-shot recovery, store not rewritten"
+          )
+        }
+      }
+    }
 
-    // Update lastContactSync watermark for future incremental syncs
-    if contactResult.lastSyncTimestamp > 0 {
-      try await dataStore.updateDeviceLastContactSync(
-        radioID: radioID,
-        timestamp: contactResult.lastSyncTimestamp
-      )
+    _ = try await syncContactsPhase(
+      radioID: radioID,
+      dataStore: dataStore,
+      contactService: contactService,
+      since: lastContactSync,
+      forceFullSync: forceFullSync
+    )
+
+    if ranInvalidWatermarkRecovery {
+      invalidWatermarkRecoveryRadioID = radioID
     }
 
     // Update RxLogService with contact public keys for direct message decryption
@@ -611,6 +758,251 @@ extension SyncCoordinator {
     )
   }
 
+  /// Logs once when invalid-watermark recovery is spent and rounds fall back to
+  /// the stored stamp (pathological residual far-future lastmod table).
+  private func logInvalidWatermarkRecoveryExhaustedIfNeeded(radioID: UUID, stored: UInt32) {
+    guard invalidWatermarkRecoveryExhaustedLoggedRadioID != radioID else { return }
+    invalidWatermarkRecoveryExhaustedLoggedRadioID = radioID
+    logger.notice(
+      "[Sync] Invalid watermark recovery exhausted for radio \(radioID.uuidString): stored \(stored) still implausible — using stored stamp; manual contact refresh required"
+    )
+  }
+
+  /// Runs contact sync and writes back the watermark when the result carries one.
+  /// Shared by full connect sync and advert-driven delta sync.
+  @discardableResult
+  private func syncContactsPhase(
+    radioID: UUID,
+    dataStore: any PersistenceStoreProtocol,
+    contactService: some ContactServiceProtocol,
+    since: Date?,
+    forceFullSync: Bool = false
+  ) async throws -> ContactSyncResult {
+    // Caller already logged prune-full cases; epoch-0 prune-free fetch is silent here.
+    if let watermark = since {
+      logger.info("[Sync] Phase start: contacts (incremental, watermark=\(watermark.formatted(.iso8601)))")
+    }
+
+    let contactStart = ContinuousClock.now
+    let contactResult = try await contactService.syncContacts(radioID: radioID, since: since)
+    let contactElapsed = ContinuousClock.now - contactStart
+    let syncType = contactResult.isIncremental ? "incremental" : "full"
+    let forced = forceFullSync ? ", forced" : ""
+    logger.info("[Sync] Phase end: contacts - \(contactResult.contactsReceived) (\(syncType)\(forced)) in \(contactElapsed)")
+    await notifyContactsChanged()
+
+    if contactResult.lastSyncTimestamp > 0 {
+      try await dataStore.updateDeviceLastContactSync(
+        radioID: radioID,
+        timestamp: contactResult.lastSyncTimestamp
+      )
+    }
+    if since == nil {
+      fullContactSyncCompletedRadioID = radioID
+    }
+    return contactResult
+  }
+
+  /// Suspends while an advert-driven delta sync holds the claim.
+  ///
+  /// Background advert work must not turn a full sync, connection setup, or
+  /// channel-only retry into a silent skip, and must not interleave its
+  /// `ContactServiceEvent.syncProgress` events with a user-initiated refresh.
+  ///
+  /// Throws `CancellationError` when the calling task is cancelled, and
+  /// `SyncCoordinatorError.syncFailed` when `timeout` elapses while the claim
+  /// is still held. On timeout the caller must not proceed into the radio
+  /// pipeline (that races progress events) and must not return a silent skip
+  /// for user-initiated work (the wait exists to stop that). Surface an error
+  /// so the spinner stops and the user can retry.
+  func waitForAdvertContactSync(
+    timeout: Duration? = nil
+  ) async throws {
+    let bound = timeout
+      ?? advertContactSyncWaitTimeoutOverride
+      ?? Self.advertContactSyncWaitTimeout
+    let deadline = ContinuousClock.now + bound
+
+    while isSyncInProgress, advertContactSyncActive {
+      try Task.checkCancellation()
+
+      let remaining = deadline - ContinuousClock.now
+      if remaining <= .zero {
+        logger.warning("Timed out waiting for advert contact sync to release claim")
+        throw SyncCoordinatorError.syncFailed(Self.advertContactSyncWaitTimedOutMessage)
+      }
+
+      let waiterID = nextAdvertSyncWaiterID
+      nextAdvertSyncWaiterID &+= 1
+      try await waitForAdvertClaimRelease(id: waiterID, timeout: remaining)
+    }
+  }
+
+  /// Waits out an advert claim, then marks a user-initiated contact refresh
+  /// active in the same actor turn so no delta can interleave between observe
+  /// and claim (separate wait and claim hops leave that window).
+  func claimManualContactSync(
+    timeout: Duration? = nil
+  ) async throws {
+    try await waitForAdvertContactSync(timeout: timeout)
+    manualContactSyncActive = true
+  }
+
+  /// Marks a user-initiated contact refresh so advert delta sync returns `.busy`.
+  func setManualContactSyncActive(_ active: Bool) {
+    manualContactSyncActive = active
+  }
+
+  /// Test hook: shortens the advert claim wait bound used by default parameters.
+  func setAdvertContactSyncWaitTimeoutOverride(_ timeout: Duration?) {
+    advertContactSyncWaitTimeoutOverride = timeout
+  }
+
+  /// Suspends until the advert claim clears, the wait is cancelled, or `timeout` elapses.
+  private func waitForAdvertClaimRelease(id: UInt64, timeout: Duration) async throws {
+    try await withThrowingTaskGroup(of: Void.self) { group in
+      group.addTask {
+        try await self.suspendUntilAdvertClaimReleased(id: id)
+      }
+      group.addTask {
+        try await Task.sleep(for: timeout)
+        throw SyncCoordinatorError.syncFailed(Self.advertContactSyncWaitTimedOutMessage)
+      }
+      // First finisher wins: claim release, cancel, or timeout.
+      try await group.next()
+      group.cancelAll()
+    }
+  }
+
+  /// Parks one waiter until resume, cancel, or timeout-driven cancellation.
+  private func suspendUntilAdvertClaimReleased(id: UInt64) async throws {
+    try await withTaskCancellationHandler {
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        if Task.isCancelled {
+          continuation.resume(throwing: CancellationError())
+          return
+        }
+        // Claim may have cleared between the while check and registration.
+        if !(isSyncInProgress && advertContactSyncActive) {
+          continuation.resume()
+          return
+        }
+        advertSyncWaiters.append(AdvertSyncWaiter(id: id, continuation: continuation))
+      }
+    } onCancel: {
+      Task { await self.finishAdvertSyncWaiter(id: id, error: CancellationError()) }
+    }
+  }
+
+  /// Resumes one waiter if it is still registered (cancel/timeout path).
+  private func finishAdvertSyncWaiter(id: UInt64, error: Error) {
+    guard let index = advertSyncWaiters.firstIndex(where: { $0.id == id }) else { return }
+    let waiter = advertSyncWaiters.remove(at: index)
+    waiter.continuation.resume(throwing: error)
+  }
+
+  /// Resumes every advert-claim waiter. Used when the claim clears or on disconnect.
+  private func resumeAllAdvertSyncWaiters() {
+    let waiters = advertSyncWaiters
+    advertSyncWaiters = []
+    for waiter in waiters {
+      waiter.continuation.resume()
+    }
+  }
+
+  /// Advert-driven contact delta sync. Claims `isSyncInProgress` as advert-owned
+  /// so full sync waits rather than skips.
+  ///
+  /// Both modes need proof that a full contact fetch already succeeded for this
+  /// radio. Without it, writing a watermark here would make later full syncs
+  /// incremental and leave ghost contacts the device no longer has. An empty
+  /// radio stamps no watermark, so a completed full fetch grants entry on its
+  /// own and the round fetches from epoch zero until the first contact stamps one.
+  ///
+  /// - Parameter fullRefetch: When true, uses the epoch-0 prune-free full fetch.
+  ///   When false, uses the stored watermark.
+  func performAdvertContactSync(
+    fullRefetch: Bool,
+    radioID: UUID,
+    dataStore: any PersistenceStoreProtocol,
+    contactService: some ContactServiceProtocol
+  ) async -> AdvertContactSyncOutcome {
+    guard !manualContactSyncActive else {
+      logger.info("Advert contact sync deferred because a manual contact refresh is active")
+      return .busy
+    }
+    guard !isSyncInProgress else {
+      logger.info("Advert contact sync deferred because sync is already active")
+      return .busy
+    }
+    isSyncInProgress = true
+    advertContactSyncActive = true
+    defer {
+      isSyncInProgress = false
+      advertContactSyncActive = false
+      resumeAllAdvertSyncWaiters()
+    }
+
+    do {
+      let device = try await dataStore.fetchDevice(radioID: radioID)
+      let watermarkUse = Self.contactWatermarkUse(fromLastContactSync: device?.lastContactSync)
+      let hasCompletedFullSync = fullContactSyncCompletedRadioID == radioID
+      // `.invalid` still proves a prior stamp exists, so recovery may run.
+      let isReady = watermarkUse != .none || hasCompletedFullSync
+      guard isReady else {
+        logger.notice(
+          "[Sync] Advert contact sync skipped: no contact watermark yet (connect sync contacts phase has not succeeded)"
+        )
+        return .notReady
+      }
+
+      var ranInvalidWatermarkRecovery = false
+      let since: Date?
+      if fullRefetch {
+        logger.info("[Sync] Advert contact sync: prune-free full refetch")
+        since = Self.pruneFreeFullFetchSince
+      } else {
+        switch watermarkUse {
+        case .none:
+          logger.info("[Sync] Advert contact sync: prune-free full fetch (full sync found no contacts to stamp)")
+          since = Self.pruneFreeFullFetchSince
+        case let .incremental(watermark):
+          since = Self.incrementalSince(watermark: watermark)
+        case let .invalid(stored):
+          // Prune-free epoch-0 only. `since == nil` would delete local rows the
+          // device omits; connect full-sync may prune, background advert must not.
+          // One recovery full fetch per radio per coordinator lifetime; further
+          // rounds use the stored stamp so residual far-future lastmods cannot
+          // re-stream the whole table every debounce.
+          if invalidWatermarkRecoveryRadioID == radioID {
+            since = Self.incrementalSince(watermark: stored)
+            logInvalidWatermarkRecoveryExhaustedIfNeeded(radioID: radioID, stored: stored)
+          } else {
+            ranInvalidWatermarkRecovery = true
+            logger.notice(
+              "[Sync] Advert contact sync: invalid watermark \(stored) exceeds phone reference + \(Int(Self.contactWatermarkPlausibilitySkew))s — one-shot prune-free full recovery, store not rewritten"
+            )
+            since = Self.pruneFreeFullFetchSince
+          }
+        }
+      }
+
+      _ = try await syncContactsPhase(
+        radioID: radioID,
+        dataStore: dataStore,
+        contactService: contactService,
+        since: since
+      )
+      if ranInvalidWatermarkRecovery {
+        invalidWatermarkRecoveryRadioID = radioID
+      }
+      return .synced
+    } catch {
+      logger.warning("Advert contact sync failed: \(error.localizedDescription)")
+      return .failed
+    }
+  }
+
   /// Retries only unresolved channel indices without replaying contacts/messages.
   @discardableResult
   func retryChannels(
@@ -620,6 +1012,29 @@ extension SyncCoordinator {
   ) async -> ChannelSyncResult {
     guard !indices.isEmpty else {
       return ChannelSyncResult(channelsSynced: 0, errors: [])
+    }
+
+    do {
+      try await waitForAdvertContactSync()
+    } catch is CancellationError {
+      return ChannelSyncResult(
+        channelsSynced: 0,
+        errors: indices.map {
+          ChannelSyncError(index: $0, errorType: .transportError, description: "Retry cancelled")
+        }
+      )
+    } catch {
+      logger.warning("Channel-only retry timed out waiting for advert contact sync")
+      return ChannelSyncResult(
+        channelsSynced: 0,
+        errors: indices.map {
+          ChannelSyncError(
+            index: $0,
+            errorType: .circuitBreaker,
+            description: Self.advertContactSyncWaitTimedOutMessage
+          )
+        }
+      )
     }
 
     guard !isSyncInProgress else {

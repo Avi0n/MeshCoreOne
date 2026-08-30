@@ -119,6 +119,9 @@ extension PersistenceStore {
         continue
       }
       let contact = Contact(dto: dto)
+      // Same future-clock clamp as mergeBackupMetadata so an insert-only
+      // future stamp cannot pin sort/prune under max-wins.
+      contact.lastHeardTimestamp = clampedBackupLastHeardTimestamp(dto.lastHeardTimestamp)
       modelContext.insert(contact)
       existingContactsByKey[key] = contact
       contactIDsByKey[key] = contact.id

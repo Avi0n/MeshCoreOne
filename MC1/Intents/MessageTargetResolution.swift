@@ -3,20 +3,14 @@ import MC1Services
 
 // MARK: - Scope resolution
 
-/// The radio and persistence store an intent query reads from. Resolves the
-/// store explicitly because pickers populate while disconnected and in a
-/// cold/background context with no live `ServiceContainer`: when connected the
-/// live `dataStore`, otherwise a standalone store over the same open container.
-/// A `nil` current radio (no connection and nothing last-connected, or a
-/// pre-launch bridge with no `AppState`) yields nil, which every caller maps to
-/// an empty result rather than an error.
+/// The radio and persistence store an intent query reads from. Uses the
+/// process-lifetime store on `ConnectionManager` because pickers populate
+/// while disconnected. A `nil` radio yields nil; callers map that to empty.
 @MainActor
 func currentRadioScope(_ bridge: IntentBridge) -> (radioID: UUID, store: PersistenceStore)? {
   guard let appState = bridge.appState,
         let radioID = appState.currentRadioID else { return nil }
-  let store = appState.services?.dataStore
-    ?? appState.connectionManager.createStandalonePersistenceStore()
-  return (radioID, store)
+  return (radioID, appState.connectionManager.persistenceStore)
 }
 
 // MARK: - Channel resolution

@@ -228,7 +228,7 @@ private struct ConversationRowLabel: View {
       case let .channel(channel):
         ChannelConversationRow(channel: channel, viewModel: viewModel, referenceDate: referenceDate)
       case let .room(session):
-        RoomConversationRow(session: session, referenceDate: referenceDate)
+        RoomConversationRow(session: session, viewModel: viewModel, referenceDate: referenceDate)
       }
     }
     .padding(.horizontal, ConversationRowLayout.horizontalPadding)

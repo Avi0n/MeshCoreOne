@@ -97,33 +97,14 @@ struct UnifiedMessageBubble: View, Equatable {
              item.grouping.showSenderName {
             SenderNameLabel(resolution: item.envelope.senderResolution, nameColor: senderColor)
               .senderNamePlacement(enclosingStackSpacing: bubbleStackSpacing)
+              .padding(.leading, reserveAvatarColumn ? IncomingBubbleAvatarMetrics.columnWidth : 0)
           }
 
-          bubbleActionsLongPress(
-            BubbleFragmentStack(
-              item: item,
-              layout: layout,
-              bubbleColor: resolvedBubbleColor,
-              timeColor: footerTimeColor,
-              callbacks: callbacks,
-              imageResolver: imageResolver
-            )
-            .shadow(
-              color: Color.black.opacity(isLongPressing ? liftContactShadowOpacity : 0),
-              radius: liftContactShadowRadius,
-              x: 0,
-              y: liftContactShadowYOffset
-            )
-            .shadow(
-              color: Color.black.opacity(isLongPressing ? liftAmbientShadowOpacity : 0),
-              radius: liftAmbientShadowRadius,
-              x: 0,
-              y: liftAmbientShadowYOffset
-            )
-          )
+          bubbleActionsLongPress(bubbleWithOptionalAvatar)
 
           ForEach(Array(layout.siblings.enumerated()), id: \.offset) { _, fragment in
             siblingFragmentView(fragment)
+              .padding(.leading, reserveAvatarColumn ? IncomingBubbleAvatarMetrics.columnWidth : 0)
           }
         }
         .accessibilityElement(children: .combine)
@@ -132,6 +113,20 @@ struct UnifiedMessageBubble: View, Equatable {
           callbacks.onLongPress?()
         }
         .accessibilityActions {
+          if let chrome = layout.textPayload?.translation {
+            switch chrome.phase {
+            case .offer:
+              Button(L10n.Chats.Chats.Message.Action.translate) {
+                callbacks.onTranslationAction?()
+              }
+            case .showing:
+              Button(L10n.Chats.Chats.Message.Action.showOriginal) {
+                callbacks.onTranslationAction?()
+              }
+            case .inProgress:
+              EmptyView()
+            }
+          }
           if item.footer.showStatusRow,
              item.footer.status == .failed,
              let onRetry = callbacks.onRetry {
@@ -260,6 +255,48 @@ struct UnifiedMessageBubble: View, Equatable {
     }
   }
 
+  /// Channel incoming only. DM incoming and every outgoing row skip the column.
+  private var reserveAvatarColumn: Bool {
+    configuration.showsIncomingAvatars && !item.envelope.isOutgoing
+  }
+
+  private var showAvatar: Bool {
+    reserveAvatarColumn && item.envelope.incomingAvatar != nil
+  }
+
+  private var bubbleWithOptionalAvatar: some View {
+    IncomingAvatarGutter(
+      identity: showAvatar ? item.envelope.incomingAvatar : nil,
+      reserveColumn: reserveAvatarColumn,
+      messageID: message.id
+    ) {
+      stackedBubble
+    }
+  }
+
+  private var stackedBubble: some View {
+    BubbleFragmentStack(
+      item: item,
+      layout: layout,
+      bubbleColor: resolvedBubbleColor,
+      timeColor: footerTimeColor,
+      callbacks: callbacks,
+      imageResolver: imageResolver
+    )
+    .shadow(
+      color: Color.black.opacity(isLongPressing ? liftContactShadowOpacity : 0),
+      radius: liftContactShadowRadius,
+      x: 0,
+      y: liftContactShadowYOffset
+    )
+    .shadow(
+      color: Color.black.opacity(isLongPressing ? liftAmbientShadowOpacity : 0),
+      radius: liftAmbientShadowRadius,
+      x: 0,
+      y: liftAmbientShadowYOffset
+    )
+  }
+
   // MARK: - Computed Properties
 
   private var resolvedBubbleColor: Color {
@@ -313,7 +350,14 @@ struct UnifiedMessageBubble: View, Equatable {
         }
       }
     }
-    label += message.text
+    switch layout.textPayload?.translation?.phase {
+    case let .showing(translated, _):
+      label += L10n.Chats.Chats.Message.translatedAccessibility(translated)
+    case .inProgress:
+      label += "\(message.text), \(L10n.Chats.Chats.Message.Action.translating)"
+    default:
+      label += message.text
+    }
     if item.envelope.isOutgoing {
       label += ", \(MessageStatusText.text(for: item.footer))"
     }
@@ -325,7 +369,7 @@ struct UnifiedMessageBubble: View, Equatable {
         label += ", \(L10n.Chats.Chats.Message.Path.accessibilityLabel(formattedPath))"
       }
       if let region = item.footer.regionToShow {
-        label += ", \(L10n.Chats.Chats.Message.Region.accessibilityLabel(region))"
+        label += ", \(MessageRegionAccessibility.label(regionName: region, matchNames: item.footer.regionMatchNames))"
       }
     }
     return label

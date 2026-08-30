@@ -43,6 +43,10 @@ struct ConversationRow: View {
 
           Spacer()
 
+          if viewModel.conversationHasFailedSend(contact.id) {
+            FailedSendIndicator()
+          }
+
           UnreadBadges(
             unreadCount: contact.unreadCount,
             unreadMentionCount: contact.unreadMentionCount,

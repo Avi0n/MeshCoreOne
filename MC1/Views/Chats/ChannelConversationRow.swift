@@ -41,6 +41,10 @@ struct ChannelConversationRow: View {
 
           Spacer()
 
+          if viewModel.conversationHasFailedSend(channel.id) {
+            FailedSendIndicator()
+          }
+
           UnreadBadges(
             unreadCount: channel.unreadCount,
             unreadMentionCount: channel.unreadMentionCount,

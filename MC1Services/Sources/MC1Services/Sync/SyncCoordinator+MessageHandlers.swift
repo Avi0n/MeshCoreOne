@@ -72,6 +72,28 @@ extension SyncCoordinator {
     }
   }
 
+  /// When a DM arrives with no local contact, try to create the row from a
+  /// pending 0x80 key before save/notify. Adoption still links pure orphans
+  /// without posting a second alert.
+  private func resolveDirectContactIfNeeded(
+    _ kind: IncomingMessageKind,
+    dependencies: SyncDependencies,
+    radioID: UUID
+  ) async -> IncomingMessageKind {
+    guard case let .direct(message, contact) = kind, contact == nil else {
+      return kind
+    }
+    let prefix = message.senderPublicKeyPrefix
+    guard !prefix.isEmpty else { return kind }
+
+    guard let materialized = await dependencies.advertisementService
+      .materializeContactForPendingAdvert(matchingPrefix: prefix, radioID: radioID)
+    else {
+      return kind
+    }
+    return .direct(message, contact: materialized)
+  }
+
   /// Shared ingestion pipeline for incoming direct and channel messages:
   /// timestamp correction, RX-log path correlation, dedup, reaction
   /// short-circuit, persistence, unread/notification updates, and UI refresh.
@@ -82,6 +104,13 @@ extension SyncCoordinator {
     radioID: UUID,
     selfNodeName: String
   ) async {
+    // A DM can land in the advert delta-sync debounce window before the local
+    // Contact row exists. Materialize from a pending 0x80 key so unread,
+    // notification, and Chats-list updates use the live path exactly once.
+    let resolvedKind = await resolveDirectContactIfNeeded(
+      kind, dependencies: dependencies, radioID: radioID
+    )
+
     // Per-kind wire fields. Channel messages embed the sender as a
     // "NodeName: text" prefix; direct messages carry the sender key prefix.
     let text: String
@@ -93,7 +122,7 @@ extension SyncCoordinator {
     let contactID: UUID?
     let channelIndex: UInt8?
     let senderKeyPrefix: Data?
-    switch kind {
+    switch resolvedKind {
     case let .direct(message, contact):
       // The firmware cannot surface a self-DM here: decrypt runs against a
       // contact's ECDH shared secret and the local self_id is never in
@@ -125,7 +154,7 @@ extension SyncCoordinator {
     let receiveTime = Date()
     let (finalTimestamp, timestampCorrected) = Self.correctTimestampIfNeeded(timestamp, receiveTime: receiveTime)
     if timestampCorrected {
-      logger.debug("Corrected invalid \(kind.logLabel) message timestamp from \(Date(timeIntervalSince1970: TimeInterval(timestamp))) to \(receiveTime)")
+      logger.debug("Corrected invalid \(resolvedKind.logLabel) message timestamp from \(Date(timeIntervalSince1970: TimeInterval(timestamp))) to \(receiveTime)")
     }
 
     let sortDate = Self.sortDate(for: context, receiveTime: receiveTime)
@@ -151,7 +180,7 @@ extension SyncCoordinator {
 
     // Check for self-mention before creating DTO
     // For channel messages, filter out messages where the user mentions themselves
-    let hasSelfMention: Bool = switch kind {
+    let hasSelfMention: Bool = switch resolvedKind {
     case .direct:
       !selfNodeName.isEmpty &&
         MentionUtilities.containsSelfMention(in: text, selfName: selfNodeName)
@@ -169,7 +198,7 @@ extension SyncCoordinator {
     if let parsed = TextType(rawValue: textTypeRaw) {
       resolvedTextType = parsed
     } else {
-      logger.warning("Unknown \(kind.logLabel) message textType raw=\(textTypeRaw); clamping to .plain")
+      logger.warning("Unknown \(resolvedKind.logLabel) message textType raw=\(textTypeRaw); clamping to .plain")
       resolvedTextType = .plain
     }
 
@@ -205,20 +234,36 @@ extension SyncCoordinator {
       timestampCorrected: timestampCorrected,
       senderTimestamp: timestampCorrected ? timestamp : nil,
       routeType: rxResult.routeType,
-      regionScope: rxResult.regionScope
+      regionScope: rxResult.regionScope,
+      regionScopeMatches: rxResult.regionScopeMatches
     )
 
     // Check for duplicate before saving
     do {
       if try await dependencies.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey, radioID: radioID) {
-        logger.info("Skipping duplicate \(kind.logLabel) message")
+        logger.info("Skipping duplicate \(resolvedKind.logLabel) message")
         return
       }
     } catch {
       logger.warning("Dedup check failed, proceeding with save: \(error)")
     }
 
-    switch kind {
+    // Stamp before the reaction early return so bodies and reactions both count.
+    if case let .direct(_, contact) = resolvedKind, let contact {
+      do {
+        _ = try await dependencies.dataStore.touchContactHeard(
+          radioID: radioID,
+          publicKey: contact.publicKey,
+          at: Date()
+        )
+      } catch {
+        logger.error(
+          "lastHeard stamp failed for inbound DM: \(error.localizedDescription)"
+        )
+      }
+    }
+
+    switch resolvedKind {
     case let .direct(_, contact):
       // Check if this is a DM reaction
       if let contact,
@@ -253,7 +298,7 @@ extension SyncCoordinator {
     do {
       try await dependencies.dataStore.saveMessage(messageDTO)
 
-      switch kind {
+      switch resolvedKind {
       case let .direct(_, contact):
         try await indexAndNotifyDirectMessage(
           messageDTO: messageDTO,
@@ -282,11 +327,11 @@ extension SyncCoordinator {
       await notifyConversationsChanged()
 
       // Broadcast for real-time chat updates
-      if case let .direct(_, contact) = kind, let contact {
+      if case let .direct(_, contact) = resolvedKind, let contact {
         dataEventBroadcaster.yield(.directMessageReceived(message: messageDTO, contact: contact))
       }
     } catch {
-      switch kind {
+      switch resolvedKind {
       case .direct:
         logger.error("Failed to save contact message: \(error)")
       case .channel:
@@ -528,8 +573,37 @@ extension SyncCoordinator {
             contactType: contactType
           )
           await notifyContactsChanged()
-        case .contactUpdated, .nodeStorageFullChanged, .contactDeletedCleanup,
-             .pathDiscoveryResponse, .traceResponse, .traceSnrObserved:
+        case let .orphanDirectMessagesAdopted(contactIDs):
+          // These DMs arrived before their sender's contact existed, so no
+          // banner or badge fired at receipt. Adoption bumped the unread counts;
+          // post the banner and refresh the badge now, once per contact. The
+          // final badge refresh also covers a muted contact, whose unread rose
+          // but whose suppressed banner never updates the badge itself.
+          for contactID in contactIDs {
+            do {
+              guard let contact = try await dependencies.dataStore.fetchContact(id: contactID),
+                    !contact.isBlocked,
+                    let message = try await dependencies.dataStore.newestUnreadIncomingMessage(
+                      contactID: contactID
+                    )
+              else { continue }
+              await dependencies.notificationService.postDirectMessageNotification(
+                from: contact.displayName,
+                contactID: contactID,
+                messageText: message.text,
+                messageID: message.id,
+                isMuted: contact.isMuted
+              )
+            } catch {
+              logger.error(
+                "Adopted DM notification failed for \(contactID): \(error.localizedDescription)"
+              )
+            }
+          }
+          await dependencies.notificationService.updateBadgeCount()
+        case .contactUpdated, .conversationsChanged, .nodeStorageFullChanged,
+             .contactDeletedCleanup, .pathDiscoveryResponse, .traceResponse,
+             .traceSnrObserved:
           break
         }
       }

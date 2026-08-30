@@ -66,7 +66,22 @@ final class ChatTimeline {
   /// `stageOpen` and `open`.
   var initialLoadSettled = false
 
-  /// Live per-connection store; nil while disconnected (offline browse).
+  #if DEBUG
+    /// When set, `open` returns populate's failure contract without a process-global hook.
+    var testPopulateError: Error?
+
+    /// Awaited in `loadOlder` after the fetch so a test can queue populate behind it.
+    @ObservationIgnored
+    var loadOlderInterleaveHook: (@MainActor () async -> Void)?
+
+    /// When set, `loadOlder` throws this after the interleave hook.
+    var loadOlderTestError: Error?
+
+    /// When set, populate throws this after the entry spinner clear.
+    var testPopulateFetchError: Error?
+  #endif
+
+  /// Process-lifetime store when a radio has been paired. Nil until first pair.
   @ObservationIgnored
   var dataStoreProvider: @MainActor () -> DataStore? = { nil }
 

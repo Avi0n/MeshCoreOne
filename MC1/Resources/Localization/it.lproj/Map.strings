@@ -77,6 +77,9 @@
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for last advertisement timestamp */
 "map.detail.lastAdvert" = "Ultimo annuncio";
 
+/* Location: MapView.swift ContactDetailSheet - Purpose: Last heard (phone-clock on-air) label */
+"map.detail.lastHeard" = "Ultimo ascolto";
+
 /* Location: MapView.swift ContactDetailSheet - Purpose: Label for full public key identifier */
 "map.detail.publicKey" = "Chiave pubblica";
 

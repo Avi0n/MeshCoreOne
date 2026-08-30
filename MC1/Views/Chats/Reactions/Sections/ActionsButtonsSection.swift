@@ -32,6 +32,12 @@ struct ActionsButtonsSection: View {
       action: { onSelectAction(.copy) }
     )
 
+    ActionButton(
+      title: L10n.Chats.Chats.Message.Action.translate,
+      icon: "translate",
+      action: { onSelectAction(.translate) }
+    )
+
     if availability.canSendAgain {
       ActionButton(
         title: L10n.Chats.Chats.Message.Action.sendAgain,

@@ -9,7 +9,7 @@ extension WiFiTransportError: @retroactive LocalizedError {
     case let .connectionFailed(reason):
       "Connection failed: \(reason)"
     case .connectionTimeout:
-      "Connection timed out. Check the IP address and ensure the device is on the same network."
+      "Connection timed out. Check the hostname or IP address and ensure the device is reachable."
     case .notConnected:
       "Not connected to device."
     case let .sendFailed(reason):
@@ -17,7 +17,7 @@ extension WiFiTransportError: @retroactive LocalizedError {
     case .sendTimeout:
       "Send operation timed out."
     case .invalidHost:
-      "Invalid IP address."
+      "Invalid hostname or IP address."
     case .invalidPort:
       "Invalid port number."
     case .notConfigured:

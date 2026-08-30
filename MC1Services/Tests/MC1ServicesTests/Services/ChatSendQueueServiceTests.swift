@@ -81,7 +81,8 @@ struct ChatSendQueueServiceTests {
     let contact = Contact(
       radioID: radioID,
       publicKey: Data(repeating: 2, count: 32),
-      name: "Test Contact"
+      name: "Test Contact",
+      lastHeardTimestamp: 0
     )
     container.mainContext.insert(contact)
     try container.mainContext.save()
@@ -1154,7 +1155,8 @@ struct ChatSendQueueServiceTests {
     let contact = Contact(
       radioID: radioID,
       publicKey: Data(repeating: 0x33, count: 32),
-      name: "Test Contact"
+      name: "Test Contact",
+      lastHeardTimestamp: 0
     )
     container.mainContext.insert(contact)
     try container.mainContext.save()

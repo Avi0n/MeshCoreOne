@@ -10,7 +10,7 @@ enum ImageURLDetector {
 
   /// Decodes an image at a reduced size using ImageIO, avoiding full-resolution decode.
   /// Falls back to `UIImage(data:)` if thumbnail generation fails.
-  static func downsampledImage(from data: Data) -> UIImage? {
+  static func downsampledImage(from data: Data, maxPixelSize: CGFloat = inlineMaxPixelSize) -> UIImage? {
     let options: [CFString: Any] = [
       kCGImageSourceShouldCache: false
     ]
@@ -19,7 +19,7 @@ enum ImageURLDetector {
     }
     let downsampleOptions: [CFString: Any] = [
       kCGImageSourceCreateThumbnailFromImageAlways: true,
-      kCGImageSourceThumbnailMaxPixelSize: inlineMaxPixelSize,
+      kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
       kCGImageSourceCreateThumbnailWithTransform: true,
       kCGImageSourceShouldCacheImmediately: true
     ]

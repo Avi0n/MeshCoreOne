@@ -449,9 +449,20 @@ struct RxLogRowView: View {
           DetailRow(label: L10n.Tools.Tools.RxLog.channelNameLabel, value: channelName)
         }
         if let transportCode = entry.transportCode, !transportCode.isEmpty {
+          let regionValue: String = switch RegionScopeSemantics.coalesce(
+            scope: entry.regionScope,
+            matches: entry.regionScopeMatches
+          ) {
+          case .none:
+            L10n.Tools.Tools.RxLog.regionUnresolved
+          case let .unique(name):
+            name
+          case let .ambiguous(names):
+            ListFormatter.localizedString(byJoining: names)
+          }
           DetailRow(
             label: L10n.Tools.Tools.RxLog.regionLabel,
-            value: entry.regionScope ?? L10n.Tools.Tools.RxLog.regionUnresolved
+            value: regionValue
           )
         }
         if let text = entry.decodedText {

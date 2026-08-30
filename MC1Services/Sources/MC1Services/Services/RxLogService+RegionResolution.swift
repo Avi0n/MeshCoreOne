@@ -6,10 +6,21 @@ private let logger = PersistentLogger(subsystem: "com.mc1", category: "RxLogServ
 
 extension RxLogService {
   private static let missLogThrottleSeconds: TimeInterval = 60
+  private static let ambiguousLogThrottleSeconds: TimeInterval = 60
 
   /// Offset of the unencrypted sender prefix byte in a DM `packetPayload`,
   /// matching `findRxLogEntryBySenderPrefix`'s correlation key.
   private static let dmSenderPrefixByteOffset = 1
+
+  /// Bound reprocess scan to the full retention window so rows that exist
+  /// between prune passes are not skipped. `transportCode` is unindexed;
+  /// fetch uses indexed `radioID` + `receivedAt`.
+  static let regionReprocessFetchLimit =
+    RxLogRetention.keepCount + RxLogRetention.pruneThreshold
+
+  /// Yield every N entries so live `process` can interleave during multi-match
+  /// HMAC work (O(R) per entry).
+  private static let reprocessYieldInterval = 32
 
   /// Build a `[(name, scopeKey)]` array from the supplied region names.
   /// Skips names that `TransportCodeRegionResolver.deriveScopeKey` rejects
@@ -23,97 +34,139 @@ extension RxLogService {
     }
   }
 
-  /// Resolve `transport_codes[0]` from a parsed RX packet to a known region
-  /// name. Returns nil for packets without a transport code, when the
-  /// scope-key cache is empty, or when no region matches.
-  func resolveRegionScope(for parsed: ParsedRxLogData) -> String? {
-    guard let transportCode = parsed.transportCode, transportCode.count >= 2 else {
-      return nil
-    }
-    let match = findRegionScope(
-      transportCode: transportCode,
+  /// Resolve `transport_codes[0]` into dual storage fields.
+  /// Live cost is O(R) HMACs per transport-coded packet; cache rebuilds only
+  /// when known regions change.
+  func resolveRegion(for parsed: ParsedRxLogData) -> (regionScope: String?, regionScopeMatches: [String]) {
+    resolveRegionStorage(
+      transportCode: parsed.transportCode,
       payloadTypeBits: parsed.payloadTypeBits,
       payload: parsed.packetPayload
     )
-    if match == nil {
-      logRegionMissThrottled()
-    }
-    return match
   }
 
-  /// Update the known-regions list and rebuild the scope-key cache. Also
-  /// triggers back-fill of recent entries that arrived before the regions
-  /// were known. Wired from `ConnectionManager+Pairing` on
-  /// `addKnownRegion` / `removeKnownRegion`.
+  /// Update known regions, rebuild the scope-key cache, and reprocess.
+  /// Runs even when the new list is empty so sticky labels can clear.
   public func updateKnownRegions(_ regions: [String]) async {
     guard knownRegions != regions else { return }
     knownRegions = regions
     scopeKeyCache = Self.buildScopeKeyCache(from: regions)
-    if !regions.isEmpty {
-      await reprocessNoRegionEntries()
-    }
+    await reprocessRegionEntries()
   }
 
-  /// Re-resolve all entries with non-nil `transportCode` and nil
-  /// `regionScope` against the current scope-key cache, and back-fill the
-  /// resolved region onto both `RxLogEntry` rows and any correlated
-  /// `Message` rows (keyed by `(channelIndex, senderTimestamp)`).
+  /// Replace the scope-key cache and reprocess. Lets tests inject two names
+  /// that share one key without needing a real 16-bit code collision.
+  func replaceScopeKeyCacheAndReprocess(
+    _ cache: [(name: String, key: Data)]
+  ) async {
+    knownRegions = cache.map(\.name)
+    scopeKeyCache = cache
+    await reprocessRegionEntries()
+  }
+
+  /// Re-resolve retained transport-coded entries against the current cache and
+  /// write dual region fields on `RxLogEntry` and correlated `Message` rows.
   ///
-  /// This is the explicit mitigation for two races:
-  ///   1. Discovery-time race: regions discovered seconds after first
-  ///      connection while messages are already arriving.
-  ///   2. `addKnownRegion` / `removeKnownRegion` suspension-window race:
-  ///      packets that arrive between the synchronous `connectedDevice`
-  ///      mutation and the dispatched `updateKnownRegions(_:)` call resolve
-  ///      against the stale cache.
-  func reprocessNoRegionEntries() async {
+  /// Concurrent callers set dirty and park on a continuation the owner resumes
+  /// when the drain finishes. Overlapping callers converge on the final cache;
+  /// the number of passes is bounded by the number of overlapping callers that
+  /// arrive across pass boundaries.
+  func reprocessRegionEntries() async {
+    guard !Task.isCancelled else { return }
+
+    regionReprocessDirty = true
     if isReprocessingRegions {
-      regionReprocessDirty = true
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        regionReprocessWaiters.append(continuation)
+      }
+      guard !Task.isCancelled else { return }
+      // Owner finished between our dirty set and its last while-check.
+      // Re-enter so the mark is not lost.
+      if regionReprocessDirty {
+        await reprocessRegionEntries()
+      }
       return
     }
+
     isReprocessingRegions = true
-    defer { isReprocessingRegions = false }
+    defer {
+      isReprocessingRegions = false
+      let waiters = regionReprocessWaiters
+      regionReprocessWaiters.removeAll()
+      for waiter in waiters {
+        waiter.resume()
+      }
+    }
 
-    guard let radioID else { return }
+    guard let radioID else {
+      regionReprocessDirty = false
+      return
+    }
 
-    repeat {
+    while regionReprocessDirty {
+      guard !Task.isCancelled else { return }
       regionReprocessDirty = false
       await runReprocessPass(radioID: radioID)
-    } while regionReprocessDirty
+    }
   }
 
   private func runReprocessPass(radioID: UUID) async {
     do {
-      let entries = try await dataStore.fetchEntriesWithMissingRegion(
-        radioID: radioID
+      let entries = try await dataStore.fetchEntriesWithTransportCode(
+        radioID: radioID,
+        limit: Self.regionReprocessFetchLimit
       )
 
       guard !entries.isEmpty else { return }
-      logger.info("Re-processing \(entries.count) entries for region back-fill")
+      logger.info("Re-processing \(entries.count) transport-coded entries for region resolution")
 
-      var rxUpdates: [(id: UUID, regionScope: String?)] = []
-      var channelMessageUpdates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
-      var dmMessageUpdates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?)] = []
+      // Snapshot so a mid-pass known-regions change is applied on the dirty re-run.
+      let cacheSnapshot = scopeKeyCache
 
-      for entry in entries {
+      var rxUpdates: [(id: UUID, regionScope: String?, regionScopeMatches: [String])] = []
+      var channelMessageUpdates: [(channelIndex: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
+      var dmMessageUpdates: [(senderPrefixByte: UInt8, senderTimestamp: UInt32, regionScope: String?, regionScopeMatches: [String])] = []
+
+      for (index, entry) in entries.enumerated() {
         guard !Task.isCancelled else { break }
-        guard let resolved = resolveRegionScope(for: entry) else { continue }
 
-        rxUpdates.append((id: entry.id, regionScope: resolved))
+        if index > 0, index.isMultiple(of: Self.reprocessYieldInterval) {
+          await Task.yield()
+        }
+
+        let resolved = resolveRegionStorage(
+          transportCode: entry.transportCode,
+          payloadTypeBits: entry.payloadTypeBits,
+          payload: entry.packetPayload,
+          cache: cacheSnapshot,
+          logMisses: false
+        )
+
+        let scopeChanged = entry.regionScope != resolved.regionScope
+        let matchesChanged = entry.regionScopeMatches != resolved.regionScopeMatches
+        guard scopeChanged || matchesChanged else { continue }
+
+        rxUpdates.append((
+          id: entry.id,
+          regionScope: resolved.regionScope,
+          regionScopeMatches: resolved.regionScopeMatches
+        ))
 
         guard let senderTimestamp = entry.senderTimestamp else { continue }
         if let channelIndex = entry.channelIndex {
           channelMessageUpdates.append((
             channelIndex: channelIndex,
             senderTimestamp: senderTimestamp,
-            regionScope: resolved
+            regionScope: resolved.regionScope,
+            regionScopeMatches: resolved.regionScopeMatches
           ))
         } else if entry.packetPayload.count >= Self.dmSenderPrefixByteOffset + 1 {
           let prefixByte = entry.packetPayload[Self.dmSenderPrefixByteOffset]
           dmMessageUpdates.append((
             senderPrefixByte: prefixByte,
             senderTimestamp: senderTimestamp,
-            regionScope: resolved
+            regionScope: resolved.regionScope,
+            regionScopeMatches: resolved.regionScopeMatches
           ))
         }
       }
@@ -121,16 +174,32 @@ extension RxLogService {
       if !rxUpdates.isEmpty {
         try await dataStore.batchUpdateRxLogRegion(updates: rxUpdates)
       }
+
+      var touchedMessageIDs = Set<UUID>()
       if !channelMessageUpdates.isEmpty {
-        try await dataStore.batchUpdateChannelMessageRegion(radioID: radioID, updates: channelMessageUpdates)
+        let ids = try await dataStore.batchUpdateChannelMessageRegion(
+          radioID: radioID,
+          updates: channelMessageUpdates
+        )
+        touchedMessageIDs.formUnion(ids)
       }
       if !dmMessageUpdates.isEmpty {
-        try await dataStore.batchUpdateDMMessageRegion(radioID: radioID, updates: dmMessageUpdates)
+        let ids = try await dataStore.batchUpdateDMMessageRegion(
+          radioID: radioID,
+          updates: dmMessageUpdates
+        )
+        touchedMessageIDs.formUnion(ids)
+      }
+
+      if !touchedMessageIDs.isEmpty {
+        regionUpdateBroadcaster.yield(Array(touchedMessageIDs))
       }
 
       let messageCount = channelMessageUpdates.count + dmMessageUpdates.count
       if !rxUpdates.isEmpty || messageCount > 0 {
-        logger.info("Back-filled \(rxUpdates.count) RxLog entries, \(messageCount) messages")
+        logger.info(
+          "Region reprocess wrote \(rxUpdates.count) RxLog entries, \(messageCount) message correlations (\(touchedMessageIDs.count) message IDs)"
+        )
       }
     } catch {
       logger.error("Failed to re-process region entries: \(error.localizedDescription)")
@@ -150,26 +219,50 @@ extension RxLogService {
     }
   }
 
-  /// Resolve region scope against an existing `RxLogEntryDTO` (used by the
-  /// back-fill path, which has the persisted entry in hand rather than a
-  /// fresh `ParsedRxLogData`).
-  private func resolveRegionScope(for entry: RxLogEntryDTO) -> String? {
-    findRegionScope(
-      transportCode: entry.transportCode,
-      payloadTypeBits: entry.payloadTypeBits,
-      payload: entry.packetPayload
+  private func logRegionAmbiguousThrottled(names: [String]) {
+    let now = Date()
+    if let last = lastRegionAmbiguousLogTime, now.timeIntervalSince(last) < Self.ambiguousLogThrottleSeconds {
+      return
+    }
+    lastRegionAmbiguousLogTime = now
+    // Public region names only; never scopeKey bytes, payload, or raw codes.
+    logger.debug(
+      "Region resolution ambiguous: \(names.count) matches \(names.joined(separator: ", "))"
     )
   }
 
-  private func findRegionScope(transportCode: Data?, payloadTypeBits: UInt8, payload: Data) -> String? {
-    guard let transportCode, transportCode.count >= 2 else { return nil }
-    guard !scopeKeyCache.isEmpty else { return nil }
+  private func resolveRegionStorage(
+    transportCode: Data?,
+    payloadTypeBits: UInt8,
+    payload: Data,
+    cache: [(name: String, key: Data)]? = nil,
+    logMisses: Bool = true
+  ) -> (regionScope: String?, regionScopeMatches: [String]) {
+    guard let transportCode, transportCode.count >= 2 else {
+      return (nil, [])
+    }
+    let activeCache = cache ?? scopeKeyCache
+    // Empty cache skips HMACs but still projects none so writers can clear labels.
+    guard !activeCache.isEmpty else {
+      return (nil, [])
+    }
     let code0 = transportCode.readUInt16LE(at: 0)
-    return TransportCodeRegionResolver.findMatchingRegion(
-      scopeKeys: scopeKeyCache,
+    let match = TransportCodeRegionResolver.matchRegions(
+      scopeKeys: activeCache,
       expectedTransportCode0: code0,
       payloadTypeBits: payloadTypeBits,
       payload: payload
     )
+    if logMisses {
+      switch match {
+      case .none:
+        logRegionMissThrottled()
+      case let .ambiguous(names):
+        logRegionAmbiguousThrottled(names: names)
+      case .unique:
+        break
+      }
+    }
+    return RegionScopeSemantics.storageFields(from: match)
   }
 }

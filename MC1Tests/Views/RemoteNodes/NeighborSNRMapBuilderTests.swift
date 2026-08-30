@@ -40,6 +40,7 @@ struct NeighborSNRMapBuilderTests {
       latitude: latitude,
       longitude: longitude,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -71,6 +72,26 @@ struct NeighborSNRMapBuilderTests {
     NeighbourInfo(publicKeyPrefix: Data(prefix), secondsAgo: 0, snr: snr)
   }
 
+  private func build(
+    session: RemoteNodeSessionDTO,
+    neighbors: [NeighbourInfo],
+    contacts: [ContactDTO],
+    discoveredNodes: [DiscoveredNodeDTO],
+    userLocation: CLLocation?,
+    filter: MapFilterState,
+    keyDisplayByteCount: Int = NeighborNameResolver.minimumKeyDisplayByteCount
+  ) -> NeighborSNRMapBuilder.PlottedNeighbors {
+    NeighborSNRMapBuilder.build(
+      session: session,
+      neighbors: neighbors,
+      contacts: contacts,
+      discoveredNodes: discoveredNodes,
+      userLocation: userLocation,
+      filter: filter,
+      keyDisplayByteCount: keyDisplayByteCount
+    )
+  }
+
   private let exactPrefix: [UInt8] = [0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6]
   private let secondExactPrefix: [UInt8] = [0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6]
 
@@ -99,7 +120,7 @@ struct NeighborSNRMapBuilderTests {
     )
     let neighbor = makeNeighbor(prefix: exactPrefix)
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [contact],
@@ -140,7 +161,7 @@ struct NeighborSNRMapBuilderTests {
     ]
     let neighbors = [makeNeighbor(prefix: exactPrefix), makeNeighbor(prefix: secondExactPrefix)]
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: neighbors,
       contacts: contacts,
@@ -167,7 +188,7 @@ struct NeighborSNRMapBuilderTests {
     let contact = makeContact(prefix: exactPrefix, name: "Ridge", latitude: 37.1, longitude: -122.1)
     let neighbor = makeNeighbor(prefix: exactPrefix)
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [contact],
@@ -192,7 +213,7 @@ struct NeighborSNRMapBuilderTests {
     let node = makeDiscoveredNode(prefix: [0xAB, 0xEF], name: "Advert", latitude: 38.0, longitude: -123.0)
     let neighbor = makeNeighbor(prefix: [0xAB])
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [contact],
@@ -213,7 +234,7 @@ struct NeighborSNRMapBuilderTests {
     let contact = makeContact(prefix: exactPrefix, name: "No GPS", latitude: 0, longitude: 0)
     let neighbor = makeNeighbor(prefix: exactPrefix)
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [contact],
@@ -236,7 +257,7 @@ struct NeighborSNRMapBuilderTests {
     let node = makeDiscoveredNode(prefix: exactPrefix, name: "Bad GPS", latitude: 200.0, longitude: -122.1)
     let neighbor = makeNeighbor(prefix: exactPrefix)
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [],
@@ -254,20 +275,71 @@ struct NeighborSNRMapBuilderTests {
   func `unresolved neighbor falls back to a hex name and is listed`() {
     let session = makeSession(latitude: 37.0, longitude: -122.0)
     let neighbor = makeNeighbor(prefix: [0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01])
+    let keyDisplayByteCount = NeighborNameResolver.minimumKeyDisplayByteCount
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [],
       discoveredNodes: [],
       userLocation: nil,
-      filter: MapFilterState()
+      filter: MapFilterState(),
+      keyDisplayByteCount: keyDisplayByteCount
     )
 
     #expect(result.points.filter { $0.pinStyle == .repeater }.isEmpty)
     #expect(result.unplottable.count == 1)
     #expect(result.unplottable.first?.matchKind == .unresolved)
-    #expect(result.unplottable.first?.displayName == NeighborNameResolver.fallbackName(for: neighbor.publicKeyPrefix))
+    #expect(
+      result.unplottable.first?.displayName
+        == NeighborNameResolver.fallbackName(for: neighbor.publicKeyPrefix, byteCount: keyDisplayByteCount)
+    )
+  }
+
+  @Test(arguments: [2, 3])
+  func `unresolved title hex length matches secondary formatting for the same count`(keyDisplayByteCount: Int) {
+    let session = makeSession(latitude: 37.0, longitude: -122.0)
+    let neighbor = makeNeighbor(prefix: [0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01])
+    let expected = NeighborNameResolver.fallbackName(
+      for: neighbor.publicKeyPrefix,
+      byteCount: keyDisplayByteCount
+    )
+
+    let result = build(
+      session: session,
+      neighbors: [neighbor],
+      contacts: [],
+      discoveredNodes: [],
+      userLocation: nil,
+      filter: MapFilterState(),
+      keyDisplayByteCount: keyDisplayByteCount
+    )
+
+    let unplottable = result.unplottable.first
+    #expect(unplottable?.matchKind == .unresolved)
+    #expect(unplottable?.displayName == expected)
+    #expect(unplottable?.displayName.count == keyDisplayByteCount * 2)
+  }
+
+  @Test
+  func `colliding unresolved titles widen to the full prefix`() {
+    let session = makeSession(latitude: 37.0, longitude: -122.0)
+    let first = makeNeighbor(prefix: [0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01])
+    let second = makeNeighbor(prefix: [0xDE, 0xAD, 0x01, 0x02, 0x03, 0x04])
+    let distinct = makeNeighbor(prefix: [0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF])
+
+    let result = build(
+      session: session,
+      neighbors: [first, second, distinct],
+      contacts: [],
+      discoveredNodes: [],
+      userLocation: nil,
+      filter: MapFilterState(),
+      keyDisplayByteCount: NeighborNameResolver.minimumKeyDisplayByteCount
+    )
+
+    let titles = result.unplottable.map(\.displayName)
+    #expect(titles == ["DEADBEEF0001", "DEAD01020304", "AABB"])
   }
 
   @Test
@@ -278,7 +350,7 @@ struct NeighborSNRMapBuilderTests {
       makeNeighbor(prefix: [0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x02])
     ]
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: neighbors,
       contacts: [],
@@ -299,7 +371,7 @@ struct NeighborSNRMapBuilderTests {
     let session = makeSession(latitude: 0, longitude: 0)
     let neighbor = makeNeighbor(prefix: [0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01])
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [],
@@ -334,7 +406,7 @@ struct NeighborSNRMapBuilderTests {
     )
     let neighbors = [makeNeighbor(prefix: exactPrefix), makeNeighbor(prefix: secondExactPrefix)]
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: neighbors,
       contacts: [favorite, other],
@@ -365,7 +437,7 @@ struct NeighborSNRMapBuilderTests {
     )
     let neighbor = makeNeighbor(prefix: exactPrefix)
 
-    let withD = NeighborSNRMapBuilder.build(
+    let withD = build(
       session: session,
       neighbors: [neighbor],
       contacts: [],
@@ -375,7 +447,7 @@ struct NeighborSNRMapBuilderTests {
     )
     #expect(withD.points.count(where: { $0.pinStyle == .repeater }) == 1)
 
-    let withoutD = NeighborSNRMapBuilder.build(
+    let withoutD = build(
       session: session,
       neighbors: [neighbor],
       contacts: [],
@@ -394,7 +466,7 @@ struct NeighborSNRMapBuilderTests {
     let contact = makeContact(prefix: exactPrefix, name: "Ridge", latitude: 37.1, longitude: -122.1)
     let neighbor = makeNeighbor(prefix: exactPrefix)
 
-    let first = NeighborSNRMapBuilder.build(
+    let first = build(
       session: session,
       neighbors: [neighbor],
       contacts: [contact],
@@ -402,7 +474,7 @@ struct NeighborSNRMapBuilderTests {
       userLocation: nil,
       filter: MapFilterState()
     )
-    let second = NeighborSNRMapBuilder.build(
+    let second = build(
       session: session,
       neighbors: [neighbor],
       contacts: [contact],
@@ -425,7 +497,7 @@ struct NeighborSNRMapBuilderTests {
     )
     let neighbor = makeNeighbor(prefix: exactPrefix)
 
-    let result = NeighborSNRMapBuilder.build(
+    let result = build(
       session: session,
       neighbors: [neighbor],
       contacts: [],

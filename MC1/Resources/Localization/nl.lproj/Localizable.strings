@@ -339,7 +339,7 @@
 "error.wifi.connectionFailed" = "Verbinding mislukt: %@";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi connection attempt timed out */
-"error.wifi.connectionTimeout" = "De verbinding duurde te lang. Controleer het IP-adres en zorg dat het apparaat zich in hetzelfde netwerk bevindt.";
+"error.wifi.connectionTimeout" = "De verbinding duurde te lang. Controleer de hostnaam of het IP-adres en zorg dat het apparaat bereikbaar is.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - No active WiFi connection */
 "error.wifi.notConnected" = "Niet verbonden met het apparaat.";
@@ -350,8 +350,8 @@
 /* Location: WiFiTransportError+UserFacingMessage.swift - WiFi send timed out */
 "error.wifi.sendTimeout" = "Het verzenden duurde te lang.";
 
-/* Location: WiFiTransportError+UserFacingMessage.swift - Configured IP address is invalid */
-"error.wifi.invalidHost" = "Ongeldig IP-adres.";
+/* Location: WiFiTransportError+UserFacingMessage.swift - Configured hostname or IP address is invalid */
+"error.wifi.invalidHost" = "Ongeldige hostnaam of IP-adres.";
 
 /* Location: WiFiTransportError+UserFacingMessage.swift - Configured port number is invalid */
 "error.wifi.invalidPort" = "Ongeldig poortnummer.";

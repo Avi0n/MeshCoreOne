@@ -27,6 +27,7 @@ struct RepeaterResolverTests {
       latitude: latitude,
       longitude: longitude,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: false,
       isMuted: false,
@@ -501,5 +502,34 @@ struct RepeaterResolverTests {
 
     #expect(result?.displayName == "Newer Repeater")
     #expect(result?.matchKind == .fallback)
+  }
+
+  // MARK: - Key display length
+
+  @Test(arguments: [
+    (deviceHashSize: Int?.none, expected: 2),
+    (deviceHashSize: 1, expected: 2),
+    (deviceHashSize: 2, expected: 2),
+    (deviceHashSize: 3, expected: 3),
+    (deviceHashSize: 99, expected: 3)
+  ])
+  func `key display byte count floors at 2 and caps at 3`(deviceHashSize: Int?, expected: Int) {
+    #expect(NeighborNameResolver.keyDisplayByteCount(deviceHashSize: deviceHashSize) == expected)
+  }
+
+  @Test
+  func `fallback name with byte count formats two or three prefix bytes`() {
+    let prefix = Data([0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01])
+    #expect(NeighborNameResolver.fallbackName(for: prefix, byteCount: 2) == "DEAD")
+    #expect(NeighborNameResolver.fallbackName(for: prefix, byteCount: 3) == "DEADBE")
+  }
+
+  @Test
+  func `fallback name with byte count clamps display max and short prefixes`() {
+    let prefix = Data([0xDE, 0xAD, 0xBE, 0xEF, 0x00, 0x01])
+    #expect(NeighborNameResolver.fallbackName(for: prefix, byteCount: 6) == "DEADBE")
+    #expect(NeighborNameResolver.fallbackName(for: prefix, byteCount: 99) == "DEADBE")
+    #expect(NeighborNameResolver.fallbackName(for: Data([0xAB]), byteCount: 3) == "AB")
+    #expect(NeighborNameResolver.fallbackName(for: Data(), byteCount: 2) == "")
   }
 }

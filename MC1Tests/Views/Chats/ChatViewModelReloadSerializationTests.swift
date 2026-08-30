@@ -34,6 +34,7 @@ struct ChatViewModelReloadSerializationTests {
       latitude: 0,
       longitude: 0,
       lastModified: 0,
+      lastHeardTimestamp: nil,
       nickname: nil,
       isBlocked: isBlocked,
       isMuted: false,

@@ -42,6 +42,9 @@ struct ChatConversationMessagesContent: View {
 
   @Environment(\.appTheme) private var theme
   @Environment(\.openURL) private var openURL
+  @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+  @State private var incomingAvatarFlight = IncomingAvatarFlight()
 
   // MARK: - Body
 
@@ -75,17 +78,35 @@ struct ChatConversationMessagesContent: View {
   private var messagesList: some View {
     ChatTiledView(
       items: viewModel.items,
-      cellContent: cellFactory.makeContent(for:),
+      cellContent: { item in
+        cellFactory.makeContent(for: item)
+          .environment(\.incomingAvatarFlight, incomingAvatarFlight)
+      },
       contentBackground: theme.surfaces?.canvas,
       isAtBottom: $isAtBottom,
       unreadCount: $unreadCount,
       scrollToBottomRequest: scrollToBottomRequest,
+      countsTowardUnread: { !$0.envelope.isOutgoing },
       scrollToTargetRequest: scrollToTargetRequest,
       scrollTargetID: scrollToTargetID,
       initialScrollTargetID: initialScrollTargetID,
       onLoadOlder: { await viewModel.loadOlderMessages() },
       onInitialTargetConsumed: onDividerTargetConsumed
     )
+    .overlay {
+      incomingAvatarFlight.overlay()
+    }
+    .onAppear {
+      viewModel.incomingAvatarFlight = incomingAvatarFlight
+      incomingAvatarFlight.isAtBottom = isAtBottom
+      incomingAvatarFlight.reduceMotion = reduceMotion
+    }
+    .onChange(of: isAtBottom, initial: true) { _, atBottom in
+      incomingAvatarFlight.isAtBottom = atBottom
+    }
+    .onChange(of: reduceMotion, initial: true) { _, reduce in
+      incomingAvatarFlight.reduceMotion = reduce
+    }
     .onChange(of: envInputs) { _, new in
       viewModel.applyEnvInputs(new)
     }
@@ -136,7 +157,10 @@ struct ChatConversationMessagesContent: View {
         },
         snapshotResolver: { MapSnapshotStore.shared.image(for: $0) },
         requestSnapshot: { MapSnapshotStore.shared.request($0) },
-        retrySnapshot: { MapSnapshotStore.shared.retry($0) }
+        retrySnapshot: { MapSnapshotStore.shared.retry($0) },
+        onTranslationAction: { messageID in
+          viewModel.performTranslationAction(for: messageID)
+        }
       )
     )
   }
@@ -233,7 +257,8 @@ private struct ChannelEmptyMessagesView: View {
       conversationType: .dm(ContactDTO(from: Contact(
         radioID: UUID(),
         publicKey: Data(repeating: 0x42, count: 32),
-        name: "Alice"
+        name: "Alice",
+        lastHeardTimestamp: 0
       ))),
       viewModel: ChatViewModel(),
       deviceName: "My Device",

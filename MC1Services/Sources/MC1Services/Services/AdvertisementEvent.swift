@@ -12,6 +12,14 @@ public enum AdvertisementEvent: Sendable {
   /// A contact or discovered node was created or updated; observers should
   /// reload contact lists.
   case contactUpdated
+  /// Adopted orphan DMs created or updated a conversation row; observers must
+  /// refresh the conversation list (mirrors `SyncDataEvent.conversationsChanged`).
+  case conversationsChanged
+  /// Orphan DMs were linked to these contacts by a delta round. A DM that
+  /// arrived before its sender's contact existed had no contact to notify at
+  /// receipt; the owner of `NotificationService` posts the banner and refreshes
+  /// the badge for each contact when adoption resolves the sender.
+  case orphanDirectMessagesAdopted(contactIDs: [UUID])
   /// A new contact was discovered via advertisement.
   case newContactDiscovered(name: String, contactID: UUID, contactType: ContactType)
   /// The device's node storage full state changed (true = full, false = has space).

@@ -1,141 +1,9 @@
 import MapKit
 import MapLibre
-import ObjectiveC
 import OSLog
 import SwiftUI
 
 private let logger = Logger(subsystem: "com.mc1", category: "MapPins")
-
-// MARK: - MapLibre Metal scale fix
-
-/// Workaround for a MapLibre bug where `MLNEffectiveScaleFactorForView`
-/// computes `nativeBounds.width / bounds.width` — a ratio that breaks in
-/// landscape because `nativeBounds` is fixed while `bounds` rotates.
-/// We intercept both `setDrawableSize:` and `setContentScaleFactor:` on
-/// MapLibre's internal Metal UIView so the wrong scale is never stored.
-/// Upstream issue: https://github.com/maplibre/maplibre-native/issues/3214
-private enum MetalLayerScaleFix {
-  @MainActor
-  static func apply(to mapView: MLNMapView) {
-    guard let metalView = findMetalView(in: mapView) else { return }
-
-    let selector = NSSelectorFromString("setDrawableSize:")
-    guard metalView.responds(to: selector) else { return }
-
-    guard let originalClass: AnyClass = object_getClass(metalView) else { return }
-    let name = "_MC1FixedScale_\(NSStringFromClass(originalClass))"
-
-    let fixedClass: AnyClass
-    if let existing = objc_getClass(name) as? AnyClass {
-      fixedClass = existing
-    } else {
-      guard let subclass = objc_allocateClassPair(originalClass, name, 0) else { return }
-      addDrawableSizeOverride(to: subclass, originalClass: originalClass)
-      addContentScaleFactorOverride(to: subclass, originalClass: originalClass)
-      objc_registerClassPair(subclass)
-      fixedClass = subclass
-    }
-
-    object_setClass(metalView, fixedClass)
-  }
-
-  @MainActor
-  private static func findMetalView(in view: UIView) -> UIView? {
-    for subview in view.subviews where subview.layer is CAMetalLayer {
-      return subview
-    }
-    return nil
-  }
-
-  @MainActor
-  private static func findMapView(from metalView: UIView) -> MLNMapView? {
-    var parent: UIView? = metalView.superview
-    while let v = parent, !(v is MLNMapView) {
-      parent = v.superview
-    }
-    return parent as? MLNMapView
-  }
-
-  private static func addDrawableSizeOverride(
-    to subclass: AnyClass,
-    originalClass: AnyClass
-  ) {
-    let selector = NSSelectorFromString("setDrawableSize:")
-    guard let original = class_getInstanceMethod(originalClass, selector) else { return }
-    let originalIMP = method_getImplementation(original)
-    typealias SetDrawableSizeFn = @convention(c) @Sendable (AnyObject, Selector, CGSize) -> Void
-    let callOriginal = unsafeBitCast(originalIMP, to: SetDrawableSizeFn.self)
-
-    let block: @convention(block) (UIView, CGSize) -> Void = { metalView, proposedSize in
-      dispatchPrecondition(condition: .onQueue(.main))
-      MainActor.assumeIsolated {
-        guard let mapView = findMapView(from: metalView),
-              mapView.bounds.size.width > 0,
-              mapView.bounds.size.height > 0,
-              let screen = mapView.window?.screen else {
-          callOriginal(metalView, selector, proposedSize)
-          return
-        }
-
-        let correctScale = screen.nativeScale
-        let correctSize = CGSize(
-          width: mapView.bounds.width * correctScale,
-          height: mapView.bounds.height * correctScale
-        )
-
-        if let layer = metalView.layer as? CAMetalLayer,
-           layer.drawableSize == correctSize {
-          return
-        }
-
-        callOriginal(metalView, selector, correctSize)
-      }
-    }
-
-    let imp = imp_implementationWithBlock(block)
-    class_addMethod(subclass, selector, imp, method_getTypeEncoding(original))
-  }
-
-  private static func addContentScaleFactorOverride(
-    to subclass: AnyClass,
-    originalClass: AnyClass
-  ) {
-    let selector = NSSelectorFromString("setContentScaleFactor:")
-    guard let original = class_getInstanceMethod(originalClass, selector) else { return }
-    let originalIMP = method_getImplementation(original)
-    typealias SetScaleFn = @convention(c) @Sendable (AnyObject, Selector, CGFloat) -> Void
-    let callOriginal = unsafeBitCast(originalIMP, to: SetScaleFn.self)
-
-    let block: @convention(block) (UIView, CGFloat) -> Void = { metalView, _ in
-      dispatchPrecondition(condition: .onQueue(.main))
-      MainActor.assumeIsolated {
-        guard let mapView = findMapView(from: metalView),
-              let screen = mapView.window?.screen else {
-          return
-        }
-
-        let correctScale = screen.nativeScale
-        if metalView.contentScaleFactor == correctScale {
-          return
-        }
-
-        callOriginal(metalView, selector, correctScale)
-      }
-    }
-
-    let imp = imp_implementationWithBlock(block)
-    class_addMethod(subclass, selector, imp, method_getTypeEncoding(original))
-  }
-}
-
-/// Applies the isa-swizzle once the view is attached to a window.
-private final class ScaledMLNMapView: MLNMapView {
-  override func didMoveToWindow() {
-    super.didMoveToWindow()
-    guard window != nil else { return }
-    MetalLayerScaleFix.apply(to: self)
-  }
-}
 
 struct MC1MapView: UIViewRepresentable {
   // Data
@@ -406,7 +274,7 @@ extension MC1MapView {
   @MainActor
   class Coordinator: NSObject, @preconcurrency MLNMapViewDelegate, UIGestureRecognizerDelegate {
     /// Non-zero frame avoids MapLibre zero-size Metal init (issue #67).
-    let mapView: MLNMapView = ScaledMLNMapView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
+    let mapView = MLNMapView(frame: CGRect(x: 0, y: 0, width: 1, height: 1))
 
     // Callbacks
     var onPointTap: ((MapPoint, CGPoint) -> Void)?

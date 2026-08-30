@@ -23,8 +23,17 @@ public actor RxLogService {
   /// via `entryStream()`; finished by `ServiceContainer.tearDown()`.
   private nonisolated let entryBroadcaster = EventBroadcaster<RxLogEntryDTO>()
 
+  /// Multicast broadcaster for Message IDs whose region fields reprocess
+  /// rewrote. Open chats subscribe via `regionUpdateEvents()` to re-bake
+  /// region footers.
+  nonisolated let regionUpdateBroadcaster = EventBroadcaster<[UUID]>()
+
   /// Event monitoring
   private var eventMonitorTask: Task<Void, Never>?
+
+  /// Connect-path region reprocess. Cancelled with event monitoring so it
+  /// cannot write or yield after teardown finishes the broadcaster.
+  private var regionReprocessTask: Task<Void, Never>?
 
   /// Heard repeats processing.
   /// Injected by `ServiceContainer` at construction.
@@ -35,14 +44,22 @@ public actor RxLogService {
   private var isReprocessingDMs = false
   var isReprocessingRegions = false
 
+  /// Waiters parked while a region reprocess drain owns the actor.
+  /// The owner resumes them in its defer.
+  var regionReprocessWaiters: [CheckedContinuation<Void, Never>] = []
+
   // Region resolution state
   var knownRegions: [String] = []
   var scopeKeyCache: [(name: String, key: Data)] = []
   var lastRegionMissLogTime: Date?
+  var lastRegionAmbiguousLogTime: Date?
 
   /// Set when a region back-fill request arrives while one is already in
   /// flight. The in-flight pass re-runs after it completes so rapid
   /// `addKnownRegion` / `removeKnownRegion` sequences do not lose work.
+  /// Overlapping callers converge on the final cache; the number of passes
+  /// is bounded by the number of overlapping callers that arrive across
+  /// pass boundaries.
   var regionReprocessDirty = false
 
   public init(session: any MeshCoreSessionProtocol, dataStore: any PersistenceStoreProtocol, heardRepeatsService: HeardRepeatsService?) {
@@ -58,6 +75,7 @@ public actor RxLogService {
 
   deinit {
     eventMonitorTask?.cancel()
+    regionReprocessTask?.cancel()
   }
 
   // MARK: - Event Monitoring
@@ -66,15 +84,21 @@ public actor RxLogService {
   public func startEventMonitoring(radioID: UUID) {
     self.radioID = radioID
     eventMonitorTask?.cancel()
+    regionReprocessTask?.cancel()
+    regionReprocessTask = nil
 
     eventMonitorTask = Task { [weak self] in
       guard let self else { return }
 
-      // Load secrets from database before entering event loop
-      // This eliminates the race condition where events arrive before secrets are synced
+      // Build known-regions cache (and channel/contact secrets).
       await loadSecretsFromDatabase(radioID: radioID)
 
+      // Subscribe before reprocess. EventDispatcher only buffers for existing
+      // subscribers; awaiting full reprocess here would drop live RX.
       let events = await session.events(filter: .rxLogData)
+
+      // Sibling reprocess so the for-await loop drains while store work runs.
+      await self.launchRegionReprocessTask()
 
       for await event in events {
         guard !Task.isCancelled else { break }
@@ -83,6 +107,12 @@ public actor RxLogService {
         }
       }
     }
+  }
+
+  /// Store a cancellable handle for connect-path region reprocess.
+  private func launchRegionReprocessTask() {
+    regionReprocessTask?.cancel()
+    regionReprocessTask = Task { await self.reprocessRegionEntries() }
   }
 
   /// Load channel secrets and contact public keys from database to enable decryption before sync completes.
@@ -122,6 +152,8 @@ public actor RxLogService {
   public func stopEventMonitoring() {
     eventMonitorTask?.cancel()
     eventMonitorTask = nil
+    regionReprocessTask?.cancel()
+    regionReprocessTask = nil
   }
 
   /// Returns a fresh multicast stream of newly persisted entries.
@@ -131,11 +163,18 @@ public actor RxLogService {
     entryBroadcaster.subscribe()
   }
 
-  /// Ends every `entryStream()` subscriber's for-await loop. Called by
-  /// `ServiceContainer.tearDown()` so consumer tasks release their service
-  /// references.
+  /// Multicast stream of Message IDs whose region fields reprocess changed.
+  /// Open chats reload baked region footers from these IDs.
+  public nonisolated func regionUpdateEvents() -> AsyncStream<[UUID]> {
+    regionUpdateBroadcaster.subscribe()
+  }
+
+  /// Ends every `entryStream()` / `regionUpdateEvents()` subscriber's
+  /// for-await loop. Called by `ServiceContainer.tearDown()` so consumer
+  /// tasks release their service references.
   nonisolated func finishEntryStream() {
     entryBroadcaster.finish()
+    regionUpdateBroadcaster.finish()
   }
 
   /// Rebuilds the channel cache from a fresh channel list.
@@ -418,7 +457,7 @@ public actor RxLogService {
       }
     }
 
-    let regionScope = resolveRegionScope(for: parsed)
+    let regionFields = resolveRegion(for: parsed)
 
     // Create DTO
     let dto = RxLogEntryDTO(
@@ -429,7 +468,8 @@ public actor RxLogService {
       decryptStatus: decryptStatus,
       fromContactName: fromContactName,
       senderTimestamp: senderTimestamp,
-      regionScope: regionScope,
+      regionScope: regionFields.regionScope,
+      regionScopeMatches: regionFields.regionScopeMatches,
       decodedText: decodedText
     )
 

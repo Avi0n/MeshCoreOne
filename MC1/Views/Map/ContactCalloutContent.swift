@@ -83,6 +83,7 @@ struct ContactCalloutContent: View {
         typeRawValue: 0,
         latitude: 37.7749,
         longitude: -122.4194,
+        lastHeardTimestamp: 0,
         isFavorite: true
       )
     ),

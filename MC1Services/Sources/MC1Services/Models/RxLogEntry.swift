@@ -46,10 +46,12 @@ final class RxLogEntry {
   /// Only available for successfully decrypted channel messages.
   var senderTimestamp: Int?
 
-  /// Resolved flood region the sender transmitted under, derived from
-  /// `transport_codes[0]` at receive time. Nil when no known region matches.
-  /// Local-only: not part of any backup envelope.
+  /// Confident single flood-region name, or nil when unresolved or ambiguous.
+  /// Local-only. Read via `RegionScopeSemantics.coalesce` with matches.
   var regionScope: String?
+
+  /// Sorted multi-match set for this packet. Local-only.
+  var regionScopeMatches: [String] = []
 
   /// Raw 4-bit payload-type nibble from the wire header. Persisted so the
   /// region resolver can replay the exact firmware HMAC input on back-fill,
@@ -82,6 +84,7 @@ final class RxLogEntry {
     toContactName: String? = nil,
     senderTimestamp: Int? = nil,
     regionScope: String? = nil,
+    regionScopeMatches: [String] = [],
     payloadTypeBits: Int = 0
   ) {
     self.id = id
@@ -105,6 +108,7 @@ final class RxLogEntry {
     self.toContactName = toContactName
     self.senderTimestamp = senderTimestamp
     self.regionScope = regionScope
+    self.regionScopeMatches = regionScopeMatches
     self.payloadTypeBits = payloadTypeBits
   }
 }
@@ -140,11 +144,15 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
   /// Mutable to allow updating during re-decryption of older entries.
   public var senderTimestamp: UInt32?
 
-  /// Resolved flood region the sender transmitted under. Local-only.
+  /// Confident single flood-region name, or nil when unresolved or ambiguous.
+  /// Local-only. Read via `RegionScopeSemantics.coalesce` with matches.
   public let regionScope: String?
 
+  /// Sorted multi-match set. Local-only.
+  public let regionScopeMatches: [String]
+
   /// Raw 4-bit payload-type nibble from the wire header (matches firmware
-  /// HMAC input). Persisted alongside `regionScope` for back-fill replay.
+  /// HMAC input). Persisted alongside region fields for back-fill replay.
   public let payloadTypeBits: UInt8
 
   /// Transient - set by UI layer after decryption
@@ -175,6 +183,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     toContactName = model.toContactName
     senderTimestamp = model.senderTimestamp.flatMap { UInt32(exactly: $0) }
     regionScope = model.regionScope
+    regionScopeMatches = model.regionScopeMatches
     payloadTypeBits = UInt8(model.payloadTypeBits & 0x0F)
     decodedText = model.decodedText
   }
@@ -192,6 +201,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     toContactName: String? = nil,
     senderTimestamp: UInt32? = nil,
     regionScope: String? = nil,
+    regionScopeMatches: [String] = [],
     decodedText: String? = nil
   ) {
     self.id = id
@@ -215,6 +225,7 @@ public struct RxLogEntryDTO: Sendable, Identifiable, Equatable, Hashable {
     self.toContactName = toContactName
     self.senderTimestamp = senderTimestamp
     self.regionScope = regionScope
+    self.regionScopeMatches = regionScopeMatches
     payloadTypeBits = parsed.payloadTypeBits
     self.decodedText = decodedText
   }

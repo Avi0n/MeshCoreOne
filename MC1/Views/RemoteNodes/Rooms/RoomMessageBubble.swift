@@ -5,10 +5,17 @@ import SwiftUI
 struct RoomMessageBubble: View {
   let message: RoomMessageDTO
   let showTimestamp: Bool
+  let showSenderName: Bool
+  let showAvatar: Bool
+  var translation: MessageTranslationChrome?
   var onRetry: (() -> Void)?
   var onLongPress: ((RoomMessageDTO) -> Void)?
+  var onTranslationAction: (() -> Void)?
 
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
+  @Environment(\.appTheme) private var theme
+  @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.openURL) private var openURL
 
   @State private var isLongPressing = false
   @State private var longPressTrigger = 0
@@ -32,6 +39,33 @@ struct RoomMessageBubble: View {
           makeBubbleContent()
           makeStatusIndicator()
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityMessageLabel)
+        .accessibilityAction {
+          onLongPress?(message)
+        }
+        .accessibilityActions {
+          if let chrome = translation {
+            switch chrome.phase {
+            case .offer:
+              Button(L10n.Chats.Chats.Message.Action.translate) {
+                onTranslationAction?()
+              }
+            case .showing:
+              Button(L10n.Chats.Chats.Message.Action.showOriginal) {
+                onTranslationAction?()
+              }
+            case .inProgress:
+              EmptyView()
+            }
+          }
+          if accessibilityShowsRetryAction {
+            Button(L10n.Chats.Chats.Message.Action.retry) { performAccessibilityRetry() }
+          }
+          ForEach(accessibilityLinkActions(formatted: formattedBodyText)) { action in
+            Button(action.name) { openURL(action.url) }
+          }
+        }
 
         if !isFromSelf {
           Spacer(minLength: 60)
@@ -47,11 +81,59 @@ struct RoomMessageBubble: View {
     TimestampView(date: message.date)
   }
 
+  var accessibilityMessageLabel: String {
+    let body: String = switch translation?.phase {
+    case let .showing(translated, _):
+      L10n.Chats.Chats.Message.translatedAccessibility(translated)
+    case .inProgress:
+      "\(message.text), \(L10n.Chats.Chats.Message.Action.translating)"
+    default:
+      message.text
+    }
+    if isFromSelf {
+      return "\(body), \(message.accessibilityStatusLabel)"
+    }
+    return "\(message.authorDisplayName): \(body)"
+  }
+
+  var accessibilityShowsRetryAction: Bool {
+    message.status == .failed && onRetry != nil
+  }
+
+  func performAccessibilityRetry() {
+    onRetry?()
+  }
+
+  func accessibilityLinkActions(formatted: AttributedString) -> [MessageLinkAccessibility.Action] {
+    MessageLinkAccessibility.actions(previewURL: nil, formatted: formatted)
+  }
+
+  private var formattedBodyText: AttributedString {
+    MessageText.buildFormattedText(
+      text: message.text,
+      isOutgoing: isFromSelf,
+      currentUserName: nil,
+      isHighContrast: colorSchemeContrast == .increased,
+      outgoingTextColor: theme.outgoingTextColor,
+      hashtagColor: theme.hashtagColor,
+      identityGamut: theme.identityGamut,
+      identityBackgroundLuminances: theme.avatarSurfaceLuminances(
+        colorScheme: colorScheme,
+        contrast: colorSchemeContrast
+      )
+    ).text
+  }
+
   private func makeBubbleContent() -> some View {
     BubbleContent(
       message: message,
       isFromSelf: isFromSelf,
-      highContrast: colorSchemeContrast == .increased
+      showSenderName: showSenderName,
+      showAvatar: showAvatar,
+      highContrast: colorSchemeContrast == .increased,
+      formattedBodyText: formattedBodyText,
+      translation: translation,
+      onTranslationAction: onTranslationAction
     )
     .messageBubbleLongPressGesture(
       isPressing: $isLongPressing,
@@ -90,7 +172,12 @@ private struct TimestampView: View {
 private struct BubbleContent: View {
   let message: RoomMessageDTO
   let isFromSelf: Bool
+  let showSenderName: Bool
+  let showAvatar: Bool
   let highContrast: Bool
+  let formattedBodyText: AttributedString
+  var translation: MessageTranslationChrome?
+  var onTranslationAction: (() -> Void)?
 
   @Environment(\.appTheme) private var theme
   @Environment(\.colorScheme) private var colorScheme
@@ -111,7 +198,7 @@ private struct BubbleContent: View {
 
   var body: some View {
     VStack(alignment: isFromSelf ? .trailing : .leading, spacing: 0) {
-      if !isFromSelf {
+      if !isFromSelf, showSenderName {
         Text(message.authorDisplayName)
           .font(.footnote)
           .bold()
@@ -121,13 +208,44 @@ private struct BubbleContent: View {
             contrast: highContrast ? .increased : .standard
           ))
           .senderNamePlacement()
+          .padding(.leading, IncomingBubbleAvatarMetrics.columnWidth)
+          .accessibilityHidden(true)
       }
 
-      MessageText(message.text, baseColor: textColor, isOutgoing: isFromSelf)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(bubbleBackground)
-        .clipShape(.rect(cornerRadius: 16, style: .continuous))
+      IncomingAvatarGutter(
+        identity: showAvatar ? .initials(name: message.authorDisplayName) : nil,
+        reserveColumn: !isFromSelf,
+        messageID: message.id
+      ) {
+        messageBox
+      }
+    }
+  }
+
+  private var messageBox: some View {
+    VStack(alignment: isFromSelf ? .trailing : .leading, spacing: 2) {
+      if let chrome = translation {
+        BubbleTranslationControl(
+          phase: chrome.phase,
+          onTap: { onTranslationAction?() }
+        )
+      }
+      messageBody
+    }
+    .padding(.horizontal, 12)
+    .padding(.vertical, 8)
+    .background(bubbleBackground)
+    .clipShape(.rect(cornerRadius: 16, style: .continuous))
+  }
+
+  @ViewBuilder
+  private var messageBody: some View {
+    if case let .showing(translated, _) = translation?.phase {
+      Text(translated)
+        .font(.body)
+        .foregroundStyle(textColor)
+    } else {
+      MessageText(message.text, baseColor: textColor, isOutgoing: isFromSelf, precomputedText: formattedBodyText)
     }
   }
 }
@@ -187,7 +305,9 @@ private struct StatusIndicator: View {
       timestamp: UInt32(Date().timeIntervalSince1970),
       isFromSelf: true
     ),
-    showTimestamp: true
+    showTimestamp: true,
+    showSenderName: false,
+    showAvatar: false
   )
 }
 
@@ -201,7 +321,9 @@ private struct StatusIndicator: View {
       timestamp: UInt32(Date().timeIntervalSince1970),
       isFromSelf: false
     ),
-    showTimestamp: true
+    showTimestamp: true,
+    showSenderName: true,
+    showAvatar: true
   )
 }
 
@@ -216,7 +338,9 @@ private struct StatusIndicator: View {
       isFromSelf: true,
       status: .pending
     ),
-    showTimestamp: true
+    showTimestamp: true,
+    showSenderName: false,
+    showAvatar: false
   )
 }
 
@@ -232,6 +356,8 @@ private struct StatusIndicator: View {
       status: .failed
     ),
     showTimestamp: true,
+    showSenderName: false,
+    showAvatar: false,
     onRetry: { print("Retry tapped") }
   )
 }

@@ -68,6 +68,18 @@ enum PingHelper {
       let elapsed = ContinuousClock.now - startTime
       let latencyMs = Int(elapsed / .milliseconds(1))
 
+      if let radioID = appState.connectedDevice?.radioID {
+        do {
+          _ = try await services.dataStore.touchContactHeard(
+            radioID: radioID,
+            publicKey: contact.publicKey,
+            at: Date()
+          )
+        } catch {
+          logger.error("Ping lastHeard stamp failed: \(error.localizedDescription)")
+        }
+      }
+
       let announcement = L10n.Contacts.Contacts.Detail.pingSuccessAnnouncement(latencyMs)
       AccessibilityNotification.Announcement(announcement).post()
       return .success(latencyMs: latencyMs, snrThere: snrThere, snrBack: snrBack)
