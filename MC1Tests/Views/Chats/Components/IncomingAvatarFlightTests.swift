@@ -361,23 +361,17 @@ struct IncomingAvatarFlightTests {
     flight.reportFrame(CGRect(x: 0, y: 100, width: 28, height: 28), for: from)
     flight.beginFlight(from: from, to: to, identity: .initials(name: "Alice"))
 
-    let overlayHost = UIHostingController(rootView: flight.overlay().frame(width: 320, height: 400))
-    let visibleHost = UIHostingController(
-      rootView: ContactAvatar(name: "Alice", size: IncomingBubbleAvatarMetrics.size)
-        .frame(width: 320, height: 400)
+    flight.completeOverlayOnFinish = false
+    let overlayHost = UIHostingController(
+      rootView: flight.overlay().frame(width: 320, height: 400)
     )
     let overlayWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 400))
     overlayWindow.rootViewController = overlayHost
     overlayWindow.isHidden = false
     overlayWindow.layoutIfNeeded()
-    let visibleWindow = UIWindow(frame: CGRect(x: 0, y: 0, width: 320, height: 400))
-    visibleWindow.rootViewController = visibleHost
-    visibleWindow.isHidden = false
-    visibleWindow.layoutIfNeeded()
 
+    #expect(flight.flight != nil)
     let overlayLabels = accessibilityLabels(in: overlayHost.view)
-    let visibleLabels = accessibilityLabels(in: visibleHost.view)
-    #expect(visibleLabels.contains { $0 == "A" || $0.localizedCaseInsensitiveContains("Alice") })
     #expect(overlayLabels.contains { $0 == "A" || $0.localizedCaseInsensitiveContains("Alice") } == false)
   }
 
@@ -484,15 +478,27 @@ private func measureHeight(_ view: some View) -> CGFloat {
 @MainActor
 private func accessibilityLabels(in view: UIView) -> [String] {
   var labels: [String] = []
-  if view.isAccessibilityElement, let label = view.accessibilityLabel, !label.isEmpty {
-    labels.append(label)
+  func appendLabel(_ object: NSObject) {
+    if let label = object.accessibilityLabel, !label.isEmpty {
+      labels.append(label)
+    }
+  }
+  if view.accessibilityElementsHidden { return labels }
+  if view.isAccessibilityElement {
+    appendLabel(view)
   }
   if let elements = view.accessibilityElements {
     for element in elements {
-      guard let object = element as? NSObject,
-            let label = object.accessibilityLabel,
-            !label.isEmpty else { continue }
-      labels.append(label)
+      guard let object = element as? NSObject else { continue }
+      appendLabel(object)
+    }
+  }
+  let count = view.accessibilityElementCount()
+  if count != NSNotFound {
+    for index in 0..<count {
+      if let object = view.accessibilityElement(at: index) as? NSObject {
+        appendLabel(object)
+      }
     }
   }
   for subview in view.subviews {

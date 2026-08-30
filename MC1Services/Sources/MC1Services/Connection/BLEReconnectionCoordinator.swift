@@ -1,5 +1,6 @@
 // BLEReconnectionCoordinator.swift
 
+import Foundation
 import OSLog
 
 /// Coordinates the iOS auto-reconnect lifecycle, managing timeout state and
@@ -51,9 +52,21 @@ final class BLEReconnectionCoordinator {
   /// auto-reconnecting. Prevents indefinite connecting UI when transport is stuck.
   private let maxConnectingUIWindow: TimeInterval
 
-  init(uiTimeoutDuration: TimeInterval = 15, maxConnectingUIWindow: TimeInterval = 60) {
+  /// Delay before retrying a failed session rebuild during auto-reconnect.
+  private static let rebuildRetryDelay: Duration = .seconds(2)
+
+  /// Clock for the rebuild-retry backoff. Defaults to `ContinuousClock`;
+  /// inject a test clock to make the retry deterministic in tests.
+  private let clock: any Clock<Duration>
+
+  init(
+    uiTimeoutDuration: TimeInterval = 15,
+    maxConnectingUIWindow: TimeInterval = 60,
+    clock: (any Clock<Duration>)? = nil
+  ) {
     self.uiTimeoutDuration = uiTimeoutDuration
     self.maxConnectingUIWindow = maxConnectingUIWindow
+    self.clock = clock ?? ContinuousClock()
   }
 
   /// Handles the device entering iOS auto-reconnect phase.
@@ -233,7 +246,7 @@ final class BLEReconnectionCoordinator {
       return
     }
 
-    try? await Task.sleep(for: .seconds(2))
+    try? await clock.sleep(for: Self.rebuildRetryDelay)
 
     guard expectedGeneration == reconnectGeneration else {
       logger.info("New reconnect cycle started during rebuild retry delay - aborting stale retry")

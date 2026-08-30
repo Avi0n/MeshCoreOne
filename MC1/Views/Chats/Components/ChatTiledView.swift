@@ -23,6 +23,11 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   /// is already true; `ScrollToBottomButton` calls `scrollPosition.scrollTo` itself.
   var scrollToBottomRequest: Int = 0
 
+  /// Bumped to scroll to the bottom even when scrolled up. Conversation
+  /// views omit this and use `ScrollToBottomButton`; hosted tests bump it
+  /// because Liquid Glass is not hittable in a headless `UIWindow`.
+  var userScrollToBottomRequest: Int = 0
+
   /// Returns whether an appended row raises the unread badge while scrolled up.
   var countsTowardUnread: (Item) -> Bool = { _ in true }
 
@@ -60,6 +65,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     isAtBottom: Binding<Bool>,
     unreadCount: Binding<Int>,
     scrollToBottomRequest: Int = 0,
+    userScrollToBottomRequest: Int = 0,
     countsTowardUnread: @escaping (Item) -> Bool = { _ in true },
     scrollToTargetRequest: Int = 0,
     scrollTargetID: Item.ID? = nil,
@@ -73,6 +79,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     _isAtBottom = isAtBottom
     _unreadCount = unreadCount
     self.scrollToBottomRequest = scrollToBottomRequest
+    self.userScrollToBottomRequest = userScrollToBottomRequest
     self.countsTowardUnread = countsTowardUnread
     self.scrollToTargetRequest = scrollToTargetRequest
     self.scrollTargetID = scrollTargetID
@@ -124,7 +131,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       ScrollToBottomButton(
         isVisible: !isAtBottom,
         unreadCount: unreadCount,
-        onTap: { scrollPosition.scrollTo(edge: .bottom) }
+        onTap: { scrollUserToBottom() }
       )
       .padding(.trailing, 16)
       .padding(.bottom, 8)
@@ -132,6 +139,9 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     .onChange(of: scrollToBottomRequest) {
       guard isAtBottom else { return }
       scrollPosition.scrollTo(edge: .bottom, animated: false)
+    }
+    .onChange(of: userScrollToBottomRequest) {
+      scrollUserToBottom()
     }
     .onChange(of: scrollToTargetRequest) {
       guard let id = scrollTargetID else { return }
@@ -144,6 +154,13 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       let incoming = items.suffix(from: previousIndex + 1).filter(countsTowardUnread).count
       if incoming > 0 { unreadCount += incoming }
     }
+  }
+
+  /// Unconditional jump to the visual bottom. Used by `ScrollToBottomButton`
+  /// and by `userScrollToBottomRequest`. Distinct from `scrollToBottomRequest`,
+  /// which must not yank a scrolled-up thread.
+  private func scrollUserToBottom() {
+    scrollPosition.scrollTo(edge: .bottom)
   }
 
   /// Fingerprint of theme + appearance. A change fully rebuilds the list (via `.id`) so the

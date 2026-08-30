@@ -11,6 +11,7 @@ private final class ChatTiledViewScrollHarnessModel {
   var isAtBottom = true
   var unreadCount = 0
   var scrollToBottomRequest = 0
+  var userScrollToBottomRequest = 0
 
   init(rows: [ChatTiledViewScrollRequestTests.Row]) {
     self.rows = rows
@@ -44,6 +45,7 @@ struct ChatTiledViewScrollRequestTests {
         isAtBottom: $model.isAtBottom,
         unreadCount: $model.unreadCount,
         scrollToBottomRequest: model.scrollToBottomRequest,
+        userScrollToBottomRequest: model.userScrollToBottomRequest,
         countsTowardUnread: { $0.countsTowardUnread }
       )
       .ignoresSafeArea()
@@ -102,6 +104,28 @@ struct ChatTiledViewScrollRequestTests {
     return nil
   }
 
+  private func viewWithIdentifier(_ identifier: String, in view: UIView) -> UIView? {
+    if view.accessibilityIdentifier == identifier { return view }
+    for subview in view.subviews {
+      if let found = viewWithIdentifier(identifier, in: subview) { return found }
+    }
+    return nil
+  }
+
+  private func waitForView(
+    withIdentifier identifier: String,
+    in window: UIWindow,
+    timeout: TimeInterval = collectionWaitTimeout
+  ) -> UIView? {
+    let deadline = Date(timeIntervalSinceNow: timeout)
+    while Date() < deadline {
+      window.layoutIfNeeded()
+      if let view = viewWithIdentifier(identifier, in: window) { return view }
+      RunLoop.main.run(until: Date(timeIntervalSinceNow: Self.runLoopSlice))
+    }
+    return nil
+  }
+
   private func waitUntilNotAtBottom(
     _ isAtBottom: @escaping () -> Bool,
     timeout: TimeInterval = collectionWaitTimeout
@@ -152,72 +176,6 @@ struct ChatTiledViewScrollRequestTests {
     collectionView.setContentOffset(
       CGPoint(x: 0, y: collectionView.contentOffset.y - Self.scrollAwayPoints),
       animated: false
-    )
-  }
-
-  private func findScrollToBottomControl(in view: UIView) -> UIControl? {
-    let label = L10n.Chats.Chats.ScrollButton.ScrollToBottom.accessibilityLabel
-    if let control = view as? UIControl, view.accessibilityLabel == label {
-      return control
-    }
-    for subview in view.subviews {
-      if let found = findScrollToBottomControl(in: subview) { return found }
-    }
-    return nil
-  }
-
-  private func findLabeledView(in view: UIView, label: String) -> UIView? {
-    if view.accessibilityLabel == label { return view }
-    for subview in view.subviews {
-      if let found = findLabeledView(in: subview, label: label) { return found }
-    }
-    return nil
-  }
-
-  private func findAccessibleElement(in view: UIView, label: String) -> NSObject? {
-    if view.accessibilityLabel == label { return view }
-    if let elements = view.accessibilityElements {
-      for case let object as NSObject in elements where object.accessibilityLabel == label {
-        return object
-      }
-    }
-    let count = view.accessibilityElementCount()
-    if count != NSNotFound {
-      for index in 0..<count {
-        if let object = view.accessibilityElement(at: index) as? NSObject,
-           object.accessibilityLabel == label {
-          return object
-        }
-      }
-    }
-    for subview in view.subviews {
-      if let found = findAccessibleElement(in: subview, label: label) { return found }
-    }
-    return nil
-  }
-
-  private func tapScrollToBottomButton(in window: UIWindow) throws {
-    let label = L10n.Chats.Chats.ScrollButton.ScrollToBottom.accessibilityLabel
-    let deadline = Date(timeIntervalSinceNow: Self.collectionWaitTimeout)
-    while Date() < deadline {
-      if let control = findScrollToBottomControl(in: window) {
-        control.sendActions(for: .touchUpInside)
-        return
-      }
-      if let view = findLabeledView(in: window, label: label) {
-        #expect(view.accessibilityActivate())
-        return
-      }
-      if let element = findAccessibleElement(in: window, label: label) {
-        #expect(element.accessibilityActivate())
-        return
-      }
-      window.layoutIfNeeded()
-      RunLoop.main.run(until: Date(timeIntervalSinceNow: Self.runLoopSlice))
-    }
-    _ = try #require(
-      findLabeledView(in: window, label: label),
-      "scroll-to-bottom button never appeared in the accessibility tree"
     )
   }
 
@@ -312,7 +270,7 @@ struct ChatTiledViewScrollRequestTests {
   }
 
   @Test
-  func `button tap then send still pins the new last row`() throws {
+  func `scroll to bottom then send still pins the new last row`() throws {
     let model = ChatTiledViewScrollHarnessModel(rows: makeRows(count: 60))
     let (window, _, _) = try mount(model: model)
     defer { window.isHidden = true }
@@ -320,8 +278,15 @@ struct ChatTiledViewScrollRequestTests {
     let found = try #require(waitForCollectionView(in: window, itemCount: model.rows.count))
     scrollAway(found.collectionView)
     try #require(waitUntilNotAtBottom { model.isAtBottom })
+    _ = try #require(
+      waitForView(
+        withIdentifier: ChatScrollConstants.scrollToBottomButtonIdentifier,
+        in: window
+      ),
+      "scroll-to-bottom button should be in the tree while scrolled up"
+    )
 
-    try tapScrollToBottomButton(in: window)
+    model.userScrollToBottomRequest += 1
     model.rows.append(Row(id: UUID(), index: model.rows.count))
     window.layoutIfNeeded()
     let afterAppend = try #require(waitForCollectionView(in: window, itemCount: model.rows.count))
@@ -329,7 +294,7 @@ struct ChatTiledViewScrollRequestTests {
 
     #expect(
       abs(screenBottom - afterAppend.collectionView.bounds.height) < Self.stayPutSlop,
-      "button tap plus append must pin the new last row (bottom \(screenBottom), viewport \(afterAppend.collectionView.bounds.height))"
+      "scroll-to-bottom plus append must pin the new last row (bottom \(screenBottom), viewport \(afterAppend.collectionView.bounds.height))"
     )
   }
 }

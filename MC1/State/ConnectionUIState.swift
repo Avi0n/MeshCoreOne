@@ -6,6 +6,16 @@ import MC1Services
 @Observable
 @MainActor
 final class ConnectionUIState {
+  private static let readyToastDuration: Duration = .seconds(2)
+  private static let syncFailedPillDuration: Duration = .seconds(7)
+  private static let disconnectedPillDelay: Duration = .seconds(1)
+
+  private let clock: any Clock<Duration>
+
+  init(clock: (any Clock<Duration>)? = nil) {
+    self.clock = clock ?? ContinuousClock()
+  }
+
   // MARK: - Ready Toast
 
   /// Whether the "Ready" toast pill is visible (shown briefly after connection completes)
@@ -94,8 +104,8 @@ final class ConnectionUIState {
     readyToastTask?.cancel()
     showReadyToast = true
 
-    readyToastTask = Task {
-      try? await Task.sleep(for: .seconds(2))
+    readyToastTask = Task { [clock] in
+      try? await clock.sleep(for: Self.readyToastDuration)
       guard !Task.isCancelled else { return }
       showReadyToast = false
     }
@@ -117,8 +127,8 @@ final class ConnectionUIState {
 
     announceConnectionState(L10n.Localizable.Accessibility.Connection.syncFailedDisconnecting)
 
-    syncFailedPillTask = Task {
-      try? await Task.sleep(for: .seconds(7))
+    syncFailedPillTask = Task { [clock] in
+      try? await clock.sleep(for: Self.syncFailedPillDuration)
       guard !Task.isCancelled else { return }
       syncFailedPillVisible = false
     }
@@ -149,8 +159,8 @@ final class ConnectionUIState {
       return
     }
 
-    disconnectedPillTask = Task {
-      try? await Task.sleep(for: .seconds(1))
+    disconnectedPillTask = Task { [clock] in
+      try? await clock.sleep(for: Self.disconnectedPillDelay)
       guard !Task.isCancelled else { return }
       disconnectedPillVisible = true
     }

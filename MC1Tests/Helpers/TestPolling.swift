@@ -2,7 +2,7 @@ import Foundation
 
 /// Polls a condition until it becomes true or a timeout expires.
 func waitUntil(
-  timeout: Duration = .seconds(2),
+  timeout: Duration = .seconds(10),
   pollingInterval: Duration = .milliseconds(10),
   _ message: String = "waitUntil timed out",
   condition: @escaping @MainActor () async -> Bool

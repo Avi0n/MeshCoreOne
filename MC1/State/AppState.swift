@@ -685,8 +685,8 @@ final class AppState {
 extension AppState {
   /// Creates an AppState for previews using an in-memory container
   @MainActor
-  convenience init() {
-    self.init(modelContainer: Self.makeInMemoryContainer())
+  convenience init(defaults: UserDefaults = .standard) {
+    self.init(modelContainer: Self.makeInMemoryContainer(), defaults: defaults)
   }
 
   /// In-memory container over the canonical `PersistenceStore.schema`, shared by preview and

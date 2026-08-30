@@ -6,6 +6,12 @@ import Testing
 @Suite("Connection UI State Tests")
 @MainActor
 struct ConnectionUIStateTests {
+  private func waitForClockPark(_ clock: TestClock) async throws {
+    try await waitUntil("delay should park on the injected clock") {
+      clock.sleeperCount == 1
+    }
+  }
+
   // MARK: - statusPillState Priority
 
   @Test
@@ -83,31 +89,39 @@ struct ConnectionUIStateTests {
 
   @Test
   func `showReadyToastBriefly auto-hides after delay`() async throws {
-    let appState = AppState()
+    let clock = TestClock()
+    let sut = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.showReadyToastBriefly()
-    #expect(appState.connectionUI.showReadyToast == true)
+    sut.showReadyToastBriefly()
+    #expect(sut.showReadyToast == true)
 
-    // Wait for the 2-second auto-hide plus margin
-    try await Task.sleep(for: .seconds(2.3))
-
-    #expect(appState.connectionUI.showReadyToast == false)
+    try await waitForClockPark(clock)
+    clock.advance(by: .seconds(2))
+    try await waitUntil("ready toast should hide after the delay") {
+      sut.showReadyToast == false
+    }
   }
 
   @Test
   func `Calling showReadyToastBriefly again resets the timer`() async throws {
-    let appState = AppState()
+    let clock = TestClock()
+    let sut = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.showReadyToastBriefly()
-    try await Task.sleep(for: .seconds(1.5))
+    sut.showReadyToastBriefly()
+    try await waitForClockPark(clock)
+    clock.advance(by: .seconds(1.5))
+    #expect(sut.showReadyToast == true)
 
-    // Call again to reset
-    appState.connectionUI.showReadyToastBriefly()
-    #expect(appState.connectionUI.showReadyToast == true)
+    sut.showReadyToastBriefly()
+    #expect(sut.showReadyToast == true)
+    try await waitForClockPark(clock)
+    clock.advance(by: .seconds(1))
+    #expect(sut.showReadyToast == true)
 
-    // Wait past original timer but within new timer
-    try await Task.sleep(for: .seconds(1.0))
-    #expect(appState.connectionUI.showReadyToast == true)
+    clock.advance(by: .seconds(1))
+    try await waitUntil("reset toast delay should hide after the full duration") {
+      sut.showReadyToast == false
+    }
   }
 
   // MARK: - Sync Failed Pill
@@ -134,15 +148,17 @@ struct ConnectionUIStateTests {
 
   @Test
   func `showSyncFailedPill auto-hides after delay`() async throws {
-    let appState = AppState()
+    let clock = TestClock()
+    let sut = ConnectionUIState(clock: clock)
 
-    appState.connectionUI.showSyncFailedPill()
-    #expect(appState.connectionUI.syncFailedPillVisible == true)
+    sut.showSyncFailedPill()
+    #expect(sut.syncFailedPillVisible == true)
 
-    // Wait for the 7-second auto-hide plus margin
-    try await Task.sleep(for: .seconds(7.3))
-
-    #expect(appState.connectionUI.syncFailedPillVisible == false)
+    try await waitForClockPark(clock)
+    clock.advance(by: .seconds(7))
+    try await waitUntil("sync-failed pill should hide after the delay") {
+      sut.syncFailedPillVisible == false
+    }
   }
 
   // MARK: - Disconnected Pill
@@ -163,17 +179,16 @@ struct ConnectionUIStateTests {
   }
 
   @Test
-  func `updateDisconnectedPillState without paired device stays hidden`() async throws {
-    let appState = AppState()
+  func `updateDisconnectedPillState without paired device stays hidden`() {
+    let sut = ConnectionUIState()
 
-    appState.connectionUI.updateDisconnectedPillState(
+    sut.updateDisconnectedPillState(
       connectionState: .disconnected,
       lastConnectedDeviceID: nil,
       shouldSuppressDisconnectedPill: false
     )
 
-    try await Task.sleep(for: .seconds(1.3))
-    #expect(appState.connectionUI.disconnectedPillVisible == false)
+    #expect(sut.disconnectedPillVisible == false)
   }
 
   // MARK: - canRunSettingsStartupReads
@@ -312,7 +327,8 @@ struct ConnectionUIStateTests {
 
   @Test
   func `handleDisconnect shows disconnected pill when device was paired`() async throws {
-    let sut = ConnectionUIState()
+    let clock = TestClock()
+    let sut = ConnectionUIState(clock: clock)
 
     sut.handleDisconnect(
       connectionState: .disconnected,
@@ -320,13 +336,16 @@ struct ConnectionUIStateTests {
       shouldSuppressDisconnectedPill: false
     )
 
-    // Disconnected pill shows after 1s delay
-    try await Task.sleep(for: .seconds(1.3))
-    #expect(sut.disconnectedPillVisible == true)
+    try await waitForClockPark(clock)
+    #expect(sut.disconnectedPillVisible == false)
+    clock.advance(by: .seconds(1))
+    try await waitUntil("disconnected pill should show after the delay") {
+      sut.disconnectedPillVisible == true
+    }
   }
 
   @Test
-  func `handleDisconnect does not show disconnected pill when suppressed`() async throws {
+  func `handleDisconnect does not show disconnected pill when suppressed`() {
     let sut = ConnectionUIState()
 
     sut.handleDisconnect(
@@ -335,12 +354,11 @@ struct ConnectionUIStateTests {
       shouldSuppressDisconnectedPill: true
     )
 
-    try await Task.sleep(for: .seconds(1.3))
     #expect(sut.disconnectedPillVisible == false)
   }
 
   @Test
-  func `handleDisconnect does not show disconnected pill without paired device`() async throws {
+  func `handleDisconnect does not show disconnected pill without paired device`() {
     let sut = ConnectionUIState()
 
     sut.handleDisconnect(
@@ -349,7 +367,6 @@ struct ConnectionUIStateTests {
       shouldSuppressDisconnectedPill: false
     )
 
-    try await Task.sleep(for: .seconds(1.3))
     #expect(sut.disconnectedPillVisible == false)
   }
 

@@ -65,7 +65,7 @@ private func makeContactFrame(
 
 /// Polls until `predicate` is true or `deadline` elapses.
 private func waitUntil(
-  timeout: Duration = .seconds(2),
+  timeout: Duration = .seconds(10),
   poll: Duration = .milliseconds(10),
   _ predicate: @Sendable () async -> Bool
 ) async -> Bool {

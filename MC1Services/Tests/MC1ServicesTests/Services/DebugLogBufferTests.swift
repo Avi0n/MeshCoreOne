@@ -228,9 +228,8 @@ struct DebugLogBufferTests {
       await buffer.append(DebugLogEntryDTO(level: .info, subsystem: "test", category: "b", message: "b\(index)"))
     }
 
-    for _ in 0..<100 {
-      if await store.pendingSaveCount >= 2 { break }
-      try await Task.sleep(for: .milliseconds(20))
+    try await waitUntil("both size-triggered flushes should park at the save gate") {
+      await store.pendingSaveCount >= 2
     }
     #expect(await store.pendingSaveCount == 2)
 
@@ -254,13 +253,12 @@ struct DebugLogBufferTests {
 
     try await accumulateDroppedBatch(store: store, buffer: buffer)
 
-    var saved: [DebugLogEntryDTO] = []
-    for _ in 0..<100 {
+    try await waitUntil("recovery flush should write a dropped-count summary") {
       await buffer.flush()
-      saved = await store.savedEntries
-      if saved.contains(where: { $0.level == .warning }) { break }
-      try? await Task.sleep(for: .milliseconds(20))
+      let entries = await store.savedEntries
+      return entries.contains(where: { $0.level == .warning })
     }
+    let saved = await store.savedEntries
 
     let realEntries = saved.filter { $0.level != .warning }
     #expect(realEntries.count == DebugLogBuffer.maxBufferSize)
@@ -281,23 +279,22 @@ struct DebugLogBufferTests {
     await store.setFailNextSummarySave(true)
 
     // First recovery flush saves the surviving batch; its summary save fails once.
-    var saved: [DebugLogEntryDTO] = []
-    for _ in 0..<100 {
+    try await waitUntil("first recovery flush should persist the surviving batch") {
       await buffer.flush()
-      saved = await store.savedEntries
-      if saved.count(where: { $0.level != .warning }) >= DebugLogBuffer.maxBufferSize { break }
-      try? await Task.sleep(for: .milliseconds(20))
+      let entries = await store.savedEntries
+      return entries.count(where: { $0.level != .warning }) >= DebugLogBuffer.maxBufferSize
     }
+    var saved = await store.savedEntries
     #expect(saved.filter { $0.level == .warning }.isEmpty)
 
     // The next successful save must report the carried-forward count in full.
     await buffer.append(DebugLogEntryDTO(level: .info, subsystem: "test", category: "c", message: "post-recovery"))
-    for _ in 0..<100 {
+    try await waitUntil("next successful save should report the carried-forward drop count") {
       await buffer.flush()
-      saved = await store.savedEntries
-      if saved.contains(where: { $0.level == .warning }) { break }
-      try? await Task.sleep(for: .milliseconds(20))
+      let entries = await store.savedEntries
+      return entries.contains(where: { $0.level == .warning })
     }
+    saved = await store.savedEntries
 
     let summary = saved.first { $0.category == "DebugLogBuffer" && $0.level == .warning }
     #expect(summary != nil)
