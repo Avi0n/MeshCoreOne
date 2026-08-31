@@ -37,8 +37,31 @@ extension PersistenceStoreError: LocalizedError {
 @ModelActor
 public actor PersistenceStore: PersistenceStoreProtocol {
   var rxLogEntryCountsByDevice: [UUID: Int] = [:]
+  var unsavedRxLogInsertCount = 0
+  var rxLogFlushTask: Task<Void, Never>?
+
+  func commitPendingRxLogEntries() throws {
+    rxLogFlushTask?.cancel()
+    rxLogFlushTask = nil
+    guard unsavedRxLogInsertCount > 0 else { return }
+    try modelContext.save()
+    #if DEBUG
+      rxLogInitiatedSaveCount += 1
+    #endif
+    unsavedRxLogInsertCount = 0
+    for radioID in Array(rxLogEntryCountsByDevice.keys) {
+      try pruneRxLogEntries(radioID: radioID)
+    }
+  }
 
   #if DEBUG
+    /// Inserts since the last RxLog-initiated `modelContext.save()`. Does not
+    /// count piggyback saves from other store APIs.
+    var rxLogInitiatedSaveCount = 0
+
+    /// Test-only hook fired immediately before `modelContext.save()` in `batchSaveChannels`.
+    var batchSaveChannelsFaultInjection: (@Sendable () throws -> Void)?
+
     /// Test-only fault-injection hook fired immediately before `modelContext.save()`
     /// in `importBackupDatabase`. Debug-only so the production API stays clean.
     /// SwiftData upserts on unique-constraint conflicts, so there is no reliable

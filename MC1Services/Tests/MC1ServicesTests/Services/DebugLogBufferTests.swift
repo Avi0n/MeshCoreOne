@@ -11,6 +11,8 @@ import Testing
 @Suite("DebugLogBuffer Tests", .serialized)
 struct DebugLogBufferTests {
   private static let maxReadBackAttempts = 5
+  /// `pruneIfDue` stamps cutoff with `Date()` at call time; the test reads it a tick later.
+  private static let pruneCutoffSlack: TimeInterval = 2
 
   private func makeBuffer() async throws -> DebugLogBuffer {
     let container = try PersistenceStore.createContainer(inMemory: true)
@@ -299,5 +301,100 @@ struct DebugLogBufferTests {
     let summary = saved.first { $0.category == "DebugLogBuffer" && $0.level == .warning }
     #expect(summary != nil)
     #expect(summary?.message.contains("\(DebugLogBuffer.maxBufferSize)") == true)
+  }
+
+  // MARK: - Hourly prune
+
+  private actor RecordingDebugLogStore: DebugLogPersisting {
+    private enum PruneFailure: Error {
+      case simulated
+    }
+
+    private(set) var pruneCallCount = 0
+    private(set) var lastPruneCutoff: Date?
+    private(set) var lastPruneKeepCount: Int?
+    private var pruneShouldFail = false
+
+    func saveDebugLogEntries(_ dtos: [DebugLogEntryDTO]) async throws {}
+
+    func fetchDebugLogEntries(since date: Date, limit: Int) async throws -> [DebugLogEntryDTO] {
+      []
+    }
+
+    func countDebugLogEntries() async throws -> Int {
+      0
+    }
+
+    func pruneDebugLogEntries(olderThan cutoff: Date, keepCount: Int) async throws {
+      pruneCallCount += 1
+      lastPruneCutoff = cutoff
+      lastPruneKeepCount = keepCount
+      if pruneShouldFail {
+        throw PruneFailure.simulated
+      }
+    }
+
+    func setPruneShouldFail(_ value: Bool) {
+      pruneShouldFail = value
+    }
+
+    func clearDebugLogEntries() async throws {}
+  }
+
+  private func expectWindowBackedPrune(_ store: RecordingDebugLogStore) async {
+    #expect(await store.lastPruneKeepCount == DebugLogRetention.maxEntries)
+    let cutoff = await store.lastPruneCutoff
+    #expect(cutoff != nil)
+    guard let cutoff else { return }
+    let expected = Date().addingTimeInterval(-DebugLogRetention.window)
+    #expect(abs(cutoff.timeIntervalSince(expected)) < Self.pruneCutoffSlack)
+  }
+
+  @Test
+  func `hourly prune is skipped when last prune is within pruneInterval`() async {
+    let store = RecordingDebugLogStore()
+    let buffer = DebugLogBuffer(dataStore: store)
+    await buffer.setLastPruneForTesting(Date())
+    await buffer.append(
+      DebugLogEntryDTO(level: .info, subsystem: "test", category: "prune", message: "recent")
+    )
+    await buffer.flush()
+    #expect(await store.pruneCallCount == 0)
+    #expect(await store.lastPruneCutoff == nil)
+    #expect(await store.lastPruneKeepCount == nil)
+  }
+
+  @Test
+  func `hourly prune runs when last prune is older than pruneInterval`() async {
+    let store = RecordingDebugLogStore()
+    let buffer = DebugLogBuffer(dataStore: store)
+    await buffer.setLastPruneForTesting(Date().addingTimeInterval(-DebugLogRetention.pruneInterval))
+    await buffer.append(
+      DebugLogEntryDTO(level: .info, subsystem: "test", category: "prune", message: "stale")
+    )
+    await buffer.flush()
+    #expect(await store.pruneCallCount == 1)
+    await expectWindowBackedPrune(store)
+  }
+
+  @Test
+  func `hourly prune retries on the next flush after a failed prune`() async {
+    let store = RecordingDebugLogStore()
+    await store.setPruneShouldFail(true)
+    let buffer = DebugLogBuffer(dataStore: store)
+    await buffer.setLastPruneForTesting(Date().addingTimeInterval(-DebugLogRetention.pruneInterval))
+    await buffer.append(
+      DebugLogEntryDTO(level: .info, subsystem: "test", category: "prune", message: "first")
+    )
+    await buffer.flush()
+    #expect(await store.pruneCallCount == 1)
+    await expectWindowBackedPrune(store)
+
+    await buffer.append(
+      DebugLogEntryDTO(level: .info, subsystem: "test", category: "prune", message: "second")
+    )
+    await buffer.flush()
+    #expect(await store.pruneCallCount == 2)
+    await expectWindowBackedPrune(store)
   }
 }

@@ -208,6 +208,7 @@ struct MC1App: App {
       // entries die with the process if iOS terminates the suspended app.
       Task {
         await DebugLogBuffer.shared?.flush()
+        try? await appState.connectionManager.persistenceStore.flushPendingRxLogEntries()
       }
     case .inactive:
       break

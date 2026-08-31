@@ -367,7 +367,7 @@ MeshCore One includes persistent debug logging for troubleshooting.
 2. Scroll to **Diagnostics** section
 3. Tap **Export Debug Logs**
 
-The export includes the last 24 hours of logs (up to 1,000 entries) plus app/device metadata.
+The export includes the last 7 days of logs (up to `DebugLogRetention.maxEntries`) plus app/device metadata.
 
 ---
 

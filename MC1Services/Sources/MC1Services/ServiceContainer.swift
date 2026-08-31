@@ -394,6 +394,7 @@ public final class ServiceContainer {
 
     await advertisementService.stopEventMonitoring()
     await rxLogService.stopEventMonitoring()
+    try? await dataStore.flushPendingRxLogEntries()
     await messageService.stopEventMonitoring()
     // Do not fail in-flight DMs on disconnect. The firmware retains the
     // expected ACK and re-emits the delivery confirmation whenever it

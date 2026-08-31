@@ -2309,6 +2309,98 @@ struct PersistenceStoreTests {
     #expect(afterReconnect.count == 1000)
   }
 
+  @Test
+  func `saveRxLogEntry commits once per batchSize inserts`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    for index in 0..<RxLogRetention.batchSize {
+      try await store.saveRxLogEntry(
+        createTestRxLogEntryDTO(radioID: device.id, senderTimestamp: UInt32(index))
+      )
+    }
+
+    let entries = try await store.fetchRxLogEntries(radioID: device.id, limit: 40)
+    #expect(entries.count == RxLogRetention.batchSize)
+    #expect(await store.rxLogInitiatedSaveCount == 1)
+  }
+
+  @Test
+  func `findRxLogEntry sees an insert before the batch save`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let dto = createTestRxLogEntryDTO(radioID: device.id, senderTimestamp: 42, channelIndex: 1)
+    try await store.saveRxLogEntry(dto)
+
+    #expect(await store.rxLogInitiatedSaveCount == 0)
+    let found = try await store.findRxLogEntry(
+      radioID: device.id,
+      channelIndex: 1,
+      senderTimestamp: 42
+    )
+    #expect(found?.id == dto.id)
+    try await store.flushPendingRxLogEntries()
+  }
+
+  @Test
+  func `batchSaveChannels rollback does not drop unsaved RxLog inserts`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let dto = createTestRxLogEntryDTO(
+      radioID: device.id, senderTimestamp: 42, channelIndex: 1
+    )
+    try await store.saveRxLogEntry(dto)
+    #expect(await store.rxLogInitiatedSaveCount == 0)
+
+    await store.setBatchSaveChannelsFaultInjection {
+      throw PersistenceStoreError.saveFailed("test")
+    }
+    await #expect(throws: PersistenceStoreError.self) {
+      _ = try await store.batchSaveChannels(
+        radioID: device.id,
+        configured: [
+          ChannelInfo(index: 1, name: "Test", secret: Data(repeating: 0x42, count: 16))
+        ],
+        unconfiguredIndices: [],
+        pruneBeyond: nil
+      )
+    }
+
+    let found = try await store.findRxLogEntry(
+      radioID: device.id,
+      channelIndex: 1,
+      senderTimestamp: 42
+    )
+    #expect(found?.id == dto.id)
+    let entries = try await store.fetchRxLogEntries(radioID: device.id, limit: 40)
+    #expect(entries.count == 1)
+    try await store.flushPendingRxLogEntries()
+  }
+
+  @Test
+  func `flushPendingRxLogEntries commits a partial batch`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let radioID = UUID()
+    let storeA = PersistenceStore(modelContainer: container)
+    try await storeA.saveDevice(createTestDevice().copy { $0.id = radioID; $0.radioID = radioID })
+
+    try await storeA.saveRxLogEntry(
+      createTestRxLogEntryDTO(radioID: radioID, senderTimestamp: 1)
+    )
+    #expect(await storeA.rxLogInitiatedSaveCount == 0)
+    try await storeA.flushPendingRxLogEntries()
+    #expect(await storeA.rxLogInitiatedSaveCount == 1)
+
+    let storeB = PersistenceStore(modelContainer: container)
+    let entries = try await storeB.fetchRxLogEntries(radioID: radioID)
+    #expect(entries.count == 1)
+  }
+
   // MARK: - Region Scope Tests
 
   @Test
