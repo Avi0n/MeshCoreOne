@@ -777,23 +777,23 @@ public extension Device {
 
 // MARK: - Version String Comparison
 
-extension String {
-  /// Checks if this version string is at least the specified version.
-  /// Handles formats like "v1.12.0", "1.12", "v1.12"
-  /// - Parameters:
-  ///   - major: Required major version
-  ///   - minor: Required minor version
-  /// - Returns: true if this version >= major.minor
+public extension String {
+  /// True when the first major.minor pair is at least the required version.
+  /// Accepts "v1.12.0", "1.12", and CLI banners like "MeshCore v1.15.0 (2025-04-18)".
   func isAtLeast(major requiredMajor: Int, minor requiredMinor: Int) -> Bool {
-    let cleaned = trimmingCharacters(in: CharacterSet(charactersIn: "v"))
-    let components = cleaned.split(separator: ".")
-    guard components.count >= 2,
-          let major = Int(components[0]),
-          let minor = Int(components[1]) else {
-      return false
-    }
+    guard let (major, minor) = firstMajorMinorVersion else { return false }
     if major > requiredMajor { return true }
     if major < requiredMajor { return false }
     return minor >= requiredMinor
+  }
+
+  private var firstMajorMinorVersion: (Int, Int)? {
+    for token in split(whereSeparator: { !$0.isNumber && $0 != "." }) {
+      let parts = token.split(separator: ".")
+      if parts.count >= 2, let major = Int(parts[0]), let minor = Int(parts[1]) {
+        return (major, minor)
+      }
+    }
+    return nil
   }
 }

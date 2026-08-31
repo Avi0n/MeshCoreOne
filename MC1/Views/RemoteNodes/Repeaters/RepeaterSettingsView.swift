@@ -400,47 +400,49 @@ private struct RegionsSection: View {
       }
 
       if !viewModel.regions.isEmpty {
-        Group {
-          if viewModel.defaultScopeLoaded {
-            Picker(
-              L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope,
-              selection: Binding(
-                get: { viewModel.defaultScopeName },
-                set: { newValue in
-                  Task { await viewModel.setDefaultScope(name: newValue) }
+        if viewModel.supportsRegionDefaultScope {
+          Group {
+            if viewModel.defaultScopeLoaded {
+              Picker(
+                L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope,
+                selection: Binding(
+                  get: { viewModel.defaultScopeName },
+                  set: { newValue in
+                    Task { await viewModel.setDefaultScope(name: newValue) }
+                  }
+                )
+              ) {
+                Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.noDefault)
+                  .tag(String?.none)
+                ForEach(defaultScopePickerNames, id: \.self) { name in
+                  Text(name)
+                    .tag(Optional(name))
                 }
-              )
-            ) {
-              Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.noDefault)
-                .tag(String?.none)
-              ForEach(defaultScopePickerNames, id: \.self) { name in
-                Text(name)
-                  .tag(Optional(name))
               }
-            }
-            .pickerStyle(.menu)
-            .tint(.primary)
-            .disabled(regionMutationsDisabled)
-          } else {
-            HStack {
-              Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope)
-              Spacer()
-              if viewModel.isLoadingDefaultScope {
-                ProgressView()
-              } else {
-                Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.loadDefaultScope) {
-                  Task { await viewModel.fetchDefaultScope() }
+              .pickerStyle(.menu)
+              .tint(.primary)
+              .disabled(regionMutationsDisabled)
+            } else {
+              HStack {
+                Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope)
+                Spacer()
+                if viewModel.isLoadingDefaultScope {
+                  ProgressView()
+                } else {
+                  Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.loadDefaultScope) {
+                    Task { await viewModel.fetchDefaultScope() }
+                  }
+                  .disabled(regionMutationsDisabled)
                 }
-                .disabled(regionMutationsDisabled)
               }
             }
           }
-        }
-        .listRowSeparator(.hidden, edges: .bottom)
+          .listRowSeparator(.hidden, edges: .bottom)
 
-        Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScopeCaption)
-          .font(.caption)
-          .foregroundStyle(.secondary)
+          Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScopeCaption)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
       }
 
       ForEach(viewModel.regions) { region in
@@ -560,6 +562,7 @@ private struct RegionsSection: View {
       RepeaterRegionEntry(name: "midtown", parentName: "gta", depth: 3, floodAllowed: true, isHome: false),
       RepeaterRegionEntry(name: "can", parentName: "*", depth: 1, floodAllowed: true, isHome: false)
     ]
+    vm.helper.setNodeInfo(firmwareVersion: "v1.15.0", name: nil, ownerInfo: nil)
     vm.defaultScopeName = "on"
     vm.defaultScopeLoaded = true
     vm.isRegionsExpanded = true

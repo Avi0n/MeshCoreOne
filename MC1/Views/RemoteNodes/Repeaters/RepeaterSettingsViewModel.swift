@@ -55,6 +55,18 @@ final class RepeaterSettingsViewModel {
   /// False until a `region default` reply parses. Distinct from `defaultScopeName == nil`.
   var defaultScopeLoaded = false
   var isLoadingDefaultScope = false
+  /// `region default` exists on MeshCore repeater v1.15.0+. Unknown version is unsupported.
+  var supportsRegionDefaultScope: Bool {
+    helper.firmwareVersion?.isAtLeast(
+      major: Firmware.regionDefaultScopeMinMajor,
+      minor: Firmware.regionDefaultScopeMinMinor
+    ) == true
+  }
+
+  private enum Firmware {
+    static let regionDefaultScopeMinMajor = 1
+    static let regionDefaultScopeMinMinor = 15
+  }
 
   // MARK: - Expansion State (repeater-only sections)
 

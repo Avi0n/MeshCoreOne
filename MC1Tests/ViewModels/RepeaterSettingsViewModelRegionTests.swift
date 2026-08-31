@@ -27,7 +27,10 @@ struct RepeaterSettingsRegionTests {
     }
   }
 
-  static func makeViewModel(recorder: CommandRecorder) -> RepeaterSettingsViewModel {
+  static func makeViewModel(
+    recorder: CommandRecorder,
+    firmwareVersion: String? = "v1.15.0"
+  ) -> RepeaterSettingsViewModel {
     let viewModel = RepeaterSettingsViewModel()
     viewModel.helper.configure(
       session: RemoteNodeSessionDTO(
@@ -40,6 +43,11 @@ struct RepeaterSettingsRegionTests {
       ),
       sendCommand: recorder.send,
       sendRawCommand: recorder.send
+    )
+    viewModel.helper.setNodeInfo(
+      firmwareVersion: firmwareVersion,
+      name: "Test Repeater",
+      ownerInfo: nil
     )
     return viewModel
   }
@@ -305,7 +313,7 @@ struct RepeaterSettingsParseRegionTreeTests {
     #expect(parsed.map(\.name) == ["*", "can", "on", "gta", "ottawa", "hamilton"])
     #expect(parsed.map(\.parentName) == [nil, "*", "can", "on", "on", "on"])
     #expect(parsed.map(\.depth) == [0, 1, 2, 3, 3, 3])
-    #expect(parsed.allSatisfy(\.floodAllowed))
+    #expect(parsed.allSatisfy { region in region.floodAllowed })
   }
 
   @Test
@@ -502,6 +510,113 @@ struct RepeaterSettingsDefaultScopeTests {
     #expect(viewModel.defaultScopeName == "duckburg")
     #expect(viewModel.defaultScopeLoaded)
     #expect(!viewModel.regionsError)
+  }
+
+  @Test
+  func `fetchDefaultScope sends nothing before repeater v1_15`() async {
+    let recorder = RepeaterSettingsRegionTests.CommandRecorder()
+    recorder.repliesByCommand = [
+      "region": "* F\n duckburg F\n",
+      "region default": " default scope is duckburg"
+    ]
+    let viewModel = RepeaterSettingsRegionTests.makeViewModel(
+      recorder: recorder,
+      firmwareVersion: "v1.14.1"
+    )
+    await viewModel.fetchRegions()
+    recorder.resetCommands()
+
+    await viewModel.fetchDefaultScope()
+
+    #expect(recorder.commands.isEmpty)
+    #expect(!viewModel.supportsRegionDefaultScope)
+    #expect(!viewModel.defaultScopeLoaded)
+    #expect(viewModel.defaultScopeName == nil)
+  }
+
+  @Test
+  func `fetchDefaultScope sends region default for CLI ver banner at v1_15`() async {
+    let recorder = RepeaterSettingsRegionTests.CommandRecorder()
+    recorder.repliesByCommand = [
+      "region": "* F\n duckburg F\n",
+      "region default": " default scope is duckburg"
+    ]
+    let viewModel = RepeaterSettingsRegionTests.makeViewModel(
+      recorder: recorder,
+      firmwareVersion: "MeshCore v1.15.0 (2025-04-18)"
+    )
+    await viewModel.fetchRegions()
+    recorder.resetCommands()
+
+    await viewModel.fetchDefaultScope()
+
+    #expect(recorder.commands == ["region default"])
+    #expect(viewModel.supportsRegionDefaultScope)
+    #expect(viewModel.defaultScopeLoaded)
+    #expect(viewModel.defaultScopeName == "duckburg")
+  }
+
+  @Test
+  func `fetchDefaultScope sends nothing when firmware version is unknown`() async {
+    let recorder = RepeaterSettingsRegionTests.CommandRecorder()
+    recorder.repliesByCommand = [
+      "region": "* F\n duckburg F\n",
+      "region default": " default scope is duckburg"
+    ]
+    let viewModel = RepeaterSettingsRegionTests.makeViewModel(
+      recorder: recorder,
+      firmwareVersion: nil
+    )
+    await viewModel.fetchRegions()
+    recorder.resetCommands()
+
+    await viewModel.fetchDefaultScope()
+
+    #expect(recorder.commands.isEmpty)
+    #expect(!viewModel.supportsRegionDefaultScope)
+    #expect(!viewModel.defaultScopeLoaded)
+  }
+
+  @Test
+  func `setDefaultScope sends nothing before repeater v1_15`() async {
+    let recorder = RepeaterSettingsRegionTests.CommandRecorder()
+    recorder.repliesByCommand = [
+      "region": "* F\n duckburg F\n",
+      "region default duckburg": " default scope is now duckburg"
+    ]
+    let viewModel = RepeaterSettingsRegionTests.makeViewModel(
+      recorder: recorder,
+      firmwareVersion: "v1.14.1"
+    )
+    await viewModel.fetchRegions()
+    recorder.resetCommands()
+
+    await viewModel.setDefaultScope(name: "duckburg")
+
+    #expect(recorder.commands.isEmpty)
+    #expect(viewModel.defaultScopeName == nil)
+  }
+
+  @Test
+  func `removeRegion of current default skips clear before repeater v1_15`() async {
+    let recorder = RepeaterSettingsRegionTests.CommandRecorder()
+    recorder.repliesByCommand = [
+      "region": "* F\n duckburg F\n",
+      "region remove duckburg": "OK",
+      "region default <null>": " default scope is now <null>"
+    ]
+    let viewModel = RepeaterSettingsRegionTests.makeViewModel(
+      recorder: recorder,
+      firmwareVersion: "v1.14.1"
+    )
+    await viewModel.fetchRegions()
+    viewModel.defaultScopeName = "duckburg"
+    recorder.resetCommands()
+
+    await viewModel.removeRegion(name: "duckburg")
+
+    #expect(recorder.commands == ["region remove duckburg"])
+    #expect(viewModel.defaultScopeName == "duckburg")
   }
 
   @Test

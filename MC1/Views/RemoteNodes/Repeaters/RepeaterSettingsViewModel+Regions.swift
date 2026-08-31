@@ -33,7 +33,7 @@ extension RepeaterSettingsViewModel {
   }
 
   func fetchDefaultScope() async {
-    guard !isLoadingDefaultScope else { return }
+    guard supportsRegionDefaultScope, !isLoadingDefaultScope else { return }
     isLoadingDefaultScope = true
     defer { isLoadingDefaultScope = false }
 
@@ -166,7 +166,7 @@ extension RepeaterSettingsViewModel {
   }
 
   func setDefaultScope(name: String?) async {
-    guard regionsLoaded, !helper.isApplying else { return }
+    guard supportsRegionDefaultScope, regionsLoaded, !helper.isApplying else { return }
     if name == RepeaterRegionEntry.unscopedName { return }
     if name == defaultScopeName { return }
 
@@ -280,7 +280,7 @@ extension RepeaterSettingsViewModel {
       if case .ok = CLIResponse.parse(response) {
         regions.removeAll { $0.name == name }
         hasUnsavedRegionChanges = true
-        if wasDefault {
+        if wasDefault, supportsRegionDefaultScope {
           let clearReply = try await helper.sendAndWait(
             "region default \(Self.firmwareNullToken)",
             rawMatching: true
