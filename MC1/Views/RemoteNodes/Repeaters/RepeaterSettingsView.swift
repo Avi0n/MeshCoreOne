@@ -15,6 +15,7 @@ struct RepeaterSettingsView: View {
   @State private var cliViewModel = NodeCLIViewModel()
   @State private var showRebootConfirmation = false
   @State private var showingLocationPicker = false
+  @State private var addRegionParent: RepeaterRegionEntry.Parent?
   @State private var telemetryConfigured = false
   @State private var contacts: [ContactDTO] = []
   @State private var discoveredNodes: [DiscoveredNodeDTO] = []
@@ -119,6 +120,16 @@ struct RepeaterSettingsView: View {
         )
       }
     }
+    // Present from this view, not ExpandableSettingsSection: a nested sheet from
+    // the disclosure dismisses the parent page sheet on iPad.
+    .sheet(item: $addRegionParent) { parent in
+      RepeaterAddRegionSheet(
+        parent: parent,
+        existingRegions: viewModel.regions
+      ) { name, parent in
+        try await viewModel.addRegion(name: name, parent: parent)
+      }
+    }
   }
 
   private var settingsForm: some View {
@@ -183,7 +194,7 @@ struct RepeaterSettingsView: View {
   }
 
   private func makeRegionsSection() -> some View {
-    RegionsSection(viewModel: viewModel)
+    RegionsSection(viewModel: viewModel, addRegionParent: $addRegionParent)
   }
 
   private func makeSecuritySection() -> some View {
@@ -336,35 +347,40 @@ private struct BehaviorSection: View {
 
 private struct RegionsSection: View {
   @Bindable var viewModel: RepeaterSettingsViewModel
-  @State private var showingAddAlert = false
-  @State private var newRegionName = ""
-  @State private var validationMessage: String?
-
-  /// Regions sorted: wildcard first, then alphabetical
-  private var sortedRegions: [RepeaterRegionEntry] {
-    viewModel.regions.sorted { lhs, rhs in
-      if lhs.isWildcard { return true }
-      if rhs.isWildcard { return false }
-      return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
-    }
-  }
-
-  /// Display name for a region entry
-  private func displayName(for region: RepeaterRegionEntry) -> String {
-    region.isWildcard
-      ? L10n.RemoteNodes.RemoteNodes.Settings.Regions.allTrafficWildcard
-      : region.name
-  }
+  @Binding var addRegionParent: RepeaterRegionEntry.Parent?
+  @State private var blockedDeleteName: String?
+  @ScaledMetric(relativeTo: .body) private var indentPerLevel = RegionFloodToggleRow.Layout.indentPerLevel
 
   private var defaultScopePickerNames: [String] {
-    var names = sortedRegions.filter { !$0.isWildcard }.map(\.name)
+    var names = viewModel.regions.filter { !$0.isUnscoped }.map(\.name)
     if let current = viewModel.defaultScopeName,
-       current != RepeaterSettingsViewModel.wildcardName,
+       current != RepeaterRegionEntry.unscopedName,
        !current.isEmpty,
        !names.contains(current) {
       names.append(current)
     }
     return names
+  }
+
+  private func hasChildRegions(_ name: String) -> Bool {
+    viewModel.regions.contains { $0.parentName == name }
+  }
+
+  private func canRequestDelete(_ region: RepeaterRegionEntry) -> Bool {
+    !regionMutationsDisabled && !region.isUnscoped
+  }
+
+  private func requestDelete(_ region: RepeaterRegionEntry) {
+    guard canRequestDelete(region) else { return }
+    if hasChildRegions(region.name) {
+      blockedDeleteName = region.name
+      return
+    }
+    Task { await viewModel.removeRegion(name: region.name) }
+  }
+
+  private var regionMutationsDisabled: Bool {
+    !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying
   }
 
   var body: some View {
@@ -384,79 +400,104 @@ private struct RegionsSection: View {
       }
 
       if !viewModel.regions.isEmpty {
-        if viewModel.defaultScopeLoaded {
-          Picker(
-            L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope,
-            selection: Binding(
-              get: { viewModel.defaultScopeName },
-              set: { newValue in
-                Task { await viewModel.setDefaultScope(name: newValue) }
+        Group {
+          if viewModel.defaultScopeLoaded {
+            Picker(
+              L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope,
+              selection: Binding(
+                get: { viewModel.defaultScopeName },
+                set: { newValue in
+                  Task { await viewModel.setDefaultScope(name: newValue) }
+                }
+              )
+            ) {
+              Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.noDefault)
+                .tag(String?.none)
+              ForEach(defaultScopePickerNames, id: \.self) { name in
+                Text(name)
+                  .tag(Optional(name))
               }
-            )
-          ) {
-            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.noDefault)
-              .tag(String?.none)
-            ForEach(defaultScopePickerNames, id: \.self) { name in
-              Text(name)
-                .tag(Optional(name))
+            }
+            .pickerStyle(.menu)
+            .tint(.primary)
+            .disabled(regionMutationsDisabled)
+          } else {
+            HStack {
+              Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope)
+              Spacer()
+              if viewModel.isLoadingDefaultScope {
+                ProgressView()
+              } else {
+                Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.loadDefaultScope) {
+                  Task { await viewModel.fetchDefaultScope() }
+                }
+                .disabled(regionMutationsDisabled)
+              }
             }
           }
-          .pickerStyle(.menu)
-          .tint(.primary)
-          .disabled(viewModel.isLoadingRegions || viewModel.helper.isApplying)
-        } else {
-          HStack {
-            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope)
-            Spacer()
-            SettingsLoadPlaceholder(
-              isLoading: viewModel.isLoadingRegions,
-              hasError: !viewModel.isLoadingRegions
-            )
-          }
         }
+        .listRowSeparator(.hidden, edges: .bottom)
 
         Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScopeCaption)
           .font(.caption)
           .foregroundStyle(.secondary)
       }
 
-      // Region list with flood toggles
-      ForEach(sortedRegions) { region in
-        Toggle(
-          displayName(for: region),
+      ForEach(viewModel.regions) { region in
+        RegionFloodToggleRow(
+          region: region,
           isOn: Binding(
             get: { region.floodAllowed },
             set: { _ in
               Task { await viewModel.toggleRegionFlood(name: region.name) }
             }
-          )
+          ),
+          hasChildren: hasChildRegions(region.name),
+          indentPerLevel: indentPerLevel
         )
-        .accessibilityLabel(
-          region.isWildcard
-            ? L10n.RemoteNodes.RemoteNodes.Settings.Regions.allTraffic
-            : region.name
-        )
-        .accessibilityHint(L10n.RemoteNodes.RemoteNodes.Settings.Regions.floodToggleHint)
-        .disabled(viewModel.helper.isApplying)
+        .disabled(regionMutationsDisabled)
+        .deleteDisabled(!canRequestDelete(region))
+        .contextMenu {
+          if !regionMutationsDisabled {
+            Button {
+              addRegionParent = region.isUnscoped ? .unscoped : .named(region.name)
+            } label: {
+              Label(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addChild, systemImage: "plus")
+            }
+          }
+
+          if canRequestDelete(region) {
+            Button(role: .destructive) {
+              requestDelete(region)
+            } label: {
+              Label(L10n.Localizable.Common.delete, systemImage: "trash")
+            }
+          }
+        }
       }
       .onDelete { offsets in
-        let sorted = sortedRegions
-        for offset in offsets {
-          let region = sorted[offset]
-          guard !region.isWildcard else { continue }
-          Task { await viewModel.removeRegion(name: region.name) }
+        let regions = offsets.compactMap { offset -> RepeaterRegionEntry? in
+          guard viewModel.regions.indices.contains(offset) else { return nil }
+          let region = viewModel.regions[offset]
+          return canRequestDelete(region) ? region : nil
+        }
+        for region in regions {
+          requestDelete(region)
         }
       }
 
-      // Add region button
-      Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion, systemImage: "plus") {
-        newRegionName = ""
-        showingAddAlert = true
+      if !viewModel.regions.isEmpty {
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.floodToggleCaption)
+          .font(.caption)
+          .foregroundStyle(.secondary)
       }
-      .disabled(viewModel.helper.isApplying)
 
-      // Save to device button
-      if viewModel.regionsLoaded {
+      Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion, systemImage: "plus") {
+        addRegionParent = .unscoped
+      }
+      .disabled(regionMutationsDisabled)
+
+      if viewModel.regionsLoaded || viewModel.hasUnsavedRegionChanges {
         Button {
           Task { await viewModel.saveRegions() }
         } label: {
@@ -475,41 +516,21 @@ private struct RegionsSection: View {
           .font(.caption)
       }
     }
-    .alert(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegionTitle, isPresented: $showingAddAlert) {
-      TextField(L10n.RemoteNodes.RemoteNodes.Settings.Regions.regionName, text: $newRegionName)
-        .autocorrectionDisabled()
-        .textInputAutocapitalization(.never)
-      Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion) {
-        if let error = RegionNameValidator.validate(newRegionName, existingRegions: viewModel.regions.map(\.name)) {
-          validationMessage = validationText(for: error)
-          Task { showingAddAlert = true }
-          return
-        }
-        validationMessage = nil
-        let name = newRegionName.trimmingCharacters(in: .whitespaces)
-        Task { await viewModel.addRegion(name: name) }
-      }
-      Button(L10n.RemoteNodes.RemoteNodes.cancel, role: .cancel) {
-        validationMessage = nil
-      }
+    .alert(
+      L10n.RemoteNodes.RemoteNodes.Settings.Regions.cannotDelete(blockedDeleteName ?? ""),
+      isPresented: Binding(
+        get: { blockedDeleteName != nil },
+        set: { if !$0 { blockedDeleteName = nil } }
+      )
+    ) {
+      Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) {}
     } message: {
-      if let validationMessage {
-        Text(validationMessage)
-      }
-    }
-  }
-
-  private func validationText(for error: RegionNameValidator.ValidationError) -> String? {
-    switch error {
-    case .empty: nil
-    case .invalidCharacters: L10n.RemoteNodes.RemoteNodes.Settings.Regions.invalidName
-    case let .tooLong(maxBytes): L10n.RemoteNodes.RemoteNodes.Settings.Regions.nameTooLong(maxBytes)
-    case .duplicate: L10n.RemoteNodes.RemoteNodes.Settings.Regions.duplicate
+      Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.notEmpty)
     }
   }
 }
 
-#Preview {
+#Preview("Repeater Settings") {
   NavigationStack {
     RepeaterSettingsView(
       session: RemoteNodeSessionDTO(
@@ -525,5 +546,34 @@ private struct RegionsSection: View {
       )
     )
     .environment(\.appState, AppState())
+  }
+}
+
+#Preview("Region hierarchy") {
+  @Previewable @State var viewModel = {
+    let vm = RepeaterSettingsViewModel()
+    vm.regions = [
+      RepeaterRegionEntry(name: "*", parentName: nil, depth: 0, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "on", parentName: "*", depth: 1, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "gta", parentName: "on", depth: 2, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "downtown", parentName: "gta", depth: 3, floodAllowed: false, isHome: false),
+      RepeaterRegionEntry(name: "midtown", parentName: "gta", depth: 3, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "can", parentName: "*", depth: 1, floodAllowed: true, isHome: false)
+    ]
+    vm.defaultScopeName = "on"
+    vm.defaultScopeLoaded = true
+    vm.isRegionsExpanded = true
+    return vm
+  }()
+  @Previewable @State var addRegionParent: RepeaterRegionEntry.Parent?
+
+  Form {
+    RegionsSection(viewModel: viewModel, addRegionParent: $addRegionParent)
+  }
+  .sheet(item: $addRegionParent) { parent in
+    RepeaterAddRegionSheet(
+      parent: parent,
+      existingRegions: viewModel.regions
+    ) { _, _ in }
   }
 }

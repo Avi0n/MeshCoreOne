@@ -40,15 +40,8 @@ final class RepeaterSettingsViewModel {
 
   // MARK: - Repeater-Only: Region Settings
 
-  nonisolated static let wildcardName = "*"
-  /// CLI argument when default scope is unset (`region default <null>`).
-  private static let firmwareNullToken = "<null>"
-  /// GET substring. SET replies use `defaultScopeSetReplyMarker`, which also matches this.
-  private static let defaultScopeReplyMarker = "default scope is"
-  private static let defaultScopeSetReplyMarker = "default scope is now"
-
   var regions: [RepeaterRegionEntry] = []
-  private var originalRegions: [RepeaterRegionEntry]?
+  var originalRegions: [RepeaterRegionEntry]?
   var isLoadingRegions = false
   var regionsError = false
   var regionsLoaded: Bool {
@@ -61,6 +54,7 @@ final class RepeaterSettingsViewModel {
   var defaultScopeName: String?
   /// False until a `region default` reply parses. Distinct from `defaultScopeName == nil`.
   var defaultScopeLoaded = false
+  var isLoadingDefaultScope = false
 
   // MARK: - Expansion State (repeater-only sections)
 
@@ -74,7 +68,7 @@ final class RepeaterSettingsViewModel {
     repeaterAdminServiceProvider()
   }
 
-  private let logger = Logger(subsystem: "com.mc1", category: "RepeaterSettings")
+  let logger = Logger(subsystem: "com.mc1", category: "RepeaterSettings")
 
   // MARK: - Cleanup
 
@@ -314,265 +308,5 @@ final class RepeaterSettingsViewModel {
     }
 
     helper.isApplying = false
-  }
-
-  // MARK: - Region Methods
-
-  func fetchRegions() async {
-    isLoadingRegions = true
-    regionsError = false
-
-    do {
-      let treeResponse = try await helper.sendAndWait("region", timeout: .seconds(10), rawMatching: true)
-      let parsed = Self.parseRegionTree(treeResponse)
-      regions = parsed
-      originalRegions = parsed
-      do {
-        let defaultReply = try await helper.sendAndWait(
-          "region default",
-          timeout: .seconds(10),
-          rawMatching: true
-        )
-        if let parsed = Self.parseDefaultScopeReply(defaultReply) {
-          applyParsedDefaultScope(parsed)
-        } else {
-          logger.warning("Unparsed region default reply: \(defaultReply)")
-        }
-      } catch {
-        logger.warning("Failed to fetch default scope: \(error)")
-      }
-    } catch {
-      if case RemoteNodeError.timeout = error {
-        regionsError = true
-      }
-      logger.warning("Failed to fetch regions: \(error)")
-    }
-
-    isLoadingRegions = false
-  }
-
-  static func parseRegionTree(_ response: String) -> [RepeaterRegionEntry] {
-    var entries: [RepeaterRegionEntry] = []
-    let lines = response.split(separator: "\n", omittingEmptySubsequences: true)
-
-    for line in lines {
-      var text = String(line)
-      text = String(text.drop(while: { $0 == " " }))
-      guard !text.isEmpty else { continue }
-
-      let floodAllowed: Bool
-      if text.hasSuffix(" F") {
-        floodAllowed = true
-        text = String(text.dropLast(2))
-      } else {
-        floodAllowed = false
-      }
-
-      let isHome: Bool
-      if text.hasSuffix("^") {
-        isHome = true
-        text = String(text.dropLast(1))
-      } else {
-        isHome = false
-      }
-
-      guard !text.isEmpty else { continue }
-
-      entries.append(RepeaterRegionEntry(
-        name: text,
-        floodAllowed: floodAllowed,
-        isHome: isHome
-      ))
-    }
-
-    return entries
-  }
-
-  /// Unset (`<null>` or `*`) versus a named region.
-  enum ParsedDefaultScope: Equatable {
-    case cleared
-    case named(String)
-  }
-
-  /// Nil is an unparsed reply, not an unset scope.
-  static func parseDefaultScopeReply(_ response: String) -> ParsedDefaultScope? {
-    let lines = response.split(separator: "\n", omittingEmptySubsequences: true)
-    guard let last = lines.last else { return nil }
-    var line = last.trimmingCharacters(in: .whitespaces)
-    if line.hasPrefix(">") {
-      line = String(line.dropFirst()).trimmingCharacters(in: .whitespaces)
-    }
-    guard line.localizedCaseInsensitiveContains(defaultScopeReplyMarker) else { return nil }
-
-    let tokens = line.split(separator: " ", omittingEmptySubsequences: true).map(String.init)
-    guard let lastToken = tokens.last else { return nil }
-    // Firmware treats a default of `*` as unset, same as `<null>`.
-    if lastToken == firmwareNullToken || lastToken == wildcardName { return .cleared }
-    return .named(lastToken)
-  }
-
-  private func applyParsedDefaultScope(_ parsed: ParsedDefaultScope) {
-    switch parsed {
-    case .cleared:
-      defaultScopeName = nil
-    case let .named(name):
-      defaultScopeName = name
-    }
-    defaultScopeLoaded = true
-  }
-
-  func toggleRegionFlood(name: String) async {
-    guard let index = regions.firstIndex(where: { $0.name == name }) else { return }
-    let currentlyAllowed = regions[index].floodAllowed
-    let command = currentlyAllowed ? "region denyf \(name)" : "region allowf \(name)"
-
-    helper.isApplying = true
-    helper.errorMessage = nil
-
-    do {
-      let response = try await helper.sendAndWait(command)
-      if case .ok = CLIResponse.parse(response) {
-        regions[index].floodAllowed = !currentlyAllowed
-        hasUnsavedRegionChanges = true
-      } else {
-        helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
-      }
-    } catch {
-      helper.errorMessage = error.userFacingMessage
-    }
-
-    helper.isApplying = false
-  }
-
-  func setDefaultScope(name: String?) async {
-    if name == Self.wildcardName { return }
-    if name == defaultScopeName { return }
-
-    let argument = name ?? Self.firmwareNullToken
-    let command = "region default \(argument)"
-
-    helper.isApplying = true
-    helper.errorMessage = nil
-
-    do {
-      let response = try await helper.sendAndWait(command, rawMatching: true)
-      if response.contains(Self.defaultScopeSetReplyMarker) {
-        defaultScopeName = name
-        defaultScopeLoaded = true
-        if let name, let index = regions.firstIndex(where: { $0.name == name }) {
-          regions[index].floodAllowed = true
-        }
-      } else {
-        helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
-      }
-    } catch {
-      helper.errorMessage = error.userFacingMessage
-    }
-
-    helper.isApplying = false
-  }
-
-  func addRegion(name: String) async {
-    let trimmed = name.trimmingCharacters(in: .whitespaces)
-    if let validationError = RegionNameValidator.validate(trimmed, existingRegions: regions.map(\.name)) {
-      switch validationError {
-      case .empty: return
-      case .invalidCharacters, .tooLong, .duplicate:
-        helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.addFailed
-      }
-      return
-    }
-
-    helper.isApplying = true
-    helper.errorMessage = nil
-
-    do {
-      let response = try await helper.sendAndWait("region put \(trimmed)")
-      if case .ok = CLIResponse.parse(response) {
-        regions.append(RepeaterRegionEntry(
-          name: trimmed,
-          floodAllowed: true,
-          isHome: false
-        ))
-        hasUnsavedRegionChanges = true
-      } else {
-        helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.addFailed
-      }
-    } catch {
-      helper.errorMessage = error.userFacingMessage
-    }
-
-    helper.isApplying = false
-  }
-
-  func removeRegion(name: String) async {
-    helper.isApplying = true
-    helper.errorMessage = nil
-    let wasDefault = defaultScopeName == name
-
-    do {
-      let response = try await helper.sendAndWait("region remove \(name)")
-      if case .ok = CLIResponse.parse(response) {
-        regions.removeAll { $0.name == name }
-        hasUnsavedRegionChanges = true
-        if wasDefault {
-          let clearReply = try await helper.sendAndWait(
-            "region default \(Self.firmwareNullToken)",
-            rawMatching: true
-          )
-          if clearReply.contains(Self.defaultScopeSetReplyMarker) {
-            defaultScopeName = nil
-          } else {
-            helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
-          }
-        }
-      } else if response.contains("not empty") {
-        helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.notEmpty
-      } else {
-        helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.removeFailed
-      }
-    } catch {
-      helper.errorMessage = error.userFacingMessage
-    }
-
-    helper.isApplying = false
-  }
-
-  func saveRegions() async {
-    helper.isApplying = true
-    helper.errorMessage = nil
-
-    do {
-      let response = try await helper.sendAndWait("region save")
-      if case .ok = CLIResponse.parse(response) {
-        hasUnsavedRegionChanges = false
-        await helper.flashSuccess(
-          setApplying: { helper.isApplying = $0 },
-          setSuccess: { regionsSaveSuccess = $0 }
-        )
-        return
-      } else {
-        helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveFailed
-      }
-    } catch {
-      helper.errorMessage = error.userFacingMessage
-    }
-
-    helper.isApplying = false
-  }
-}
-
-// MARK: - Region Entry
-
-struct RepeaterRegionEntry: Identifiable, Equatable {
-  var id: String {
-    name
-  }
-
-  let name: String
-  var floodAllowed: Bool
-  var isHome: Bool
-  var isWildcard: Bool {
-    name == RepeaterSettingsViewModel.wildcardName
   }
 }

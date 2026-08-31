@@ -361,6 +361,9 @@
 /* Location: RepeaterSettingsView.swift - Default scope picker label */
 "remoteNodes.settings.regions.defaultScope" = "Standaardregio";
 
+/* Location: RepeaterSettingsView.swift - Load default scope button */
+"remoteNodes.settings.regions.loadDefaultScope" = "Laden";
+
 /* Location: RepeaterSettingsView.swift - No default scope */
 "remoteNodes.settings.regions.noDefault" = "Geen";
 
@@ -371,6 +374,9 @@
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
 "remoteNodes.settings.regions.floodToggleHint" = "Indien uit, worden flood-pakketten uit deze regio genegeerd";
+
+/* Location: RepeaterSettingsView.swift - Caption under the region flood list */
+"remoteNodes.settings.regions.floodToggleCaption" = "Flood-pakketten uit elke regio die uit staat, worden genegeerd.";
 
 /* Location: RepeaterSettingsView.swift - Add region button */
 "remoteNodes.settings.regions.addRegion" = "Regio toevoegen";
@@ -394,6 +400,9 @@
 /* Location: RepeaterSettingsViewModel.swift - Region has children error */
 "remoteNodes.settings.regions.notEmpty" = "Verwijder eerst onderliggende regio's";
 
+/* Location: RepeaterSettingsView.swift - Alert title when deleting a parent region */
+"remoteNodes.settings.regions.cannotDelete" = "Kan \"%@\" niet verwijderen";
+
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
 "remoteNodes.settings.regions.addFailed" = "Kan regio niet toevoegen";
 
@@ -405,6 +414,14 @@
 
 /* Location: RepeaterSettingsView.swift - Duplicate region name validation */
 "remoteNodes.settings.regions.duplicate" = "Deze regio bestaat al.";
+
+/* Location: RepeaterAddRegionSheet.swift - Parent picker label */
+"remoteNodes.settings.regions.parent" = "Bovenliggend";
+
+/* Location: RepeaterSettingsView.swift - Add child region context menu item */
+"remoteNodes.settings.regions.addChild" = "Onderliggende regio toevoegen";
+/* Location: RegionFloodToggleRow.swift - Full VoiceOver label (name, parent) */
+"remoteNodes.settings.regions.childOf" = "%@, onderliggend aan %@";
 
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
 "remoteNodes.settings.regions.removeFailed" = "Kan regio niet verwijderen";

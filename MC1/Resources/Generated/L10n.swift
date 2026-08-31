@@ -3586,6 +3586,8 @@ public enum L10n {
           }
         }
         public enum Regions {
+          /// Location: RepeaterSettingsView.swift - Add child region context menu item
+          public static let addChild = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addChild", fallback: "Add Child")
           /// Location: RepeaterSettingsViewModel.swift - Region add failure
           public static let addFailed = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addFailed", fallback: "Failed to add region")
           /// Location: RepeaterSettingsView.swift - Add region button
@@ -3596,6 +3598,14 @@ public enum L10n {
           public static let allTraffic = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTraffic", fallback: "Unscoped")
           /// Location: RepeaterSettingsView.swift - Unscoped region with asterisk display
           public static let allTrafficWildcard = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTrafficWildcard", fallback: "* (Unscoped)")
+          /// Location: RepeaterSettingsView.swift - Alert title when deleting a parent region
+          public static func cannotDelete(_ p1: Any) -> String {
+            return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.cannotDelete", String(describing: p1), fallback: "Can't Delete \"%@\"")
+          }
+          /// Location: RegionFloodToggleRow.swift - Full VoiceOver label (name, parent)
+          public static func childOf(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.childOf", String(describing: p1), String(describing: p2), fallback: "%@, child of %@")
+          }
           /// Location: RepeaterSettingsView.swift - Default scope picker label
           public static let defaultScope = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.defaultScope", fallback: "Default Scope")
           /// Location: RepeaterSettingsView.swift - Caption under default scope picker
@@ -3604,12 +3614,16 @@ public enum L10n {
           public static let duplicate = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.duplicate", fallback: "This region already exists.")
           /// Location: RepeaterSettingsViewModel.swift - No regions on device
           public static let empty = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.empty", fallback: "No regions configured")
+          /// Location: RepeaterSettingsView.swift - Caption under the region flood list
+          public static let floodToggleCaption = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.floodToggleCaption", fallback: "Flood packets are dropped for any region that is off.")
           /// Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle
           public static let floodToggleHint = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.floodToggleHint", fallback: "When off, flood packets from this region are dropped")
           /// Location: RepeaterSettingsView.swift - Home region picker label
           public static let homeRegion = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.homeRegion", fallback: "Home Region")
           /// Location: RepeaterSettingsView.swift - Region name charset validation
           public static let invalidName = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.invalidName", fallback: "Region names can only contain letters, numbers, and hyphens.")
+          /// Location: RepeaterSettingsView.swift - Load default scope button
+          public static let loadDefaultScope = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.loadDefaultScope", fallback: "Load")
           /// Location: RepeaterSettingsView.swift - Region name length validation
           public static func nameTooLong(_ p1: Int) -> String {
             return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.nameTooLong", p1, fallback: "Region names are limited to %d bytes.")
@@ -3618,6 +3632,8 @@ public enum L10n {
           public static let noDefault = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.noDefault", fallback: "None")
           /// Location: RepeaterSettingsViewModel.swift - Region has children error
           public static let notEmpty = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.notEmpty", fallback: "Remove child regions first")
+          /// Location: RepeaterAddRegionSheet.swift - Parent picker label
+          public static let parent = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.parent", fallback: "Parent")
           /// Location: RepeaterSettingsView.swift - Region name placeholder
           public static let regionName = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.regionName", fallback: "Region name")
           /// Location: RepeaterSettingsViewModel.swift - Region remove failure
