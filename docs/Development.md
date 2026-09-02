@@ -277,6 +277,7 @@ Required Info.plist keys:
 <array>
     <string>MeshCore-</string>
     <string>Whisper-</string>
+    <string>wadamesh-</string>
     <string>WisCore</string>
     <string>XIAO</string>
     <string>elecrow</string>
@@ -288,6 +289,7 @@ Required Info.plist keys:
     <string>Meshtiny</string>
     <string>T1000-E-BOOT</string>
     <string>me25ls01-BOOT</string>
+    <string>X1-BOOT</string>
     <string>NRF52 DK</string>
     <string>T-Impulse</string>
 </array>

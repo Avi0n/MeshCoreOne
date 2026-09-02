@@ -9,6 +9,7 @@ struct AccessorySetupKitDiscoveryCriteriaTests {
       AccessorySetupKitDiscoveryCriteria.bluetoothNameSubstrings == [
         "MeshCore-",
         "Whisper-",
+        "wadamesh-",
         "WisCore",
         "XIAO",
         "elecrow",
@@ -20,6 +21,7 @@ struct AccessorySetupKitDiscoveryCriteriaTests {
         "Meshtiny",
         "T1000-E-BOOT",
         "me25ls01-BOOT",
+        "X1-BOOT",
         "NRF52 DK",
         "T-Impulse",
       ]

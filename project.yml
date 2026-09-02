@@ -98,6 +98,7 @@ targets:
         NSAccessorySetupBluetoothNames:
           - "MeshCore-"
           - "Whisper-"
+          - "wadamesh-"
           - "WisCore"
           - "XIAO"
           - "elecrow"
@@ -109,6 +110,7 @@ targets:
           - "Meshtiny"
           - "T1000-E-BOOT"
           - "me25ls01-BOOT"
+          - "X1-BOOT"
           - "NRF52 DK"
           - "T-Impulse"
       configs:

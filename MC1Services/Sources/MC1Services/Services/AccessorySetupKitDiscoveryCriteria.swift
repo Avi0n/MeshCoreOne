@@ -13,6 +13,7 @@ enum AccessorySetupKitDiscoveryCriteria {
   static let bluetoothNameSubstrings = [
     "MeshCore-",
     "Whisper-",
+    "wadamesh-",
     "WisCore",
     "XIAO",
     "elecrow",
@@ -24,6 +25,7 @@ enum AccessorySetupKitDiscoveryCriteria {
     "Meshtiny",
     "T1000-E-BOOT",
     "me25ls01-BOOT",
+    "X1-BOOT",
     "NRF52 DK",
     "T-Impulse",
   ]
