@@ -8,7 +8,7 @@ import TipKit
 struct SettingsListContent: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
-  @Environment(\.openURL) private var openURL
+  @Environment(\.locale) private var locale
   @Binding var showingDeviceSelection: Bool
   @Bindable var demoModeManager: DemoModeManager
   /// `true` when this list is the iPad split-view sidebar column, whose `.sidebar` style draws
@@ -90,16 +90,13 @@ struct SettingsListContent: View {
         TintedLabel(L10n.Settings.LiveActivity.title, systemImage: "platter.filled.bottom.and.arrow.down.iphone")
       }
 
-      Button {
-        if let url = URL(string: UIApplication.openSettingsURLString) {
-          openURL(url)
+      SettingsDetailRow(detail: .language) {
+        HStack {
+          TintedLabel(L10n.Settings.Language.title, systemImage: "globe")
+          Spacer()
+          Text(languageRowDetail)
+            .foregroundStyle(.secondary)
         }
-      } label: {
-        SettingsRow(
-          L10n.Settings.Language.title,
-          systemImage: "globe",
-          detail: currentLanguageDisplayName
-        )
       }
 
       SettingsDetailRow(detail: .maps) {
@@ -154,9 +151,9 @@ struct SettingsListContent: View {
     .themedRowBackground(theme, flatten: isSidebar)
   }
 
-  private var currentLanguageDisplayName: String {
+  private var languageRowDetail: String {
     let code = Bundle.main.preferredLocalizations.first ?? "en"
-    return Locale.current.localizedString(forLanguageCode: code) ?? code
+    return locale.localizedString(forLanguageCode: code) ?? code
   }
 }
 

@@ -1228,6 +1228,36 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "语言";
 
+"language.appLanguage.title" = "应用语言";
+
+"language.appLanguage.footer" = "按钮、菜单和其他文本。";
+
+"language.appLanguage.accessibilityHint" = "打开设置";
+
+"language.translateInto.header" = "翻译成";
+
+"language.translateInto.footer" = "点击翻译时，收到的消息会翻译成此语言。";
+
+"language.translateInto.listFooter" = "此设备可在应用内翻译的语言。其他语言使用您的默认翻译应用。";
+
+"language.matchAppLanguage" = "使用应用语言";
+
+"language.suggested.header" = "建议";
+
+"language.all.header" = "语言";
+
+"language.defaultTranslationApp.title" = "使用默认翻译应用";
+
+"language.defaultTranslationApp.footer" = "使用翻译，或您在设置中选择的其他应用。";
+
+"language.search.prompt" = "搜索语言";
+
+"language.search.noResults" = "无结果";
+
+"language.search.noResultsDescription" = "没有语言匹配\"%@\"";
+
+"language.search.unavailable" = "%@ 在应用中不可用。使用您的默认翻译应用翻译。";
+
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */

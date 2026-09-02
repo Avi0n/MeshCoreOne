@@ -10,6 +10,7 @@ enum SettingsSubpage: Hashable {
   case blockedChannelSenders
   case blockedContacts
   case trustedContacts
+  case translateIntoLanguage
 }
 
 extension View {
@@ -32,6 +33,8 @@ extension View {
         BlockedContactsView()
       case .trustedContacts:
         TrustedContactsPickerView()
+      case .translateIntoLanguage:
+        TranslateIntoLanguageView()
       }
     }
   }

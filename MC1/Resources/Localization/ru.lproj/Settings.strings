@@ -1228,6 +1228,36 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Язык";
 
+"language.appLanguage.title" = "Язык приложения";
+
+"language.appLanguage.footer" = "Кнопки, меню и другой текст.";
+
+"language.appLanguage.accessibilityHint" = "Открывает настройки";
+
+"language.translateInto.header" = "Переводить на";
+
+"language.translateInto.footer" = "Входящие сообщения переводятся на этот язык при нажатии «Перевести».";
+
+"language.translateInto.listFooter" = "Языки, на которые это устройство может переводить в приложении. Для других языков используется приложение перевода по умолчанию.";
+
+"language.matchAppLanguage" = "Использовать язык приложения";
+
+"language.suggested.header" = "Предлагаемые";
+
+"language.all.header" = "Языки";
+
+"language.defaultTranslationApp.title" = "Использовать приложение перевода по умолчанию";
+
+"language.defaultTranslationApp.footer" = "Использует приложение «Перевод» или другое приложение, выбранное в Настройках.";
+
+"language.search.prompt" = "Поиск языков";
+
+"language.search.noResults" = "Нет результатов";
+
+"language.search.noResultsDescription" = "Нет языков, соответствующих \"%@\"";
+
+"language.search.unavailable" = "%@ недоступен в приложении. Перевести с помощью приложения перевода по умолчанию.";
+
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */

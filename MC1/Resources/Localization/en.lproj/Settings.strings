@@ -1226,6 +1226,51 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Language";
 
+/* Location: LanguageSettingsView.swift - Purpose: App Language row title */
+"language.appLanguage.title" = "App Language";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer explaining App Language opens iOS Settings */
+"language.appLanguage.footer" = "Buttons, menus, and other text.";
+
+/* Location: LanguageSettingsView.swift - Purpose: VoiceOver hint that App Language opens iOS Settings */
+"language.appLanguage.accessibilityHint" = "Opens iOS Settings";
+
+/* Location: LanguageSettingsView.swift - Purpose: Translate Into section header */
+"language.translateInto.header" = "Translate Into";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer for Translate Into language list */
+"language.translateInto.footer" = "Incoming messages translate into this language when you tap Translate.";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Footer explaining the Translate Into list is in-app languages only */
+"language.translateInto.listFooter" = "Languages this device can translate in the app. Other languages use your default translation app.";
+
+/* Location: LanguageSettingsView.swift - Purpose: Option to follow the app UI language */
+"language.matchAppLanguage" = "Use App Language";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Suggested languages section header */
+"language.suggested.header" = "Suggested";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: All languages section header */
+"language.all.header" = "Languages";
+
+/* Location: LanguageSettingsView.swift - Purpose: Toggle to use the system Translate sheet / default translation app */
+"language.defaultTranslationApp.title" = "Use Default Translation App";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer for Use Default Translation App */
+"language.defaultTranslationApp.footer" = "Uses Translate, or another app you've chosen in iOS Settings.";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Search field placeholder */
+"language.search.prompt" = "Search Languages";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Empty search title */
+"language.search.noResults" = "No Results";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Empty search description */
+"language.search.noResultsDescription" = "No languages match \"%@\"";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Search result when the queried language isn't available in the app */
+"language.search.unavailable" = "%@ isn't available in the app. Translate using your default translation app.";
+
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */

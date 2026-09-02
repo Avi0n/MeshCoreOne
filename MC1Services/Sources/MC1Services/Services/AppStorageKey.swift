@@ -42,6 +42,12 @@ public enum AppStorageKey: String {
   case mapFilterNeighborSNR
   case mapColorSchemePreference
   case hasSeenRepeaterDragHint
+  /// In-bubble Translate target. `"app"` follows the app locale; `"overlay"` is
+  /// the system Translate sheet; any other value is a language subtag (`da`, `zh`).
+  case translationTargetLanguage
+  /// When true, tap-Translate opens the system Translate sheet. Separate from
+  /// `translationTargetLanguage` so the language subtag is not overwritten.
+  case useDefaultTranslationApp
   case autoDeleteStaleNodesDays
   case lastStaleCleanupDate
   case frequentEmojis
@@ -83,6 +89,9 @@ public enum AppStorageKey: String {
   /// Raw value of `AppColorSchemePreference.system` — basemap only, not app chrome.
   public static let defaultMapColorSchemePreference: String = "system"
   public static let defaultHasSeenRepeaterDragHint: Bool = false
+  /// Sentinel: in-bubble Translate follows the app locale.
+  public static let defaultTranslationTargetLanguage: String = "app"
+  public static let defaultUseDefaultTranslationApp: Bool = false
   public static let defaultLiveActivityEnabled: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.
   public static let defaultAutoDeleteStaleNodesDays: Int = 0

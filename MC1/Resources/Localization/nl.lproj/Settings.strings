@@ -1228,6 +1228,36 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Taal";
 
+"language.appLanguage.title" = "App-taal";
+
+"language.appLanguage.footer" = "Knoppen, menu's en andere tekst.";
+
+"language.appLanguage.accessibilityHint" = "Opent Instellingen";
+
+"language.translateInto.header" = "Vertalen naar";
+
+"language.translateInto.footer" = "Inkomende berichten worden naar deze taal vertaald wanneer je op Vertalen tikt.";
+
+"language.translateInto.listFooter" = "Talen die dit apparaat in de app kan vertalen. Andere talen gebruiken je standaardvertaalapp.";
+
+"language.matchAppLanguage" = "App-taal gebruiken";
+
+"language.suggested.header" = "Voorgesteld";
+
+"language.all.header" = "Talen";
+
+"language.defaultTranslationApp.title" = "Standaardvertaalapp gebruiken";
+
+"language.defaultTranslationApp.footer" = "Gebruikt Vertalen of een andere app die je in Instellingen hebt gekozen.";
+
+"language.search.prompt" = "Zoek talen";
+
+"language.search.noResults" = "Geen resultaten";
+
+"language.search.noResultsDescription" = "Geen talen komen overeen met \"%@\"";
+
+"language.search.unavailable" = "%@ is niet beschikbaar in de app. Vertaal met je standaardvertaalapp.";
+
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */

@@ -3232,6 +3232,76 @@ struct BackupIntegrationTests {
     #expect(restored == prefs.regionSelection)
   }
 
+  // MARK: - translationTargetLanguage backup contract
+
+  @Test
+  func `translationTargetLanguage round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.translationTargetLanguage = "da"
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.translationTargetLanguage == "da")
+  }
+
+  @Test
+  func `Legacy envelope without translationTargetLanguage decodes as nil`() throws {
+    let legacyJSON = """
+    {
+        "hasCompletedOnboarding": true,
+        "mapStyleSelection": "topo"
+    }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.translationTargetLanguage == nil)
+  }
+
+  // MARK: - useDefaultTranslationApp backup contract
+
+  @Test
+  func `useDefaultTranslationApp round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.useDefaultTranslationApp = true
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.useDefaultTranslationApp == true)
+  }
+
+  @Test
+  func `Legacy envelope without useDefaultTranslationApp decodes as nil`() throws {
+    let legacyJSON = """
+    {
+        "hasCompletedOnboarding": true,
+        "mapStyleSelection": "topo"
+    }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.useDefaultTranslationApp == nil)
+  }
+
+  @Test
+  func `overlay backup keeps the language subtag alongside useDefaultTranslationApp`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.translationTargetLanguage = "da"
+    prefs.useDefaultTranslationApp = true
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.translationTargetLanguage == "da")
+    #expect(decoded.useDefaultTranslationApp == true)
+
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    let setKeys = prefs.restore(to: defaults)
+    #expect(setKeys.contains(AppStorageKey.translationTargetLanguage.rawValue))
+    #expect(setKeys.contains(AppStorageKey.useDefaultTranslationApp.rawValue))
+    #expect(defaults.string(forKey: AppStorageKey.translationTargetLanguage.rawValue) == "da")
+    #expect(defaults.bool(forKey: AppStorageKey.useDefaultTranslationApp.rawValue) == true)
+  }
+
   // MARK: - Message.regionScope round-trip
 
   @Test

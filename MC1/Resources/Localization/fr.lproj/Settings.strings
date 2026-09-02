@@ -1228,6 +1228,36 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Langue";
 
+"language.appLanguage.title" = "Langue de l'app";
+
+"language.appLanguage.footer" = "Boutons, menus et autres textes.";
+
+"language.appLanguage.accessibilityHint" = "Ouvre les Réglages";
+
+"language.translateInto.header" = "Traduire en";
+
+"language.translateInto.footer" = "Les messages reçus sont traduits dans cette langue lorsque vous touchez Traduire.";
+
+"language.translateInto.listFooter" = "Langues que cet appareil peut traduire dans l'app. Les autres langues utilisent votre app de traduction par défaut.";
+
+"language.matchAppLanguage" = "Utiliser la langue de l'app";
+
+"language.suggested.header" = "Suggérées";
+
+"language.all.header" = "Langues";
+
+"language.defaultTranslationApp.title" = "Utiliser l'app de traduction par défaut";
+
+"language.defaultTranslationApp.footer" = "Utilise Traduire, ou une autre app que vous avez choisie dans Réglages.";
+
+"language.search.prompt" = "Rechercher des langues";
+
+"language.search.noResults" = "Aucun résultat";
+
+"language.search.noResultsDescription" = "Aucune langue ne correspond à \"%@\"";
+
+"language.search.unavailable" = "%@ n'est pas disponible dans l'app. Traduisez avec votre app de traduction par défaut.";
+
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */

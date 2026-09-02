@@ -4796,8 +4796,54 @@ public enum L10n {
       public static let autoPlayGifs = L10n.tr("Settings", "inlineImages.autoPlayGifs", fallback: "Auto-play GIFs")
     }
     public enum Language {
+      /// Location: LanguageSettingsView.swift - Purpose: Option to follow the app UI language
+      public static let matchAppLanguage = L10n.tr("Settings", "language.matchAppLanguage", fallback: "Use App Language")
       /// Location: SettingsView.swift - Purpose: Language row title
       public static let title = L10n.tr("Settings", "language.title", fallback: "Language")
+      public enum All {
+        /// Location: TranslateIntoLanguageView.swift - Purpose: All languages section header
+        public static let header = L10n.tr("Settings", "language.all.header", fallback: "Languages")
+      }
+      public enum AppLanguage {
+        /// Location: LanguageSettingsView.swift - Purpose: VoiceOver hint that App Language opens iOS Settings
+        public static let accessibilityHint = L10n.tr("Settings", "language.appLanguage.accessibilityHint", fallback: "Opens iOS Settings")
+        /// Location: LanguageSettingsView.swift - Purpose: Footer explaining App Language opens iOS Settings
+        public static let footer = L10n.tr("Settings", "language.appLanguage.footer", fallback: "Buttons, menus, and other text.")
+        /// Location: LanguageSettingsView.swift - Purpose: App Language row title
+        public static let title = L10n.tr("Settings", "language.appLanguage.title", fallback: "App Language")
+      }
+      public enum DefaultTranslationApp {
+        /// Location: LanguageSettingsView.swift - Purpose: Footer for Use Default Translation App
+        public static let footer = L10n.tr("Settings", "language.defaultTranslationApp.footer", fallback: "Uses Translate, or another app you've chosen in iOS Settings.")
+        /// Location: LanguageSettingsView.swift - Purpose: Toggle to use the system Translate sheet / default translation app
+        public static let title = L10n.tr("Settings", "language.defaultTranslationApp.title", fallback: "Use Default Translation App")
+      }
+      public enum Search {
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Empty search title
+        public static let noResults = L10n.tr("Settings", "language.search.noResults", fallback: "No Results")
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Empty search description
+        public static func noResultsDescription(_ p1: Any) -> String {
+          return L10n.tr("Settings", "language.search.noResultsDescription", String(describing: p1), fallback: "No languages match \"%@\"")
+        }
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Search field placeholder
+        public static let prompt = L10n.tr("Settings", "language.search.prompt", fallback: "Search Languages")
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Search result when the queried language isn't available in the app
+        public static func unavailable(_ p1: Any) -> String {
+          return L10n.tr("Settings", "language.search.unavailable", String(describing: p1), fallback: "%@ isn't available in the app. Translate using your default translation app.")
+        }
+      }
+      public enum Suggested {
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Suggested languages section header
+        public static let header = L10n.tr("Settings", "language.suggested.header", fallback: "Suggested")
+      }
+      public enum TranslateInto {
+        /// Location: LanguageSettingsView.swift - Purpose: Footer for Translate Into language list
+        public static let footer = L10n.tr("Settings", "language.translateInto.footer", fallback: "Incoming messages translate into this language when you tap Translate.")
+        /// Location: LanguageSettingsView.swift - Purpose: Translate Into section header
+        public static let header = L10n.tr("Settings", "language.translateInto.header", fallback: "Translate Into")
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Footer explaining the Translate Into list is in-app languages only
+        public static let listFooter = L10n.tr("Settings", "language.translateInto.listFooter", fallback: "Languages this device can translate in the app. Other languages use your default translation app.")
+      }
     }
     public enum LinkPreviews {
       /// Footer explaining link content privacy implications

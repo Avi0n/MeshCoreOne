@@ -39,6 +39,7 @@ struct ChatConversationMessagesContent: View {
   // MARK: - Callbacks
 
   let onRetryMessage: (MessageDTO) -> Void
+  let onTranslationAction: (UUID) -> Void
 
   @Environment(\.appTheme) private var theme
   @Environment(\.openURL) private var openURL
@@ -159,7 +160,7 @@ struct ChatConversationMessagesContent: View {
         requestSnapshot: { MapSnapshotStore.shared.request($0) },
         retrySnapshot: { MapSnapshotStore.shared.retry($0) },
         onTranslationAction: { messageID in
-          viewModel.performTranslationAction(for: messageID)
+          onTranslationAction(messageID)
         }
       )
     )
@@ -273,7 +274,8 @@ private struct ChannelEmptyMessagesView: View {
       onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
-      onRetryMessage: { _ in }
+      onRetryMessage: { _ in },
+      onTranslationAction: { _ in }
     )
   }
   .environment(\.appState, AppState())
@@ -300,7 +302,8 @@ private struct ChannelEmptyMessagesView: View {
       onDividerTargetConsumed: {},
       selectedMessageForActions: .constant(nil),
       imageViewerData: .constant(nil),
-      onRetryMessage: { _ in }
+      onRetryMessage: { _ in },
+      onTranslationAction: { _ in }
     )
   }
   .environment(\.appState, AppState())

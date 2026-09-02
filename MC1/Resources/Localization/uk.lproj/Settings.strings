@@ -1228,6 +1228,36 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Мова";
 
+"language.appLanguage.title" = "Мова застосунку";
+
+"language.appLanguage.footer" = "Кнопки, меню та інший текст.";
+
+"language.appLanguage.accessibilityHint" = "Відкриває Налаштування";
+
+"language.translateInto.header" = "Мова перекладу";
+
+"language.translateInto.footer" = "Вхідні повідомлення перекладаються цією мовою, коли ви натискаєте «Перекласти».";
+
+"language.translateInto.listFooter" = "Мови, якими цей пристрій може перекладати в застосунку. Для інших мов використовується ваш застосунок перекладу за замовчуванням.";
+
+"language.matchAppLanguage" = "Використовувати мову застосунку";
+
+"language.suggested.header" = "Рекомендовані";
+
+"language.all.header" = "Мови";
+
+"language.defaultTranslationApp.title" = "Використовувати застосунок перекладу за замовчуванням";
+
+"language.defaultTranslationApp.footer" = "Використовує «Перекладач» або інший застосунок, вибраний у Налаштуваннях.";
+
+"language.search.prompt" = "Пошук мов";
+
+"language.search.noResults" = "Немає результатів";
+
+"language.search.noResultsDescription" = "Жодна мова не відповідає \"%@\"";
+
+"language.search.unavailable" = "%@ недоступна в застосунку. Перекладіть за допомогою вашого застосунку перекладу за замовчуванням.";
+
 // MARK: - Region
 
 /* Location: RegionSettingsView.swift - Title */
