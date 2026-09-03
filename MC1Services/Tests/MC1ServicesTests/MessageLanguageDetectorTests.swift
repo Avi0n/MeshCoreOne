@@ -28,6 +28,7 @@ struct MessageLanguageDetectorTests {
     )
     #expect(MessageLanguageDetector.dominantLanguage(for: "") == .undetermined)
     #expect(MessageLanguageDetector.dominantLanguage(for: "   ") == .undetermined)
+    #expect(MessageLanguageDetector.dominantLanguage(for: "@[1wNodeTest] ok") == .undetermined)
   }
 
   @Test
@@ -42,5 +43,18 @@ struct MessageLanguageDetectorTests {
     #expect(MessageLanguageDetector.collapsedLanguageCode("zh-Hans") == "zh")
     #expect(MessageLanguageDetector.collapsedLanguageCode("zh-Hant") == "zh")
     #expect(MessageLanguageDetector.isSameLanguage("zh-Hans", "zh-Hant"))
+  }
+
+  @Test
+  func `mention-prefixed short English is identified`() {
+    #expect(
+      MessageLanguageDetector.dominantLanguage(for: "@[1wNodeTest]: no problems!")
+        == .identified(languageCode: "en")
+    )
+  }
+
+  @Test
+  func `low-confidence short remainder is undetermined`() {
+    #expect(MessageLanguageDetector.dominantLanguage(for: "en route now") == .undetermined)
   }
 }

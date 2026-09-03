@@ -247,6 +247,25 @@ struct ChatViewModelTranslationTests {
   }
 
   @Test
+  func `mention-prefixed short English offers Translate against da`() async throws {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(coordinator)
+    viewModel.applyEnvInputs(envInputs(preferredLanguageCode: "da"))
+    let message = makeMessage(
+      timestamp: 1000,
+      text: "@[1wNodeTest]: no problems!",
+      direction: .incoming
+    )
+    viewModel.appendMessageIfNew(message)
+    await coordinator.buildItemsTask?.value
+
+    let item = try #require(viewModel.items.first { $0.id == message.id })
+    #expect(item.translation?.phase == .offer)
+    #expect(viewModel.bake.detectedLanguages[message.id] == .identified(languageCode: "en"))
+  }
+
+  @Test
   func `stale needs-download does not consume the newer request`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
