@@ -4,37 +4,14 @@ import Testing
 @Suite("AccessorySetupKit Discovery Criteria Tests")
 struct AccessorySetupKitDiscoveryCriteriaTests {
   @Test
-  func `supported Bluetooth name substrings match shipped MeshCore families`() {
+  func `picker discovers by Nordic UART service UUID only`() {
     #expect(
-      AccessorySetupKitDiscoveryCriteria.bluetoothNameSubstrings == [
-        "MeshCore-",
-        "Whisper-",
-        "wadamesh-",
-        "WisCore",
-        "XIAO",
-        "elecrow",
-        "HT-n5262",
-        "Seeed",
-        "BQ",
-        "ProMicro",
-        "Keepteen",
-        "Meshtiny",
-        "T1000-E-BOOT",
-        "me25ls01-BOOT",
-        "X1-BOOT",
-        "NRF52 DK",
-        "T-Impulse",
-      ]
+      AccessorySetupKitDiscoveryCriteria.bluetoothServiceUUID == BLEServiceUUID.nordicUART
     )
-  }
-
-  @Test
-  func `all discovery criteria use the Nordic UART service UUID`() {
-    let criteria = AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria
-
-    #expect(criteria.count == AccessorySetupKitDiscoveryCriteria.bluetoothNameSubstrings.count)
-    #expect(criteria.allSatisfy { $0.bluetoothServiceUUID == BLEServiceUUID.nordicUART })
-    #expect(Set(criteria.map(\.bluetoothNameSubstring)).count == criteria.count)
+    #expect(
+      AccessorySetupKitDiscoveryCriteria.bluetoothServiceUUID
+        == "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+    )
   }
 
   @Test
