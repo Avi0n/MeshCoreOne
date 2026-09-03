@@ -1,6 +1,9 @@
 import MC1Services
 import SwiftUI
 
+/// Top padding for same-cluster follow-ups (no timestamp). `ChatTiledView` has no cell spacing.
+private let sameClusterPaddingTop: CGFloat = 2
+
 /// Message bubble for room server messages
 struct RoomMessageBubble: View {
   let message: RoomMessageDTO
@@ -72,6 +75,7 @@ struct RoomMessageBubble: View {
         }
       }
       .padding(.horizontal)
+      .padding(.top, showTimestamp ? 0 : sameClusterPaddingTop)
     }
   }
 
