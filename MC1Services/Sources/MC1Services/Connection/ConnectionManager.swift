@@ -119,7 +119,8 @@ public final class ConnectionManager {
   /// BLE state machine's single in-flight connect slot.
   var isPairingInProgress = false
 
-  /// True from scan/setup enqueue until cancel or `pairNewDevice` finishes.
+  /// True from scan/setup enqueue until cancel or `pairNewDevice` finishes,
+  /// and while `deleteDevice` of the live or in-flight radio waits on iOS Remove Accessory.
   /// Distinct from `isPairingInProgress` so setup confirmation is not treated as a live picker.
   public var isPairingFlowActive = false
 

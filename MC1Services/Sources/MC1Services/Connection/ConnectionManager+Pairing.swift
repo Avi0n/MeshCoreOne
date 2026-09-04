@@ -531,17 +531,35 @@ public extension ConnectionManager {
     return devices
   }
 
-  /// Deletes a previously paired device record from storage.
-  /// Demotes to ghost record — preserves publicKey ↔ radioID bridge for data recovery on re-pair.
-  /// - Parameter id: The device UUID to demote
+  /// Forgets the system pairing registry entry (no-op if unregistered), then demotes the row to a ghost.
+  /// Declining iOS Remove Accessory throws `DevicePairingError.cancelled` and leaves the row listed.
+  /// - Parameter id: The device UUID to forget
   func deleteDevice(id: UUID) async throws {
     logger.info("deleteDevice called for device: \(id)")
+
+    // Snapshot before removeDevice: ASK can drop BLE, then handleConnectionLoss
+    // nils connectedDevice while wantsConnection stays.
+    let shouldTearDownSession =
+      connectedDevice?.id == id || activeConnectionAttemptDeviceID == id
+    if shouldTearDownSession {
+      isPairingFlowActive = true
+    }
+    defer {
+      if shouldTearDownSession {
+        isPairingFlowActive = false
+      }
+    }
+
+    try await pairing.removeDevice(id)
+    if shouldTearDownSession {
+      await disconnect(reason: .forgetDevice)
+    }
+
     let dataStore = persistenceStore
     try await dataStore.demoteDeviceToGhost(id: id)
 
     // Always clear this device's bond verification; store keys are holder-matched
-    // so removing a non-last-connected device still drops its shield and, when it
-    // is last-connected, still drops the auto-reconnect / onboarding-resume signal.
+    // so a non-last-connected delete still drops its shield.
     await clearPersistedConnection(for: id)
 
     logger.info("deleteDevice completed for device: \(id)")

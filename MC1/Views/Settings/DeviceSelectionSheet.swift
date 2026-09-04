@@ -35,6 +35,7 @@ struct DeviceSelectionSheet: View {
   @State private var editingWiFiDevice: DeviceDTO?
   @State private var devicesConnectedElsewhere: Set<UUID> = []
   @State private var tracker = RSSIScanTracker()
+  @State private var errorMessage: String?
 
   private var isListEmpty: Bool {
     list.connectable.isEmpty && list.needsSetup.isEmpty
@@ -62,6 +63,7 @@ struct DeviceSelectionSheet: View {
         await loadDevices()
         await startBLEScanning()
       }
+      .errorAlert($errorMessage)
     }
   }
 
@@ -174,8 +176,9 @@ struct DeviceSelectionSheet: View {
       do {
         try await appState.connectionManager.deleteDevice(id: device.id)
         await loadDevices()
+      } catch DevicePairingError.cancelled {
       } catch {
-        logger.error("Failed to delete device: \(error)")
+        errorMessage = error.userFacingMessage
       }
     }
   }
