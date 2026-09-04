@@ -257,15 +257,15 @@ private struct DeviceListView: View {
 
       Section {
         Button {
-          showingWiFiConnection = true
-        } label: {
-          Label(L10n.Settings.DeviceSelection.connectViaWifi, systemImage: "wifi.circle")
-        }
-
-        Button {
           onScanForNew()
         } label: {
           Label(L10n.Settings.DeviceSelection.scanBluetooth, systemImage: "antenna.radiowaves.left.and.right")
+        }
+
+        Button {
+          showingWiFiConnection = true
+        } label: {
+          Label(L10n.Settings.DeviceSelection.connectViaWifi, systemImage: "wifi.circle")
         }
       }
       .themedRowBackground(theme)
@@ -296,16 +296,16 @@ private struct EmptyStateView: View {
         Text(L10n.Settings.DeviceSelection.noPairedDescription)
 
         VStack(spacing: 12) {
-          Button(L10n.Settings.DeviceSelection.connectViaWifi, systemImage: "wifi.circle") {
-            showingWiFiConnection = true
-          }
-          .liquidGlassProminentButtonStyle()
-
           Button(
             L10n.Settings.DeviceSelection.scanForDevices,
             systemImage: "antenna.radiowaves.left.and.right"
           ) {
             onScanForNew()
+          }
+          .liquidGlassProminentButtonStyle()
+
+          Button(L10n.Settings.DeviceSelection.connectViaWifi, systemImage: "wifi.circle") {
+            showingWiFiConnection = true
           }
           .liquidGlassProminentButtonStyle()
         }
