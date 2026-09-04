@@ -230,6 +230,13 @@ final class AppState {
   /// Connection UI state (status pills, sync activity, alerts, pairing)
   let connectionUI = ConnectionUIState()
 
+  /// True while `confirmSystemPairingSetup` is in flight so sheet `onDismiss` does not cancel the flow.
+  var isConfirmingSystemPairingSetup = false
+
+  /// True while the foreground retry of `completeFreshPairing` is running, so a
+  /// second `pickerUnavailable` is presented instead of rescheduled.
+  var isFreshPairingForegroundRetry = false
+
   /// Battery monitoring (polling, thresholds, low-battery notifications)
   let batteryMonitor = BatteryMonitor()
 
@@ -335,14 +342,16 @@ final class AppState {
   init(
     modelContainer: ModelContainer,
     isPlaceholder: Bool = false,
-    defaults: UserDefaults = .standard
+    defaults: UserDefaults = .standard,
+    injectedConnectionManager: ConnectionManager? = nil
   ) {
     let store = StoreService()
     let theme = ThemeService(store: store)
     storeState = StoreState(service: store)
     themeService = theme
 
-    connectionManager = ConnectionManager(modelContainer: modelContainer, defaults: defaults)
+    connectionManager = injectedConnectionManager
+      ?? ConnectionManager(modelContainer: modelContainer, defaults: defaults)
 
     let bootstrapBuffer = DebugLogBuffer(dataStore: connectionManager.persistenceStore)
     bootstrapDebugLogBuffer = bootstrapBuffer

@@ -5,6 +5,10 @@ import MC1Services
 // MARK: - Device Actions
 
 extension AppState {
+  /// ASK Remove Accessory leaves the scene unable to present `showPicker`.
+  /// Retry once after a short delay in case `.active` already fired.
+  private static let freshPairingForegroundRetryDelay: Duration = .milliseconds(400)
+
   /// Start device scan/pairing
   func startDeviceScan() {
     // Hide disconnected pill when starting new connection
@@ -12,28 +16,156 @@ extension AppState {
     // Clear any previous pairing failure state
     connectionUI.failedPairingDeviceID = nil
     connectionUI.isBusy = true
+    connectionManager.isPairingFlowActive = true
 
     Task {
-      defer { connectionUI.isBusy = false }
-
-      do {
-        // pairNewDevice() triggers onConnectionReady callback on success
-        try await connectionManager.pairNewDevice()
-        await wireServicesIfConnected()
-
-        // If still in onboarding, navigate to region step; otherwise mark complete
-        if !onboarding.hasCompletedOnboarding {
-          onboarding.onboardingPath.append(.region)
+      defer {
+        connectionUI.isBusy = false
+        if connectionUI.pendingSystemPairingSetup == nil,
+           connectionUI.queuedSystemPairingSetup == nil,
+           !connectionUI.shouldCompleteFreshPairingOnForeground {
+          connectionManager.isPairingFlowActive = false
         }
-      } catch DevicePairingError.cancelled {
-        // User cancelled - no error
-      } catch DevicePairingError.alreadyInProgress {
-        // Picker is already showing - ignore
-      } catch let pairingError as PairingError {
-        connectionUI.presentFreshPairingFailure(pairingError)
-      } catch {
-        connectionUI.presentConnectionFailure(message: error.userFacingMessage)
       }
+      await withPairingFlowErrorHandling {
+        let pending = try await connectionManager.systemAccessoriesMissingDeviceRecord()
+        if !pending.isEmpty {
+          if connectionUI.pendingSystemPairingSetup == nil {
+            connectionUI.pendingSystemPairingSetup = SystemPairingSetupPrompt(
+              accessories: pending.map { SystemPairedAccessory(id: $0.id, name: $0.name) }
+            )
+          }
+          return
+        }
+        try await completeFreshPairing()
+      }
+    }
+  }
+
+  func handleDeviceSelectionSheetDismissed() {
+    if connectionUI.queuedDeviceScanAfterSelectionDismiss {
+      connectionUI.queuedDeviceScanAfterSelectionDismiss = false
+      connectionUI.queuedSystemPairingSetup = nil
+      connectionManager.isPairingFlowActive = true
+      Task {
+        await connectionManager.stopBLEScanning()
+        startDeviceScan()
+      }
+      return
+    }
+    guard let queued = connectionUI.queuedSystemPairingSetup else { return }
+    connectionUI.queuedSystemPairingSetup = nil
+    guard connectionUI.pendingSystemPairingSetup == nil else { return }
+    connectionManager.isPairingFlowActive = true
+    connectionUI.pendingSystemPairingSetup = queued
+  }
+
+  func cancelSystemPairingSetup() {
+    connectionUI.pendingSystemPairingSetup = nil
+    connectionUI.queuedSystemPairingSetup = nil
+    connectionUI.shouldCompleteFreshPairingOnForeground = false
+    isFreshPairingForegroundRetry = false
+    connectionManager.isPairingFlowActive = false
+  }
+
+  func handleSystemPairingSetupSheetDismissed() {
+    guard !isConfirmingSystemPairingSetup else { return }
+    guard connectionUI.pendingSystemPairingSetup == nil else { return }
+    cancelSystemPairingSetup()
+  }
+
+  /// Forget the pending ASK accessories, then open the picker. Clears pending first so
+  /// iOS Remove Accessory is the only dialog; siblings do not re-prompt.
+  func confirmSystemPairingSetup() {
+    guard let prompt = connectionUI.pendingSystemPairingSetup else { return }
+    isConfirmingSystemPairingSetup = true
+    connectionManager.isPairingFlowActive = true
+    connectionUI.shouldShowPickerOnForeground = false
+    connectionUI.pendingSystemPairingSetup = nil
+    connectionUI.isBusy = true
+    Task {
+      defer {
+        connectionUI.isBusy = false
+        isConfirmingSystemPairingSetup = false
+        if !connectionUI.shouldCompleteFreshPairingOnForeground {
+          connectionManager.isPairingFlowActive = false
+        }
+      }
+      await withPairingFlowErrorHandling {
+        try await connectionManager.removeSystemAccessoriesMissingDeviceRecord(prompt.accessories.map(\.id))
+        try await completeFreshPairing()
+      }
+    }
+  }
+
+  private func completeFreshPairing() async throws {
+    if connectionState != .disconnected {
+      await disconnect(reason: .switchingDevice)
+    }
+    try await connectionManager.pairNewDevice()
+    await wireServicesIfConnected()
+    if !onboarding.hasCompletedOnboarding {
+      onboarding.onboardingPath.append(.region)
+    }
+  }
+
+  private func withPairingFlowErrorHandling(_ work: () async throws -> Void) async {
+    do {
+      try await work()
+    } catch DevicePairingError.cancelled {
+      // Picker dismissed, or iOS Remove Accessory declined. Do not re-prompt.
+      connectionUI.shouldCompleteFreshPairingOnForeground = false
+      isFreshPairingForegroundRetry = false
+    } catch DevicePairingError.alreadyInProgress {
+    } catch DevicePairingError.pickerUnavailable {
+      handlePickerUnavailableAfterForget()
+    } catch let pairingError as PairingError {
+      connectionUI.presentFreshPairingFailure(pairingError)
+    } catch {
+      connectionUI.presentConnectionFailure(message: error.userFacingMessage)
+    }
+  }
+
+  /// ASK rejected the picker because Remove Accessory still owns the scene.
+  /// Retry `pairNewDevice` on the next `.active` (and once after a short delay
+  /// if that transition already happened). A second rejection is a real failure.
+  private func handlePickerUnavailableAfterForget() {
+    if isFreshPairingForegroundRetry {
+      isFreshPairingForegroundRetry = false
+      connectionUI.shouldCompleteFreshPairingOnForeground = false
+      connectionManager.isPairingFlowActive = false
+      connectionUI.presentConnectionFailure(
+        message: L10n.Localizable.Error.AccessorySetup.pickerRestricted
+      )
+      return
+    }
+    scheduleFreshPairingOnForeground()
+  }
+
+  private func scheduleFreshPairingOnForeground() {
+    connectionUI.shouldCompleteFreshPairingOnForeground = true
+    connectionManager.isPairingFlowActive = true
+    Task {
+      try? await Task.sleep(for: Self.freshPairingForegroundRetryDelay)
+      await resumeFreshPairingIfNeeded()
+    }
+  }
+
+  private func resumeFreshPairingIfNeeded() async {
+    guard connectionUI.shouldCompleteFreshPairingOnForeground else { return }
+    connectionUI.shouldCompleteFreshPairingOnForeground = false
+    isFreshPairingForegroundRetry = true
+    connectionUI.isBusy = true
+    connectionManager.isPairingFlowActive = true
+    defer {
+      connectionUI.isBusy = false
+      isFreshPairingForegroundRetry = false
+      if !connectionUI.shouldCompleteFreshPairingOnForeground {
+        connectionManager.isPairingFlowActive = false
+      }
+    }
+    await withPairingFlowErrorHandling {
+      try await completeFreshPairing()
     }
   }
 
@@ -76,7 +208,14 @@ extension AppState {
     // from the foreground reconnect instead of staying silenced from background.
     connectionManager.clearSurfacedAuthenticationFailure()
 
-    if connectionUI.shouldShowPickerOnForeground {
+    if connectionUI.shouldCompleteFreshPairingOnForeground {
+      Task { await resumeFreshPairingIfNeeded() }
+      return
+    }
+
+    if connectionUI.shouldShowPickerOnForeground,
+       connectionUI.pendingSystemPairingSetup == nil,
+       connectionUI.queuedSystemPairingSetup == nil {
       connectionUI.shouldShowPickerOnForeground = false
       startDeviceScan()
     }
@@ -86,6 +225,9 @@ extension AppState {
       guard let self else { return }
       try? await Task.sleep(for: .seconds(1))
       guard !Task.isCancelled else { return }
+      guard !connectionManager.shouldDeferOpportunisticReconnect,
+            connectionUI.pendingSystemPairingSetup == nil,
+            connectionUI.queuedSystemPairingSetup == nil else { return }
       guard connectionState == .disconnected,
             connectionManager.lastConnectedDeviceID != nil else { return }
 

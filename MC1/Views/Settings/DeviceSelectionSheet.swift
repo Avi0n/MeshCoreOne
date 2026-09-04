@@ -4,47 +4,6 @@ import SwiftUI
 
 private let logger = Logger(subsystem: "com.mc1", category: "DeviceSelectionSheet")
 
-/// Represents a device that can be selected for connection
-private enum SelectableDevice: Identifiable, Equatable {
-  case saved(DeviceDTO)
-  case accessory(id: UUID, name: String)
-
-  var id: UUID {
-    switch self {
-    case let .saved(device): device.id
-    case let .accessory(id, _): id
-    }
-  }
-
-  var name: String {
-    switch self {
-    case let .saved(device): device.nodeName
-    case let .accessory(_, name): name
-    }
-  }
-
-  /// The primary connection method for display purposes.
-  /// WiFi methods are preferred over Bluetooth when available.
-  var primaryConnectionMethod: ConnectionMethod? {
-    switch self {
-    case let .saved(device):
-      // Prefer WiFi if available
-      device.connectionMethods.first { $0.isWiFi } ?? device.connectionMethods.first
-    case .accessory:
-      nil
-    }
-  }
-
-  /// Whether this device will connect over WiFi (its preferred method is WiFi).
-  /// Such rows stay tappable regardless of BLE advertisement, since the connect
-  /// path routes them to WiFi; only BLE-reachable-only rows gate on a live signal.
-  /// A radio reachable over both transports is included here — its peripheral UUID
-  /// may differ from `id`, so a BLE-signal gate would strand a WiFi-connectable row.
-  var connectsViaWiFi: Bool {
-    primaryConnectionMethod?.isWiFi == true
-  }
-}
-
 /// Filters saved `Device` rows to those the user can actually reach from this phone.
 ///
 /// A backup restore inserts "shadow" `Device` rows: their Bluetooth connection methods
@@ -71,16 +30,20 @@ struct DeviceSelectionSheet: View {
   @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
 
-  @State private var devices: [SelectableDevice] = []
+  @State private var list = DeviceSelectionListBuilder.Result(connectable: [], needsSetup: [])
   @State private var showingWiFiConnection = false
-  @State private var editingWiFiDevice: SelectableDevice?
+  @State private var editingWiFiDevice: DeviceDTO?
   @State private var devicesConnectedElsewhere: Set<UUID> = []
   @State private var tracker = RSSIScanTracker()
+
+  private var isListEmpty: Bool {
+    list.connectable.isEmpty && list.needsSetup.isEmpty
+  }
 
   var body: some View {
     NavigationStack {
       Group {
-        if devices.isEmpty {
+        if isListEmpty {
           makeEmptyStateView()
         } else {
           makeDeviceListView()
@@ -106,13 +69,15 @@ struct DeviceSelectionSheet: View {
 
   private func makeDeviceListView() -> some View {
     DeviceListView(
-      devices: devices,
+      connectable: list.connectable,
+      needsSetup: list.needsSetup,
       devicesConnectedElsewhere: devicesConnectedElsewhere,
       tracker: tracker,
       showingWiFiConnection: $showingWiFiConnection,
       editingWiFiDevice: $editingWiFiDevice,
       onConnect: { connectToDevice($0) },
       onDelete: { deleteDevice($0) },
+      onSetup: { setupAccessory($0) },
       onScanForNew: { scanForNewDevice() }
     )
   }
@@ -131,62 +96,67 @@ struct DeviceSelectionSheet: View {
   }
 
   private func loadDevices() async {
-    // Try to load from SwiftData first
-    let pairedAccessoryIDs = Set(appState.connectionManager.pairedAccessoryInfos.map(\.id))
     let hasSystemPairingRegistry = appState.connectionManager.hasSystemPairingRegistry
-    do {
-      let savedDevices = try await appState.connectionManager.fetchSavedDevices()
-      let connectableDevices = savedDevices.filter {
-        DeviceSelectionFilter.isConnectable($0, pairedAccessoryIDs: pairedAccessoryIDs, hasSystemPairingRegistry: hasSystemPairingRegistry)
+    var needsSetup: [SystemPairedAccessory] = []
+    if hasSystemPairingRegistry {
+      do {
+        let pending = try await appState.connectionManager.systemAccessoriesMissingDeviceRecord()
+        needsSetup = pending.map { SystemPairedAccessory(id: $0.id, name: $0.name) }
+      } catch {
+        logger.error("Failed to query system pairing accessories: \(error.localizedDescription)")
       }
-      if !connectableDevices.isEmpty {
-        devices = connectableDevices.map { .saved($0) }
-
-        // Check which devices are connected elsewhere (BLE only)
-        var connectedElsewhere: Set<UUID> = []
-        for device in connectableDevices {
-          // Skip WiFi-only devices
-          let hasBluetooth = device.connectionMethods.isEmpty ||
-            device.connectionMethods.contains { !$0.isWiFi }
-          if hasBluetooth {
-            if await appState.connectionManager.isDeviceConnectedToOtherApp(device.id) {
-              connectedElsewhere.insert(device.id)
-            }
-          }
-        }
-        devicesConnectedElsewhere = connectedElsewhere
-        return
-      }
-    } catch {
-      logger.error("Failed to load devices: \(error)")
     }
 
-    // Fall back to ASK accessories when the filter drops every saved row (or the DB is empty)
     let accessories = appState.connectionManager.pairedAccessoryInfos
-    devices = accessories.map { .accessory(id: $0.id, name: $0.name) }
+    let savedDevices: [DeviceDTO]
+    do {
+      savedDevices = try await appState.connectionManager.fetchSavedDevices()
+    } catch {
+      logger.error("Failed to load devices: \(error.localizedDescription)")
+      savedDevices = []
+    }
 
-    // Check which accessories are connected elsewhere
+    let result = DeviceSelectionListBuilder.make(
+      saved: savedDevices,
+      accessories: accessories,
+      needsSetup: needsSetup,
+      hasSystemPairingRegistry: hasSystemPairingRegistry
+    )
+    list = result
+
     var connectedElsewhere: Set<UUID> = []
-    for accessory in accessories where await appState.connectionManager.isDeviceConnectedToOtherApp(accessory.id) {
-      connectedElsewhere.insert(accessory.id)
+    for device in result.connectable {
+      let hasBluetooth = device.connectionMethods.isEmpty ||
+        device.connectionMethods.contains { !$0.isWiFi }
+      if hasBluetooth {
+        if await appState.connectionManager.isDeviceConnectedToOtherApp(device.id) {
+          connectedElsewhere.insert(device.id)
+        }
+      }
     }
     devicesConnectedElsewhere = connectedElsewhere
   }
 
   private func scanForNewDevice() {
+    appState.connectionUI.queuedSystemPairingSetup = nil
+    appState.connectionUI.queuedDeviceScanAfterSelectionDismiss = true
+    appState.connectionManager.isPairingFlowActive = true
     dismiss()
-    Task {
-      await appState.connectionManager.stopBLEScanning()
-      await appState.disconnect(reason: .switchingDevice)
-      // Trigger ASK picker flow via AppState
-      appState.startDeviceScan()
-    }
   }
 
-  private func connectToDevice(_ device: SelectableDevice) {
+  private func setupAccessory(_ accessory: SystemPairedAccessory) {
+    appState.connectionUI.queuedDeviceScanAfterSelectionDismiss = false
+    appState.connectionUI.queuedSystemPairingSetup = SystemPairingSetupPrompt(
+      accessories: [accessory]
+    )
+    appState.connectionManager.isPairingFlowActive = true
+    dismiss()
+  }
+
+  private func connectToDevice(_ device: DeviceDTO) {
     dismiss()
     Task {
-      logger.info("[UI] User tapped Connect for device: \(device.id.uuidString.prefix(8)), name: \(device.name)")
+      logger.info("[UI] User tapped Connect for device: \(device.id.uuidString.prefix(8)), name: \(device.nodeName)")
       do {
         if case let .wifi(host, port, _) = device.primaryConnectionMethod {
           try await appState.connectViaWiFi(host: host, port: port, forceFullSync: true)
@@ -199,13 +169,11 @@ struct DeviceSelectionSheet: View {
     }
   }
 
-  private func deleteDevice(_ device: SelectableDevice) {
-    guard case let .saved(deviceDTO) = device else { return }
-
+  private func deleteDevice(_ device: DeviceDTO) {
     Task {
       do {
-        try await appState.connectionManager.deleteDevice(id: deviceDTO.id)
-        devices.removeAll { $0.id == device.id }
+        try await appState.connectionManager.deleteDevice(id: device.id)
+        await loadDevices()
       } catch {
         logger.error("Failed to delete device: \(error)")
       }
@@ -217,19 +185,21 @@ struct DeviceSelectionSheet: View {
 
 private struct DeviceListView: View {
   @Environment(\.appTheme) private var theme
-  let devices: [SelectableDevice]
+  let connectable: [DeviceDTO]
+  let needsSetup: [SystemPairedAccessory]
   let devicesConnectedElsewhere: Set<UUID>
   let tracker: RSSIScanTracker
   @Binding var showingWiFiConnection: Bool
-  @Binding var editingWiFiDevice: SelectableDevice?
-  let onConnect: (SelectableDevice) -> Void
-  let onDelete: (SelectableDevice) -> Void
+  @Binding var editingWiFiDevice: DeviceDTO?
+  let onConnect: (DeviceDTO) -> Void
+  let onDelete: (DeviceDTO) -> Void
+  let onSetup: (SystemPairedAccessory) -> Void
   let onScanForNew: () -> Void
 
   var body: some View {
     List {
       Section {
-        ForEach(devices) { device in
+        ForEach(connectable) { device in
           let tier = device.connectsViaWiFi ? nil : tracker.signalTier(for: device.id)
           let isDisabledByBLE = !device.connectsViaWiFi && !tracker.isAdvertising(device.id)
           Button {
@@ -261,8 +231,24 @@ private struct DeviceListView: View {
             }
           }
         }
+
+        ForEach(needsSetup) { accessory in
+          Button {
+            onSetup(accessory)
+          } label: {
+            NeedsSetupDeviceRow(accessory: accessory)
+              .contentShape(.rect)
+          }
+          .buttonStyle(.plain)
+        }
       } header: {
         Text(L10n.Settings.DeviceSelection.previouslyPaired)
+      } footer: {
+        if !needsSetup.isEmpty {
+          Text(needsSetup.count == 1
+            ? L10n.Settings.DeviceSelection.setupFooter
+            : L10n.Settings.DeviceSelection.setupFooterPlural)
+        }
       }
       .themedRowBackground(theme)
 
@@ -328,10 +314,45 @@ private struct EmptyStateView: View {
   }
 }
 
+// MARK: - Needs Setup Row
+
+private struct NeedsSetupDeviceRow: View {
+  let accessory: SystemPairedAccessory
+
+  private var presentation: DeviceSelectionListBuilder.NeedsSetupRowPresentation {
+    DeviceSelectionListBuilder.needsSetupPresentation(name: accessory.name)
+  }
+
+  var body: some View {
+    HStack(spacing: 12) {
+      Image(systemName: "antenna.radiowaves.left.and.right")
+        .font(.title2)
+        .foregroundStyle(.green)
+        .frame(width: 40, height: 40)
+        .background(Color.green.opacity(0.1), in: .circle)
+
+      Text(accessory.name)
+        .font(.headline)
+
+      Spacer()
+
+      Text(presentation.trailingTitle)
+        .font(.body)
+        .foregroundStyle(.blue)
+    }
+    .padding(.vertical, 4)
+    .contentShape(.rect)
+    .accessibilityElement(children: .combine)
+    .accessibilityAddTraits(.isButton)
+    .accessibilityLabel(presentation.accessibilityLabel)
+    .accessibilityHint(presentation.accessibilityHint)
+  }
+}
+
 // MARK: - Device Row
 
 private struct DeviceRow: View {
-  let device: SelectableDevice
+  let device: DeviceDTO
   let connectsViaWiFi: Bool
   let isConnectedElsewhere: Bool
   let signalTier: RSSITuning.SignalTier?
@@ -370,7 +391,7 @@ private struct DeviceRow: View {
         .background(transportColor.opacity(0.1), in: .circle)
 
       VStack(alignment: .leading, spacing: 2) {
-        Text(device.name)
+        Text(device.nodeName)
           .font(.headline)
 
         if isConnectedElsewhere {
@@ -399,8 +420,8 @@ private struct DeviceRow: View {
     .accessibilityElement(children: .combine)
     .accessibilityAddTraits(.isButton)
     .accessibilityLabel(isConnectedElsewhere
-      ? L10n.Settings.DeviceSelection.Accessibility.connectedElsewhereLabel(device.name)
-      : L10n.Settings.DeviceSelection.Accessibility.deviceLabel(device.name, connectionDescription))
+      ? L10n.Settings.DeviceSelection.Accessibility.connectedElsewhereLabel(device.nodeName)
+      : L10n.Settings.DeviceSelection.Accessibility.deviceLabel(device.nodeName, connectionDescription))
     .accessibilityValue(signalDescription)
     .accessibilityHint(isConnectedElsewhere
       ? L10n.Settings.DeviceSelection.Accessibility.connectedElsewhereHint
@@ -417,5 +438,15 @@ private struct DeviceRow: View {
   private var signalDescription: String {
     guard let tier = signalTier else { return "" }
     return SignalBars.accessibilityDescription(forTier: tier)
+  }
+}
+
+private extension DeviceDTO {
+  var primaryConnectionMethod: ConnectionMethod? {
+    connectionMethods.first { $0.isWiFi } ?? connectionMethods.first
+  }
+
+  var connectsViaWiFi: Bool {
+    primaryConnectionMethod?.isWiFi == true
   }
 }

@@ -56,6 +56,8 @@ final class DangerZoneViewModel {
     do {
       try await connectionManager.forgetDevice(deleteData: deleteData)
       return true
+    } catch DevicePairingError.cancelled {
+      return false
     } catch {
       errorMessage = error.userFacingMessage
       return false

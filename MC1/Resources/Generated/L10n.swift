@@ -4704,6 +4704,10 @@ public enum L10n {
       public static let connectedElsewhere = L10n.tr("Settings", "deviceSelection.connectedElsewhere", fallback: "Connected elsewhere")
       /// Button to connect via WiFi
       public static let connectViaWifi = L10n.tr("Settings", "deviceSelection.connectViaWifi", fallback: "Connect via WiFi")
+      /// Destructive confirmation for several devices
+      public static let forgetTheseDevices = L10n.tr("Settings", "deviceSelection.forgetTheseDevices", fallback: "Forget These Devices")
+      /// Destructive confirmation for one device
+      public static let forgetThisDevice = L10n.tr("Settings", "deviceSelection.forgetThisDevice", fallback: "Forget This Device")
       /// Description for empty state
       public static let noPairedDescription = L10n.tr("Settings", "deviceSelection.noPairedDescription", fallback: "You haven't paired any devices yet.")
       /// Title for empty state when no devices are paired
@@ -4714,6 +4718,24 @@ public enum L10n {
       public static let scanBluetooth = L10n.tr("Settings", "deviceSelection.scanBluetooth", fallback: "Scan for Bluetooth Device")
       /// Button to scan for new devices
       public static let scanForDevices = L10n.tr("Settings", "deviceSelection.scanForDevices", fallback: "Scan for Devices")
+      /// Trailing control on a previously paired row that still needs iPhone setup
+      public static let setup = L10n.tr("Settings", "deviceSelection.setup", fallback: "Set Up")
+      /// Reassurance that forgetting the iPhone pairing does not delete conversations
+      public static let setupConversations = L10n.tr("Settings", "deviceSelection.setupConversations", fallback: "This will not delete your conversations.")
+      /// Footer under Previously Paired when one needs-setup row is present
+      public static let setupFooter = L10n.tr("Settings", "deviceSelection.setupFooter", fallback: "Forget this device to add it to MeshCore One.")
+      /// Footer under Previously Paired when several needs-setup rows are present
+      public static let setupFooterPlural = L10n.tr("Settings", "deviceSelection.setupFooterPlural", fallback: "Forget these devices to add them to MeshCore One.")
+      /// Sheet body when one device is paired with iPhone
+      public static let setupMessage = L10n.tr("Settings", "deviceSelection.setupMessage", fallback: "This device is paired with iPhone. You'll need to forget it before adding it to MeshCore One.")
+      /// Sheet body when several devices are paired with iPhone
+      public static let setupMessagePlural = L10n.tr("Settings", "deviceSelection.setupMessagePlural", fallback: "These devices are paired with iPhone. You'll need to forget them before adding a radio to MeshCore One.")
+      /// Sheet title when one device needs setup. %@ is the accessory name
+      public static func setupTitle(_ p1: Any) -> String {
+        return L10n.tr("Settings", "deviceSelection.setupTitle", String(describing: p1), fallback: "Set Up %@")
+      }
+      /// Sheet title when several devices need setup
+      public static let setupTitleGeneric = L10n.tr("Settings", "deviceSelection.setupTitleGeneric", fallback: "Set Up")
       /// Navigation title for device selection
       public static let title = L10n.tr("Settings", "deviceSelection.title", fallback: "Connect Device")
       public enum Accessibility {
@@ -4731,6 +4753,12 @@ public enum L10n {
         public static let outOfRangeHint = L10n.tr("Settings", "deviceSelection.accessibility.outOfRangeHint", fallback: "Device is out of Bluetooth range")
         /// Accessibility hint for selecting a device
         public static let selectHint = L10n.tr("Settings", "deviceSelection.accessibility.selectHint", fallback: "Double tap to connect")
+        /// VoiceOver hint for a needs-setup row
+        public static let setupHint = L10n.tr("Settings", "deviceSelection.accessibility.setupHint", fallback: "Double tap to set up")
+        /// VoiceOver label for a needs-setup row. %@ is the accessory name
+        public static func setupLabel(_ p1: Any) -> String {
+          return L10n.tr("Settings", "deviceSelection.accessibility.setupLabel", String(describing: p1), fallback: "%@, paired with iPhone")
+        }
       }
     }
     public enum Diagnostics {

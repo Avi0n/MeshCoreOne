@@ -149,9 +149,11 @@ struct MainSidebarView: View {
           appState.navigation.clearPerDeviceSelection()
         }
       }
-      .sheet(isPresented: $showingDeviceSelection) {
+      .sheet(isPresented: $showingDeviceSelection, onDismiss: {
+        appState.handleDeviceSelectionSheetDismissed()
+      }) {
         DeviceSelectionSheet()
-          .presentationDetents([.medium])
+          .presentationDetents([.medium, .large])
           .presentationDragIndicator(.visible)
       }
   }

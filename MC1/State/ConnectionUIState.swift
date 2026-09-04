@@ -75,12 +75,8 @@ final class ConnectionUIState {
   /// Device ID that triggered "connected to other app" warning - alert shown when non-nil
   var otherAppWarningDeviceID: UUID?
 
-  /// Whether any user-initiated connection attempt is in flight — pairing
-  /// (`AppState.startDeviceScan`), the transient-failure retry path
-  /// (`AppState.retryFailedPairingConnect`), or simulator connect. Drives
-  /// spinners and disabled buttons across pairing and retry flows. Distinct from
-  /// `ConnectionManager.isPairingInProgress`, which is narrowly scoped to the
-  /// `pairNewDevice` flow and is consulted by the BLE-layer reconnect gate.
+  /// User-initiated connect in flight (scan, retry, simulator).
+  /// Distinct from `isPairingInProgress` and `isPairingFlowActive`.
   var isBusy = false
 
   /// Whether the device's node storage is full (set by 0x90 push, cleared on delete/overwrite)
@@ -96,6 +92,19 @@ final class ConnectionUIState {
 
   /// Flag indicating ASK picker should be shown when app returns to foreground
   var shouldShowPickerOnForeground = false
+
+  /// Forget succeeded but ASK rejected `showPicker` (`pickerRestricted`). Retry
+  /// `pairNewDevice` on the next `.active` scene, not `startDeviceScan`.
+  var shouldCompleteFreshPairingOnForeground = false
+
+  /// ASK-authorized radios with no `Device` row. Non-nil presents `SystemPairingSetupSheet`.
+  var pendingSystemPairingSetup: SystemPairingSetupPrompt?
+
+  /// ASK leftovers to present after `DeviceSelectionSheet` has left the hierarchy.
+  var queuedSystemPairingSetup: SystemPairingSetupPrompt?
+
+  /// When true, dismissing device selection starts a fresh scan instead of presenting queued setup.
+  var queuedDeviceScanAfterSelectionDismiss = false
 
   // MARK: - Ready Toast Methods
 

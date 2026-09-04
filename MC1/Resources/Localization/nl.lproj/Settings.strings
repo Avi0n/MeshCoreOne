@@ -165,6 +165,54 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Scannen naar Bluetooth-apparaat";
 
+/* Trailing control on a previously paired row that still needs iPhone setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setup" = "Instellen";
+
+/* Sheet title when one device needs setup. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitle" = "%@ instellen";
+
+/* Sheet title when several devices need setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitleGeneric" = "Instellen";
+
+/* Sheet body when one device is paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessage" = "Dit apparaat is gekoppeld met iPhone. Je moet het vergeten voordat je het aan MeshCore One toevoegt.";
+
+/* Sheet body when several devices are paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessagePlural" = "Deze apparaten zijn gekoppeld met iPhone. Je moet ze vergeten voordat je een radio aan MeshCore One toevoegt.";
+
+/* Reassurance that forgetting the iPhone pairing does not delete conversations */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupConversations" = "Dit verwijdert je gesprekken niet.";
+
+/* Destructive confirmation for one device */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetThisDevice" = "Dit apparaat vergeten";
+
+/* Destructive confirmation for several devices */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetTheseDevices" = "Deze apparaten vergeten";
+
+/* Footer under Previously Paired when one needs-setup row is present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooter" = "Vergeet dit apparaat om het aan MeshCore One toe te voegen.";
+
+/* Footer under Previously Paired when several needs-setup rows are present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooterPlural" = "Vergeet deze apparaten om ze aan MeshCore One toe te voegen.";
+
+/* VoiceOver label for a needs-setup row. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupLabel" = "%@, gekoppeld met iPhone";
+
+/* VoiceOver hint for a needs-setup row */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupHint" = "Dubbeltik om in te stellen";
+
 /* Title for empty state when no devices are paired */
 "deviceSelection.noPairedDevices" = "Geen gekoppelde apparaten";
 

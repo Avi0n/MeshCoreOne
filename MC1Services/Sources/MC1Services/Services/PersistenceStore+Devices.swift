@@ -15,6 +15,9 @@ public extension PersistenceStore {
 
   /// Fetch a device by ID
   func fetchDevice(id: UUID) throws -> DeviceDTO? {
+    #if DEBUG
+      try fetchDeviceByIDFaultInjection?()
+    #endif
     let targetID = id
     let predicate = #Predicate<Device> { device in
       device.id == targetID
@@ -437,4 +440,10 @@ public extension PersistenceStore {
       modelContext.delete(path)
     }
   }
+
+  #if DEBUG
+    func setFetchDeviceByIDFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      fetchDeviceByIDFaultInjection = hook
+    }
+  #endif
 }

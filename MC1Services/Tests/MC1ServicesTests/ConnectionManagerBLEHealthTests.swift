@@ -69,7 +69,7 @@ struct ConnectionManagerBLEHealthTests {
       currentTransportType: .bluetooth,
       connectionIntent: .wantsConnection()
     )
-    // testLastConnectedDeviceID is nil by default
+    manager.testForceNeverPaired = true
 
     await manager.checkBLEConnectionHealth()
 
@@ -147,6 +147,27 @@ struct ConnectionManagerBLEHealthTests {
 
     // Gate fires before connect(to:) — connectionState stays .disconnected
     #expect(manager.connectionState == .disconnected)
+  }
+
+  @Test
+  func `skips foreground reconnect while pairing flow is active`() async throws {
+    let (manager, mock) = try ConnectionManager.createForTesting()
+
+    await mock.setStubbedIsConnected(false)
+    await mock.setStubbedIsAutoReconnecting(false)
+
+    manager.setTestState(
+      connectionState: .disconnected,
+      currentTransportType: .bluetooth,
+      connectionIntent: .wantsConnection(),
+      isPairingFlowActive: true
+    )
+    manager.testLastConnectedDeviceID = UUID()
+
+    await manager.checkBLEConnectionHealth()
+
+    #expect(manager.connectionState == .disconnected)
+    #expect(await mock.isDeviceConnectedToSystemCalls.isEmpty)
   }
 
   @Test

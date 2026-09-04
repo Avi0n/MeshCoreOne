@@ -165,6 +165,42 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Scan for Bluetooth Device";
 
+/* Trailing control on a previously paired row that still needs iPhone setup */
+"deviceSelection.setup" = "Set Up";
+
+/* Sheet title when one device needs setup. %@ is the accessory name */
+"deviceSelection.setupTitle" = "Set Up %@";
+
+/* Sheet title when several devices need setup */
+"deviceSelection.setupTitleGeneric" = "Set Up";
+
+/* Sheet body when one device is paired with iPhone */
+"deviceSelection.setupMessage" = "This device is paired with iPhone. You'll need to forget it before adding it to MeshCore One.";
+
+/* Sheet body when several devices are paired with iPhone */
+"deviceSelection.setupMessagePlural" = "These devices are paired with iPhone. You'll need to forget them before adding a radio to MeshCore One.";
+
+/* Reassurance that forgetting the iPhone pairing does not delete conversations */
+"deviceSelection.setupConversations" = "This will not delete your conversations.";
+
+/* Destructive confirmation for one device */
+"deviceSelection.forgetThisDevice" = "Forget This Device";
+
+/* Destructive confirmation for several devices */
+"deviceSelection.forgetTheseDevices" = "Forget These Devices";
+
+/* Footer under Previously Paired when one needs-setup row is present */
+"deviceSelection.setupFooter" = "Forget this device to add it to MeshCore One.";
+
+/* Footer under Previously Paired when several needs-setup rows are present */
+"deviceSelection.setupFooterPlural" = "Forget these devices to add them to MeshCore One.";
+
+/* VoiceOver label for a needs-setup row. %@ is the accessory name */
+"deviceSelection.accessibility.setupLabel" = "%@, paired with iPhone";
+
+/* VoiceOver hint for a needs-setup row */
+"deviceSelection.accessibility.setupHint" = "Double tap to set up";
+
 /* Title for empty state when no devices are paired */
 "deviceSelection.noPairedDevices" = "No Paired Devices";
 

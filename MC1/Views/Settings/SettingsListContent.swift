@@ -33,7 +33,9 @@ struct SettingsListContent: View {
       .toolbar {
         bleStatusToolbarItem()
       }
-      .sheet(isPresented: $showingDeviceSelection) {
+      .sheet(isPresented: $showingDeviceSelection, onDismiss: {
+        appState.handleDeviceSelectionSheetDismissed()
+      }) {
         DeviceSelectionSheet()
           .presentationDetents([.medium])
           .presentationDragIndicator(.visible)

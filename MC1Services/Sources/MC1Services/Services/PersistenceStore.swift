@@ -79,6 +79,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     /// closures — a real SwiftData save failure here is otherwise hard to
     /// provoke from a well-formed row.
     var incrementPendingSendAttemptCountFaultInjection: (@Sendable () throws -> Void)?
+
+    /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
+    var fetchDeviceByIDFaultInjection: (@Sendable () throws -> Void)?
   #endif
 
   /// Shared schema for MeshCore One models
