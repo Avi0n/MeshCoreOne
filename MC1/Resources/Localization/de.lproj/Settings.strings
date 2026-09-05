@@ -1720,6 +1720,11 @@
 "Appearance.Scheme.System" = "System";
 "Appearance.Scheme.Light" = "Hell";
 "Appearance.Scheme.Dark" = "Dunkel";
+"Appearance.TextSize.Header" = "Textgröße";
+"Appearance.TextSize.System" = "Standard";
+"Appearance.TextSize.Large" = "Groß";
+"Appearance.TextSize.XLarge" = "Sehr groß";
+"Appearance.TextSize.XXLarge" = "Extra groß";
 "Appearance.Themes.Header" = "Design auswählen";
 "Appearance.Themes.Selected" = "Ausgewählt";
 "Appearance.MoreThemes.Link" = "Weitere Designs kaufen";

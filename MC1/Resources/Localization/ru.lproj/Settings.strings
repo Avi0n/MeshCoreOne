@@ -1720,6 +1720,11 @@
 "Appearance.Scheme.System" = "Системная";
 "Appearance.Scheme.Light" = "Светлая";
 "Appearance.Scheme.Dark" = "Тёмная";
+"Appearance.TextSize.Header" = "Размер текста";
+"Appearance.TextSize.System" = "По умолчанию";
+"Appearance.TextSize.Large" = "Крупный";
+"Appearance.TextSize.XLarge" = "Очень крупный";
+"Appearance.TextSize.XXLarge" = "Экстра крупный";
 "Appearance.Themes.Header" = "Выберите тему";
 "Appearance.Themes.Selected" = "Выбрана";
 "Appearance.MoreThemes.Link" = "Купить другие темы";

@@ -92,6 +92,49 @@ struct ThemeServicePureTests {
   }
 
   @Test
+  func `missing appUITextSizePreference uses .system without writing back`() {
+    let defaults = freshDefaults()
+    let service = ThemeService(store: emptyStore(), defaults: defaults)
+    #expect(service.uiTextSizePreference == .system)
+    #expect(defaults.object(forKey: PersistenceKeys.appUITextSizePreference) == nil)
+  }
+
+  @Test
+  func `unknown appUITextSizePreference falls back to .system and overwrites`() {
+    let defaults = freshDefaults()
+    defaults.set("auto", forKey: PersistenceKeys.appUITextSizePreference)
+    let service = ThemeService(store: emptyStore(), defaults: defaults)
+    #expect(service.uiTextSizePreference == .system)
+    #expect(defaults.string(forKey: PersistenceKeys.appUITextSizePreference)
+      == AppUITextSizePreference.system.rawValue)
+  }
+
+  @Test
+  func `setUITextSizePreference persists the raw value and updates state`() {
+    let defaults = freshDefaults()
+    let service = ThemeService(store: emptyStore(), defaults: defaults)
+    service.setUITextSizePreference(.xLarge)
+    #expect(service.uiTextSizePreference == .xLarge)
+    #expect(defaults.string(forKey: PersistenceKeys.appUITextSizePreference) == "xLarge")
+  }
+
+  @Test
+  func `AppUITextSizePreference maps to the expected dynamicTypeSize values`() {
+    #expect(AppUITextSizePreference.system.dynamicTypeSize == nil)
+    #expect(AppUITextSizePreference.large.dynamicTypeSize == .xLarge)
+    #expect(AppUITextSizePreference.xLarge.dynamicTypeSize == .xxLarge)
+    #expect(AppUITextSizePreference.xxLarge.dynamicTypeSize == .accessibility1)
+  }
+
+  @Test
+  func `AppUITextSizePreference maps to the expected uiScale values`() {
+    #expect(AppUITextSizePreference.system.uiScale == 1.0)
+    #expect(AppUITextSizePreference.large.uiScale == 1.2)
+    #expect(AppUITextSizePreference.xLarge.uiScale == 1.35)
+    #expect(AppUITextSizePreference.xxLarge.uiScale == 1.5)
+  }
+
+  @Test
   func `effectiveColorScheme: default theme defers to the preference`() {
     let service = ThemeService(store: emptyStore(), defaults: freshDefaults())
     service.setColorSchemePreference(.system)
@@ -171,6 +214,42 @@ struct ThemeServicePureTests {
     #expect(service.colorSchemePreference == .system)
     #expect(defaults.string(forKey: PersistenceKeys.appColorSchemePreference)
       == AppColorSchemePreference.system.rawValue)
+  }
+
+  @Test
+  func `refreshFromUserDefaults adopts an externally written text-size preference`() {
+    let defaults = freshDefaults()
+    let service = ThemeService(store: emptyStore(), defaults: defaults)
+    defaults.set("large", forKey: PersistenceKeys.appUITextSizePreference)
+
+    service.refreshFromUserDefaults()
+
+    #expect(service.uiTextSizePreference == .large)
+  }
+
+  @Test
+  func `refreshFromUserDefaults overwrites an unknown text-size preference with .system`() {
+    let defaults = freshDefaults()
+    let service = ThemeService(store: emptyStore(), defaults: defaults)
+    defaults.set("auto", forKey: PersistenceKeys.appUITextSizePreference)
+
+    service.refreshFromUserDefaults()
+
+    #expect(service.uiTextSizePreference == .system)
+    #expect(defaults.string(forKey: PersistenceKeys.appUITextSizePreference)
+      == AppUITextSizePreference.system.rawValue)
+  }
+
+  @Test
+  func `restore-origin downgrade: an unknown backed-up text-size falls back to .system on init`() {
+    let defaults = freshDefaults()
+    var prefs = BackupUserDefaults()
+    prefs.appUITextSizePreference = "auto" // a future raw value this build doesn't know
+    prefs.restore(to: defaults) // write-if-missing writes "auto"
+    let service = ThemeService(store: emptyStore(), defaults: defaults)
+    #expect(service.uiTextSizePreference == .system)
+    #expect(defaults.string(forKey: PersistenceKeys.appUITextSizePreference)
+      == AppUITextSizePreference.system.rawValue)
   }
 
   @Test

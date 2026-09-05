@@ -11,6 +11,8 @@ struct TroubleshootingSheet: View {
   @Environment(\.openURL) private var openURL
   @State private var isClearing = false
 
+  @ScaledMetric(relativeTo: .body) private var titleStackSpacing = OnboardingMetrics.titleStackSpacing
+
   var body: some View {
     NavigationStack {
       List {
@@ -24,7 +26,7 @@ struct TroubleshootingSheet: View {
         }
 
         Section {
-          VStack(alignment: .leading, spacing: OnboardingMetrics.titleStackSpacing) {
+          VStack(alignment: .leading, spacing: titleStackSpacing) {
             Text(L10n.Onboarding.Troubleshooting.FactoryReset.explanation)
               .font(.subheadline)
               .foregroundStyle(.secondary)
@@ -59,7 +61,7 @@ struct TroubleshootingSheet: View {
         }
 
         Section {
-          VStack(alignment: .leading, spacing: OnboardingMetrics.titleStackSpacing) {
+          VStack(alignment: .leading, spacing: titleStackSpacing) {
             Text(L10n.Onboarding.Troubleshooting.SystemSettings.manageAccessories)
               .font(.subheadline)
             Text(L10n.Onboarding.Troubleshooting.SystemSettings.path)

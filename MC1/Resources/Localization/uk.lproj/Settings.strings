@@ -1720,6 +1720,11 @@
 "Appearance.Scheme.System" = "Системна";
 "Appearance.Scheme.Light" = "Світла";
 "Appearance.Scheme.Dark" = "Темна";
+"Appearance.TextSize.Header" = "Розмір тексту";
+"Appearance.TextSize.System" = "За замовчуванням";
+"Appearance.TextSize.Large" = "Великий";
+"Appearance.TextSize.XLarge" = "Дуже великий";
+"Appearance.TextSize.XXLarge" = "Екстра великий";
 "Appearance.Themes.Header" = "Виберіть тему";
 "Appearance.Themes.Selected" = "Вибрано";
 "Appearance.MoreThemes.Link" = "Придбати інші теми";

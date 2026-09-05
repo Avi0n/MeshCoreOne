@@ -23,4 +23,7 @@ public enum PersistenceKeys {
 
   /// App color-scheme preference raw value (`"system"` | `"light"` | `"dark"`). Bare string.
   public static let appColorSchemePreference = "appColorSchemePreference"
+
+  /// App text-size preference raw value (`"system"` | `"large"` | `"xLarge"` | `"xxLarge"`). Bare string.
+  public static let appUITextSizePreference = "appUITextSizePreference"
 }

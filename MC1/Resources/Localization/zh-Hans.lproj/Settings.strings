@@ -1720,6 +1720,11 @@
 "Appearance.Scheme.System" = "跟随系统";
 "Appearance.Scheme.Light" = "浅色";
 "Appearance.Scheme.Dark" = "深色";
+"Appearance.TextSize.Header" = "文本大小";
+"Appearance.TextSize.System" = "默认";
+"Appearance.TextSize.Large" = "大";
+"Appearance.TextSize.XLarge" = "特大";
+"Appearance.TextSize.XXLarge" = "超大";
 "Appearance.Themes.Header" = "选择主题";
 "Appearance.Themes.Selected" = "已选择";
 "Appearance.MoreThemes.Link" = "购买更多主题";

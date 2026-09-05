@@ -1717,6 +1717,11 @@
 "Appearance.Scheme.System" = "System";
 "Appearance.Scheme.Light" = "Light";
 "Appearance.Scheme.Dark" = "Dark";
+"Appearance.TextSize.Header" = "Text Size";
+"Appearance.TextSize.System" = "Default";
+"Appearance.TextSize.Large" = "Large";
+"Appearance.TextSize.XLarge" = "Extra Large";
+"Appearance.TextSize.XXLarge" = "Extra Extra Large";
 "Appearance.Themes.Header" = "Choose a theme";
 "Appearance.Themes.Selected" = "Selected";
 "Appearance.MoreThemes.Link" = "Purchase More Themes";

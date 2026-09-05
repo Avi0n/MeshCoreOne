@@ -170,6 +170,10 @@ private struct ChatInputTextField: View {
   let onFocus: () -> Void
   let glassNamespace: Namespace.ID
 
+  @ScaledMetric(relativeTo: .body) private var controlHeight = ChatInputMetrics.controlHeight
+  @ScaledMetric(relativeTo: .body) private var fieldCornerRadius = ChatInputMetrics.fieldCornerRadius
+  @ScaledMetric(relativeTo: .body) private var fieldBorderWidth = ChatInputMetrics.fieldBorderWidth
+
   var body: some View {
     ChatComposerTextView(
       text: $text,
@@ -179,7 +183,7 @@ private struct ChatInputTextField: View {
       onSend: onSend,
       onFocus: onFocus
     )
-    .frame(maxWidth: .infinity, minHeight: ChatInputMetrics.controlHeight)
+    .frame(maxWidth: .infinity, minHeight: controlHeight)
     .overlay(alignment: .topLeading) {
       if text.isEmpty {
         Text(placeholder)
@@ -199,7 +203,7 @@ private struct ChatInputTextField: View {
         .padding(.trailing, 10)
         .accessibilityHidden(true)
     }
-    .textFieldBackground()
+    .textFieldBackground(cornerRadius: fieldCornerRadius, borderWidth: fieldBorderWidth)
     .liquidGlassID("chatComposer", in: glassNamespace)
   }
 }
@@ -264,12 +268,14 @@ private struct ChatSendButton: View {
   let sendAccessibilityHint: String
   let onSend: () -> Void
 
+  @ScaledMetric(relativeTo: .body) private var controlHeight = ChatInputMetrics.controlHeight
+
   var body: some View {
     Button(action: onSend) {
       Image(systemName: "arrow.up")
-        .font(.system(size: 18, weight: .semibold))
+        .font(.body.bold())
         .foregroundStyle(.white)
-        .frame(width: ChatInputMetrics.controlHeight, height: ChatInputMetrics.controlHeight)
+        .frame(width: controlHeight, height: controlHeight)
         .sendButtonBackground()
         .contentShape(Circle())
     }
@@ -292,15 +298,15 @@ private extension View {
   }
 
   @ViewBuilder
-  func textFieldBackground() -> some View {
+  func textFieldBackground(cornerRadius: CGFloat, borderWidth: CGFloat) -> some View {
     if #available(iOS 26.0, *) {
-      glassEffect(.regular.interactive(), in: .rect(cornerRadius: ChatInputMetrics.fieldCornerRadius))
+      glassEffect(.regular.interactive(), in: .rect(cornerRadius: cornerRadius))
     } else {
       // Without the glass capsule the field would read as one fill on the bar's fill, so its edge
       // carries the affordance. A clear centre keeps it legible against any theme canvas.
       overlay {
-        RoundedRectangle(cornerRadius: ChatInputMetrics.fieldCornerRadius)
-          .strokeBorder(Color(.separator), lineWidth: ChatInputMetrics.fieldBorderWidth)
+        RoundedRectangle(cornerRadius: cornerRadius)
+          .strokeBorder(Color(.separator), lineWidth: borderWidth)
       }
     }
   }
