@@ -32,6 +32,18 @@ public enum RegionalAreas {
     Subdivision(id: "US-CA",
                 normalizedNames: ["california", "ca"],
                 nameKey: "region.subdivision.US-CA"),
+    Subdivision(id: "US-DE",
+                normalizedNames: ["delaware", "de"],
+                nameKey: "region.subdivision.US-DE"),
+    Subdivision(id: "US-MD",
+                normalizedNames: ["maryland", "md"],
+                nameKey: "region.subdivision.US-MD"),
+    Subdivision(id: "US-NJ",
+                normalizedNames: ["new jersey", "nj"],
+                nameKey: "region.subdivision.US-NJ"),
+    Subdivision(id: "US-PA",
+                normalizedNames: ["pennsylvania", "pa"],
+                nameKey: "region.subdivision.US-PA"),
   ]
 
   public static let auSubdivisions: [Subdivision] = [
@@ -177,6 +189,10 @@ public enum RegionalAreas {
   /// of truth for `Settings.strings` `region.subdivision.*` entries.
   private static let englishSubdivisionFallbacks: [String: String] = [
     "US-CA": "California",
+    "US-DE": "Delaware",
+    "US-MD": "Maryland",
+    "US-NJ": "New Jersey",
+    "US-PA": "Pennsylvania",
     "AU-QLD": "Queensland",
     "AU-SA": "South Australia",
     "AU-WA": "Western Australia",

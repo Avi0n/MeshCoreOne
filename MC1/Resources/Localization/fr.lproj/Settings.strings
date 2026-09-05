@@ -1313,6 +1313,18 @@
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "Californie";
 
+/* Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name */
+"region.subdivision.US-DE" = "Delaware";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name */
+"region.subdivision.US-MD" = "Maryland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name */
+"region.subdivision.US-NJ" = "New Jersey";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name */
+"region.subdivision.US-PA" = "Pennsylvanie";
+
 /* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
 "region.subdivision.AU-QLD" = "Queensland";
 

@@ -39,6 +39,47 @@ struct RadioPresetRecommendationTests {
     #expect(RadioPresets.recommended(for: region)?.id == "au-sa-wa")
   }
 
+  @Test
+  func `Pennsylvania → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-PA", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `New Jersey → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-NJ", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `Delaware → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-DE", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `Maryland → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-MD", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `Manual US with no admin → us-ca`() {
+    let region = RegionSelection(countryCode: "US", source: .manual)
+    #expect(RadioPresets.recommended(for: region)?.id == "us-ca")
+  }
+
+  @Test
+  func `PhillyMesh preset carries the expected radio parameters`() throws {
+    let preset = try #require(RadioPresets.all.first(where: { $0.id == "phillymesh" }))
+    #expect(preset.name == "PhillyMesh (Mid-Atlantic)")
+    #expect(preset.frequencyMHz == 902.250)
+    #expect(preset.bandwidthKHz == 500)
+    #expect(preset.spreadingFactor == 11)
+    #expect(preset.codingRate == 5)
+    #expect(preset.region == .northAmerica)
+  }
+
   // MARK: - Tier 2 (country)
 
   @Test
@@ -131,6 +172,15 @@ struct RadioPresetRecommendationTests {
   }
 
   @Test
+  func `presets(for: Texas) includes phillymesh in membership`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-TX", source: .location)
+    let ids = RadioPresets.presets(for: region).map(\.id)
+    #expect(ids.contains("phillymesh"))
+    #expect(ids.contains("us-ca"))
+    #expect(ids.contains("wcmesh"))
+  }
+
+  @Test
   func `presets(for: DE) returns continent-tier presets`() {
     let region = RegionSelection(countryCode: "DE", source: .location)
     let ids = RadioPresets.presets(for: region).map(\.id)
@@ -206,11 +256,75 @@ struct RadioPresetSelectabilityTests {
   @Test
   func `nil region → WCMesh hidden, global presets selectable`() {
     #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: nil))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
     #expect(RadioPresets.isSelectable(preset("eu-narrow"), in: nil))
   }
 
-  // MARK: - Non-county presets are never gated
+  // MARK: - Sub-region presets (PhillyMesh, AU-QLD, AU-SA-WA)
+
+  @Test
+  func `SoCal county → WCMesh selectable, PhillyMesh hidden`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-CA",
+                                 countyKey: "los angeles", source: .location)
+    #expect(RadioPresets.isSelectable(preset("wcmesh"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: region))
+  }
+
+  @Test
+  func `Pennsylvania → PhillyMesh selectable, WCMesh hidden, us-ca selectable`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-PA", source: .location)
+    #expect(RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: region))
+    #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+  }
+
+  @Test
+  func `Manual US with no admin → PhillyMesh hidden`() {
+    let region = RegionSelection(countryCode: "US", source: .manual)
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+  }
+
+  @Test
+  func `nil region → PhillyMesh hidden, us-ca selectable`() {
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: nil))
+    #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
+  }
+
+  @Test
+  func `Queensland → au-qld selectable, au-sa-wa hidden`() {
+    let region = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-QLD", source: .location)
+    #expect(RadioPresets.isSelectable(preset("au-qld"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+  }
+
+  @Test
+  func `South Australia → au-sa-wa selectable, au-qld hidden`() {
+    let region = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-SA", source: .location)
+    #expect(RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: region))
+  }
+
+  @Test
+  func `Manual AU with no admin → both AU sub-region presets hidden, au-915 selectable`() {
+    let region = RegionSelection(countryCode: "AU", source: .manual)
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+    #expect(RadioPresets.isSelectable(preset("au-915"), in: region))
+  }
+
+  @Test
+  func `Victoria → both AU sub-region presets hidden, au-915 selectable`() {
+    let region = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-VIC", source: .location)
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+    #expect(RadioPresets.isSelectable(preset("au-915"), in: region))
+  }
+
+  // MARK: - Country / continent presets stay ungated
 
   @Test
   func `Continent/country presets selectable for any region including nil`() {

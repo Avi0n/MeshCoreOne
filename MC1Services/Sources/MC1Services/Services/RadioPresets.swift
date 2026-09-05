@@ -168,6 +168,9 @@ public enum RadioPresets {
                   "los angeles", "orange", "san diego", "riverside", "san bernardino",
                   "ventura", "imperial", "kern", "santa barbara", "san luis obispo",
                 ])),
+    RadioPreset(id: "phillymesh", name: "PhillyMesh (Mid-Atlantic)", region: .northAmerica,
+                frequencyMHz: 902.250, bandwidthKHz: 500, spreadingFactor: 11, codingRate: 5,
+                availability: .subRegions(country: "US", areas: ["US-PA", "US-NJ", "US-DE", "US-MD"])),
 
     // South America
     // Chile: community-standard settings from the MeshChile network (https://meshchile.cl).
@@ -304,9 +307,9 @@ public enum RadioPresets {
   }
 
   /// Returns the alternatives list for the region's country (or continent if no
-  /// country-level matches exist). The list always includes `.counties` and
-  /// `.subRegions` presets for the country regardless of the user's specific
-  /// county/state, so a Sacramento user can still pick `wcmesh` manually.
+  /// country-level matches exist). Membership includes every `.counties` and
+  /// `.subRegions` preset for that country; pickers then hide out-of-area
+  /// presets via `isSelectable`.
   public static func presets(for region: RegionSelection) -> [RadioPreset] {
     let countryAndBelow = all.filter { preset in
       switch preset.availability {
@@ -324,19 +327,29 @@ public enum RadioPresets {
     }
   }
 
-  /// Whether `preset` should appear in a manual picker for `region`. Only county-scoped presets are
-  /// gated: they appear only when `region` resolves to one of their counties (a nil region hides them).
-  /// Every other tier is always selectable.
+  /// Whether `preset` should appear in a manual picker for `region`.
+  /// County presets appear only when `region` resolves to one of their counties.
+  /// Sub-region presets appear only when `region` matches the preset country and one of its areas.
+  /// A nil region hides both. Country and continent presets are always selectable.
   public static func isSelectable(_ preset: RadioPreset, in region: RegionSelection?) -> Bool {
-    guard case let .counties(country, state, keys) = preset.availability else {
+    switch preset.availability {
+    case let .counties(country, state, keys):
+      guard let region,
+            region.countryCode == country,
+            region.administrativeAreaCode == state,
+            let countyKey = region.countyKey else {
+        return false
+      }
+      return keys.contains(countyKey)
+    case let .subRegions(country, areas):
+      guard let region,
+            region.countryCode == country,
+            let admin = region.administrativeAreaCode else {
+        return false
+      }
+      return areas.contains(admin)
+    case .countries, .continent:
       return true
     }
-    guard let region,
-          region.countryCode == country,
-          region.administrativeAreaCode == state,
-          let countyKey = region.countyKey else {
-      return false
-    }
-    return keys.contains(countyKey)
   }
 }

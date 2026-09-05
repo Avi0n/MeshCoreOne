@@ -5279,6 +5279,14 @@ public enum L10n {
         public static let auWa = L10n.tr("Settings", "region.subdivision.AU-WA", fallback: "Western Australia")
         /// Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name
         public static let usCa = L10n.tr("Settings", "region.subdivision.US-CA", fallback: "California")
+        /// Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name
+        public static let usDe = L10n.tr("Settings", "region.subdivision.US-DE", fallback: "Delaware")
+        /// Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name
+        public static let usMd = L10n.tr("Settings", "region.subdivision.US-MD", fallback: "Maryland")
+        /// Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name
+        public static let usNj = L10n.tr("Settings", "region.subdivision.US-NJ", fallback: "New Jersey")
+        /// Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name
+        public static let usPa = L10n.tr("Settings", "region.subdivision.US-PA", fallback: "Pennsylvania")
       }
     }
     public enum ReplyWithQuote {

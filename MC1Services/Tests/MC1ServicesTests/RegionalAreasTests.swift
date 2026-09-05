@@ -90,4 +90,51 @@ struct RegionalAreasTests {
     let countryIDs = Set(RegionalAreas.countries.map(\.id))
     #expect(continentKeys == countryIDs)
   }
+
+  @Test
+  func `usSubdivisions lists CA then DE MD NJ PA`() {
+    #expect(RegionalAreas.usSubdivisions.map(\.id) == [
+      "US-CA", "US-DE", "US-MD", "US-NJ", "US-PA",
+    ])
+  }
+
+  @Test
+  func `matchSubdivision finds Pennsylvania from long and postal names`() {
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "pa") == "US-PA")
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "pennsylvania") == "US-PA")
+  }
+
+  @Test
+  func `matchSubdivision finds New Jersey from long and postal names`() {
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "nj") == "US-NJ")
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "new jersey") == "US-NJ")
+  }
+
+  @Test
+  func `matchSubdivision finds Delaware from long and postal names`() {
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "de") == "US-DE")
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "delaware") == "US-DE")
+  }
+
+  @Test
+  func `matchSubdivision finds Maryland from long and postal names`() {
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "md") == "US-MD")
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "maryland") == "US-MD")
+  }
+
+  @Test
+  func `matchSubdivision returns nil for uncatalogued US state`() {
+    #expect(RegionalAreas.matchSubdivision(country: "US", normalized: "tx") == nil)
+  }
+
+  @Test
+  func `matchCounty for US-PA stays nil`() {
+    #expect(RegionalAreas.matchCounty(country: "US", state: "US-PA", normalized: "philadelphia") == nil)
+  }
+
+  @Test
+  func `displayName uses short form for Pennsylvania`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-PA", source: .manual)
+    #expect(RegionalAreas.displayName(for: region) == "Pennsylvania")
+  }
 }
