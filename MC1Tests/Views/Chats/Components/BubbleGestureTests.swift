@@ -41,6 +41,24 @@ struct BubbleGestureTests {
     #expect(mac.delegate == nil)
   }
 
+  // MARK: - Mac secondary-click overlay hit policy
+
+  @Test
+  func `secondary-click overlay lets primary clicks through and claims the rest`() {
+    #expect(SecondaryClickCatcherView.shouldClaimHit(buttonMask: .primary) == false)
+    #expect(SecondaryClickCatcherView.shouldClaimHit(buttonMask: .secondary) == true)
+    #expect(SecondaryClickCatcherView.shouldClaimHit(buttonMask: []) == true)
+    #expect(SecondaryClickCatcherView.shouldClaimHit(buttonMask: [.primary, .secondary]) == true)
+    #expect(SecondaryClickCatcherView.shouldClaimHit(event: nil) == true)
+  }
+
+  @Test
+  func `secondary-click overlay claims nil-event hits inside bounds only`() {
+    let view = SecondaryClickCatcherView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+    #expect(view.hitTest(CGPoint(x: 50, y: 50), with: nil) === view)
+    #expect(view.hitTest(CGPoint(x: -1, y: -1), with: nil) == nil)
+  }
+
   // MARK: - Sibling long-press coverage
 
   @Test
