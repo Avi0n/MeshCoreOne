@@ -162,15 +162,74 @@ public extension PersistenceStore {
   /// save. The cascade is keyed by the contact ID value, not the Contact row,
   /// so orphaned local data is removed even when the row is already gone.
   func deleteContact(id: UUID) throws {
-    try _deleteMessagesForContactWithoutSaving(contactID: id)
-    let targetID = id
-    let predicate = #Predicate<Contact> { contact in
-      contact.id == targetID
+    try commitPendingRxLogEntries()
+    do {
+      try _stageOverwriteOldestCascade(contactID: id)
+      let targetID = id
+      let predicate = #Predicate<Contact> { contact in
+        contact.id == targetID
+      }
+      if let contact = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
+        modelContext.delete(contact)
+      }
+      #if DEBUG
+        try deleteContactsFaultInjection?()
+      #endif
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
     }
-    if let contact = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
-      modelContext.delete(contact)
+  }
+
+  /// Deletes matching contacts and their scoped messages, reactions, repeats,
+  /// and pending sends in one save. Missing keys are omitted from the returned ids.
+  func deleteContacts(radioID: UUID, publicKeys: Set<Data>) throws -> [UUID] {
+    try deleteContacts(
+      radioID: radioID, publicKeys: publicKeys, skippingPublicKeys: { [] }
+    )
+  }
+
+  func deleteContacts(
+    radioID: UUID,
+    publicKeys: Set<Data>,
+    skippingPublicKeys: @Sendable () -> Set<Data>
+  ) throws -> [UUID] {
+    guard !publicKeys.isEmpty else { return [] }
+    try commitPendingRxLogEntries()
+    let targetRadioID = radioID
+    var candidates: [(contact: Contact, publicKey: Data)] = []
+    for publicKey in publicKeys {
+      if skippingPublicKeys().contains(publicKey) { continue }
+      let targetKey = publicKey
+      let predicate = #Predicate<Contact> { contact in
+        contact.radioID == targetRadioID && contact.publicKey == targetKey
+      }
+      var descriptor = FetchDescriptor(predicate: predicate)
+      descriptor.fetchLimit = 1
+      guard let contact = try modelContext.fetch(descriptor).first else { continue }
+      candidates.append((contact, publicKey))
     }
-    try modelContext.save()
+    var deletedIDs: [UUID] = []
+    do {
+      for (contact, publicKey) in candidates {
+        if skippingPublicKeys().contains(publicKey) { continue }
+        let contactID = contact.id
+        try _stageOverwriteOldestCascade(contactID: contactID)
+        modelContext.delete(contact)
+        deletedIDs.append(contactID)
+      }
+      if !deletedIDs.isEmpty {
+        #if DEBUG
+          try deleteContactsFaultInjection?()
+        #endif
+        try modelContext.save()
+      }
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+    return deletedIDs
   }
 
   /// Insert-only rollback: probe for messages and delete in one ModelActor
@@ -482,11 +541,50 @@ public extension PersistenceStore {
   }
 
   /// Delete all messages, reactions, message repeats, and pending sends for a contact
-  /// in a single transactional save. Leaves the Contact row in place ("Clear");
-  /// `deleteContact` runs the same cascade before removing the row ("Remove").
+  /// in a single transactional save. Leaves the Contact row in place.
   func deleteMessagesForContact(contactID: UUID) throws {
     try _deleteMessagesForContactWithoutSaving(contactID: contactID)
     try modelContext.save()
+  }
+
+  /// Instance-deletes cascade rows so a thrown `save()` can `rollback()` the batch.
+  /// Bulk `delete(model:where:)` is not change-tracked.
+  private func _stageOverwriteOldestCascade(contactID: UUID) throws {
+    let targetContactID: UUID? = contactID
+    let messagePredicate = #Predicate<Message> { message in
+      message.contactID == targetContactID
+    }
+    let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
+    let messageIDs = messages.map(\.id)
+
+    if !messageIDs.isEmpty {
+      let chunkSize = 500
+      for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+        let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+        let pendingPredicate = #Predicate<PendingSend> { row in
+          chunk.contains(row.messageID)
+        }
+        for row in try modelContext.fetch(FetchDescriptor(predicate: pendingPredicate)) {
+          modelContext.delete(row)
+        }
+        let repeatPredicate = #Predicate<MessageRepeat> { row in
+          chunk.contains(row.messageID)
+        }
+        for row in try modelContext.fetch(FetchDescriptor(predicate: repeatPredicate)) {
+          modelContext.delete(row)
+        }
+      }
+    }
+
+    let reactionPredicate = #Predicate<Reaction> { reaction in
+      reaction.contactID == targetContactID
+    }
+    for row in try modelContext.fetch(FetchDescriptor(predicate: reactionPredicate)) {
+      modelContext.delete(row)
+    }
+    for message in messages {
+      modelContext.delete(message)
+    }
   }
 
   private func _deleteMessagesForContactWithoutSaving(contactID: UUID) throws {

@@ -52,6 +52,14 @@ public protocol ContactPersisting: Actor {
   /// already gone.
   func deleteContact(id: UUID) async throws
 
+  /// Deletes matching contacts and their scoped messages, reactions, repeats, and pending sends.
+  /// Missing keys are omitted; `skippingPublicKeys` is re-read per key so a concurrent revive can retract.
+  func deleteContacts(
+    radioID: UUID,
+    publicKeys: Set<Data>,
+    skippingPublicKeys: @Sendable () -> Set<Data>
+  ) async throws -> [UUID]
+
   /// Deletes the contact only when no messages reference it. Insert-only
   /// rollback of a mid-sync radio delete: prefer an orphan contact over a
   /// cascade that wipes a concurrent DM. Implementations that share a
@@ -142,6 +150,29 @@ extension ContactPersisting {
       _ = try await saveContact(radioID: radioID, from: frame)
     }
     return frames.count
+  }
+
+  func deleteContacts(radioID: UUID, publicKeys: Set<Data>) async throws -> [UUID] {
+    try await deleteContacts(
+      radioID: radioID, publicKeys: publicKeys, skippingPublicKeys: { [] }
+    )
+  }
+
+  func deleteContacts(
+    radioID: UUID,
+    publicKeys: Set<Data>,
+    skippingPublicKeys: @Sendable () -> Set<Data>
+  ) async throws -> [UUID] {
+    var ids: [UUID] = []
+    for key in publicKeys {
+      if skippingPublicKeys().contains(key) { continue }
+      if let contact = try await fetchContact(radioID: radioID, publicKey: key) {
+        if skippingPublicKeys().contains(key) { continue }
+        try await deleteContact(id: contact.id)
+        ids.append(contact.id)
+      }
+    }
+    return ids
   }
 }
 

@@ -62,6 +62,9 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     /// Test-only hook fired immediately before `modelContext.save()` in `batchSaveChannels`.
     var batchSaveChannelsFaultInjection: (@Sendable () throws -> Void)?
 
+    /// Test-only hook fired immediately before `modelContext.save()` in `deleteContacts`.
+    var deleteContactsFaultInjection: (@Sendable () throws -> Void)?
+
     /// Test-only fault-injection hook fired immediately before `modelContext.save()`
     /// in `importBackupDatabase`. Debug-only so the production API stays clean.
     /// SwiftData upserts on unique-constraint conflicts, so there is no reliable
@@ -82,6 +85,10 @@ public actor PersistenceStore: PersistenceStoreProtocol {
 
     /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
     var fetchDeviceByIDFaultInjection: (@Sendable () throws -> Void)?
+
+    func setDeleteContactsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      deleteContactsFaultInjection = hook
+    }
   #endif
 
   /// Shared schema for MeshCore One models

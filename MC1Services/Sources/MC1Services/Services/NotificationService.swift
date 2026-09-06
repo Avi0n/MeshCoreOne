@@ -802,10 +802,22 @@ public final class NotificationService: NSObject {
 
   /// Remove all delivered notifications for a contact
   public func removeDeliveredNotifications(forContactID contactID: UUID) async {
+    await removeDeliveredNotifications(forContactIDs: [contactID])
+  }
+
+  /// Remove delivered notifications for these contacts. Lists delivered notifications once.
+  public func removeDeliveredNotifications(forContactIDs contactIDs: Set<UUID>) async {
+    guard !contactIDs.isEmpty else { return }
     let center = UNUserNotificationCenter.current()
     let notifications = await center.deliveredNotifications()
+    let idStrings = Set(contactIDs.map(\.uuidString))
     let idsToRemove = notifications
-      .filter { $0.request.content.userInfo["contactID"] as? String == contactID.uuidString }
+      .filter { notification in
+        guard let contactID = notification.request.content.userInfo["contactID"] as? String else {
+          return false
+        }
+        return idStrings.contains(contactID)
+      }
       .map(\.request.identifier)
 
     if !idsToRemove.isEmpty {

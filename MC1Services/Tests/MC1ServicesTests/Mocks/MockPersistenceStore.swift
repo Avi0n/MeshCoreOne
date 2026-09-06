@@ -56,6 +56,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     stubbedTouchContactHeardError = error
   }
 
+  public func setStubbedDeleteContactError(_ error: Error?) {
+    stubbedDeleteContactError = error
+  }
+
   // MARK: - Message Operations
 
   public func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool {
@@ -727,6 +731,55 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
     cascadeDeleteContactData(contactID: id)
     contacts.removeValue(forKey: id)
+  }
+
+  /// When true, the next `deleteContacts` suspends until `releaseDeleteContacts()`.
+  private var deleteContactsHoldRequested = false
+  private var deleteContactsHoldContinuation: CheckedContinuation<Void, Never>?
+  public private(set) var deleteContactsCallCount = 0
+
+  public func holdNextDeleteContacts() {
+    deleteContactsHoldRequested = true
+  }
+
+  public func releaseDeleteContacts() {
+    if let continuation = deleteContactsHoldContinuation {
+      deleteContactsHoldContinuation = nil
+      continuation.resume()
+    }
+    deleteContactsHoldRequested = false
+  }
+
+  public var isDeleteContactsHeld: Bool {
+    deleteContactsHoldContinuation != nil
+  }
+
+  public func deleteContacts(
+    radioID: UUID,
+    publicKeys: Set<Data>,
+    skippingPublicKeys: @Sendable () -> Set<Data>
+  ) async throws -> [UUID] {
+    deleteContactsCallCount += 1
+    if deleteContactsHoldRequested {
+      deleteContactsHoldRequested = false
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        deleteContactsHoldContinuation = continuation
+      }
+    }
+    if let error = stubbedDeleteContactError {
+      throw error
+    }
+    var ids: [UUID] = []
+    for key in publicKeys {
+      if skippingPublicKeys().contains(key) { continue }
+      guard let contact = contacts.values.first(
+        where: { $0.radioID == radioID && $0.publicKey == key }
+      ) else { continue }
+      if skippingPublicKeys().contains(key) { continue }
+      try await deleteContact(id: contact.id)
+      ids.append(contact.id)
+    }
+    return ids
   }
 
   public func deleteContactIfUnreferenced(id: UUID) async throws {

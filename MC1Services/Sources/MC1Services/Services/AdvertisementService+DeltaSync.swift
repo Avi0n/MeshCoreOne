@@ -32,7 +32,7 @@ extension AdvertisementService {
       return
     }
 
-    guard !Task.isCancelled, let handler = deltaSyncHandler else {
+    guard !Task.isCancelled else {
       finishRound(generation: generation)
       return
     }
@@ -40,7 +40,16 @@ extension AdvertisementService {
       finishRound(generation: generation)
       return
     }
-
+    guard await isInForeground() else {
+      finishRound(generation: generation)
+      return
+    }
+    // Stop may have niled `deltaSyncHandler` during `isInForeground`. Re-read it;
+    // cancel does not abort that Bool, so do not invoke a handler captured before the await.
+    guard !Task.isCancelled, let handler = deltaSyncHandler else {
+      finishRound(generation: generation)
+      return
+    }
     // Empty-round guard before drain so a schedule with no work never clears a
     // pending 0x8F set or spends a radio round. Must run before
     // `contactsDeletedDuringSync.removeAll()`.
@@ -99,6 +108,7 @@ extension AdvertisementService {
     await rollBackContactsDeletedDuringSync(radioID: radioID)
 
     guard !Task.isCancelled, deltaSyncHandler != nil else {
+      await stampAdvertReceiveTimes(drainedReceiveTimes, radioID: radioID)
       finishRound(generation: generation)
       return
     }
@@ -121,6 +131,7 @@ extension AdvertisementService {
       logger.notice(
         "Advert delta sync not ready: dropping \(drained.count) pending key(s) until a full contact fetch completes"
       )
+      await stampAdvertReceiveTimes(drainedReceiveTimes, radioID: radioID)
       finishRound(generation: generation)
       return
 
@@ -146,7 +157,7 @@ extension AdvertisementService {
         // event re-arms it. Detect that fresh work before restoring the round's
         // own keys and re-arm for it; the min interval keeps it from spinning.
         let freshWorkArrivedMidRound = hasPendingDeltaSyncWork
-        for key in drainedPathKeys where !contactsDeletedDuringSync.contains(key) {
+        for key in drainedPathKeys where !isRadioDeleted(key) {
           pendingPathKeys.insert(key)
         }
         if fullRefetch {
@@ -155,6 +166,7 @@ extension AdvertisementService {
         if freshWorkArrivedMidRound {
           scheduleDeltaSync()
         }
+        await stampAdvertReceiveTimes(drainedReceiveTimes, radioID: radioID)
         return
       }
 
@@ -234,10 +246,10 @@ extension AdvertisementService {
     if fullRefetch {
       escalateToFullRefetch = true
     }
-    for key in drained where !contactsDeletedDuringSync.contains(key) {
+    for key in drained where !isRadioDeleted(key) {
       recordPendingAdvertKey(key)
     }
-    for key in pathKeys where !contactsDeletedDuringSync.contains(key) {
+    for key in pathKeys where !isRadioDeleted(key) {
       pendingPathKeys.insert(key)
     }
     if shouldSchedule, hasPendingDeltaSyncWork {
@@ -281,17 +293,17 @@ extension AdvertisementService {
     guard let radioID = currentRadioID else { return }
 
     for publicKey in drained {
-      guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+      guard !isRadioDeleted(publicKey) else { continue }
       let pubKeyHex = publicKey.uppercaseHexString()
       do {
         guard let contact = try await dataStore.fetchContact(
           radioID: radioID, publicKey: publicKey
         ) else {
-          discoverTrace.info("B2 reconcile: no contact yet key=\(pubKeyHex)")
+          discoverTrace.debug("B2 reconcile: no contact yet key=\(pubKeyHex)")
           continue
         }
         // Re-check after each store hop; the radio can delete mid-round.
-        guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+        guard !isRadioDeleted(publicKey) else { continue }
 
         // Use stored radio fields verbatim; do not stamp phone clock into
         // lastAdvertTimestamp / lastModified (those remain radio-sourced).
@@ -310,11 +322,11 @@ extension AdvertisementService {
 
         do {
           let (_, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: frame)
-          discoverTrace.info("B2 reconcile upsert key=\(pubKeyHex) isNew=\(isNew)")
+          discoverTrace.debug("B2 reconcile upsert key=\(pubKeyHex) isNew=\(isNew)")
         } catch {
           discoverTrace.error("B2 reconcile upsert FAILED key=\(pubKeyHex): \(error.localizedDescription)")
         }
-        guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+        guard !isRadioDeleted(publicKey) else { continue }
 
         // Prefer losing a notification over inventing one: only keys absent from
         // the pre-round snapshot and present after the exchange are announced.
@@ -349,7 +361,7 @@ extension AdvertisementService {
     var contacts: [(id: UUID, publicKey: Data)] = []
     contacts.reserveCapacity(keys.count)
     for publicKey in keys {
-      guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+      guard !isRadioDeleted(publicKey) else { continue }
       do {
         if let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) {
           contacts.append((contact.id, contact.publicKey))
@@ -384,7 +396,7 @@ extension AdvertisementService {
     var missing: Set<Data> = []
     for publicKey in unknownAtStart {
       // A key the radio deleted is missing on purpose; refetching cannot bring it back.
-      guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+      guard !isRadioDeleted(publicKey) else { continue }
       guard let exists = await contactExists(radioID: radioID, publicKey: publicKey) else { continue }
       if !exists {
         missing.insert(publicKey)
@@ -440,7 +452,7 @@ extension AdvertisementService {
 
     var undelivered = 0
     for publicKey in drainedPathKeys {
-      guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+      guard !isRadioDeleted(publicKey) else { continue }
       do {
         guard let contact = try await dataStore.fetchContact(
           radioID: radioID, publicKey: publicKey
@@ -472,7 +484,7 @@ extension AdvertisementService {
     guard let radioID = currentRadioID else { return }
 
     for publicKey in unknownAtStart {
-      guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+      guard !isRadioDeleted(publicKey) else { continue }
       guard let exists = await contactExists(radioID: radioID, publicKey: publicKey) else { continue }
       if !exists {
         let pubKeyHex = publicKey.uppercaseHexString()

@@ -53,6 +53,9 @@ public actor AdvertisementService {
   let dataStore: any PersistenceStoreProtocol
 
   private var eventMonitorTask: Task<Void, Never>?
+  /// In-flight `flushPendingDeletedKeys`. Callers wait through
+  /// `.contactDeletedCleanup`, not only `deleteContacts`.
+  private var deletionFlushTask: Task<Void, Never>?
   var currentRadioID: UUID?
 
   /// When true, advert delta sync is deferred (full or manual contact sync).
@@ -84,6 +87,14 @@ public actor AdvertisementService {
   /// re-created contact.
   var contactsDeletedDuringSync: Set<Data> = []
 
+  /// Drain-surviving 0x8F queue. Not `contactsDeletedDuringSync` (that is still
+  /// round-scoped and cleared at drain). Flushed on foreground or `stopEventMonitoring`.
+  var pendingDeletedKeys: Set<Data> = []
+
+  /// Keys revived while `flushPendingDeletedKeys` is off-actor in `deleteContacts`.
+  /// Read per key so a same-key 0x80 during that hop cannot cascade-delete the row.
+  private let revivedDuringDeleteFlush = OSAllocatedUnfairLock(initialState: Set<Data>())
+
   var deltaSyncTask: Task<Void, Never>?
   /// Monotonic identity for the scheduled delta-sync round. `finishRound` clears
   /// `deltaSyncTask` only while this still matches the running round.
@@ -105,6 +116,7 @@ public actor AdvertisementService {
   /// Backoff before re-arming after a `.busy` outcome. Shorter than
   /// `advertSyncMinInterval` so claim collisions poll cheaply without spinning.
   let advertSyncBusyBackoff: Duration
+  let appStateProvider: AppStateProvider?
 
   /// Last overwrite-oldest deletion, used to correlate the replacement advert (0x8F then new contact).
   private var lastOverwriteDeletion: (name: String, pubKeyHex: String, time: Date)?
@@ -120,13 +132,24 @@ public actor AdvertisementService {
     dataStore: any PersistenceStoreProtocol,
     advertSyncDebounce: Duration = .seconds(5),
     advertSyncMinInterval: Duration = .seconds(30),
-    advertSyncBusyBackoff: Duration = .seconds(5)
+    advertSyncBusyBackoff: Duration = .seconds(5),
+    appStateProvider: AppStateProvider? = nil
   ) {
     self.session = session
     self.dataStore = dataStore
     self.advertSyncDebounce = advertSyncDebounce
     self.advertSyncMinInterval = advertSyncMinInterval
     self.advertSyncBusyBackoff = advertSyncBusyBackoff
+    self.appStateProvider = appStateProvider
+  }
+
+  func isInForeground() async -> Bool {
+    guard let appStateProvider else { return true }
+    return await appStateProvider.isInForeground
+  }
+
+  func isRadioDeleted(_ key: Data) -> Bool {
+    contactsDeletedDuringSync.contains(key) || pendingDeletedKeys.contains(key)
   }
 
   /// Cancels outstanding tasks only. Full teardown is ``stopEventMonitoring``
@@ -176,20 +199,30 @@ public actor AdvertisementService {
       let events = await session.events(filter: filter)
 
       for await event in events {
-        guard !Task.isCancelled else { break }
         await handleEvent(event, radioID: radioID)
+        if Task.isCancelled { break }
       }
     }
   }
 
   /// Stops event monitoring and clears advert delta-sync state.
-  public func stopEventMonitoring() {
-    eventMonitorTask?.cancel()
+  public func stopEventMonitoring() async {
+    let monitor = eventMonitorTask
     eventMonitorTask = nil
-    currentRadioID = nil
-    deltaSyncTask?.cancel()
-    deltaSyncTask = nil
+    monitor?.cancel()
+    // Drop the handler and bump deltaSyncGeneration before any await so the
+    // in-flight round cannot reconcile or re-arm.
     deltaSyncHandler = nil
+    deltaSyncTask?.cancel()
+    deltaSyncGeneration &+= 1
+    // Await `flushPendingDeletedKeys` before clearing `currentRadioID` so a queued
+    // 0x8F cannot outlive `stopEventMonitoring`.
+    await monitor?.value
+    await flushPendingDeletedKeys()
+    let receiveTimes = pendingAdvertReceiveTimes
+    await stampAdvertReceiveTimes(receiveTimes, radioID: currentRadioID)
+    currentRadioID = nil
+    deltaSyncTask = nil
     pendingAdvertKeys.removeAll()
     pendingPathKeys.removeAll()
     pendingAdvertReceiveTimes.removeAll()
@@ -200,11 +233,61 @@ public actor AdvertisementService {
     // can roll back rows the radio deleted; the next round clears it when it drains.
   }
 
+  /// Flushes queued 0x8F deletes, then re-arms when `hasPendingDeltaSyncWork`.
+  /// Does not re-read `isInForeground`; `AppState.handleReturnToForeground` already ran.
+  public func handleReturnToForeground() async {
+    await flushPendingDeletedKeys()
+    if hasPendingDeltaSyncWork {
+      scheduleDeltaSync()
+    }
+  }
+
+  func flushPendingDeletedKeys() async {
+    if let deletionFlushTask {
+      await deletionFlushTask.value
+      return
+    }
+    guard !pendingDeletedKeys.isEmpty, let radioID = currentRadioID else { return }
+
+    // Await this Task through `.contactDeletedCleanup` and the catch requeue, which
+    // run after `deleteContacts`. A store error ends this flush.
+    let task = Task {
+      defer {
+        revivedDuringDeleteFlush.withLock { $0.removeAll() }
+        deletionFlushTask = nil
+      }
+      while !pendingDeletedKeys.isEmpty {
+        let keys = pendingDeletedKeys
+        pendingDeletedKeys.removeAll()
+        do {
+          let deletedIDs = try await dataStore.deleteContacts(
+            radioID: radioID,
+            publicKeys: keys,
+            skippingPublicKeys: { revivedDuringDeleteFlush.withLock { $0 } }
+          )
+          guard !deletedIDs.isEmpty else { continue }
+          logger.notice("Overwrite oldest: applying \(deletedIDs.count) deferred deletion(s)")
+          eventBroadcaster.yield(.contactDeletedCleanup(contactIDs: deletedIDs))
+          eventBroadcaster.yield(.nodeStorageFullChanged(isFull: false))
+          eventBroadcaster.yield(.contactUpdated)
+        } catch {
+          pendingDeletedKeys.formUnion(keys)
+          pendingDeletedKeys.subtract(pendingAdvertKeys)
+          logger.error(
+            "Overwrite oldest: deferred delete flush failed: \(error.localizedDescription)"
+          )
+          return
+        }
+      }
+    }
+    deletionFlushTask = task
+    await task.value
+  }
+
   /// Records a 0x80 key for the next delta sync.
   ///
-  /// A re-advert for a key in `contactsDeletedDuringSync` means the radio
-  /// re-added the contact after a mid-round 0x8F. Clear the tombstone so
-  /// rollback, reconcile, and adoption treat the re-synced row as live.
+  /// A re-advert for a key in `contactsDeletedDuringSync` or `pendingDeletedKeys`
+  /// means the radio re-added it after 0x8F. Clear both so later paths treat it as live.
   ///
   /// `receivedAt` is the phone clock at the 0x80 (or re-record). It is applied
   /// to `lastHeardTimestamp` once a Contact row exists so prune recency is not
@@ -212,6 +295,8 @@ public actor AdvertisementService {
   func recordPendingAdvertKey(_ key: Data, receivedAt: Date = Date()) {
     pendingAdvertKeys.insert(key)
     contactsDeletedDuringSync.remove(key)
+    pendingDeletedKeys.remove(key)
+    revivedDuringDeleteFlush.withLock { $0.formUnion([key]) }
     pendingAdvertReceiveTimes[key] = receivedAt
   }
 
@@ -233,7 +318,7 @@ public actor AdvertisementService {
   func stampAdvertReceiveTimes(_ receiveTimes: [Data: Date], radioID: UUID?) async {
     guard let radioID, !receiveTimes.isEmpty else { return }
     for (publicKey, receivedAt) in receiveTimes {
-      guard !contactsDeletedDuringSync.contains(publicKey) else { continue }
+      guard !isRadioDeleted(publicKey) else { continue }
       do {
         _ = try await dataStore.touchContactHeard(
           radioID: radioID, publicKey: publicKey, at: receivedAt
@@ -327,7 +412,7 @@ public actor AdvertisementService {
   /// not drop keys, path updates, or an owed full refetch.
   public func setSyncingContacts(_ isSyncing: Bool) async {
     isSyncingContacts = isSyncing
-    if !isSyncing, hasPendingDeltaSyncWork {
+    if !isSyncing, hasPendingDeltaSyncWork, await isInForeground() {
       scheduleDeltaSync()
     }
   }
@@ -415,11 +500,20 @@ public actor AdvertisementService {
   private func handleAdvertEvent(publicKey: Data, radioID: UUID) async {
     let pubKeyHex = publicKey.uppercaseHexString()
     logger.debug("Advert event for \(pubKeyHex)")
-    discoverTrace.info("B1 0x80 ADVERT received key=\(pubKeyHex)")
+    discoverTrace.debug("B1 0x80 ADVERT received key=\(pubKeyHex)")
 
     // One phone clock for touch and pending receive-time so the post-delta
     // stamp matches the air-hear moment (not a later debounce fire).
     let receivedAt = Date()
+    // Visible to an in-flight `deleteContacts` on PersistenceStore. Do not
+    // `pendingDeletedKeys.remove` here: a failed touch must not drop a queued 0x8F.
+    revivedDuringDeleteFlush.withLock { $0.formUnion([publicKey]) }
+    let inForeground = await isInForeground()
+
+    if !inForeground {
+      recordPendingAdvertKey(publicKey, receivedAt: receivedAt)
+      return
+    }
 
     // Retry touch once: a transient store error must not permanently drop the
     // advert under the empty-round guard. Recording without a successful touch
@@ -445,8 +539,8 @@ public actor AdvertisementService {
       if known {
         eventBroadcaster.yield(.contactUpdated)
       } else {
-        discoverTrace.info("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
-        logger.info("ADVERT received for unknown contact - scheduling delta sync")
+        discoverTrace.debug("B2 0x80 no local contact key=\(pubKeyHex) syncing=\(isSyncingContacts)")
+        logger.debug("ADVERT received for unknown contact - scheduling delta sync")
       }
       recordPendingAdvertKey(publicKey, receivedAt: receivedAt)
     }
@@ -460,11 +554,11 @@ public actor AdvertisementService {
   private func handleNewAdvertEvent(contact: MeshContact, radioID: UUID) async {
     let contactFrame = contact.toContactFrame()
     let pubKeyHex = contactFrame.publicKey.uppercaseHexString()
-    discoverTrace.info("B1 0x8A NEW_ADVERT received key=\(pubKeyHex)")
+    discoverTrace.debug("B1 0x8A NEW_ADVERT received key=\(pubKeyHex)")
 
     do {
       let (node, isNew) = try await dataStore.upsertDiscoveredNode(radioID: radioID, from: contactFrame)
-      discoverTrace.info("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
+      discoverTrace.debug("B2 0x8A upsert key=\(pubKeyHex) isNew=\(isNew)")
 
       eventBroadcaster.yield(.contactUpdated)
 
@@ -490,7 +584,9 @@ public actor AdvertisementService {
     let pubKeyHex = publicKey.uppercaseHexString()
     logger.debug("Path updated event for \(pubKeyHex)")
     pendingPathKeys.insert(publicKey)
-    scheduleDeltaSync()
+    if await isInForeground() {
+      scheduleDeltaSync()
+    }
   }
 
   /// Path discovery response: update out-path and stamp phone-clock lastHeard.
@@ -579,8 +675,18 @@ public actor AdvertisementService {
     // A running delta sync can re-save or reconcile this row after the radio dropped
     // it. A key recorded outside a round is discarded when the next round drains.
     contactsDeletedDuringSync.insert(publicKey)
+    // Enqueue before `isInForeground` so a concurrent flush cannot miss this
+    // key while the actor is suspended.
+    revivedDuringDeleteFlush.withLock { _ = $0.remove(publicKey) }
+    pendingDeletedKeys.insert(publicKey)
 
-    logger.info("Overwrite oldest: device deleted contact with key \(pubKeyPrefix)...")
+    if await !isInForeground() {
+      return
+    }
+
+    guard pendingDeletedKeys.remove(publicKey) != nil else { return }
+
+    logger.debug("Overwrite oldest: device deleted contact with key \(pubKeyPrefix)...")
 
     do {
       guard let contact = try await dataStore.fetchContact(radioID: radioID, publicKey: publicKey) else {
@@ -606,14 +712,17 @@ public actor AdvertisementService {
       let contactID = contact.id
 
       try await dataStore.deleteContact(id: contactID)
-      logger.info("Overwrite oldest: deleted contact '\(contactName)' and its messages from local database")
+      logger.debug("Overwrite oldest: deleted contact '\(contactName)' and its messages from local database")
 
-      eventBroadcaster.yield(.contactDeletedCleanup(contactID: contactID, publicKey: publicKey))
+      eventBroadcaster.yield(.contactDeletedCleanup(contactIDs: [contactID]))
       eventBroadcaster.yield(.nodeStorageFullChanged(isFull: false))
-      logger.info("Overwrite oldest: cleanup complete for '\(contactName)', storage full flag cleared")
+      logger.debug("Overwrite oldest: cleanup complete for '\(contactName)', storage full flag cleared")
       eventBroadcaster.yield(.contactUpdated)
     } catch {
-      logger.error("Overwrite oldest: failed to delete contact \(pubKeyPrefix)...: \(error.localizedDescription)")
+      pendingDeletedKeys.insert(publicKey)
+      logger.error(
+        "Overwrite oldest: failed to delete contact \(pubKeyPrefix)...: \(error.localizedDescription)"
+      )
     }
   }
 

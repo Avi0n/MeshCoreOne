@@ -566,7 +566,7 @@ extension SyncCoordinator {
         case let .newContactDiscovered(name, contactID, contactType):
           // Manual-add mode: a new contact was discovered via advertisement
           PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
-            .info("B4 relay newContactDiscovered \(contactID) -> notifyContactsChanged")
+            .debug("B4 relay newContactDiscovered \(contactID) -> notifyContactsChanged")
           await dependencies.notificationService.postNewContactNotification(
             contactName: name,
             contactID: contactID,

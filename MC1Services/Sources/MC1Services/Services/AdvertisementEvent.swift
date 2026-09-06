@@ -24,9 +24,8 @@ public enum AdvertisementEvent: Sendable {
   case newContactDiscovered(name: String, contactID: UUID, contactType: ContactType)
   /// The device's node storage full state changed (true = full, false = has space).
   case nodeStorageFullChanged(isFull: Bool)
-  /// The device auto-deleted a contact (overwrite oldest); observers clean
-  /// up its notifications and refresh the badge.
-  case contactDeletedCleanup(contactID: UUID, publicKey: Data)
+  /// Overwrite-oldest deletions. Observers drop notifications and refresh the badge.
+  case contactDeletedCleanup(contactIDs: [UUID])
   /// A path discovery response arrived for a contact.
   case pathDiscoveryResponse(PathInfo)
   /// A trace response arrived; `traceInfo.tag` correlates it with the

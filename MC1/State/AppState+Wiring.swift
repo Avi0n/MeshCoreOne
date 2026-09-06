@@ -84,6 +84,9 @@ extension AppState {
     // Re-subscribes per connection because ServiceContainer is rebuilt.
     advertisementEventsTask?.cancel()
     let advertisementEvents = services.advertisementService.events()
+    // ConnectionManager nils `services` before `tearDown` yields `.contactDeletedCleanup`.
+    // Capture `notificationService` so `removeDeliveredNotifications` still runs.
+    let notificationService = services.notificationService
     advertisementEventsTask = Task { [weak self] in
       for await event in advertisementEvents {
         guard let self else { return }
@@ -91,13 +94,16 @@ extension AppState {
         case .contactUpdated:
           contactsVersion += 1
           PersistentLogger(subsystem: "com.mc1", category: "discover-trace")
-            .info("B4 contactUpdated bump contactsVersion=\(contactsVersion)")
+            .debug("B4 contactUpdated bump contactsVersion=\(contactsVersion)")
         case .conversationsChanged:
           refreshConversations()
-        case let .contactDeletedCleanup(contactID, _):
-          logger.info("Overwrite oldest: running cleanup for deleted contact \(contactID) - removing notifications and updating badge")
-          await self.services?.notificationService.removeDeliveredNotifications(forContactID: contactID)
-          await self.services?.notificationService.updateBadgeCount()
+        case let .contactDeletedCleanup(contactIDs):
+          await notificationService.removeDeliveredNotifications(
+            forContactIDs: Set(contactIDs)
+          )
+          if !contactIDs.isEmpty {
+            await notificationService.updateBadgeCount()
+          }
         case .newContactDiscovered, .nodeStorageFullChanged,
              .pathDiscoveryResponse, .traceResponse, .traceSnrObserved,
              .orphanDirectMessagesAdopted:
