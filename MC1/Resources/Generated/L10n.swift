@@ -2903,10 +2903,14 @@ public enum L10n {
       public enum Error {
         /// Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages
         public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "The saved pairing with this radio stopped working. Tap Remove and Try Again to re-pair in the app; the radio may show a new pairing code.")
+        /// Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond
+        public static let authenticationFailedMac = L10n.tr("Onboarding", "deviceScan.error.authenticationFailedMac", fallback: "The saved pairing with this radio stopped working. In System Settings, forget this radio under Bluetooth, then tap Remove and Try Again.")
         /// Couldn't connect to the device. Try again, or remove it if the problem continues.
         public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Try again, or remove it if the problem continues.")
         /// The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.
         public static let pinRejected = L10n.tr("Onboarding", "deviceScan.error.pinRejected", fallback: "The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.")
+        /// Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond
+        public static let pinRejectedMac = L10n.tr("Onboarding", "deviceScan.error.pinRejectedMac", fallback: "The PIN wasn't accepted. In System Settings, forget this radio under Bluetooth, then try again.")
       }
     }
     public enum DeviceScanner {

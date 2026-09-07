@@ -25,6 +25,16 @@ struct SavedDeviceConnectFailureRoutingTests {
   }
 
   @Test
+  func `macOS authentication failure names System Settings Bluetooth forget`() {
+    let sut = ConnectionUIState()
+    sut.hasSystemPairingRegistry = false
+
+    sut.presentSavedDeviceConnectFailure(deviceID: UUID(), error: BLEError.authenticationFailed)
+
+    #expect(sut.connectionFailedMessage == L10n.Onboarding.DeviceScan.Error.authenticationFailedMac)
+  }
+
+  @Test
   func `other-app failure routes to the other-app warning`() {
     let sut = ConnectionUIState()
     let deviceID = UUID()

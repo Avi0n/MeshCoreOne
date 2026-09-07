@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "El enlace guardado con esta radio dejó de funcionar. Toca «Eliminar y reintentar» para volver a enlazarla en la app; la radio puede mostrar un nuevo código de enlace.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "El enlace guardado con esta radio dejó de funcionar. En Ajustes del sistema, olvida esta radio en Bluetooth, luego toca «Eliminar y reintentar».";
 "deviceScan.error.pinRejected" = "No se aceptó el PIN. Comprueba el PIN que se muestra en tu dispositivo e inténtalo de nuevo. Primero, iOS te pedirá que confirmes la eliminación del enlace fallido.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "No se aceptó el PIN. En Ajustes del sistema, olvida esta radio en Bluetooth, luego inténtalo de nuevo.";
 "deviceScan.error.connectionFailed" = "No se pudo conectar al dispositivo. Inténtalo de nuevo, o elimínalo si el problema persiste.";
 
 // MARK: - Troubleshooting Sheet

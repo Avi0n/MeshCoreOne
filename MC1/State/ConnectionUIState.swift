@@ -106,6 +106,10 @@ final class ConnectionUIState {
   /// When true, dismissing device selection starts a fresh scan instead of presenting queued setup.
   var queuedDeviceScanAfterSelectionDismiss = false
 
+  /// When false, the app cannot drop the OS Bluetooth bond, so auth-failure
+  /// copy tells the user to forget the radio in System Settings.
+  var hasSystemPairingRegistry = true
+
   // MARK: - Ready Toast Methods
 
   /// Shows "Ready" toast pill for 2 seconds
@@ -327,11 +331,8 @@ final class ConnectionUIState {
     }
   }
 
-  /// Routes a failure from a fresh BLE pairing attempt (a device just chosen in
-  /// the picker). A rejected PIN carries copy distinct from an established
-  /// radio's dead bond: it names the PIN and warns that iOS will confirm
-  /// removing the half-formed pairing on retry. Every other failure shares the
-  /// standard pairing-failure routing.
+  /// Fresh-pair failure. A rejected PIN uses distinct copy from a dead saved
+  /// bond; every other failure shares `presentPairingFailure`.
   func presentFreshPairingFailure(_ error: PairingError) {
     guard case let .connectionFailed(deviceID, _) = error, error.isAuthenticationFailure else {
       presentPairingFailure(error)
@@ -339,7 +340,7 @@ final class ConnectionUIState {
     }
     failedPairingDeviceID = deviceID
     connectionFailedTitle = L10n.Localizable.Alert.PairingFailed.title
-    connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.pinRejected
+    connectionFailedMessage = pinRejectedMessage
     pairingFailureKind = .pinRejected
     showingConnectionFailedAlert = true
   }
@@ -366,7 +367,7 @@ final class ConnectionUIState {
       failedPairingDeviceID = deviceID
       if error.isAuthenticationFailure {
         connectionFailedTitle = L10n.Localizable.Alert.PairingFailed.title
-        connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.authenticationFailed
+        connectionFailedMessage = authenticationFailedMessage
         pairingFailureKind = .authentication
       } else {
         connectionFailedTitle = nil
@@ -375,6 +376,18 @@ final class ConnectionUIState {
       }
       showingConnectionFailedAlert = true
     }
+  }
+
+  private var authenticationFailedMessage: String {
+    hasSystemPairingRegistry
+      ? L10n.Onboarding.DeviceScan.Error.authenticationFailed
+      : L10n.Onboarding.DeviceScan.Error.authenticationFailedMac
+  }
+
+  private var pinRejectedMessage: String {
+    hasSystemPairingRegistry
+      ? L10n.Onboarding.DeviceScan.Error.pinRejected
+      : L10n.Onboarding.DeviceScan.Error.pinRejectedMac
   }
 }
 

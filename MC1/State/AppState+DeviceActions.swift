@@ -176,8 +176,13 @@ extension AppState {
     Task {
       await connectionManager.removeFailedPairing(deviceID: deviceID)
       connectionUI.failedPairingDeviceID = nil
-      // Set flag - View observing scenePhase will trigger startDeviceScan when active
-      connectionUI.shouldShowPickerOnForeground = true
+      if connectionManager.hasSystemPairingRegistry {
+        // Remove Accessory can bounce the scene; wait for `.active`.
+        connectionUI.shouldShowPickerOnForeground = true
+      } else {
+        // No registry confirmation, so `.active` will not re-fire.
+        startDeviceScan()
+      }
     }
   }
 

@@ -26,6 +26,16 @@ struct FreshPairingFailureRoutingTests {
   }
 
   @Test
+  func `macOS rejected PIN names System Settings Bluetooth forget`() {
+    let sut = ConnectionUIState()
+    sut.hasSystemPairingRegistry = false
+
+    sut.presentFreshPairingFailure(.connectionFailed(deviceID: UUID(), underlying: BLEError.authenticationFailed))
+
+    #expect(sut.connectionFailedMessage == L10n.Onboarding.DeviceScan.Error.pinRejectedMac)
+  }
+
+  @Test
   func `saved-device authentication failure keeps the dead-bond recovery`() {
     let sut = ConnectionUIState()
     let deviceID = UUID()

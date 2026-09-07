@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "O emparelhamento guardado com este rádio deixou de funcionar. Toque em Remover e tentar novamente para emparelhar de novo na app; o rádio pode mostrar um novo código de emparelhamento.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "O emparelhamento guardado com este rádio deixou de funcionar. Em Definições do sistema, esqueça este rádio em Bluetooth, depois toque em Remover e tentar novamente.";
 "deviceScan.error.pinRejected" = "O PIN não foi aceite. Verifique o PIN mostrado no dispositivo e tente novamente. O iOS vai primeiro pedir para confirmar a remoção do emparelhamento anterior.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "O PIN não foi aceite. Em Definições do sistema, esqueça este rádio em Bluetooth, depois tente novamente.";
 "deviceScan.error.connectionFailed" = "Não foi possível ligar ao dispositivo. Tente novamente ou remova-o se o problema continuar.";
 
 // MARK: - Troubleshooting Sheet

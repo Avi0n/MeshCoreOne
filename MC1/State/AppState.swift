@@ -352,6 +352,7 @@ final class AppState {
 
     connectionManager = injectedConnectionManager
       ?? ConnectionManager(modelContainer: modelContainer, defaults: defaults)
+    connectionUI.hasSystemPairingRegistry = connectionManager.hasSystemPairingRegistry
 
     let bootstrapBuffer = DebugLogBuffer(dataStore: connectionManager.persistenceStore)
     bootstrapDebugLogBuffer = bootstrapBuffer

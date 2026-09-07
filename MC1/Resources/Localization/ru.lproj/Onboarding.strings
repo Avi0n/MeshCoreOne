@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Сохранённое сопряжение с этой рацией перестало работать. Нажмите «Удалить и попробовать снова», чтобы выполнить сопряжение заново в приложении; рация может показать новый код сопряжения.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "Сохранённое сопряжение с этой рацией перестало работать. В Системных настройках забудьте эту рацию в Bluetooth, затем нажмите «Удалить и попробовать снова».";
 "deviceScan.error.pinRejected" = "PIN-код не принят. Проверьте PIN-код, показанный на устройстве, и повторите попытку. Сначала iOS попросит подтвердить удаление неудачного сопряжения.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "PIN-код не принят. В Системных настройках забудьте эту рацию в Bluetooth, затем повторите попытку.";
 "deviceScan.error.connectionFailed" = "Не удалось подключиться к устройству. Попробуйте снова или удалите его, если проблема сохраняется.";
 
 // MARK: - Troubleshooting Sheet
