@@ -1,16 +1,38 @@
 import SwiftUI
 
-/// Settings → Radio: preset picker, Repeat Mode, and manual Advanced fields.
+/// Settings → Radio: preset location filter, preset picker, Repeat Mode, and manual Advanced fields.
 struct RadioSettingsView: View {
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
+  @Environment(\.openURL) private var openURL
   @State private var radioWriteInFlight = false
+  @State private var session = PresetLocationSession()
+  @State private var regionPickerSheet: RegionPickerRows.Sheet?
+
+  private var appearTaskID: String {
+    let deviceID = appState.connectedDevice?.id.uuidString ?? "none"
+    let syncPhase = appState.connectionUI.currentSyncPhase.map { String(describing: $0) } ?? "none"
+    let authorized = appState.locationService.isAuthorized
+    return "\(deviceID)-\(String(describing: appState.connectionState))-\(syncPhase)-\(authorized)"
+  }
 
   var body: some View {
     List {
+      if appState.connectedDevice?.clientRepeat != true {
+        PresetLocationSection(activeSheet: $regionPickerSheet)
+      }
       RadioPresetSection(radioWriteInFlight: $radioWriteInFlight)
       AdvancedRadioSection(radioWriteInFlight: $radioWriteInFlight)
     }
     .themedCanvas(theme)
+    .environment(session)
+    .settingsSubpageDestinations(presetLocationSession: session)
+    // Stays mounted across the authorization flip and a Location push. Children must not bind the same alerts.
+    .presetLocationSessionAlerts(session, openURL: openURL)
+    .regionPickerSheet(
+      $regionPickerSheet,
+      selection: Bindable(appState).regionSelection
+    )
     .scrollDismissesKeyboard(.interactively)
     .navigationTitle(L10n.Settings.Radio.header)
     .navigationBarTitleDisplayMode(.inline)
@@ -26,6 +48,9 @@ struct RadioSettingsView: View {
           )
         }
       }
+    }
+    .task(id: appearTaskID) {
+      session.resolveOnAppear(from: appState)
     }
   }
 }

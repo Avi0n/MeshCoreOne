@@ -11,14 +11,19 @@ enum SettingsSubpage: Hashable {
   case blockedContacts
   case trustedContacts
   case translateIntoLanguage
+  case presetLocation
 }
 
 extension View {
   /// Registers the `SettingsSubpage` destinations on the enclosing navigation stack. Each
   /// hosting page applies this to its own `List` so the pushes resolve in every stack that
   /// hosts the page (the compact Settings stack and the iPad detail column).
+  /// Destination content is a stack sibling of the host, so it does not inherit the host's
+  /// environment.
   @MainActor
-  func settingsSubpageDestinations() -> some View {
+  func settingsSubpageDestinations(
+    presetLocationSession: PresetLocationSession? = nil
+  ) -> some View {
     navigationDestination(for: SettingsSubpage.self) { subpage in
       switch subpage {
       case let .publicKey(publicKey):
@@ -35,6 +40,11 @@ extension View {
         TrustedContactsPickerView()
       case .translateIntoLanguage:
         TranslateIntoLanguageView()
+      case .presetLocation:
+        if let presetLocationSession {
+          PresetLocationView()
+            .environment(presetLocationSession)
+        }
       }
     }
   }

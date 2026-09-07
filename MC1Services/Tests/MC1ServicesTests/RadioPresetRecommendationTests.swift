@@ -340,6 +340,76 @@ struct RadioPresetSelectabilityTests {
   }
 }
 
+@Suite("RadioPresets.visiblePresets(for:activeID:)")
+struct RadioPresetVisiblePresetsTests {
+  private func ids(_ region: RegionSelection?, activeID: String?) -> [String] {
+    RadioPresets.visiblePresets(for: region, activeID: activeID).map(\.id)
+  }
+
+  @Test
+  func `US-CA includes us-ca and excludes eu-narrow`() {
+    let region = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      source: .location
+    )
+    let visible = ids(region, activeID: nil)
+    #expect(visible.contains("us-ca"))
+    #expect(!visible.contains("eu-narrow"))
+  }
+
+  @Test
+  func `US-CA with active eu-narrow keeps both and presets(for:) does not contain eu-narrow`() {
+    let region = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      source: .location
+    )
+    let visible = ids(region, activeID: "eu-narrow")
+    #expect(visible.contains("us-ca"))
+    #expect(visible.contains("eu-narrow"))
+    #expect(!RadioPresets.presets(for: region).map(\.id).contains("eu-narrow"))
+  }
+
+  @Test
+  func `WCMesh only when the county matches; us-ca remains for California without that county`() {
+    let la = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      countyKey: "los angeles",
+      source: .location
+    )
+    #expect(ids(la, activeID: nil).contains("wcmesh"))
+    #expect(ids(la, activeID: nil).contains("us-ca"))
+
+    let california = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      source: .manual
+    )
+    let californiaIDs = ids(california, activeID: nil)
+    #expect(!californiaIDs.contains("wcmesh"))
+    #expect(californiaIDs.contains("us-ca"))
+  }
+
+  @Test
+  func `nil place uses locale list, hides county and sub-region presets, keeps country presets`() {
+    let visible = ids(nil, activeID: nil)
+    #expect(!visible.contains("wcmesh"))
+    #expect(!visible.contains("phillymesh"))
+    #expect(!visible.contains("au-qld"))
+    #expect(visible.contains("us-ca"))
+    #expect(visible.contains("eu-narrow"))
+  }
+
+  @Test
+  func `Bermuda empty regional list falls back to locale list`() {
+    let bermuda = RegionSelection(countryCode: "BM", source: .manual)
+    #expect(Set(ids(bermuda, activeID: nil)) == Set(ids(nil, activeID: nil)))
+    #expect(!ids(bermuda, activeID: nil).isEmpty)
+  }
+}
+
 @Suite("RadioPresets alias identity")
 struct RadioPresetAliasIdentityTests {
   private func rf(_ id: String) throws -> RadioPreset {

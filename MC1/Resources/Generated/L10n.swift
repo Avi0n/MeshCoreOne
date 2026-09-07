@@ -3024,16 +3024,18 @@ public enum L10n {
       }
     }
     public enum Region {
-      /// Location: RegionPickerView.swift - State/Province picker label
-      public static let administrativeArea = L10n.tr("Onboarding", "region.administrativeArea", fallback: "State / Province")
       /// Location: RegionStepView.swift - "Choose another" link
       public static let chooseAnother = L10n.tr("Onboarding", "region.chooseAnother", fallback: "Choose another")
       /// Location: RegionPickerView.swift - Continue CTA in manual picker
       public static let `continue` = L10n.tr("Onboarding", "region.continue", fallback: "Continue")
       /// Location: RegionPickerView.swift - Country picker label
       public static let country = L10n.tr("Onboarding", "region.country", fallback: "Country")
+      /// Location: RegionPickerView.swift - Province picker label (Canada)
+      public static let province = L10n.tr("Onboarding", "region.province", fallback: "Province")
       /// Location: RegionStepView.swift - "Finding your region…"
       public static let resolving = L10n.tr("Onboarding", "region.resolving", fallback: "Finding your region…")
+      /// Location: RegionPickerView.swift - State picker label (US, AU)
+      public static let state = L10n.tr("Onboarding", "region.state", fallback: "State")
       /// Location: RegionStepView.swift - Subtitle for the region step
       public static let subtitle = L10n.tr("Onboarding", "region.subtitle", fallback: "We'll show presets that work in your area.")
       /// Location: RegionStepView.swift - Title (both states)
@@ -5190,8 +5192,8 @@ public enum L10n {
       }
     }
     public enum Radio {
-      /// Footer explaining radio presets
-      public static let footer = L10n.tr("Settings", "radio.footer", fallback: "Choose a preset matching your region. MeshCore devices must use the same radio settings in order to communicate.")
+      /// Footer explaining radio presets. Location is geographic filter, not mesh Region.
+      public static let footer = L10n.tr("Settings", "radio.footer", fallback: "Choose a preset matching nearby radios. MeshCore devices must use the same radio settings in order to communicate.")
       /// Section header for radio settings
       public static let header = L10n.tr("Settings", "radio.header", fallback: "Radio")
       /// Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region
@@ -5200,12 +5202,28 @@ public enum L10n {
       }
       /// Label for radio preset picker
       public static let preset = L10n.tr("Settings", "radio.preset", fallback: "Radio Preset")
+      /// Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin).
+      public static let presetLocation = L10n.tr("Settings", "radio.presetLocation", fallback: "Location")
       /// Location: RadioPresetSection.swift - Footer line listing the user's region
       public static func regionFooter(_ p1: Any) -> String {
         return L10n.tr("Settings", "radio.regionFooter", String(describing: p1), fallback: "Showing recommended presets for %@.")
       }
       /// Toggle label for repeat mode
       public static let repeatMode = L10n.tr("Settings", "radio.repeatMode", fallback: "Repeat Mode")
+      public enum PresetLocation {
+        /// Open Settings alert message when Use my location is denied or restricted.
+        public static let denied = L10n.tr("Settings", "radio.presetLocation.denied", fallback: "Location permission was previously denied. Please enable it in Settings to fill country and state.")
+        /// Footer on the Radio location section and the Location subpage.
+        public static let footer = L10n.tr("Settings", "radio.presetLocation.footer", fallback: "Filters the preset list. Does not change the radio.")
+        /// Trailing value when the place is unset: Location row, and empty Country / State rows in RegionPickerRows (Radio and onboarding).
+        public static let notSet = L10n.tr("Settings", "radio.presetLocation.notSet", fallback: "Not set")
+        public enum UseMyLocation {
+          /// errorAlert when Use my location is authorized but resolve() returns nil.
+          public static let failure = L10n.tr("Settings", "radio.presetLocation.useMyLocation.failure", fallback: "Couldn't determine a place from your location. Choose country and state.")
+          /// Visible label + VoiceOver value on Use my location while GPS / geocode is in flight. Not onboarding region.resolving.
+          public static let locating = L10n.tr("Settings", "radio.presetLocation.useMyLocation.locating", fallback: "Finding your location…")
+        }
+      }
       public enum RepeatMode {
         /// Accessibility hint for repeat mode toggle
         public static let accessibilityHint = L10n.tr("Settings", "radio.repeatMode.accessibilityHint", fallback: "Enabling this will disconnect you from the main mesh network")
@@ -5271,22 +5289,124 @@ public enum L10n {
     }
     public enum Region {
       public enum Subdivision {
+        /// Location: RegionalAreas.subdivisionDisplayName - Australian Capital Territory (AU-ACT) state name
+        public static let auAct = L10n.tr("Settings", "region.subdivision.AU-ACT", fallback: "Australian Capital Territory")
+        /// Location: RegionalAreas.subdivisionDisplayName - New South Wales (AU-NSW) state name
+        public static let auNsw = L10n.tr("Settings", "region.subdivision.AU-NSW", fallback: "New South Wales")
+        /// Location: RegionalAreas.subdivisionDisplayName - Northern Territory (AU-NT) state name
+        public static let auNt = L10n.tr("Settings", "region.subdivision.AU-NT", fallback: "Northern Territory")
         /// Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name
         public static let auQld = L10n.tr("Settings", "region.subdivision.AU-QLD", fallback: "Queensland")
         /// Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name
         public static let auSa = L10n.tr("Settings", "region.subdivision.AU-SA", fallback: "South Australia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Tasmania (AU-TAS) state name
+        public static let auTas = L10n.tr("Settings", "region.subdivision.AU-TAS", fallback: "Tasmania")
+        /// Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name
+        public static let auVic = L10n.tr("Settings", "region.subdivision.AU-VIC", fallback: "Victoria")
         /// Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name
         public static let auWa = L10n.tr("Settings", "region.subdivision.AU-WA", fallback: "Western Australia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Alaska (US-AK) state name
+        public static let usAk = L10n.tr("Settings", "region.subdivision.US-AK", fallback: "Alaska")
+        /// Location: RegionalAreas.subdivisionDisplayName - Alabama (US-AL) state name
+        public static let usAl = L10n.tr("Settings", "region.subdivision.US-AL", fallback: "Alabama")
+        /// Location: RegionalAreas.subdivisionDisplayName - Arkansas (US-AR) state name
+        public static let usAr = L10n.tr("Settings", "region.subdivision.US-AR", fallback: "Arkansas")
+        /// Location: RegionalAreas.subdivisionDisplayName - Arizona (US-AZ) state name
+        public static let usAz = L10n.tr("Settings", "region.subdivision.US-AZ", fallback: "Arizona")
         /// Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name
         public static let usCa = L10n.tr("Settings", "region.subdivision.US-CA", fallback: "California")
+        /// Location: RegionalAreas.subdivisionDisplayName - Colorado (US-CO) state name
+        public static let usCo = L10n.tr("Settings", "region.subdivision.US-CO", fallback: "Colorado")
+        /// Location: RegionalAreas.subdivisionDisplayName - Connecticut (US-CT) state name
+        public static let usCt = L10n.tr("Settings", "region.subdivision.US-CT", fallback: "Connecticut")
+        /// Location: RegionalAreas.subdivisionDisplayName - District of Columbia (US-DC) state name
+        public static let usDc = L10n.tr("Settings", "region.subdivision.US-DC", fallback: "District of Columbia")
         /// Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name
         public static let usDe = L10n.tr("Settings", "region.subdivision.US-DE", fallback: "Delaware")
+        /// Location: RegionalAreas.subdivisionDisplayName - Florida (US-FL) state name
+        public static let usFl = L10n.tr("Settings", "region.subdivision.US-FL", fallback: "Florida")
+        /// Location: RegionalAreas.subdivisionDisplayName - Georgia (US-GA) state name
+        public static let usGa = L10n.tr("Settings", "region.subdivision.US-GA", fallback: "Georgia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Hawaii (US-HI) state name
+        public static let usHi = L10n.tr("Settings", "region.subdivision.US-HI", fallback: "Hawaii")
+        /// Location: RegionalAreas.subdivisionDisplayName - Iowa (US-IA) state name
+        public static let usIa = L10n.tr("Settings", "region.subdivision.US-IA", fallback: "Iowa")
+        /// Location: RegionalAreas.subdivisionDisplayName - Idaho (US-ID) state name
+        public static let usId = L10n.tr("Settings", "region.subdivision.US-ID", fallback: "Idaho")
+        /// Location: RegionalAreas.subdivisionDisplayName - Illinois (US-IL) state name
+        public static let usIl = L10n.tr("Settings", "region.subdivision.US-IL", fallback: "Illinois")
+        /// Location: RegionalAreas.subdivisionDisplayName - Indiana (US-IN) state name
+        public static let usIn = L10n.tr("Settings", "region.subdivision.US-IN", fallback: "Indiana")
+        /// Location: RegionalAreas.subdivisionDisplayName - Kansas (US-KS) state name
+        public static let usKs = L10n.tr("Settings", "region.subdivision.US-KS", fallback: "Kansas")
+        /// Location: RegionalAreas.subdivisionDisplayName - Kentucky (US-KY) state name
+        public static let usKy = L10n.tr("Settings", "region.subdivision.US-KY", fallback: "Kentucky")
+        /// Location: RegionalAreas.subdivisionDisplayName - Louisiana (US-LA) state name
+        public static let usLa = L10n.tr("Settings", "region.subdivision.US-LA", fallback: "Louisiana")
+        /// Location: RegionalAreas.subdivisionDisplayName - Massachusetts (US-MA) state name
+        public static let usMa = L10n.tr("Settings", "region.subdivision.US-MA", fallback: "Massachusetts")
         /// Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name
         public static let usMd = L10n.tr("Settings", "region.subdivision.US-MD", fallback: "Maryland")
+        /// Location: RegionalAreas.subdivisionDisplayName - Maine (US-ME) state name
+        public static let usMe = L10n.tr("Settings", "region.subdivision.US-ME", fallback: "Maine")
+        /// Location: RegionalAreas.subdivisionDisplayName - Michigan (US-MI) state name
+        public static let usMi = L10n.tr("Settings", "region.subdivision.US-MI", fallback: "Michigan")
+        /// Location: RegionalAreas.subdivisionDisplayName - Minnesota (US-MN) state name
+        public static let usMn = L10n.tr("Settings", "region.subdivision.US-MN", fallback: "Minnesota")
+        /// Location: RegionalAreas.subdivisionDisplayName - Missouri (US-MO) state name
+        public static let usMo = L10n.tr("Settings", "region.subdivision.US-MO", fallback: "Missouri")
+        /// Location: RegionalAreas.subdivisionDisplayName - Mississippi (US-MS) state name
+        public static let usMs = L10n.tr("Settings", "region.subdivision.US-MS", fallback: "Mississippi")
+        /// Location: RegionalAreas.subdivisionDisplayName - Montana (US-MT) state name
+        public static let usMt = L10n.tr("Settings", "region.subdivision.US-MT", fallback: "Montana")
+        /// Location: RegionalAreas.subdivisionDisplayName - North Carolina (US-NC) state name
+        public static let usNc = L10n.tr("Settings", "region.subdivision.US-NC", fallback: "North Carolina")
+        /// Location: RegionalAreas.subdivisionDisplayName - North Dakota (US-ND) state name
+        public static let usNd = L10n.tr("Settings", "region.subdivision.US-ND", fallback: "North Dakota")
+        /// Location: RegionalAreas.subdivisionDisplayName - Nebraska (US-NE) state name
+        public static let usNe = L10n.tr("Settings", "region.subdivision.US-NE", fallback: "Nebraska")
+        /// Location: RegionalAreas.subdivisionDisplayName - New Hampshire (US-NH) state name
+        public static let usNh = L10n.tr("Settings", "region.subdivision.US-NH", fallback: "New Hampshire")
         /// Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name
         public static let usNj = L10n.tr("Settings", "region.subdivision.US-NJ", fallback: "New Jersey")
+        /// Location: RegionalAreas.subdivisionDisplayName - New Mexico (US-NM) state name
+        public static let usNm = L10n.tr("Settings", "region.subdivision.US-NM", fallback: "New Mexico")
+        /// Location: RegionalAreas.subdivisionDisplayName - Nevada (US-NV) state name
+        public static let usNv = L10n.tr("Settings", "region.subdivision.US-NV", fallback: "Nevada")
+        /// Location: RegionalAreas.subdivisionDisplayName - New York (US-NY) state name
+        public static let usNy = L10n.tr("Settings", "region.subdivision.US-NY", fallback: "New York")
+        /// Location: RegionalAreas.subdivisionDisplayName - Ohio (US-OH) state name
+        public static let usOh = L10n.tr("Settings", "region.subdivision.US-OH", fallback: "Ohio")
+        /// Location: RegionalAreas.subdivisionDisplayName - Oklahoma (US-OK) state name
+        public static let usOk = L10n.tr("Settings", "region.subdivision.US-OK", fallback: "Oklahoma")
+        /// Location: RegionalAreas.subdivisionDisplayName - Oregon (US-OR) state name
+        public static let usOr = L10n.tr("Settings", "region.subdivision.US-OR", fallback: "Oregon")
         /// Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name
         public static let usPa = L10n.tr("Settings", "region.subdivision.US-PA", fallback: "Pennsylvania")
+        /// Location: RegionalAreas.subdivisionDisplayName - Rhode Island (US-RI) state name
+        public static let usRi = L10n.tr("Settings", "region.subdivision.US-RI", fallback: "Rhode Island")
+        /// Location: RegionalAreas.subdivisionDisplayName - South Carolina (US-SC) state name
+        public static let usSc = L10n.tr("Settings", "region.subdivision.US-SC", fallback: "South Carolina")
+        /// Location: RegionalAreas.subdivisionDisplayName - South Dakota (US-SD) state name
+        public static let usSd = L10n.tr("Settings", "region.subdivision.US-SD", fallback: "South Dakota")
+        /// Location: RegionalAreas.subdivisionDisplayName - Tennessee (US-TN) state name
+        public static let usTn = L10n.tr("Settings", "region.subdivision.US-TN", fallback: "Tennessee")
+        /// Location: RegionalAreas.subdivisionDisplayName - Texas (US-TX) state name
+        public static let usTx = L10n.tr("Settings", "region.subdivision.US-TX", fallback: "Texas")
+        /// Location: RegionalAreas.subdivisionDisplayName - Utah (US-UT) state name
+        public static let usUt = L10n.tr("Settings", "region.subdivision.US-UT", fallback: "Utah")
+        /// Location: RegionalAreas.subdivisionDisplayName - Virginia (US-VA) state name
+        public static let usVa = L10n.tr("Settings", "region.subdivision.US-VA", fallback: "Virginia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Vermont (US-VT) state name
+        public static let usVt = L10n.tr("Settings", "region.subdivision.US-VT", fallback: "Vermont")
+        /// Location: RegionalAreas.subdivisionDisplayName - Washington (US-WA) state name
+        public static let usWa = L10n.tr("Settings", "region.subdivision.US-WA", fallback: "Washington")
+        /// Location: RegionalAreas.subdivisionDisplayName - Wisconsin (US-WI) state name
+        public static let usWi = L10n.tr("Settings", "region.subdivision.US-WI", fallback: "Wisconsin")
+        /// Location: RegionalAreas.subdivisionDisplayName - West Virginia (US-WV) state name
+        public static let usWv = L10n.tr("Settings", "region.subdivision.US-WV", fallback: "West Virginia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Wyoming (US-WY) state name
+        public static let usWy = L10n.tr("Settings", "region.subdivision.US-WY", fallback: "Wyoming")
       }
     }
     public enum ReplyWithQuote {

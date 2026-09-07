@@ -274,7 +274,8 @@ Access Settings from the **Settings** tab.
 
 ### Radio Configuration
 
-- Presets sit at the top of Settings → Radio.
+- **Location** on Settings → Radio filters the preset list to nearby radios. It does not change frequency, bandwidth, spreading factor, or coding rate.
+- Presets sit under Location. Repeat Mode stays on the preset section.
 - Advanced holds frequency, bandwidth, spreading factor, coding rate, and TX power. Apply those values together with **Apply Radio Settings**.
 
 ### Device Info

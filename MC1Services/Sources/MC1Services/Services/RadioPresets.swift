@@ -394,4 +394,27 @@ public enum RadioPresets {
       return true
     }
   }
+
+  /// Presets shown in Settings → Radio for `region`, plus the radio's current preset when
+  /// that id is not already in the regional list (traveler exception).
+  public static func visiblePresets(
+    for region: RegionSelection?,
+    activeID: String?
+  ) -> [RadioPreset] {
+    let start: [RadioPreset]
+    if let region {
+      let regional = presets(for: region)
+      start = regional.isEmpty ? presetsForLocale() : regional
+    } else {
+      start = presetsForLocale()
+    }
+
+    var result = start.filter { isSelectable($0, in: region) || $0.id == activeID }
+    if let activeID,
+       !result.contains(where: { $0.id == activeID }),
+       let active = all.first(where: { $0.id == activeID }) {
+      result.append(active)
+    }
+    return result
+  }
 }

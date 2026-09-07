@@ -271,8 +271,11 @@
 /* Location: RegionPickerView.swift - Country picker label */
 "region.country" = "País";
 
-/* Location: RegionPickerView.swift - State/Province picker label */
-"region.administrativeArea" = "Estado / Província";
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "Estado";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "Província";
 
 /* Location: RegionPickerView.swift - Continue CTA in manual picker */
 "region.continue" = "Continuar";

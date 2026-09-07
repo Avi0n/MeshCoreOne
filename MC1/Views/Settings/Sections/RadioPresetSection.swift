@@ -24,11 +24,10 @@ struct RadioPresetSection: View {
   }
 
   private var presets: [RadioPreset] {
-    let region = appState.regionSelection
-    let activeID = selectedPresetID ?? currentPreset?.id
-    return RadioPresets.presetsForLocale().filter {
-      RadioPresets.isSelectable($0, in: region) || $0.id == activeID
-    }
+    RadioPresets.visiblePresets(
+      for: appState.regionSelection,
+      activeID: currentPreset?.id
+    )
   }
 
   private var repeatPresets: [RadioPreset] {
@@ -102,34 +101,14 @@ struct RadioPresetSection: View {
         }
       }
       .onChange(of: selectedPresetID) { _, newValue in
-        // Skip the initial value set from onAppear
+        // Skip the initial value set from onAppear. Do not assign selectedPresetID
+        // when regionSelection changes — that would apply the preset to the radio.
         guard hasInitialized else { return }
         // Apply if user selected a preset (newValue is non-nil)
         guard let newID = newValue else { return }
         applyPreset(id: newID)
       }
       .radioDisabled(for: appState.connectionState, or: isApplying || isApplyingRepeat || radioWriteInFlight)
-
-      let detailPresets = isRepeatEnabled ? repeatPresets : presets
-      if let preset = detailPresets.first(where: { $0.id == selectedPresetID }) {
-        // In Repeat Mode only the frequency is applied, so preview the device's kept bandwidth/SF/CR.
-        let device = isRepeatEnabled ? appState.connectedDevice : nil
-        RadioParameterText(
-          frequencyMHz: preset.frequencyMHz,
-          bandwidthKHz: device.map { Double($0.bandwidth) / 1000.0 } ?? preset.bandwidthKHz,
-          spreadingFactor: device?.spreadingFactor ?? preset.spreadingFactor,
-          codingRate: device?.codingRate ?? preset.codingRate
-        )
-        .foregroundStyle(.secondary)
-      } else if let device = appState.connectedDevice {
-        RadioParameterText(
-          frequencyMHz: Double(device.frequency) / 1000.0,
-          bandwidthKHz: Double(device.bandwidth) / 1000.0,
-          spreadingFactor: device.spreadingFactor,
-          codingRate: device.codingRate
-        )
-        .foregroundStyle(.secondary)
-      }
 
       if appState.connectedDevice?.supportsClientRepeat == true {
         Toggle(isOn: $isRepeatEnabled) {
