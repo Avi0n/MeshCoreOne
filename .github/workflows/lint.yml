@@ -31,7 +31,7 @@ jobs:
 
       - name: Install SwiftFormat
         env:
-          SWIFTFORMAT_VERSION: 0.62.1
+          SWIFTFORMAT_VERSION: 0.63.0
         run: |
           # Pinned rather than using the runner image's preinstalled build, so an
           # image update cannot change the lint result without a commit here.
