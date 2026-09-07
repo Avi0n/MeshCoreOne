@@ -1227,6 +1227,7 @@ public final class ConnectionManager {
       isActive: true,
       ocvPreset: existingDevice?.ocvPreset
         ?? OCVPreset.preset(forManufacturer: capabilities.model)?.rawValue,
+      appliedRadioPresetID: existingDevice?.appliedRadioPresetID,
       customOCVArrayString: existingDevice?.customOCVArrayString,
       connectionMethods: mergedMethods,
       knownRegions: existingDevice?.knownRegions ?? []

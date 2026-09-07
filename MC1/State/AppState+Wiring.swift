@@ -35,9 +35,9 @@ extension AppState {
       for await event in events {
         guard let self else { return }
         switch event {
-        case let .deviceUpdated(selfInfo):
+        case let .deviceUpdated(selfInfo, appliedRadioPresetID):
           await MainActor.run {
-            self.connectionManager.updateDevice(from: selfInfo)
+            self.connectionManager.updateDevice(from: selfInfo, appliedRadioPresetID: appliedRadioPresetID)
           }
         case let .autoAddConfigUpdated(config):
           await MainActor.run {

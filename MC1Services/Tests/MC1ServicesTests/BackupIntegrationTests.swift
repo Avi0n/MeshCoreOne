@@ -163,6 +163,30 @@ struct BackupIntegrationTests {
     #expect(restored.knownRegions == ["US915", "EU868"])
   }
 
+  @Test
+  func `Device appliedRadioPresetID survives DTO encode → decode round-trip`() throws {
+    let dto = DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" }
+    let decoded = try JSONDecoder().decode(DeviceDTO.self, from: JSONEncoder().encode(dto))
+    #expect(decoded.appliedRadioPresetID == "br")
+  }
+
+  @Test
+  func `Legacy device envelope without appliedRadioPresetID decodes it as nil`() throws {
+    let encoded = try JSONEncoder().encode(DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" })
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    json.removeValue(forKey: "appliedRadioPresetID")
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(DeviceDTO.self, from: stripped)
+    #expect(decoded.appliedRadioPresetID == nil)
+  }
+
+  @Test
+  func `redactedForBackup nils appliedRadioPresetID`() {
+    let dto = DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" }
+    #expect(dto.redactedForBackup().appliedRadioPresetID == nil)
+  }
+
   // MARK: - Test 2: Cross-bundle radioID remapping
 
   /// When the target store contains a device with the same publicKey as the backup but a

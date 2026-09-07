@@ -223,22 +223,64 @@ public enum RadioPresets {
     }
   }
 
-  /// Find preset matching current device settings (approximate match)
+  /// Every catalog row whose RF tuple matches, in catalog order. More than one name can share a tuple.
+  public static func matchingPresets(
+    frequencyKHz: UInt32,
+    bandwidthKHz: UInt32,
+    spreadingFactor: UInt8,
+    codingRate: UInt8
+  ) -> [RadioPreset] {
+    let freqMHz = Double(frequencyKHz) / 1000.0
+    let bwKHz = Double(bandwidthKHz) / 1000.0
+    return all.filter { preset in
+      abs(preset.frequencyMHz - freqMHz) < 0.1 &&
+        abs(preset.bandwidthKHz - bwKHz) < 1.0 &&
+        preset.spreadingFactor == spreadingFactor &&
+        preset.codingRate == codingRate
+    }
+  }
+
+  /// Last-applied id if still RF-equal, then recommended-if-in-set, then a unique match; else Custom.
+  public static func resolvedPreset(
+    frequencyKHz: UInt32,
+    bandwidthKHz: UInt32,
+    spreadingFactor: UInt8,
+    codingRate: UInt8,
+    preferredID: String?,
+    region: RegionSelection?
+  ) -> RadioPreset? {
+    let matches = matchingPresets(
+      frequencyKHz: frequencyKHz,
+      bandwidthKHz: bandwidthKHz,
+      spreadingFactor: spreadingFactor,
+      codingRate: codingRate
+    )
+    if let preferredID, let hit = matches.first(where: { $0.id == preferredID }) {
+      return hit
+    }
+    if let region,
+       let recommended = recommended(for: region),
+       let hit = matches.first(where: { $0.id == recommended.id }) {
+      return hit
+    }
+    return matches.count == 1 ? matches[0] : nil
+  }
+
+  /// Unique RF match, or nil when the tuple is unlabeled or collides.
   public static func matchingPreset(
     frequencyKHz: UInt32,
     bandwidthKHz: UInt32,
     spreadingFactor: UInt8,
     codingRate: UInt8
   ) -> RadioPreset? {
-    let freqMHz = Double(frequencyKHz) / 1000.0
-    let bwKHz = Double(bandwidthKHz) / 1000.0
-
-    return all.first { preset in
-      abs(preset.frequencyMHz - freqMHz) < 0.1 &&
-        abs(preset.bandwidthKHz - bwKHz) < 1.0 &&
-        preset.spreadingFactor == spreadingFactor &&
-        preset.codingRate == codingRate
-    }
+    resolvedPreset(
+      frequencyKHz: frequencyKHz,
+      bandwidthKHz: bandwidthKHz,
+      spreadingFactor: spreadingFactor,
+      codingRate: codingRate,
+      preferredID: nil,
+      region: nil
+    )
   }
 
   /// Find the repeat preset for the device's current frequency. Repeat Mode only sets frequency,

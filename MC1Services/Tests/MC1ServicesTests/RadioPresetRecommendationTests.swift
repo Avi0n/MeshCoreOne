@@ -340,6 +340,139 @@ struct RadioPresetSelectabilityTests {
   }
 }
 
+@Suite("RadioPresets alias identity")
+struct RadioPresetAliasIdentityTests {
+  private func rf(_ id: String) throws -> RadioPreset {
+    try #require(RadioPresets.all.first(where: { $0.id == id }))
+  }
+
+  private func matches(of id: String) throws -> [String] {
+    let preset = try rf(id)
+    return RadioPresets.matchingPresets(
+      frequencyKHz: preset.frequencyKHz,
+      bandwidthKHz: preset.bandwidthHz,
+      spreadingFactor: preset.spreadingFactor,
+      codingRate: preset.codingRate
+    ).map(\.id)
+  }
+
+  private func resolved(
+    of id: String,
+    preferredID: String?,
+    region: RegionSelection?
+  ) throws -> String? {
+    let preset = try rf(id)
+    return RadioPresets.resolvedPreset(
+      frequencyKHz: preset.frequencyKHz,
+      bandwidthKHz: preset.bandwidthHz,
+      spreadingFactor: preset.spreadingFactor,
+      codingRate: preset.codingRate,
+      preferredID: preferredID,
+      region: region
+    )?.id
+  }
+
+  @Test
+  func `Brazil RF matches au-sa-wa and br in catalog order`() throws {
+    #expect(try matches(of: "br") == ["au-sa-wa", "br"])
+  }
+
+  @Test
+  func `EU Narrow RF matches eu-narrow and ch in catalog order`() throws {
+    #expect(try matches(of: "ch") == ["eu-narrow", "ch"])
+  }
+
+  @Test
+  func `unique RF still returns a one-element set`() throws {
+    #expect(try matches(of: "us-ca") == ["us-ca"])
+    #expect(try matches(of: "au-qld") == ["au-qld"])
+  }
+
+  @Test
+  func `preferredID wins among aliases`() throws {
+    #expect(try resolved(of: "br", preferredID: "br", region: nil) == "br")
+    #expect(try resolved(of: "br", preferredID: "au-sa-wa", region: nil) == "au-sa-wa")
+    #expect(try resolved(of: "ch", preferredID: "ch", region: nil) == "ch")
+  }
+
+  @Test
+  func `stale preferredID does not win`() throws {
+    #expect(try resolved(of: "br", preferredID: "us-ca", region: nil) == nil)
+  }
+
+  @Test
+  func `stale preferredID on unique RF yields that unique preset`() throws {
+    let us = RegionSelection(countryCode: "US", source: .manual)
+    #expect(try resolved(of: "us-ca", preferredID: "br", region: us) == "us-ca")
+    #expect(try resolved(of: "us-ca", preferredID: "br", region: nil) == "us-ca")
+  }
+
+  @Test
+  func `unlabeled collision uses recommended when it is in the set`() throws {
+    let auSA = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-SA", source: .location)
+    let br = RegionSelection(countryCode: "BR", source: .location)
+    let ch = RegionSelection(countryCode: "CH", source: .location)
+    let de = RegionSelection(countryCode: "DE", source: .location)
+    #expect(try resolved(of: "br", preferredID: nil, region: auSA) == "au-sa-wa")
+    #expect(try resolved(of: "br", preferredID: nil, region: br) == "br")
+    #expect(try resolved(of: "ch", preferredID: nil, region: ch) == "ch")
+    #expect(try resolved(of: "ch", preferredID: nil, region: de) == "eu-narrow")
+  }
+
+  @Test
+  func `unlabeled collision with no recommended in set is Custom`() throws {
+    let us = RegionSelection(countryCode: "US", source: .manual)
+    #expect(try resolved(of: "br", preferredID: nil, region: us) == nil)
+    #expect(try resolved(of: "br", preferredID: nil, region: nil) == nil)
+  }
+
+  @Test
+  func `preferredID beats recommended`() throws {
+    let auSA = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-SA", source: .location)
+    #expect(try resolved(of: "br", preferredID: "br", region: auSA) == "br")
+  }
+
+  @Test
+  func `matchingPreset is unique-or-nil, not first-wins`() throws {
+    let br = try rf("br")
+    #expect(
+      RadioPresets.matchingPreset(
+        frequencyKHz: br.frequencyKHz,
+        bandwidthKHz: br.bandwidthHz,
+        spreadingFactor: br.spreadingFactor,
+        codingRate: br.codingRate
+      ) == nil
+    )
+    let us = try rf("us-ca")
+    #expect(
+      RadioPresets.matchingPreset(
+        frequencyKHz: us.frequencyKHz,
+        bandwidthKHz: us.bandwidthHz,
+        spreadingFactor: us.spreadingFactor,
+        codingRate: us.codingRate
+      )?.id == "us-ca"
+    )
+  }
+
+  @Test
+  func `alreadyConfigured is RF membership not first-match id`() throws {
+    let br = try rf("br")
+    let matches = RadioPresets.matchingPresets(
+      frequencyKHz: br.frequencyKHz,
+      bandwidthKHz: br.bandwidthHz,
+      spreadingFactor: br.spreadingFactor,
+      codingRate: br.codingRate
+    )
+    #expect(matches.contains { $0.id == "br" })
+    #expect(RadioPresets.matchingPreset(
+      frequencyKHz: br.frequencyKHz,
+      bandwidthKHz: br.bandwidthHz,
+      spreadingFactor: br.spreadingFactor,
+      codingRate: br.codingRate
+    )?.id != "br")
+  }
+}
+
 @Suite("RadioPreset protocol encoding")
 struct RadioPresetEncodingTests {
   private func preset(frequencyMHz: Double, bandwidthKHz: Double) -> RadioPreset {

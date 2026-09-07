@@ -19,7 +19,7 @@ public extension SettingsService {
       )
     }
 
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
     return selfInfo
   }
 
@@ -61,7 +61,7 @@ public extension SettingsService {
       )
     }
 
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
     return selfInfo
   }
 
@@ -84,7 +84,8 @@ public extension SettingsService {
     bandwidthKHz: UInt32,
     spreadingFactor: UInt8,
     codingRate: UInt8,
-    clientRepeat: Bool? = nil
+    clientRepeat: Bool? = nil,
+    appliedRadioPresetID: String? = nil
   ) async throws -> MeshCore.SelfInfo {
     logger.info("[Radio] Sending params: freq=\(frequencyKHz)kHz, bw=\(bandwidthKHz)Hz, sf=\(spreadingFactor), cr=\(codingRate), repeat=\(String(describing: clientRepeat))")
 
@@ -131,7 +132,7 @@ public extension SettingsService {
     }
 
     logger.info("[Radio] Params verified successfully")
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: appliedRadioPresetID))
     return selfInfo
   }
 
@@ -142,7 +143,8 @@ public extension SettingsService {
       frequencyKHz: preset.frequencyKHz,
       bandwidthKHz: preset.bandwidthHz,
       spreadingFactor: preset.spreadingFactor,
-      codingRate: preset.codingRate
+      codingRate: preset.codingRate,
+      appliedRadioPresetID: preset.id
     )
   }
 
@@ -163,7 +165,7 @@ public extension SettingsService {
     }
 
     logger.info("[Radio] TX power verified: \(power)dBm")
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
     return selfInfo
   }
 
@@ -191,7 +193,7 @@ public extension SettingsService {
       )
     }
 
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
     return selfInfo
   }
 

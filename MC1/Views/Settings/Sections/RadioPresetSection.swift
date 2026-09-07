@@ -25,7 +25,7 @@ struct RadioPresetSection: View {
 
   private var presets: [RadioPreset] {
     let region = appState.regionSelection
-    let activeID = currentPreset?.id
+    let activeID = selectedPresetID ?? currentPreset?.id
     return RadioPresets.presetsForLocale().filter {
       RadioPresets.isSelectable($0, in: region) || $0.id == activeID
     }
@@ -37,11 +37,13 @@ struct RadioPresetSection: View {
 
   private var currentPreset: RadioPreset? {
     guard let device = appState.connectedDevice else { return nil }
-    return RadioPresets.matchingPreset(
+    return RadioPresets.resolvedPreset(
       frequencyKHz: device.frequency,
       bandwidthKHz: device.bandwidth,
       spreadingFactor: device.spreadingFactor,
-      codingRate: device.codingRate
+      codingRate: device.codingRate,
+      preferredID: device.appliedRadioPresetID,
+      region: appState.regionSelection
     )
   }
 
@@ -181,8 +183,17 @@ struct RadioPresetSection: View {
       _ = try? await settingsService.getSelfInfo()
     }
     .onChange(of: currentPreset?.id) { _, newPresetID in
-      // Sync picker when device settings change externally
       guard !isRepeatEnabled else { return }
+      if let selected = selectedPresetID,
+         let device = appState.connectedDevice,
+         RadioPresets.matchingPresets(
+           frequencyKHz: device.frequency,
+           bandwidthKHz: device.bandwidth,
+           spreadingFactor: device.spreadingFactor,
+           codingRate: device.codingRate
+         ).contains(where: { $0.id == selected }) {
+        return
+      }
       hasInitialized = false
       selectedPresetID = newPresetID
       Task { @MainActor in

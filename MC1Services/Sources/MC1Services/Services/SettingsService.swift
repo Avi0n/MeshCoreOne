@@ -301,7 +301,7 @@ public actor SettingsService {
   /// Use this instead of `setLocationVerified` when the device already has correct coordinates (e.g. from its own GPS).
   public func refreshDeviceInfo() async throws {
     let selfInfo = try await getSelfInfo()
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
   }
 
   /// Set auto-add configuration on device

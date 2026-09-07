@@ -376,12 +376,26 @@ public extension ConnectionManager {
   /// Updates the connected device with new settings from SelfInfo.
   /// Called by SettingsService after device settings are successfully changed.
   /// Also persists to SwiftData so changes appear in Connect Device sheet.
-  func updateDevice(from selfInfo: MeshCore.SelfInfo) {
+  func updateDevice(from selfInfo: MeshCore.SelfInfo, appliedRadioPresetID: String?) {
     guard let device = connectedDevice else { return }
-    let updated = device.updating(from: selfInfo)
+    var updated = device.updating(from: selfInfo)
+    if let appliedRadioPresetID {
+      updated.appliedRadioPresetID = appliedRadioPresetID
+    } else if !device.clientRepeat {
+      // Drop a stale catalog id only when live RF no longer matches it. Repeat Mode
+      // keeps the id so restore can still paint the community name.
+      let matches = RadioPresets.matchingPresets(
+        frequencyKHz: updated.frequency,
+        bandwidthKHz: updated.bandwidth,
+        spreadingFactor: updated.spreadingFactor,
+        codingRate: updated.codingRate
+      )
+      if let current = updated.appliedRadioPresetID,
+         !matches.contains(where: { $0.id == current }) {
+        updated.appliedRadioPresetID = nil
+      }
+    }
     connectedDevice = updated
-
-    // Persist to SwiftData
     Task {
       try? await services?.dataStore.saveDevice(updated)
     }

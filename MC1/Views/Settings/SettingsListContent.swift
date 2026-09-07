@@ -204,11 +204,13 @@ private struct MyDeviceSection: View {
   private var radioDetailText: String {
     let preset = device.clientRepeat
       ? RadioPresets.matchingRepeatPreset(frequencyKHz: device.frequency)
-      : RadioPresets.matchingPreset(
+      : RadioPresets.resolvedPreset(
         frequencyKHz: device.frequency,
         bandwidthKHz: device.bandwidth,
         spreadingFactor: device.spreadingFactor,
-        codingRate: device.codingRate
+        codingRate: device.codingRate,
+        preferredID: device.appliedRadioPresetID,
+        region: appState.regionSelection
       )
     return preset?.name ?? L10n.Settings.BatteryCurve.custom
   }
