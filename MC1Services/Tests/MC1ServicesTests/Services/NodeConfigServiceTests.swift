@@ -797,14 +797,14 @@ struct NodeConfigServiceTests {
     #expect(spy.progress.count == NodeConfigService.stepCount(for: plan))
     let kinds = Set(spy.progress.map { step -> String in
       switch step {
-      case .position: return "position"
-      case .otherParameters: return "other"
-      case .privateKey: return "privateKey"
-      case .nodeName: return "nodeName"
-      case .radioParameters: return "radio"
-      case .txPower: return "txPower"
-      case .channel: return "channel"
-      case .contact: return "contact"
+      case .position: "position"
+      case .otherParameters: "other"
+      case .privateKey: "privateKey"
+      case .nodeName: "nodeName"
+      case .radioParameters: "radio"
+      case .txPower: "txPower"
+      case .channel: "channel"
+      case .contact: "contact"
       }
     })
     #expect(kinds == ["position", "other", "privateKey", "nodeName", "radio", "txPower", "channel", "contact"])
