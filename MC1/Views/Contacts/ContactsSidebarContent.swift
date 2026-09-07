@@ -51,7 +51,13 @@ struct ContactsSidebarContent: View {
         BlockedContactsView()
       }
     }
-    .searchable(text: $searchText, prompt: searchPrompt)
+    // Always-visible drawer keeps search below the large title. Default toolbar
+    // placement on iOS 26 draws both in the same slot.
+    .searchable(
+      text: $searchText,
+      placement: .navigationBarDrawer(displayMode: .always),
+      prompt: searchPrompt
+    )
     .toolbar {
       bleStatusToolbarItem()
 
