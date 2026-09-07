@@ -307,8 +307,8 @@
 
 // MARK: - Advanced Radio Section
 
-/* Section header for radio configuration */
-"advancedRadio.header" = "Конфигурация радио";
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "Расширенные";
 
 /* Label for frequency input */
 "advancedRadio.frequency" = "Частота (МГц)";
@@ -355,14 +355,11 @@
 /* Footer warning about incorrect radio settings */
 "advancedRadio.footer" = "Предупреждение: Неверные настройки могут помешать связи с другими устройствами mesh.";
 
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "Частота задаётся режимом ретранслятора.";
+
 /* Error message for invalid input */
 "advancedRadio.invalidInput" = "Неверные значения или устройство не подключено";
-
-/* Toggle label for repeat mode in advanced radio */
-"advancedRadio.repeatMode" = "Режим ретранслятора";
-
-/* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Создаёт локальный ретранслятор на выделенной частоте. Полезно для походов и удалённых районов. Допустимые частоты: 433, 869.495, 918 МГц.";
 
 /* Accessibility label for voltage text field - %d is the percentage level */
 "batteryCurve.accessibility.voltageLabel" = "Напряжение при %d процентах";

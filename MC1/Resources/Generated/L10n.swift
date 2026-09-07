@@ -4112,12 +4112,12 @@ public enum L10n {
       public static let frequency = L10n.tr("Settings", "advancedRadio.frequency", fallback: "Frequency (MHz)")
       /// Placeholder for frequency text field
       public static let frequencyPlaceholder = L10n.tr("Settings", "advancedRadio.frequencyPlaceholder", fallback: "MHz")
-      /// Section header for radio configuration
-      public static let header = L10n.tr("Settings", "advancedRadio.header", fallback: "Radio Configuration")
+      /// Footer when Repeat Mode is on: frequency is owned by Repeat Mode.
+      public static let frequencyRepeatModeFooter = L10n.tr("Settings", "advancedRadio.frequencyRepeatModeFooter", fallback: "Frequency is set by Repeat Mode.")
+      /// Section header for manual radio parameters on Settings → Radio.
+      public static let header = L10n.tr("Settings", "advancedRadio.header", fallback: "Advanced")
       /// Error message for invalid input
       public static let invalidInput = L10n.tr("Settings", "advancedRadio.invalidInput", fallback: "Invalid input values or device not connected")
-      /// Toggle label for repeat mode in advanced radio
-      public static let repeatMode = L10n.tr("Settings", "advancedRadio.repeatMode", fallback: "Repeat Mode")
       /// Label for spreading factor picker
       public static let spreadingFactor = L10n.tr("Settings", "advancedRadio.spreadingFactor", fallback: "Spreading Factor")
       /// Label for TX power input
@@ -4143,10 +4143,6 @@ public enum L10n {
         public static func spreadingFactorLabel(_ p1: Int) -> String {
           return L10n.tr("Settings", "advancedRadio.accessibility.spreadingFactorLabel", p1, fallback: "Spreading factor %d")
         }
-      }
-      public enum RepeatMode {
-        /// Footer explaining repeat mode in advanced radio
-        public static let footer = L10n.tr("Settings", "advancedRadio.repeatMode.footer", fallback: "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.")
       }
     }
     public enum AdvancedSettings {

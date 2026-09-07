@@ -14,9 +14,6 @@ struct AdvancedSettingsView: View {
 
   var body: some View {
     List {
-      // Manual Radio Configuration
-      AdvancedRadioSection()
-
       // Path Hash Mode (firmware v10+)
       if appState.connectedDevice?.supportsPathHashMode == true {
         PathHashModeSection()

@@ -307,8 +307,8 @@
 
 // MARK: - Advanced Radio Section
 
-/* Section header for radio configuration */
-"advancedRadio.header" = "Configuración de radio";
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "Avanzado";
 
 /* Label for frequency input */
 "advancedRadio.frequency" = "Frecuencia (MHz)";
@@ -355,14 +355,11 @@
 /* Footer warning about incorrect radio settings */
 "advancedRadio.footer" = "Advertencia: Ajustes incorrectos pueden impedir la comunicación con otros dispositivos mesh.";
 
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "La frecuencia la establece el Modo Repetidor.";
+
 /* Error message for invalid input */
 "advancedRadio.invalidInput" = "Valores de entrada inválidos o dispositivo no conectado";
-
-/* Toggle label for repeat mode in advanced radio */
-"advancedRadio.repeatMode" = "Modo Repetidor";
-
-/* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Crea un repetidor local en una frecuencia dedicada. Útil para senderismo y áreas remotas. Frecuencias válidas: 433, 869.495, 918 MHz.";
 
 // MARK: - Path Hash Mode Section
 

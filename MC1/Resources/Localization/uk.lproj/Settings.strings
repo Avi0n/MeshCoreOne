@@ -307,8 +307,8 @@
 
 // MARK: - Advanced Radio Section
 
-/* Section header for radio configuration */
-"advancedRadio.header" = "Конфігурація радіо";
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "Розширені";
 
 /* Label for frequency input */
 "advancedRadio.frequency" = "Частота (МГц)";
@@ -355,14 +355,11 @@
 /* Footer warning about incorrect radio settings */
 "advancedRadio.footer" = "Попередження: Неправильні налаштування можуть завадити зв'язку з іншими пристроями mesh.";
 
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "Частота задається режимом ретранслятора.";
+
 /* Error message for invalid input */
 "advancedRadio.invalidInput" = "Невірні значення або пристрій не підключено";
-
-/* Toggle label for repeat mode in advanced radio */
-"advancedRadio.repeatMode" = "Режим ретранслятора";
-
-/* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Створює локальний ретранслятор на виділеній частоті. Корисно для походів та віддалених місцевостей. Допустимі частоти: 433, 869.495, 918 МГц.";
 
 // MARK: - Path Hash Mode Section
 

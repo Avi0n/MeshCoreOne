@@ -307,8 +307,8 @@
 
 // MARK: - Advanced Radio Section
 
-/* Section header for radio configuration */
-"advancedRadio.header" = "Radioconfiguratie";
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "Geavanceerd";
 
 /* Label for frequency input */
 "advancedRadio.frequency" = "Frequentie (MHz)";
@@ -355,14 +355,11 @@
 /* Footer warning about incorrect radio settings */
 "advancedRadio.footer" = "Waarschuwing: Onjuiste instellingen kunnen communicatie met andere mesh-apparaten verhinderen.";
 
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "De frequentie wordt ingesteld door Repeatermodus.";
+
 /* Error message for invalid input */
 "advancedRadio.invalidInput" = "Ongeldige invoerwaarden of apparaat niet verbonden";
-
-/* Toggle label for repeat mode in advanced radio */
-"advancedRadio.repeatMode" = "Repeatermodus";
-
-/* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Creëert een lokale repeater op een eigen frequentie. Handig voor wandelen en afgelegen gebieden. Geldige frequenties: 433, 869.495, 918 MHz.";
 
 /* Accessibility label for voltage text field at specific battery percent - %d is percent */
 "batteryCurve.accessibility.voltageLabel" = "Spanning bij %d procent";

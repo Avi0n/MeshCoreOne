@@ -6,6 +6,7 @@ struct RadioPresetSection: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
+  @Binding var radioWriteInFlight: Bool
   @State private var selectedPresetID: String?
   @State private var isApplying = false
   @State private var errorMessage: String?
@@ -105,7 +106,7 @@ struct RadioPresetSection: View {
         guard let newID = newValue else { return }
         applyPreset(id: newID)
       }
-      .radioDisabled(for: appState.connectionState, or: isApplying || isApplyingRepeat)
+      .radioDisabled(for: appState.connectionState, or: isApplying || isApplyingRepeat || radioWriteInFlight)
 
       let detailPresets = isRepeatEnabled ? repeatPresets : presets
       if let preset = detailPresets.first(where: { $0.id == selectedPresetID }) {
@@ -148,7 +149,7 @@ struct RadioPresetSection: View {
             disableRepeatMode()
           }
         }
-        .disabled(isApplying || isApplyingRepeat)
+        .disabled(isApplying || isApplyingRepeat || radioWriteInFlight)
       }
     } header: {
       Text(L10n.Settings.Radio.header)
@@ -180,7 +181,7 @@ struct RadioPresetSection: View {
       _ = try? await settingsService.getSelfInfo()
     }
     .onChange(of: currentPreset?.id) { _, newPresetID in
-      // Sync picker when device settings change externally (e.g., from Advanced Settings)
+      // Sync picker when device settings change externally
       guard !isRepeatEnabled else { return }
       hasInitialized = false
       selectedPresetID = newPresetID
@@ -221,9 +222,13 @@ struct RadioPresetSection: View {
 
   private func applyPreset(id: String) {
     let allPresets = isRepeatEnabled ? repeatPresets : presets
-    guard let preset = allPresets.first(where: { $0.id == id }) else { return }
+    guard let preset = allPresets.first(where: { $0.id == id }) else {
+      radioWriteInFlight = false
+      return
+    }
 
     isApplying = true
+    radioWriteInFlight = true
     Task {
       do {
         guard let settingsService = appState.services?.settingsService else {
@@ -258,11 +263,14 @@ struct RadioPresetSection: View {
         }
       }
       isApplying = false
+      radioWriteInFlight = false
     }
   }
 
   private func enableRepeatMode() {
     guard let preset = closestRepeatPreset else { return }
+
+    radioWriteInFlight = true
 
     // Persist current radio settings to Device model before switching
     appState.connectionManager.savePreRepeatSettings()
@@ -288,6 +296,7 @@ struct RadioPresetSection: View {
   private func disableRepeatMode() {
     guard let device = appState.connectedDevice else { return }
     isApplyingRepeat = true
+    radioWriteInFlight = true
     Task {
       do {
         guard let settingsService = appState.services?.settingsService else {
@@ -330,6 +339,7 @@ struct RadioPresetSection: View {
         setRepeatToggle(true) // Revert
       }
       isApplyingRepeat = false
+      radioWriteInFlight = false
     }
   }
 }

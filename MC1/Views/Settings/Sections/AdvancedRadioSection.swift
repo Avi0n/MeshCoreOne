@@ -6,12 +6,12 @@ struct AdvancedRadioSection: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
+  @Binding var radioWriteInFlight: Bool
   @State private var frequency: Double? // MHz
   @State private var bandwidth: UInt32? // Hz
   @State private var spreadingFactor: Int?
   @State private var codingRate: Int?
   @State private var txPower: Int? // dBm
-  @State private var clientRepeat: Bool?
   @State private var hasLoaded = false
   @State private var isApplying = false
   @State private var showSuccess = false
@@ -26,8 +26,7 @@ struct AdvancedRadioSection: View {
 
   private var settingsModified: Bool {
     guard let device = appState.connectedDevice else { return false }
-    return clientRepeat != appState.connectedDevice?.clientRepeat ||
-      frequency != Double(device.frequency) / 1000.0 ||
+    return frequency != Double(device.frequency) / 1000.0 ||
       bandwidth != RadioOptions.nearestBandwidth(to: device.bandwidth) ||
       spreadingFactor != Int(device.spreadingFactor) ||
       codingRate != Int(device.codingRate) ||
@@ -36,6 +35,7 @@ struct AdvancedRadioSection: View {
 
   private var canApply: Bool {
     appState.connectionState == .ready && settingsModified && !isApplying && !showSuccess
+      && !radioWriteInFlight
   }
 
   /// Combined hash of all radio settings for change detection
@@ -69,6 +69,7 @@ struct AdvancedRadioSection: View {
           .frame(width: 100)
           .focused($focusedField, equals: .frequency)
         }
+        .disabled(appState.connectedDevice?.clientRepeat == true)
 
         Picker(L10n.Settings.AdvancedRadio.bandwidth, selection: $bandwidth) {
           ForEach(RadioOptions.bandwidthsHz, id: \.self) { bwHz in
@@ -113,21 +114,6 @@ struct AdvancedRadioSection: View {
             .focused($focusedField, equals: .txPower)
         }
 
-        if appState.connectedDevice?.supportsClientRepeat == true {
-          Toggle(isOn: Binding(
-            get: { clientRepeat ?? false },
-            set: { newValue in
-              clientRepeat = newValue
-              if newValue { snapFrequencyForRepeat() } else { restoreFrequencyAfterRepeat() }
-            }
-          )) {
-            Text(L10n.Settings.AdvancedRadio.repeatMode)
-            Text(L10n.Settings.AdvancedRadio.RepeatMode.footer)
-          }
-          .accessibilityHint(L10n.Settings.Radio.RepeatMode.accessibilityHint)
-          .disabled(!hasLoaded)
-        }
-
         Button {
           applySettings()
         } label: {
@@ -137,43 +123,38 @@ struct AdvancedRadioSection: View {
               .transition(.opacity)
           }
         }
-        .radioDisabled(for: appState.connectionState, or: isApplying || showSuccess || !settingsModified)
+        .radioDisabled(
+          for: appState.connectionState,
+          or: isApplying || showSuccess || !settingsModified || radioWriteInFlight
+        )
       }
     } header: {
       Text(L10n.Settings.AdvancedRadio.header)
     } footer: {
-      Text(L10n.Settings.AdvancedRadio.footer)
+      VStack(alignment: .leading, spacing: 6) {
+        Text(L10n.Settings.AdvancedRadio.footer)
+        if appState.connectedDevice?.clientRepeat == true {
+          Text(L10n.Settings.AdvancedRadio.frequencyRepeatModeFooter)
+        }
+      }
     }
     .themedRowBackground(theme)
     .onAppear {
       loadCurrentSettings()
     }
     .onChange(of: deviceRadioSettingsHash) { _, _ in
-      // Skip reloads while our own apply settles the device model. Frequency and clientRepeat arrive
-      // as separate events, and reloading on that intermediate state flickers the frequency field;
-      // the local fields already hold the applied values.
-      guard !isApplying, !showSuccess else { return }
+      // Skip reloads only while this apply is in flight. Frequency and clientRepeat
+      // arrive as separate events; reloading that intermediate state flickers the field.
+      guard !isApplying else { return }
+      if showSuccess, settingsModified {
+        withAnimation {
+          showSuccess = false
+        }
+      }
       loadCurrentSettings()
     }
     .errorAlert($errorMessage)
     .retryAlert(retryAlert)
-  }
-
-  /// Repeat Mode requires an exact firmware-approved frequency, so an off-band value is snapped to
-  /// the nearest one; without this, enabling the toggle would submit a frequency the firmware rejects.
-  private func snapFrequencyForRepeat() {
-    guard let freqMHz = frequency else { return }
-    let currentKHz = UInt32((freqMHz * 1000).rounded())
-    guard RadioPresets.matchingRepeatPreset(frequencyKHz: currentKHz) == nil,
-          let nearest = RadioPresets.nearestRepeatPreset(toFrequencyKHz: currentKHz) else { return }
-    frequency = nearest.frequencyMHz
-  }
-
-  /// Restores the frequency the radio used before Repeat Mode so disabling the toggle returns to the
-  /// original band instead of stranding it on the repeat frequency; falls back to the current one.
-  private func restoreFrequencyAfterRepeat() {
-    guard let device = appState.connectedDevice else { return }
-    frequency = Double(device.preRepeatFrequency ?? device.frequency) / 1000.0
   }
 
   private func loadCurrentSettings() {
@@ -185,11 +166,11 @@ struct AdvancedRadioSection: View {
     spreadingFactor = Int(device.spreadingFactor)
     codingRate = Int(device.codingRate)
     txPower = Int(device.txPower)
-    clientRepeat = device.clientRepeat
     hasLoaded = true
   }
 
   private func applySettings() {
+    guard !radioWriteInFlight else { return }
     guard let freqMHz = frequency,
           let bandwidthHz = bandwidth,
           let spreadFactor = spreadingFactor,
@@ -219,37 +200,34 @@ struct AdvancedRadioSection: View {
     }
 
     isApplying = true
+    radioWriteInFlight = true
     Task {
       do {
-        // Save pre-repeat settings when enabling repeat mode
-        let wasRepeat = appState.connectedDevice?.clientRepeat ?? false
-        let willRepeat = clientRepeat ?? false
-        if !wasRepeat, willRepeat {
-          appState.connectionManager.savePreRepeatSettings()
+        guard let device = appState.connectedDevice else {
+          throw ConnectionError.notConnected
         }
 
-        // Set radio params first
+        // Firmware treats an omitted repeat byte as Repeat Mode off. Read clientRepeat
+        // and frequency from the radio at this call, not before the Task.
+        let frequencyKHzToSend = device.clientRepeat ? device.frequency : frequencyKHz
+
         _ = try await settingsService.setRadioParamsVerified(
-          frequencyKHz: frequencyKHz,
+          frequencyKHz: frequencyKHzToSend,
           // Note: Parameter is misleadingly named "bandwidthKHz" but expects Hz.
           // bandwidthHz is already UInt32 Hz from the picker, pass directly.
           bandwidthKHz: bandwidthHz,
           spreadingFactor: spreadFactorByte,
           codingRate: codeRateByte,
-          clientRepeat: clientRepeat
+          clientRepeat: device.clientRepeat
         )
-
-        // Clear pre-repeat settings when disabling repeat mode
-        if wasRepeat, !willRepeat {
-          appState.connectionManager.clearPreRepeatSettings()
-        }
 
         // Then set TX power
         _ = try await settingsService.setTxPowerVerified(powerLevel)
 
         focusedField = nil // Dismiss keyboard on success
         retryAlert.reset()
-        isApplying = false // Clear before showing success
+        isApplying = false
+        radioWriteInFlight = false
 
         // Show success checkmark briefly
         withAnimation {
@@ -270,6 +248,7 @@ struct AdvancedRadioSection: View {
         errorMessage = error.userFacingMessage
       }
       isApplying = false
+      radioWriteInFlight = false
     }
   }
 }
