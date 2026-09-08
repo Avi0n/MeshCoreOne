@@ -28,9 +28,13 @@ Reactions are sent as regular mesh messages with a specific text format.
 
 **Channel** (includes target sender to disambiguate identical messages from different users):
 ```
-{emoji}@[{targetSenderName}]\n{hash}
+@[{targetSenderName}]{emoji}\n{hash}
 ```
-Example: `👍@[AlphaNode]\nb45pc4ek`
+Example: `@[AlphaNode]👍\nb45pc4ek`
+
+The `{emoji}` field is a single extended grapheme cluster. A remainder that merely starts with an emoji is ordinary chat, not a reaction. Queue unmatched bodies that do match this format; do not persist them as chat.
+
+Until 1.4.1, channel reactions put the emoji first: `{emoji}@[{targetSenderName}]\n{hash}`. Accept both orders for now so older clients still match. We'll drop the old one once enough apps have been updated.
 
 **DM** (two-party, sender is unambiguous):
 ```

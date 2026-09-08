@@ -83,8 +83,8 @@ public struct ParsedDMReaction: Sendable, Equatable {
   public let messageHash: String // 8 Crockford Base32 chars (lowercase)
 }
 
-/// Parses reaction wire format using end-to-start strategy.
-/// Format: `{emoji}@[{sender}]\nxxxxxxxx`
+/// Parses channel reaction wire text: `@[sender]emoji` or `emoji@[sender]`, then newline and 8-character Crockford hash.
+/// Both orders match so mention-first and emoji-first peers interoperate.
 public enum ReactionParser {
   /// Returns true if the text matches any known reaction format (PocketMesh or meshcore-open).
   static func isReactionText(_ text: String, isDM: Bool) -> Bool {
@@ -93,9 +93,14 @@ public enum ReactionParser {
     return isDM ? parseDM(text) != nil : parse(text) != nil
   }
 
-  /// Parses reaction text, returns nil if format doesn't match
+  /// True when `value` is exactly one emoji `Character`.
+  private static func isReactionEmoji(_ value: String) -> Bool {
+    guard let grapheme = value.first, grapheme.isEmoji else { return false }
+    return value.dropFirst().isEmpty
+  }
+
+  /// Parses channel reaction text; nil if the wire format does not match.
   public static func parse(_ text: String) -> ParsedReaction? {
-    // Step 1: Split on last newline to get hash
     guard let newlineIndex = text.lastIndex(of: "\n") else {
       return nil
     }
@@ -106,30 +111,35 @@ public enum ReactionParser {
     }
     let messageHash = normalizeCrockfordBase32(rawHash)
 
-    // Remove hash suffix (everything before the newline)
     let withoutHash = String(text[..<newlineIndex])
 
-    // Step 2: Find `@[` to locate sender start
     guard let atBracketIndex = withoutHash.range(of: "@[") else {
       return nil
     }
 
-    let emoji = String(withoutHash[..<atBracketIndex.lowerBound])
-
-    // Validate emoji is not empty and starts with emoji character
-    guard !emoji.isEmpty, emoji.first?.isEmoji == true else {
-      return nil
-    }
-
+    let beforeMention = String(withoutHash[..<atBracketIndex.lowerBound])
     let afterAtBracket = withoutHash[atBracketIndex.upperBound...]
 
-    // Step 3: Extract sender (everything up to closing bracket)
-    guard afterAtBracket.hasSuffix("]") else {
-      return nil
+    let emoji: String
+    let sender: String
+
+    if beforeMention.isEmpty {
+      guard let closeBracket = afterAtBracket.firstIndex(of: "]") else {
+        return nil
+      }
+      sender = String(afterAtBracket[..<closeBracket])
+      emoji = String(afterAtBracket[afterAtBracket.index(after: closeBracket)...])
+    } else {
+      emoji = beforeMention
+      guard afterAtBracket.hasSuffix("]") else {
+        return nil
+      }
+      sender = String(afterAtBracket.dropLast())
     }
 
-    let sender = String(afterAtBracket.dropLast())
-
+    guard Self.isReactionEmoji(emoji) else {
+      return nil
+    }
     guard !sender.isEmpty else {
       return nil
     }
@@ -163,8 +173,7 @@ public enum ReactionParser {
     // Extract emoji (everything before the newline)
     let emoji = String(text[..<newlineIndex])
 
-    // Validate emoji is not empty and starts with emoji character
-    guard !emoji.isEmpty, emoji.first?.isEmoji == true else {
+    guard Self.isReactionEmoji(emoji) else {
       return nil
     }
 
