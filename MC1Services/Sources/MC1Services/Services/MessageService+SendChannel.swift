@@ -10,9 +10,8 @@ public extension MessageService {
   /// No acknowledgement is expected or tracked for channel messages.
   ///
   /// - Parameters:
-  ///   - text: The message text to broadcast. Total payload, including the local
-  ///     node-name header used by repeaters, is bounded by
-  ///     `ProtocolLimits.maxChannelMessageTotalLength` (147 UTF-8 bytes).
+  ///   - text: The message text to broadcast. Bounded by
+  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`.
   ///   - channelIndex: The channel index (0-7)
   ///   - radioID: The local device ID
   ///   - textType: The text encoding type (defaults to `.plain`)
@@ -20,7 +19,8 @@ public extension MessageService {
   /// - Returns: The ID of the created message
   ///
   /// - Throws:
-  ///   - `MessageServiceError.messageTooLong` if text exceeds `ProtocolLimits.maxChannelMessageTotalLength`
+  ///   - `MessageServiceError.messageTooLong` if user text exceeds
+  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`
   ///   - `MessageServiceError.channelNotFound` if channel index is invalid
   ///   - `MessageServiceError.sessionError` if MeshCore send fails
   ///
@@ -39,10 +39,7 @@ public extension MessageService {
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> (id: UUID, timestamp: UInt32) {
-    // Validate message length (byte count matches firmware buffer limits)
-    guard text.utf8.count <= ProtocolLimits.maxChannelMessageTotalLength else {
-      throw MessageServiceError.messageTooLong
-    }
+    try await rejectIfChannelTextTooLong(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -98,21 +95,24 @@ public extension MessageService {
   /// via ``sendPendingChannelMessage(messageID:channelIndex:radioID:)``.
   ///
   /// - Parameters:
-  ///   - text: The message text
+  ///   - text: The message text. Bounded by
+  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`.
   ///   - channelIndex: The channel index to send on
   ///   - radioID: The device ID
   ///   - textType: The text type (defaults to `.plain`)
   ///
   /// - Returns: The created message DTO with pending status
+  ///
+  /// - Throws:
+  ///   - `MessageServiceError.messageTooLong` if user text exceeds
+  ///     `ProtocolLimits.maxChannelMessageLength(nodeNameByteCount:)`
   func createPendingChannelMessage(
     text: String,
     channelIndex: UInt8,
     radioID: UUID,
     textType: TextType = .plain
   ) async throws -> MessageDTO {
-    guard text.utf8.count <= ProtocolLimits.maxChannelMessageTotalLength else {
-      throw MessageServiceError.messageTooLong
-    }
+    try await rejectIfChannelTextTooLong(text, radioID: radioID)
 
     let messageID = UUID()
     let timestamp = UInt32(Date().timeIntervalSince1970)
@@ -288,5 +288,19 @@ public extension MessageService {
       textTypeRawValue: textType.rawValue
     )
     return MessageDTO(from: message)
+  }
+
+  /// Cap user text so `"name: " + text` fits `maxChannelMessageTotalLength`.
+  /// Firmware prepends the name before encrypting; an extra AES block overflows the RX log.
+  private func rejectIfChannelTextTooLong(_ text: String, radioID: UUID) async throws {
+    let nodeNameByteCount: Int = if let name = try? await dataStore.fetchDevice(radioID: radioID)?.nodeName {
+      name.utf8.count
+    } else {
+      ProtocolLimits.maxUsableNameBytes
+    }
+    let maxBytes = ProtocolLimits.maxChannelMessageLength(nodeNameByteCount: nodeNameByteCount)
+    guard text.utf8.count <= maxBytes else {
+      throw MessageServiceError.messageTooLong
+    }
   }
 }

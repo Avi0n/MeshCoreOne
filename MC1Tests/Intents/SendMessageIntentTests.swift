@@ -143,10 +143,8 @@ struct SendMessageIntentTests {
   }
 
   @Test func `channel message fitting total but exceeding node name budget rejected`() throws {
-    // The firmware prepends "<NodeName>: " to channel broadcasts, so the
-    // usable text is the total length minus the node name and separator. A
-    // message that fits the 147-byte total but not the adjusted budget would
-    // be silently truncated on the air, so the intent must reject it.
+    // Firmware prepends `"name: "`, so user text must fit the name-adjusted cap
+    // even when it still fits `maxChannelMessageTotalLength`.
     let nodeName = "Base Camp"
     let nodeNameByteCount = nodeName.utf8.count
     let adjustedMax = ProtocolLimits.maxChannelMessageLength(nodeNameByteCount: nodeNameByteCount)
