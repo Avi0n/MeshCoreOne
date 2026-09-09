@@ -91,8 +91,8 @@ struct ConversationListContent: View {
 
   private var loadingBody: some View {
     ScrollView {
-      LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-        Section {} header: { pinnedFilterHeader }
+      LazyVStack(spacing: 0) {
+        Section {} header: { filterHeader }
       }
     }
     .overlay { ProgressView() }
@@ -100,7 +100,7 @@ struct ConversationListContent: View {
 
   private func loadedBody(referenceDate: Date) -> some View {
     ScrollView {
-      LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+      LazyVStack(spacing: 0) {
         Section {
           if hasNoConversations {
             emptyState
@@ -108,15 +108,13 @@ struct ConversationListContent: View {
             rows(referenceDate: referenceDate)
           }
         } header: {
-          pinnedFilterHeader
+          filterHeader
         }
       }
     }
   }
 
-  /// Filter bar as the pinned section header; `pinnedFilterHeaderBackground` documents the
-  /// per-OS backing.
-  private var pinnedFilterHeader: some View {
+  private var filterHeader: some View {
     ChatFilterPicker(selection: $selectedFilter)
       .frame(maxWidth: .infinity)
       .pinnedFilterHeaderBackground(theme)

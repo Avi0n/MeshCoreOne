@@ -40,8 +40,8 @@ struct ContactsListContent: View {
 
   private var loadingBody: some View {
     ScrollView {
-      LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-        Section {} header: { pinnedSegmentHeader }
+      LazyVStack(spacing: 0) {
+        Section {} header: { segmentHeader }
       }
     }
     .overlay { ProgressView() }
@@ -49,7 +49,7 @@ struct ContactsListContent: View {
 
   private var loadedBody: some View {
     ScrollView {
-      LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+      LazyVStack(spacing: 0) {
         Section {
           if filteredContacts.isEmpty {
             emptyState
@@ -57,15 +57,13 @@ struct ContactsListContent: View {
             rows
           }
         } header: {
-          pinnedSegmentHeader
+          segmentHeader
         }
       }
     }
   }
 
-  /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
-  /// per-OS backing.
-  private var pinnedSegmentHeader: some View {
+  private var segmentHeader: some View {
     NodeSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
       .frame(maxWidth: .infinity)
       .pinnedFilterHeaderBackground(theme)
