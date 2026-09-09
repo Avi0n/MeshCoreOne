@@ -874,7 +874,7 @@
 "radio.regionFooter" = "正在显示 %@ 的推荐预设。";
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "您的无线电当前使用 %@，而非 %@ 的推荐预设。";
+"radio.mismatchHint" = "您所在位置的推荐预设是 %@。";
 
 // MARK: - Telemetry Settings Section
 

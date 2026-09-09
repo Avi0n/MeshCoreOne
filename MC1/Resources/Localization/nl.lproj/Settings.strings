@@ -839,7 +839,7 @@
 "radio.regionFooter" = "Aanbevolen presets worden getoond voor %@.";
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "Je radio gebruikt %@, niet de aanbevolen preset voor %@.";
+"radio.mismatchHint" = "De aanbevolen preset voor je locatie is %@.";
 
 // MARK: - Telemetry Settings Section
 

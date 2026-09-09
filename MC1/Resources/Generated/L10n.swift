@@ -5197,8 +5197,8 @@ public enum L10n {
       /// Section header for radio settings
       public static let header = L10n.tr("Settings", "radio.header", fallback: "Radio")
       /// Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region
-      public static func mismatchHint(_ p1: Any, _ p2: Any) -> String {
-        return L10n.tr("Settings", "radio.mismatchHint", String(describing: p1), String(describing: p2), fallback: "Your radio is on %@, not the recommended preset for %@.")
+      public static func mismatchHint(_ p1: Any) -> String {
+        return L10n.tr("Settings", "radio.mismatchHint", String(describing: p1), fallback: "The recommended preset for your location is %@.")
       }
       /// Label for radio preset picker
       public static let preset = L10n.tr("Settings", "radio.preset", fallback: "Radio Preset")
