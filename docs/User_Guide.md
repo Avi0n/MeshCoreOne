@@ -276,6 +276,7 @@ Access Settings from the **Settings** tab.
 
 - **Location** on Settings → Radio filters the preset list to nearby radios. It does not change frequency, bandwidth, spreading factor, or coding rate.
 - Presets sit under Location. Repeat Mode stays on the preset section.
+- Path Hash Size sits below Radio on firmware v10+. Larger hashes reduce routing collisions but limit hops.
 - Advanced holds frequency, bandwidth, spreading factor, coding rate, and TX power. Apply those values together with **Apply Radio Settings**.
 
 ### Device Info

@@ -14,11 +14,6 @@ struct AdvancedSettingsView: View {
 
   var body: some View {
     List {
-      // Path Hash Mode (firmware v10+)
-      if appState.connectedDevice?.supportsPathHashMode == true {
-        PathHashModeSection()
-      }
-
       // Default Flood Scope (firmware v11+)
       if appState.connectedDevice?.supportsDefaultFloodScope == true {
         DefaultFloodScopeSection()

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Settings → Radio: preset location filter, preset picker, Repeat Mode, and manual Advanced fields.
+/// Settings → Radio. Location is omitted while Repeat Mode is on.
 struct RadioSettingsView: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
@@ -22,6 +22,9 @@ struct RadioSettingsView: View {
         PresetLocationSection(activeSheet: $regionPickerSheet)
       }
       RadioPresetSection(radioWriteInFlight: $radioWriteInFlight)
+      if appState.connectedDevice?.supportsPathHashMode == true {
+        PathHashModeSection()
+      }
       AdvancedRadioSection(radioWriteInFlight: $radioWriteInFlight)
     }
     .themedCanvas(theme)
