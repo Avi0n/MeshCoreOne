@@ -185,12 +185,22 @@ public extension PersistenceStore {
   /// Deletes matching contacts and their scoped messages, reactions, repeats,
   /// and pending sends in one save. Missing keys are omitted from the returned ids.
   func deleteContacts(radioID: UUID, publicKeys: Set<Data>) throws -> [UUID] {
-    try deleteContacts(
+    try _deleteContacts(
       radioID: radioID, publicKeys: publicKeys, skippingPublicKeys: { [] }
     )
   }
 
   func deleteContacts(
+    radioID: UUID,
+    publicKeys: Set<Data>,
+    skippingPublicKeys: @Sendable () -> Set<Data>
+  ) async throws -> [UUID] {
+    try _deleteContacts(
+      radioID: radioID, publicKeys: publicKeys, skippingPublicKeys: skippingPublicKeys
+    )
+  }
+
+  private func _deleteContacts(
     radioID: UUID,
     publicKeys: Set<Data>,
     skippingPublicKeys: @Sendable () -> Set<Data>
