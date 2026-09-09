@@ -5481,9 +5481,11 @@ public enum L10n {
         }
         public enum FileBackup {
           /// Section footer for file backup
-          public static let footer = L10n.tr("Settings", "settings.backup.file_backup.footer", fallback: "Export or restore messages, contacts, channels, saved paths, and settings. Radio configuration is read from the device on each connection.")
+          public static let footer = L10n.tr("Settings", "settings.backup.file_backup.footer", fallback: "Export or restore messages, contacts, channels, saved paths, and settings.")
           /// Section header for file backup
           public static let header = L10n.tr("Settings", "settings.backup.file_backup.header", fallback: "File Backup")
+          /// Footer note that radio configuration is not included in the app-data backup
+          public static let radioConfig = L10n.tr("Settings", "settings.backup.file_backup.radio_config", fallback: "Only app data is included in the backup. Backup radio config in Advanced Settings.")
         }
         public enum Import {
           /// Import cancelling label shown after the user taps Cancel during an active import

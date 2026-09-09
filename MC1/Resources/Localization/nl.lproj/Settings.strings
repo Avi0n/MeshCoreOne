@@ -1711,7 +1711,10 @@
 "settings.backup.file_backup.header" = "Bestandsback-up";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Exporteer of herstel berichten, contacten, kanalen, opgeslagen paden en instellingen. De radioconfiguratie wordt bij elke verbinding van het apparaat gelezen.";
+"settings.backup.file_backup.footer" = "Exporteer of herstel berichten, contacten, kanalen, opgeslagen paden en instellingen.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "Alleen app-gegevens zijn in de back-up opgenomen. Maak een back-up van de radioconfiguratie in Geavanceerde instellingen.";
 
 /* Export row title */
 "settings.backup.export.title" = "App-gegevens exporteren";

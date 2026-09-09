@@ -1711,7 +1711,10 @@
 "settings.backup.file_backup.header" = "Резервна копія";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Експортуйте або відновіть повідомлення, контакти, канали, збережені маршрути та налаштування. Конфігурація радіо зчитуєт��ся з пристрою при кожному з'єднанні.";
+"settings.backup.file_backup.footer" = "Експортуйте або відновіть повідомлення, контакти, канали, збережені маршрути та налаштування.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "До резервної копії входять лише дані застосунку. Створіть резервну копію конфігурації радіо в Розширених налаштуваннях.";
 
 /* Export row title */
 "settings.backup.export.title" = "Експорт даних застосунку";

@@ -1711,7 +1711,10 @@
 "settings.backup.file_backup.header" = "文件备份";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "导出或恢复消息、联系人、频道、保存的路径和设置。无线电配置在每次连接时从设备读取。";
+"settings.backup.file_backup.footer" = "导出或恢复消息、联系人、频道、保存的路径和设置。";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "备份仅包含应用数据。请在高级设置中备份无线电配置。";
 
 /* Export row title */
 "settings.backup.export.title" = "导出应用数据";

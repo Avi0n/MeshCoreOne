@@ -1712,7 +1712,10 @@
 "settings.backup.file_backup.header" = "File Backup";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Export or restore messages, contacts, channels, saved paths, and settings. Radio configuration is read from the device on each connection.";
+"settings.backup.file_backup.footer" = "Export or restore messages, contacts, channels, saved paths, and settings.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "Only app data is included in the backup. Backup radio config in Advanced Settings.";
 
 /* Export row title */
 "settings.backup.export.title" = "Export App Data";

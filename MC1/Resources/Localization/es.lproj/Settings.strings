@@ -1711,7 +1711,10 @@
 "settings.backup.file_backup.header" = "Copia de archivo";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Exporta o restaura mensajes, contactos, canales, rutas guardadas y ajustes. La configuración de radio se lee del dispositivo en cada conexión.";
+"settings.backup.file_backup.footer" = "Exporta o restaura mensajes, contactos, canales, rutas guardadas y ajustes.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "Solo se incluyen datos de la app en la copia de seguridad. Haz una copia de seguridad de la configuración de radio en Ajustes avanzados.";
 
 /* Export row title */
 "settings.backup.export.title" = "Exportar datos de la app";

@@ -1711,7 +1711,10 @@
 "settings.backup.file_backup.header" = "Dateisicherung";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Nachrichten, Kontakte, Kanäle, gespeicherte Pfade und Einstellungen exportieren oder wiederherstellen. Die Funkkonfiguration wird bei jeder Verbindung vom Gerät gelesen.";
+"settings.backup.file_backup.footer" = "Nachrichten, Kontakte, Kanäle, gespeicherte Pfade und Einstellungen exportieren oder wiederherstellen.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "Nur App-Daten sind im Backup enthalten. Funkkonfiguration in den Erweiterten Einstellungen sichern.";
 
 /* Export row title */
 "settings.backup.export.title" = "App-Daten exportieren";

@@ -1711,7 +1711,10 @@
 "settings.backup.file_backup.header" = "Kopia pliku";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Eksportuj lub przywróć wiadomości, kontakty, kanały, zapisane ścieżki i ustawienia. Konfiguracja radia jest odczytywana z urządzenia przy każdym połączeniu.";
+"settings.backup.file_backup.footer" = "Eksportuj lub przywróć wiadomości, kontakty, kanały, zapisane ścieżki i ustawienia.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "Kopia zapasowa zawiera tylko dane aplikacji. Utwórz kopię zapasową konfiguracji radia w Ustawieniach zaawansowanych.";
 
 /* Export row title */
 "settings.backup.export.title" = "Eksportuj dane aplikacji";
