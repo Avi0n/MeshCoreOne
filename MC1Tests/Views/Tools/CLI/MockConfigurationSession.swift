@@ -14,6 +14,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
   private var suppressWrites = false
   private var nextSetCustomVarErrorCode: UInt8?
   private var nextGetCustomVarsErrorCode: UInt8?
+  private var nextSetPathHashModeErrorCode: UInt8?
 
   private(set) var readCount = 0
   private(set) var rebootCalled = false
@@ -42,6 +43,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     firmwareBuild: String = "testbuild",
     model: String = "TestBoard",
     pathHashMode: UInt8 = 0,
+    firmwareVersion: UInt8 = 9,
     batteryMillivolts: Int = 3700,
     deviceTime: Date = Date(timeIntervalSince1970: 0),
     customVars: [String: String] = [:]
@@ -67,7 +69,7 @@ actor MockConfigurationSession: ConfigurationSessionOps {
       name: name
     )
     capabilities = DeviceCapabilities(
-      firmwareVersion: 9,
+      firmwareVersion: firmwareVersion,
       maxContacts: 100,
       maxChannels: 8,
       blePin: 0,
@@ -163,8 +165,17 @@ actor MockConfigurationSession: ConfigurationSessionOps {
     selfInfo = patched(multiAcks: multiAcks ?? selfInfo.multiAcks, manualAddContacts: manualAddContacts)
   }
 
+  /// Make the next `setPathHashMode` throw `MeshCoreError.deviceError(code:)`.
+  func failNextSetPathHashMode(code: UInt8) {
+    nextSetPathHashModeErrorCode = code
+  }
+
   func setPathHashMode(_ mode: UInt8) async throws {
     setPathHashModeCalls.append(mode)
+    if let code = nextSetPathHashModeErrorCode {
+      nextSetPathHashModeErrorCode = nil
+      throw MeshCoreError.deviceError(code: code)
+    }
     guard !suppressWrites else { return }
     capabilities = patched(pathHashMode: mode)
   }

@@ -113,6 +113,28 @@ struct RadioPresetRecommendationTests {
   }
 
   @Test
+  func `Hungary, Slovakia, and Costa Rica recommend their country presets`() {
+    #expect(RadioPresets.recommended(for: RegionSelection(countryCode: "HU", source: .location))?.id == "hu")
+    #expect(RadioPresets.recommended(for: RegionSelection(countryCode: "SK", source: .location))?.id == "sk")
+    #expect(RadioPresets.recommended(for: RegionSelection(countryCode: "CR", source: .location))?.id == "cr")
+  }
+
+  @Test
+  func `catalog pathHashSize is set only on presets that name a hash`() throws {
+    func size(_ id: String) throws -> Int? {
+      try #require(RadioPresets.all.first(where: { $0.id == id })).pathHashSize
+    }
+    #expect(try size("hu") == 2)
+    #expect(try size("sk") == 2)
+    #expect(try size("nz-lr") == 1)
+    #expect(try size("nz-narrow") == 2)
+    #expect(try size("phillymesh") == 2)
+    #expect(try size("nl") == nil)
+    #expect(try size("us-ca") == nil)
+    #expect(try size("cr") == nil)
+  }
+
+  @Test
   func `Chile → cl`() {
     let region = RegionSelection(countryCode: "CL", source: .location)
     #expect(RadioPresets.recommended(for: region)?.id == "cl")
@@ -410,6 +432,51 @@ struct RadioPresetVisiblePresetsTests {
   }
 }
 
+@Suite("RadioPresets.showsMismatch(appliedID:region:)")
+struct RadioPresetMismatchTests {
+  private let la = RegionSelection(
+    countryCode: "US",
+    administrativeAreaCode: "US-CA",
+    countyKey: "los angeles",
+    source: .location
+  )
+  private let pa = RegionSelection(
+    countryCode: "US",
+    administrativeAreaCode: "US-PA",
+    source: .location
+  )
+  private let texas = RegionSelection(
+    countryCode: "US",
+    administrativeAreaCode: "US-TX",
+    source: .location
+  )
+
+  @Test
+  func `LA county + us-ca mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "us-ca", region: la))
+  }
+
+  @Test
+  func `PA + us-ca mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "us-ca", region: pa))
+  }
+
+  @Test
+  func `Texas + wcmesh mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "wcmesh", region: texas))
+  }
+
+  @Test
+  func `LA county + wcmesh does not mismatch`() {
+    #expect(!RadioPresets.showsMismatch(appliedID: "wcmesh", region: la))
+  }
+
+  @Test
+  func `US + eu-narrow mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "eu-narrow", region: texas))
+  }
+}
+
 @Suite("RadioPresets alias identity")
 struct RadioPresetAliasIdentityTests {
   private func rf(_ id: String) throws -> RadioPreset {
@@ -450,6 +517,23 @@ struct RadioPresetAliasIdentityTests {
   @Test
   func `EU Narrow RF matches eu-narrow and ch in catalog order`() throws {
     #expect(try matches(of: "ch") == ["eu-narrow", "ch"])
+  }
+
+  @Test
+  func `Netherlands RF matches hu, nl, and sk in catalog order`() throws {
+    #expect(try matches(of: "nl") == ["hu", "nl", "sk"])
+  }
+
+  @Test
+  func `unlabeled NL-family collision uses country recommendation`() throws {
+    let hu = RegionSelection(countryCode: "HU", source: .location)
+    let nl = RegionSelection(countryCode: "NL", source: .location)
+    let sk = RegionSelection(countryCode: "SK", source: .location)
+    let de = RegionSelection(countryCode: "DE", source: .location)
+    #expect(try resolved(of: "nl", preferredID: nil, region: hu) == "hu")
+    #expect(try resolved(of: "nl", preferredID: nil, region: nl) == "nl")
+    #expect(try resolved(of: "nl", preferredID: nil, region: sk) == "sk")
+    #expect(try resolved(of: "nl", preferredID: nil, region: de) == nil)
   }
 
   @Test
@@ -567,5 +651,29 @@ struct RadioPresetEncodingTests {
   @Test
   func `bandwidthHz rounds to the nearest Hz`() {
     #expect(preset(frequencyMHz: 915.0, bandwidthKHz: 62.501).bandwidthHz == 62501)
+  }
+}
+
+@Suite("RadioPreset path hash size")
+struct RadioPresetPathHashSizeTests {
+  private func preset(pathHashSize: Int?) -> RadioPreset {
+    RadioPreset(
+      id: "test",
+      name: "Test",
+      region: .europe,
+      frequencyMHz: 869.618,
+      bandwidthKHz: 62.5,
+      spreadingFactor: 7,
+      codingRate: 5,
+      pathHashSize: pathHashSize,
+      availability: .countries(["NL"])
+    )
+  }
+
+  @Test
+  func `pathHashMode is pathHashSize minus one, or nil`() {
+    #expect(preset(pathHashSize: nil).pathHashMode == nil)
+    #expect(preset(pathHashSize: 1).pathHashMode == 0)
+    #expect(preset(pathHashSize: 2).pathHashMode == 1)
   }
 }

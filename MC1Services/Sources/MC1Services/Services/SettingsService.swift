@@ -63,6 +63,14 @@ public actor SettingsService {
       spreadingFactor: preset.spreadingFactor,
       codingRate: preset.codingRate
     )
+    try await applyPresetPathHashIfNeeded(preset)
+  }
+
+  func applyPresetPathHashIfNeeded(_ preset: RadioPreset) async throws {
+    guard let mode = preset.pathHashMode else { return }
+    let capabilities = try await queryDevice()
+    guard capabilities.supportsPathHashMode else { return }
+    try await setPathHashMode(mode)
   }
 
   /// Set radio parameters manually.

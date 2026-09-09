@@ -63,6 +63,14 @@ struct RegionalAreasTests {
   }
 
   @Test
+  func `Costa Rica and Slovakia are in both continent and country tables`() {
+    #expect(RegionalAreas.continents["CR"] == .northAmerica)
+    #expect(RegionalAreas.continents["SK"] == .europe)
+    #expect(RegionalAreas.countries.map(\.id).contains("CR"))
+    #expect(RegionalAreas.countries.map(\.id).contains("SK"))
+  }
+
+  @Test
   func `displayName uses short form for US states`() {
     let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-CA", source: .manual)
     #expect(RegionalAreas.displayName(for: region) == "California")

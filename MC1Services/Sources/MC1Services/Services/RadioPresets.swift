@@ -15,11 +15,11 @@ public enum RadioRegion: String, CaseIterable, Sendable {
     }
 
     switch regionCode {
-    case "US", "CA":
+    case "US", "CA", "CR":
       return [.northAmerica, .europe, .oceania, .asia]
     case "AU", "NZ":
       return [.oceania, .northAmerica, .europe, .asia]
-    case "GB", "DE", "FR", "IT", "ES", "PT", "CH", "CZ", "IE", "NL", "BE", "AT":
+    case "GB", "DE", "FR", "IT", "ES", "PT", "CH", "CZ", "IE", "NL", "BE", "AT", "HU", "SK":
       return [.europe, .northAmerica, .oceania, .asia]
     case "VN", "TH", "MY", "SG", "PH", "ID":
       return [.asia, .oceania, .europe, .northAmerica]
@@ -64,6 +64,8 @@ public struct RadioPreset: Identifiable, Sendable, Equatable {
 
   /// Section header for repeat mode presets (e.g., "EU/Asia", "US/AU/NZ")
   public let repeatSectionHeader: String?
+  /// Bytes per hop hash (`1`, `2`, or `3`). `nil` leaves the radio's current hash unchanged.
+  public let pathHashSize: Int?
   let availability: PresetAvailability
   /// Higher value = preferred within a geographic tier. Standard presets use 100; community-recommended favorites use 110.
   public let recommendationPriority: Int
@@ -78,6 +80,12 @@ public struct RadioPreset: Identifiable, Sendable, Equatable {
     UInt32((bandwidthKHz * 1000).rounded())
   }
 
+  /// Firmware `path_hash_mode`, or `nil` when `pathHashSize` is `nil`.
+  public var pathHashMode: UInt8? {
+    guard let pathHashSize else { return nil }
+    return UInt8(pathHashSize - 1)
+  }
+
   init(
     id: String,
     name: String,
@@ -87,6 +95,7 @@ public struct RadioPreset: Identifiable, Sendable, Equatable {
     spreadingFactor: UInt8,
     codingRate: UInt8,
     repeatSectionHeader: String? = nil,
+    pathHashSize: Int? = nil,
     availability: PresetAvailability,
     recommendationPriority: Int = 100
   ) {
@@ -98,6 +107,7 @@ public struct RadioPreset: Identifiable, Sendable, Equatable {
     self.spreadingFactor = spreadingFactor
     self.codingRate = codingRate
     self.repeatSectionHeader = repeatSectionHeader
+    self.pathHashSize = pathHashSize
     self.availability = availability
     self.recommendationPriority = recommendationPriority
   }
@@ -122,11 +132,13 @@ public enum RadioPresets {
     RadioPreset(id: "au-qld", name: "Australia: QLD", region: .oceania,
                 frequencyMHz: 923.125, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 5,
                 availability: .subRegions(country: "AU", areas: ["AU-QLD"])),
-    RadioPreset(id: "nz-lr", name: "New Zealand", region: .oceania,
+    RadioPreset(id: "nz-lr", name: "New Zealand (Gisborne)", region: .oceania,
                 frequencyMHz: 917.375, bandwidthKHz: 250, spreadingFactor: 11, codingRate: 5,
+                pathHashSize: 1,
                 availability: .countries(["NZ"])),
     RadioPreset(id: "nz-narrow", name: "New Zealand (Narrow)", region: .oceania,
                 frequencyMHz: 917.375, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
+                pathHashSize: 2,
                 availability: .countries(["NZ"])),
 
     // Europe
@@ -154,14 +166,25 @@ public enum RadioPresets {
     RadioPreset(id: "ch", name: "Switzerland", region: .europe,
                 frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8,
                 availability: .countries(["CH"])),
+    RadioPreset(id: "hu", name: "Hungary", region: .europe,
+                frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
+                pathHashSize: 2,
+                availability: .countries(["HU"])),
     RadioPreset(id: "nl", name: "Netherlands", region: .europe,
                 frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
                 availability: .countries(["NL"]), recommendationPriority: 110),
+    RadioPreset(id: "sk", name: "Slovakia", region: .europe,
+                frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
+                pathHashSize: 2,
+                availability: .countries(["SK"])),
 
     // North America
     RadioPreset(id: "us-ca", name: "USA/Canada", region: .northAmerica,
                 frequencyMHz: 910.525, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
                 availability: .countries(["US", "CA"]), recommendationPriority: 110),
+    RadioPreset(id: "cr", name: "Costa Rica", region: .northAmerica,
+                frequencyMHz: 910.525, bandwidthKHz: 125, spreadingFactor: 11, codingRate: 5,
+                availability: .countries(["CR"])),
     RadioPreset(id: "wcmesh", name: "WCMesh (SoCal)", region: .northAmerica,
                 frequencyMHz: 927.875, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
                 availability: .counties(country: "US", state: "US-CA", keys: [
@@ -170,6 +193,7 @@ public enum RadioPresets {
                 ])),
     RadioPreset(id: "phillymesh", name: "PhillyMesh (Mid-Atlantic)", region: .northAmerica,
                 frequencyMHz: 902.250, bandwidthKHz: 500, spreadingFactor: 11, codingRate: 5,
+                pathHashSize: 2,
                 availability: .subRegions(country: "US", areas: ["US-PA", "US-NJ", "US-DE", "US-MD"])),
 
     // South America
@@ -416,5 +440,22 @@ public enum RadioPresets {
       result.append(active)
     }
     return result
+  }
+
+  /// These three share the US country list, so `presets(for:)` membership is not a mismatch.
+  private static let overlappingUSPresetIDs: Set<String> = ["us-ca", "wcmesh", "phillymesh"]
+
+  /// Whether the applied catalog id is not the recommended preset for `region`.
+  public static func showsMismatch(appliedID: String, region: RegionSelection) -> Bool {
+    let recommendedID = recommended(for: region)?.id
+    if recommendedID == appliedID {
+      return false
+    }
+    if !presets(for: region).contains(where: { $0.id == appliedID }) {
+      return true
+    }
+    guard let recommendedID else { return false }
+    return overlappingUSPresetIDs.contains(appliedID)
+      && overlappingUSPresetIDs.contains(recommendedID)
   }
 }

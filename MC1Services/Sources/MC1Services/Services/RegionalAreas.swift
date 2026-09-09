@@ -103,10 +103,10 @@ public enum RegionalAreas {
 
   /// ISO α-2 → `RadioRegion` mapping. Mexico (MX) and Africa are intentionally
   /// absent — those countries fall through `recommended(for:)` to the
-  /// empty-region fallback. South America is currently Chile (CL) and Brazil (BR).
+  /// empty-region fallback. South America is CL and BR; CR is North America (US-band).
   public static let continents: [String: RadioRegion] = [
     // North America
-    "US": .northAmerica, "CA": .northAmerica,
+    "US": .northAmerica, "CA": .northAmerica, "CR": .northAmerica,
     // South America
     "CL": .southAmerica, "BR": .southAmerica,
     // Europe
@@ -114,7 +114,7 @@ public enum RegionalAreas {
     "IT": .europe, "ES": .europe, "PT": .europe, "NL": .europe,
     "BE": .europe, "CH": .europe, "AT": .europe, "CZ": .europe,
     "PL": .europe, "DK": .europe, "SE": .europe, "NO": .europe,
-    "FI": .europe, "GR": .europe, "HU": .europe, "RO": .europe,
+    "FI": .europe, "GR": .europe, "HU": .europe, "SK": .europe, "RO": .europe,
     // Oceania
     "AU": .oceania, "NZ": .oceania,
     // Asia
@@ -132,6 +132,7 @@ public enum RegionalAreas {
   public static let countries: [Country] = [
     Country(id: "US", subdivisions: usSubdivisions),
     Country(id: "CA", subdivisions: nil),
+    Country(id: "CR", subdivisions: nil),
     Country(id: "CL", subdivisions: nil),
     Country(id: "BR", subdivisions: nil),
     Country(id: "AU", subdivisions: auSubdivisions),
@@ -155,6 +156,7 @@ public enum RegionalAreas {
     Country(id: "FI", subdivisions: nil),
     Country(id: "GR", subdivisions: nil),
     Country(id: "HU", subdivisions: nil),
+    Country(id: "SK", subdivisions: nil),
     Country(id: "RO", subdivisions: nil),
     Country(id: "VN", subdivisions: nil),
     Country(id: "TH", subdivisions: nil),

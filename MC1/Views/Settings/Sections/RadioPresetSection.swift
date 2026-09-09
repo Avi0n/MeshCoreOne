@@ -60,9 +60,8 @@ struct RadioPresetSection: View {
 
   private var mismatchHint: String? {
     guard let region = appState.regionSelection,
-          let current = currentPreset else { return nil }
-    let regionPresets = RadioPresets.presets(for: region).map(\.id)
-    guard !regionPresets.contains(current.id) else { return nil }
+          let current = currentPreset,
+          RadioPresets.showsMismatch(appliedID: current.id, region: region) else { return nil }
     return L10n.Settings.Radio.mismatchHint(
       current.name, RegionalAreas.displayName(for: region)
     )

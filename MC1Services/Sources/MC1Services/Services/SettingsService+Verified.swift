@@ -87,51 +87,13 @@ public extension SettingsService {
     clientRepeat: Bool? = nil,
     appliedRadioPresetID: String? = nil
   ) async throws -> MeshCore.SelfInfo {
-    logger.info("[Radio] Sending params: freq=\(frequencyKHz)kHz, bw=\(bandwidthKHz)Hz, sf=\(spreadingFactor), cr=\(codingRate), repeat=\(String(describing: clientRepeat))")
-
-    try await setRadioParams(
+    let selfInfo = try await setRadioParamsAndVerify(
       frequencyKHz: frequencyKHz,
       bandwidthKHz: bandwidthKHz,
       spreadingFactor: spreadingFactor,
       codingRate: codingRate,
       clientRepeat: clientRepeat
     )
-
-    let selfInfo = try await getSelfInfo()
-
-    let expectedFreqMHz = Double(frequencyKHz) / 1000.0
-    let expectedBwMHz = Double(bandwidthKHz) / 1000.0
-
-    guard abs(selfInfo.radioFrequency - expectedFreqMHz) < 0.001,
-          abs(selfInfo.radioBandwidth - expectedBwMHz) < 0.001,
-          selfInfo.radioSpreadingFactor == spreadingFactor,
-          selfInfo.radioCodingRate == codingRate else {
-      logger
-        .warning(
-          // swiftlint:disable:next line_length
-          "[Radio] Verification failed - expected: freq=\(expectedFreqMHz)MHz, bw=\(expectedBwMHz)kHz, sf=\(spreadingFactor), cr=\(codingRate); device reports: freq=\(selfInfo.radioFrequency)MHz, bw=\(selfInfo.radioBandwidth)kHz, sf=\(selfInfo.radioSpreadingFactor), cr=\(selfInfo.radioCodingRate)"
-        )
-      throw SettingsServiceError.verificationFailed(
-        expected: "freq=\(frequencyKHz), bw=\(bandwidthKHz), sf=\(spreadingFactor), cr=\(codingRate)",
-        actual: "freq=\(selfInfo.radioFrequency), bw=\(selfInfo.radioBandwidth), sf=\(selfInfo.radioSpreadingFactor), cr=\(selfInfo.radioCodingRate)"
-      )
-    }
-
-    // Verify clientRepeat via queryDevice if it was explicitly set
-    if let expectedRepeat = clientRepeat {
-      let capabilities = try await queryDevice()
-      guard capabilities.clientRepeat == expectedRepeat else {
-        logger.warning("[Radio] Client repeat verification failed - expected: \(expectedRepeat), device reports: \(capabilities.clientRepeat)")
-        throw SettingsServiceError.verificationFailed(
-          expected: "clientRepeat=\(expectedRepeat)",
-          actual: "clientRepeat=\(capabilities.clientRepeat)"
-        )
-      }
-      logger.info("[Radio] Client repeat verified: \(expectedRepeat)")
-      eventContinuation?.yield(.clientRepeatUpdated(expectedRepeat))
-    }
-
-    logger.info("[Radio] Params verified successfully")
     eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: appliedRadioPresetID))
     return selfInfo
   }
@@ -139,13 +101,22 @@ public extension SettingsService {
   /// Apply radio preset with verification
   func applyRadioPresetVerified(_ preset: RadioPreset) async throws -> MeshCore.SelfInfo {
     logger.info("[Radio] Applying preset: \(preset.name) (\(preset.id))")
-    return try await setRadioParamsVerified(
+    let selfInfo = try await setRadioParamsAndVerify(
       frequencyKHz: preset.frequencyKHz,
       bandwidthKHz: preset.bandwidthHz,
       spreadingFactor: preset.spreadingFactor,
-      codingRate: preset.codingRate,
-      appliedRadioPresetID: preset.id
+      codingRate: preset.codingRate
     )
+    if let mode = preset.pathHashMode {
+      let capabilities = try await queryDevice()
+      if capabilities.supportsPathHashMode {
+        _ = try await setPathHashModeVerified(mode)
+      }
+    }
+    // Stamp the catalog id only after the optional path-hash write, so a failed
+    // hash write cannot persist a catalog id over RF-equal aliases.
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: preset.id))
+    return selfInfo
   }
 
   /// Set TX power with verification
@@ -227,5 +198,62 @@ public extension SettingsService {
       advertLocationPolicy: shareLocationPublicly ? .prefs : .none,
       multiAcks: multiAcks
     )
+  }
+}
+
+private extension SettingsService {
+  /// Writes and verifies RF without publishing `.deviceUpdated`.
+  func setRadioParamsAndVerify(
+    frequencyKHz: UInt32,
+    bandwidthKHz: UInt32,
+    spreadingFactor: UInt8,
+    codingRate: UInt8,
+    clientRepeat: Bool? = nil
+  ) async throws -> MeshCore.SelfInfo {
+    logger.info("[Radio] Sending params: freq=\(frequencyKHz)kHz, bw=\(bandwidthKHz)Hz, sf=\(spreadingFactor), cr=\(codingRate), repeat=\(String(describing: clientRepeat))")
+
+    try await setRadioParams(
+      frequencyKHz: frequencyKHz,
+      bandwidthKHz: bandwidthKHz,
+      spreadingFactor: spreadingFactor,
+      codingRate: codingRate,
+      clientRepeat: clientRepeat
+    )
+
+    let selfInfo = try await getSelfInfo()
+
+    let expectedFreqMHz = Double(frequencyKHz) / 1000.0
+    let expectedBwMHz = Double(bandwidthKHz) / 1000.0
+
+    guard abs(selfInfo.radioFrequency - expectedFreqMHz) < 0.001,
+          abs(selfInfo.radioBandwidth - expectedBwMHz) < 0.001,
+          selfInfo.radioSpreadingFactor == spreadingFactor,
+          selfInfo.radioCodingRate == codingRate else {
+      logger
+        .warning(
+          // swiftlint:disable:next line_length
+          "[Radio] Verification failed - expected: freq=\(expectedFreqMHz)MHz, bw=\(expectedBwMHz)kHz, sf=\(spreadingFactor), cr=\(codingRate); device reports: freq=\(selfInfo.radioFrequency)MHz, bw=\(selfInfo.radioBandwidth)kHz, sf=\(selfInfo.radioSpreadingFactor), cr=\(selfInfo.radioCodingRate)"
+        )
+      throw SettingsServiceError.verificationFailed(
+        expected: "freq=\(frequencyKHz), bw=\(bandwidthKHz), sf=\(spreadingFactor), cr=\(codingRate)",
+        actual: "freq=\(selfInfo.radioFrequency), bw=\(selfInfo.radioBandwidth), sf=\(selfInfo.radioSpreadingFactor), cr=\(selfInfo.radioCodingRate)"
+      )
+    }
+
+    if let expectedRepeat = clientRepeat {
+      let capabilities = try await queryDevice()
+      guard capabilities.clientRepeat == expectedRepeat else {
+        logger.warning("[Radio] Client repeat verification failed - expected: \(expectedRepeat), device reports: \(capabilities.clientRepeat)")
+        throw SettingsServiceError.verificationFailed(
+          expected: "clientRepeat=\(expectedRepeat)",
+          actual: "clientRepeat=\(capabilities.clientRepeat)"
+        )
+      }
+      logger.info("[Radio] Client repeat verified: \(expectedRepeat)")
+      eventContinuation?.yield(.clientRepeatUpdated(expectedRepeat))
+    }
+
+    logger.info("[Radio] Params verified successfully")
+    return selfInfo
   }
 }
