@@ -125,6 +125,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     .onDragIntoBottomSafeArea {
       UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
+    .softTopScrollEdgeEffect()
     .background(contentBackground ?? .clear)
     .id(appearanceIdentity)
     .overlay(alignment: .bottomTrailing) {
@@ -173,5 +174,18 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       dynamicTypeSize: dynamicTypeSize
     )
     return "\(appTheme.id)|\(appearance)"
+  }
+}
+
+private extension TiledView {
+  /// OS 27 defaults the top fade to hard. Soft keeps the progressive blur
+  /// under the conversation title capsule.
+  @ViewBuilder
+  consuming func softTopScrollEdgeEffect() -> some View {
+    if #available(iOS 26.0, *) {
+      scrollEdgeEffectStyle(.soft, for: .top)
+    } else {
+      self
+    }
   }
 }

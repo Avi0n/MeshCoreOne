@@ -45,6 +45,9 @@ struct NavigationHeaderModifier: ViewModifier {
                 )
               }
             }
+            // OS 27 defaults the fade under the title capsule to hard. Soft keeps
+            // the progressive blur so messages stay readable as they scroll under it.
+            .scrollEdgeEffectStyle(.soft, for: .top)
         } else {
           content
             .navigationTitle(title)
