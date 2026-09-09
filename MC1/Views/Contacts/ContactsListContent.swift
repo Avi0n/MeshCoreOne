@@ -23,9 +23,12 @@ struct ContactsListContent: View {
   let filteredContacts: [ContactDTO]
   let hasLoadedOnce: Bool
   let viewModel: ContactsViewModel
+  let onRefresh: () async -> Void
 
   /// Leading inset for the inter-row divider, aligning it under the row text past the avatar.
   private static let rowSeparatorLeadingInset: CGFloat = 72
+  /// Zero-height `scrollTo` target used after pull-to-refresh.
+  private static let topScrollAnchor = "nodesListTop"
 
   var body: some View {
     Group {
@@ -39,7 +42,7 @@ struct ContactsListContent: View {
   }
 
   private var loadingBody: some View {
-    ScrollView {
+    refreshableScroll {
       LazyVStack(spacing: 0) {
         Section {} header: { segmentHeader }
       }
@@ -48,7 +51,7 @@ struct ContactsListContent: View {
   }
 
   private var loadedBody: some View {
-    ScrollView {
+    refreshableScroll {
       LazyVStack(spacing: 0) {
         Section {
           if filteredContacts.isEmpty {
@@ -58,6 +61,26 @@ struct ContactsListContent: View {
           }
         } header: {
           segmentHeader
+        }
+      }
+    }
+  }
+
+  private func refreshableScroll(@ViewBuilder content: () -> some View) -> some View {
+    let scrollContent = content()
+    return ScrollViewReader { proxy in
+      ScrollView {
+        Color.clear
+          .frame(height: 0)
+          .id(Self.topScrollAnchor)
+        scrollContent
+      }
+      .refreshable {
+        await onRefresh()
+        // `.refreshable` on ScrollView leaves the large title jumped; scrollTo restacks it.
+        // https://stackoverflow.com/questions/75718110
+        Task { @MainActor in
+          proxy.scrollTo(Self.topScrollAnchor, anchor: .top)
         }
       }
     }
