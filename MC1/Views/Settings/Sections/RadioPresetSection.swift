@@ -6,6 +6,7 @@ struct RadioPresetSection: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
+  @Binding var radioWriteInFlight: Bool
   @State private var selectedPresetID: String?
   @State private var isApplying = false
   @State private var errorMessage: String?
@@ -23,11 +24,10 @@ struct RadioPresetSection: View {
   }
 
   private var presets: [RadioPreset] {
-    let region = appState.regionSelection
-    let activeID = currentPreset?.id
-    return RadioPresets.presetsForLocale().filter {
-      RadioPresets.isSelectable($0, in: region) || $0.id == activeID
-    }
+    RadioPresets.visiblePresets(
+      for: appState.regionSelection,
+      activeID: currentPreset?.id
+    )
   }
 
   private var repeatPresets: [RadioPreset] {
@@ -36,11 +36,13 @@ struct RadioPresetSection: View {
 
   private var currentPreset: RadioPreset? {
     guard let device = appState.connectedDevice else { return nil }
-    return RadioPresets.matchingPreset(
+    return RadioPresets.resolvedPreset(
       frequencyKHz: device.frequency,
       bandwidthKHz: device.bandwidth,
       spreadingFactor: device.spreadingFactor,
-      codingRate: device.codingRate
+      codingRate: device.codingRate,
+      preferredID: device.appliedRadioPresetID,
+      region: appState.regionSelection
     )
   }
 
@@ -58,12 +60,10 @@ struct RadioPresetSection: View {
 
   private var mismatchHint: String? {
     guard let region = appState.regionSelection,
-          let current = currentPreset else { return nil }
-    let regionPresets = RadioPresets.presets(for: region).map(\.id)
-    guard !regionPresets.contains(current.id) else { return nil }
-    return L10n.Settings.Radio.mismatchHint(
-      current.name, RegionalAreas.displayName(for: region)
-    )
+          let current = currentPreset,
+          let recommended = RadioPresets.recommended(for: region),
+          RadioPresets.showsMismatch(appliedID: current.id, region: region) else { return nil }
+    return L10n.Settings.Radio.mismatchHint(recommended.name)
   }
 
   private var currentMatchingPresetID: String? {
@@ -99,34 +99,14 @@ struct RadioPresetSection: View {
         }
       }
       .onChange(of: selectedPresetID) { _, newValue in
-        // Skip the initial value set from onAppear
+        // Skip the initial value set from onAppear. Do not assign selectedPresetID
+        // when regionSelection changes — that would apply the preset to the radio.
         guard hasInitialized else { return }
         // Apply if user selected a preset (newValue is non-nil)
         guard let newID = newValue else { return }
         applyPreset(id: newID)
       }
-      .radioDisabled(for: appState.connectionState, or: isApplying || isApplyingRepeat)
-
-      let detailPresets = isRepeatEnabled ? repeatPresets : presets
-      if let preset = detailPresets.first(where: { $0.id == selectedPresetID }) {
-        // In Repeat Mode only the frequency is applied, so preview the device's kept bandwidth/SF/CR.
-        let device = isRepeatEnabled ? appState.connectedDevice : nil
-        RadioParameterText(
-          frequencyMHz: preset.frequencyMHz,
-          bandwidthKHz: device.map { Double($0.bandwidth) / 1000.0 } ?? preset.bandwidthKHz,
-          spreadingFactor: device?.spreadingFactor ?? preset.spreadingFactor,
-          codingRate: device?.codingRate ?? preset.codingRate
-        )
-        .foregroundStyle(.secondary)
-      } else if let device = appState.connectedDevice {
-        RadioParameterText(
-          frequencyMHz: Double(device.frequency) / 1000.0,
-          bandwidthKHz: Double(device.bandwidth) / 1000.0,
-          spreadingFactor: device.spreadingFactor,
-          codingRate: device.codingRate
-        )
-        .foregroundStyle(.secondary)
-      }
+      .radioDisabled(for: appState.connectionState, or: isApplying || isApplyingRepeat || radioWriteInFlight)
 
       if appState.connectedDevice?.supportsClientRepeat == true {
         Toggle(isOn: $isRepeatEnabled) {
@@ -148,7 +128,7 @@ struct RadioPresetSection: View {
             disableRepeatMode()
           }
         }
-        .disabled(isApplying || isApplyingRepeat)
+        .disabled(isApplying || isApplyingRepeat || radioWriteInFlight)
       }
     } header: {
       Text(L10n.Settings.Radio.header)
@@ -180,8 +160,17 @@ struct RadioPresetSection: View {
       _ = try? await settingsService.getSelfInfo()
     }
     .onChange(of: currentPreset?.id) { _, newPresetID in
-      // Sync picker when device settings change externally (e.g., from Advanced Settings)
       guard !isRepeatEnabled else { return }
+      if let selected = selectedPresetID,
+         let device = appState.connectedDevice,
+         RadioPresets.matchingPresets(
+           frequencyKHz: device.frequency,
+           bandwidthKHz: device.bandwidth,
+           spreadingFactor: device.spreadingFactor,
+           codingRate: device.codingRate
+         ).contains(where: { $0.id == selected }) {
+        return
+      }
       hasInitialized = false
       selectedPresetID = newPresetID
       Task { @MainActor in
@@ -221,9 +210,13 @@ struct RadioPresetSection: View {
 
   private func applyPreset(id: String) {
     let allPresets = isRepeatEnabled ? repeatPresets : presets
-    guard let preset = allPresets.first(where: { $0.id == id }) else { return }
+    guard let preset = allPresets.first(where: { $0.id == id }) else {
+      radioWriteInFlight = false
+      return
+    }
 
     isApplying = true
+    radioWriteInFlight = true
     Task {
       do {
         guard let settingsService = appState.services?.settingsService else {
@@ -258,11 +251,14 @@ struct RadioPresetSection: View {
         }
       }
       isApplying = false
+      radioWriteInFlight = false
     }
   }
 
   private func enableRepeatMode() {
     guard let preset = closestRepeatPreset else { return }
+
+    radioWriteInFlight = true
 
     // Persist current radio settings to Device model before switching
     appState.connectionManager.savePreRepeatSettings()
@@ -288,6 +284,7 @@ struct RadioPresetSection: View {
   private func disableRepeatMode() {
     guard let device = appState.connectedDevice else { return }
     isApplyingRepeat = true
+    radioWriteInFlight = true
     Task {
       do {
         guard let settingsService = appState.services?.settingsService else {
@@ -330,6 +327,7 @@ struct RadioPresetSection: View {
         setRepeatToggle(true) // Revert
       }
       isApplyingRepeat = false
+      radioWriteInFlight = false
     }
   }
 }

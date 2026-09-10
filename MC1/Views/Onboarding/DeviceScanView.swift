@@ -92,12 +92,21 @@ struct DeviceScanView: View {
     .sensoryFeedback(.success, trigger: pairingSuccessTrigger)
     .sensoryFeedback(.success, trigger: demoModeUnlockTrigger)
     .sensoryFeedback(.error, trigger: failureHapticTrigger)
+    .onChange(of: hasConnectedDevice) { _, connected in
+      guard didInitiatePairing, connected else { return }
+      pairingSuccessTrigger.toggle()
+    }
+    .onChange(of: appState.connectionUI.showingConnectionFailedAlert) { _, showing in
+      guard didInitiatePairing, showing else { return }
+      failureHapticTrigger.toggle()
+    }
     .onChange(of: appState.connectionUI.otherAppWarningDeviceID) { _, newValue in
-      // retryFailedPairingConnect surfaces other-app failures via the ConnectionUI alert
-      // without going through startPairing's local catch, so we mirror the warning ID
-      // into local state to keep the recovery CTA pinned to "Retry connection" after
-      // the user dismisses the alert.
-      if let id = newValue { otherAppDeviceID = id }
+      // Other-app failures land on ConnectionUIState. Mirror the warning ID so
+      // the recovery CTA stays "Retry connection" after the alert is dismissed.
+      if let id = newValue {
+        otherAppDeviceID = id
+        if didInitiatePairing { failureHapticTrigger.toggle() }
+      }
     }
     .sheet(isPresented: $showTroubleshooting) {
       TroubleshootingSheet()
@@ -169,29 +178,8 @@ struct DeviceScanView: View {
   }
 
   private func startPairing() {
-    appState.connectionUI.isBusy = true
     didInitiatePairing = true
-    appState.connectionUI.failedPairingDeviceID = nil
-
-    Task { @MainActor in
-      defer { appState.connectionUI.isBusy = false }
-      do {
-        try await appState.connectionManager.pairNewDevice()
-        await appState.wireServicesIfConnected()
-        pairingSuccessTrigger.toggle()
-        appState.onboarding.onboardingPath.append(.region)
-      } catch DevicePairingError.cancelled {
-      } catch DevicePairingError.alreadyInProgress {
-      } catch let pairingError as PairingError {
-        if case let .deviceConnectedToOtherApp(deviceID) = pairingError {
-          otherAppDeviceID = deviceID
-        }
-        failureHapticTrigger.toggle()
-        appState.connectionUI.presentFreshPairingFailure(pairingError)
-      } catch {
-        appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)
-      }
-    }
+    appState.startDeviceScan()
   }
 
   private func retryConnection(deviceID: UUID) {
@@ -201,7 +189,6 @@ struct DeviceScanView: View {
       do {
         try await appState.connectionManager.connect(to: deviceID, forceReconnect: true)
         await appState.wireServicesIfConnected()
-        pairingSuccessTrigger.toggle()
         appState.onboarding.onboardingPath.append(.region)
       } catch {
         appState.connectionUI.presentSavedDeviceConnectFailure(deviceID: deviceID, error: error)
@@ -217,7 +204,6 @@ struct DeviceScanView: View {
       do {
         try await appState.connectionManager.simulatorConnect()
         await appState.wireServicesIfConnected()
-        pairingSuccessTrigger.toggle()
         appState.onboarding.onboardingPath.append(.region)
       } catch {
         appState.connectionUI.presentConnectionFailure(message: error.userFacingMessage)

@@ -273,7 +273,11 @@ public final class ServiceContainer {
     )
     settingsService = SettingsService(session: session)
     deviceService = DeviceService(dataStore: dataStore)
-    advertisementService = AdvertisementService(session: session, dataStore: dataStore)
+    advertisementService = AdvertisementService(
+      session: session,
+      dataStore: dataStore,
+      appStateProvider: appStateProvider
+    )
     messagePollingService = MessagePollingService(session: session, dataStore: dataStore)
     binaryProtocolService = BinaryProtocolService(session: session, dataStore: dataStore)
     debugLogBuffer = DebugLogBuffer(dataStore: dataStore)
@@ -394,6 +398,7 @@ public final class ServiceContainer {
 
     await advertisementService.stopEventMonitoring()
     await rxLogService.stopEventMonitoring()
+    try? await dataStore.flushPendingRxLogEntries()
     await messageService.stopEventMonitoring()
     // Do not fail in-flight DMs on disconnect. The firmware retains the
     // expected ACK and re-emits the delivery confirmation whenever it

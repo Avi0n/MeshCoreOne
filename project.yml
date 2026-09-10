@@ -34,7 +34,7 @@ packages:
     # generated .xcodeproj is), so branch tracking resolves to whatever each
     # machine last fetched and different developers silently build different
     # library code. Bump this hash deliberately when the fork advances.
-    revision: 192fcb4925607d1aa678792c22825f35edb724ad
+    revision: aedc92286087a0e3a71385ff7ac5e6465bdffe22
 
 targets:
   MC1:
@@ -79,7 +79,7 @@ targets:
       base:
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        MARKETING_VERSION: 1.4.0
+        MARKETING_VERSION: 1.4.1
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -95,22 +95,6 @@ targets:
           - Bluetooth
         NSAccessorySetupBluetoothServices:
           - "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
-        NSAccessorySetupBluetoothNames:
-          - "MeshCore-"
-          - "Whisper-"
-          - "WisCore"
-          - "XIAO"
-          - "elecrow"
-          - "HT-n5262"
-          - "Seeed"
-          - "BQ"
-          - "ProMicro"
-          - "Keepteen"
-          - "Meshtiny"
-          - "T1000-E-BOOT"
-          - "me25ls01-BOOT"
-          - "NRF52 DK"
-          - "T-Impulse"
       configs:
         Debug:
           INFOPLIST_FILE: MC1/Info-Debug.plist
@@ -129,7 +113,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: MC1Tests/Info.plist
-        MARKETING_VERSION: 1.4.0
+        MARKETING_VERSION: 1.4.1
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MC1.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MC1"
@@ -143,7 +127,7 @@ targets:
       - path: Shared
     settings:
       base:
-        MARKETING_VERSION: 1.4.0
+        MARKETING_VERSION: 1.4.1
         CURRENT_PROJECT_VERSION: 1
         VERSIONING_SYSTEM: apple-generic
         TARGETED_DEVICE_FAMILY: "1,2"

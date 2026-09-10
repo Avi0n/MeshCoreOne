@@ -207,15 +207,18 @@ struct MessageServiceSendTests {
   // MARK: - sendChannelMessage
 
   @Test
-  func `sendChannelMessage throws messageTooLong for oversized text`() async throws {
-    let (service, _) = try await MessageService.createForTesting()
-    let longText = String(repeating: "a", count: ProtocolLimits.maxChannelMessageTotalLength + 1)
+  func `sendChannelMessage throws when user text plus node name exceeds composed cap`() async throws {
+    let (service, dataStore) = try await MessageService.createForTesting()
+    let nodeName = "Node"
+    try await dataStore.saveDevice(
+      DeviceDTO.testDevice(id: testDeviceID, radioID: testDeviceID, nodeName: nodeName)
+    )
+    let maxUser = ProtocolLimits.maxChannelMessageLength(nodeNameByteCount: nodeName.utf8.count)
+    let over = String(repeating: "a", count: maxUser + 1)
 
     try await #expect {
       _ = try await service.sendChannelMessage(
-        text: longText,
-        channelIndex: 0,
-        radioID: testDeviceID
+        text: over, channelIndex: 0, radioID: testDeviceID
       )
     } throws: { error in
       guard let e = error as? MessageServiceError, case .messageTooLong = e else { return false }
@@ -270,15 +273,53 @@ struct MessageServiceSendTests {
   }
 
   @Test
-  func `createPendingChannelMessage throws messageTooLong for oversized text`() async throws {
-    let (service, _) = try await MessageService.createForTesting()
-    let longText = String(repeating: "a", count: ProtocolLimits.maxChannelMessageTotalLength + 1)
+  func `createPendingChannelMessage throws when user text plus node name exceeds composed cap`() async throws {
+    let (service, dataStore) = try await MessageService.createForTesting()
+    let nodeName = "Node"
+    try await dataStore.saveDevice(
+      DeviceDTO.testDevice(id: testDeviceID, radioID: testDeviceID, nodeName: nodeName)
+    )
+    let maxUser = ProtocolLimits.maxChannelMessageLength(nodeNameByteCount: nodeName.utf8.count)
+    let over = String(repeating: "a", count: maxUser + 1)
 
     try await #expect {
       _ = try await service.createPendingChannelMessage(
-        text: longText,
-        channelIndex: 0,
-        radioID: testDeviceID
+        text: over, channelIndex: 0, radioID: testDeviceID
+      )
+    } throws: { error in
+      guard let e = error as? MessageServiceError, case .messageTooLong = e else { return false }
+      return true
+    }
+  }
+
+  @Test
+  func `createPendingChannelMessage accepts user text that fills the composed cap`() async throws {
+    let (service, dataStore) = try await MessageService.createForTesting()
+    let nodeName = "Node"
+    try await dataStore.saveDevice(
+      DeviceDTO.testDevice(id: testDeviceID, radioID: testDeviceID, nodeName: nodeName)
+    )
+    let maxUser = ProtocolLimits.maxChannelMessageLength(nodeNameByteCount: nodeName.utf8.count)
+    let atLimit = String(repeating: "a", count: maxUser)
+
+    let message = try await service.createPendingChannelMessage(
+      text: atLimit, channelIndex: 0, radioID: testDeviceID
+    )
+    #expect(message.text == atLimit)
+    #expect(message.status == .pending)
+  }
+
+  @Test
+  func `createPendingChannelMessage without a device assumes a 31-byte name`() async throws {
+    let (service, _) = try await MessageService.createForTesting()
+    let assumed = ProtocolLimits.maxChannelMessageLength(
+      nodeNameByteCount: ProtocolLimits.maxUsableNameBytes
+    )
+    let over = String(repeating: "a", count: assumed + 1)
+
+    try await #expect {
+      _ = try await service.createPendingChannelMessage(
+        text: over, channelIndex: 0, radioID: testDeviceID
       )
     } throws: { error in
       guard let e = error as? MessageServiceError, case .messageTooLong = e else { return false }

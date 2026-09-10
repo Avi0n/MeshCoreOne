@@ -86,6 +86,55 @@ struct DeviceSelectionFilterTests {
     #expect(!DeviceSelectionFilter.isConnectable(device, pairedAccessoryIDs: [id], hasSystemPairingRegistry: false))
   }
 
+  @Test
+  func `saved radio and unsaved ASK accessory both appear`() {
+    let savedID = UUID()
+    let askID = UUID()
+    let saved = makeDevice(
+      id: savedID,
+      connectionMethods: [.bluetooth(peripheralUUID: savedID, displayName: "Radio")]
+    )
+
+    let result = DeviceSelectionListBuilder.make(
+      saved: [saved],
+      accessories: [
+        (id: savedID, name: "Radio"),
+        (id: askID, name: "Stray")
+      ],
+      needsSetup: [SystemPairedAccessory(id: askID, name: "Stray")],
+      hasSystemPairingRegistry: true
+    )
+
+    #expect(result.connectable.map(\.id) == [savedID])
+    #expect(result.needsSetup.map(\.id) == [askID])
+    #expect(result.needsSetup.map(\.name) == ["Stray"])
+  }
+
+  @Test
+  func `macOS registry-less builder never reports needs-setup`() {
+    let askID = UUID()
+    let result = DeviceSelectionListBuilder.make(
+      saved: [],
+      accessories: [(id: askID, name: "Stray")],
+      needsSetup: [SystemPairedAccessory(id: askID, name: "Stray")],
+      hasSystemPairingRegistry: false
+    )
+
+    #expect(result.needsSetup.isEmpty)
+  }
+
+  @Test
+  func `needs-setup row copy is Set Up VoiceOver and is not a Connect row`() {
+    let name = "Radio B"
+    let presentation = DeviceSelectionListBuilder.needsSetupPresentation(name: name)
+
+    #expect(presentation.trailingTitle == L10n.Settings.DeviceSelection.setup)
+    #expect(presentation.accessibilityLabel == L10n.Settings.DeviceSelection.Accessibility.setupLabel(name))
+    #expect(presentation.accessibilityHint == L10n.Settings.DeviceSelection.Accessibility.setupHint)
+    #expect(presentation.accessibilityHint != L10n.Settings.DeviceSelection.Accessibility.selectHint)
+    #expect(presentation.accessibilityHint != L10n.Settings.DeviceSelection.Accessibility.outOfRangeHint)
+  }
+
   private func makeDevice(
     id: UUID = UUID(),
     connectionMethods: [ConnectionMethod]

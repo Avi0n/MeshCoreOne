@@ -1,5 +1,6 @@
 import Foundation
 @testable import MC1Services
+import MeshCore
 import os
 import Testing
 
@@ -166,6 +167,93 @@ struct ConnectionManagerPairingTests {
     manager.updatePathHashMode(2)
 
     #expect(manager.connectedDevice?.pathHashMode == 2)
+  }
+
+  @Test
+  func `updateDevice stamps appliedRadioPresetID from the event`() throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    manager.updateDevice(with: DeviceDTO.testDevice().copy {
+      $0.appliedRadioPresetID = nil
+      $0.clientRepeat = false
+    })
+    let br = try #require(RadioPresets.all.first { $0.id == "br" })
+    manager.updateDevice(from: selfInfo(from: br), appliedRadioPresetID: "br")
+    #expect(manager.connectedDevice?.appliedRadioPresetID == "br")
+  }
+
+  @Test
+  func `updateDevice clears appliedRadioPresetID when RF no longer matches`() throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    manager.updateDevice(with: DeviceDTO.testDevice().copy {
+      $0.appliedRadioPresetID = "br"
+      $0.clientRepeat = false
+    })
+    let us = try #require(RadioPresets.all.first { $0.id == "us-ca" })
+    manager.updateDevice(from: selfInfo(from: us), appliedRadioPresetID: nil)
+    #expect(manager.connectedDevice?.appliedRadioPresetID == nil)
+  }
+
+  @Test
+  func `updateDevice keeps appliedRadioPresetID when RF still matches`() throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    manager.updateDevice(with: DeviceDTO.testDevice().copy {
+      $0.appliedRadioPresetID = "br"
+      $0.clientRepeat = false
+    })
+    let br = try #require(RadioPresets.all.first { $0.id == "br" })
+    manager.updateDevice(from: selfInfo(from: br), appliedRadioPresetID: nil)
+    #expect(manager.connectedDevice?.appliedRadioPresetID == "br")
+  }
+
+  @Test
+  func `updateDevice keeps appliedRadioPresetID during Repeat Mode`() throws {
+    let (manager, _) = try ConnectionManager.createForTesting()
+    manager.updateDevice(with: DeviceDTO.testDevice().copy {
+      $0.appliedRadioPresetID = "br"
+      $0.clientRepeat = false
+    })
+    manager.updateClientRepeat(true)
+    manager.updateDevice(
+      from: selfInfo(frequencyMHz: 869.495, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8),
+      appliedRadioPresetID: nil
+    )
+    #expect(manager.connectedDevice?.appliedRadioPresetID == "br")
+  }
+
+  private func selfInfo(from preset: RadioPreset) -> MeshCore.SelfInfo {
+    selfInfo(
+      frequencyMHz: preset.frequencyMHz,
+      bandwidthKHz: preset.bandwidthKHz,
+      spreadingFactor: preset.spreadingFactor,
+      codingRate: preset.codingRate
+    )
+  }
+
+  private func selfInfo(
+    frequencyMHz: Double,
+    bandwidthKHz: Double,
+    spreadingFactor: UInt8,
+    codingRate: UInt8
+  ) -> MeshCore.SelfInfo {
+    MeshCore.SelfInfo(
+      advertisementType: 0,
+      txPower: 20,
+      maxTxPower: 20,
+      publicKey: Data(repeating: 0x01, count: 32),
+      latitude: 0,
+      longitude: 0,
+      multiAcks: 2,
+      advertisementLocationPolicy: 0,
+      telemetryModeEnvironment: 0,
+      telemetryModeLocation: 0,
+      telemetryModeBase: 2,
+      manualAddContacts: false,
+      radioFrequency: frequencyMHz,
+      radioBandwidth: bandwidthKHz,
+      radioSpreadingFactor: spreadingFactor,
+      radioCodingRate: codingRate,
+      name: "TestNode"
+    )
   }
 
   // MARK: - Pre-Repeat Settings Tests

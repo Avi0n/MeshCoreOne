@@ -2903,10 +2903,14 @@ public enum L10n {
       public enum Error {
         /// Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages
         public static let authenticationFailed = L10n.tr("Onboarding", "deviceScan.error.authenticationFailed", fallback: "The saved pairing with this radio stopped working. Tap Remove and Try Again to re-pair in the app; the radio may show a new pairing code.")
+        /// Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond
+        public static let authenticationFailedMac = L10n.tr("Onboarding", "deviceScan.error.authenticationFailedMac", fallback: "The saved pairing with this radio stopped working. In System Settings, forget this radio under Bluetooth, then tap Remove and Try Again.")
         /// Couldn't connect to the device. Try again, or remove it if the problem continues.
         public static let connectionFailed = L10n.tr("Onboarding", "deviceScan.error.connectionFailed", fallback: "Couldn't connect to the device. Try again, or remove it if the problem continues.")
         /// The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.
         public static let pinRejected = L10n.tr("Onboarding", "deviceScan.error.pinRejected", fallback: "The PIN wasn't accepted. Check the PIN shown on your device, then try again. iOS will ask you to confirm removing the failed pairing first.")
+        /// Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond
+        public static let pinRejectedMac = L10n.tr("Onboarding", "deviceScan.error.pinRejectedMac", fallback: "The PIN wasn't accepted. In System Settings, forget this radio under Bluetooth, then try again.")
       }
     }
     public enum DeviceScanner {
@@ -3020,16 +3024,18 @@ public enum L10n {
       }
     }
     public enum Region {
-      /// Location: RegionPickerView.swift - State/Province picker label
-      public static let administrativeArea = L10n.tr("Onboarding", "region.administrativeArea", fallback: "State / Province")
       /// Location: RegionStepView.swift - "Choose another" link
       public static let chooseAnother = L10n.tr("Onboarding", "region.chooseAnother", fallback: "Choose another")
       /// Location: RegionPickerView.swift - Continue CTA in manual picker
       public static let `continue` = L10n.tr("Onboarding", "region.continue", fallback: "Continue")
       /// Location: RegionPickerView.swift - Country picker label
       public static let country = L10n.tr("Onboarding", "region.country", fallback: "Country")
+      /// Location: RegionPickerView.swift - Province picker label (Canada)
+      public static let province = L10n.tr("Onboarding", "region.province", fallback: "Province")
       /// Location: RegionStepView.swift - "Finding your region…"
       public static let resolving = L10n.tr("Onboarding", "region.resolving", fallback: "Finding your region…")
+      /// Location: RegionPickerView.swift - State picker label (US, AU)
+      public static let state = L10n.tr("Onboarding", "region.state", fallback: "State")
       /// Location: RegionStepView.swift - Subtitle for the region step
       public static let subtitle = L10n.tr("Onboarding", "region.subtitle", fallback: "We'll show presets that work in your area.")
       /// Location: RegionStepView.swift - Title (both states)
@@ -3586,6 +3592,8 @@ public enum L10n {
           }
         }
         public enum Regions {
+          /// Location: RepeaterSettingsView.swift - Add child region context menu item
+          public static let addChild = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addChild", fallback: "Add Child")
           /// Location: RepeaterSettingsViewModel.swift - Region add failure
           public static let addFailed = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.addFailed", fallback: "Failed to add region")
           /// Location: RepeaterSettingsView.swift - Add region button
@@ -3596,6 +3604,14 @@ public enum L10n {
           public static let allTraffic = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTraffic", fallback: "Unscoped")
           /// Location: RepeaterSettingsView.swift - Unscoped region with asterisk display
           public static let allTrafficWildcard = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.allTrafficWildcard", fallback: "* (Unscoped)")
+          /// Location: RepeaterSettingsView.swift - Alert title when deleting a parent region
+          public static func cannotDelete(_ p1: Any) -> String {
+            return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.cannotDelete", String(describing: p1), fallback: "Can't Delete \"%@\"")
+          }
+          /// Location: RegionFloodToggleRow.swift - Full VoiceOver label (name, parent)
+          public static func childOf(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.childOf", String(describing: p1), String(describing: p2), fallback: "%@, child of %@")
+          }
           /// Location: RepeaterSettingsView.swift - Default scope picker label
           public static let defaultScope = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.defaultScope", fallback: "Default Scope")
           /// Location: RepeaterSettingsView.swift - Caption under default scope picker
@@ -3604,12 +3620,16 @@ public enum L10n {
           public static let duplicate = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.duplicate", fallback: "This region already exists.")
           /// Location: RepeaterSettingsViewModel.swift - No regions on device
           public static let empty = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.empty", fallback: "No regions configured")
+          /// Location: RepeaterSettingsView.swift - Caption under the region flood list
+          public static let floodToggleCaption = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.floodToggleCaption", fallback: "Flood packets are dropped for any region that is off.")
           /// Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle
           public static let floodToggleHint = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.floodToggleHint", fallback: "When off, flood packets from this region are dropped")
           /// Location: RepeaterSettingsView.swift - Home region picker label
           public static let homeRegion = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.homeRegion", fallback: "Home Region")
           /// Location: RepeaterSettingsView.swift - Region name charset validation
           public static let invalidName = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.invalidName", fallback: "Region names can only contain letters, numbers, and hyphens.")
+          /// Location: RepeaterSettingsView.swift - Load default scope button
+          public static let loadDefaultScope = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.loadDefaultScope", fallback: "Load")
           /// Location: RepeaterSettingsView.swift - Region name length validation
           public static func nameTooLong(_ p1: Int) -> String {
             return L10n.tr("RemoteNodes", "remoteNodes.settings.regions.nameTooLong", p1, fallback: "Region names are limited to %d bytes.")
@@ -3618,6 +3638,8 @@ public enum L10n {
           public static let noDefault = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.noDefault", fallback: "None")
           /// Location: RepeaterSettingsViewModel.swift - Region has children error
           public static let notEmpty = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.notEmpty", fallback: "Remove child regions first")
+          /// Location: RepeaterAddRegionSheet.swift - Parent picker label
+          public static let parent = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.parent", fallback: "Parent")
           /// Location: RepeaterSettingsView.swift - Region name placeholder
           public static let regionName = L10n.tr("RemoteNodes", "remoteNodes.settings.regions.regionName", fallback: "Region name")
           /// Location: RepeaterSettingsViewModel.swift - Region remove failure
@@ -4096,12 +4118,12 @@ public enum L10n {
       public static let frequency = L10n.tr("Settings", "advancedRadio.frequency", fallback: "Frequency (MHz)")
       /// Placeholder for frequency text field
       public static let frequencyPlaceholder = L10n.tr("Settings", "advancedRadio.frequencyPlaceholder", fallback: "MHz")
-      /// Section header for radio configuration
-      public static let header = L10n.tr("Settings", "advancedRadio.header", fallback: "Radio Configuration")
+      /// Footer when Repeat Mode is on: frequency is owned by Repeat Mode.
+      public static let frequencyRepeatModeFooter = L10n.tr("Settings", "advancedRadio.frequencyRepeatModeFooter", fallback: "Frequency is set by Repeat Mode.")
+      /// Section header for manual radio parameters on Settings → Radio.
+      public static let header = L10n.tr("Settings", "advancedRadio.header", fallback: "Advanced")
       /// Error message for invalid input
       public static let invalidInput = L10n.tr("Settings", "advancedRadio.invalidInput", fallback: "Invalid input values or device not connected")
-      /// Toggle label for repeat mode in advanced radio
-      public static let repeatMode = L10n.tr("Settings", "advancedRadio.repeatMode", fallback: "Repeat Mode")
       /// Label for spreading factor picker
       public static let spreadingFactor = L10n.tr("Settings", "advancedRadio.spreadingFactor", fallback: "Spreading Factor")
       /// Label for TX power input
@@ -4127,10 +4149,6 @@ public enum L10n {
         public static func spreadingFactorLabel(_ p1: Int) -> String {
           return L10n.tr("Settings", "advancedRadio.accessibility.spreadingFactorLabel", p1, fallback: "Spreading factor %d")
         }
-      }
-      public enum RepeatMode {
-        /// Footer explaining repeat mode in advanced radio
-        public static let footer = L10n.tr("Settings", "advancedRadio.repeatMode.footer", fallback: "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.")
       }
     }
     public enum AdvancedSettings {
@@ -4688,6 +4706,10 @@ public enum L10n {
       public static let connectedElsewhere = L10n.tr("Settings", "deviceSelection.connectedElsewhere", fallback: "Connected elsewhere")
       /// Button to connect via WiFi
       public static let connectViaWifi = L10n.tr("Settings", "deviceSelection.connectViaWifi", fallback: "Connect via WiFi")
+      /// Destructive confirmation for several devices
+      public static let forgetTheseDevices = L10n.tr("Settings", "deviceSelection.forgetTheseDevices", fallback: "Forget These Devices")
+      /// Destructive confirmation for one device
+      public static let forgetThisDevice = L10n.tr("Settings", "deviceSelection.forgetThisDevice", fallback: "Forget This Device")
       /// Description for empty state
       public static let noPairedDescription = L10n.tr("Settings", "deviceSelection.noPairedDescription", fallback: "You haven't paired any devices yet.")
       /// Title for empty state when no devices are paired
@@ -4698,6 +4720,24 @@ public enum L10n {
       public static let scanBluetooth = L10n.tr("Settings", "deviceSelection.scanBluetooth", fallback: "Scan for Bluetooth Device")
       /// Button to scan for new devices
       public static let scanForDevices = L10n.tr("Settings", "deviceSelection.scanForDevices", fallback: "Scan for Devices")
+      /// Trailing control on a previously paired row that still needs iPhone setup
+      public static let setup = L10n.tr("Settings", "deviceSelection.setup", fallback: "Set Up")
+      /// Reassurance that forgetting the iPhone pairing does not delete conversations
+      public static let setupConversations = L10n.tr("Settings", "deviceSelection.setupConversations", fallback: "This will not delete your conversations.")
+      /// Footer under Previously Paired when one needs-setup row is present
+      public static let setupFooter = L10n.tr("Settings", "deviceSelection.setupFooter", fallback: "Forget this device to add it to MeshCore One.")
+      /// Footer under Previously Paired when several needs-setup rows are present
+      public static let setupFooterPlural = L10n.tr("Settings", "deviceSelection.setupFooterPlural", fallback: "Forget these devices to add them to MeshCore One.")
+      /// Sheet body when one device is paired with iPhone
+      public static let setupMessage = L10n.tr("Settings", "deviceSelection.setupMessage", fallback: "This device is paired with iPhone. You'll need to forget it before adding it to MeshCore One.")
+      /// Sheet body when several devices are paired with iPhone
+      public static let setupMessagePlural = L10n.tr("Settings", "deviceSelection.setupMessagePlural", fallback: "These devices are paired with iPhone. You'll need to forget them before adding a radio to MeshCore One.")
+      /// Sheet title when one device needs setup. %@ is the accessory name
+      public static func setupTitle(_ p1: Any) -> String {
+        return L10n.tr("Settings", "deviceSelection.setupTitle", String(describing: p1), fallback: "Set Up %@")
+      }
+      /// Sheet title when several devices need setup
+      public static let setupTitleGeneric = L10n.tr("Settings", "deviceSelection.setupTitleGeneric", fallback: "Set Up")
       /// Navigation title for device selection
       public static let title = L10n.tr("Settings", "deviceSelection.title", fallback: "Connect Device")
       public enum Accessibility {
@@ -4715,6 +4755,12 @@ public enum L10n {
         public static let outOfRangeHint = L10n.tr("Settings", "deviceSelection.accessibility.outOfRangeHint", fallback: "Device is out of Bluetooth range")
         /// Accessibility hint for selecting a device
         public static let selectHint = L10n.tr("Settings", "deviceSelection.accessibility.selectHint", fallback: "Double tap to connect")
+        /// VoiceOver hint for a needs-setup row
+        public static let setupHint = L10n.tr("Settings", "deviceSelection.accessibility.setupHint", fallback: "Double tap to set up")
+        /// VoiceOver label for a needs-setup row. %@ is the accessory name
+        public static func setupLabel(_ p1: Any) -> String {
+          return L10n.tr("Settings", "deviceSelection.accessibility.setupLabel", String(describing: p1), fallback: "%@, paired with iPhone")
+        }
       }
     }
     public enum Diagnostics {
@@ -4780,8 +4826,54 @@ public enum L10n {
       public static let autoPlayGifs = L10n.tr("Settings", "inlineImages.autoPlayGifs", fallback: "Auto-play GIFs")
     }
     public enum Language {
+      /// Location: LanguageSettingsView.swift - Purpose: Option to follow the app UI language
+      public static let matchAppLanguage = L10n.tr("Settings", "language.matchAppLanguage", fallback: "Use App Language")
       /// Location: SettingsView.swift - Purpose: Language row title
       public static let title = L10n.tr("Settings", "language.title", fallback: "Language")
+      public enum All {
+        /// Location: TranslateIntoLanguageView.swift - Purpose: All languages section header
+        public static let header = L10n.tr("Settings", "language.all.header", fallback: "Languages")
+      }
+      public enum AppLanguage {
+        /// Location: LanguageSettingsView.swift - Purpose: VoiceOver hint that App Language opens iOS Settings
+        public static let accessibilityHint = L10n.tr("Settings", "language.appLanguage.accessibilityHint", fallback: "Opens iOS Settings")
+        /// Location: LanguageSettingsView.swift - Purpose: Footer explaining App Language opens iOS Settings
+        public static let footer = L10n.tr("Settings", "language.appLanguage.footer", fallback: "Buttons, menus, and other text.")
+        /// Location: LanguageSettingsView.swift - Purpose: App Language row title
+        public static let title = L10n.tr("Settings", "language.appLanguage.title", fallback: "App Language")
+      }
+      public enum DefaultTranslationApp {
+        /// Location: LanguageSettingsView.swift - Purpose: Footer for Use Default Translation App
+        public static let footer = L10n.tr("Settings", "language.defaultTranslationApp.footer", fallback: "Uses Translate, or another app you've chosen in iOS Settings.")
+        /// Location: LanguageSettingsView.swift - Purpose: Toggle to use the system Translate sheet / default translation app
+        public static let title = L10n.tr("Settings", "language.defaultTranslationApp.title", fallback: "Use Default Translation App")
+      }
+      public enum Search {
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Empty search title
+        public static let noResults = L10n.tr("Settings", "language.search.noResults", fallback: "No Results")
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Empty search description
+        public static func noResultsDescription(_ p1: Any) -> String {
+          return L10n.tr("Settings", "language.search.noResultsDescription", String(describing: p1), fallback: "No languages match \"%@\"")
+        }
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Search field placeholder
+        public static let prompt = L10n.tr("Settings", "language.search.prompt", fallback: "Search Languages")
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Search result when the queried language isn't available in the app
+        public static func unavailable(_ p1: Any) -> String {
+          return L10n.tr("Settings", "language.search.unavailable", String(describing: p1), fallback: "%@ isn't available in the app. Translate using your default translation app.")
+        }
+      }
+      public enum Suggested {
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Suggested languages section header
+        public static let header = L10n.tr("Settings", "language.suggested.header", fallback: "Suggested")
+      }
+      public enum TranslateInto {
+        /// Location: LanguageSettingsView.swift - Purpose: Footer for Translate Into language list
+        public static let footer = L10n.tr("Settings", "language.translateInto.footer", fallback: "Incoming messages translate into this language when you tap Translate.")
+        /// Location: LanguageSettingsView.swift - Purpose: Translate Into section header
+        public static let header = L10n.tr("Settings", "language.translateInto.header", fallback: "Translate Into")
+        /// Location: TranslateIntoLanguageView.swift - Purpose: Footer explaining the Translate Into list is in-app languages only
+        public static let listFooter = L10n.tr("Settings", "language.translateInto.listFooter", fallback: "Languages this device can translate in the app. Other languages use your default translation app.")
+      }
     }
     public enum LinkPreviews {
       /// Footer explaining link content privacy implications
@@ -5100,22 +5192,38 @@ public enum L10n {
       }
     }
     public enum Radio {
-      /// Footer explaining radio presets
-      public static let footer = L10n.tr("Settings", "radio.footer", fallback: "Choose a preset matching your region. MeshCore devices must use the same radio settings in order to communicate.")
+      /// Footer explaining radio presets. Location is geographic filter, not mesh Region.
+      public static let footer = L10n.tr("Settings", "radio.footer", fallback: "Choose a preset matching nearby radios. MeshCore devices must use the same radio settings in order to communicate.")
       /// Section header for radio settings
       public static let header = L10n.tr("Settings", "radio.header", fallback: "Radio")
       /// Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region
-      public static func mismatchHint(_ p1: Any, _ p2: Any) -> String {
-        return L10n.tr("Settings", "radio.mismatchHint", String(describing: p1), String(describing: p2), fallback: "Your radio is on %@, not the recommended preset for %@.")
+      public static func mismatchHint(_ p1: Any) -> String {
+        return L10n.tr("Settings", "radio.mismatchHint", String(describing: p1), fallback: "The recommended preset for your location is %@.")
       }
       /// Label for radio preset picker
       public static let preset = L10n.tr("Settings", "radio.preset", fallback: "Radio Preset")
+      /// Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin).
+      public static let presetLocation = L10n.tr("Settings", "radio.presetLocation", fallback: "Location")
       /// Location: RadioPresetSection.swift - Footer line listing the user's region
       public static func regionFooter(_ p1: Any) -> String {
         return L10n.tr("Settings", "radio.regionFooter", String(describing: p1), fallback: "Showing recommended presets for %@.")
       }
       /// Toggle label for repeat mode
       public static let repeatMode = L10n.tr("Settings", "radio.repeatMode", fallback: "Repeat Mode")
+      public enum PresetLocation {
+        /// Open Settings alert message when Use my location is denied or restricted.
+        public static let denied = L10n.tr("Settings", "radio.presetLocation.denied", fallback: "Location permission was previously denied. Please enable it in Settings to fill country and state.")
+        /// Footer on the Radio location section and the Location subpage.
+        public static let footer = L10n.tr("Settings", "radio.presetLocation.footer", fallback: "Filters the preset list. Does not change the radio.")
+        /// Trailing value when the place is unset: Location row, and empty Country / State rows in RegionPickerRows (Radio and onboarding).
+        public static let notSet = L10n.tr("Settings", "radio.presetLocation.notSet", fallback: "Not set")
+        public enum UseMyLocation {
+          /// errorAlert when Use my location is authorized but resolve() returns nil.
+          public static let failure = L10n.tr("Settings", "radio.presetLocation.useMyLocation.failure", fallback: "Couldn't determine a place from your location. Choose country and state.")
+          /// Visible label + VoiceOver value on Use my location while GPS / geocode is in flight. Not onboarding region.resolving.
+          public static let locating = L10n.tr("Settings", "radio.presetLocation.useMyLocation.locating", fallback: "Finding your location…")
+        }
+      }
       public enum RepeatMode {
         /// Accessibility hint for repeat mode toggle
         public static let accessibilityHint = L10n.tr("Settings", "radio.repeatMode.accessibilityHint", fallback: "Enabling this will disconnect you from the main mesh network")
@@ -5181,14 +5289,124 @@ public enum L10n {
     }
     public enum Region {
       public enum Subdivision {
+        /// Location: RegionalAreas.subdivisionDisplayName - Australian Capital Territory (AU-ACT) state name
+        public static let auAct = L10n.tr("Settings", "region.subdivision.AU-ACT", fallback: "Australian Capital Territory")
+        /// Location: RegionalAreas.subdivisionDisplayName - New South Wales (AU-NSW) state name
+        public static let auNsw = L10n.tr("Settings", "region.subdivision.AU-NSW", fallback: "New South Wales")
+        /// Location: RegionalAreas.subdivisionDisplayName - Northern Territory (AU-NT) state name
+        public static let auNt = L10n.tr("Settings", "region.subdivision.AU-NT", fallback: "Northern Territory")
         /// Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name
         public static let auQld = L10n.tr("Settings", "region.subdivision.AU-QLD", fallback: "Queensland")
         /// Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name
         public static let auSa = L10n.tr("Settings", "region.subdivision.AU-SA", fallback: "South Australia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Tasmania (AU-TAS) state name
+        public static let auTas = L10n.tr("Settings", "region.subdivision.AU-TAS", fallback: "Tasmania")
+        /// Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name
+        public static let auVic = L10n.tr("Settings", "region.subdivision.AU-VIC", fallback: "Victoria")
         /// Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name
         public static let auWa = L10n.tr("Settings", "region.subdivision.AU-WA", fallback: "Western Australia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Alaska (US-AK) state name
+        public static let usAk = L10n.tr("Settings", "region.subdivision.US-AK", fallback: "Alaska")
+        /// Location: RegionalAreas.subdivisionDisplayName - Alabama (US-AL) state name
+        public static let usAl = L10n.tr("Settings", "region.subdivision.US-AL", fallback: "Alabama")
+        /// Location: RegionalAreas.subdivisionDisplayName - Arkansas (US-AR) state name
+        public static let usAr = L10n.tr("Settings", "region.subdivision.US-AR", fallback: "Arkansas")
+        /// Location: RegionalAreas.subdivisionDisplayName - Arizona (US-AZ) state name
+        public static let usAz = L10n.tr("Settings", "region.subdivision.US-AZ", fallback: "Arizona")
         /// Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name
         public static let usCa = L10n.tr("Settings", "region.subdivision.US-CA", fallback: "California")
+        /// Location: RegionalAreas.subdivisionDisplayName - Colorado (US-CO) state name
+        public static let usCo = L10n.tr("Settings", "region.subdivision.US-CO", fallback: "Colorado")
+        /// Location: RegionalAreas.subdivisionDisplayName - Connecticut (US-CT) state name
+        public static let usCt = L10n.tr("Settings", "region.subdivision.US-CT", fallback: "Connecticut")
+        /// Location: RegionalAreas.subdivisionDisplayName - District of Columbia (US-DC) state name
+        public static let usDc = L10n.tr("Settings", "region.subdivision.US-DC", fallback: "District of Columbia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name
+        public static let usDe = L10n.tr("Settings", "region.subdivision.US-DE", fallback: "Delaware")
+        /// Location: RegionalAreas.subdivisionDisplayName - Florida (US-FL) state name
+        public static let usFl = L10n.tr("Settings", "region.subdivision.US-FL", fallback: "Florida")
+        /// Location: RegionalAreas.subdivisionDisplayName - Georgia (US-GA) state name
+        public static let usGa = L10n.tr("Settings", "region.subdivision.US-GA", fallback: "Georgia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Hawaii (US-HI) state name
+        public static let usHi = L10n.tr("Settings", "region.subdivision.US-HI", fallback: "Hawaii")
+        /// Location: RegionalAreas.subdivisionDisplayName - Iowa (US-IA) state name
+        public static let usIa = L10n.tr("Settings", "region.subdivision.US-IA", fallback: "Iowa")
+        /// Location: RegionalAreas.subdivisionDisplayName - Idaho (US-ID) state name
+        public static let usId = L10n.tr("Settings", "region.subdivision.US-ID", fallback: "Idaho")
+        /// Location: RegionalAreas.subdivisionDisplayName - Illinois (US-IL) state name
+        public static let usIl = L10n.tr("Settings", "region.subdivision.US-IL", fallback: "Illinois")
+        /// Location: RegionalAreas.subdivisionDisplayName - Indiana (US-IN) state name
+        public static let usIn = L10n.tr("Settings", "region.subdivision.US-IN", fallback: "Indiana")
+        /// Location: RegionalAreas.subdivisionDisplayName - Kansas (US-KS) state name
+        public static let usKs = L10n.tr("Settings", "region.subdivision.US-KS", fallback: "Kansas")
+        /// Location: RegionalAreas.subdivisionDisplayName - Kentucky (US-KY) state name
+        public static let usKy = L10n.tr("Settings", "region.subdivision.US-KY", fallback: "Kentucky")
+        /// Location: RegionalAreas.subdivisionDisplayName - Louisiana (US-LA) state name
+        public static let usLa = L10n.tr("Settings", "region.subdivision.US-LA", fallback: "Louisiana")
+        /// Location: RegionalAreas.subdivisionDisplayName - Massachusetts (US-MA) state name
+        public static let usMa = L10n.tr("Settings", "region.subdivision.US-MA", fallback: "Massachusetts")
+        /// Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name
+        public static let usMd = L10n.tr("Settings", "region.subdivision.US-MD", fallback: "Maryland")
+        /// Location: RegionalAreas.subdivisionDisplayName - Maine (US-ME) state name
+        public static let usMe = L10n.tr("Settings", "region.subdivision.US-ME", fallback: "Maine")
+        /// Location: RegionalAreas.subdivisionDisplayName - Michigan (US-MI) state name
+        public static let usMi = L10n.tr("Settings", "region.subdivision.US-MI", fallback: "Michigan")
+        /// Location: RegionalAreas.subdivisionDisplayName - Minnesota (US-MN) state name
+        public static let usMn = L10n.tr("Settings", "region.subdivision.US-MN", fallback: "Minnesota")
+        /// Location: RegionalAreas.subdivisionDisplayName - Missouri (US-MO) state name
+        public static let usMo = L10n.tr("Settings", "region.subdivision.US-MO", fallback: "Missouri")
+        /// Location: RegionalAreas.subdivisionDisplayName - Mississippi (US-MS) state name
+        public static let usMs = L10n.tr("Settings", "region.subdivision.US-MS", fallback: "Mississippi")
+        /// Location: RegionalAreas.subdivisionDisplayName - Montana (US-MT) state name
+        public static let usMt = L10n.tr("Settings", "region.subdivision.US-MT", fallback: "Montana")
+        /// Location: RegionalAreas.subdivisionDisplayName - North Carolina (US-NC) state name
+        public static let usNc = L10n.tr("Settings", "region.subdivision.US-NC", fallback: "North Carolina")
+        /// Location: RegionalAreas.subdivisionDisplayName - North Dakota (US-ND) state name
+        public static let usNd = L10n.tr("Settings", "region.subdivision.US-ND", fallback: "North Dakota")
+        /// Location: RegionalAreas.subdivisionDisplayName - Nebraska (US-NE) state name
+        public static let usNe = L10n.tr("Settings", "region.subdivision.US-NE", fallback: "Nebraska")
+        /// Location: RegionalAreas.subdivisionDisplayName - New Hampshire (US-NH) state name
+        public static let usNh = L10n.tr("Settings", "region.subdivision.US-NH", fallback: "New Hampshire")
+        /// Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name
+        public static let usNj = L10n.tr("Settings", "region.subdivision.US-NJ", fallback: "New Jersey")
+        /// Location: RegionalAreas.subdivisionDisplayName - New Mexico (US-NM) state name
+        public static let usNm = L10n.tr("Settings", "region.subdivision.US-NM", fallback: "New Mexico")
+        /// Location: RegionalAreas.subdivisionDisplayName - Nevada (US-NV) state name
+        public static let usNv = L10n.tr("Settings", "region.subdivision.US-NV", fallback: "Nevada")
+        /// Location: RegionalAreas.subdivisionDisplayName - New York (US-NY) state name
+        public static let usNy = L10n.tr("Settings", "region.subdivision.US-NY", fallback: "New York")
+        /// Location: RegionalAreas.subdivisionDisplayName - Ohio (US-OH) state name
+        public static let usOh = L10n.tr("Settings", "region.subdivision.US-OH", fallback: "Ohio")
+        /// Location: RegionalAreas.subdivisionDisplayName - Oklahoma (US-OK) state name
+        public static let usOk = L10n.tr("Settings", "region.subdivision.US-OK", fallback: "Oklahoma")
+        /// Location: RegionalAreas.subdivisionDisplayName - Oregon (US-OR) state name
+        public static let usOr = L10n.tr("Settings", "region.subdivision.US-OR", fallback: "Oregon")
+        /// Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name
+        public static let usPa = L10n.tr("Settings", "region.subdivision.US-PA", fallback: "Pennsylvania")
+        /// Location: RegionalAreas.subdivisionDisplayName - Rhode Island (US-RI) state name
+        public static let usRi = L10n.tr("Settings", "region.subdivision.US-RI", fallback: "Rhode Island")
+        /// Location: RegionalAreas.subdivisionDisplayName - South Carolina (US-SC) state name
+        public static let usSc = L10n.tr("Settings", "region.subdivision.US-SC", fallback: "South Carolina")
+        /// Location: RegionalAreas.subdivisionDisplayName - South Dakota (US-SD) state name
+        public static let usSd = L10n.tr("Settings", "region.subdivision.US-SD", fallback: "South Dakota")
+        /// Location: RegionalAreas.subdivisionDisplayName - Tennessee (US-TN) state name
+        public static let usTn = L10n.tr("Settings", "region.subdivision.US-TN", fallback: "Tennessee")
+        /// Location: RegionalAreas.subdivisionDisplayName - Texas (US-TX) state name
+        public static let usTx = L10n.tr("Settings", "region.subdivision.US-TX", fallback: "Texas")
+        /// Location: RegionalAreas.subdivisionDisplayName - Utah (US-UT) state name
+        public static let usUt = L10n.tr("Settings", "region.subdivision.US-UT", fallback: "Utah")
+        /// Location: RegionalAreas.subdivisionDisplayName - Virginia (US-VA) state name
+        public static let usVa = L10n.tr("Settings", "region.subdivision.US-VA", fallback: "Virginia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Vermont (US-VT) state name
+        public static let usVt = L10n.tr("Settings", "region.subdivision.US-VT", fallback: "Vermont")
+        /// Location: RegionalAreas.subdivisionDisplayName - Washington (US-WA) state name
+        public static let usWa = L10n.tr("Settings", "region.subdivision.US-WA", fallback: "Washington")
+        /// Location: RegionalAreas.subdivisionDisplayName - Wisconsin (US-WI) state name
+        public static let usWi = L10n.tr("Settings", "region.subdivision.US-WI", fallback: "Wisconsin")
+        /// Location: RegionalAreas.subdivisionDisplayName - West Virginia (US-WV) state name
+        public static let usWv = L10n.tr("Settings", "region.subdivision.US-WV", fallback: "West Virginia")
+        /// Location: RegionalAreas.subdivisionDisplayName - Wyoming (US-WY) state name
+        public static let usWy = L10n.tr("Settings", "region.subdivision.US-WY", fallback: "Wyoming")
       }
     }
     public enum ReplyWithQuote {
@@ -5263,9 +5481,11 @@ public enum L10n {
         }
         public enum FileBackup {
           /// Section footer for file backup
-          public static let footer = L10n.tr("Settings", "settings.backup.file_backup.footer", fallback: "Export or restore messages, contacts, channels, saved paths, and settings. Radio configuration is read from the device on each connection.")
+          public static let footer = L10n.tr("Settings", "settings.backup.file_backup.footer", fallback: "Export or restore messages, contacts, channels, saved paths, and settings.")
           /// Section header for file backup
           public static let header = L10n.tr("Settings", "settings.backup.file_backup.header", fallback: "File Backup")
+          /// Footer note that radio configuration is not included in the app-data backup
+          public static let radioConfig = L10n.tr("Settings", "settings.backup.file_backup.radio_config", fallback: "Only app data is included in the backup. Backup radio config in Advanced Settings.")
         }
         public enum Import {
           /// Import cancelling label shown after the user taps Cancel during an active import

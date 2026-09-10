@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Le jumelage enregistré avec cette radio ne fonctionne plus. Touchez « Supprimer et réessayer » pour la jumeler à nouveau dans l'app ; la radio peut afficher un nouveau code de jumelage.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "Le jumelage enregistré avec cette radio ne fonctionne plus. Dans les Réglages système, oubliez cette radio dans Bluetooth, puis touchez « Supprimer et réessayer ».";
 "deviceScan.error.pinRejected" = "Le code PIN n'a pas été accepté. Vérifiez le code PIN affiché sur votre appareil, puis réessayez. iOS vous demandera d'abord de confirmer la suppression du jumelage échoué.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "Le code PIN n'a pas été accepté. Dans les Réglages système, oubliez cette radio dans Bluetooth, puis réessayez.";
 "deviceScan.error.connectionFailed" = "Impossible de se connecter à l'appareil. Réessayez, ou supprimez-le si le problème persiste.";
 
 // MARK: - Troubleshooting Sheet
@@ -265,8 +269,11 @@
 /* Location: RegionPickerView.swift - Country picker label */
 "region.country" = "Pays";
 
-/* Location: RegionPickerView.swift - State/Province picker label */
-"region.administrativeArea" = "État / Province";
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "État";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "Province";
 
 /* Location: RegionPickerView.swift - Continue CTA in manual picker */
 "region.continue" = "Continuer";

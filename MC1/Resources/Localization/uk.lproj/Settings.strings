@@ -165,6 +165,54 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Пошук Bluetooth-пристроїв";
 
+/* Trailing control on a previously paired row that still needs iPhone setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setup" = "Налаштувати";
+
+/* Sheet title when one device needs setup. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitle" = "Налаштувати %@";
+
+/* Sheet title when several devices need setup */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupTitleGeneric" = "Налаштувати";
+
+/* Sheet body when one device is paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessage" = "Цей пристрій сполучено з iPhone. Вам потрібно забути його, перш ніж додати до MeshCore One.";
+
+/* Sheet body when several devices are paired with iPhone */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupMessagePlural" = "Ці пристрої сполучено з iPhone. Вам потрібно забути їх, перш ніж додати радіо до MeshCore One.";
+
+/* Reassurance that forgetting the iPhone pairing does not delete conversations */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupConversations" = "Це не видалить ваші розмови.";
+
+/* Destructive confirmation for one device */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetThisDevice" = "Забути цей пристрій";
+
+/* Destructive confirmation for several devices */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.forgetTheseDevices" = "Забути ці пристрої";
+
+/* Footer under Previously Paired when one needs-setup row is present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooter" = "Забудьте цей пристрій, щоб додати його до MeshCore One.";
+
+/* Footer under Previously Paired when several needs-setup rows are present */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.setupFooterPlural" = "Забудьте ці пристрої, щоб додати їх до MeshCore One.";
+
+/* VoiceOver label for a needs-setup row. %@ is the accessory name */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupLabel" = "%@, сполучено з iPhone";
+
+/* VoiceOver hint for a needs-setup row */
+/* AI-translated - please verify with native speakers. */
+"deviceSelection.accessibility.setupHint" = "Натисніть двічі, щоб налаштувати";
+
 /* Title for empty state when no devices are paired */
 "deviceSelection.noPairedDevices" = "Немає сполучених пристроїв";
 
@@ -259,8 +307,8 @@
 
 // MARK: - Advanced Radio Section
 
-/* Section header for radio configuration */
-"advancedRadio.header" = "Конфігурація радіо";
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "Розширені";
 
 /* Label for frequency input */
 "advancedRadio.frequency" = "Частота (МГц)";
@@ -307,14 +355,11 @@
 /* Footer warning about incorrect radio settings */
 "advancedRadio.footer" = "Попередження: Неправильні налаштування можуть завадити зв'язку з іншими пристроями mesh.";
 
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "Частота задається режимом ретранслятора.";
+
 /* Error message for invalid input */
 "advancedRadio.invalidInput" = "Невірні значення або пристрій не підключено";
-
-/* Toggle label for repeat mode in advanced radio */
-"advancedRadio.repeatMode" = "Режим ретранслятора";
-
-/* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Створює локальний ретранслятор на виділеній частоті. Корисно для походів та віддалених місцевостей. Допустимі частоти: 433, 869.495, 918 МГц.";
 
 // MARK: - Path Hash Mode Section
 
@@ -751,8 +796,26 @@
 /* Label for radio preset picker */
 "radio.preset" = "Пресет радіо";
 
-/* Footer explaining radio presets */
-"radio.footer" = "Виберіть пресет, що відповідає вашому регіону. Пристрої MeshCore повинні використовувати однакові налаштування радіо для зв'язку.";
+/* Footer explaining radio presets. Location is geographic filter, not mesh Region. */
+"radio.footer" = "Виберіть пресет, що відповідає найближчим радіостанціям. Пристрої MeshCore повинні використовувати однакові налаштування радіо для зв'язку.";
+
+/* Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin). */
+"radio.presetLocation" = "Місцезнаходження";
+
+/* Trailing value when the place is unset: Location row, and empty Country / State rows in RegionPickerRows (Radio and onboarding). */
+"radio.presetLocation.notSet" = "Не встановлено";
+
+/* Footer on the Radio location section and the Location subpage. */
+"radio.presetLocation.footer" = "Фільтрує список пресетів. Не змінює радіо.";
+
+/* errorAlert when Use my location is authorized but resolve() returns nil. */
+"radio.presetLocation.useMyLocation.failure" = "Не вдалося визначити місце за вашим місцезнаходженням. Виберіть країну та область.";
+
+/* Visible label + VoiceOver value on Use my location while GPS / geocode is in flight. Not onboarding region.resolving. */
+"radio.presetLocation.useMyLocation.locating" = "Визначення місцезнаходження…";
+
+/* Open Settings alert message when Use my location is denied or restricted. */
+"radio.presetLocation.denied" = "Дозвіл на місцезнаходження було відхилено раніше. Увімкніть його в Налаштуваннях, щоб заповнити країну та область.";
 
 /* Toggle label for repeat mode */
 "radio.repeatMode" = "Режим ретранслятора";
@@ -776,7 +839,7 @@
 "radio.regionFooter" = "Відображення рекомендованих пресетів для %@.";
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "Ваше радіо використовує %@, а не рекомендований пресет для %@.";
+"radio.mismatchHint" = "Рекомендований пресет для вашого місцезнаходження — %@.";
 
 // MARK: - Telemetry Settings Section
 
@@ -1228,12 +1291,52 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Мова";
 
+"language.appLanguage.title" = "Мова застосунку";
+
+"language.appLanguage.footer" = "Кнопки, меню та інший текст.";
+
+"language.appLanguage.accessibilityHint" = "Відкриває Налаштування";
+
+"language.translateInto.header" = "Мова перекладу";
+
+"language.translateInto.footer" = "Вхідні повідомлення перекладаються цією мовою, коли ви натискаєте «Перекласти».";
+
+"language.translateInto.listFooter" = "Мови, якими цей пристрій може перекладати в застосунку. Для інших мов використовується ваш застосунок перекладу за замовчуванням.";
+
+"language.matchAppLanguage" = "Використовувати мову застосунку";
+
+"language.suggested.header" = "Рекомендовані";
+
+"language.all.header" = "Мови";
+
+"language.defaultTranslationApp.title" = "Використовувати застосунок перекладу за замовчуванням";
+
+"language.defaultTranslationApp.footer" = "Використовує «Перекладач» або інший застосунок, вибраний у Налаштуваннях.";
+
+"language.search.prompt" = "Пошук мов";
+
+"language.search.noResults" = "Немає результатів";
+
+"language.search.noResultsDescription" = "Жодна мова не відповідає \"%@\"";
+
+"language.search.unavailable" = "%@ недоступна в застосунку. Перекладіть за допомогою вашого застосунку перекладу за замовчуванням.";
+
 // MARK: - Region
 
-/* Location: RegionSettingsView.swift - Title */
-/* Location: SettingsView.swift - Detail row when region is unset */
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "Каліфорнія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name */
+"region.subdivision.US-DE" = "Делавер";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name */
+"region.subdivision.US-MD" = "Меріленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name */
+"region.subdivision.US-NJ" = "Нью-Джерсі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name */
+"region.subdivision.US-PA" = "Пенсільванія";
 
 /* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
 "region.subdivision.AU-QLD" = "Квінсленд";
@@ -1243,6 +1346,160 @@
 
 /* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
 "region.subdivision.AU-WA" = "Західна Австралія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alabama (US-AL) state name */
+"region.subdivision.US-AL" = "Алабама";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alaska (US-AK) state name */
+"region.subdivision.US-AK" = "Аляска";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arizona (US-AZ) state name */
+"region.subdivision.US-AZ" = "Аризона";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arkansas (US-AR) state name */
+"region.subdivision.US-AR" = "Арканзас";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Colorado (US-CO) state name */
+"region.subdivision.US-CO" = "Колорадо";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Connecticut (US-CT) state name */
+"region.subdivision.US-CT" = "Коннектикут";
+
+/* Location: RegionalAreas.subdivisionDisplayName - District of Columbia (US-DC) state name */
+"region.subdivision.US-DC" = "округ Колумбія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Florida (US-FL) state name */
+"region.subdivision.US-FL" = "Флорида";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Georgia (US-GA) state name */
+"region.subdivision.US-GA" = "Джорджія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Hawaii (US-HI) state name */
+"region.subdivision.US-HI" = "Гаваї";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Idaho (US-ID) state name */
+"region.subdivision.US-ID" = "Айдахо";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Illinois (US-IL) state name */
+"region.subdivision.US-IL" = "Іллінойс";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Indiana (US-IN) state name */
+"region.subdivision.US-IN" = "Індіана";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Iowa (US-IA) state name */
+"region.subdivision.US-IA" = "Айова";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kansas (US-KS) state name */
+"region.subdivision.US-KS" = "Канзас";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kentucky (US-KY) state name */
+"region.subdivision.US-KY" = "Кентуккі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Louisiana (US-LA) state name */
+"region.subdivision.US-LA" = "Луїзіана";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maine (US-ME) state name */
+"region.subdivision.US-ME" = "Мен";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Massachusetts (US-MA) state name */
+"region.subdivision.US-MA" = "Массачусетс";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Michigan (US-MI) state name */
+"region.subdivision.US-MI" = "Мічиган";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Minnesota (US-MN) state name */
+"region.subdivision.US-MN" = "Міннесота";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Mississippi (US-MS) state name */
+"region.subdivision.US-MS" = "Міссісіпі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Missouri (US-MO) state name */
+"region.subdivision.US-MO" = "Міссурі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Montana (US-MT) state name */
+"region.subdivision.US-MT" = "Монтана";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nebraska (US-NE) state name */
+"region.subdivision.US-NE" = "Небраска";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nevada (US-NV) state name */
+"region.subdivision.US-NV" = "Невада";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Hampshire (US-NH) state name */
+"region.subdivision.US-NH" = "Нью-Гемпшир";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Mexico (US-NM) state name */
+"region.subdivision.US-NM" = "Нью-Мексико";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New York (US-NY) state name */
+"region.subdivision.US-NY" = "Нью-Йорк";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Carolina (US-NC) state name */
+"region.subdivision.US-NC" = "Північна Кароліна";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Dakota (US-ND) state name */
+"region.subdivision.US-ND" = "Північна Дакота";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ohio (US-OH) state name */
+"region.subdivision.US-OH" = "Огайо";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oklahoma (US-OK) state name */
+"region.subdivision.US-OK" = "Оклахома";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oregon (US-OR) state name */
+"region.subdivision.US-OR" = "Орегон";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Rhode Island (US-RI) state name */
+"region.subdivision.US-RI" = "Род-Айленд";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Carolina (US-SC) state name */
+"region.subdivision.US-SC" = "Південна Кароліна";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Dakota (US-SD) state name */
+"region.subdivision.US-SD" = "Південна Дакота";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tennessee (US-TN) state name */
+"region.subdivision.US-TN" = "Теннессі";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Texas (US-TX) state name */
+"region.subdivision.US-TX" = "Техас";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Utah (US-UT) state name */
+"region.subdivision.US-UT" = "Юта";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Vermont (US-VT) state name */
+"region.subdivision.US-VT" = "Вермонт";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Virginia (US-VA) state name */
+"region.subdivision.US-VA" = "Вірджинія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Washington (US-WA) state name */
+"region.subdivision.US-WA" = "Вашингтон";
+
+/* Location: RegionalAreas.subdivisionDisplayName - West Virginia (US-WV) state name */
+"region.subdivision.US-WV" = "Західна Вірджинія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wisconsin (US-WI) state name */
+"region.subdivision.US-WI" = "Вісконсин";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wyoming (US-WY) state name */
+"region.subdivision.US-WY" = "Вайомінг";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Australian Capital Territory (AU-ACT) state name */
+"region.subdivision.AU-ACT" = "Австралійська столична територія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New South Wales (AU-NSW) state name */
+"region.subdivision.AU-NSW" = "Новий Південний Уельс";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northern Territory (AU-NT) state name */
+"region.subdivision.AU-NT" = "Північна територія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tasmania (AU-TAS) state name */
+"region.subdivision.AU-TAS" = "Тасманія";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
+"region.subdivision.AU-VIC" = "Вікторія";
+
 
 // MARK: - Live Activity
 
@@ -1454,7 +1711,10 @@
 "settings.backup.file_backup.header" = "Резервна копія";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Експортуйте або відновіть повідомлення, контакти, канали, збережені маршрути та налаштування. Конфігурація радіо зчитуєт��ся з пристрою при кожному з'єднанні.";
+"settings.backup.file_backup.footer" = "Експортуйте або відновіть повідомлення, контакти, канали, збережені маршрути та налаштування.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "До резервної копії входять лише дані застосунку. Створіть резервну копію конфігурації радіо в Розширених налаштуваннях.";
 
 /* Export row title */
 "settings.backup.export.title" = "Експорт даних застосунку";

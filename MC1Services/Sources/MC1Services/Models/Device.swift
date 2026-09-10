@@ -119,6 +119,9 @@ public final class Device {
   /// Selected OCV preset name (nil = liIon default)
   public var ocvPreset: String?
 
+  /// Last catalog name the user applied. Live RF can match more than one name, so the radio tuple is not identity.
+  public var appliedRadioPresetID: String?
+
   /// Custom OCV array as comma-separated string (e.g., "4240,4112,4029,...")
   public var customOCVArrayString: String?
 
@@ -167,6 +170,7 @@ public final class Device {
     lastContactSync: UInt32 = 0,
     isActive: Bool = false,
     ocvPreset: String? = nil,
+    appliedRadioPresetID: String? = nil,
     customOCVArrayString: String? = nil,
     connectionMethods: [ConnectionMethod] = [],
     knownRegions: [String] = []
@@ -209,6 +213,7 @@ public final class Device {
     self.lastContactSync = lastContactSync
     self.isActive = isActive
     self.ocvPreset = ocvPreset
+    self.appliedRadioPresetID = appliedRadioPresetID
     self.customOCVArrayString = customOCVArrayString
     self.connectionMethods = connectionMethods
     self.knownRegions = knownRegions
@@ -256,6 +261,7 @@ public final class Device {
       lastContactSync: dto.lastContactSync,
       isActive: dto.isActive,
       ocvPreset: dto.ocvPreset,
+      appliedRadioPresetID: dto.appliedRadioPresetID,
       customOCVArrayString: dto.customOCVArrayString,
       connectionMethods: dto.connectionMethods,
       knownRegions: dto.knownRegions
@@ -306,6 +312,7 @@ public final class Device {
     lastContactSync = dto.lastContactSync
     isActive = dto.isActive
     ocvPreset = dto.ocvPreset
+    appliedRadioPresetID = dto.appliedRadioPresetID
     customOCVArrayString = dto.customOCVArrayString
     connectionMethods = dto.connectionMethods
     // knownRegions is app-only state owned solely by addDeviceKnownRegion/
@@ -379,6 +386,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
   public var lastContactSync: UInt32
   public var isActive: Bool
   public var ocvPreset: String?
+  public var appliedRadioPresetID: String?
   public var customOCVArrayString: String?
   public var connectionMethods: [ConnectionMethod]
   public var knownRegions: [String]
@@ -519,7 +527,8 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     ocvPreset: String?,
     customOCVArrayString: String?,
     connectionMethods: [ConnectionMethod] = [],
-    knownRegions: [String] = []
+    knownRegions: [String] = [],
+    appliedRadioPresetID: String? = nil
   ) {
     self.id = id
     self.radioID = radioID
@@ -562,6 +571,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     self.customOCVArrayString = customOCVArrayString
     self.connectionMethods = connectionMethods
     self.knownRegions = knownRegions
+    self.appliedRadioPresetID = appliedRadioPresetID
   }
 
   public init(from device: Device) {
@@ -603,6 +613,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
     lastContactSync = device.lastContactSync
     isActive = device.isActive
     ocvPreset = device.ocvPreset
+    appliedRadioPresetID = device.appliedRadioPresetID
     customOCVArrayString = device.customOCVArrayString
     connectionMethods = device.connectionMethods
     knownRegions = device.knownRegions
@@ -716,6 +727,7 @@ public struct DeviceDTO: Sendable, Equatable, Identifiable, Codable {
       $0.bandwidth = Device.Defaults.bandwidth
       $0.spreadingFactor = Device.Defaults.spreadingFactor
       $0.codingRate = Device.Defaults.codingRate
+      $0.appliedRadioPresetID = nil
       $0.txPower = Device.Defaults.txPower
       $0.maxTxPower = Device.Defaults.maxTxPower
       $0.latitude = Device.Defaults.latitude
@@ -777,23 +789,23 @@ public extension Device {
 
 // MARK: - Version String Comparison
 
-extension String {
-  /// Checks if this version string is at least the specified version.
-  /// Handles formats like "v1.12.0", "1.12", "v1.12"
-  /// - Parameters:
-  ///   - major: Required major version
-  ///   - minor: Required minor version
-  /// - Returns: true if this version >= major.minor
+public extension String {
+  /// True when the first major.minor pair is at least the required version.
+  /// Accepts "v1.12.0", "1.12", and CLI banners like "MeshCore v1.15.0 (2025-04-18)".
   func isAtLeast(major requiredMajor: Int, minor requiredMinor: Int) -> Bool {
-    let cleaned = trimmingCharacters(in: CharacterSet(charactersIn: "v"))
-    let components = cleaned.split(separator: ".")
-    guard components.count >= 2,
-          let major = Int(components[0]),
-          let minor = Int(components[1]) else {
-      return false
-    }
+    guard let (major, minor) = firstMajorMinorVersion else { return false }
     if major > requiredMajor { return true }
     if major < requiredMajor { return false }
     return minor >= requiredMinor
+  }
+
+  private var firstMajorMinorVersion: (Int, Int)? {
+    for token in split(whereSeparator: { !$0.isNumber && $0 != "." }) {
+      let parts = token.split(separator: ".")
+      if parts.count >= 2, let major = Int(parts[0]), let minor = Int(parts[1]) {
+        return (major, minor)
+      }
+    }
+    return nil
   }
 }

@@ -58,7 +58,7 @@ final class CLICompletionEngine {
 
   /// Per MeshCore CLI Reference - region subcommands
   private static let regionSubcommands = [
-    "load", "get", "put", "remove", "allowf", "denyf", "home", "default", "save", "list"
+    "load", "get", "put", "remove", "allowf", "denyf", "home", "default", "save", "list", "def"
   ]
 
   /// Per MeshCore CLI Reference - gps subcommands
@@ -151,10 +151,8 @@ final class CLICompletionEngine {
     endsWithSpace: Bool,
     isLocal: Bool
   ) -> [String] {
-    // Determine which argument position we're completing
-    // parts.count includes command, so parts.count - 1 = number of args started
-    // If endsWithSpace, we're starting a NEW argument (position = parts.count)
-    // If !endsWithSpace, we're still typing the CURRENT argument (position = parts.count - 1)
+    // parts.count includes the command, so parts.count - 1 is how many args have been started.
+    // A trailing space starts the next argument (position = parts.count); otherwise we are still typing the current one.
     let argPosition = endsWithSpace ? parts.count : parts.count - 1
 
     switch command {

@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "L'associazione salvata con questa radio non funziona più. Tocca Rimuovi e riprova per riassociarla nell'app; la radio potrebbe mostrare un nuovo codice di associazione.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "L'associazione salvata con questa radio non funziona più. Nelle Impostazioni di sistema, dimentica questa radio in Bluetooth, poi tocca Rimuovi e riprova.";
 "deviceScan.error.pinRejected" = "Il PIN non è stato accettato. Controlla il PIN mostrato sul dispositivo, poi riprova. iOS ti chiederà prima di confermare la rimozione dell'associazione non riuscita.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "Il PIN non è stato accettato. Nelle Impostazioni di sistema, dimentica questa radio in Bluetooth, poi riprova.";
 "deviceScan.error.connectionFailed" = "Impossibile connettersi al dispositivo. Riprova, oppure rimuovilo se il problema continua.";
 
 // MARK: - Troubleshooting Sheet
@@ -267,8 +271,11 @@
 /* Location: RegionPickerView.swift - Country picker label */
 "region.country" = "Paese";
 
-/* Location: RegionPickerView.swift - State/Province picker label */
-"region.administrativeArea" = "Stato / Provincia";
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "Stato";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "Provincia";
 
 /* Location: RegionPickerView.swift - Continue CTA in manual picker */
 "region.continue" = "Continua";

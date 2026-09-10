@@ -21,7 +21,13 @@ struct ChatsListModifiers: ViewModifier {
     content
       .themedCanvas(theme)
       .navigationTitle(L10n.Chats.Chats.title)
-      .searchable(text: $searchText, prompt: L10n.Chats.Chats.Search.placeholder)
+      // Always-visible drawer keeps search below the large title. Default toolbar
+      // placement on iOS 26 draws both in the same slot.
+      .searchable(
+        text: $searchText,
+        placement: .navigationBarDrawer(displayMode: .always),
+        prompt: L10n.Chats.Chats.Search.placeholder
+      )
       .toolbar {
         bleStatusToolbarItem()
         ToolbarItem(placement: .automatic) {

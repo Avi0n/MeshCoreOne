@@ -165,6 +165,42 @@
 /* Button to scan for Bluetooth devices */
 "deviceSelection.scanBluetooth" = "Scan for Bluetooth Device";
 
+/* Trailing control on a previously paired row that still needs iPhone setup */
+"deviceSelection.setup" = "Set Up";
+
+/* Sheet title when one device needs setup. %@ is the accessory name */
+"deviceSelection.setupTitle" = "Set Up %@";
+
+/* Sheet title when several devices need setup */
+"deviceSelection.setupTitleGeneric" = "Set Up";
+
+/* Sheet body when one device is paired with iPhone */
+"deviceSelection.setupMessage" = "This device is paired with iPhone. You'll need to forget it before adding it to MeshCore One.";
+
+/* Sheet body when several devices are paired with iPhone */
+"deviceSelection.setupMessagePlural" = "These devices are paired with iPhone. You'll need to forget them before adding a radio to MeshCore One.";
+
+/* Reassurance that forgetting the iPhone pairing does not delete conversations */
+"deviceSelection.setupConversations" = "This will not delete your conversations.";
+
+/* Destructive confirmation for one device */
+"deviceSelection.forgetThisDevice" = "Forget This Device";
+
+/* Destructive confirmation for several devices */
+"deviceSelection.forgetTheseDevices" = "Forget These Devices";
+
+/* Footer under Previously Paired when one needs-setup row is present */
+"deviceSelection.setupFooter" = "Forget this device to add it to MeshCore One.";
+
+/* Footer under Previously Paired when several needs-setup rows are present */
+"deviceSelection.setupFooterPlural" = "Forget these devices to add them to MeshCore One.";
+
+/* VoiceOver label for a needs-setup row. %@ is the accessory name */
+"deviceSelection.accessibility.setupLabel" = "%@, paired with iPhone";
+
+/* VoiceOver hint for a needs-setup row */
+"deviceSelection.accessibility.setupHint" = "Double tap to set up";
+
 /* Title for empty state when no devices are paired */
 "deviceSelection.noPairedDevices" = "No Paired Devices";
 
@@ -258,8 +294,8 @@
 
 // MARK: - Advanced Radio Section
 
-/* Section header for radio configuration */
-"advancedRadio.header" = "Radio Configuration";
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "Advanced";
 
 /* Label for frequency input */
 "advancedRadio.frequency" = "Frequency (MHz)";
@@ -306,14 +342,11 @@
 /* Footer warning about incorrect radio settings */
 "advancedRadio.footer" = "Warning: Incorrect settings may prevent communication with other mesh devices.";
 
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "Frequency is set by Repeat Mode.";
+
 /* Error message for invalid input */
 "advancedRadio.invalidInput" = "Invalid input values or device not connected";
-
-/* Toggle label for repeat mode in advanced radio */
-"advancedRadio.repeatMode" = "Repeat Mode";
-
-/* Footer explaining repeat mode in advanced radio */
-"advancedRadio.repeatMode.footer" = "Creates a local repeater on a dedicated frequency. Useful for hiking and remote areas. Valid frequencies: 433, 869.495, 918 MHz.";
 
 // MARK: - Path Hash Mode Section
 
@@ -801,8 +834,26 @@
 /* Label for radio preset picker */
 "radio.preset" = "Radio Preset";
 
-/* Footer explaining radio presets */
-"radio.footer" = "Choose a preset matching your region. MeshCore devices must use the same radio settings in order to communicate.";
+/* Footer explaining radio presets. Location is geographic filter, not mesh Region. */
+"radio.footer" = "Choose a preset matching nearby radios. MeshCore devices must use the same radio settings in order to communicate.";
+
+/* Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin). */
+"radio.presetLocation" = "Location";
+
+/* Trailing value when the place is unset: Location row, and empty Country / State rows in RegionPickerRows (Radio and onboarding). */
+"radio.presetLocation.notSet" = "Not set";
+
+/* Footer on the Radio location section and the Location subpage. */
+"radio.presetLocation.footer" = "Filters the preset list. Does not change the radio.";
+
+/* errorAlert when Use my location is authorized but resolve() returns nil. */
+"radio.presetLocation.useMyLocation.failure" = "Couldn't determine a place from your location. Choose country and state.";
+
+/* Visible label + VoiceOver value on Use my location while GPS / geocode is in flight. Not onboarding region.resolving. */
+"radio.presetLocation.useMyLocation.locating" = "Finding your location…";
+
+/* Open Settings alert message when Use my location is denied or restricted. */
+"radio.presetLocation.denied" = "Location permission was previously denied. Please enable it in Settings to fill country and state.";
 
 /* Toggle label for repeat mode */
 "radio.repeatMode" = "Repeat Mode";
@@ -826,7 +877,7 @@
 "radio.regionFooter" = "Showing recommended presets for %@.";
 
 /* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "Your radio is on %@, not the recommended preset for %@.";
+"radio.mismatchHint" = "The recommended preset for your location is %@.";
 
 // MARK: - Telemetry Settings Section
 
@@ -1226,12 +1277,67 @@
 /* Location: SettingsView.swift - Purpose: Language row title */
 "language.title" = "Language";
 
+/* Location: LanguageSettingsView.swift - Purpose: App Language row title */
+"language.appLanguage.title" = "App Language";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer explaining App Language opens iOS Settings */
+"language.appLanguage.footer" = "Buttons, menus, and other text.";
+
+/* Location: LanguageSettingsView.swift - Purpose: VoiceOver hint that App Language opens iOS Settings */
+"language.appLanguage.accessibilityHint" = "Opens iOS Settings";
+
+/* Location: LanguageSettingsView.swift - Purpose: Translate Into section header */
+"language.translateInto.header" = "Translate Into";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer for Translate Into language list */
+"language.translateInto.footer" = "Incoming messages translate into this language when you tap Translate.";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Footer explaining the Translate Into list is in-app languages only */
+"language.translateInto.listFooter" = "Languages this device can translate in the app. Other languages use your default translation app.";
+
+/* Location: LanguageSettingsView.swift - Purpose: Option to follow the app UI language */
+"language.matchAppLanguage" = "Use App Language";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Suggested languages section header */
+"language.suggested.header" = "Suggested";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: All languages section header */
+"language.all.header" = "Languages";
+
+/* Location: LanguageSettingsView.swift - Purpose: Toggle to use the system Translate sheet / default translation app */
+"language.defaultTranslationApp.title" = "Use Default Translation App";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer for Use Default Translation App */
+"language.defaultTranslationApp.footer" = "Uses Translate, or another app you've chosen in iOS Settings.";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Search field placeholder */
+"language.search.prompt" = "Search Languages";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Empty search title */
+"language.search.noResults" = "No Results";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Empty search description */
+"language.search.noResultsDescription" = "No languages match \"%@\"";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Search result when the queried language isn't available in the app */
+"language.search.unavailable" = "%@ isn't available in the app. Translate using your default translation app.";
+
 // MARK: - Region
 
-/* Location: RegionSettingsView.swift - Title */
-/* Location: SettingsView.swift - Detail row when region is unset */
 /* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
 "region.subdivision.US-CA" = "California";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name */
+"region.subdivision.US-DE" = "Delaware";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name */
+"region.subdivision.US-MD" = "Maryland";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name */
+"region.subdivision.US-NJ" = "New Jersey";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name */
+"region.subdivision.US-PA" = "Pennsylvania";
 
 /* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
 "region.subdivision.AU-QLD" = "Queensland";
@@ -1241,6 +1347,160 @@
 
 /* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
 "region.subdivision.AU-WA" = "Western Australia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alabama (US-AL) state name */
+"region.subdivision.US-AL" = "Alabama";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alaska (US-AK) state name */
+"region.subdivision.US-AK" = "Alaska";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arizona (US-AZ) state name */
+"region.subdivision.US-AZ" = "Arizona";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arkansas (US-AR) state name */
+"region.subdivision.US-AR" = "Arkansas";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Colorado (US-CO) state name */
+"region.subdivision.US-CO" = "Colorado";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Connecticut (US-CT) state name */
+"region.subdivision.US-CT" = "Connecticut";
+
+/* Location: RegionalAreas.subdivisionDisplayName - District of Columbia (US-DC) state name */
+"region.subdivision.US-DC" = "District of Columbia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Florida (US-FL) state name */
+"region.subdivision.US-FL" = "Florida";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Georgia (US-GA) state name */
+"region.subdivision.US-GA" = "Georgia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Hawaii (US-HI) state name */
+"region.subdivision.US-HI" = "Hawaii";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Idaho (US-ID) state name */
+"region.subdivision.US-ID" = "Idaho";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Illinois (US-IL) state name */
+"region.subdivision.US-IL" = "Illinois";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Indiana (US-IN) state name */
+"region.subdivision.US-IN" = "Indiana";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Iowa (US-IA) state name */
+"region.subdivision.US-IA" = "Iowa";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kansas (US-KS) state name */
+"region.subdivision.US-KS" = "Kansas";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kentucky (US-KY) state name */
+"region.subdivision.US-KY" = "Kentucky";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Louisiana (US-LA) state name */
+"region.subdivision.US-LA" = "Louisiana";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maine (US-ME) state name */
+"region.subdivision.US-ME" = "Maine";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Massachusetts (US-MA) state name */
+"region.subdivision.US-MA" = "Massachusetts";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Michigan (US-MI) state name */
+"region.subdivision.US-MI" = "Michigan";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Minnesota (US-MN) state name */
+"region.subdivision.US-MN" = "Minnesota";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Mississippi (US-MS) state name */
+"region.subdivision.US-MS" = "Mississippi";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Missouri (US-MO) state name */
+"region.subdivision.US-MO" = "Missouri";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Montana (US-MT) state name */
+"region.subdivision.US-MT" = "Montana";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nebraska (US-NE) state name */
+"region.subdivision.US-NE" = "Nebraska";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nevada (US-NV) state name */
+"region.subdivision.US-NV" = "Nevada";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Hampshire (US-NH) state name */
+"region.subdivision.US-NH" = "New Hampshire";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Mexico (US-NM) state name */
+"region.subdivision.US-NM" = "New Mexico";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New York (US-NY) state name */
+"region.subdivision.US-NY" = "New York";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Carolina (US-NC) state name */
+"region.subdivision.US-NC" = "North Carolina";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Dakota (US-ND) state name */
+"region.subdivision.US-ND" = "North Dakota";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ohio (US-OH) state name */
+"region.subdivision.US-OH" = "Ohio";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oklahoma (US-OK) state name */
+"region.subdivision.US-OK" = "Oklahoma";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oregon (US-OR) state name */
+"region.subdivision.US-OR" = "Oregon";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Rhode Island (US-RI) state name */
+"region.subdivision.US-RI" = "Rhode Island";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Carolina (US-SC) state name */
+"region.subdivision.US-SC" = "South Carolina";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Dakota (US-SD) state name */
+"region.subdivision.US-SD" = "South Dakota";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tennessee (US-TN) state name */
+"region.subdivision.US-TN" = "Tennessee";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Texas (US-TX) state name */
+"region.subdivision.US-TX" = "Texas";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Utah (US-UT) state name */
+"region.subdivision.US-UT" = "Utah";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Vermont (US-VT) state name */
+"region.subdivision.US-VT" = "Vermont";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Virginia (US-VA) state name */
+"region.subdivision.US-VA" = "Virginia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Washington (US-WA) state name */
+"region.subdivision.US-WA" = "Washington";
+
+/* Location: RegionalAreas.subdivisionDisplayName - West Virginia (US-WV) state name */
+"region.subdivision.US-WV" = "West Virginia";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wisconsin (US-WI) state name */
+"region.subdivision.US-WI" = "Wisconsin";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wyoming (US-WY) state name */
+"region.subdivision.US-WY" = "Wyoming";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Australian Capital Territory (AU-ACT) state name */
+"region.subdivision.AU-ACT" = "Australian Capital Territory";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New South Wales (AU-NSW) state name */
+"region.subdivision.AU-NSW" = "New South Wales";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northern Territory (AU-NT) state name */
+"region.subdivision.AU-NT" = "Northern Territory";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tasmania (AU-TAS) state name */
+"region.subdivision.AU-TAS" = "Tasmania";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
+"region.subdivision.AU-VIC" = "Victoria";
+
 
 // MARK: - Live Activity
 
@@ -1452,7 +1712,10 @@
 "settings.backup.file_backup.header" = "File Backup";
 
 /* Section footer for file backup */
-"settings.backup.file_backup.footer" = "Export or restore messages, contacts, channels, saved paths, and settings. Radio configuration is read from the device on each connection.";
+"settings.backup.file_backup.footer" = "Export or restore messages, contacts, channels, saved paths, and settings.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "Only app data is included in the backup. Backup radio config in Advanced Settings.";
 
 /* Export row title */
 "settings.backup.export.title" = "Export App Data";

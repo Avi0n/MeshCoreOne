@@ -67,6 +67,10 @@ struct ChatConversationView: View {
   @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
   @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
   @AppStorage(AppStorageKey.showMapPreviewThumbnails.rawValue) private var showMapPreviewThumbnails = AppStorageKey.defaultShowMapPreviewThumbnails
+  @AppStorage(AppStorageKey.translationTargetLanguage.rawValue)
+  private var translationTargetLanguage = AppStorageKey.defaultTranslationTargetLanguage
+  @AppStorage(AppStorageKey.useDefaultTranslationApp.rawValue)
+  private var useDefaultTranslationApp = AppStorageKey.defaultUseDefaultTranslationApp
 
   // MARK: - Environment
 
@@ -98,7 +102,8 @@ struct ChatConversationView: View {
       currentUserName: appState.localNodeName,
       themeID: theme.id,
       contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize),
-      preferredLanguageCode: EnvInputs.preferredLanguageCode(from: locale)
+      preferredLanguageCode: TranslationTargetPreference(rawValue: translationTargetLanguage)
+        .resolvedLanguageCode(appLocale: locale)
     )
   }
 
@@ -156,7 +161,8 @@ struct ChatConversationView: View {
       onDividerTargetConsumed: { chatViewModel.timeline.consumeAnchor() },
       selectedMessageForActions: $selectedMessageForActions,
       imageViewerData: $imageViewerData,
-      onRetryMessage: { retryMessage($0) }
+      onRetryMessage: { retryMessage($0) },
+      onTranslationAction: { handleInBubbleTranslation(for: $0) }
     )
     .mentionTapHandling(
       contacts: chatViewModel.allContacts,
@@ -695,6 +701,24 @@ struct ChatConversationView: View {
       try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
       showSystemTranslation = true
     }
+  }
+
+  private func handleInBubbleTranslation(for messageID: UUID) {
+    if let chrome = chatViewModel.translation(for: messageID),
+       case .showing = chrome.phase {
+      chatViewModel.performTranslationAction(for: messageID)
+      return
+    }
+    if TranslationTargetPreference.usesSystemOverlay(
+      languageRawValue: translationTargetLanguage,
+      useDefaultTranslationApp: useDefaultTranslationApp
+    ) {
+      guard let text = chatViewModel.messagesByID[messageID]?.text else { return }
+      systemTranslationText = text
+      showSystemTranslation = true
+      return
+    }
+    chatViewModel.performTranslationAction(for: messageID)
   }
 
   private func handleSendAgain(for message: MessageDTO) {

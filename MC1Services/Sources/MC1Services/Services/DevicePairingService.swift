@@ -56,6 +56,8 @@ public protocol DevicePairingService: AnyObject {
   /// iOS: the AccessorySetupKit system picker. macOS: an in-app scan picker driven by
   /// `BluetoothScanPairingService`. Throws `DevicePairingError.cancelled` when
   /// the user cancels, on both platforms, so call sites share one cancellation path.
+  /// iOS also throws `DevicePairingError.pickerUnavailable` when ASK cannot
+  /// present the picker yet (`pickerRestricted` / `sessionNotActive`).
   func discoverDevice() async throws -> UUID
 
   /// Whether a connect attempt to this device is permitted by the platform.

@@ -99,7 +99,7 @@ final class DiscoveryViewModel {
 
       discoveredNodes = nodes
       addedPublicKeys = addedKeys
-      discoverTrace.info("B4 view reload loaded=\(nodes.count) addedKeys=\(addedKeys.count) radio=\(radioID)")
+      discoverTrace.debug("B4 view reload loaded=\(nodes.count) addedKeys=\(addedKeys.count) radio=\(radioID)")
     } catch {
       errorMessage = error.userFacingMessage
       discoverTrace.error("B4 view reload FAILED radio=\(radioID): \(error.localizedDescription)")

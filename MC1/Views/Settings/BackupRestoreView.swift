@@ -33,6 +33,7 @@ struct BackupRestoreView: View {
             Text(L10n.Settings.Settings.Backup.Import.disabledWhenConnected)
           }
           Text(L10n.Settings.Settings.Backup.FileBackup.footer)
+          Text(L10n.Settings.Settings.Backup.FileBackup.radioConfig)
         }
       }
       .themedRowBackground(theme)

@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "De opgeslagen koppeling met deze radio werkt niet meer. Tik op 'Verwijderen en opnieuw proberen' om opnieuw te koppelen in de app; de radio kan een nieuwe koppelcode tonen.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "De opgeslagen koppeling met deze radio werkt niet meer. Vergeet deze radio onder Bluetooth in Systeeminstellingen en tik daarna op 'Verwijderen en opnieuw proberen'.";
 "deviceScan.error.pinRejected" = "De pincode is niet geaccepteerd. Controleer de pincode die op je apparaat wordt weergegeven en probeer het opnieuw. iOS vraagt je eerst om te bevestigen dat de mislukte koppeling wordt verwijderd.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "De pincode is niet geaccepteerd. Vergeet deze radio onder Bluetooth in Systeeminstellingen en probeer het daarna opnieuw.";
 "deviceScan.error.connectionFailed" = "Kan geen verbinding maken met het apparaat. Probeer het opnieuw, of verwijder het als het probleem aanhoudt.";
 
 // MARK: - Troubleshooting Sheet
@@ -265,8 +269,11 @@
 /* Location: RegionPickerView.swift - Country picker label */
 "region.country" = "Land";
 
-/* Location: RegionPickerView.swift - State/Province picker label */
-"region.administrativeArea" = "Provincie / Staat";
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "Staat";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "Provincie";
 
 /* Location: RegionPickerView.swift - Continue CTA in manual picker */
 "region.continue" = "Doorgaan";

@@ -274,11 +274,10 @@ Access Settings from the **Settings** tab.
 
 ### Radio Configuration
 
-- Configure your LoRa radio parameters using presets or custom values:
-  - **Presets**: Quick configuration options for common use cases.
-  - **Frequency**: The channel you are communicating on.
-  - **Transmit Power**: Increase for better range, decrease to save battery.
-  - **Spreading Factor & Bandwidth**: Adjust for a balance between speed and range.
+- **Location** on Settings → Radio filters the preset list to nearby radios. It does not change frequency, bandwidth, spreading factor, or coding rate.
+- Presets sit under Location. Repeat Mode stays on the preset section.
+- Path Hash Size sits below Radio on firmware v10+. Larger hashes reduce routing collisions but limit hops.
+- Advanced holds frequency, bandwidth, spreading factor, coding rate, and TX power. Apply those values together with **Apply Radio Settings**.
 
 ### Device Info
 
@@ -299,7 +298,6 @@ Advanced settings are available for power users:
 
 Advanced settings include:
 
-- **Manual Radio Configuration**: Fine-tune radio parameters beyond standard presets.
 - **Nodes Settings**: Configure auto-add behavior and other node management options.
 - **Telemetry Settings**: Configure sensor data reporting.
 - **Danger Zone**: Reset device, clear data, and other destructive operations.

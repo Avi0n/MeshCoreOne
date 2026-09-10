@@ -10,11 +10,13 @@ struct BLEReconnectionCoordinatorTests {
   private func createCoordinator(
     delegate: MockReconnectionDelegate? = nil,
     uiTimeoutDuration: TimeInterval = 10,
-    maxConnectingUIWindow: TimeInterval = 60
+    maxConnectingUIWindow: TimeInterval = 60,
+    clock: (any Clock<Duration>)? = nil
   ) -> (BLEReconnectionCoordinator, MockReconnectionDelegate) {
     let coordinator = BLEReconnectionCoordinator(
       uiTimeoutDuration: uiTimeoutDuration,
-      maxConnectingUIWindow: maxConnectingUIWindow
+      maxConnectingUIWindow: maxConnectingUIWindow,
+      clock: clock
     )
     let mockDelegate = delegate ?? MockReconnectionDelegate()
     coordinator.delegate = mockDelegate
@@ -391,7 +393,8 @@ struct BLEReconnectionCoordinatorTests {
   @Test
   func `stale rebuild retry is aborted when new reconnect cycle starts during delay`() async throws {
     let deviceID = UUID()
-    let (coordinator, delegate) = createCoordinator()
+    let clock = TestClock()
+    let (coordinator, delegate) = createCoordinator(clock: clock)
     delegate.connectionIntent = .wantsConnection()
     delegate.connectionState = .ready
     delegate.rebuildSessionShouldThrow = true
@@ -399,16 +402,20 @@ struct BLEReconnectionCoordinatorTests {
     // Claim the first cycle so the completion is accepted.
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
 
-    // Start first reconnection — rebuild will fail, triggering 2s retry delay
+    // Start first reconnection — rebuild fails and the retry parks on the clock.
     let firstReconnectTask = Task {
       await coordinator.handleReconnectionComplete(deviceID: deviceID)
     }
 
-    // Wait for first rebuild to fail and enter the 2s retry delay
+    // Wait for the first rebuild to fail, then for the stale retry to park on the
+    // clock. Parking is the readiness signal: bumping the generation before it would
+    // race the retry, so gate on it rather than on wall-clock timing.
     try await waitUntil("First rebuild should have been attempted") {
       delegate.rebuildSessionCalls.count == 1
     }
-    #expect(delegate.rebuildSessionCalls.count == 1, "First rebuild should have been attempted")
+    try await waitUntil("Stale retry should park on the injected clock") {
+      clock.sleeperCount == 1
+    }
 
     // Start a new reconnect cycle during the delay — this bumps the generation counter.
     // Re-claim the cycle since the prior completion cleared reconnectingDeviceID.
@@ -416,7 +423,8 @@ struct BLEReconnectionCoordinatorTests {
     await coordinator.handleEnteringAutoReconnect(deviceID: deviceID)
     await coordinator.handleReconnectionComplete(deviceID: deviceID)
 
-    // Wait for the first task's stale retry to wake and be aborted
+    // Release the retry: it wakes, sees the stale generation, and aborts.
+    clock.advance(by: .seconds(2))
     await firstReconnectTask.value
 
     // Should have exactly 2 rebuild calls: first (failed) + new cycle (succeeded).

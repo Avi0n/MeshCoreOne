@@ -10,4 +10,7 @@ public enum DebugLogRetention {
   /// Hard row ceiling enforced after the time-based prune, as a disk
   /// backstop when the window alone would exceed it.
   public static let maxEntries = 50000
+
+  /// Minimum time between prune passes triggered from DebugLogBuffer.
+  public static let pruneInterval: TimeInterval = 60 * 60
 }

@@ -105,6 +105,11 @@ public struct DeviceCapabilities: Sendable, Equatable {
     Int(pathHashMode) + 1
   }
 
+  /// Whether `CMD_SET_PATH_HASH_MODE` is available (firmware v10+).
+  public var supportsPathHashMode: Bool {
+    firmwareVersion >= 10
+  }
+
   /// Initializes a new device capabilities structure.
   public init(
     firmwareVersion: UInt8,

@@ -80,6 +80,8 @@ extension AppState {
 
     let showMapPreviews = bool(.showMapPreviewThumbnails, AppStorageKey.defaultShowMapPreviewThumbnails)
       && !(conversation?.suppressesMapPreviews ?? false)
+    let translationTarget = defaults.string(forKey: AppStorageKey.translationTargetLanguage.rawValue)
+      ?? AppStorageKey.defaultTranslationTargetLanguage
 
     return EnvInputs(
       autoPlayGIFs: bool(.autoPlayGIFs, AppStorageKey.defaultAutoPlayGIFs),
@@ -95,7 +97,8 @@ extension AppState {
       currentUserName: localNodeName,
       themeID: themeID,
       contentSizeCategory: contentSizeCategory,
-      preferredLanguageCode: EnvInputs.preferredLanguageCode(from: Locale.current)
+      preferredLanguageCode: TranslationTargetPreference(rawValue: translationTarget)
+        .resolvedLanguageCode(appLocale: Locale.current)
     )
   }
 

@@ -9,7 +9,14 @@ import Foundation
 /// letting tests pin pairing in specific suspension points.
 @MainActor
 public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
-  public var pairedAccessories: [ASAccessory] = []
+  private var storedPairedAccessories: [ASAccessory] = []
+  private var hasActivatedSession = false
+
+  /// Empty until `activateSession`. Lookup uses the backing store so `removeDevice` works without activate.
+  public var pairedAccessories: [ASAccessory] {
+    hasActivatedSession ? storedPairedAccessories : []
+  }
+
   public var isSessionActive: Bool = true
   public weak var delegate: AccessorySetupKitServiceDelegate?
 
@@ -17,6 +24,7 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   public private(set) var lastRemovedDeviceID: UUID?
   public private(set) var renameAccessoryCallCount = 0
   public private(set) var activateSessionCallCount = 0
+  public private(set) var showPickerCallCount = 0
   public private(set) var invalidateSessionCallCount = 0
 
   /// Result for the next `showPicker()` call. Tests configure this before invoking
@@ -44,14 +52,16 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   }
 
   public func setPairedAccessories(_ accessories: [ASAccessory]) {
-    pairedAccessories = accessories
+    storedPairedAccessories = accessories
   }
 
   public func activateSession() async throws {
     activateSessionCallCount += 1
+    hasActivatedSession = true
   }
 
   public func showPicker() async throws -> UUID {
+    showPickerCallCount += 1
     pickerEnteredSignal?.yield()
     if let gate = pickerGate {
       for await _ in gate {
@@ -72,7 +82,7 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
     if let removeAccessoryError {
       throw removeAccessoryError
     }
-    pairedAccessories.removeAll { $0.bluetoothIdentifier == accessory.bluetoothIdentifier }
+    storedPairedAccessories.removeAll { $0.bluetoothIdentifier == accessory.bluetoothIdentifier }
   }
 
   public func renameAccessory(_ accessory: ASAccessory) async throws {
@@ -80,10 +90,11 @@ public final class MockAccessorySetupKitService: AccessorySetupKitServicing {
   }
 
   public func accessory(for bluetoothID: UUID) -> ASAccessory? {
-    pairedAccessories.first { $0.bluetoothIdentifier == bluetoothID }
+    storedPairedAccessories.first { $0.bluetoothIdentifier == bluetoothID }
   }
 
   public func invalidateSession() {
     invalidateSessionCallCount += 1
+    hasActivatedSession = false
   }
 }

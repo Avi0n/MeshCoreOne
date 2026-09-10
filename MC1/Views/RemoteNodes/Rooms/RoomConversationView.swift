@@ -27,6 +27,10 @@ struct RoomConversationView: View {
   @State private var showSystemTranslation = false
 
   @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
+  @AppStorage(AppStorageKey.translationTargetLanguage.rawValue)
+  private var translationTargetLanguage = AppStorageKey.defaultTranslationTargetLanguage
+  @AppStorage(AppStorageKey.useDefaultTranslationApp.rawValue)
+  private var useDefaultTranslationApp = AppStorageKey.defaultUseDefaultTranslationApp
 
   init(session: RemoteNodeSessionDTO) {
     _session = State(initialValue: session)
@@ -133,7 +137,7 @@ struct RoomConversationView: View {
           conversation: nil
         )
         await chatViewModel.loadAllContacts(radioID: session.radioID)
-        viewModel.applyPreferredLanguageCode(EnvInputs.preferredLanguageCode(from: locale))
+        viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: locale))
         await viewModel.loadMessages(for: session)
       }
       .conversationTranslationSession(
@@ -159,7 +163,10 @@ struct RoomConversationView: View {
           )
       }
       .onChange(of: locale) { _, newLocale in
-        viewModel.applyPreferredLanguageCode(EnvInputs.preferredLanguageCode(from: newLocale))
+        viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: newLocale))
+      }
+      .onChange(of: translationTargetLanguage) { _, _ in
+        viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: locale))
       }
       .errorAlert($viewModel.errorMessage)
       .onChange(of: appState.contactsVersion) { _, _ in
@@ -239,6 +246,11 @@ struct RoomConversationView: View {
     return L10n.RemoteNodes.RemoteNodes.Room.disconnected
   }
 
+  private func resolvedPreferredLanguage(from locale: Locale) -> String {
+    TranslationTargetPreference(rawValue: translationTargetLanguage)
+      .resolvedLanguageCode(appLocale: locale)
+  }
+
   // MARK: - Subviews
 
   private func makeMessagesView() -> some View {
@@ -255,7 +267,7 @@ struct RoomConversationView: View {
         Task { await viewModel.retryMessage(id: id) }
       },
       onLongPress: { selectedRoomMessage = $0 },
-      onTranslationAction: { viewModel.performTranslationAction(for: $0) }
+      onTranslationAction: { handleInBubbleTranslation(for: $0) }
     )
   }
 
@@ -319,6 +331,23 @@ extension RoomConversationView {
       try? await Task.sleep(for: MessageActionsPresentation.dismissalDelay)
       showSystemTranslation = true
     }
+  }
+
+  private func handleInBubbleTranslation(for messageID: UUID) {
+    if case .showing? = viewModel.translationPhases[messageID] {
+      viewModel.performTranslationAction(for: messageID)
+      return
+    }
+    if TranslationTargetPreference.usesSystemOverlay(
+      languageRawValue: translationTargetLanguage,
+      useDefaultTranslationApp: useDefaultTranslationApp
+    ) {
+      guard let text = viewModel.messages.first(where: { $0.id == messageID })?.text else { return }
+      systemTranslationText = text
+      showSystemTranslation = true
+      return
+    }
+    viewModel.performTranslationAction(for: messageID)
   }
 
   private func handleReply(for message: RoomMessageDTO) {

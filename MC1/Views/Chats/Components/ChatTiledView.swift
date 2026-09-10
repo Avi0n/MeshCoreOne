@@ -23,6 +23,11 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   /// is already true; `ScrollToBottomButton` calls `scrollPosition.scrollTo` itself.
   var scrollToBottomRequest: Int = 0
 
+  /// Bumped to scroll to the bottom even when scrolled up. Conversation
+  /// views omit this and use `ScrollToBottomButton`; hosted tests bump it
+  /// because Liquid Glass is not hittable in a headless `UIWindow`.
+  var userScrollToBottomRequest: Int = 0
+
   /// Returns whether an appended row raises the unread badge while scrolled up.
   var countsTowardUnread: (Item) -> Bool = { _ in true }
 
@@ -60,6 +65,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     isAtBottom: Binding<Bool>,
     unreadCount: Binding<Int>,
     scrollToBottomRequest: Int = 0,
+    userScrollToBottomRequest: Int = 0,
     countsTowardUnread: @escaping (Item) -> Bool = { _ in true },
     scrollToTargetRequest: Int = 0,
     scrollTargetID: Item.ID? = nil,
@@ -73,6 +79,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     _isAtBottom = isAtBottom
     _unreadCount = unreadCount
     self.scrollToBottomRequest = scrollToBottomRequest
+    self.userScrollToBottomRequest = userScrollToBottomRequest
     self.countsTowardUnread = countsTowardUnread
     self.scrollToTargetRequest = scrollToTargetRequest
     self.scrollTargetID = scrollTargetID
@@ -118,13 +125,14 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     .onDragIntoBottomSafeArea {
       UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
+    .softTopScrollEdgeEffect()
     .background(contentBackground ?? .clear)
     .id(appearanceIdentity)
     .overlay(alignment: .bottomTrailing) {
       ScrollToBottomButton(
         isVisible: !isAtBottom,
         unreadCount: unreadCount,
-        onTap: { scrollPosition.scrollTo(edge: .bottom) }
+        onTap: { scrollUserToBottom() }
       )
       .padding(.trailing, 16)
       .padding(.bottom, 8)
@@ -132,6 +140,9 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     .onChange(of: scrollToBottomRequest) {
       guard isAtBottom else { return }
       scrollPosition.scrollTo(edge: .bottom, animated: false)
+    }
+    .onChange(of: userScrollToBottomRequest) {
+      scrollUserToBottom()
     }
     .onChange(of: scrollToTargetRequest) {
       guard let id = scrollTargetID else { return }
@@ -146,6 +157,13 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     }
   }
 
+  /// Unconditional jump to the visual bottom. Used by `ScrollToBottomButton`
+  /// and by `userScrollToBottomRequest`. Distinct from `scrollToBottomRequest`,
+  /// which must not yank a scrolled-up thread.
+  private func scrollUserToBottom() {
+    scrollPosition.scrollTo(edge: .bottom)
+  }
+
   /// Fingerprint of theme + appearance. A change fully rebuilds the list (via `.id`) so the
   /// baked bubble colors repaint — the library does not reconfigure cells when only the
   /// environment changes.
@@ -156,5 +174,18 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       dynamicTypeSize: dynamicTypeSize
     )
     return "\(appTheme.id)|\(appearance)"
+  }
+}
+
+private extension TiledView {
+  /// OS 27 defaults the top fade to hard. Soft keeps the progressive blur
+  /// under the conversation title capsule.
+  @ViewBuilder
+  consuming func softTopScrollEdgeEffect() -> some View {
+    if #available(iOS 26.0, *) {
+      scrollEdgeEffectStyle(.soft, for: .top)
+    } else {
+      self
+    }
   }
 }

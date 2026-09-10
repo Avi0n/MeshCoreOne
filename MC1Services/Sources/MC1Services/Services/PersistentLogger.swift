@@ -2,7 +2,7 @@ import Foundation
 import os
 
 /// Drop-in replacement for Logger that uses the shared DebugLogBuffer.
-/// Writes to both OSLog (for system integration) and SwiftData (for persistence).
+/// Writes to OSLog for every level; `.info` and above also persist to SwiftData.
 public struct PersistentLogger: Sendable {
   private let logger: Logger
   private let subsystem: String
@@ -16,7 +16,6 @@ public struct PersistentLogger: Sendable {
 
   public func debug(_ message: String) {
     logger.debug("\(message)")
-    persist(level: .debug, message: message)
   }
 
   public func info(_ message: String) {

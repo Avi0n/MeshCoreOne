@@ -39,6 +39,47 @@ struct RadioPresetRecommendationTests {
     #expect(RadioPresets.recommended(for: region)?.id == "au-sa-wa")
   }
 
+  @Test
+  func `Pennsylvania → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-PA", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `New Jersey → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-NJ", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `Delaware → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-DE", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `Maryland → phillymesh`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-MD", source: .location)
+    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+  }
+
+  @Test
+  func `Manual US with no admin → us-ca`() {
+    let region = RegionSelection(countryCode: "US", source: .manual)
+    #expect(RadioPresets.recommended(for: region)?.id == "us-ca")
+  }
+
+  @Test
+  func `PhillyMesh preset carries the expected radio parameters`() throws {
+    let preset = try #require(RadioPresets.all.first(where: { $0.id == "phillymesh" }))
+    #expect(preset.name == "PhillyMesh (Mid-Atlantic)")
+    #expect(preset.frequencyMHz == 902.250)
+    #expect(preset.bandwidthKHz == 500)
+    #expect(preset.spreadingFactor == 11)
+    #expect(preset.codingRate == 5)
+    #expect(preset.region == .northAmerica)
+  }
+
   // MARK: - Tier 2 (country)
 
   @Test
@@ -69,6 +110,28 @@ struct RadioPresetRecommendationTests {
   func `Netherlands → nl (country tier beats EU continent)`() {
     let region = RegionSelection(countryCode: "NL", source: .location)
     #expect(RadioPresets.recommended(for: region)?.id == "nl")
+  }
+
+  @Test
+  func `Hungary, Slovakia, and Costa Rica recommend their country presets`() {
+    #expect(RadioPresets.recommended(for: RegionSelection(countryCode: "HU", source: .location))?.id == "hu")
+    #expect(RadioPresets.recommended(for: RegionSelection(countryCode: "SK", source: .location))?.id == "sk")
+    #expect(RadioPresets.recommended(for: RegionSelection(countryCode: "CR", source: .location))?.id == "cr")
+  }
+
+  @Test
+  func `catalog pathHashSize is set only on presets that name a hash`() throws {
+    func size(_ id: String) throws -> Int? {
+      try #require(RadioPresets.all.first(where: { $0.id == id })).pathHashSize
+    }
+    #expect(try size("hu") == 2)
+    #expect(try size("sk") == 2)
+    #expect(try size("nz-lr") == 1)
+    #expect(try size("nz-narrow") == 2)
+    #expect(try size("phillymesh") == 2)
+    #expect(try size("nl") == nil)
+    #expect(try size("us-ca") == nil)
+    #expect(try size("cr") == nil)
   }
 
   @Test
@@ -128,6 +191,15 @@ struct RadioPresetRecommendationTests {
     let ids = RadioPresets.presets(for: region).map(\.id)
     #expect(ids.contains("wcmesh"))
     #expect(ids.contains("us-ca"))
+  }
+
+  @Test
+  func `presets(for: Texas) includes phillymesh in membership`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-TX", source: .location)
+    let ids = RadioPresets.presets(for: region).map(\.id)
+    #expect(ids.contains("phillymesh"))
+    #expect(ids.contains("us-ca"))
+    #expect(ids.contains("wcmesh"))
   }
 
   @Test
@@ -206,11 +278,75 @@ struct RadioPresetSelectabilityTests {
   @Test
   func `nil region → WCMesh hidden, global presets selectable`() {
     #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: nil))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
     #expect(RadioPresets.isSelectable(preset("eu-narrow"), in: nil))
   }
 
-  // MARK: - Non-county presets are never gated
+  // MARK: - Sub-region presets (PhillyMesh, AU-QLD, AU-SA-WA)
+
+  @Test
+  func `SoCal county → WCMesh selectable, PhillyMesh hidden`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-CA",
+                                 countyKey: "los angeles", source: .location)
+    #expect(RadioPresets.isSelectable(preset("wcmesh"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: region))
+  }
+
+  @Test
+  func `Pennsylvania → PhillyMesh selectable, WCMesh hidden, us-ca selectable`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-PA", source: .location)
+    #expect(RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: region))
+    #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+  }
+
+  @Test
+  func `Manual US with no admin → PhillyMesh hidden`() {
+    let region = RegionSelection(countryCode: "US", source: .manual)
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+  }
+
+  @Test
+  func `nil region → PhillyMesh hidden, us-ca selectable`() {
+    #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: nil))
+    #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
+  }
+
+  @Test
+  func `Queensland → au-qld selectable, au-sa-wa hidden`() {
+    let region = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-QLD", source: .location)
+    #expect(RadioPresets.isSelectable(preset("au-qld"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+  }
+
+  @Test
+  func `South Australia → au-sa-wa selectable, au-qld hidden`() {
+    let region = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-SA", source: .location)
+    #expect(RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: region))
+  }
+
+  @Test
+  func `Manual AU with no admin → both AU sub-region presets hidden, au-915 selectable`() {
+    let region = RegionSelection(countryCode: "AU", source: .manual)
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+    #expect(RadioPresets.isSelectable(preset("au-915"), in: region))
+  }
+
+  @Test
+  func `Victoria → both AU sub-region presets hidden, au-915 selectable`() {
+    let region = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-VIC", source: .location)
+    #expect(!RadioPresets.isSelectable(preset("au-qld"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: region))
+    #expect(RadioPresets.isSelectable(preset("au-915"), in: region))
+  }
+
+  // MARK: - Country / continent presets stay ungated
 
   @Test
   func `Continent/country presets selectable for any region including nil`() {
@@ -223,6 +359,271 @@ struct RadioPresetSelectabilityTests {
       #expect(RadioPresets.isSelectable(preset("eu-narrow"), in: region))
       #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
     }
+  }
+}
+
+@Suite("RadioPresets.visiblePresets(for:activeID:)")
+struct RadioPresetVisiblePresetsTests {
+  private func ids(_ region: RegionSelection?, activeID: String?) -> [String] {
+    RadioPresets.visiblePresets(for: region, activeID: activeID).map(\.id)
+  }
+
+  @Test
+  func `US-CA includes us-ca and excludes eu-narrow`() {
+    let region = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      source: .location
+    )
+    let visible = ids(region, activeID: nil)
+    #expect(visible.contains("us-ca"))
+    #expect(!visible.contains("eu-narrow"))
+  }
+
+  @Test
+  func `US-CA with active eu-narrow keeps both and presets(for:) does not contain eu-narrow`() {
+    let region = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      source: .location
+    )
+    let visible = ids(region, activeID: "eu-narrow")
+    #expect(visible.contains("us-ca"))
+    #expect(visible.contains("eu-narrow"))
+    #expect(!RadioPresets.presets(for: region).map(\.id).contains("eu-narrow"))
+  }
+
+  @Test
+  func `WCMesh only when the county matches; us-ca remains for California without that county`() {
+    let la = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      countyKey: "los angeles",
+      source: .location
+    )
+    #expect(ids(la, activeID: nil).contains("wcmesh"))
+    #expect(ids(la, activeID: nil).contains("us-ca"))
+
+    let california = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-CA",
+      source: .manual
+    )
+    let californiaIDs = ids(california, activeID: nil)
+    #expect(!californiaIDs.contains("wcmesh"))
+    #expect(californiaIDs.contains("us-ca"))
+  }
+
+  @Test
+  func `nil place uses locale list, hides county and sub-region presets, keeps country presets`() {
+    let visible = ids(nil, activeID: nil)
+    #expect(!visible.contains("wcmesh"))
+    #expect(!visible.contains("phillymesh"))
+    #expect(!visible.contains("au-qld"))
+    #expect(visible.contains("us-ca"))
+    #expect(visible.contains("eu-narrow"))
+  }
+
+  @Test
+  func `Bermuda empty regional list falls back to locale list`() {
+    let bermuda = RegionSelection(countryCode: "BM", source: .manual)
+    #expect(Set(ids(bermuda, activeID: nil)) == Set(ids(nil, activeID: nil)))
+    #expect(!ids(bermuda, activeID: nil).isEmpty)
+  }
+}
+
+@Suite("RadioPresets.showsMismatch(appliedID:region:)")
+struct RadioPresetMismatchTests {
+  private let la = RegionSelection(
+    countryCode: "US",
+    administrativeAreaCode: "US-CA",
+    countyKey: "los angeles",
+    source: .location
+  )
+  private let pa = RegionSelection(
+    countryCode: "US",
+    administrativeAreaCode: "US-PA",
+    source: .location
+  )
+  private let texas = RegionSelection(
+    countryCode: "US",
+    administrativeAreaCode: "US-TX",
+    source: .location
+  )
+
+  @Test
+  func `LA county + us-ca mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "us-ca", region: la))
+  }
+
+  @Test
+  func `PA + us-ca mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "us-ca", region: pa))
+  }
+
+  @Test
+  func `Texas + wcmesh mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "wcmesh", region: texas))
+  }
+
+  @Test
+  func `LA county + wcmesh does not mismatch`() {
+    #expect(!RadioPresets.showsMismatch(appliedID: "wcmesh", region: la))
+  }
+
+  @Test
+  func `US + eu-narrow mismatches`() {
+    #expect(RadioPresets.showsMismatch(appliedID: "eu-narrow", region: texas))
+  }
+}
+
+@Suite("RadioPresets alias identity")
+struct RadioPresetAliasIdentityTests {
+  private func rf(_ id: String) throws -> RadioPreset {
+    try #require(RadioPresets.all.first(where: { $0.id == id }))
+  }
+
+  private func matches(of id: String) throws -> [String] {
+    let preset = try rf(id)
+    return RadioPresets.matchingPresets(
+      frequencyKHz: preset.frequencyKHz,
+      bandwidthKHz: preset.bandwidthHz,
+      spreadingFactor: preset.spreadingFactor,
+      codingRate: preset.codingRate
+    ).map(\.id)
+  }
+
+  private func resolved(
+    of id: String,
+    preferredID: String?,
+    region: RegionSelection?
+  ) throws -> String? {
+    let preset = try rf(id)
+    return RadioPresets.resolvedPreset(
+      frequencyKHz: preset.frequencyKHz,
+      bandwidthKHz: preset.bandwidthHz,
+      spreadingFactor: preset.spreadingFactor,
+      codingRate: preset.codingRate,
+      preferredID: preferredID,
+      region: region
+    )?.id
+  }
+
+  @Test
+  func `Brazil RF matches au-sa-wa and br in catalog order`() throws {
+    #expect(try matches(of: "br") == ["au-sa-wa", "br"])
+  }
+
+  @Test
+  func `EU Narrow RF matches eu-narrow and ch in catalog order`() throws {
+    #expect(try matches(of: "ch") == ["eu-narrow", "ch"])
+  }
+
+  @Test
+  func `Netherlands RF matches hu, nl, and sk in catalog order`() throws {
+    #expect(try matches(of: "nl") == ["hu", "nl", "sk"])
+  }
+
+  @Test
+  func `unlabeled NL-family collision uses country recommendation`() throws {
+    let hu = RegionSelection(countryCode: "HU", source: .location)
+    let nl = RegionSelection(countryCode: "NL", source: .location)
+    let sk = RegionSelection(countryCode: "SK", source: .location)
+    let de = RegionSelection(countryCode: "DE", source: .location)
+    #expect(try resolved(of: "nl", preferredID: nil, region: hu) == "hu")
+    #expect(try resolved(of: "nl", preferredID: nil, region: nl) == "nl")
+    #expect(try resolved(of: "nl", preferredID: nil, region: sk) == "sk")
+    #expect(try resolved(of: "nl", preferredID: nil, region: de) == nil)
+  }
+
+  @Test
+  func `unique RF still returns a one-element set`() throws {
+    #expect(try matches(of: "us-ca") == ["us-ca"])
+    #expect(try matches(of: "au-qld") == ["au-qld"])
+  }
+
+  @Test
+  func `preferredID wins among aliases`() throws {
+    #expect(try resolved(of: "br", preferredID: "br", region: nil) == "br")
+    #expect(try resolved(of: "br", preferredID: "au-sa-wa", region: nil) == "au-sa-wa")
+    #expect(try resolved(of: "ch", preferredID: "ch", region: nil) == "ch")
+  }
+
+  @Test
+  func `stale preferredID does not win`() throws {
+    #expect(try resolved(of: "br", preferredID: "us-ca", region: nil) == nil)
+  }
+
+  @Test
+  func `stale preferredID on unique RF yields that unique preset`() throws {
+    let us = RegionSelection(countryCode: "US", source: .manual)
+    #expect(try resolved(of: "us-ca", preferredID: "br", region: us) == "us-ca")
+    #expect(try resolved(of: "us-ca", preferredID: "br", region: nil) == "us-ca")
+  }
+
+  @Test
+  func `unlabeled collision uses recommended when it is in the set`() throws {
+    let auSA = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-SA", source: .location)
+    let br = RegionSelection(countryCode: "BR", source: .location)
+    let ch = RegionSelection(countryCode: "CH", source: .location)
+    let de = RegionSelection(countryCode: "DE", source: .location)
+    #expect(try resolved(of: "br", preferredID: nil, region: auSA) == "au-sa-wa")
+    #expect(try resolved(of: "br", preferredID: nil, region: br) == "br")
+    #expect(try resolved(of: "ch", preferredID: nil, region: ch) == "ch")
+    #expect(try resolved(of: "ch", preferredID: nil, region: de) == "eu-narrow")
+  }
+
+  @Test
+  func `unlabeled collision with no recommended in set is Custom`() throws {
+    let us = RegionSelection(countryCode: "US", source: .manual)
+    #expect(try resolved(of: "br", preferredID: nil, region: us) == nil)
+    #expect(try resolved(of: "br", preferredID: nil, region: nil) == nil)
+  }
+
+  @Test
+  func `preferredID beats recommended`() throws {
+    let auSA = RegionSelection(countryCode: "AU", administrativeAreaCode: "AU-SA", source: .location)
+    #expect(try resolved(of: "br", preferredID: "br", region: auSA) == "br")
+  }
+
+  @Test
+  func `matchingPreset is unique-or-nil, not first-wins`() throws {
+    let br = try rf("br")
+    #expect(
+      RadioPresets.matchingPreset(
+        frequencyKHz: br.frequencyKHz,
+        bandwidthKHz: br.bandwidthHz,
+        spreadingFactor: br.spreadingFactor,
+        codingRate: br.codingRate
+      ) == nil
+    )
+    let us = try rf("us-ca")
+    #expect(
+      RadioPresets.matchingPreset(
+        frequencyKHz: us.frequencyKHz,
+        bandwidthKHz: us.bandwidthHz,
+        spreadingFactor: us.spreadingFactor,
+        codingRate: us.codingRate
+      )?.id == "us-ca"
+    )
+  }
+
+  @Test
+  func `alreadyConfigured is RF membership not first-match id`() throws {
+    let br = try rf("br")
+    let matches = RadioPresets.matchingPresets(
+      frequencyKHz: br.frequencyKHz,
+      bandwidthKHz: br.bandwidthHz,
+      spreadingFactor: br.spreadingFactor,
+      codingRate: br.codingRate
+    )
+    #expect(matches.contains { $0.id == "br" })
+    #expect(RadioPresets.matchingPreset(
+      frequencyKHz: br.frequencyKHz,
+      bandwidthKHz: br.bandwidthHz,
+      spreadingFactor: br.spreadingFactor,
+      codingRate: br.codingRate
+    )?.id != "br")
   }
 }
 
@@ -250,5 +651,29 @@ struct RadioPresetEncodingTests {
   @Test
   func `bandwidthHz rounds to the nearest Hz`() {
     #expect(preset(frequencyMHz: 915.0, bandwidthKHz: 62.501).bandwidthHz == 62501)
+  }
+}
+
+@Suite("RadioPreset path hash size")
+struct RadioPresetPathHashSizeTests {
+  private func preset(pathHashSize: Int?) -> RadioPreset {
+    RadioPreset(
+      id: "test",
+      name: "Test",
+      region: .europe,
+      frequencyMHz: 869.618,
+      bandwidthKHz: 62.5,
+      spreadingFactor: 7,
+      codingRate: 5,
+      pathHashSize: pathHashSize,
+      availability: .countries(["NL"])
+    )
+  }
+
+  @Test
+  func `pathHashMode is pathHashSize minus one, or nil`() {
+    #expect(preset(pathHashSize: nil).pathHashMode == nil)
+    #expect(preset(pathHashSize: 1).pathHashMode == 0)
+    #expect(preset(pathHashSize: 2).pathHashMode == 1)
   }
 }

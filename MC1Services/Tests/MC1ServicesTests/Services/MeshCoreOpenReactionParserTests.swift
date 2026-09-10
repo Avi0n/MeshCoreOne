@@ -86,8 +86,8 @@ struct MeshCoreOpenReactionParserTests {
   }
 
   @Test
-  func `Rejects legacy channel reaction format`() {
-    #expect(MeshCoreOpenReactionParser.parse("👍@[AlphaNode]\n7f3a9c12") == nil)
+  func `Rejects channel reaction format`() {
+    #expect(MeshCoreOpenReactionParser.parse("@[AlphaNode]👍\n7f3a9c12") == nil)
   }
 
   @Test
@@ -428,8 +428,8 @@ struct MeshCoreOpenReactionParserTests {
   }
 
   @Test
-  func `V1 rejects legacy channel format`() {
-    #expect(MeshCoreOpenReactionParser.parseV1("👍@[AlphaNode]\n7f3a9c12") == nil)
+  func `V1 rejects channel format`() {
+    #expect(MeshCoreOpenReactionParser.parseV1("@[AlphaNode]👍\n7f3a9c12") == nil)
   }
 
   @Test

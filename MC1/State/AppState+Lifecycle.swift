@@ -81,6 +81,10 @@ extension AppState {
     await connectionManager.checkWiFiConnectionHealth()
     await enqueueBLELifecycleTransition(.becomeActive).value
 
+    if let advertisementService = services?.advertisementService {
+      await advertisementService.handleReturnToForeground()
+    }
+
     liveActivityManager.handleReturnToForeground()
     await liveActivityManager.validateActivityState()
     await restartLiveActivityIfMissing()

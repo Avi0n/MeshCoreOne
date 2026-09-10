@@ -48,6 +48,10 @@ final class AccessorySetupPairingService: DevicePairingService {
       throw DevicePairingError.cancelled
     } catch AccessorySetupKitError.pickerAlreadyActive {
       throw DevicePairingError.alreadyInProgress
+    } catch AccessorySetupKitError.pickerRestricted {
+      throw DevicePairingError.pickerUnavailable
+    } catch AccessorySetupKitError.sessionNotActive {
+      throw DevicePairingError.pickerUnavailable
     }
   }
 
@@ -64,7 +68,21 @@ final class AccessorySetupPairingService: DevicePairingService {
 
   func removeDevice(_ id: UUID) async throws {
     guard let accessory = accessorySetupKit.accessory(for: id) else { return }
-    try await accessorySetupKit.removeAccessory(accessory)
+    do {
+      try await accessorySetupKit.removeAccessory(accessory)
+    } catch {
+      #if canImport(UIKit)
+        if let asError = error as? ASError, asError.code == .userCancelled {
+          throw DevicePairingError.cancelled
+        }
+        let nsError = error as NSError
+        if nsError.domain == ASError.errorDomain,
+           nsError.code == ASError.Code.userCancelled.rawValue {
+          throw DevicePairingError.cancelled
+        }
+      #endif
+      throw error
+    }
   }
 
   func renameDevice(_ id: UUID) async throws {

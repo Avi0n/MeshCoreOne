@@ -635,7 +635,7 @@ actor BLEStateMachine: BLEStateMachineProtocol {
   /// - Parameter data: Data to send
   /// - Throws: BLEError if not connected or write fails
   func send(_ data: Data) async throws {
-    logger.info("[BLE] send: \(data.count) bytes")
+    logger.debug("[BLE] send: \(data.count) bytes")
     try await claimWriteSlot(data: data)
   }
 

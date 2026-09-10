@@ -20,6 +20,12 @@ final class IncomingAvatarFlight {
   /// Skip the drop under Reduce Motion; the in-cell avatar swaps instantly.
   var reduceMotion = false
 
+  #if DEBUG
+    /// Hosted tests set this false so animation completion does not clear
+    /// `flight` before VoiceOver inspection. Production always completes.
+    var completeOverlayOnFinish = true
+  #endif
+
   private(set) var flight: Flight?
   private(set) var flyingFromID: UUID?
   private(set) var flyingToID: UUID?
@@ -157,9 +163,11 @@ extension IncomingAvatarFlight {
         withAnimation(.smooth(duration: IncomingBubbleAvatarMetrics.flightDuration)) {
           progress = 1
         } completion: {
-          if controller.flight?.toID == toID {
-            controller.complete()
-          }
+          #if DEBUG
+            guard controller.completeOverlayOnFinish else { return }
+          #endif
+          guard controller.flight?.toID == toID else { return }
+          controller.complete()
         }
       }
     }

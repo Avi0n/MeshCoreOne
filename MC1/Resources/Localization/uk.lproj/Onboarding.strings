@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Збережене спарування з цією рацією перестало працювати. Натисніть «Видалити та спробувати знову», щоб спарувати її заново в застосунку; рація може показати новий код спарування.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "Збережене спарування з цією рацією перестало працювати. У Системних налаштуваннях забудьте цю рацію в Bluetooth, а потім натисніть «Видалити та спробувати знову».";
 "deviceScan.error.pinRejected" = "PIN-код не прийнято. Перевірте PIN-код, показаний на пристрої, і спробуйте ще раз. Спочатку iOS попросить підтвердити видалення невдалого спарювання.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "PIN-код не прийнято. У Системних налаштуваннях забудьте цю рацію в Bluetooth, а потім спробуйте ще раз.";
 "deviceScan.error.connectionFailed" = "Не вдалося підключитися до пристрою. Спробуйте знову або видаліть пристрій, якщо проблема не зникає.";
 
 // MARK: - Troubleshooting Sheet
@@ -265,8 +269,11 @@
 /* Location: RegionPickerView.swift - Country picker label */
 "region.country" = "Країна";
 
-/* Location: RegionPickerView.swift - State/Province picker label */
-"region.administrativeArea" = "Область / Провінція";
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "Штат";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "Провінція";
 
 /* Location: RegionPickerView.swift - Continue CTA in manual picker */
 "region.continue" = "Продовжити";

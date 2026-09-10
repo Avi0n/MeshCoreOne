@@ -8,9 +8,15 @@ public enum RxLogRetention {
   /// Rows kept after a prune pass.
   public static let keepCount = 1000
 
-  /// Extra rows allowed before prune runs. Peak retained count is
-  /// `keepCount + pruneThreshold`.
+  /// Extra rows allowed before prune runs. Peak retained count between
+  /// flush-time prune passes is `keepCount + pruneThreshold + batchSize - 1`.
   public static let pruneThreshold = 100
+
+  /// Inserts between RxLog-initiated `modelContext.save()` calls.
+  public static let batchSize = 20
+
+  /// Debounce for a partial batch. Must not be awaited inside `saveRxLogEntry`.
+  public static let flushInterval: Duration = .seconds(1)
 }
 
 /// Store operations for RX log entries: persistence, lookup, and batch enrichment.
@@ -39,6 +45,10 @@ public protocol RxLogPersisting: Actor {
 
   /// Save a new RX log entry
   func saveRxLogEntry(_ dto: RxLogEntryDTO) async throws
+
+  /// Commits pending RxLog inserts (if any) and prunes every radio in the
+  /// count cache. No-op when there is nothing RxLog-dirty from this API.
+  func flushPendingRxLogEntries() async throws
 
   /// Fetch RX log entries for a device, most recent first
   func fetchRxLogEntries(radioID: UUID, limit: Int) async throws -> [RxLogEntryDTO]
@@ -94,6 +104,8 @@ public protocol RxLogPersisting: Actor {
 // MARK: - Default Parameter Values
 
 extension RxLogPersisting {
+  func flushPendingRxLogEntries() async throws {}
+
   /// Fetch RX log entries with the default limit of 500
   func fetchRxLogEntries(radioID: UUID) async throws -> [RxLogEntryDTO] {
     try await fetchRxLogEntries(radioID: radioID, limit: 500)

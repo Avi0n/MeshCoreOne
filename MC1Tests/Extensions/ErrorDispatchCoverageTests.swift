@@ -26,7 +26,7 @@ struct ErrorDispatchCoverageTests {
   private static let intentionallyUnmappedTypes: [String: String] = [
     "PairingError": "Routed through ConnectionUIState.presentPairingFailure; "
       + "produces bespoke auth-failure vs generic-failure alerts, not a plain message.",
-    "DevicePairingError": "Control-flow signal (cancelled / alreadyInProgress); "
+    "DevicePairingError": "Control-flow signal (cancelled / alreadyInProgress / pickerUnavailable); "
       + "caught at every call site before the error reaches .errorAlert.",
   ]
 

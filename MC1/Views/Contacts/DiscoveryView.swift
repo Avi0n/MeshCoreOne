@@ -36,9 +36,7 @@ struct DiscoveryView: View {
     (sortOrder == .distance && appState.bestAvailableLocation == nil) ? .lastHeard : sortOrder
   }
 
-  /// Segment picker as the pinned section header; `pinnedFilterHeaderBackground` documents the
-  /// per-OS backing.
-  private var pinnedFilterHeader: some View {
+  private var filterHeader: some View {
     DiscoverSegmentPicker(selection: $selectedSegment, isSearching: isSearching)
       .frame(maxWidth: .infinity)
       .pinnedFilterHeaderBackground(theme)
@@ -133,8 +131,8 @@ struct DiscoveryView: View {
 
   private var loadingBody: some View {
     ScrollView {
-      LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-        Section {} header: { pinnedFilterHeader }
+      LazyVStack(spacing: 0) {
+        Section {} header: { filterHeader }
       }
     }
     .overlay { ProgressView() }
@@ -142,7 +140,7 @@ struct DiscoveryView: View {
 
   private var loadedBody: some View {
     ScrollView {
-      LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+      LazyVStack(spacing: 0) {
         Section {
           if viewModel.visibleNodes.isEmpty {
             emptyState
@@ -150,7 +148,7 @@ struct DiscoveryView: View {
             rows
           }
         } header: {
-          pinnedFilterHeader
+          filterHeader
         }
       }
     }

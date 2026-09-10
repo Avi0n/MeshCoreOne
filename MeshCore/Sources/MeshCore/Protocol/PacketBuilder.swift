@@ -42,7 +42,8 @@ public enum PacketBuilder: Sendable {
   static let rawDataMaxPayloadBytes = 184
   /// Flood sentinel for `path_len` fields: firmware treats `0xFF` as "route via flood".
   public static let floodPathSentinel: UInt8 = 0xFF
-  /// Maximum payload bytes for `CMD_SEND_CHANNEL_DATA` (`MAX_FRAME_SIZE - 9` per firmware).
+  /// Command payload clamp that still fits a 172-byte companion frame.
+  /// A 176-byte frame would allow 167; this stays 163.
   static let channelDataMaxPayloadBytes = 163
   /// Default-scope name-field width on the wire (31 bytes, zero-padded).
   static let defaultScopeNameField = 31

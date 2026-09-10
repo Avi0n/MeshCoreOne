@@ -358,6 +358,9 @@
 /* Location: RepeaterSettingsView.swift - Default scope picker label */
 "remoteNodes.settings.regions.defaultScope" = "Область по умолчанию";
 
+/* Location: RepeaterSettingsView.swift - Load default scope button */
+"remoteNodes.settings.regions.loadDefaultScope" = "Загрузить";
+
 /* Location: RepeaterSettingsView.swift - No default scope */
 "remoteNodes.settings.regions.noDefault" = "Нет";
 
@@ -368,6 +371,9 @@
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
 "remoteNodes.settings.regions.floodToggleHint" = "Когда выключено, flood-пакеты из этого региона отбрасываются";
+
+/* Location: RepeaterSettingsView.swift - Caption under the region flood list */
+"remoteNodes.settings.regions.floodToggleCaption" = "Flood-пакеты из любого выключенного региона отбрасываются.";
 
 /* Location: RepeaterSettingsView.swift - Add region button */
 "remoteNodes.settings.regions.addRegion" = "Добавить регион";
@@ -391,6 +397,9 @@
 /* Location: RepeaterSettingsViewModel.swift - Region has children error */
 "remoteNodes.settings.regions.notEmpty" = "Сначала удалите дочерние регионы";
 
+/* Location: RepeaterSettingsView.swift - Alert title when deleting a parent region */
+"remoteNodes.settings.regions.cannotDelete" = "Невозможно удалить «%@»";
+
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
 "remoteNodes.settings.regions.addFailed" = "Не удалось добавить регион";
 
@@ -402,6 +411,14 @@
 
 /* Location: RepeaterSettingsView.swift - Duplicate region name validation */
 "remoteNodes.settings.regions.duplicate" = "Этот регион уже существует.";
+
+/* Location: RepeaterAddRegionSheet.swift - Parent picker label */
+"remoteNodes.settings.regions.parent" = "Родительский регион";
+
+/* Location: RepeaterSettingsView.swift - Add child region context menu item */
+"remoteNodes.settings.regions.addChild" = "Добавить дочерний регион";
+/* Location: RegionFloodToggleRow.swift - Full VoiceOver label (name, parent) */
+"remoteNodes.settings.regions.childOf" = "%@, дочерний для %@";
 
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
 "remoteNodes.settings.regions.removeFailed" = "Не удалось удалить регион";

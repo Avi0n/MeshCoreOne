@@ -230,6 +230,13 @@ final class AppState {
   /// Connection UI state (status pills, sync activity, alerts, pairing)
   let connectionUI = ConnectionUIState()
 
+  /// True while `confirmSystemPairingSetup` is in flight so sheet `onDismiss` does not cancel the flow.
+  var isConfirmingSystemPairingSetup = false
+
+  /// True while the foreground retry of `completeFreshPairing` is running, so a
+  /// second `pickerUnavailable` is presented instead of rescheduled.
+  var isFreshPairingForegroundRetry = false
+
   /// Battery monitoring (polling, thresholds, low-battery notifications)
   let batteryMonitor = BatteryMonitor()
 
@@ -335,14 +342,17 @@ final class AppState {
   init(
     modelContainer: ModelContainer,
     isPlaceholder: Bool = false,
-    defaults: UserDefaults = .standard
+    defaults: UserDefaults = .standard,
+    injectedConnectionManager: ConnectionManager? = nil
   ) {
     let store = StoreService()
     let theme = ThemeService(store: store)
     storeState = StoreState(service: store)
     themeService = theme
 
-    connectionManager = ConnectionManager(modelContainer: modelContainer, defaults: defaults)
+    connectionManager = injectedConnectionManager
+      ?? ConnectionManager(modelContainer: modelContainer, defaults: defaults)
+    connectionUI.hasSystemPairingRegistry = connectionManager.hasSystemPairingRegistry
 
     let bootstrapBuffer = DebugLogBuffer(dataStore: connectionManager.persistenceStore)
     bootstrapDebugLogBuffer = bootstrapBuffer
@@ -685,8 +695,8 @@ final class AppState {
 extension AppState {
   /// Creates an AppState for previews using an in-memory container
   @MainActor
-  convenience init() {
-    self.init(modelContainer: Self.makeInMemoryContainer())
+  convenience init(defaults: UserDefaults = .standard) {
+    self.init(modelContainer: Self.makeInMemoryContainer(), defaults: defaults)
   }
 
   /// In-memory container over the canonical `PersistenceStore.schema`, shared by preview and

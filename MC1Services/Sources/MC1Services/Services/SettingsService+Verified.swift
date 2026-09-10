@@ -19,7 +19,7 @@ public extension SettingsService {
       )
     }
 
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
     return selfInfo
   }
 
@@ -61,7 +61,7 @@ public extension SettingsService {
       )
     }
 
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
     return selfInfo
   }
 
@@ -80,6 +80,130 @@ public extension SettingsService {
   /// `frequencyKHz` is in kHz (869618 → 869.618 MHz) and `bandwidthKHz` is in Hz
   /// (62500 → 62.5 kHz) despite the suffix. See that method for the full rationale.
   func setRadioParamsVerified(
+    frequencyKHz: UInt32,
+    bandwidthKHz: UInt32,
+    spreadingFactor: UInt8,
+    codingRate: UInt8,
+    clientRepeat: Bool? = nil,
+    appliedRadioPresetID: String? = nil
+  ) async throws -> MeshCore.SelfInfo {
+    let selfInfo = try await setRadioParamsAndVerify(
+      frequencyKHz: frequencyKHz,
+      bandwidthKHz: bandwidthKHz,
+      spreadingFactor: spreadingFactor,
+      codingRate: codingRate,
+      clientRepeat: clientRepeat
+    )
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: appliedRadioPresetID))
+    return selfInfo
+  }
+
+  /// Apply radio preset with verification
+  func applyRadioPresetVerified(_ preset: RadioPreset) async throws -> MeshCore.SelfInfo {
+    logger.info("[Radio] Applying preset: \(preset.name) (\(preset.id))")
+    let selfInfo = try await setRadioParamsAndVerify(
+      frequencyKHz: preset.frequencyKHz,
+      bandwidthKHz: preset.bandwidthHz,
+      spreadingFactor: preset.spreadingFactor,
+      codingRate: preset.codingRate
+    )
+    if let mode = preset.pathHashMode {
+      let capabilities = try await queryDevice()
+      if capabilities.supportsPathHashMode {
+        _ = try await setPathHashModeVerified(mode)
+      }
+    }
+    // Stamp the catalog id only after the optional path-hash write, so a failed
+    // hash write cannot persist a catalog id over RF-equal aliases.
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: preset.id))
+    return selfInfo
+  }
+
+  /// Set TX power with verification
+  func setTxPowerVerified(_ power: Int8) async throws -> MeshCore.SelfInfo {
+    logger.info("[Radio] Sending TX power: \(power)dBm")
+
+    try await setTxPower(power)
+
+    let selfInfo = try await getSelfInfo()
+
+    guard selfInfo.txPower == power else {
+      logger.warning("[Radio] TX power verification failed - expected: \(power)dBm, device reports: \(selfInfo.txPower)dBm")
+      throw SettingsServiceError.verificationFailed(
+        expected: "\(power)",
+        actual: "\(selfInfo.txPower)"
+      )
+    }
+
+    logger.info("[Radio] TX power verified: \(power)dBm")
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
+    return selfInfo
+  }
+
+  /// Set other params with verification
+  func setOtherParamsVerified(
+    autoAddContacts: Bool,
+    telemetryModes: TelemetryModes,
+    advertLocationPolicy: AdvertLocationPolicy,
+    multiAcks: UInt8
+  ) async throws -> MeshCore.SelfInfo {
+    try await setOtherParams(
+      autoAddContacts: autoAddContacts,
+      telemetryModes: telemetryModes,
+      advertLocationPolicy: advertLocationPolicy,
+      multiAcks: multiAcks
+    )
+
+    let selfInfo = try await getSelfInfo()
+
+    // manualAddContacts is inverted (false = auto-add enabled)
+    guard selfInfo.manualAddContacts != autoAddContacts else {
+      throw SettingsServiceError.verificationFailed(
+        expected: "autoAdd=\(autoAddContacts)",
+        actual: "autoAdd=\(!selfInfo.manualAddContacts)"
+      )
+    }
+
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
+    return selfInfo
+  }
+
+  /// Convenience overload: uses the device's current values as defaults, overriding only the supplied parameters.
+  func setOtherParamsVerified(
+    from device: DeviceDTO,
+    autoAddContacts: Bool? = nil,
+    telemetryModes: TelemetryModes? = nil,
+    advertLocationPolicy: AdvertLocationPolicy? = nil,
+    multiAcks: UInt8? = nil
+  ) async throws -> MeshCore.SelfInfo {
+    try await setOtherParamsVerified(
+      autoAddContacts: autoAddContacts ?? !device.manualAddContacts,
+      telemetryModes: telemetryModes ?? device.telemetryModes,
+      advertLocationPolicy: advertLocationPolicy ?? device.advertLocationPolicyMode,
+      multiAcks: multiAcks ?? device.multiAcks
+    )
+  }
+
+  /// Compatibility overload: map boolean sharing to `prefs` policy when enabled.
+  @available(*, deprecated, message: "Use advertLocationPolicy overload instead")
+  func setOtherParamsVerified(
+    autoAddContacts: Bool,
+    telemetryModes: TelemetryModes,
+    shareLocationPublicly: Bool,
+    multiAcks: UInt8
+  ) async throws -> MeshCore.SelfInfo {
+    try await setOtherParamsVerified(
+      autoAddContacts: autoAddContacts,
+      telemetryModes: telemetryModes,
+      advertLocationPolicy: shareLocationPublicly ? .prefs : .none,
+      multiAcks: multiAcks
+    )
+  }
+}
+
+private extension SettingsService {
+  /// Writes and verifies RF without publishing `.deviceUpdated`.
+  func setRadioParamsAndVerify(
     frequencyKHz: UInt32,
     bandwidthKHz: UInt32,
     spreadingFactor: UInt8,
@@ -116,7 +240,6 @@ public extension SettingsService {
       )
     }
 
-    // Verify clientRepeat via queryDevice if it was explicitly set
     if let expectedRepeat = clientRepeat {
       let capabilities = try await queryDevice()
       guard capabilities.clientRepeat == expectedRepeat else {
@@ -131,99 +254,6 @@ public extension SettingsService {
     }
 
     logger.info("[Radio] Params verified successfully")
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
     return selfInfo
-  }
-
-  /// Apply radio preset with verification
-  func applyRadioPresetVerified(_ preset: RadioPreset) async throws -> MeshCore.SelfInfo {
-    logger.info("[Radio] Applying preset: \(preset.name) (\(preset.id))")
-    return try await setRadioParamsVerified(
-      frequencyKHz: preset.frequencyKHz,
-      bandwidthKHz: preset.bandwidthHz,
-      spreadingFactor: preset.spreadingFactor,
-      codingRate: preset.codingRate
-    )
-  }
-
-  /// Set TX power with verification
-  func setTxPowerVerified(_ power: Int8) async throws -> MeshCore.SelfInfo {
-    logger.info("[Radio] Sending TX power: \(power)dBm")
-
-    try await setTxPower(power)
-
-    let selfInfo = try await getSelfInfo()
-
-    guard selfInfo.txPower == power else {
-      logger.warning("[Radio] TX power verification failed - expected: \(power)dBm, device reports: \(selfInfo.txPower)dBm")
-      throw SettingsServiceError.verificationFailed(
-        expected: "\(power)",
-        actual: "\(selfInfo.txPower)"
-      )
-    }
-
-    logger.info("[Radio] TX power verified: \(power)dBm")
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
-    return selfInfo
-  }
-
-  /// Set other params with verification
-  func setOtherParamsVerified(
-    autoAddContacts: Bool,
-    telemetryModes: TelemetryModes,
-    advertLocationPolicy: AdvertLocationPolicy,
-    multiAcks: UInt8
-  ) async throws -> MeshCore.SelfInfo {
-    try await setOtherParams(
-      autoAddContacts: autoAddContacts,
-      telemetryModes: telemetryModes,
-      advertLocationPolicy: advertLocationPolicy,
-      multiAcks: multiAcks
-    )
-
-    let selfInfo = try await getSelfInfo()
-
-    // manualAddContacts is inverted (false = auto-add enabled)
-    guard selfInfo.manualAddContacts != autoAddContacts else {
-      throw SettingsServiceError.verificationFailed(
-        expected: "autoAdd=\(autoAddContacts)",
-        actual: "autoAdd=\(!selfInfo.manualAddContacts)"
-      )
-    }
-
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
-    return selfInfo
-  }
-
-  /// Convenience overload: uses the device's current values as defaults, overriding only the supplied parameters.
-  func setOtherParamsVerified(
-    from device: DeviceDTO,
-    autoAddContacts: Bool? = nil,
-    telemetryModes: TelemetryModes? = nil,
-    advertLocationPolicy: AdvertLocationPolicy? = nil,
-    multiAcks: UInt8? = nil
-  ) async throws -> MeshCore.SelfInfo {
-    try await setOtherParamsVerified(
-      autoAddContacts: autoAddContacts ?? !device.manualAddContacts,
-      telemetryModes: telemetryModes ?? device.telemetryModes,
-      advertLocationPolicy: advertLocationPolicy ?? device.advertLocationPolicyMode,
-      multiAcks: multiAcks ?? device.multiAcks
-    )
-  }
-
-  /// Compatibility overload: map boolean sharing to `prefs` policy when enabled.
-  @available(*, deprecated, message: "Use advertLocationPolicy overload instead")
-  func setOtherParamsVerified(
-    autoAddContacts: Bool,
-    telemetryModes: TelemetryModes,
-    shareLocationPublicly: Bool,
-    multiAcks: UInt8
-  ) async throws -> MeshCore.SelfInfo {
-    try await setOtherParamsVerified(
-      autoAddContacts: autoAddContacts,
-      telemetryModes: telemetryModes,
-      advertLocationPolicy: shareLocationPublicly ? .prefs : .none,
-      multiAcks: multiAcks
-    )
   }
 }

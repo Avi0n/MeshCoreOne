@@ -361,6 +361,9 @@
 /* Location: RepeaterSettingsView.swift - Default scope picker label */
 "remoteNodes.settings.regions.defaultScope" = "Standardbereich";
 
+/* Location: RepeaterSettingsView.swift - Load default scope button */
+"remoteNodes.settings.regions.loadDefaultScope" = "Laden";
+
 /* Location: RepeaterSettingsView.swift - No default scope */
 "remoteNodes.settings.regions.noDefault" = "Keine";
 
@@ -371,6 +374,9 @@
 /* Location: RepeaterSettingsView.swift - Toggle label for flood allow per region */
 /* Location: RepeaterSettingsView.swift - Accessibility hint for flood toggle */
 "remoteNodes.settings.regions.floodToggleHint" = "Wenn deaktiviert, werden Flood-Pakete aus dieser Region verworfen";
+
+/* Location: RepeaterSettingsView.swift - Caption under the region flood list */
+"remoteNodes.settings.regions.floodToggleCaption" = "Flood-Pakete aus jeder deaktivierten Region werden verworfen.";
 
 /* Location: RepeaterSettingsView.swift - Add region button */
 "remoteNodes.settings.regions.addRegion" = "Region hinzufügen";
@@ -394,6 +400,9 @@
 /* Location: RepeaterSettingsViewModel.swift - Region has children error */
 "remoteNodes.settings.regions.notEmpty" = "Entferne zuerst die untergeordneten Regionen";
 
+/* Location: RepeaterSettingsView.swift - Alert title when deleting a parent region */
+"remoteNodes.settings.regions.cannotDelete" = "„%@“ kann nicht gelöscht werden";
+
 /* Location: RepeaterSettingsViewModel.swift - Region add failure */
 "remoteNodes.settings.regions.addFailed" = "Region konnte nicht hinzugefügt werden";
 
@@ -405,6 +414,14 @@
 
 /* Location: RepeaterSettingsView.swift - Duplicate region name validation */
 "remoteNodes.settings.regions.duplicate" = "Diese Region existiert bereits.";
+
+/* Location: RepeaterAddRegionSheet.swift - Parent picker label */
+"remoteNodes.settings.regions.parent" = "Übergeordnet";
+
+/* Location: RepeaterSettingsView.swift - Add child region context menu item */
+"remoteNodes.settings.regions.addChild" = "Untergeordnete Region hinzufügen";
+/* Location: RegionFloodToggleRow.swift - Full VoiceOver label (name, parent) */
+"remoteNodes.settings.regions.childOf" = "%@, untergeordnet zu %@";
 
 /* Location: RepeaterSettingsViewModel.swift - Region remove failure */
 "remoteNodes.settings.regions.removeFailed" = "Region konnte nicht entfernt werden";

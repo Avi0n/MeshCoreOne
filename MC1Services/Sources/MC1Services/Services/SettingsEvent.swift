@@ -3,7 +3,7 @@ import MeshCore
 
 /// Events emitted by SettingsService when device settings change.
 public enum SettingsEvent: Sendable {
-  case deviceUpdated(MeshCore.SelfInfo)
+  case deviceUpdated(MeshCore.SelfInfo, appliedRadioPresetID: String?)
   case autoAddConfigUpdated(MeshCore.AutoAddConfig)
   case clientRepeatUpdated(Bool)
   case pathHashModeUpdated(UInt8)

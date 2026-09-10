@@ -163,6 +163,30 @@ struct BackupIntegrationTests {
     #expect(restored.knownRegions == ["US915", "EU868"])
   }
 
+  @Test
+  func `Device appliedRadioPresetID survives DTO encode → decode round-trip`() throws {
+    let dto = DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" }
+    let decoded = try JSONDecoder().decode(DeviceDTO.self, from: JSONEncoder().encode(dto))
+    #expect(decoded.appliedRadioPresetID == "br")
+  }
+
+  @Test
+  func `Legacy device envelope without appliedRadioPresetID decodes it as nil`() throws {
+    let encoded = try JSONEncoder().encode(DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" })
+    let object = try JSONSerialization.jsonObject(with: encoded)
+    var json = try #require(object as? [String: Any])
+    json.removeValue(forKey: "appliedRadioPresetID")
+    let stripped = try JSONSerialization.data(withJSONObject: json)
+    let decoded = try JSONDecoder().decode(DeviceDTO.self, from: stripped)
+    #expect(decoded.appliedRadioPresetID == nil)
+  }
+
+  @Test
+  func `redactedForBackup nils appliedRadioPresetID`() {
+    let dto = DeviceDTO.testDevice().copy { $0.appliedRadioPresetID = "br" }
+    #expect(dto.redactedForBackup().appliedRadioPresetID == nil)
+  }
+
   // MARK: - Test 2: Cross-bundle radioID remapping
 
   /// When the target store contains a device with the same publicKey as the backup but a
@@ -3230,6 +3254,76 @@ struct BackupIntegrationTests {
       from: #require(defaults.data(forKey: BackupUserDefaults.regionSelectionKey))
     )
     #expect(restored == prefs.regionSelection)
+  }
+
+  // MARK: - translationTargetLanguage backup contract
+
+  @Test
+  func `translationTargetLanguage round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.translationTargetLanguage = "da"
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.translationTargetLanguage == "da")
+  }
+
+  @Test
+  func `Legacy envelope without translationTargetLanguage decodes as nil`() throws {
+    let legacyJSON = """
+    {
+        "hasCompletedOnboarding": true,
+        "mapStyleSelection": "topo"
+    }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.translationTargetLanguage == nil)
+  }
+
+  // MARK: - useDefaultTranslationApp backup contract
+
+  @Test
+  func `useDefaultTranslationApp round-trips through encode/decode`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.useDefaultTranslationApp = true
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.useDefaultTranslationApp == true)
+  }
+
+  @Test
+  func `Legacy envelope without useDefaultTranslationApp decodes as nil`() throws {
+    let legacyJSON = """
+    {
+        "hasCompletedOnboarding": true,
+        "mapStyleSelection": "topo"
+    }
+    """.data(using: .utf8)!
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: legacyJSON)
+    #expect(decoded.useDefaultTranslationApp == nil)
+  }
+
+  @Test
+  func `overlay backup keeps the language subtag alongside useDefaultTranslationApp`() throws {
+    var prefs = BackupUserDefaults()
+    prefs.translationTargetLanguage = "da"
+    prefs.useDefaultTranslationApp = true
+    let decoded = try JSONDecoder().decode(
+      BackupUserDefaults.self,
+      from: JSONEncoder().encode(prefs)
+    )
+    #expect(decoded.translationTargetLanguage == "da")
+    #expect(decoded.useDefaultTranslationApp == true)
+
+    let defaults = try #require(UserDefaults(suiteName: "test.\(UUID().uuidString)"))
+    let setKeys = prefs.restore(to: defaults)
+    #expect(setKeys.contains(AppStorageKey.translationTargetLanguage.rawValue))
+    #expect(setKeys.contains(AppStorageKey.useDefaultTranslationApp.rawValue))
+    #expect(defaults.string(forKey: AppStorageKey.translationTargetLanguage.rawValue) == "da")
+    #expect(defaults.bool(forKey: AppStorageKey.useDefaultTranslationApp.rawValue) == true)
   }
 
   // MARK: - Message.regionScope round-trip

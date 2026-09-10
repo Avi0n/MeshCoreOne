@@ -6,6 +6,16 @@ import MC1Services
 @Observable
 @MainActor
 final class ConnectionUIState {
+  private static let readyToastDuration: Duration = .seconds(2)
+  private static let syncFailedPillDuration: Duration = .seconds(7)
+  private static let disconnectedPillDelay: Duration = .seconds(1)
+
+  private let clock: any Clock<Duration>
+
+  init(clock: (any Clock<Duration>)? = nil) {
+    self.clock = clock ?? ContinuousClock()
+  }
+
   // MARK: - Ready Toast
 
   /// Whether the "Ready" toast pill is visible (shown briefly after connection completes)
@@ -65,12 +75,8 @@ final class ConnectionUIState {
   /// Device ID that triggered "connected to other app" warning - alert shown when non-nil
   var otherAppWarningDeviceID: UUID?
 
-  /// Whether any user-initiated connection attempt is in flight — pairing
-  /// (`AppState.startDeviceScan`), the transient-failure retry path
-  /// (`AppState.retryFailedPairingConnect`), or simulator connect. Drives
-  /// spinners and disabled buttons across pairing and retry flows. Distinct from
-  /// `ConnectionManager.isPairingInProgress`, which is narrowly scoped to the
-  /// `pairNewDevice` flow and is consulted by the BLE-layer reconnect gate.
+  /// User-initiated connect in flight (scan, retry, simulator).
+  /// Distinct from `isPairingInProgress` and `isPairingFlowActive`.
   var isBusy = false
 
   /// Whether the device's node storage is full (set by 0x90 push, cleared on delete/overwrite)
@@ -87,6 +93,23 @@ final class ConnectionUIState {
   /// Flag indicating ASK picker should be shown when app returns to foreground
   var shouldShowPickerOnForeground = false
 
+  /// Forget succeeded but ASK rejected `showPicker` (`pickerRestricted`). Retry
+  /// `pairNewDevice` on the next `.active` scene, not `startDeviceScan`.
+  var shouldCompleteFreshPairingOnForeground = false
+
+  /// ASK-authorized radios with no `Device` row. Non-nil presents `SystemPairingSetupSheet`.
+  var pendingSystemPairingSetup: SystemPairingSetupPrompt?
+
+  /// ASK leftovers to present after `DeviceSelectionSheet` has left the hierarchy.
+  var queuedSystemPairingSetup: SystemPairingSetupPrompt?
+
+  /// When true, dismissing device selection starts a fresh scan instead of presenting queued setup.
+  var queuedDeviceScanAfterSelectionDismiss = false
+
+  /// When false, the app cannot drop the OS Bluetooth bond, so auth-failure
+  /// copy tells the user to forget the radio in System Settings.
+  var hasSystemPairingRegistry = true
+
   // MARK: - Ready Toast Methods
 
   /// Shows "Ready" toast pill for 2 seconds
@@ -94,8 +117,8 @@ final class ConnectionUIState {
     readyToastTask?.cancel()
     showReadyToast = true
 
-    readyToastTask = Task {
-      try? await Task.sleep(for: .seconds(2))
+    readyToastTask = Task { [clock] in
+      try? await clock.sleep(for: Self.readyToastDuration)
       guard !Task.isCancelled else { return }
       showReadyToast = false
     }
@@ -117,8 +140,8 @@ final class ConnectionUIState {
 
     announceConnectionState(L10n.Localizable.Accessibility.Connection.syncFailedDisconnecting)
 
-    syncFailedPillTask = Task {
-      try? await Task.sleep(for: .seconds(7))
+    syncFailedPillTask = Task { [clock] in
+      try? await clock.sleep(for: Self.syncFailedPillDuration)
       guard !Task.isCancelled else { return }
       syncFailedPillVisible = false
     }
@@ -149,8 +172,8 @@ final class ConnectionUIState {
       return
     }
 
-    disconnectedPillTask = Task {
-      try? await Task.sleep(for: .seconds(1))
+    disconnectedPillTask = Task { [clock] in
+      try? await clock.sleep(for: Self.disconnectedPillDelay)
       guard !Task.isCancelled else { return }
       disconnectedPillVisible = true
     }
@@ -308,11 +331,8 @@ final class ConnectionUIState {
     }
   }
 
-  /// Routes a failure from a fresh BLE pairing attempt (a device just chosen in
-  /// the picker). A rejected PIN carries copy distinct from an established
-  /// radio's dead bond: it names the PIN and warns that iOS will confirm
-  /// removing the half-formed pairing on retry. Every other failure shares the
-  /// standard pairing-failure routing.
+  /// Fresh-pair failure. A rejected PIN uses distinct copy from a dead saved
+  /// bond; every other failure shares `presentPairingFailure`.
   func presentFreshPairingFailure(_ error: PairingError) {
     guard case let .connectionFailed(deviceID, _) = error, error.isAuthenticationFailure else {
       presentPairingFailure(error)
@@ -320,7 +340,7 @@ final class ConnectionUIState {
     }
     failedPairingDeviceID = deviceID
     connectionFailedTitle = L10n.Localizable.Alert.PairingFailed.title
-    connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.pinRejected
+    connectionFailedMessage = pinRejectedMessage
     pairingFailureKind = .pinRejected
     showingConnectionFailedAlert = true
   }
@@ -347,7 +367,7 @@ final class ConnectionUIState {
       failedPairingDeviceID = deviceID
       if error.isAuthenticationFailure {
         connectionFailedTitle = L10n.Localizable.Alert.PairingFailed.title
-        connectionFailedMessage = L10n.Onboarding.DeviceScan.Error.authenticationFailed
+        connectionFailedMessage = authenticationFailedMessage
         pairingFailureKind = .authentication
       } else {
         connectionFailedTitle = nil
@@ -356,6 +376,18 @@ final class ConnectionUIState {
       }
       showingConnectionFailedAlert = true
     }
+  }
+
+  private var authenticationFailedMessage: String {
+    hasSystemPairingRegistry
+      ? L10n.Onboarding.DeviceScan.Error.authenticationFailed
+      : L10n.Onboarding.DeviceScan.Error.authenticationFailedMac
+  }
+
+  private var pinRejectedMessage: String {
+    hasSystemPairingRegistry
+      ? L10n.Onboarding.DeviceScan.Error.pinRejected
+      : L10n.Onboarding.DeviceScan.Error.pinRejectedMac
   }
 }
 

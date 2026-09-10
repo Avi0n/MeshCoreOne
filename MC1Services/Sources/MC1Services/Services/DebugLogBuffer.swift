@@ -67,6 +67,9 @@ public actor DebugLogBuffer {
   private var isFlushScheduled = false
   private let flushInterval: Duration = .seconds(5)
   static let maxBufferSize = 50
+  /// Seeded to now so the first successful flush after connect does not
+  /// repeat the connect-time `pruneDebugLogEntries` on this store.
+  private var lastPrune = Date()
 
   /// Entries lost since the last successful save, to a save failure or the requeue
   /// cap. Reported as a synthesized log entry on the next successful save, since
@@ -137,6 +140,7 @@ public actor DebugLogBuffer {
     do {
       try await dataStore.saveDebugLogEntries(entries)
       await persistDropSummaryIfNeeded()
+      await pruneIfDue()
     } catch {
       Self.logger.error("Failed to save debug logs: \(error.localizedDescription)")
 
@@ -148,6 +152,23 @@ public actor DebugLogBuffer {
       } else {
         droppedEntryCount += entries.count
       }
+    }
+  }
+
+  func setLastPruneForTesting(_ date: Date) {
+    lastPrune = date
+  }
+
+  private func pruneIfDue() async {
+    guard Date().timeIntervalSince(lastPrune) >= DebugLogRetention.pruneInterval else { return }
+    do {
+      try await dataStore.pruneDebugLogEntries(
+        olderThan: Date().addingTimeInterval(-DebugLogRetention.window),
+        keepCount: DebugLogRetention.maxEntries
+      )
+      lastPrune = Date()
+    } catch {
+      Self.logger.error("Failed to prune debug logs: \(error.localizedDescription)")
     }
   }
 

@@ -119,11 +119,16 @@ public final class ConnectionManager {
   /// BLE state machine's single in-flight connect slot.
   var isPairingInProgress = false
 
+  /// True from scan/setup enqueue until cancel or `pairNewDevice` finishes,
+  /// and while `deleteDevice` of the live or in-flight radio waits on iOS Remove Accessory.
+  /// Distinct from `isPairingInProgress` so setup confirmation is not treated as a live picker.
+  public var isPairingFlowActive = false
+
   /// Single source of truth for "stand down, an explicit connect flow is running."
   /// Opportunistic reconnect call sites consult this; or new conditions in here
   /// when the next contention class shows up, so every site picks them up.
-  var shouldDeferOpportunisticReconnect: Bool {
-    isPairingInProgress
+  public var shouldDeferOpportunisticReconnect: Bool {
+    isPairingInProgress || isPairingFlowActive
   }
 
   /// Single chokepoint for opportunistic reconnect attempts. Consults the defer
@@ -1222,6 +1227,7 @@ public final class ConnectionManager {
       isActive: true,
       ocvPreset: existingDevice?.ocvPreset
         ?? OCVPreset.preset(forManufacturer: capabilities.model)?.rawValue,
+      appliedRadioPresetID: existingDevice?.appliedRadioPresetID,
       customOCVArrayString: existingDevice?.customOCVArrayString,
       connectionMethods: mergedMethods,
       knownRegions: existingDevice?.knownRegions ?? []
@@ -1342,6 +1348,7 @@ public final class ConnectionManager {
       connectingDeviceID: UUID?? = nil,
       sessionRebuildDeviceID: UUID?? = nil,
       isPairingInProgress: Bool? = nil,
+      isPairingFlowActive: Bool? = nil,
       detectedPlatform: DevicePlatform? = nil,
       lastCleanChannelSync: (radioID: UUID, completedAt: Date)?? = nil,
       lastAttemptedChannelSync: (radioID: UUID, attemptedAt: Date)?? = nil
@@ -1375,6 +1382,9 @@ public final class ConnectionManager {
       }
       if let pairing = isPairingInProgress {
         self.isPairingInProgress = pairing
+      }
+      if let pairingFlow = isPairingFlowActive {
+        self.isPairingFlowActive = pairingFlow
       }
       if let platform = detectedPlatform {
         self.detectedPlatform = platform

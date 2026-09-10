@@ -36,7 +36,9 @@ struct BLEStatusIndicatorView: View {
     .onChange(of: appState.connectedDevice != nil, initial: true) { _, isConnected in
       DeviceMenuTip.isConnected = isConnected
     }
-    .sheet(isPresented: $showingDeviceSelection) {
+    .sheet(isPresented: $showingDeviceSelection, onDismiss: {
+      appState.handleDeviceSelectionSheetDismissed()
+    }) {
       DeviceSelectionSheet()
         .presentationDetents([.medium])
         .presentationDragIndicator(.visible)

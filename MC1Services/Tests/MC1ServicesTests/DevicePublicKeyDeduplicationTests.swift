@@ -118,6 +118,46 @@ struct DevicePublicKeyDeduplicationTests {
     #expect(device.radioID == freshRadioID)
   }
 
+  @Test
+  @MainActor
+  func `createDevice copies appliedRadioPresetID from existingDevice`() throws {
+    let existingRadioID = UUID()
+    let existingDevice = DeviceDTO.testDevice(
+      radioID: existingRadioID,
+      publicKey: Self.testPublicKey
+    ).copy {
+      $0.appliedRadioPresetID = "br"
+      $0.ocvPreset = "liIon"
+    }
+    let (cm, _) = try ConnectionManager.createForTesting()
+    let device = cm.createDevice(
+      deviceID: UUID(),
+      radioID: existingRadioID,
+      selfInfo: Self.makeSelfInfo(),
+      capabilities: Self.testCapabilities,
+      autoAddConfig: AutoAddConfig(bitmask: 0),
+      existingDevice: existingDevice
+    )
+    #expect(device.appliedRadioPresetID == "br")
+    #expect(DeviceDTO(from: device).appliedRadioPresetID == "br")
+    #expect(device.ocvPreset == "liIon")
+  }
+
+  @Test
+  @MainActor
+  func `createDevice leaves appliedRadioPresetID nil without an existingDevice`() throws {
+    let (cm, _) = try ConnectionManager.createForTesting()
+    let device = cm.createDevice(
+      deviceID: UUID(),
+      radioID: UUID(),
+      selfInfo: Self.makeSelfInfo(),
+      capabilities: Self.testCapabilities,
+      autoAddConfig: AutoAddConfig(bitmask: 0)
+    )
+    #expect(device.appliedRadioPresetID == nil)
+    #expect(DeviceDTO(from: device).appliedRadioPresetID == nil)
+  }
+
   // MARK: - Bluetooth connection method persistence
 
   /// The BLE connect ceremony passes a `.bluetooth` method so the saved row is

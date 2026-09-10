@@ -476,7 +476,6 @@ public actor RxLogService {
     // Persist
     do {
       try await dataStore.saveRxLogEntry(dto)
-      try await dataStore.pruneRxLogEntries(radioID: radioID)
     } catch {
       logger.error("Failed to save RX log entry: \(error.localizedDescription)")
     }

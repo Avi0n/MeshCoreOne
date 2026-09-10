@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1Services
 import MeshCore
+import os
 import SwiftData
 import Testing
 
@@ -1968,6 +1969,217 @@ struct PersistenceStoreTests {
   }
 
   @Test
+  func `deleteContacts removes matching rows in one pass`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let keyA = Data(repeating: 0xA1, count: ProtocolLimits.publicKeySize)
+    let keyB = Data(repeating: 0xA2, count: ProtocolLimits.publicKeySize)
+    let savedA = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: keyA, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "A", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    let savedB = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: keyB, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "B", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: device.radioID, contactID: savedA.id, text: "gone")
+    )
+
+    let deleted = try await store.deleteContacts(
+      radioID: device.radioID, publicKeys: [keyA, keyB]
+    )
+    #expect(Set(deleted) == [savedA.id, savedB.id])
+    #expect(try await store.fetchContact(id: savedA.id) == nil)
+    #expect(try await store.fetchContact(id: savedB.id) == nil)
+    #expect(try await store.fetchMessages(contactID: savedA.id, limit: 10, offset: 0).isEmpty)
+  }
+
+  @Test
+  func `deleteContacts skippingPublicKeys leaves those rows`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let keyA = Data(repeating: 0xB1, count: ProtocolLimits.publicKeySize)
+    let keyB = Data(repeating: 0xB2, count: ProtocolLimits.publicKeySize)
+    let savedA = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: keyA, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "Keep", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    let savedB = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: keyB, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "Drop", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: device.radioID, contactID: savedA.id, text: "keep")
+    )
+
+    let deleted = try await store.deleteContacts(
+      radioID: device.radioID,
+      publicKeys: [keyA, keyB],
+      skippingPublicKeys: { [keyA] }
+    )
+    #expect(Set(deleted) == [savedB.id])
+    #expect(try await store.fetchContact(id: savedA.id) != nil)
+    #expect(try await store.fetchContact(id: savedB.id) == nil)
+    #expect(try await store.fetchMessages(contactID: savedA.id, limit: 10, offset: 0).count == 1)
+  }
+
+  @Test
+  func `deleteContacts skippingPublicKeys after fetch leaves those rows`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let keyA = Data(repeating: 0xC1, count: ProtocolLimits.publicKeySize)
+    let keyB = Data(repeating: 0xC2, count: ProtocolLimits.publicKeySize)
+    let savedA = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: keyA, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "KeepLate", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    let savedB = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: keyB, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "DropLate", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: device.radioID, contactID: savedA.id, text: "keep")
+    )
+
+    let skipAfterCandidates = OSAllocatedUnfairLock(initialState: 0)
+    let deleted = try await store.deleteContacts(
+      radioID: device.radioID,
+      publicKeys: [keyA, keyB],
+      skippingPublicKeys: {
+        let n = skipAfterCandidates.withLock { $0 += 1; return $0 }
+        // Candidate loop: one call per key. Delete loop: skip keyA.
+        return n <= 2 ? [] : [keyA]
+      }
+    )
+    #expect(Set(deleted) == [savedB.id])
+    #expect(try await store.fetchContact(id: savedA.id) != nil)
+    #expect(try await store.fetchContact(id: savedB.id) == nil)
+    #expect(try await store.fetchMessages(contactID: savedA.id, limit: 10, offset: 0).count == 1)
+  }
+
+  @Test
+  func `deleteContacts save throw rolls back contact and cascade`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let key = Data(repeating: 0xD1, count: ProtocolLimits.publicKeySize)
+    let saved = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: key, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "KeepOnThrow", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    let message = MessageDTO.testDirectMessage(
+      radioID: device.radioID, contactID: saved.id, text: "keep"
+    )
+    try await store.saveMessage(message)
+    try await store.saveMessageRepeat(.testRepeat(messageID: message.id))
+    try await store.saveReaction(
+      ReactionDTO(
+        messageID: message.id,
+        emoji: "👍",
+        senderName: "Reactor",
+        messageHash: "AABBCCDD",
+        rawText: "👍",
+        contactID: saved.id,
+        radioID: device.radioID
+      )
+    )
+    try await store.upsertPendingSend(
+      PendingSendDTO(
+        id: UUID(),
+        radioID: device.radioID,
+        messageID: message.id,
+        kind: .dm,
+        contactID: saved.id,
+        channelIndex: nil,
+        isResend: false,
+        messageText: "keep",
+        messageTimestamp: 0,
+        localNodeName: nil,
+        sequence: 1,
+        enqueuedAt: Date(),
+        attemptCount: 0
+      )
+    )
+
+    await store.setDeleteContactsFaultInjection {
+      throw PersistenceStoreError.saveFailed("test")
+    }
+    await #expect(throws: PersistenceStoreError.self) {
+      _ = try await store.deleteContacts(
+        radioID: device.radioID, publicKeys: [key]
+      )
+    }
+
+    #expect(try await store.fetchContact(id: saved.id)?.id == saved.id)
+    #expect(try await store.fetchMessages(contactID: saved.id, limit: 10, offset: 0).count == 1)
+    #expect(try await store.fetchReactions(for: message.id).count == 1)
+    #expect(try await store.fetchMessageRepeats(messageID: message.id).count == 1)
+    #expect(try await store.fetchPendingSendsForMessage(messageID: message.id).count == 1)
+  }
+
+  @Test
+  func `deleteContacts rollback does not drop unsaved RxLog inserts`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+    let key = Data(repeating: 0xD2, count: ProtocolLimits.publicKeySize)
+    _ = try await store.saveContact(
+      radioID: device.radioID,
+      from: ContactFrame(
+        publicKey: key, type: .chat, flags: 0, outPathLength: 0, outPath: Data(),
+        name: "RxLog", lastAdvertTimestamp: 1, latitude: 0, longitude: 0, lastModified: 1
+      )
+    )
+    let dto = createTestRxLogEntryDTO(
+      radioID: device.id, senderTimestamp: 42, channelIndex: 1
+    )
+    try await store.saveRxLogEntry(dto)
+    #expect(await store.rxLogInitiatedSaveCount == 0)
+
+    await store.setDeleteContactsFaultInjection {
+      throw PersistenceStoreError.saveFailed("test")
+    }
+    await #expect(throws: PersistenceStoreError.self) {
+      _ = try await store.deleteContacts(
+        radioID: device.radioID, publicKeys: [key]
+      )
+    }
+
+    let found = try await store.findRxLogEntry(
+      radioID: device.id,
+      channelIndex: 1,
+      senderTimestamp: 42
+    )
+    #expect(found?.id == dto.id)
+    try await store.flushPendingRxLogEntries()
+  }
+
+  @Test
   func `deleteContact removes local data when the contact row is already gone`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()
@@ -2307,6 +2519,98 @@ struct PersistenceStoreTests {
     // Pruning only fires if storeB seeded its count from disk rather than from zero.
     let afterReconnect = try await storeB.fetchRxLogEntries(radioID: radioID, limit: 1300)
     #expect(afterReconnect.count == 1000)
+  }
+
+  @Test
+  func `saveRxLogEntry commits once per batchSize inserts`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    for index in 0..<RxLogRetention.batchSize {
+      try await store.saveRxLogEntry(
+        createTestRxLogEntryDTO(radioID: device.id, senderTimestamp: UInt32(index))
+      )
+    }
+
+    let entries = try await store.fetchRxLogEntries(radioID: device.id, limit: 40)
+    #expect(entries.count == RxLogRetention.batchSize)
+    #expect(await store.rxLogInitiatedSaveCount == 1)
+  }
+
+  @Test
+  func `findRxLogEntry sees an insert before the batch save`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let dto = createTestRxLogEntryDTO(radioID: device.id, senderTimestamp: 42, channelIndex: 1)
+    try await store.saveRxLogEntry(dto)
+
+    #expect(await store.rxLogInitiatedSaveCount == 0)
+    let found = try await store.findRxLogEntry(
+      radioID: device.id,
+      channelIndex: 1,
+      senderTimestamp: 42
+    )
+    #expect(found?.id == dto.id)
+    try await store.flushPendingRxLogEntries()
+  }
+
+  @Test
+  func `batchSaveChannels rollback does not drop unsaved RxLog inserts`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let dto = createTestRxLogEntryDTO(
+      radioID: device.id, senderTimestamp: 42, channelIndex: 1
+    )
+    try await store.saveRxLogEntry(dto)
+    #expect(await store.rxLogInitiatedSaveCount == 0)
+
+    await store.setBatchSaveChannelsFaultInjection {
+      throw PersistenceStoreError.saveFailed("test")
+    }
+    await #expect(throws: PersistenceStoreError.self) {
+      _ = try await store.batchSaveChannels(
+        radioID: device.id,
+        configured: [
+          ChannelInfo(index: 1, name: "Test", secret: Data(repeating: 0x42, count: 16))
+        ],
+        unconfiguredIndices: [],
+        pruneBeyond: nil
+      )
+    }
+
+    let found = try await store.findRxLogEntry(
+      radioID: device.id,
+      channelIndex: 1,
+      senderTimestamp: 42
+    )
+    #expect(found?.id == dto.id)
+    let entries = try await store.fetchRxLogEntries(radioID: device.id, limit: 40)
+    #expect(entries.count == 1)
+    try await store.flushPendingRxLogEntries()
+  }
+
+  @Test
+  func `flushPendingRxLogEntries commits a partial batch`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let radioID = UUID()
+    let storeA = PersistenceStore(modelContainer: container)
+    try await storeA.saveDevice(createTestDevice().copy { $0.id = radioID; $0.radioID = radioID })
+
+    try await storeA.saveRxLogEntry(
+      createTestRxLogEntryDTO(radioID: radioID, senderTimestamp: 1)
+    )
+    #expect(await storeA.rxLogInitiatedSaveCount == 0)
+    try await storeA.flushPendingRxLogEntries()
+    #expect(await storeA.rxLogInitiatedSaveCount == 1)
+
+    let storeB = PersistenceStore(modelContainer: container)
+    let entries = try await storeB.fetchRxLogEntries(radioID: radioID)
+    #expect(entries.count == 1)
   }
 
   // MARK: - Region Scope Tests

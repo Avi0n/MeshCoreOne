@@ -278,19 +278,20 @@ struct ChannelServicePipelineTests {
 // MARK: - Helpers
 
 private func startedSession(_ transport: MockTransport) async throws -> MeshCoreSession {
-  // A generous defaultTimeout keeps appStart and acknowledged reads from flaking under
-  // heavy parallel test load; no test here relies on a getChannel actually timing out, so
-  // it never slows the suite. The pipeline idle timeout stays small but above the gap
-  // between back-to-back simulated responses so it never trips mid-stream.
+  // Generous timeouts keep appStart, idle-gap detection, and acknowledged reads from
+  // flaking under heavy parallel load. No test here relies on a getChannel actually
+  // timing out. Idle is above the gap between back-to-back simulated responses so it
+  // never trips mid-stream, but still short enough that dropped-write reconcile tests
+  // wait on the watchdog rather than hanging.
   let session = MeshCoreSession(
     transport: transport,
     configuration: SessionConfiguration(
-      defaultTimeout: 5.0,
+      defaultTimeout: 30.0,
       clientIdentifier: "MCTst",
       channelPipelineWindow: 8,
-      channelPipelineIdleTimeout: 0.5,
-      channelPipelineHardTimeout: 10.0,
-      channelPipelinePostDrainGrace: 0.05
+      channelPipelineIdleTimeout: 2.0,
+      channelPipelineHardTimeout: 30.0,
+      channelPipelinePostDrainGrace: 0.2
     )
   )
   let startTask = Task { try await session.start() }

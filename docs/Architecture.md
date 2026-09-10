@@ -237,7 +237,7 @@ Activates event listeners on services that process live device events. Guarded b
 - `RemoteNodeService.startEventMonitoring()`: listens for remote node session events
 - `MessagePollingService.startMessageEventMonitoring(radioID:)`: routes polled messages to handlers
 - `MessagePollingService.startAutoFetch(radioID:)`: begins periodic message polling (gated on `enableAutoFetch`)
-- Debug log pruning (keeps most recent 1,000 entries)
+- Debug log pruning (7-day window, 50,000-entry cap, hourly prune during a session)
 - Node snapshot pruning (removes snapshots older than 1 year)
 
 Monitoring is stopped symmetrically by `stopEventMonitoring()` on disconnect, which also flushes the debug log buffer.
@@ -372,7 +372,7 @@ The debug logging system is implemented as a two-layer pipeline:
 2. **Buffered Persistence (`DebugLogBuffer`)**:
    - Actor that batches log entries and writes to SwiftData
    - Flushes every 5 seconds or when 50 entries are queued
-   - Logs are pruned on connect to keep the most recent 1,000 entries
+   - Logs are pruned on connect and hourly during a session (7-day window, 50,000-entry cap)
 
 ### Usage Pattern
 
@@ -399,7 +399,7 @@ Logs are categorized for easy filtering:
 Debug logs can be exported for analysis:
 
 - **LogExportService**: Builds a text export with device/app metadata
-- **Time Range**: Last 24 hours of persisted logs (up to 1,000 entries)
+- **Time Range**: Last 7 days of persisted logs (up to 50,000 entries)
 - **Sharing**: Exported file can be shared via the system share sheet
 
 ---

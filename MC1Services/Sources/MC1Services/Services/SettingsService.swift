@@ -63,6 +63,14 @@ public actor SettingsService {
       spreadingFactor: preset.spreadingFactor,
       codingRate: preset.codingRate
     )
+    try await applyPresetPathHashIfNeeded(preset)
+  }
+
+  func applyPresetPathHashIfNeeded(_ preset: RadioPreset) async throws {
+    guard let mode = preset.pathHashMode else { return }
+    let capabilities = try await queryDevice()
+    guard capabilities.supportsPathHashMode else { return }
+    try await setPathHashMode(mode)
   }
 
   /// Set radio parameters manually.
@@ -301,7 +309,7 @@ public actor SettingsService {
   /// Use this instead of `setLocationVerified` when the device already has correct coordinates (e.g. from its own GPS).
   public func refreshDeviceInfo() async throws {
     let selfInfo = try await getSelfInfo()
-    eventContinuation?.yield(.deviceUpdated(selfInfo))
+    eventContinuation?.yield(.deviceUpdated(selfInfo, appliedRadioPresetID: nil))
   }
 
   /// Set auto-add configuration on device

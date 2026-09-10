@@ -184,7 +184,9 @@ public extension PersistenceStore {
     configured: [ChannelInfo],
     unconfiguredIndices: [UInt8],
     pruneBeyond maxChannels: UInt8?
-  ) throws -> [ChannelDTO] {
+  ) async throws -> [ChannelDTO] {
+    // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
+    try commitPendingRxLogEntries()
     let targetRadioID = radioID
     let predicate = #Predicate<Channel> { channel in
       channel.radioID == targetRadioID
@@ -217,6 +219,9 @@ public extension PersistenceStore {
     }
 
     do {
+      #if DEBUG
+        try batchSaveChannelsFaultInjection?()
+      #endif
       try modelContext.save()
     } catch {
       // Discard the staged upserts and deletes so a later successful save on this shared
@@ -415,4 +420,10 @@ public extension PersistenceStore {
     channel.floodScope = floodScope
     try modelContext.save()
   }
+
+  #if DEBUG
+    func setBatchSaveChannelsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      batchSaveChannelsFaultInjection = hook
+    }
+  #endif
 }

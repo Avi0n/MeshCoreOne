@@ -1,6 +1,9 @@
 import Foundation
 import MeshCore
+import os
 import SwiftData
+
+private let rxLogFlushLogger = Logger(subsystem: "com.mc1", category: "PersistenceStore")
 
 public extension PersistenceStore {
   // MARK: - Saved Trace Path Operations
@@ -122,8 +125,33 @@ public extension PersistenceStore {
       payloadTypeBits: Int(dto.payloadTypeBits)
     )
     modelContext.insert(entry)
-    try modelContext.save()
     rxLogEntryCountsByDevice[dto.radioID] = countBeforeInsert + 1
+    unsavedRxLogInsertCount += 1
+
+    if unsavedRxLogInsertCount >= RxLogRetention.batchSize {
+      try commitPendingRxLogEntries()
+    } else {
+      scheduleRxLogFlush()
+    }
+  }
+
+  /// Exact `async throws` match for `RxLogPersisting` so this implementation is
+  /// the protocol witness; a `throws`-only method loses to the default no-op.
+  func flushPendingRxLogEntries() async throws {
+    try commitPendingRxLogEntries()
+  }
+
+  private func scheduleRxLogFlush() {
+    guard rxLogFlushTask == nil else { return }
+    rxLogFlushTask = Task {
+      try? await Task.sleep(for: RxLogRetention.flushInterval)
+      guard !Task.isCancelled else { return }
+      do {
+        try await self.flushPendingRxLogEntries()
+      } catch {
+        rxLogFlushLogger.error("Failed to flush pending RX log entries: \(error.localizedDescription)")
+      }
+    }
   }
 
   /// Fetch RX log entries for a device, most recent first.
@@ -150,7 +178,8 @@ public extension PersistenceStore {
   /// Delete oldest entries once the log materially exceeds the retention cap.
   ///
   /// This avoids repeated count/fetch/delete maintenance on every RX packet while keeping
-  /// retention bounded to `keepCount + pruneThreshold` entries between prune passes.
+  /// retention bounded to `keepCount + pruneThreshold + batchSize - 1` entries between
+  /// flush-time prune passes.
   func pruneRxLogEntries(
     radioID: UUID,
     keepCount: Int = RxLogRetention.keepCount,

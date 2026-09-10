@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Pinned glass filter bar for the Discovery sub-view.
+/// Glass filter bar for the Discovery sub-view.
 struct DiscoverSegmentPicker: View {
   @Binding var selection: DiscoverSegment
   let isSearching: Bool

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Pinned glass filter bar for the Nodes tab.
+/// Glass filter bar for the Nodes tab.
 struct NodeSegmentPicker: View {
   @Binding var selection: NodeSegment
   let isSearching: Bool

@@ -152,9 +152,8 @@ struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
 }
 
 extension View {
-  /// Backs the pinned filter header with the themed canvas on iOS 18, where the fallback
-  /// segmented `Picker` is transparent and would let scrolling rows show through. iOS 26 glass
-  /// pills carry their own material and float over the content, so no backing is applied.
+  /// Opaque themed canvas on iOS 18, where the fallback segmented `Picker` is
+  /// transparent. iOS 26 glass pills already carry their own material.
   @ViewBuilder
   func pinnedFilterHeaderBackground(_ theme: Theme) -> some View {
     if #available(iOS 26.0, *) {

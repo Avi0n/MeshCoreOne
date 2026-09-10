@@ -1,14 +1,13 @@
+#if canImport(UIKit)
+  import AccessorySetupKit
+#endif
 import Foundation
 @testable import MC1Services
 import Testing
 
-/// Fresh pairing registers a system association before the app-level GATT handshake
-/// runs. When that handshake fails (a wrong PIN surfaces as `authenticationFailed`),
-/// the connect arm no longer removes the association: removal stays on explicit user
-/// intent so the system confirmation dialog never appears out of context. The stranded
-/// association is instead swept at the start of the next pairing attempt, when the user
-/// is actively pairing, and only when it maps to no saved device.
-@Suite("Pairing defers auth-failure removal and heals stranded associations")
+/// `pairNewDevice` never removes ASK associations. Unsaved accessories are
+/// queried by `systemAccessoriesMissingDeviceRecord` and removed only after user confirmation.
+@Suite("Pairing defers auth-failure removal and does not sweep ASK accessories")
 @MainActor
 struct PairingStrandedAssociationTests {
   @Test
@@ -19,10 +18,7 @@ struct PairingStrandedAssociationTests {
     let mockASK = env.accessorySetupKit
     let deviceID = UUID()
 
-    // Register the association and persist a matching device row: the pre-picker
-    // sweep treats it as a saved radio and leaves the accessory in place, so only a
-    // reintroduced auth-arm cleanup could remove it. The count-zero assertion below
-    // would then fail, guarding against that regression.
+    // A saved ASK association must survive authenticationFailed; pairNewDevice never removes it.
     let store = manager.persistenceStore
     try await store.saveDevice(DeviceDTO.testDevice(id: deviceID))
     mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: deviceID, displayName: "test")])
@@ -47,12 +43,9 @@ struct PairingStrandedAssociationTests {
       return pairingError.isAuthenticationFailure && pairingError.deviceID == deviceID
     }
 
-    // The auth arm rethrows only; it never summons the system removal dialog.
     #expect(mockASK.removeAccessoryCallCount == 0)
   }
 
-  /// A transient connect failure (radio briefly out of range) is likewise left for the
-  /// explicit recovery path; the connect arm removes nothing on its own.
   @Test
   func `transient connect failure during pairing removes no association`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
@@ -83,7 +76,7 @@ struct PairingStrandedAssociationTests {
   }
 
   @Test
-  func `pairing removes a stranded association with no device record before showing the picker`() async throws {
+  func `pairNewDevice does not remove an unsaved ASK accessory`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let manager = env.manager
@@ -91,7 +84,6 @@ struct PairingStrandedAssociationTests {
     let strandedID = UUID()
 
     mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: strandedID, displayName: "stranded")])
-    // Dismiss the picker so the assertion isolates the pre-picker sweep.
     mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
 
     manager.setTestState(
@@ -104,62 +96,169 @@ struct PairingStrandedAssociationTests {
       try await manager.pairNewDevice()
     }
 
-    #expect(mockASK.removeAccessoryCallCount == 1)
-    #expect(mockASK.lastRemovedDeviceID == strandedID)
+    #expect(mockASK.removeAccessoryCallCount == 0)
+    #expect(mockASK.showPickerCallCount == 1)
   }
 
   @Test
-  func `a stranded association whose removal is declined still lets pairing reach the picker`() async throws {
+  func `systemAccessoriesMissingDeviceRecord omits saved radios and reports unsaved ASK accessories`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let manager = env.manager
     let mockASK = env.accessorySetupKit
-    let strandedID = UUID()
+    let savedID = UUID()
+    let unsavedID = UUID()
 
-    mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: strandedID, displayName: "stranded")])
-    // The user declines the system removal confirmation, so the removal throws.
-    mockASK.removeAccessoryError = AccessorySetupKitError.connectionFailed
-    mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
+    try await manager.persistenceStore.saveDevice(DeviceDTO.testDevice(id: savedID))
+    mockASK.setPairedAccessories([
+      ASAccessory(bluetoothIdentifier: savedID, displayName: "saved"),
+      ASAccessory(bluetoothIdentifier: unsavedID, displayName: "unsaved")
+    ])
 
-    manager.setTestState(
-      connectionState: .disconnected,
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
+    let pending = try await manager.systemAccessoriesMissingDeviceRecord()
 
-    // A declined removal must not abort pairing: the flow still reaches the picker,
-    // which here dismisses and surfaces cancellation as a DevicePairingError.
-    await #expect(throws: DevicePairingError.self) {
-      try await manager.pairNewDevice()
-    }
-
-    #expect(mockASK.removeAccessoryCallCount == 1)
+    #expect(pending.map(\.id) == [unsavedID])
+    #expect(pending.first?.name == "unsaved")
+    #expect(mockASK.removeAccessoryCallCount == 0)
+    #expect(mockASK.showPickerCallCount == 0)
   }
 
   @Test
-  func `an association matching a saved device is never removed by the heal`() async throws {
+  func `systemAccessoriesMissingDeviceRecord skips an id when fetchDevice throws`() async throws {
     let env = try ConnectionManager.createForPairingTesting()
     defer { env.cleanup() }
     let manager = env.manager
     let mockASK = env.accessorySetupKit
     let savedID = UUID()
 
-    let store = manager.persistenceStore
-    try await store.saveDevice(DeviceDTO.testDevice(id: savedID))
-
+    try await manager.persistenceStore.saveDevice(DeviceDTO.testDevice(id: savedID))
     mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: savedID, displayName: "saved")])
-    mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerDismissed))
-
-    manager.setTestState(
-      connectionState: .disconnected,
-      currentTransportType: .bluetooth,
-      connectionIntent: .wantsConnection()
-    )
-
-    await #expect(throws: DevicePairingError.self) {
-      try await manager.pairNewDevice()
+    await manager.persistenceStore.setFetchDeviceByIDFaultInjection {
+      throw PersistenceStoreError.fetchFailed("test")
     }
 
+    let pending = try await manager.systemAccessoriesMissingDeviceRecord()
+
+    #expect(pending.isEmpty)
+    try await manager.removeSystemAccessoriesMissingDeviceRecord([savedID])
+    #expect(mockASK.removeAccessoryCallCount == 0)
+
+    await manager.persistenceStore.setFetchDeviceByIDFaultInjection(nil)
+  }
+
+  @Test
+  func `systemAccessoriesMissingDeviceRecord activates before enumerating`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let mockASK = env.accessorySetupKit
+    let unsavedID = UUID()
+
+    mockASK.isSessionActive = false
+    mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: unsavedID, displayName: "B")])
+
+    let pending = try await manager.systemAccessoriesMissingDeviceRecord()
+
+    #expect(mockASK.activateSessionCallCount >= 1)
+    #expect(pending.map(\.id) == [unsavedID])
+    #expect(mockASK.showPickerCallCount == 0)
+  }
+
+  @Test
+  func `removeSystemAccessoriesMissingDeviceRecord removes only the requested unsaved ids`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let mockASK = env.accessorySetupKit
+    let savedID = UUID()
+    let unsavedID = UUID()
+
+    try await manager.persistenceStore.saveDevice(DeviceDTO.testDevice(id: savedID))
+    mockASK.setPairedAccessories([
+      ASAccessory(bluetoothIdentifier: savedID, displayName: "saved"),
+      ASAccessory(bluetoothIdentifier: unsavedID, displayName: "unsaved")
+    ])
+
+    try await manager.removeSystemAccessoriesMissingDeviceRecord([savedID, unsavedID])
+
+    #expect(mockASK.removeAccessoryCallCount == 1)
+    #expect(mockASK.lastRemovedDeviceID == unsavedID)
+    #expect(mockASK.pairedAccessories.compactMap(\.bluetoothIdentifier) == [savedID])
+  }
+
+  #if canImport(UIKit)
+    @Test
+    func `removeDevice maps ASError.userCancelled to DevicePairingError.cancelled`() async throws {
+      let env = try ConnectionManager.createForPairingTesting()
+      defer { env.cleanup() }
+      let mockASK = env.accessorySetupKit
+      let unsavedID = UUID()
+
+      mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: unsavedID, displayName: "unsaved")])
+      mockASK.removeAccessoryError = NSError(
+        domain: ASError.errorDomain,
+        code: ASError.Code.userCancelled.rawValue
+      )
+
+      let pairing = AccessorySetupPairingService(accessorySetupKit: mockASK)
+      await #expect(throws: DevicePairingError.self) {
+        try await pairing.removeDevice(unsavedID)
+      }
+      #expect(mockASK.accessory(for: unsavedID) != nil)
+    }
+
+    @Test
+    func `discoverDevice maps pickerRestricted to DevicePairingError.pickerUnavailable`() async throws {
+      let env = try ConnectionManager.createForPairingTesting()
+      defer { env.cleanup() }
+      let mockASK = env.accessorySetupKit
+      mockASK.setPickerResult(.failure(AccessorySetupKitError.pickerRestricted))
+
+      let pairing = AccessorySetupPairingService(accessorySetupKit: mockASK)
+      try await pairing.activate()
+      try await #expect {
+        try await pairing.discoverDevice()
+      } throws: { error in
+        guard let pairingError = error as? DevicePairingError else { return false }
+        if case .pickerUnavailable = pairingError { return true }
+        return false
+      }
+    }
+  #endif
+
+  @Test
+  func `systemAccessoriesMissingDeviceRecord omits a connected id with no Device row`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let mockASK = env.accessorySetupKit
+    let liveID = UUID()
+
+    mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: liveID, displayName: "live")])
+    manager.setTestState(connectedDevice: DeviceDTO.testDevice(id: liveID))
+
+    let pending = try await manager.systemAccessoriesMissingDeviceRecord()
+
+    #expect(pending.isEmpty)
+    try await manager.removeSystemAccessoriesMissingDeviceRecord([liveID])
+    #expect(mockASK.removeAccessoryCallCount == 0)
+  }
+
+  @Test
+  func `systemAccessoriesMissingDeviceRecord omits an in-flight attempt id with no Device row`() async throws {
+    let env = try ConnectionManager.createForPairingTesting()
+    defer { env.cleanup() }
+    let manager = env.manager
+    let mockASK = env.accessorySetupKit
+    let attemptID = UUID()
+
+    mockASK.setPairedAccessories([ASAccessory(bluetoothIdentifier: attemptID, displayName: "attempt")])
+    manager.setTestState(connectingDeviceID: attemptID)
+
+    let pending = try await manager.systemAccessoriesMissingDeviceRecord()
+
+    #expect(pending.isEmpty)
+    try await manager.removeSystemAccessoriesMissingDeviceRecord([attemptID])
     #expect(mockASK.removeAccessoryCallCount == 0)
   }
 }

@@ -15,7 +15,7 @@ struct ContactQRShareSheet: View {
   @State private var copyHapticTrigger = 0
 
   private var contactURI: String {
-    ContactService.exportContactURI(name: contactName, publicKey: publicKey, type: contactType)
+    ContactShareContent.uri(name: contactName, publicKey: publicKey, type: contactType)
   }
 
   var body: some View {
@@ -31,9 +31,7 @@ struct ContactQRShareSheet: View {
 
         // Actions Section
         ActionsSection(
-          qrImage: qrImage,
-          shareText: shareText,
-          contactName: contactName,
+          contactURI: contactURI,
           showCopyFeedback: $showCopyFeedback,
           copyToClipboard: copyToClipboard
         )
@@ -65,17 +63,9 @@ struct ContactQRShareSheet: View {
     )
   }
 
-  private var shareText: String {
-    """
-    \(L10n.Contacts.Contacts.Share.contactLabel(contactName))
-    \(L10n.Contacts.Contacts.Share.keyLabel(publicKey.hexString))
-    \(contactURI)
-    """
-  }
-
   private func copyToClipboard() {
     copyHapticTrigger += 1
-    UIPasteboard.general.string = publicKey.hexString
+    UIPasteboard.general.string = ContactShareContent.compactPublicKeyHex(publicKey)
     showCopyFeedback = true
 
     Task {
@@ -147,11 +137,11 @@ private struct ContactInfoSection: View {
 // MARK: - Actions Section
 
 private struct ActionsSection: View {
-  let qrImage: UIImage?
-  let shareText: String
-  let contactName: String
+  let contactURI: String
   @Binding var showCopyFeedback: Bool
   let copyToClipboard: () -> Void
+
+  @State private var showShareSheet = false
 
   var body: some View {
     Section {
@@ -172,18 +162,22 @@ private struct ActionsSection: View {
       .disabled(showCopyFeedback)
       .alignmentGuide(.listRowSeparatorLeading) { dimensions in dimensions[.leading] }
 
-      if let qrImage {
-        ShareLink(
-          item: shareText,
-          subject: Text(L10n.Contacts.Contacts.Qr.shareSubject),
-          preview: SharePreview(contactName, image: Image(uiImage: qrImage))
-        ) {
-          HStack {
-            Spacer()
-            Label(L10n.Contacts.Contacts.Qr.share, systemImage: "square.and.arrow.up")
-            Spacer()
-          }
+      Button {
+        showShareSheet = true
+      } label: {
+        HStack {
+          Spacer()
+          Label(L10n.Contacts.Contacts.Qr.share, systemImage: "square.and.arrow.up")
+          Spacer()
         }
+      }
+      .sheet(isPresented: $showShareSheet) {
+        ActivityView(activityItems: [
+          ContactURIActivityItem(
+            uri: contactURI,
+            subject: L10n.Contacts.Contacts.Qr.shareSubject
+          )
+        ])
       }
     }
   }

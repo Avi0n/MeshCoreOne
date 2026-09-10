@@ -26,6 +26,33 @@ public struct RegionSelection: Codable, Sendable, Equatable {
     self.source = source
   }
 
+  /// `nil` means do not write: the tapped country is already selected.
+  public static func afterChoosingCountry(
+    _ newCountry: String,
+    current: RegionSelection?
+  ) -> RegionSelection? {
+    if let current, current.countryCode == newCountry {
+      return nil
+    }
+    return RegionSelection(countryCode: newCountry, source: .manual)
+  }
+
+  /// `nil` means do not write: the tapped subdivision is already selected.
+  public static func afterChoosingSubdivision(
+    _ newSubdivision: String,
+    current: RegionSelection?
+  ) -> RegionSelection? {
+    guard let current else { return nil }
+    if current.administrativeAreaCode == newSubdivision {
+      return nil
+    }
+    return RegionSelection(
+      countryCode: current.countryCode,
+      administrativeAreaCode: newSubdivision,
+      source: .manual
+    )
+  }
+
   private enum CodingKeys: String, CodingKey {
     case countryCode, administrativeAreaCode, countyKey, source
   }

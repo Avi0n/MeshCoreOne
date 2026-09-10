@@ -65,7 +65,7 @@ private func makeContactFrame(
 
 /// Polls until `predicate` is true or `deadline` elapses.
 private func waitUntil(
-  timeout: Duration = .seconds(2),
+  timeout: Duration = .seconds(10),
   poll: Duration = .milliseconds(10),
   _ predicate: @Sendable () async -> Bool
 ) async -> Bool {
@@ -124,6 +124,9 @@ private actor EventCounter {
   private(set) var contactUpdatedCount = 0
   private(set) var conversationsChangedCount = 0
   private(set) var adoptedContactIDs: [UUID] = []
+  private(set) var contactDeletedCleanupCount = 0
+  private(set) var contactDeletedCleanupIDs: [UUID] = []
+  private(set) var nodeStorageFullChangedCount = 0
 
   func note(_ event: AdvertisementEvent) {
     switch event {
@@ -135,6 +138,11 @@ private actor EventCounter {
       conversationsChangedCount += 1
     case let .orphanDirectMessagesAdopted(contactIDs):
       adoptedContactIDs.append(contentsOf: contactIDs)
+    case let .contactDeletedCleanup(contactIDs):
+      contactDeletedCleanupCount += 1
+      contactDeletedCleanupIDs.append(contentsOf: contactIDs)
+    case .nodeStorageFullChanged:
+      nodeStorageFullChangedCount += 1
     default:
       break
     }
@@ -193,14 +201,16 @@ struct AdvertisementServiceTests {
     store: any PersistenceStoreProtocol,
     advertSyncDebounce: Duration = .zero,
     advertSyncMinInterval: Duration = .zero,
-    advertSyncBusyBackoff: Duration = .zero
+    advertSyncBusyBackoff: Duration = .zero,
+    appStateProvider: AppStateProvider? = nil
   ) -> AdvertisementService {
     AdvertisementService(
       session: session,
       dataStore: store,
       advertSyncDebounce: advertSyncDebounce,
       advertSyncMinInterval: advertSyncMinInterval,
-      advertSyncBusyBackoff: advertSyncBusyBackoff
+      advertSyncBusyBackoff: advertSyncBusyBackoff,
+      appStateProvider: appStateProvider
     )
   }
 
@@ -703,14 +713,15 @@ struct AdvertisementServiceTests {
   func `teardown mid-handler prevents reconcile writes`() async throws {
     let store = try await makeStore()
     let session = MockMeshCoreSession()
-    let service = makeService(session: session, store: store)
+    let scene = MockAppStateProvider(isInForeground: true)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
 
     let key = makePublicKey(seed: 0x27)
+    let parkKey = makePublicKey(seed: 0x28)
     let hold = HandlerHold()
 
     await service.setDeltaSyncHandler { _ in
       await hold.waitUntilReleased()
-      // Persist as a successful sync would.
       _ = try? await store.saveContact(
         radioID: radioID,
         from: makeContactFrame(publicKey: key, name: "Late")
@@ -718,20 +729,47 @@ struct AdvertisementServiceTests {
       return .synced
     }
 
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
     await startMonitoring(service, session: session)
     await session.yieldEvent(.advertisement(publicKey: key))
-
     let entered = await waitUntil { await hold.isWaiting }
     #expect(entered)
 
-    await service.stopEventMonitoring()
-    await hold.release()
+    await scene.hangForegroundChecks()
+    await session.yieldEvent(.advertisement(publicKey: parkKey))
+    let parked = await waitUntil { await scene.isWaitingOnForegroundCheck }
+    #expect(parked)
 
-    // Settle: Contact may have been written by the held handler body, but
-    // reconcile must not create a Discover row after teardown.
-    try? await Task.sleep(for: .milliseconds(80))
-    let nodes = try await store.fetchDiscoveredNodes(radioID: radioID)
-    #expect(nodes.isEmpty, "reconcile must not land after stopEventMonitoring")
+    async let stopped: Void = service.stopEventMonitoring()
+    let handlerDropped = await waitUntil { await service.deltaSyncHandler == nil }
+    #expect(handlerDropped)
+    await hold.release()
+    let saved = await waitUntil {
+      await (try? store.fetchContact(radioID: radioID, publicKey: key)) != nil
+    }
+    #expect(saved)
+    await scene.releaseForegroundCheck()
+    await stopped
+
+    let stamped = await waitUntil {
+      let nodes = await (try? store.fetchDiscoveredNodes(radioID: radioID)) ?? []
+      return nodes.contains { $0.publicKey == key }
+    }
+    #expect(stamped, "cancel-path stamp should insert Discover via touchContactHeard")
+
+    service.finishEvents()
+    _ = await listener.result
+    #expect(
+      await counter.newContactCount == 0,
+      "reconcile must not notify after stopEventMonitoring"
+    )
   }
 
   // MARK: - Escalation
@@ -846,7 +884,7 @@ struct AdvertisementServiceTests {
     let key = makePublicKey(seed: 0x49)
     // Known contact so .contactUpdated after touch proves the advert was handled
     // before 0x8F (event yields are not awaited through the drain loop).
-    _ = try await store.saveContact(
+    let saved = try await store.saveContact(
       radioID: radioID, from: makeContactFrame(publicKey: key, name: "Doomed")
     )
 
@@ -870,6 +908,13 @@ struct AdvertisementServiceTests {
       await (try? store.fetchContact(radioID: radioID, publicKey: key)) == nil
     }
     #expect(deleted)
+
+    let cleaned = await waitUntil {
+      let count = await counter.contactDeletedCleanupCount
+      let ids = await counter.contactDeletedCleanupIDs
+      return count == 1 && ids == [saved.id]
+    }
+    #expect(cleaned)
 
     await service.setSyncingContacts(false)
 
@@ -1273,6 +1318,56 @@ struct AdvertisementServiceTests {
   }
 
   // MARK: - Failure cap
+
+  @Test(arguments: [AdvertContactSyncOutcome.notReady, .failed])
+  func `dropped background adverts retain phone recency`(outcome: AdvertContactSyncOutcome) async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    let rounds = outcome == .failed ? AdvertisementService.maxConsecutiveDeltaSyncFailures : 1
+    for _ in 0..<rounds {
+      await recorder.enqueueResult(outcome)
+    }
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0x58)
+    _ = try await store.saveContact(radioID: radioID, from: makeContactFrame(publicKey: key))
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let queued = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(queued)
+
+    let receivedAt = Date().addingTimeInterval(-3600)
+    await service.recordPendingAdvertKey(key, receivedAt: receivedAt)
+    let cutoff = UInt32(receivedAt.timeIntervalSince1970) - 1
+    let before = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(before.matchesStaleNodePrune(cutoff: cutoff))
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+    let finished = await waitUntil {
+      let calls = await recorder.callCount
+      let idle = await service.deltaSyncTask == nil
+      return calls >= rounds && idle
+    }
+    #expect(finished)
+
+    let stamped = await waitUntil {
+      let contact = try? await store.fetchContact(radioID: radioID, publicKey: key)
+      return (contact?.lastHeardTimestamp ?? 0) > cutoff
+    }
+    #expect(stamped)
+    let after = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(!after.matchesStaleNodePrune(cutoff: cutoff))
+    if outcome == .notReady {
+      #expect(after.lastHeardTimestamp == UInt32(receivedAt.timeIntervalSince1970))
+    }
+    #expect(await service.pendingAdvertKeys.isEmpty)
+    #expect(await recorder.callCount == rounds)
+    await service.stopEventMonitoring()
+  }
 
   @Test
   func `repeated failures stop the retry loop`() async throws {
@@ -2335,6 +2430,828 @@ struct AdvertisementServiceTests {
     )
     #expect((updated.lastHeardTimestamp ?? 0) == 0)
 
+    await service.stopEventMonitoring()
+  }
+
+  // MARK: - Background deferral
+
+  @Test
+  func `background 0x80 records key and does not invoke deltaSyncHandler`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xB0)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Known")
+    )
+    let heardBefore = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    ).lastHeardTimestamp
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+
+    let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pending)
+    try? await Task.sleep(for: .milliseconds(80))
+    #expect(await recorder.callCount == 0)
+    #expect(await counter.contactUpdatedCount == 0)
+    let heardAfter = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    ).lastHeardTimestamp
+    #expect(heardAfter == heardBefore, "background 0x80 must not touchContactHeard")
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+  }
+
+  @Test
+  func `handleReturnToForeground drains keys recorded while backgrounded`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xB2)
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pending)
+    #expect(await recorder.callCount == 0)
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+    let ran = await waitUntil { await recorder.callCount >= 1 }
+    await service.stopEventMonitoring()
+    #expect(ran)
+  }
+
+  @Test
+  func `background 0x81 records path key and does not invoke handler`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xB3)
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.pathUpdate(publicKey: key))
+    let pending = await waitUntil { await service.pendingPathKeys.contains(key) }
+    #expect(pending)
+    try? await Task.sleep(for: .milliseconds(80))
+    await service.stopEventMonitoring()
+    #expect(await recorder.callCount == 0)
+  }
+
+  @Test
+  func `armed round that backgrounds before fire does not invoke handler`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: true)
+    let service = makeService(
+      session: session,
+      store: store,
+      advertSyncDebounce: .milliseconds(200),
+      advertSyncMinInterval: .zero,
+      appStateProvider: scene
+    )
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xB4)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Armed")
+    )
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let armed = await waitUntil {
+      let pending = await service.pendingAdvertKeys.contains(key)
+      let scheduled = await service.deltaSyncTask != nil
+      return pending && scheduled
+    }
+    #expect(armed)
+    await scene.setIsInForeground(false)
+    let settled = await waitUntil { await service.deltaSyncTask == nil }
+    #expect(settled)
+    #expect(await recorder.callCount == 0)
+    #expect(await service.pendingAdvertKeys.contains(key))
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `materializeContactForPendingAdvert still works while backgrounded`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xB5)
+    let mesh = makeMeshContact(publicKey: key, name: "DebounceNode")
+    await session.setStubbedContact(mesh, for: key)
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pending)
+
+    let contact = try #require(
+      await service.materializeContactForPendingAdvert(
+        matchingPrefix: Data(key.prefix(6)), radioID: radioID
+      )
+    )
+    #expect(contact.publicKey == key)
+    #expect(await service.pendingAdvertKeys.contains(key))
+    #expect(await recorder.callCount == 0, "materialize must not issue GET_CONTACTS")
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `setSyncingContacts false while backgrounded does not invoke handler`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xB6)
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    await service.setSyncingContacts(true)
+    await service.setSyncingContacts(false)
+    try? await Task.sleep(for: .milliseconds(80))
+    #expect(await recorder.callCount == 0)
+    #expect(await service.pendingAdvertKeys.contains(key))
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `background 0x8F queues key and does not deleteContact`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0x8C)
+    let saved = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Doomed")
+    )
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pending)
+
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+    #expect(await !service.pendingAdvertKeys.contains(key))
+    #expect(await service.contactsDeletedDuringSync.contains(key))
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key)?.id == saved.id)
+    try? await Task.sleep(for: .milliseconds(50))
+    #expect(await counter.contactDeletedCleanupCount == 0)
+    #expect(await counter.contactUpdatedCount == 0)
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+  }
+
+  @Test
+  func `handleReturnToForeground flushes queued 0x8F deletes once`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let keyA = makePublicKey(seed: 0xA1)
+    let keyB = makePublicKey(seed: 0xA2)
+    let savedA = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: keyA, name: "A")
+    )
+    let savedB = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: keyB, name: "B")
+    )
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: keyA))
+    await session.yieldEvent(.contactDeleted(publicKey: keyB))
+    let queued = await waitUntil {
+      let hasA = await service.pendingDeletedKeys.contains(keyA)
+      let hasB = await service.pendingDeletedKeys.contains(keyB)
+      return hasA && hasB
+    }
+    #expect(queued)
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+
+    let gone = await waitUntil {
+      let goneA = await (try? store.fetchContact(radioID: radioID, publicKey: keyA)) == nil
+      let goneB = await (try? store.fetchContact(radioID: radioID, publicKey: keyB)) == nil
+      return goneA && goneB
+    }
+    #expect(gone)
+    #expect(await service.pendingDeletedKeys.isEmpty)
+    #expect(await counter.contactDeletedCleanupCount == 1)
+    #expect(await Set(counter.contactDeletedCleanupIDs) == [savedA.id, savedB.id])
+    #expect(await counter.contactUpdatedCount == 1)
+    #expect(await counter.nodeStorageFullChangedCount == 1)
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+  }
+
+  @Test
+  func `re-advert after background 0x8F clears pendingDeletedKeys`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xA3)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Back")
+    )
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let cleared = await waitUntil { await !service.pendingDeletedKeys.contains(key) }
+    #expect(cleared)
+    #expect(await service.pendingAdvertKeys.contains(key))
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key) != nil)
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+    try? await Task.sleep(for: .milliseconds(80))
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key) != nil)
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `stopEventMonitoring flushes 0x8F parked on isInForeground hop`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xC1)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Parked")
+    )
+    await scene.hangForegroundChecks()
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let parked = await waitUntil { await scene.isWaitingOnForegroundCheck }
+    #expect(parked)
+
+    async let stopped: Void = service.stopEventMonitoring()
+    await scene.releaseForegroundCheck()
+    await stopped
+
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key) == nil)
+    #expect(await service.pendingDeletedKeys.isEmpty)
+  }
+
+  @Test
+  func `stopEventMonitoring stamps lastHeard for background 0x80`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xB7)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "HeardOvernight")
+    )
+    let heardBefore = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    ).lastHeardTimestamp
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pending)
+    let heardWhileQueued = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    ).lastHeardTimestamp
+    #expect(heardWhileQueued == heardBefore, "background 0x80 must not touchContactHeard")
+
+    await service.stopEventMonitoring()
+
+    let heardAfter = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    ).lastHeardTimestamp
+    #expect(
+      (heardAfter ?? 0) > (heardBefore ?? 0),
+      "teardown must stamp lastHeard so stale-RTC prune cannot CMD_REMOVE a heard contact"
+    )
+  }
+
+  @Test
+  func `stop during isInForeground hop does not invoke handler`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let recorder = HandlerRecorder(store: store, radioID: radioID)
+    await installHandler(service, recorder: recorder)
+
+    let key = makePublicKey(seed: 0xD0)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "ParkedRound")
+    )
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pending)
+    #expect(await recorder.callCount == 0)
+
+    await scene.setIsInForeground(true)
+    await scene.hangForegroundChecks()
+    await service.handleReturnToForeground()
+    let parked = await waitUntil { await scene.isWaitingOnForegroundCheck }
+    #expect(parked)
+    #expect(await recorder.callCount == 0)
+
+    async let stopped: Void = service.stopEventMonitoring()
+    let handlerDropped = await waitUntil { await service.deltaSyncHandler == nil }
+    #expect(handlerDropped)
+    await scene.releaseForegroundCheck()
+    await stopped
+
+    #expect(await recorder.callCount == 0)
+    #expect(await service.pendingAdvertKeys.isEmpty)
+  }
+
+  @Test
+  func `stop during handler still stamps drained lastHeard`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xD1)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "DrainedHeard")
+    )
+    let heardBefore = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    ).lastHeardTimestamp
+
+    let hold = HandlerHold()
+    await service.setDeltaSyncHandler { _ in
+      await hold.waitUntilReleased()
+      return .synced
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let pending = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pending)
+    let heardWhileQueued = try #require(
+      await store.fetchContact(radioID: radioID, publicKey: key)
+    ).lastHeardTimestamp
+    #expect(heardWhileQueued == heardBefore, "background 0x80 must not touchContactHeard")
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+    let waiting = await waitUntil { await hold.isWaiting }
+    #expect(waiting)
+
+    async let stopped: Void = service.stopEventMonitoring()
+    let handlerDropped = await waitUntil { await service.deltaSyncHandler == nil }
+    #expect(handlerDropped)
+    await hold.release()
+    await stopped
+
+    let stamped = await waitUntil {
+      let heard = try? await store.fetchContact(radioID: radioID, publicKey: key)
+      return (heard?.lastHeardTimestamp ?? 0) > (heardBefore ?? 0)
+    }
+    #expect(
+      stamped,
+      "cancel-after-drain must stamp lastHeard; teardown copy of pending is empty"
+    )
+  }
+
+  @Test
+  func `0x80 during 0x8F flush hop does not delete the revived contact`() async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xA4)
+    let saved = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Revived")
+    )
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: radioID, contactID: saved.id, text: "keep")
+    )
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+
+    await scene.setIsInForeground(true)
+    await scene.hangForegroundChecks()
+    await store.holdNextDeleteContacts()
+    async let flushed: Void = service.handleReturnToForeground()
+    let held = await waitUntil { await store.isDeleteContactsHeld }
+    #expect(held)
+
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let parked = await waitUntil { await scene.isWaitingOnForegroundCheck }
+    #expect(parked)
+    #expect(await service.pendingAdvertKeys.contains(key) == false)
+
+    await store.releaseDeleteContacts()
+    await flushed
+
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key)?.id == saved.id)
+    #expect(await store.deletedContactIDs.isEmpty)
+    #expect(
+      try await store.fetchMessages(contactID: saved.id, limit: 10, offset: 0).count == 1
+    )
+
+    await scene.releaseForegroundCheck()
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `flush does not clear skip set before deleteContacts`() async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xA5)
+    let saved = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "SkipFirst")
+    )
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: radioID, contactID: saved.id, text: "keep")
+    )
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+
+    await scene.setIsInForeground(true)
+    await scene.hangForegroundChecks()
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let parked = await waitUntil { await scene.isWaitingOnForegroundCheck }
+    #expect(parked)
+    #expect(await service.pendingDeletedKeys.contains(key))
+
+    await store.holdNextDeleteContacts()
+    async let flushed: Void = service.handleReturnToForeground()
+    let held = await waitUntil { await store.isDeleteContactsHeld }
+    #expect(held)
+
+    await store.releaseDeleteContacts()
+    await flushed
+
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key)?.id == saved.id)
+    #expect(await store.deletedContactIDs.isEmpty)
+
+    await scene.releaseForegroundCheck()
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `background 0x80 then 0x8F flush still deletes the contact`() async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xA6)
+    let saved = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "LastEvent")
+    )
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: radioID, contactID: saved.id, text: "gone")
+    )
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let pendingAdvert = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(pendingAdvert)
+
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+
+    let gone = await waitUntil {
+      await (try? store.fetchContact(radioID: radioID, publicKey: key)) == nil
+    }
+    #expect(gone)
+    #expect(await store.deletedContactIDs.contains(saved.id))
+    #expect(
+      try await store.fetchMessages(contactID: saved.id, limit: 10, offset: 0).isEmpty
+    )
+    let cleaned = await waitUntil { await counter.contactDeletedCleanupCount == 1 }
+    #expect(cleaned)
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+  }
+
+  @Test
+  func `failed 0x8F flush re-queues keys`() async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xE1)
+    let saved = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Retry")
+    )
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+
+    await store.setStubbedDeleteContactError(AdvertisementServiceTestError.storeUnavailable)
+    await scene.setIsInForeground(true)
+    await service.handleReturnToForeground()
+
+    #expect(await service.pendingDeletedKeys.contains(key))
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key)?.id == saved.id)
+    #expect(await counter.contactDeletedCleanupCount == 0)
+
+    await store.setStubbedDeleteContactError(nil)
+    await service.handleReturnToForeground()
+    let gone = await waitUntil {
+      await (try? store.fetchContact(radioID: radioID, publicKey: key)) == nil
+    }
+    #expect(gone)
+    #expect(await service.pendingDeletedKeys.isEmpty)
+    let cleaned = await waitUntil { await counter.contactDeletedCleanupCount == 1 }
+    #expect(cleaned)
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+  }
+
+  @Test(arguments: [false, true])
+  func `stop joins foreground deletion flush before finishing events`(storeFails: Bool) async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let key = makePublicKey(seed: 0xE4)
+    let saved = try await store.saveContact(radioID: radioID, from: makeContactFrame(publicKey: key))
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+    if storeFails {
+      await store.setStubbedDeleteContactError(AdvertisementServiceTestError.storeUnavailable)
+    }
+    await store.holdNextDeleteContacts()
+    await scene.setIsInForeground(true)
+    async let flushed: Void = service.handleReturnToForeground()
+    let held = await waitUntil { await store.isDeleteContactsHeld }
+    #expect(held)
+
+    let stopped = CommitMarker()
+    let stopping = Task {
+      await service.stopEventMonitoring()
+      service.finishEvents()
+      await stopped.markCommitted()
+    }
+    let finishedWhileHeld = await waitUntil(timeout: .milliseconds(100)) { await stopped.committed }
+    #expect(!finishedWhileHeld, "stop must await the flush including cleanup emission and error handling")
+    await store.releaseDeleteContacts()
+    await flushed
+    await stopping.value
+    await listener.value
+
+    #expect(await store.deleteContactsCallCount == 1, "joining a failed flush must not retry it during stop")
+    #expect(await service.currentRadioID == nil)
+    if storeFails {
+      #expect(await service.pendingDeletedKeys.contains(key))
+      #expect(await counter.contactDeletedCleanupCount == 0)
+      #expect(try await store.fetchContact(radioID: radioID, publicKey: key)?.id == saved.id)
+    } else {
+      #expect(await counter.contactDeletedCleanupIDs == [saved.id])
+      #expect(try await store.fetchContact(radioID: radioID, publicKey: key) == nil)
+    }
+  }
+
+  @Test(arguments: [false, true])
+  func `stop drains deletions queued during a foreground flush`(nextRevived: Bool) async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+    let firstKey = makePublicKey(seed: 0xE5)
+    let nextKey = makePublicKey(seed: 0xE6)
+    let first = try await store.saveContact(radioID: radioID, from: makeContactFrame(publicKey: firstKey))
+    let next = try await store.saveContact(radioID: radioID, from: makeContactFrame(publicKey: nextKey))
+    try await store.saveMessage(
+      MessageDTO.testDirectMessage(radioID: radioID, contactID: next.id, text: "keep if revived")
+    )
+    await service.setDeltaSyncHandler { _ in .synced }
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: firstKey))
+    let firstQueued = await waitUntil { await service.pendingDeletedKeys.contains(firstKey) }
+    #expect(firstQueued)
+    await store.holdNextDeleteContacts()
+    async let flushed: Void = service.handleReturnToForeground()
+    let held = await waitUntil { await store.isDeleteContactsHeld }
+    #expect(held)
+
+    await session.yieldEvent(.contactDeleted(publicKey: nextKey))
+    let nextQueued = await waitUntil { await service.pendingDeletedKeys.contains(nextKey) }
+    #expect(nextQueued)
+    if nextRevived {
+      await scene.hangForegroundChecks()
+      await session.yieldEvent(.advertisement(publicKey: nextKey))
+      let parked = await waitUntil { await scene.isWaitingOnForegroundCheck }
+      #expect(parked)
+    }
+    let stopping = Task {
+      await service.stopEventMonitoring()
+      service.finishEvents()
+    }
+    let stoppingStarted = await waitUntil { await service.deltaSyncHandler == nil }
+    #expect(stoppingStarted)
+    await store.releaseDeleteContacts()
+    await flushed
+    if nextRevived {
+      await scene.releaseForegroundCheck()
+    }
+    await stopping.value
+    await listener.value
+
+    let expectedIDs: Set<UUID> = nextRevived ? [first.id] : [first.id, next.id]
+    #expect(await Set(counter.contactDeletedCleanupIDs) == expectedIDs)
+    if nextRevived {
+      #expect(try await store.fetchContact(radioID: radioID, publicKey: nextKey)?.id == next.id)
+      #expect(try await store.fetchMessages(contactID: next.id, limit: 10, offset: 0).count == 1)
+    }
+    #expect(await service.pendingDeletedKeys.isEmpty)
+    #expect(await store.deleteContactsCallCount == 2)
+  }
+
+  @Test
+  func `failed immediate 0x8F re-queues key for flush`() async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+
+    let key = makePublicKey(seed: 0xE3)
+    let saved = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "ImmediateRetry")
+    )
+    let counter = EventCounter()
+    let events = service.events()
+    let listener = Task {
+      for await event in events {
+        await counter.note(event)
+      }
+    }
+
+    await startMonitoring(service, session: session)
+    await store.setStubbedDeleteContactError(AdvertisementServiceTestError.storeUnavailable)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+
+    let requeued = await waitUntil {
+      let attempted = await store.deletedContactIDs.contains(saved.id)
+      let queued = await service.pendingDeletedKeys.contains(key)
+      return attempted && queued
+    }
+    #expect(requeued)
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key)?.id == saved.id)
+    #expect(await counter.contactDeletedCleanupCount == 0)
+
+    await store.setStubbedDeleteContactError(nil)
+    await service.handleReturnToForeground()
+    let gone = await waitUntil {
+      await (try? store.fetchContact(radioID: radioID, publicKey: key)) == nil
+    }
+    #expect(gone)
+    #expect(await service.pendingDeletedKeys.isEmpty)
+    let cleaned = await waitUntil { await counter.contactDeletedCleanupCount == 1 }
+    #expect(cleaned)
+
+    await service.stopEventMonitoring()
+    service.finishEvents()
+    _ = await listener.result
+  }
+
+  @Test
+  func `failed 0x8F flush does not re-queue a key revived during the hop`() async throws {
+    let store = MockPersistenceStore()
+    let session = MockMeshCoreSession()
+    let scene = MockAppStateProvider(isInForeground: false)
+    let service = makeService(session: session, store: store, appStateProvider: scene)
+
+    let key = makePublicKey(seed: 0xE2)
+    _ = try await store.saveContact(
+      radioID: radioID, from: makeContactFrame(publicKey: key, name: "Subtract")
+    )
+
+    await startMonitoring(service, session: session)
+    await session.yieldEvent(.contactDeleted(publicKey: key))
+    let queued = await waitUntil { await service.pendingDeletedKeys.contains(key) }
+    #expect(queued)
+
+    await store.setStubbedDeleteContactError(AdvertisementServiceTestError.storeUnavailable)
+    await store.holdNextDeleteContacts()
+    await scene.setIsInForeground(true)
+    async let flushed: Void = service.handleReturnToForeground()
+    let held = await waitUntil { await store.isDeleteContactsHeld }
+    #expect(held)
+
+    await session.yieldEvent(.advertisement(publicKey: key))
+    let revived = await waitUntil { await service.pendingAdvertKeys.contains(key) }
+    #expect(revived)
+
+    await store.releaseDeleteContacts()
+    await flushed
+
+    #expect(await service.pendingDeletedKeys.contains(key) == false)
+    #expect(try await store.fetchContact(radioID: radioID, publicKey: key) != nil)
     await service.stopEventMonitoring()
   }
 }

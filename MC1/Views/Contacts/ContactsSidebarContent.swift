@@ -37,7 +37,8 @@ struct ContactsSidebarContent: View {
       searchText: searchText,
       filteredContacts: filteredContacts,
       hasLoadedOnce: viewModel.hasLoadedOnce,
-      viewModel: viewModel
+      viewModel: viewModel,
+      onRefresh: refreshNodes
     )
     .navigationTitle(L10n.Contacts.Contacts.List.title)
     .navigationDestination(for: ContactRoute.self) { route in
@@ -51,7 +52,13 @@ struct ContactsSidebarContent: View {
         BlockedContactsView()
       }
     }
-    .searchable(text: $searchText, prompt: searchPrompt)
+    // Always-visible drawer keeps search below the large title. Default toolbar
+    // placement on iOS 26 draws both in the same slot.
+    .searchable(
+      text: $searchText,
+      placement: .navigationBarDrawer(displayMode: .always),
+      prompt: searchPrompt
+    )
     .toolbar {
       bleStatusToolbarItem()
 
@@ -121,17 +128,6 @@ struct ContactsSidebarContent: View {
         } label: {
           Label(L10n.Contacts.Contacts.List.options, systemImage: "ellipsis.circle")
         }
-      }
-    }
-    .refreshable {
-      if appState.connectionState != .ready {
-        showOfflineRefreshAlert = true
-      } else {
-        // SwiftUI cancels a ScrollView's `.refreshable` task when observed state mutates
-        // mid-refresh (syncContacts sets `isSyncing`, re-evaluating this view), aborting the
-        // sync within a frame. Running it in a detached task shields it from that cancellation;
-        // awaiting the value keeps the refresh spinner up until the sync finishes.
-        await Task { await onSyncContacts() }.value
       }
     }
     .alert(L10n.Contacts.Contacts.List.cannotRefresh, isPresented: $showOfflineRefreshAlert) {
@@ -238,5 +234,15 @@ struct ContactsSidebarContent: View {
       Text(L10n.Contacts.Contacts.List.distanceRequiresLocation)
     }
     .errorAlert($viewModel.errorMessage, title: L10n.Contacts.Contacts.Common.error)
+  }
+
+  /// SwiftUI cancels a ScrollView's `.refreshable` task when observed state mutates
+  /// mid-refresh (`isSyncing`). The detached task shields the sync from that cancellation.
+  private func refreshNodes() async {
+    if appState.connectionState != .ready {
+      showOfflineRefreshAlert = true
+    } else {
+      await Task { await onSyncContacts() }.value
+    }
   }
 }

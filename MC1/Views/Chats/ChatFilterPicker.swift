@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Pinned glass filter bar for the Chats tab.
+/// Glass filter bar for the Chats tab.
 struct ChatFilterPicker: View {
   @Binding var selection: ChatFilter
   @Environment(\.isSearching) private var isSearching

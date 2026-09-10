@@ -360,14 +360,14 @@ struct EntityQueryScopingTests {
     #expect(currentRadioScope(bridge)?.radioID == nil)
   }
 
-  @Test func `scope is nil when app state has no current radio`() async {
-    // Clear host last-connected state so a bare AppState() is not poisoned by a
-    // previous simulator run's UserDefaults.standard lastConnectedRadioID.
+  @Test func `scope is nil when app state has no current radio`() throws {
+    let suiteName = "io.pocketmesh.tests.entity-identity.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defaults.removePersistentDomain(forName: suiteName)
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
     let bridge = IntentBridge()
-    let appState = AppState()
-    if let deviceID = appState.connectionManager.lastConnectedDeviceID {
-      await appState.connectionManager.clearPersistedConnection(for: deviceID)
-    }
+    let appState = AppState(defaults: defaults)
     bridge.adopt(appState)
 
     #expect(appState.currentRadioID == nil)

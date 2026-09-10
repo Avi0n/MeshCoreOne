@@ -107,7 +107,11 @@
 
 /* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
 "deviceScan.error.authenticationFailed" = "Die gespeicherte Kopplung mit diesem Funkgerät funktioniert nicht mehr. Tippe auf „Entfernen und erneut versuchen“, um es in der App neu zu koppeln; das Funkgerät zeigt möglicherweise einen neuen Kopplungscode an.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "Die gespeicherte Kopplung mit diesem Funkgerät funktioniert nicht mehr. Vergiss dieses Funkgerät unter Bluetooth in den Systemeinstellungen und tippe dann auf „Entfernen und erneut versuchen“.";
 "deviceScan.error.pinRejected" = "Die PIN wurde nicht akzeptiert. Überprüfe die auf deinem Gerät angezeigte PIN und versuche es erneut. iOS fragt dich zuerst, ob die fehlgeschlagene Kopplung entfernt werden soll.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "Die PIN wurde nicht akzeptiert. Vergiss dieses Funkgerät unter Bluetooth in den Systemeinstellungen und versuche es dann erneut.";
 "deviceScan.error.connectionFailed" = "Verbindung zum Gerät fehlgeschlagen. Versuche es erneut, oder entferne das Gerät, wenn das Problem weiterhin besteht.";
 
 // MARK: - Troubleshooting Sheet
@@ -265,8 +269,11 @@
 /* Location: RegionPickerView.swift - Country picker label */
 "region.country" = "Land";
 
-/* Location: RegionPickerView.swift - State/Province picker label */
-"region.administrativeArea" = "Bundesland / Kanton";
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "Staat";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "Provinz";
 
 /* Location: RegionPickerView.swift - Continue CTA in manual picker */
 "region.continue" = "Weiter";

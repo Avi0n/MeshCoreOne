@@ -16,8 +16,7 @@ struct ReactionServiceTests {
       targetTimestamp: timestamp
     )
 
-    // Verify format: {emoji}@[{sender}]\n{hash}
-    #expect(text.hasPrefix("👍@[AlphaNode]\n"))
+    #expect(text.hasPrefix("@[AlphaNode]👍\n"))
 
     // Verify 8-char Crockford Base32 identifier is present (lowercase) at end
     let idPattern = #/\n([0-9a-hj-km-np-tv-z]{8})$/#
@@ -36,7 +35,7 @@ struct ReactionServiceTests {
       targetTimestamp: timestamp
     )
 
-    #expect(text.hasPrefix("❤️@[Node]\n"))
+    #expect(text.hasPrefix("@[Node]❤️\n"))
     #expect(text.hasSuffix(text.suffix(8))) // ends with 8-char hash
   }
 

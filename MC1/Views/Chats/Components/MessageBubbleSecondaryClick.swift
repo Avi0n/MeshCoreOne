@@ -1,6 +1,26 @@
 import SwiftUI
 import UIKit
 
+/// Claims secondary-click hits for the context-menu interaction; primary clicks pass through
+/// so links and card taps under the overlay still receive them.
+final class SecondaryClickCatcherView: UIView {
+  nonisolated static func shouldClaimHit(buttonMask: UIEvent.ButtonMask) -> Bool {
+    buttonMask.contains(.secondary) || !buttonMask.contains(.primary)
+  }
+
+  /// A nil event is claimed because two-finger click is a context-menu request, not a button.
+  nonisolated static func shouldClaimHit(event: UIEvent?) -> Bool {
+    guard let event else { return true }
+    return shouldClaimHit(buttonMask: event.buttonMask)
+  }
+
+  override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+    guard self.point(inside: point, with: event) else { return nil }
+    guard Self.shouldClaimHit(event: event) else { return nil }
+    return self
+  }
+}
+
 /// A transparent catcher for a secondary click (right click, trackpad two-finger click, or
 /// control-click), used on Mac to open a message bubble's actions sheet — the shortcut a secondary
 /// click implies, matching the sustained press that opens it elsewhere.
@@ -20,14 +40,14 @@ private struct SecondaryClickCatcher: UIViewRepresentable {
     Coordinator(onSecondaryClick: onSecondaryClick)
   }
 
-  func makeUIView(context: Context) -> UIView {
-    let view = UIView()
+  func makeUIView(context: Context) -> SecondaryClickCatcherView {
+    let view = SecondaryClickCatcherView()
     view.backgroundColor = .clear
     view.addInteraction(UIContextMenuInteraction(delegate: context.coordinator))
     return view
   }
 
-  func updateUIView(_ uiView: UIView, context: Context) {
+  func updateUIView(_ uiView: SecondaryClickCatcherView, context: Context) {
     context.coordinator.onSecondaryClick = onSecondaryClick
   }
 

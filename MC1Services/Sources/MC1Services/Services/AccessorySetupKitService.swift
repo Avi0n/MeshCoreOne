@@ -309,7 +309,7 @@
         pairedCount: \(pairedAccessories.count), \
         displayItems: \(displayItems.count), \
         filteredDiscovery: \(usedFilteredDiscovery), \
-        criteria: \(AccessorySetupKitLogFormatter.criteriaSummary(AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria))
+        serviceUUID: \(AccessorySetupKitDiscoveryCriteria.bluetoothServiceUUID)
         """
       )
 
@@ -441,17 +441,18 @@
     }
 
     private func makePickerDisplayItems(productImage: UIImage) -> [ASPickerDisplayItem] {
-      AccessorySetupKitDiscoveryCriteria.supportedBluetoothCriteria.map { criterion in
-        let descriptor = ASDiscoveryDescriptor()
-        descriptor.bluetoothServiceUUID = CBUUID(string: criterion.bluetoothServiceUUID)
-        descriptor.bluetoothNameSubstring = criterion.bluetoothNameSubstring
+      let descriptor = ASDiscoveryDescriptor()
+      descriptor.bluetoothServiceUUID = CBUUID(
+        string: AccessorySetupKitDiscoveryCriteria.bluetoothServiceUUID
+      )
 
-        return ASPickerDisplayItem(
+      return [
+        ASPickerDisplayItem(
           name: Self.defaultAccessoryName,
           productImage: productImage,
           descriptor: descriptor
         )
-      }
+      ]
     }
 
     /// Relabels a filtered-discovery match with its advertised BLE name, falling back to

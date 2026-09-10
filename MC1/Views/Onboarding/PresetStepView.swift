@@ -42,19 +42,14 @@ struct PresetStepView: View {
     return result
   }
 
-  private var currentDevicePreset: RadioPreset? {
-    guard let device = appState.connectedDevice else { return nil }
-    return RadioPresets.matchingPreset(
+  private var alreadyConfigured: Bool {
+    guard !forceShowPicker, let recommended, let device = appState.connectedDevice else { return false }
+    return RadioPresets.matchingPresets(
       frequencyKHz: device.frequency,
       bandwidthKHz: device.bandwidth,
       spreadingFactor: device.spreadingFactor,
       codingRate: device.codingRate
-    )
-  }
-
-  private var alreadyConfigured: Bool {
-    guard !forceShowPicker, let recommended, let currentDevicePreset else { return false }
-    return recommended.id == currentDevicePreset.id
+    ).contains { $0.id == recommended.id }
   }
 
   private var canApply: Bool {
