@@ -1,8 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// Onboarding step 5. Lands on the region's recommended preset when one
-/// exists; falls back to locale-sorted alternatives when `regionSelection` is nil.
+/// Onboarding step 5. Lists presets for the selected place; falls back to
+/// locale-sorted alternatives when `regionSelection` is nil.
 struct PresetStepView: View {
   @Environment(\.appState) private var appState
 
@@ -11,7 +11,6 @@ struct PresetStepView: View {
   @State private var errorMessage: String?
   @State private var retryAlert = RetryAlertState()
   @State private var commitTrigger = false
-  @State private var forceShowPicker = false
 
   private var region: RegionSelection? {
     appState.regionSelection
@@ -42,77 +41,16 @@ struct PresetStepView: View {
     return result
   }
 
-  private var alreadyConfigured: Bool {
-    guard !forceShowPicker, let recommended, let device = appState.connectedDevice else { return false }
-    return RadioPresets.matchingPresets(
-      frequencyKHz: device.frequency,
-      bandwidthKHz: device.bandwidth,
-      spreadingFactor: device.spreadingFactor,
-      codingRate: device.codingRate
-    ).contains { $0.id == recommended.id }
-  }
-
   private var canApply: Bool {
     appState.services?.settingsService != nil
   }
 
   var body: some View {
-    Group {
-      if alreadyConfigured, let recommended {
-        alreadyConfiguredState(preset: recommended)
-      } else {
-        pickerState
-      }
-    }
-    .sensoryFeedback(.success, trigger: commitTrigger)
-    .errorAlert($errorMessage)
-    .retryAlert(retryAlert)
-    .onAppear { selectedID = recommended?.id ?? alternatives.first?.id }
-  }
-
-  private func alreadyConfiguredState(preset: RadioPreset) -> some View {
-    VStack(spacing: OnboardingMetrics.cardSpacing) {
-      Spacer()
-      Image(systemName: "checkmark.circle.fill")
-        .font(.system(size: OnboardingMetrics.iconSize))
-        .foregroundStyle(.tint)
-      Text(L10n.Onboarding.Preset.AlreadyConfigured.title)
-        .font(.largeTitle)
-        .bold()
-        .accessibilityHeading(.h1)
-      Text(L10n.Onboarding.Preset.AlreadyConfigured.subtitle(
-        preset.name,
-        region.map { RegionalAreas.displayName(for: $0) } ?? ""
-      ))
-      .font(.body)
-      .foregroundStyle(.secondary)
-      .multilineTextAlignment(.center)
-      .padding(.horizontal)
-
-      Spacer()
-
-      VStack(spacing: OnboardingMetrics.mediumSpacing) {
-        Button {
-          commitTrigger.toggle()
-          appState.completeOnboarding()
-        } label: {
-          Text(L10n.Onboarding.Preset.AlreadyConfigured.done)
-            .font(.headline)
-            .frame(maxWidth: .infinity)
-            .padding()
-        }
-        .liquidGlassProminentButtonStyle()
-
-        Button(L10n.Onboarding.Preset.AlreadyConfigured.choose) {
-          forceShowPicker = true
-        }
-        .buttonStyle(.bordered)
-        .tint(.accentColor)
-        .frame(minHeight: OnboardingMetrics.minHitTarget)
-      }
-      .padding(.horizontal)
-      .padding(.bottom)
-    }
+    pickerState
+      .sensoryFeedback(.success, trigger: commitTrigger)
+      .errorAlert($errorMessage)
+      .retryAlert(retryAlert)
+      .onAppear { selectedID = recommended?.id ?? alternatives.first?.id }
   }
 
   private var pickerState: some View {
@@ -131,6 +69,11 @@ struct PresetStepView: View {
             .font(.body)
             .foregroundStyle(.secondary)
         }
+        Text(L10n.Settings.Radio.regulationsFooter)
+          .font(.body)
+          .foregroundStyle(.secondary)
+          .multilineTextAlignment(.center)
+          .padding(.horizontal)
       }
       .padding(.top, OnboardingMetrics.headerTopPadding)
 

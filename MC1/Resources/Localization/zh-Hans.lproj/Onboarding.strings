@@ -195,8 +195,8 @@
 /* Location: PresetStepView.swift - Title */
 "preset.title" = "选择预设";
 
-/* Location: PresetStepView.swift - Subtitle when recommendation exists */
-"preset.subtitle.recommended" = "为 %@ 推荐";
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "%@ 的预设";
 
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
 "preset.subtitle.locale" = "为您的无线电选择预设。";
@@ -206,18 +206,6 @@
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "使用 %@";
-
-/* Location: PresetStepView.swift - Already-configured title */
-"preset.alreadyConfigured.title" = "已配置";
-
-/* Location: PresetStepView.swift - Already-configured subtitle */
-"preset.alreadyConfigured.subtitle" = "您的无线电已在 %@，这是 %@ 的推荐预设。";
-
-/* Location: PresetStepView.swift - Already-configured primary CTA */
-"preset.alreadyConfigured.done" = "完成";
-
-/* Location: PresetStepView.swift - Already-configured secondary link */
-"preset.alreadyConfigured.choose" = "选择其他预设";
 
 /* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
 "preset.error.notConnected" = "连接到您的设备以应用此预设。";

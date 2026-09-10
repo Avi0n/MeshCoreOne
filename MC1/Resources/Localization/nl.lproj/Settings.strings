@@ -836,10 +836,10 @@
 "radio.repeatMode.confirm.enable" = "Inschakelen";
 
 /* Location: RadioPresetSection.swift - Footer line listing the user's region */
-"radio.regionFooter" = "Aanbevolen presets worden getoond voor %@.";
+"radio.regionFooter" = "Voorinstellingen voor %@ worden getoond.";
 
-/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "De aanbevolen preset voor je locatie is %@.";
+/* Location: RadioPresetSection.swift - Footer reminding the operator to comply with local radio laws */
+"radio.regulationsFooter" = "Je bent verantwoordelijk voor het naleven van de lokale radiowetgeving.";
 
 // MARK: - Telemetry Settings Section
 

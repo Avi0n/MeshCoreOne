@@ -2994,18 +2994,6 @@ public enum L10n {
       public static func use(_ p1: Any) -> String {
         return L10n.tr("Onboarding", "preset.use", String(describing: p1), fallback: "Use %@")
       }
-      public enum AlreadyConfigured {
-        /// Location: PresetStepView.swift - Already-configured secondary link
-        public static let choose = L10n.tr("Onboarding", "preset.alreadyConfigured.choose", fallback: "Choose a different preset")
-        /// Location: PresetStepView.swift - Already-configured primary CTA
-        public static let done = L10n.tr("Onboarding", "preset.alreadyConfigured.done", fallback: "Done")
-        /// Location: PresetStepView.swift - Already-configured subtitle
-        public static func subtitle(_ p1: Any, _ p2: Any) -> String {
-          return L10n.tr("Onboarding", "preset.alreadyConfigured.subtitle", String(describing: p1), String(describing: p2), fallback: "Your radio is already on %@, the recommended preset for %@.")
-        }
-        /// Location: PresetStepView.swift - Already-configured title
-        public static let title = L10n.tr("Onboarding", "preset.alreadyConfigured.title", fallback: "Already configured")
-      }
       public enum Error {
         /// Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring
         public static let notConnected = L10n.tr("Onboarding", "preset.error.notConnected", fallback: "Connect to your device to apply this preset.")
@@ -3017,9 +3005,9 @@ public enum L10n {
       public enum Subtitle {
         /// Location: PresetStepView.swift - Subtitle for empty-region fallback
         public static let locale = L10n.tr("Onboarding", "preset.subtitle.locale", fallback: "Pick a preset for your radio.")
-        /// Location: PresetStepView.swift - Subtitle when recommendation exists
+        /// Location: PresetStepView.swift - Subtitle listing presets for the selected place
         public static func recommended(_ p1: Any) -> String {
-          return L10n.tr("Onboarding", "preset.subtitle.recommended", String(describing: p1), fallback: "Recommended for %@")
+          return L10n.tr("Onboarding", "preset.subtitle.recommended", String(describing: p1), fallback: "Presets for %@")
         }
       }
     }
@@ -5196,18 +5184,16 @@ public enum L10n {
       public static let footer = L10n.tr("Settings", "radio.footer", fallback: "Choose a preset matching nearby radios. MeshCore devices must use the same radio settings in order to communicate.")
       /// Section header for radio settings
       public static let header = L10n.tr("Settings", "radio.header", fallback: "Radio")
-      /// Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region
-      public static func mismatchHint(_ p1: Any) -> String {
-        return L10n.tr("Settings", "radio.mismatchHint", String(describing: p1), fallback: "The recommended preset for your location is %@.")
-      }
       /// Label for radio preset picker
       public static let preset = L10n.tr("Settings", "radio.preset", fallback: "Radio Preset")
       /// Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin).
       public static let presetLocation = L10n.tr("Settings", "radio.presetLocation", fallback: "Location")
       /// Location: RadioPresetSection.swift - Footer line listing the user's region
       public static func regionFooter(_ p1: Any) -> String {
-        return L10n.tr("Settings", "radio.regionFooter", String(describing: p1), fallback: "Showing recommended presets for %@.")
+        return L10n.tr("Settings", "radio.regionFooter", String(describing: p1), fallback: "Showing presets for %@.")
       }
+      /// Location: RadioPresetSection.swift - Footer reminding the operator to comply with local radio laws
+      public static let regulationsFooter = L10n.tr("Settings", "radio.regulationsFooter", fallback: "You are responsible for complying with local radio laws.")
       /// Toggle label for repeat mode
       public static let repeatMode = L10n.tr("Settings", "radio.repeatMode", fallback: "Repeat Mode")
       public enum PresetLocation {

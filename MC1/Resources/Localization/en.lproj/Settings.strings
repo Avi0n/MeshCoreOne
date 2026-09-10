@@ -874,10 +874,10 @@
 "radio.repeatMode.confirm.enable" = "Enable";
 
 /* Location: RadioPresetSection.swift - Footer line listing the user's region */
-"radio.regionFooter" = "Showing recommended presets for %@.";
+"radio.regionFooter" = "Showing presets for %@.";
 
-/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "The recommended preset for your location is %@.";
+/* Location: RadioPresetSection.swift - Footer reminding the operator to comply with local radio laws */
+"radio.regulationsFooter" = "You are responsible for complying with local radio laws.";
 
 // MARK: - Telemetry Settings Section
 

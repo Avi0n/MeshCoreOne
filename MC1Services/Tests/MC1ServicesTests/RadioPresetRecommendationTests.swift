@@ -432,51 +432,6 @@ struct RadioPresetVisiblePresetsTests {
   }
 }
 
-@Suite("RadioPresets.showsMismatch(appliedID:region:)")
-struct RadioPresetMismatchTests {
-  private let la = RegionSelection(
-    countryCode: "US",
-    administrativeAreaCode: "US-CA",
-    countyKey: "los angeles",
-    source: .location
-  )
-  private let pa = RegionSelection(
-    countryCode: "US",
-    administrativeAreaCode: "US-PA",
-    source: .location
-  )
-  private let texas = RegionSelection(
-    countryCode: "US",
-    administrativeAreaCode: "US-TX",
-    source: .location
-  )
-
-  @Test
-  func `LA county + us-ca mismatches`() {
-    #expect(RadioPresets.showsMismatch(appliedID: "us-ca", region: la))
-  }
-
-  @Test
-  func `PA + us-ca mismatches`() {
-    #expect(RadioPresets.showsMismatch(appliedID: "us-ca", region: pa))
-  }
-
-  @Test
-  func `Texas + wcmesh mismatches`() {
-    #expect(RadioPresets.showsMismatch(appliedID: "wcmesh", region: texas))
-  }
-
-  @Test
-  func `LA county + wcmesh does not mismatch`() {
-    #expect(!RadioPresets.showsMismatch(appliedID: "wcmesh", region: la))
-  }
-
-  @Test
-  func `US + eu-narrow mismatches`() {
-    #expect(RadioPresets.showsMismatch(appliedID: "eu-narrow", region: texas))
-  }
-}
-
 @Suite("RadioPresets alias identity")
 struct RadioPresetAliasIdentityTests {
   private func rf(_ id: String) throws -> RadioPreset {

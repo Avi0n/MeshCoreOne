@@ -198,8 +198,8 @@
 /* Location: PresetStepView.swift - Title */
 "preset.title" = "Wybierz preset";
 
-/* Location: PresetStepView.swift - Subtitle when recommendation exists */
-"preset.subtitle.recommended" = "Zalecany dla %@";
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "Presety dla %@";
 
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
 "preset.subtitle.locale" = "Wybierz preset dla swojego radia.";
@@ -209,18 +209,6 @@
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "Użyj %@";
-
-/* Location: PresetStepView.swift - Already-configured title */
-"preset.alreadyConfigured.title" = "Już skonfigurowano";
-
-/* Location: PresetStepView.swift - Already-configured subtitle */
-"preset.alreadyConfigured.subtitle" = "Twoje radio jest już na %@, zalecanym presecie dla %@.";
-
-/* Location: PresetStepView.swift - Already-configured primary CTA */
-"preset.alreadyConfigured.done" = "Gotowe";
-
-/* Location: PresetStepView.swift - Already-configured secondary link */
-"preset.alreadyConfigured.choose" = "Wybierz inny preset";
 
 /* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
 "preset.error.notConnected" = "Połącz się z urządzeniem, aby zastosować ten preset.";

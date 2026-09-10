@@ -198,8 +198,8 @@
 /* Location: PresetStepView.swift - Title */
 "preset.title" = "Виберіть пресет";
 
-/* Location: PresetStepView.swift - Subtitle when recommendation exists */
-"preset.subtitle.recommended" = "Рекомендовано для %@";
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "Пресети для %@";
 
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
 "preset.subtitle.locale" = "Виберіть пресет для вашого радіо.";
@@ -209,18 +209,6 @@
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "Використати %@";
-
-/* Location: PresetStepView.swift - Already-configured title */
-"preset.alreadyConfigured.title" = "Вже налаштовано";
-
-/* Location: PresetStepView.swift - Already-configured subtitle */
-"preset.alreadyConfigured.subtitle" = "Ваше радіо вже налаштовано на %@, рекомендований пресет для %@.";
-
-/* Location: PresetStepView.swift - Already-configured primary CTA */
-"preset.alreadyConfigured.done" = "Готово";
-
-/* Location: PresetStepView.swift - Already-configured secondary link */
-"preset.alreadyConfigured.choose" = "Вибрати інший пресет";
 
 /* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
 "preset.error.notConnected" = "Підключіться до пристрою, щоб застосувати цей пресет.";

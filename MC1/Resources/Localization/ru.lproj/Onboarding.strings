@@ -198,8 +198,8 @@
 /* Location: PresetStepView.swift - Title */
 "preset.title" = "Выберите предустановку";
 
-/* Location: PresetStepView.swift - Subtitle when recommendation exists */
-"preset.subtitle.recommended" = "Рекомендуется для %@";
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "Предустановки для %@";
 
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
 "preset.subtitle.locale" = "Выберите предустановку для своего радио.";
@@ -209,18 +209,6 @@
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "Использовать %@";
-
-/* Location: PresetStepView.swift - Already-configured title */
-"preset.alreadyConfigured.title" = "Уже настроено";
-
-/* Location: PresetStepView.swift - Already-configured subtitle */
-"preset.alreadyConfigured.subtitle" = "Ваше радио уже настроено на %@, рекомендуемую предустановку для %@.";
-
-/* Location: PresetStepView.swift - Already-configured primary CTA */
-"preset.alreadyConfigured.done" = "Готово";
-
-/* Location: PresetStepView.swift - Already-configured secondary link */
-"preset.alreadyConfigured.choose" = "Выбрать другую предустановку";
 
 /* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
 "preset.error.notConnected" = "Подключитесь к устройству, чтобы применить эту предустановку.";

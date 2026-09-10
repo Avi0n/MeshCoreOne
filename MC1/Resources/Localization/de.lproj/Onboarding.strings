@@ -198,8 +198,8 @@
 /* Location: PresetStepView.swift - Title */
 "preset.title" = "Preset auswählen";
 
-/* Location: PresetStepView.swift - Subtitle when recommendation exists */
-"preset.subtitle.recommended" = "Empfohlen für %@";
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "Presets für %@";
 
 /* Location: PresetStepView.swift - Subtitle for empty-region fallback */
 "preset.subtitle.locale" = "Wähle ein Preset für dein Funkgerät.";
@@ -209,18 +209,6 @@
 
 /* Location: PresetStepView.swift - Apply CTA "Use %@" */
 "preset.use" = "%@ verwenden";
-
-/* Location: PresetStepView.swift - Already-configured title */
-"preset.alreadyConfigured.title" = "Bereits konfiguriert";
-
-/* Location: PresetStepView.swift - Already-configured subtitle */
-"preset.alreadyConfigured.subtitle" = "Dein Gerät ist bereits auf %@, dem empfohlenen Preset für %@.";
-
-/* Location: PresetStepView.swift - Already-configured primary CTA */
-"preset.alreadyConfigured.done" = "Fertig";
-
-/* Location: PresetStepView.swift - Already-configured secondary link */
-"preset.alreadyConfigured.choose" = "Anderes Preset wählen";
 
 /* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
 "preset.error.notConnected" = "Verbinde dich mit deinem Gerät, um dieses Preset anzuwenden.";

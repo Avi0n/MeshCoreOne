@@ -441,21 +441,4 @@ public enum RadioPresets {
     }
     return result
   }
-
-  /// These three share the US country list, so `presets(for:)` membership is not a mismatch.
-  private static let overlappingUSPresetIDs: Set<String> = ["us-ca", "wcmesh", "phillymesh"]
-
-  /// Whether the applied catalog id is not the recommended preset for `region`.
-  public static func showsMismatch(appliedID: String, region: RegionSelection) -> Bool {
-    let recommendedID = recommended(for: region)?.id
-    if recommendedID == appliedID {
-      return false
-    }
-    if !presets(for: region).contains(where: { $0.id == appliedID }) {
-      return true
-    }
-    guard let recommendedID else { return false }
-    return overlappingUSPresetIDs.contains(appliedID)
-      && overlappingUSPresetIDs.contains(recommendedID)
-  }
 }
