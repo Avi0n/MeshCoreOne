@@ -9,13 +9,18 @@ struct NoDeviceSheet: View {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @State private var dismissTrigger = false
 
+  @ScaledMetric(relativeTo: .body) private var largeSpacing = OnboardingMetrics.largeSpacing
+  @ScaledMetric(relativeTo: .body) private var mediumSpacing = OnboardingMetrics.mediumSpacing
+  @ScaledMetric(relativeTo: .body) private var sheetTopPadding = OnboardingMetrics.sheetTopPadding
+  @ScaledMetric(relativeTo: .body) private var minHitTarget = OnboardingMetrics.minHitTarget
+
   var body: some View {
-    VStack(spacing: OnboardingMetrics.largeSpacing) {
+    VStack(spacing: largeSpacing) {
       Text(L10n.Onboarding.NoDevice.Sheet.title)
         .font(.title2)
         .bold()
         .accessibilityHeading(.h1)
-        .padding(.top, OnboardingMetrics.sheetTopPadding)
+        .padding(.top, sheetTopPadding)
 
       Text(L10n.Onboarding.NoDevice.Sheet.body)
         .font(.body)
@@ -25,7 +30,7 @@ struct NoDeviceSheet: View {
 
       Spacer()
 
-      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+      VStack(spacing: mediumSpacing) {
         Button {
           dismissTrigger.toggle()
           appState.completeOnboarding()
@@ -37,17 +42,17 @@ struct NoDeviceSheet: View {
             .padding()
         }
         .liquidGlassProminentButtonStyle()
-        .frame(minHeight: OnboardingMetrics.minHitTarget)
+        .frame(minHeight: minHitTarget)
 
         Button(L10n.Onboarding.NoDevice.Sheet.cancel) {
           dismiss()
         }
         .buttonStyle(.bordered)
         .tint(.secondary)
-        .frame(minHeight: OnboardingMetrics.minHitTarget)
+        .frame(minHeight: minHitTarget)
       }
       .padding(.horizontal)
-      .padding(.bottom, OnboardingMetrics.largeSpacing)
+      .padding(.bottom, largeSpacing)
     }
     .sensoryFeedback(.selection, trigger: dismissTrigger)
     .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [.medium])

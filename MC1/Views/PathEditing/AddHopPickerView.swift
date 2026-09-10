@@ -357,13 +357,17 @@ private struct PickerRowView: View {
   @State private var showSuccess = false
   @State private var resetTask: Task<Void, Never>?
 
+  @ScaledMetric(relativeTo: .body) private var rowContentSpacing = PathEditMetrics.rowContentSpacing
+  @ScaledMetric(relativeTo: .body) private var badgeSpacing = PathEditMetrics.badgeSpacing
+  @ScaledMetric(relativeTo: .body) private var tapTarget = PathEditMetrics.tapTarget
+
   private static let successDuration: Duration = .seconds(1.5)
 
   var body: some View {
     Button(action: handleTap) {
-      HStack(spacing: PathEditMetrics.rowContentSpacing) {
+      HStack(spacing: rowContentSpacing) {
         VStack(alignment: .leading, spacing: 2) {
-          HStack(spacing: PathEditMetrics.badgeSpacing) {
+          HStack(spacing: badgeSpacing) {
             Text(node.displayName)
               .font(.body)
             if node.isFavorite {
@@ -394,7 +398,7 @@ private struct PickerRowView: View {
         Spacer()
         trailingIcon
       }
-      .frame(minHeight: PathEditMetrics.tapTarget)
+      .frame(minHeight: tapTarget)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -441,14 +445,17 @@ private struct PickerRowView: View {
 private struct BulkCodeRow: View {
   let classification: HopCodeClassification
 
+  @ScaledMetric(relativeTo: .body) private var rowContentSpacing = PathEditMetrics.rowContentSpacing
+  @ScaledMetric(relativeTo: .body) private var tapTarget = PathEditMetrics.tapTarget
+
   var body: some View {
-    HStack(spacing: PathEditMetrics.rowContentSpacing) {
+    HStack(spacing: rowContentSpacing) {
       Text(rowText)
         .font(.callout)
       Spacer()
       trailingIcon
     }
-    .frame(minHeight: PathEditMetrics.tapTarget)
+    .frame(minHeight: tapTarget)
     .accessibilityElement(children: .combine)
   }
 

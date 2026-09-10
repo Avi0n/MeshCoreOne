@@ -5,11 +5,13 @@ import SwiftUI
 struct PulsingAntenna: View {
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+  @ScaledMetric(relativeTo: .body) private var heroSize = OnboardingMetrics.heroSize
+
   var body: some View {
     Image(systemName: "antenna.radiowaves.left.and.right")
-      .font(.system(size: OnboardingMetrics.heroSize / 2))
+      .font(.system(size: heroSize / 2))
       .foregroundStyle(.tint)
-      .frame(height: OnboardingMetrics.heroSize)
+      .frame(height: heroSize)
       .symbolEffect(.pulse, isActive: !reduceMotion)
       .accessibilityHidden(true)
   }

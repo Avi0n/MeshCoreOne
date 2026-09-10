@@ -9,12 +9,15 @@ struct PathEditCTALabel: View {
   let title: String
   let systemImage: String
 
+  @ScaledMetric(relativeTo: .body) private var ctaIconSpacing = PathEditMetrics.ctaIconSpacing
+  @ScaledMetric(relativeTo: .body) private var ctaIconSize = PathEditMetrics.ctaIconSize
+
   var body: some View {
-    HStack(spacing: PathEditMetrics.ctaIconSpacing) {
+    HStack(spacing: ctaIconSpacing) {
       Spacer()
       Image(systemName: systemImage)
         .font(.body.weight(.semibold))
-        .frame(width: PathEditMetrics.ctaIconSize, height: PathEditMetrics.ctaIconSize)
+        .frame(width: ctaIconSize, height: ctaIconSize)
       Text(title)
         .font(.body.weight(.semibold))
       Spacer()

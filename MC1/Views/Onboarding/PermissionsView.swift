@@ -7,11 +7,18 @@ struct PermissionsView: View {
   @State private var coordinator = PermissionsCoordinator()
   @State private var permissionGrantTrigger = false
 
+  @ScaledMetric(relativeTo: .body) private var sheetTopPadding = OnboardingMetrics.sheetTopPadding
+  @ScaledMetric(relativeTo: .body) private var mediumSpacing = OnboardingMetrics.mediumSpacing
+  @ScaledMetric(relativeTo: .body) private var iconSize = OnboardingMetrics.iconSize
+  @ScaledMetric(relativeTo: .body) private var headerTopPadding = OnboardingMetrics.headerTopPadding
+  @ScaledMetric(relativeTo: .body) private var contentPadding = OnboardingMetrics.contentPadding
+  @ScaledMetric(relativeTo: .body) private var cardSpacing = OnboardingMetrics.cardSpacing
+
   var body: some View {
-    VStack(spacing: OnboardingMetrics.sheetTopPadding) {
-      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+    VStack(spacing: sheetTopPadding) {
+      VStack(spacing: mediumSpacing) {
         Image(systemName: "checkmark.shield.fill")
-          .font(.system(size: OnboardingMetrics.iconSize))
+          .font(.system(size: iconSize))
           .foregroundStyle(.tint)
 
         Text(L10n.Onboarding.Permissions.title)
@@ -25,15 +32,15 @@ struct PermissionsView: View {
           .multilineTextAlignment(.center)
           .padding(.horizontal)
       }
-      .padding(.top, OnboardingMetrics.headerTopPadding)
+      .padding(.top, headerTopPadding)
 
       GeometryReader { proxy in
         ScrollView {
           VStack(spacing: 0) {
             Spacer(minLength: 0)
 
-            LiquidGlassContainer(spacing: OnboardingMetrics.contentPadding) {
-              VStack(spacing: OnboardingMetrics.cardSpacing) {
+            LiquidGlassContainer(spacing: contentPadding) {
+              VStack(spacing: cardSpacing) {
                 PermissionCard(
                   icon: "bell.fill",
                   title: L10n.Onboarding.Permissions.Notifications.title,

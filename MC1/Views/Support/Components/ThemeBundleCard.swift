@@ -11,6 +11,8 @@ struct ThemeBundleCard: View {
   @Environment(\.appTheme) private var theme
   @State private var isPurchasing = false
 
+  @ScaledMetric(relativeTo: .body) private var cornerRadius = ThemeCardMetrics.cornerRadius
+
   var body: some View {
     VStack(alignment: .center, spacing: 10) {
       Text(L10n.Settings.Support.Bundle.title)
@@ -23,7 +25,7 @@ struct ThemeBundleCard: View {
     }
     .padding(12)
     .frame(maxWidth: .infinity, alignment: .center)
-    .background(theme.surfaces?.card ?? Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: ThemeCardMetrics.cornerRadius))
+    .background(theme.surfaces?.card ?? Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: cornerRadius))
     .accessibilityElement(children: .ignore)
     .accessibilityLabel(accessibilityLabel)
     .accessibilityHint(isActionable ? L10n.Settings.Support.Accessibility.BundleCard.lockedHint : "")

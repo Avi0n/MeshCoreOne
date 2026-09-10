@@ -6,6 +6,11 @@ struct ThemeSelectionCard: View {
   let isSelected: Bool
   let onSelect: () -> Void
 
+  @ScaledMetric(relativeTo: .body) private var badgeIconSpacing = ThemeCardMetrics.badgeIconSpacing
+  @ScaledMetric(relativeTo: .body) private var contentPadding = ThemeCardMetrics.contentPadding
+  @ScaledMetric(relativeTo: .body) private var cornerRadius = ThemeCardMetrics.cornerRadius
+  @ScaledMetric(relativeTo: .body) private var selectionStrokeWidth = ThemeCardMetrics.selectionStrokeWidth
+
   var body: some View {
     Button(action: onSelect) {
       VStack(spacing: 8) {
@@ -14,7 +19,7 @@ struct ThemeSelectionCard: View {
           .font(.subheadline.weight(.medium))
           .lineLimit(1)
         if isSelected {
-          HStack(spacing: ThemeCardMetrics.badgeIconSpacing) {
+          HStack(spacing: badgeIconSpacing) {
             Image(systemName: "checkmark")
             Text(L10n.Settings.Appearance.Themes.selected)
           }
@@ -24,11 +29,11 @@ struct ThemeSelectionCard: View {
           Color.clear.frame(height: 1)
         }
       }
-      .padding(ThemeCardMetrics.contentPadding)
+      .padding(contentPadding)
       .frame(maxWidth: .infinity)
       .overlay(
-        RoundedRectangle(cornerRadius: ThemeCardMetrics.cornerRadius)
-          .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: ThemeCardMetrics.selectionStrokeWidth)
+        RoundedRectangle(cornerRadius: cornerRadius)
+          .strokeBorder(isSelected ? Color.accentColor : .clear, lineWidth: selectionStrokeWidth)
       )
     }
     .buttonStyle(.plain)

@@ -91,6 +91,8 @@ struct MC1App: App {
         .environment(\.appTheme, appState.themeService.current)
         .tint(appState.themeService.current.chromeTint)
         .preferredColorScheme(appState.themeService.effectiveColorScheme)
+        .uiScale(appState.themeService.uiTextSizePreference.uiScale)
+        .environment(\.dynamicTypeSize, appState.themeService.uiTextSizePreference.dynamicTypeSize ?? .large)
       #if !SIDELOAD
         .task(id: ObjectIdentifier(appState)) { await appState.storeState.service.load() }
       #endif

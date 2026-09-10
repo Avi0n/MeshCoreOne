@@ -8,6 +8,10 @@ struct AppearanceView: View {
 
   @State private var schemeTrigger = 0
   @State private var selectionTrigger = 0
+  @State private var textSizeTrigger = 0
+
+  @ScaledMetric(relativeTo: .body) private var gridItemMinimum = ThemeCardMetrics.gridItemMinimum
+  @ScaledMetric(relativeTo: .body) private var gridSpacing = ThemeCardMetrics.gridSpacing
 
   private var themeService: ThemeService {
     appState.themeService
@@ -20,7 +24,7 @@ struct AppearanceView: View {
   private var columns: [GridItem] {
     dynamicTypeSize.isAccessibilitySize
       ? [GridItem(.flexible())]
-      : [GridItem(.adaptive(minimum: ThemeCardMetrics.gridItemMinimum), spacing: ThemeCardMetrics.gridSpacing)]
+      : [GridItem(.adaptive(minimum: gridItemMinimum), spacing: gridSpacing)]
   }
 
   /// "Purchase More Themes" is shown only when at least one registry theme is unavailable.
@@ -30,6 +34,7 @@ struct AppearanceView: View {
 
   var body: some View {
     List {
+      textSizeSection
       schemeSection
       themesSection
       if Self.shouldShowBrowseMore(available: availableThemes) {
@@ -46,6 +51,19 @@ struct AppearanceView: View {
     .navigationBarTitleDisplayMode(.inline)
     .sensoryFeedback(.selection, trigger: schemeTrigger)
     .sensoryFeedback(.selection, trigger: selectionTrigger)
+    .sensoryFeedback(.selection, trigger: textSizeTrigger)
+  }
+
+  private var textSizeSection: some View {
+    Section {
+      Picker(L10n.Settings.Appearance.TextSize.header, selection: textSizeBinding) {
+        ForEach(AppUITextSizePreference.allCases) { preference in
+          Text(textSizeLabel(preference)).tag(preference)
+        }
+      }
+      .pickerStyle(.menu)
+    }
+    .themedRowBackground(activeTheme)
   }
 
   private var schemeSection: some View {
@@ -62,7 +80,7 @@ struct AppearanceView: View {
 
   private var themesSection: some View {
     Section {
-      LazyVGrid(columns: columns, spacing: ThemeCardMetrics.gridSpacing) {
+      LazyVGrid(columns: columns, spacing: gridSpacing) {
         ForEach(availableThemes) { theme in
           ThemeSelectionCard(
             theme: theme,
@@ -88,11 +106,30 @@ struct AppearanceView: View {
     )
   }
 
+  private var textSizeBinding: Binding<AppUITextSizePreference> {
+    Binding(
+      get: { themeService.uiTextSizePreference },
+      set: {
+        themeService.setUITextSizePreference($0)
+        textSizeTrigger += 1
+      }
+    )
+  }
+
   private func schemeLabel(_ preference: AppColorSchemePreference) -> String {
     switch preference {
     case .system: L10n.Settings.Appearance.Scheme.system
     case .light: L10n.Settings.Appearance.Scheme.light
     case .dark: L10n.Settings.Appearance.Scheme.dark
+    }
+  }
+
+  private func textSizeLabel(_ preference: AppUITextSizePreference) -> String {
+    switch preference {
+    case .system: L10n.Settings.Appearance.TextSize.system
+    case .large: L10n.Settings.Appearance.TextSize.large
+    case .xLarge: L10n.Settings.Appearance.TextSize.xLarge
+    case .xxLarge: L10n.Settings.Appearance.TextSize.xxLarge
     }
   }
 

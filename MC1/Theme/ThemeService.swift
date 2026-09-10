@@ -10,6 +10,7 @@ import SwiftUI
 final class ThemeService {
   private(set) var current: Theme
   private(set) var colorSchemePreference: AppColorSchemePreference
+  private(set) var uiTextSizePreference: AppUITextSizePreference
   private let store: StoreService
   private let defaults: UserDefaults
 
@@ -42,6 +43,17 @@ final class ThemeService {
                    forKey: PersistenceKeys.appColorSchemePreference)
     }
 
+    let storedTextSize = defaults.string(forKey: PersistenceKeys.appUITextSizePreference)
+    if let raw = storedTextSize, let preference = AppUITextSizePreference(rawValue: raw) {
+      uiTextSizePreference = preference
+    } else if storedTextSize == nil {
+      uiTextSizePreference = .system // missing key: no write-back
+    } else {
+      uiTextSizePreference = .system // unknown raw value: fall back and overwrite
+      defaults.set(AppUITextSizePreference.system.rawValue,
+                   forKey: PersistenceKeys.appUITextSizePreference)
+    }
+
     // StoreService is constructed before ThemeService, so this callback is wired before
     // any Transaction.updates emission.
     store.onEntitlementsChanged = { [weak self] in
@@ -60,6 +72,11 @@ final class ThemeService {
   func setColorSchemePreference(_ preference: AppColorSchemePreference) {
     colorSchemePreference = preference
     defaults.set(preference.rawValue, forKey: PersistenceKeys.appColorSchemePreference)
+  }
+
+  func setUITextSizePreference(_ preference: AppUITextSizePreference) {
+    uiTextSizePreference = preference
+    defaults.set(preference.rawValue, forKey: PersistenceKeys.appUITextSizePreference)
   }
 
   /// Theme-forced override wins; otherwise the user's global preference applies.
@@ -89,6 +106,9 @@ final class ThemeService {
 
     let resolvedScheme = resolveSchemePreferenceFromDefaults()
     if resolvedScheme != colorSchemePreference { colorSchemePreference = resolvedScheme }
+
+    let resolvedTextSize = resolveTextSizePreferenceFromDefaults()
+    if resolvedTextSize != uiTextSizePreference { uiTextSizePreference = resolvedTextSize }
   }
 
   private func resolveThemeFromDefaults() -> Theme {
@@ -120,6 +140,18 @@ final class ThemeService {
     // Unknown raw value (e.g., a future-build case via backup): fall back + corrective overwrite.
     defaults.set(AppColorSchemePreference.system.rawValue,
                  forKey: PersistenceKeys.appColorSchemePreference)
+    return .system
+  }
+
+  private func resolveTextSizePreferenceFromDefaults() -> AppUITextSizePreference {
+    let storedTextSize = defaults.string(forKey: PersistenceKeys.appUITextSizePreference)
+    if let raw = storedTextSize, let preference = AppUITextSizePreference(rawValue: raw) {
+      return preference
+    }
+    if storedTextSize == nil { return .system } // missing key: no write-back
+    // Unknown raw value (e.g., a future-build case via backup): fall back + corrective overwrite.
+    defaults.set(AppUITextSizePreference.system.rawValue,
+                 forKey: PersistenceKeys.appUITextSizePreference)
     return .system
   }
 

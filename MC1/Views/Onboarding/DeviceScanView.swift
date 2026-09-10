@@ -14,13 +14,17 @@ struct DeviceScanView: View {
   @State private var otherAppDeviceID: UUID?
   private var demoModeManager = DemoModeManager.shared
 
+  @ScaledMetric(relativeTo: .body) private var largeSpacing = OnboardingMetrics.largeSpacing
+  @ScaledMetric(relativeTo: .body) private var mediumSpacing = OnboardingMetrics.mediumSpacing
+  @ScaledMetric(relativeTo: .body) private var minHitTarget = OnboardingMetrics.minHitTarget
+
   private var hasConnectedDevice: Bool {
     appState.connectionState == .ready
   }
 
   var body: some View {
-    VStack(spacing: OnboardingMetrics.largeSpacing) {
-      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+    VStack(spacing: largeSpacing) {
+      VStack(spacing: mediumSpacing) {
         PulsingAntenna()
 
         Text(L10n.Onboarding.DeviceScan.title)
@@ -43,7 +47,7 @@ struct DeviceScanView: View {
       Spacer()
 
       if hasConnectedDevice, !didInitiatePairing {
-        VStack(spacing: OnboardingMetrics.mediumSpacing) {
+        VStack(spacing: mediumSpacing) {
           Text(L10n.Onboarding.DeviceScan.alreadyPaired)
             .font(.title2)
             .multilineTextAlignment(.center)
@@ -53,7 +57,7 @@ struct DeviceScanView: View {
 
       Spacer()
 
-      VStack(spacing: OnboardingMetrics.mediumSpacing) {
+      VStack(spacing: mediumSpacing) {
         if hasConnectedDevice {
           Button {
             appState.onboarding.onboardingPath.append(.region)
@@ -68,14 +72,14 @@ struct DeviceScanView: View {
           primaryCTA
 
           ViewThatFits {
-            HStack(spacing: OnboardingMetrics.largeSpacing) {
+            HStack(spacing: largeSpacing) {
               secondaryButtons
             }
-            VStack(spacing: OnboardingMetrics.mediumSpacing) {
+            VStack(spacing: mediumSpacing) {
               secondaryButtons
             }
           }
-          .frame(minHeight: OnboardingMetrics.minHitTarget)
+          .frame(minHeight: minHitTarget)
 
           Button(L10n.Onboarding.DeviceScan.noDeviceYet) {
             showingNoDeviceSheet = true
@@ -83,7 +87,7 @@ struct DeviceScanView: View {
           .font(.subheadline)
           .foregroundStyle(.secondary)
           .padding(.vertical, 8)
-          .frame(minHeight: OnboardingMetrics.minHitTarget)
+          .frame(minHeight: minHitTarget)
         }
       }
       .padding(.horizontal)
