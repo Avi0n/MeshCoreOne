@@ -65,7 +65,7 @@ enum NeighborSNRMapBuilder {
         coordinate: centerCoordinate,
         pinStyle: .repeaterRingWhite,
         label: session.name,
-        isClusterable: false,
+        isClusterable: true,
         hopIndex: nil,
         badgeText: nil
       ))
@@ -110,7 +110,7 @@ enum NeighborSNRMapBuilder {
         coordinate: coordinate,
         pinStyle: .repeater,
         label: resolved.displayName,
-        isClusterable: false,
+        isClusterable: true,
         hopIndex: nil,
         badgeText: nil
       ))

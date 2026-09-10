@@ -33,6 +33,7 @@ public enum AppStorageKey: String {
   case tracePathViewMode
   case mapStyleSelection
   case mapShowLabels
+  case mapClusteringEnabled
   case mapNorthLocked
   case showDiscoveredNodesOnMap
   /// Per-host map filter JSON (`MapFilterState.storageString`).
@@ -84,6 +85,7 @@ public enum AppStorageKey: String {
   public static let defaultReplyWithQuote: Bool = false
   public static let defaultShowMapPreviewThumbnails: Bool = true
   public static let defaultMapShowLabels: Bool = true
+  public static let defaultMapClusteringEnabled: Bool = true
   public static let defaultMapNorthLocked: Bool = false
   public static let defaultShowDiscoveredNodesOnMap: Bool = false
   /// Raw value of `AppColorSchemePreference.system` — basemap only, not app chrome.

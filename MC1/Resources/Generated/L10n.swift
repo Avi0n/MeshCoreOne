@@ -2753,6 +2753,8 @@ public enum L10n {
         public static let centerAll = L10n.tr("Map", "map.controls.centerAll", fallback: "Center on all contacts")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for user location button
         public static let centerOnMyLocation = L10n.tr("Map", "map.controls.centerOnMyLocation", fallback: "Center on my location")
+        /// Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that clusters nearby pins
+        public static let clusterNodes = L10n.tr("Map", "map.controls.clusterNodes", fallback: "Cluster nodes")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map filter control
         public static let filter = L10n.tr("Map", "map.controls.filter", fallback: "Filter")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility value when filter differs from host defaults

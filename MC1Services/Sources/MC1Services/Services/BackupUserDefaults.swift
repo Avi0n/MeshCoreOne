@@ -11,6 +11,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var selectedThemeID: String?
   public var appColorSchemePreference: String?
   public var mapShowLabels: Bool?
+  public var mapClusteringEnabled: Bool?
   public var mapNorthLocked: Bool?
   public var showDiscoveredNodesOnMap: Bool?
   public var mapFilterMainMap: String?
@@ -107,6 +108,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.hasCompletedOnboarding, AppStorageKey.hasCompletedOnboarding.rawValue),
     (\.liveActivityEnabled, AppStorageKey.liveActivityEnabled.rawValue),
     (\.mapShowLabels, AppStorageKey.mapShowLabels.rawValue),
+    (\.mapClusteringEnabled, AppStorageKey.mapClusteringEnabled.rawValue),
     (\.mapNorthLocked, AppStorageKey.mapNorthLocked.rawValue),
     (\.showDiscoveredNodesOnMap, AppStorageKey.showDiscoveredNodesOnMap.rawValue),
     (\.replyWithQuote, AppStorageKey.replyWithQuote.rawValue),

@@ -9,6 +9,7 @@ struct TracePathMapToolbarView: View {
   @Bindable var mapViewModel: TracePathMapViewModel
   @Binding var mapStyleSelection: MapStyleSelection
   @Binding var showLabels: Bool
+  @Binding var clusteringEnabled: Bool
   @Binding var isNorthLocked: Bool
   @Binding var isCenteredOnUser: Bool
   var filter: MapFilterControl
@@ -25,6 +26,7 @@ struct TracePathMapToolbarView: View {
           isCenteredOnUser: isCenteredOnUser,
           isNorthLocked: $isNorthLocked,
           showLabels: $showLabels,
+          clusteringEnabled: $clusteringEnabled,
           mapStyleSelection: $mapStyleSelection,
           viewportBounds: mapViewModel.cameraRegion?.toMLNCoordinateBounds(),
           filter: filter

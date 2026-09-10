@@ -21,6 +21,8 @@ struct LineOfSightView: View {
   @State private var editingPoint: PointID?
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
+  private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @State private var sheetBottomInset: CGFloat = 220
   @State private var isResultsExpanded = false
@@ -94,6 +96,7 @@ struct LineOfSightView: View {
       appState: appState,
       mapStyleSelection: $mapStyleSelection,
       showLabels: $showLabels,
+      clusteringEnabled: $clusteringEnabled,
       isNorthLocked: $isNorthLocked,
       mapOverlayBottomPadding: mapOverlayBottomPadding,
       cameraBottomSheetFraction: showSheet ? 0.25 : 0,
@@ -410,6 +413,7 @@ private struct LOSMapCanvasView: View {
   @Environment(\.colorScheme) private var colorScheme
   @Binding var mapStyleSelection: MapStyleSelection
   @Binding var showLabels: Bool
+  @Binding var clusteringEnabled: Bool
   @Binding var isNorthLocked: Bool
   let mapOverlayBottomPadding: CGFloat
   let cameraBottomSheetFraction: CGFloat?
@@ -436,6 +440,7 @@ private struct LOSMapCanvasView: View {
         isDarkMode: mapIsDark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
+        clusteringEnabled: clusteringEnabled,
         showsUserLocation: true,
         isInteractive: true,
         showsScale: true,
@@ -478,6 +483,7 @@ private struct LOSMapCanvasView: View {
             isCenteredOnUser: isCenteredOnUser,
             isNorthLocked: $isNorthLocked,
             showLabels: $showLabels,
+            clusteringEnabled: $clusteringEnabled,
             mapStyleSelection: $mapStyleSelection,
             viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
           ) {

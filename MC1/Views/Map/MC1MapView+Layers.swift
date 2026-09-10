@@ -44,6 +44,24 @@ enum MapSourceID {
   static let topoTiles = "topo-tiles"
 }
 
+enum MapPointClustering {
+  static func partition(
+    _ points: [MapPoint],
+    clusteringEnabled: Bool
+  ) -> (clusterable: [MapPoint], fixed: [MapPoint]) {
+    var clusterable: [MapPoint] = []
+    var fixed: [MapPoint] = []
+    for point in points {
+      if point.isClusterable, clusteringEnabled {
+        clusterable.append(point)
+      } else {
+        fixed.append(point)
+      }
+    }
+    return (clusterable, fixed)
+  }
+}
+
 extension MC1MapView.Coordinator {
   // MARK: - Update point source data
 
@@ -54,15 +72,12 @@ extension MC1MapView.Coordinator {
   func updatePointSource(mapView: MLNMapView) {
     guard let style = mapView.style else { return }
 
-    var clusterablePoints: [MapPoint] = []
-    var fixedPoints: [MapPoint] = []
-    for point in currentPoints {
-      if point.isClusterable {
-        clusterablePoints.append(point)
-      } else {
-        fixedPoints.append(point)
-      }
-    }
+    let partitioned = MapPointClustering.partition(
+      currentPoints,
+      clusteringEnabled: currentClusteringEnabled
+    )
+    let clusterablePoints = partitioned.clusterable
+    let fixedPoints = partitioned.fixed
 
     // Clustered (contact) source — rebuild only when the clusterable subset changed,
     // so toggling a fixed pin (the chat-dropped pin) does not re-cluster all contacts.
@@ -395,13 +410,14 @@ extension MC1MapView.Coordinator {
 
   // MARK: - Shared layer configuration
 
-  private func configureNameLabelLayer(_ layer: MLNSymbolStyleLayer) {
+  func configureNameLabelLayer(_ layer: MLNSymbolStyleLayer) {
     layer.iconImageName = NSExpression(forKeyPath: "labelSpriteName")
     layer.iconAnchor = NSExpression(forConstantValue: "bottom")
     layer.iconOffset = NSExpression(forConstantValue: NSValue(cgVector: CGVector(dx: 0, dy: -46)))
     layer.symbolSortKey = NSExpression(forKeyPath: "hopIndex")
     layer.iconAllowsOverlap = NSExpression(forConstantValue: true)
     layer.iconIgnoresPlacement = NSExpression(forConstantValue: true)
+    layer.isVisible = currentShowLabels
   }
 
   private func configureBadgeLayer(_ layer: MLNSymbolStyleLayer) {

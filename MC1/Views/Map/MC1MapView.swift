@@ -15,6 +15,7 @@ struct MC1MapView: UIViewRepresentable {
 
   // Configuration
   let showLabels: Bool
+  var clusteringEnabled: Bool = true
   let showsUserLocation: Bool
   let isInteractive: Bool
   let showsScale: Bool
@@ -118,6 +119,7 @@ struct MC1MapView: UIViewRepresentable {
     // Set before the styleURL below: a theme switch changes the styleURL and triggers
     // a reload, so didFinishLoading -> renderAll must already see the new theme.
     coordinator.currentIsDarkMode = isDarkMode
+    coordinator.currentClusteringEnabled = clusteringEnabled
 
     // Style URL change — compare against our tracked value, not mapView.styleURL
     // which MapLibre may transiently nil during layout/rotation.
@@ -150,9 +152,12 @@ struct MC1MapView: UIViewRepresentable {
         coordinator.updateRasterLayerVisibility(mapView: mapView)
         coordinator.lastAppliedMapStyle = mapStyle
       }
-      if coordinator.lastAppliedPoints != points {
+      if coordinator.lastAppliedPoints != points
+        || coordinator.lastAppliedClusteringEnabled != clusteringEnabled {
+        coordinator.currentClusteringEnabled = clusteringEnabled
         coordinator.updatePointSource(mapView: mapView)
         coordinator.lastAppliedPoints = points
+        coordinator.lastAppliedClusteringEnabled = clusteringEnabled
       }
       if coordinator.lastAppliedLines != lines {
         coordinator.updateLineSource(mapView: mapView)
@@ -292,6 +297,8 @@ extension MC1MapView {
     var lastAppliedSelectionVersion = 0
     var pendingRegionTask: Task<Void, Never>?
     var currentShowLabels = true
+    var currentClusteringEnabled = true
+    var lastAppliedClusteringEnabled: Bool?
     /// The basemap theme in force, mirrored from the view so `renderAll` can pick the
     /// location-dot recency palette at style-load time. Kept current by `updateUIView`.
     var currentIsDarkMode = false
@@ -325,6 +332,7 @@ extension MC1MapView {
       lastAppliedFixedPoints = []
       lastAppliedLines = []
       lastAppliedMapStyle = nil
+      lastAppliedClusteringEnabled = nil
       currentShowLabels = true
 
       PinSpriteRenderer.renderAll(into: style, isDarkMode: currentIsDarkMode)

@@ -39,6 +39,7 @@ struct LocationPathMapBuilderTests {
     #expect(built.lines.first?.style == .locationTrail)
     #expect(built.points.first?.pinStyle == .locationFix)
     #expect(built.points.last?.pinStyle == .locationFixLatest)
+    #expect(built.points.allSatisfy { !$0.isClusterable })
   }
 
   @Test
@@ -47,6 +48,7 @@ struct LocationPathMapBuilderTests {
     #expect(built.lines.isEmpty)
     #expect(built.points.count == 1)
     #expect(built.points.first?.pinStyle == .locationFixLatest, "A lone report is the latest, so the hero pin")
+    #expect(built.points.allSatisfy { !$0.isClusterable })
   }
 
   @Test
