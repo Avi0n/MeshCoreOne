@@ -2701,6 +2701,65 @@ struct BackupIntegrationTests {
     #expect(winner.reactionSummary == "🌶️:1")
   }
 
+  /// Two incoming messages in the same envelope can share a UUID while using
+  /// different backup keys. The second is skipped so `Message.id` is not inserted
+  /// twice, and its repeats attach to the first row.
+  @Test
+  func `Duplicate message ids within one envelope: the second is skipped and repeats attach to the first`() async throws {
+    let radioID = UUID()
+    let destContainer = try PersistenceStore.createContainer(inMemory: true)
+    let destStore = PersistenceStore(modelContainer: destContainer)
+
+    let device = DeviceDTO.testDevice(id: radioID, radioID: radioID)
+    let contact = ContactDTO.testContact(radioID: radioID)
+    let sharedID = UUID()
+
+    var first = MessageDTO.testDirectMessage(
+      id: sharedID,
+      radioID: radioID,
+      contactID: contact.id,
+      text: "First body",
+      timestamp: 1_700_000_500,
+      direction: .incoming
+    )
+    first.deduplicationKey = "shared-id-first"
+
+    var second = MessageDTO.testDirectMessage(
+      id: sharedID,
+      radioID: radioID,
+      contactID: contact.id,
+      text: "Second body",
+      timestamp: 1_700_000_600,
+      direction: .incoming
+    )
+    second.deduplicationKey = "shared-id-second"
+
+    let repeat1 = MessageRepeatDTO.testRepeat(
+      messageID: sharedID,
+      pathNodes: Data([0x31])
+    )
+
+    let envelope = AppBackupEnvelope.test(
+      devices: [device],
+      contacts: [contact],
+      messages: [first, second],
+      messageRepeats: [repeat1]
+    )
+
+    let service = AppBackupService()
+    let result = try await service.importBackup(envelope: envelope, into: destStore)
+
+    #expect(result.messagesInserted == 1)
+    #expect(result.messagesSkipped == 1)
+    #expect(result.messageRepeatsInserted == 1)
+    let destMessages = try await destStore.fetchAllMessages(radioID: radioID)
+    #expect(destMessages.count == 1)
+    #expect(destMessages.first?.id == sharedID)
+    #expect(destMessages.first?.text == "First body")
+    let repeats = try await destStore.fetchMessageRepeats(messageID: sharedID)
+    #expect(repeats.count == 1)
+  }
+
   // MARK: - Test 24: Cancellation after DB commit reports success, not cancelled
 
   /// A task cancelled between the DB commit and the rest of `importBackup`
