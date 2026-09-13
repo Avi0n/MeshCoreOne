@@ -1,4 +1,6 @@
+import Foundation
 @testable import MC1
+@testable import MC1Services
 import Testing
 
 @Suite("AppState Lifecycle Transition Tests")
@@ -76,6 +78,61 @@ struct LifecycleTransitionTests {
       #expect(events[index] == "background")
       #expect(events[index + 1] == "foreground")
     }
+  }
+
+  @Test
+  func `toolbar resume probe names chrome without contact identity`() {
+    let appState = AppState()
+    let secretName = "PII-SHOULD-NOT-LEAK"
+    appState.navigation.selectedTab = AppTab.map.rawValue
+    appState.navigation.chatsSelectedRoute = .direct(Self.makeContact(name: secretName))
+    appState.navigation.selectedTool = .lineOfSight
+    appState.navigation.selectedSetting = .maps
+    appState.navigation.nodesShowingDiscovery = true
+
+    let message = appState.toolbarResumeProbeMessage(
+      source: "returnToForeground",
+      scene: "background->active"
+    )
+
+    #expect(message.contains("[DBG-toolbar-resume]"))
+    #expect(message.contains("source=returnToForeground"))
+    #expect(message.contains("scene=background->active"))
+    #expect(message.contains("tab=map"))
+    #expect(message.contains("chatRoute=direct"))
+    #expect(message.contains("nodesDetail=discovery"))
+    #expect(message.contains("tool=lineOfSight"))
+    #expect(message.contains("setting=maps"))
+    #expect(message.contains("connection=disconnected"))
+    #expect(message.contains("hasDevice=false"))
+    #expect(!message.contains(secretName))
+  }
+
+  private static func makeContact(name: String) -> ContactDTO {
+    ContactDTO(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data(repeating: 0xAA, count: 32),
+      name: name,
+      typeRawValue: 0x01,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      lastHeardTimestamp: nil,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      unreadMentionCount: 0,
+      ocvPreset: nil,
+      customOCVArrayString: nil
+    )
   }
 }
 
