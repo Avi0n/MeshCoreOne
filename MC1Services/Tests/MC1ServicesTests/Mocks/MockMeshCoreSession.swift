@@ -142,6 +142,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// Channel info to return from getChannel, keyed by index
   public var stubbedChannels: [UInt8: ChannelInfo] = [:]
 
+  public func setStubbedChannels(_ channels: [UInt8: ChannelInfo]) {
+    stubbedChannels = channels
+  }
+
   /// Error to throw from getChannel
   public var stubbedGetChannelError: Error?
 

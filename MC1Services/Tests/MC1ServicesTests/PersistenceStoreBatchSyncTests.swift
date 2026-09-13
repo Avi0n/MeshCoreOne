@@ -175,6 +175,128 @@ struct PersistenceStoreBatchSyncTests {
     #expect(try await store.fetchChannel(radioID: radioB, index: 1)?.name == "OtherRadio")
   }
 
+  // MARK: - Slot occupant change wipes history
+
+  private func seedSlotHistory(
+    _ store: PersistenceStore, radioID: UUID, index: UInt8, secretByte: UInt8, count: Int = 3
+  ) async throws -> UUID {
+    let channelID = try await store.saveChannel(
+      radioID: radioID, from: channelInfo(index, name: "Slot\(index)", secretByte: secretByte)
+    )
+    for i in 0..<count {
+      let messageID = UUID()
+      try await store.saveMessage(.testChannelMessage(
+        id: messageID, radioID: radioID, channelIndex: index, text: "msg \(i)", direction: .incoming
+      ))
+      try await store.saveReaction(ReactionDTO(
+        messageID: messageID, emoji: "👍", senderName: "peer", messageHash: "h\(i)",
+        rawText: "👍 h\(i)", channelIndex: index, radioID: radioID
+      ))
+      try await store.incrementChannelUnreadCount(channelID: channelID)
+    }
+    return channelID
+  }
+
+  @Test
+  func `deleteChannel removes the slot's messages and reactions, sparing other slots`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let doomedID = try await seedSlotHistory(store, radioID: radioID, index: 3, secretByte: 0x33)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 5, secretByte: 0x55, count: 1)
+    let doomedMessageIDs = try await store.fetchMessages(radioID: radioID, channelIndex: 3, limit: 10).map(\.id)
+
+    try await store.deleteChannel(id: doomedID)
+
+    #expect(try await store.fetchChannel(radioID: radioID, index: 3) == nil)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 3, limit: 10).isEmpty)
+    for id in doomedMessageIDs {
+      #expect(try await store.fetchReactions(for: id).isEmpty)
+    }
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 5, limit: 10).count == 1)
+  }
+
+  @Test
+  func `saveChannel with a new secret wipes the slot and resets derived counters`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 3, secretByte: 0x33)
+
+    _ = try await store.saveChannel(radioID: radioID, from: channelInfo(3, name: "Replacement", secretByte: 0x99))
+
+    let row = try #require(try await store.fetchChannel(radioID: radioID, index: 3))
+    #expect(row.name == "Replacement")
+    #expect(row.unreadCount == 0)
+    #expect(row.lastMessageDate == nil)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 3, limit: 10).isEmpty)
+  }
+
+  @Test
+  func `saveChannel with the same secret keeps history on rename`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 3, secretByte: 0x33)
+
+    _ = try await store.saveChannel(radioID: radioID, from: channelInfo(3, name: "Renamed", secretByte: 0x33))
+
+    let row = try #require(try await store.fetchChannel(radioID: radioID, index: 3))
+    #expect(row.name == "Renamed")
+    #expect(row.unreadCount == 3)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 3, limit: 10).count == 3)
+  }
+
+  @Test
+  func `batchSaveChannels wipes secret-changed, unconfigured, and pruned slots and keeps the rest`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 1, secretByte: 0x11)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 2, secretByte: 0x22)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 3, secretByte: 0x33)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 10, secretByte: 0xAA)
+    // Leftover from an earlier prune: messages at a slot with no row.
+    try await store.saveMessage(.testChannelMessage(radioID: radioID, channelIndex: 4, text: "leftover"))
+
+    _ = try await store.batchSaveChannels(
+      radioID: radioID,
+      configured: [
+        channelInfo(1, name: "Renamed", secretByte: 0x11),
+        channelInfo(2, name: "Taken over", secretByte: 0x99)
+      ],
+      unconfiguredIndices: [3, 4],
+      pruneBeyond: 8
+    )
+
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 1, limit: 10).count == 3)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 2, limit: 10).isEmpty)
+    #expect(try await store.fetchChannel(radioID: radioID, index: 2)?.unreadCount == 0)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 3, limit: 10).isEmpty)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 4, limit: 10).isEmpty)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 10, limit: 10).isEmpty)
+  }
+
+  @Test
+  func `batchSaveChannels failed save restores the wiped messages with the rows`() async throws {
+    let radioID = UUID()
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 2, secretByte: 0x22)
+    _ = try await seedSlotHistory(store, radioID: radioID, index: 3, secretByte: 0x33)
+
+    await store.setBatchSaveChannelsFaultInjection { throw PersistenceStoreError.saveFailed("test") }
+    await #expect(throws: PersistenceStoreError.self) {
+      _ = try await store.batchSaveChannels(
+        radioID: radioID,
+        configured: [channelInfo(2, name: "Taken over", secretByte: 0x99)],
+        unconfiguredIndices: [3],
+        pruneBeyond: 8
+      )
+    }
+    await store.setBatchSaveChannelsFaultInjection(nil)
+
+    #expect(try await store.fetchChannel(radioID: radioID, index: 2)?.secret == secret(0x22))
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 2, limit: 10).count == 3)
+    #expect(try await store.fetchChannel(radioID: radioID, index: 3) != nil)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 3, limit: 10).count == 3)
+  }
+
   // MARK: - batchSaveContacts
 
   @Test

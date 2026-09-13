@@ -252,6 +252,74 @@ struct ChannelServiceTests {
     )
     #expect(isConfigured)
   }
+
+  // MARK: - Slot occupant changed handler
+
+  private func slotSecret(_ byte: UInt8) -> Data {
+    Data(repeating: byte, count: ProtocolLimits.channelSecretSize)
+  }
+
+  private func makeService(radioID: UUID) async throws -> (ChannelService, MockMeshCoreSession, PersistenceStore, SlotHandlerCapture) {
+    let store = try await PersistenceStore.createTestDataStore(radioID: radioID, maxChannels: 8)
+    let session = MockMeshCoreSession()
+    let service = ChannelService(session: session, dataStore: store, rxLogService: nil)
+    let capture = SlotHandlerCapture()
+    await service.setSlotOccupantChangedHandler { _, indices in
+      await capture.record(indices)
+    }
+    return (service, session, store, capture)
+  }
+
+  @Test
+  func `clearChannel deletes the row and its messages, then fires the slot handler`() async throws {
+    let radioID = UUID()
+    let (service, _, store, capture) = try await makeService(radioID: radioID)
+    _ = try await store.saveChannel(radioID: radioID, from: ChannelInfo(index: 5, name: "Old", secret: slotSecret(0x11)))
+    try await store.saveMessage(.testChannelMessage(radioID: radioID, channelIndex: 5, text: "old"))
+
+    try await service.clearChannel(radioID: radioID, index: 5)
+
+    #expect(try await store.fetchChannel(radioID: radioID, index: 5) == nil)
+    #expect(try await store.fetchMessages(radioID: radioID, channelIndex: 5).isEmpty)
+    #expect(await capture.received == [Set([5])])
+  }
+
+  @Test
+  func `setChannel fires the slot handler on a new secret and not on a same-secret rename or first insert`() async throws {
+    let radioID = UUID()
+    let (service, _, _, capture) = try await makeService(radioID: radioID)
+
+    try await service.setChannel(radioID: radioID, index: 5, name: "First", passphrase: "one")
+    try await service.setChannel(radioID: radioID, index: 5, name: "Renamed", passphrase: "one")
+    #expect(await capture.received.isEmpty)
+
+    try await service.setChannel(radioID: radioID, index: 5, name: "Replaced", passphrase: "two")
+    #expect(await capture.received == [Set([5])])
+  }
+
+  @Test
+  func `syncChannels fires the slot handler for vacated and secret-changed slots, not first sightings`() async throws {
+    let radioID = UUID()
+    let (service, session, store, capture) = try await makeService(radioID: radioID)
+    _ = try await store.saveChannel(radioID: radioID, from: ChannelInfo(index: 1, name: "One", secret: slotSecret(0x11)))
+    _ = try await store.saveChannel(radioID: radioID, from: ChannelInfo(index: 2, name: "Two", secret: slotSecret(0x22)))
+    await session.setStubbedChannels([
+      1: ChannelInfo(index: 1, name: "OneB", secret: slotSecret(0x99)),
+      3: ChannelInfo(index: 3, name: "First", secret: slotSecret(0x33))
+    ])
+
+    _ = try await service.syncChannels(radioID: radioID, maxChannels: 4, usePipelinedRead: false)
+
+    #expect(await capture.received == [Set([1, 2])])
+  }
+}
+
+private actor SlotHandlerCapture {
+  private(set) var received: [Set<UInt8>] = []
+
+  func record(_ indices: Set<UInt8>) {
+    received.append(indices)
+  }
 }
 
 private actor SendTimeoutTransport: MeshTransport {

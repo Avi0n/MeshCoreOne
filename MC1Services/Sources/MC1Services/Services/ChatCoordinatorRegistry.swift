@@ -58,6 +58,12 @@ public final class ChatCoordinatorRegistry {
     entries.first(where: { $0.id == id })?.coordinator
   }
 
+  /// Evicts the coordinator for `id`, cancelling its in-flight builds. No-op when absent.
+  public func remove(for id: ChatConversationID) {
+    guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
+    entries.remove(at: index).coordinator.cancelInFlight()
+  }
+
   /// Cancel in-flight builds and drop all entries. The registry stays
   /// usable; `coordinator(for:)` mints fresh empty entries.
   public func clear() {
