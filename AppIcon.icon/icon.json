@@ -12,9 +12,7 @@
           "fill-specializations" : [
             {
               "appearance" : "dark",
-              "value" : {
-                "solid" : "srgb:0.20143,0.28887,0.42359,1.00000"
-              }
+              "value" : "automatic"
             }
           ],
           "image-name" : "app-icon.png",
