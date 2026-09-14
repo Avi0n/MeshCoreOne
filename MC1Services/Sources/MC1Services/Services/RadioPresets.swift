@@ -173,28 +173,37 @@ public enum RadioPresets {
     RadioPreset(id: "nl", name: "Netherlands", region: .europe,
                 frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
                 availability: .countries(["NL"]), recommendationPriority: 110),
+    RadioPreset(id: "nl-li", name: "Netherlands (Limburg)", region: .europe,
+                frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 8, codingRate: 8,
+                pathHashSize: 2,
+                availability: .countries(["NL"])),
     RadioPreset(id: "sk", name: "Slovakia", region: .europe,
                 frequencyMHz: 869.618, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
                 pathHashSize: 2,
                 availability: .countries(["SK"])),
 
     // North America
-    RadioPreset(id: "us-ca", name: "USA/Canada", region: .northAmerica,
+    RadioPreset(id: "us-ca", name: "USA", region: .northAmerica,
                 frequencyMHz: 910.525, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
-                availability: .countries(["US", "CA"]), recommendationPriority: 110),
+                availability: .countries(["US"]), recommendationPriority: 110),
+    RadioPreset(id: "ca", name: "Canada", region: .northAmerica,
+                frequencyMHz: 910.525, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
+                pathHashSize: 3,
+                availability: .countries(["CA"]), recommendationPriority: 110),
     RadioPreset(id: "cr", name: "Costa Rica", region: .northAmerica,
                 frequencyMHz: 910.525, bandwidthKHz: 125, spreadingFactor: 11, codingRate: 5,
                 availability: .countries(["CR"])),
     RadioPreset(id: "wcmesh", name: "WCMesh (SoCal)", region: .northAmerica,
                 frequencyMHz: 927.875, bandwidthKHz: 62.5, spreadingFactor: 7, codingRate: 5,
+                pathHashSize: 3,
                 availability: .counties(country: "US", state: "US-CA", keys: [
                   "los angeles", "orange", "san diego", "riverside", "san bernardino",
                   "ventura", "imperial", "kern", "santa barbara", "san luis obispo",
                 ])),
-    RadioPreset(id: "phillymesh", name: "PhillyMesh (Mid-Atlantic)", region: .northAmerica,
-                frequencyMHz: 902.250, bandwidthKHz: 500, spreadingFactor: 11, codingRate: 5,
+    RadioPreset(id: "lvmesh", name: "LVMesh", region: .northAmerica,
+                frequencyMHz: 910.525, bandwidthKHz: 500, spreadingFactor: 10, codingRate: 5,
                 pathHashSize: 2,
-                availability: .subRegions(country: "US", areas: ["US-PA", "US-NJ", "US-DE", "US-MD"])),
+                availability: .subRegions(country: "US", areas: ["US-PA", "US-NJ"])),
 
     // South America
     // Chile: community-standard settings from the MeshChile network (https://meshchile.cl).
@@ -440,22 +449,5 @@ public enum RadioPresets {
       result.append(active)
     }
     return result
-  }
-
-  /// These three share the US country list, so `presets(for:)` membership is not a mismatch.
-  private static let overlappingUSPresetIDs: Set<String> = ["us-ca", "wcmesh", "phillymesh"]
-
-  /// Whether the applied catalog id is not the recommended preset for `region`.
-  public static func showsMismatch(appliedID: String, region: RegionSelection) -> Bool {
-    let recommendedID = recommended(for: region)?.id
-    if recommendedID == appliedID {
-      return false
-    }
-    if !presets(for: region).contains(where: { $0.id == appliedID }) {
-      return true
-    }
-    guard let recommendedID else { return false }
-    return overlappingUSPresetIDs.contains(appliedID)
-      && overlappingUSPresetIDs.contains(recommendedID)
   }
 }

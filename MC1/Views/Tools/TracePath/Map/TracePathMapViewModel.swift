@@ -203,7 +203,7 @@ final class TracePathMapViewModel {
         coordinate: repeater.coordinate,
         pinStyle: inPath ? .repeaterRingWhite : .repeater,
         label: showLabels ? repeater.displayName : nil,
-        isClusterable: false,
+        isClusterable: true,
         hopIndex: info?.hopIndex,
         badgeText: nil
       ))
@@ -225,7 +225,7 @@ final class TracePathMapViewModel {
         coordinate: node.coordinate,
         pinStyle: inPath ? .repeaterRingWhite : .repeater,
         label: showLabels ? node.name : nil,
-        isClusterable: false,
+        isClusterable: true,
         hopIndex: info?.hopIndex,
         badgeText: nil
       ))

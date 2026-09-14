@@ -309,6 +309,7 @@ extension PersistenceStore {
   ) throws -> (inserted: Int, skipped: Int, messageIDByBackupID: [UUID: UUID]) {
     var knownKeys = existingKeys
     var idsByKey = existingIDsByKey
+    var knownIDs = Set(existingIDsByKey.values.flatMap(\.self))
     var messageIDByBackupID: [UUID: UUID] = [:]
     var toInsert: [MessageDTO] = []
     toInsert.reserveCapacity(dtos.count)
@@ -325,6 +326,12 @@ extension PersistenceStore {
         if let winning, winning != dto.id {
           messageIDByBackupID[dto.id] = winning
         }
+        skipped += 1
+        continue
+      }
+      // Message.id is unique; skip so this unsaved context does not hold two
+      // objects for one identity.
+      if !knownIDs.insert(dto.id).inserted {
         skipped += 1
         continue
       }
@@ -360,7 +367,11 @@ extension PersistenceStore {
       let predicate = #Predicate<Message> { chunk.contains($0.id) }
       return try modelContext.fetch(FetchDescriptor(predicate: predicate))
     }
-    let messagesByID = Dictionary(uniqueKeysWithValues: parentMessages.map { ($0.id, $0) })
+    // Parent fetch can return more than one Message for the same id before save.
+    let messagesByID = Dictionary(
+      parentMessages.map { ($0.id, $0) },
+      uniquingKeysWith: { first, _ in first }
+    )
 
     let result = insertUniqueWithParent(
       dtos,

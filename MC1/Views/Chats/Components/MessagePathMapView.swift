@@ -22,6 +22,8 @@ struct MessagePathMapView: View {
   @State private var cameraRegionVersion = 0
   @State private var mapStyle: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
+  @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
+  private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @State private var showLabels = true
   @State private var isStyleLoaded = false
   @State private var isCenteredOnUser = false
@@ -72,6 +74,7 @@ struct MessagePathMapView: View {
               mapStyle: mapStyle,
               isDarkMode: colorScheme == .dark,
               showLabels: showLabels,
+              clusteringEnabled: clusteringEnabled,
               showsUserLocation: false,
               isInteractive: true,
               showsScale: true,
@@ -95,6 +98,7 @@ struct MessagePathMapView: View {
                   isCenteredOnUser: isCenteredOnUser,
                   isNorthLocked: $isNorthLocked,
                   showLabels: $showLabels,
+                  clusteringEnabled: $clusteringEnabled,
                   mapStyleSelection: $mapStyle,
                   viewportBounds: cameraRegion?.toMLNCoordinateBounds()
                 ) {
@@ -188,7 +192,7 @@ struct MessagePathMapView: View {
         coordinate: coord,
         pinStyle: .pointA,
         label: sender.displayName,
-        isClusterable: false,
+        isClusterable: true,
         hopIndex: nil,
         badgeText: nil
       ), coord))
@@ -221,7 +225,7 @@ struct MessagePathMapView: View {
             coordinate: coord,
             pinStyle: .repeaterHop,
             label: r.resolvableName,
-            isClusterable: false,
+            isClusterable: true,
             hopIndex: hopNumber,
             badgeText: nil
           ), coord))
@@ -243,7 +247,7 @@ struct MessagePathMapView: View {
         coordinate: coord,
         pinStyle: .pointB,
         label: appState.connectedDevice?.nodeName,
-        isClusterable: false,
+        isClusterable: true,
         hopIndex: nil,
         badgeText: nil
       ), coord))

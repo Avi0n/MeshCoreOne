@@ -13,6 +13,8 @@ struct TracePathMapView: View {
   @Binding var presentedResult: TraceResult?
   @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
   @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
+  @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
+  private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
   @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
   private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
@@ -69,6 +71,7 @@ struct TracePathMapView: View {
         mapViewModel: mapViewModel,
         mapStyleSelection: $mapStyleSelection,
         showLabels: $showLabels,
+        clusteringEnabled: $clusteringEnabled,
         isNorthLocked: $isNorthLocked,
         isCenteredOnUser: $isCenteredOnUser,
         filter: MapFilterControl(host: .tracePath, state: mapFilterBinding)
@@ -146,6 +149,7 @@ struct TracePathMapView: View {
       isDarkMode: mapIsDark,
       isOffline: !appState.offlineMapService.isNetworkAvailable,
       showLabels: showLabels,
+      clusteringEnabled: clusteringEnabled,
       showsUserLocation: true,
       isInteractive: true,
       showsScale: true,

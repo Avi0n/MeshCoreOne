@@ -121,11 +121,9 @@ public actor ChannelService {
   /// Injected by `ServiceContainer` at construction.
   private let rxLogService: RxLogService?
 
-  /// Callback invoked with the channel slots vacated by a delete or sync prune,
-  /// so the main-actor `DraftStore` can drop any draft keyed to a now-free slot
-  /// before that slot is reused by a different channel.
-  /// Installed by `AppState.wireServicesIfConnected`.
-  private var draftClearHandler: (@Sendable (UUID, Set<UInt8>) async -> Void)?
+  /// Fired when a slot's occupant changes so the main actor can drop per-slot
+  /// drafts, cached timelines, and an open chat.
+  private var slotOccupantChangedHandler: (@Sendable (UUID, Set<UInt8>) async -> Void)?
 
   /// Tracks whether a sync operation is in progress
   private var isSyncing = false
@@ -442,8 +440,11 @@ public actor ChannelService {
     }
 
     let vacatedSlots = occupiedBeforeSync.subtracting(channels.map(\.index))
-    if !vacatedSlots.isEmpty {
-      await draftClearHandler?(radioID, vacatedSlots)
+    let changedSlots = vacatedSlots.union(
+      secretChangedIndices(prior: priorChannels ?? [], configured: configured)
+    )
+    if !changedSlots.isEmpty {
+      await slotOccupantChangedHandler?(radioID, changedSlots)
     }
 
     await rxLogService?.updateChannels(from: channels)
@@ -522,6 +523,7 @@ public actor ChannelService {
 
     // Upsert the recovered channels in one transaction. Retry only re-fetches previously
     // failed slots, so it never deletes unconfigured slots or prunes by capacity.
+    let priorChannels = await (try? dataStore.fetchChannels(radioID: radioID)) ?? []
     do {
       let allChannels = try await dataStore.batchSaveChannels(
         radioID: radioID,
@@ -529,6 +531,10 @@ public actor ChannelService {
         unconfiguredIndices: [],
         pruneBeyond: nil
       )
+      let changedSlots = secretChangedIndices(prior: priorChannels, configured: configured)
+      if !changedSlots.isEmpty {
+        await slotOccupantChangedHandler?(radioID, changedSlots)
+      }
       await rxLogService?.updateChannels(from: allChannels)
     } catch {
       logger.error("Retry batch persist failed: \(error.localizedDescription)")
@@ -622,22 +628,7 @@ public actor ChannelService {
     name: String,
     passphrase: String
   ) async throws {
-    let secret = Self.hashSecret(passphrase)
-    let truncatedName = name.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)
-
-    do {
-      try await session.setChannel(index: index, name: truncatedName, secret: secret)
-
-      // Save to local database
-      let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
-      _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
-
-      // Refresh the decryption cache with the updated channel list
-      let channels = try await dataStore.fetchChannels(radioID: radioID)
-      await rxLogService?.updateChannels(from: channels)
-    } catch let error as MeshCoreError {
-      throw ChannelServiceError.sessionError(error)
-    }
+    try await writeChannel(radioID: radioID, index: index, name: name, secret: Self.hashSecret(passphrase))
   }
 
   /// Sets a channel with a pre-computed secret (for advanced use cases).
@@ -655,15 +646,24 @@ public actor ChannelService {
     guard Self.validateSecret(secret) else {
       throw ChannelServiceError.secretHashingFailed
     }
+    try await writeChannel(radioID: radioID, index: index, name: name, secret: secret)
+  }
 
+  /// Writes the channel to the radio, mirrors it locally, and notifies the slot
+  /// handler when an existing occupant's secret changed.
+  private func writeChannel(radioID: UUID, index: UInt8, name: String, secret: Data) async throws {
     let truncatedName = name.utf8Prefix(maxBytes: ProtocolLimits.maxUsableNameBytes)
+    let prior = try await dataStore.fetchChannel(radioID: radioID, index: index)
 
     do {
       try await session.setChannel(index: index, name: truncatedName, secret: secret)
 
-      // Save to local database
       let channelInfo = ChannelInfo(index: index, name: truncatedName, secret: secret)
       _ = try await dataStore.saveChannel(radioID: radioID, from: channelInfo)
+
+      if let prior, prior.secret != secret {
+        await slotOccupantChangedHandler?(radioID, [index])
+      }
 
       // Refresh the decryption cache with the updated channel list
       let channels = try await dataStore.fetchChannels(radioID: radioID)
@@ -693,17 +693,15 @@ public actor ChannelService {
       throw ChannelServiceError.sessionError(error)
     }
 
-    // Delete messages for this channel first
-    try await dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: index)
-
-    // Delete channel from local database using the ID we captured earlier
+    // deleteChannel wipes the slot's messages with the row in one transaction; with
+    // no row left to delete, wipe the messages directly.
     if let channel = channelToDelete {
       try await dataStore.deleteChannel(id: channel.id)
+    } else {
+      try await dataStore.deleteMessagesForChannel(radioID: radioID, channelIndex: index)
     }
 
-    // Drop any draft keyed to the freed slot so a channel later created at the
-    // same index can't surface this channel's stale draft.
-    await draftClearHandler?(radioID, [index])
+    await slotOccupantChangedHandler?(radioID, [index])
 
     // Refresh the decryption cache with the updated channel list
     let channels = try await dataStore.fetchChannels(radioID: radioID)
@@ -782,11 +780,20 @@ public actor ChannelService {
 
   // MARK: - Handlers
 
-  /// Sets a callback that receives the channel slots vacated by `clearChannel`
-  /// and by the sync prune in `finalizeChannelSync`, so the `DraftStore` can
-  /// clear drafts keyed to a freed slot.
-  public func setDraftClearHandler(_ handler: @escaping @Sendable (UUID, Set<UInt8>) async -> Void) {
-    draftClearHandler = handler
+  /// Sets the callback for slots whose occupant changed (vacated or rewritten
+  /// with a different secret) so the main actor can drop per-slot state.
+  public func setSlotOccupantChangedHandler(_ handler: @escaping @Sendable (UUID, Set<UInt8>) async -> Void) {
+    slotOccupantChangedHandler = handler
+  }
+
+  /// Indices whose configured secret differs from the locally stored row. Slots with
+  /// no prior row are first sightings, not occupant changes.
+  private func secretChangedIndices(prior: [ChannelDTO], configured: [ChannelInfo]) -> Set<UInt8> {
+    let priorSecrets = Dictionary(prior.map { ($0.index, $0.secret) }, uniquingKeysWith: { current, _ in current })
+    return Set(configured.compactMap { info in
+      guard let priorSecret = priorSecrets[info.index], priorSecret != info.secret else { return nil }
+      return info.index
+    })
   }
 
   // MARK: - Private Helpers

@@ -138,6 +138,10 @@ final class AppState {
   /// would strand a bound view model via `bindCoordinator`'s guard.
   private(set) var chatCoordinatorRegistry: ChatCoordinatorRegistry?
 
+  /// Bumped per channel slot when its occupant changes so an open
+  /// `ChatConversationView` can leave and drop its composer.
+  private(set) var channelSlotGenerations: [ChatConversationID: Int] = [:]
+
   /// Re-primes warm chat coordinators when messages arrive for closed
   /// conversations, so a reopen renders the fresh tail on the first frame.
   /// Built lazily by `ensureChatPrewarmRefresher()`.
@@ -503,6 +507,23 @@ final class AppState {
     connectionUI.presentPairingFailure(.connectionFailed(deviceID: deviceID, underlying: BLEError.authenticationFailed))
   }
 
+  /// Drops per-slot drafts, cached `ChatCoordinator`s, and the selected route.
+  /// Coordinators outlive the connection, so without eviction the next occupant renders the prior timeline.
+  func handleChannelSlotOccupantChanged(radioID: UUID, indices: Set<UInt8>) {
+    draftStore.clearChannelDrafts(radioID: radioID, indices: indices)
+    for channelIndex in indices {
+      let id = ChatConversationID.channel(radioID: radioID, channelIndex: channelIndex)
+      chatCoordinatorRegistry?.remove(for: id)
+      channelSlotGenerations[id, default: 0] += 1
+    }
+    if case let .channel(selected) = navigation.chatsSelectedRoute,
+       selected.radioID == radioID,
+       indices.contains(selected.index) {
+      navigation.chatsSelectedRoute = nil
+    }
+    refreshConversations()
+  }
+
   /// Wire services-dependent callbacks after a successful connection.
   func wireServicesIfConnected() async {
     guard let services else {
@@ -563,12 +584,8 @@ final class AppState {
     wireMessageEvents(services: services)
     await wireLiveActivityCallbacks(services: services)
 
-    // Drop drafts for channel slots vacated by a delete or sync prune so a
-    // reused slot can't surface the prior channel's draft.
-    await services.channelService.setDraftClearHandler { [weak self] radioID, indices in
-      await MainActor.run {
-        self?.draftStore.clearChannelDrafts(radioID: radioID, indices: indices)
-      }
+    await services.channelService.setSlotOccupantChangedHandler { [weak self] radioID, indices in
+      await self?.handleChannelSlotOccupantChanged(radioID: radioID, indices: indices)
     }
 
     // Bump the version (which drives `.task(id:)` reloads in chat, tools, and

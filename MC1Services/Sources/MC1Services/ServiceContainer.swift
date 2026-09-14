@@ -58,7 +58,7 @@ import SwiftData
 ///   `AppState` and `NavigationCoordinator` when notification handling is
 ///   configured. The action closures are cleared in `tearDown()` because they
 ///   capture `NotificationActionHandler`, which strong-holds the service back.
-/// - `ChannelService.setDraftClearHandler` and
+/// - `ChannelService.setSlotOccupantChangedHandler` and
 ///   `DeviceService.setDeviceUpdateCallback`: installed by
 ///   `AppState.wireServicesIfConnected` per connection.
 /// - `NodeConfigService.setOnPostIdentityImport`: installed by

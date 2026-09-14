@@ -18,16 +18,16 @@ SHELL := /bin/bash
 SCHEME  := MC1
 PROJECT := MC1.xcodeproj
 
-# The full app suite runs on the project-standard iOS 26 simulator. Override SIM to retarget.
-SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=26.5
+# The full app suite runs on the project-standard iOS 27 simulator. Override SIM to retarget.
+SIM ?= platform=iOS Simulator,name=iPhone 17e,OS=27.0
 
 # StoreKit (SKTestSession) suites must run on an iOS 18.x simulator. Under `xcodebuild
 # test`, iOS 26.x simulators deliver 0 products to storekitd (Apple regression
 # FB22237318 / FB22774836), so every product-dependent test falsely fails. A method-level
 # `-only-testing` selector also silently runs 0 tests for Swift Testing suites, so the target
 # below pins iOS 18.x and uses suite-level (type-level) filters. These same suites gate on
-# `StoreKitTestAvailability.servesProducts`, so they auto-skip on iOS 26.x in the default
-# run; `test-store` is how you actually exercise them. Override STORE_SIM if your machine
+# `StoreKitTestAvailability.servesProducts`, so they auto-skip on iOS 26.x. `test-store`
+# is how you actually exercise them. Override STORE_SIM if your machine
 # has a different iOS 18.x simulator.
 STORE_SIM ?= platform=iOS Simulator,name=iPhone 16e,OS=18.6
 
@@ -81,8 +81,8 @@ XCSIFT_WITH_HEARTBEAT = { \
 .DEFAULT_GOAL := help
 .PHONY: help generate test test-app test-store
 # `make test` runs two xcodebuild passes because a single invocation targets one OS: the full
-# app suite on iOS 26 (where the StoreKit suites auto-skip) and the StoreKit suites on iOS 18.x
-# (where SKTestSession actually serves products). .NOTPARALLEL keeps `make -j` from running
+# app suite on iOS 27 and the StoreKit suites on iOS 18.x (where SKTestSession actually serves
+# products; iOS 26.x auto-skips those suites). .NOTPARALLEL keeps `make -j` from running
 # both passes at once and colliding on the shared build.
 .NOTPARALLEL:
 
@@ -104,11 +104,11 @@ dev.yml:
 generate: dev.yml ## Regenerate MC1.xcodeproj from project.yml (xcodegen)
 	xcodegen generate
 
-test: test-app test-store ## Run everything: full app suite (iOS 26) + StoreKit suites (iOS 18)
+test: test-app test-store ## Run everything: full app suite (iOS 27) + StoreKit suites (iOS 18)
 
 # Skip sysdiagnose collection. xcodebuild can spawn simctl diagnose after the
 # suite and block the recipe for minutes even when every test passed.
-test-app: generate ## Run the full app suite on iOS 26 (StoreKit suites auto-skip here)
+test-app: generate ## Run the full app suite on iOS 27
 	@dest='$(SIM)'; $(SIM_LOCK); \
 		xcodebuild test -project $(PROJECT) -scheme $(SCHEME) \
 		-destination "$$dest" \

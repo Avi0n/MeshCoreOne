@@ -871,10 +871,10 @@
 "radio.repeatMode.confirm.enable" = "启用";
 
 /* Location: RadioPresetSection.swift - Footer line listing the user's region */
-"radio.regionFooter" = "正在显示 %@ 的推荐预设。";
+"radio.regionFooter" = "正在显示 %@ 的预设。";
 
-/* Location: RadioPresetSection.swift - Footer warning when current preset isn't recommended for region */
-"radio.mismatchHint" = "您所在位置的推荐预设是 %@。";
+/* Location: RadioPresetSection.swift - Footer reminding the operator to comply with local radio laws */
+"radio.regulationsFooter" = "您有责任遵守当地无线电法规。";
 
 // MARK: - Telemetry Settings Section
 

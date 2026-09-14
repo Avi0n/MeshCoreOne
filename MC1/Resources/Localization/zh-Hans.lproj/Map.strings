@@ -16,6 +16,9 @@
 /* Location: MapView.swift - Purpose: Accessibility label when labels are hidden */
 "map.controls.showLabels" = "显示标签";
 
+/* Location: MapControlsToolbar.swift - Purpose: Map options menu toggle that clusters nearby pins */
+"map.controls.clusterNodes" = "聚合节点";
+
 /* Location: MapView.swift - Purpose: Accessibility label for center on all contacts button */
 "map.controls.centerAll" = "以所有联系人为中心";
 

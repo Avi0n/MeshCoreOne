@@ -2262,6 +2262,117 @@ struct PersistenceStoreTests {
   }
 
   @Test
+  func `deleteMessagesForChannel save throw rolls back messages and cascade`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let targetChannel: UInt8 = 0
+    let untouchedChannel: UInt8 = 1
+
+    let messageID = UUID()
+    let message = MessageDTO(from: Message(
+      id: messageID,
+      radioID: device.id,
+      contactID: nil,
+      channelIndex: targetChannel,
+      text: "Ch0 keep",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(message)
+    try await store.upsertPendingSend(makePendingSendDTO(
+      messageID: messageID, radioID: device.id, attemptCount: 0, sequence: 1
+    ))
+    try await store.saveReaction(ReactionDTO(
+      messageID: messageID,
+      emoji: "👍",
+      senderName: "Reactor",
+      messageHash: "AABBCCDD",
+      rawText: "👍",
+      radioID: device.id
+    ))
+    try await store.saveMessageRepeat(.testRepeat(messageID: messageID))
+
+    let siblingMessage = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: nil,
+      channelIndex: untouchedChannel,
+      text: "Ch1 keep",
+      timestamp: UInt32(Date().timeIntervalSince1970) + 100
+    ))
+    try await store.saveMessage(siblingMessage)
+
+    await store.setDeleteMessagesForChannelFaultInjection {
+      throw PersistenceStoreError.saveFailed("test")
+    }
+    await #expect(throws: PersistenceStoreError.self) {
+      try await store.deleteMessagesForChannel(radioID: device.id, channelIndex: targetChannel)
+    }
+    await store.setDeleteMessagesForChannelFaultInjection(nil)
+
+    let piggyback = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: nil,
+      channelIndex: untouchedChannel,
+      text: "Ch1 extra",
+      timestamp: UInt32(Date().timeIntervalSince1970) + 200
+    ))
+    try await store.saveMessage(piggyback)
+
+    let channel0 = try await store.fetchMessages(radioID: device.id, channelIndex: targetChannel)
+    #expect(channel0.count == 1,
+            "failed wipe must not flush the slot's Message on a later save")
+    #expect(try await store.fetchPendingSendsForMessage(messageID: messageID).count == 1,
+            "PendingSend must roll back with the message")
+    #expect(try await store.fetchReactions(for: messageID).count == 1,
+            "Reaction must roll back with the message")
+    #expect(try await store.fetchMessageRepeats(messageID: messageID).count == 1,
+            "MessageRepeat must roll back with the message")
+
+    let channel1 = try await store.fetchMessages(radioID: device.id, channelIndex: untouchedChannel)
+    #expect(channel1.count == 2,
+            "sibling channel must keep its original row plus the piggyback insert")
+  }
+
+  @Test
+  func `deleteMessagesForChannel rollback does not drop unsaved RxLog inserts`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let channelIndex: UInt8 = 0
+    let message = MessageDTO(from: Message(
+      radioID: device.id,
+      contactID: nil,
+      channelIndex: channelIndex,
+      text: "Ch0",
+      timestamp: UInt32(Date().timeIntervalSince1970)
+    ))
+    try await store.saveMessage(message)
+
+    let dto = createTestRxLogEntryDTO(
+      radioID: device.id, senderTimestamp: 42, channelIndex: 1
+    )
+    try await store.saveRxLogEntry(dto)
+    #expect(await store.rxLogInitiatedSaveCount == 0)
+
+    await store.setDeleteMessagesForChannelFaultInjection {
+      throw PersistenceStoreError.saveFailed("test")
+    }
+    await #expect(throws: PersistenceStoreError.self) {
+      try await store.deleteMessagesForChannel(radioID: device.id, channelIndex: channelIndex)
+    }
+
+    let found = try await store.findRxLogEntry(
+      radioID: device.id,
+      channelIndex: 1,
+      senderTimestamp: 42
+    )
+    #expect(found?.id == dto.id)
+    try await store.flushPendingRxLogEntries()
+  }
+
+  @Test
   func `deleteChannelMessages(fromSender:) cascades PendingSends and spares other senders`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()

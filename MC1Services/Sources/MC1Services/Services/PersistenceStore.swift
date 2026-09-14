@@ -62,6 +62,10 @@ public actor PersistenceStore: PersistenceStoreProtocol {
     /// Test-only hook fired immediately before `modelContext.save()` in `batchSaveChannels`.
     var batchSaveChannelsFaultInjection: (@Sendable () throws -> Void)?
 
+    /// Test-only hook fired immediately before `modelContext.save()` in
+    /// `deleteMessagesForChannel`.
+    var deleteMessagesForChannelFaultInjection: (@Sendable () throws -> Void)?
+
     /// Test-only hook fired immediately before `modelContext.save()` in `deleteContacts`.
     var deleteContactsFaultInjection: (@Sendable () throws -> Void)?
 

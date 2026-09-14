@@ -58,14 +58,6 @@ struct RadioPresetSection: View {
     return RadioPresets.matchingRepeatPreset(frequencyKHz: device.frequency)
   }
 
-  private var mismatchHint: String? {
-    guard let region = appState.regionSelection,
-          let current = currentPreset,
-          let recommended = RadioPresets.recommended(for: region),
-          RadioPresets.showsMismatch(appliedID: current.id, region: region) else { return nil }
-    return L10n.Settings.Radio.mismatchHint(recommended.name)
-  }
-
   private var currentMatchingPresetID: String? {
     isRepeatEnabled ? currentRepeatPreset?.id : currentPreset?.id
   }
@@ -138,10 +130,7 @@ struct RadioPresetSection: View {
         if let region = appState.regionSelection {
           Text(L10n.Settings.Radio.regionFooter(RegionalAreas.displayName(for: region)))
         }
-        if let mismatch = mismatchHint {
-          Text(mismatch)
-            .foregroundStyle(.orange)
-        }
+        Text(L10n.Settings.Radio.regulationsFooter)
       }
     }
     .themedRowBackground(theme)

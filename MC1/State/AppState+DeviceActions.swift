@@ -209,6 +209,7 @@ extension AppState {
 
   /// Called by View when scenePhase becomes active.
   func handleBecameActive() {
+    logToolbarResumeProbe(source: "becameActive")
     // Clear the auth-failure latch so a still-invalid bond re-surfaces fresh
     // from the foreground reconnect instead of staying silenced from background.
     connectionManager.clearSurfacedAuthenticationFailure()

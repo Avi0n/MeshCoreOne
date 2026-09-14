@@ -71,4 +71,20 @@ struct ChatCoordinatorRegistryTests {
     let secondA = registry.coordinator(for: idA)
     #expect(firstA === secondA, "Touched entry should survive eviction")
   }
+
+  @Test func `remove(for:) evicts only that conversation so the next lookup starts fresh`() throws {
+    let registry = try makeRegistry()
+    let radioID = UUID()
+    let channelID = ChatConversationID.channel(radioID: radioID, channelIndex: 3)
+    let dmID = ChatConversationID.dm(radioID: radioID, contactID: UUID())
+
+    let staleChannel = registry.coordinator(for: channelID)
+    let dm = registry.coordinator(for: dmID)
+
+    registry.remove(for: channelID)
+    registry.remove(for: .channel(radioID: radioID, channelIndex: 7)) // absent: no-op
+
+    #expect(registry.coordinator(for: channelID) !== staleChannel)
+    #expect(registry.coordinator(for: dmID) === dm)
+  }
 }

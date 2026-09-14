@@ -333,6 +333,7 @@ struct AppBackupEnvelopeTests {
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
     #expect(decoded.showDiscoveredNodesOnMap == nil)
     #expect(decoded.mapColorSchemePreference == nil)
+    #expect(decoded.mapClusteringEnabled == nil)
 
     let suiteName = "test.mapPrefs.legacy.\(UUID().uuidString)"
     let defaults = try #require(UserDefaults(suiteName: suiteName))
@@ -340,15 +341,19 @@ struct AppBackupEnvelopeTests {
 
     let showKey = AppStorageKey.showDiscoveredNodesOnMap.rawValue
     let schemeKey = AppStorageKey.mapColorSchemePreference.rawValue
+    let clusteringKey = AppStorageKey.mapClusteringEnabled.rawValue
     // Pre-seed local prefs: write-if-missing must leave them untouched.
     defaults.set(false, forKey: showKey)
     defaults.set("light", forKey: schemeKey)
+    defaults.set(false, forKey: clusteringKey)
 
     let setKeys = decoded.restore(to: defaults)
     #expect(!setKeys.contains(showKey))
     #expect(!setKeys.contains(schemeKey))
+    #expect(!setKeys.contains(clusteringKey))
     #expect(defaults.bool(forKey: showKey) == false)
     #expect(defaults.string(forKey: schemeKey) == "light")
+    #expect(defaults.bool(forKey: clusteringKey) == false)
   }
 
   @Test
@@ -356,11 +361,13 @@ struct AppBackupEnvelopeTests {
     var prefs = BackupUserDefaults()
     prefs.showDiscoveredNodesOnMap = true
     prefs.mapColorSchemePreference = "dark"
+    prefs.mapClusteringEnabled = false
 
     let data = try JSONEncoder().encode(prefs)
     let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
     #expect(decoded.showDiscoveredNodesOnMap == true)
     #expect(decoded.mapColorSchemePreference == "dark")
+    #expect(decoded.mapClusteringEnabled == false)
 
     let suiteName = "test.mapPrefs.roundTrip.\(UUID().uuidString)"
     let defaults = try #require(UserDefaults(suiteName: suiteName))
@@ -368,11 +375,14 @@ struct AppBackupEnvelopeTests {
 
     let showKey = AppStorageKey.showDiscoveredNodesOnMap.rawValue
     let schemeKey = AppStorageKey.mapColorSchemePreference.rawValue
+    let clusteringKey = AppStorageKey.mapClusteringEnabled.rawValue
     let setKeys = decoded.restore(to: defaults)
     #expect(setKeys.contains(showKey))
     #expect(setKeys.contains(schemeKey))
+    #expect(setKeys.contains(clusteringKey))
     #expect(defaults.bool(forKey: showKey) == true)
     #expect(defaults.string(forKey: schemeKey) == "dark")
+    #expect(defaults.bool(forKey: clusteringKey) == false)
   }
 
   @Test

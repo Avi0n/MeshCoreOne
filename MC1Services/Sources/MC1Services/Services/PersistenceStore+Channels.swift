@@ -150,8 +150,11 @@ public extension PersistenceStore {
     return try modelContext.fetch(descriptor).first.map { ChannelDTO(from: $0) }
   }
 
-  /// Save or update a channel from ChannelInfo
+  /// Save or update a channel from ChannelInfo. A changed secret is a different
+  /// channel occupying the slot, so the previous occupant's history is wiped.
   func saveChannel(radioID: UUID, from info: ChannelInfo) throws -> UUID {
+    // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
+    try commitPendingRxLogEntries()
     let targetRadioID = radioID
     let targetIndex = info.index
     let predicate = #Predicate<Channel> { channel in
@@ -160,17 +163,22 @@ public extension PersistenceStore {
     var descriptor = FetchDescriptor(predicate: predicate)
     descriptor.fetchLimit = 1
 
-    let channel: Channel
-    if let existing = try modelContext.fetch(descriptor).first {
-      existing.update(from: info)
-      channel = existing
-    } else {
-      channel = Channel(radioID: radioID, from: info)
-      modelContext.insert(channel)
-    }
+    do {
+      let channel: Channel
+      if let existing = try modelContext.fetch(descriptor).first {
+        try applyRadioChannelInfo(info, to: existing)
+        channel = existing
+      } else {
+        channel = Channel(radioID: radioID, from: info)
+        modelContext.insert(channel)
+      }
 
-    try modelContext.save()
-    return channel.id
+      try modelContext.save()
+      return channel.id
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
   }
 
   /// Persists a full channel-sync pass in a single transaction. See
@@ -194,31 +202,35 @@ public extension PersistenceStore {
     let existing = try modelContext.fetch(FetchDescriptor(predicate: predicate))
     var byIndex = Dictionary(existing.map { ($0.index, $0) }, uniquingKeysWith: { current, _ in current })
 
-    for info in configured {
-      if let row = byIndex[info.index] {
-        row.update(from: info)
-      } else {
-        let channel = Channel(radioID: radioID, from: info)
-        modelContext.insert(channel)
-        byIndex[info.index] = channel
-      }
-    }
-
-    for index in unconfiguredIndices {
-      if let stale = byIndex[index] {
-        modelContext.delete(stale)
-        byIndex[index] = nil
-      }
-    }
-
-    if let maxChannels {
-      for (index, row) in byIndex where index >= maxChannels {
-        modelContext.delete(row)
-        byIndex[index] = nil
-      }
-    }
-
     do {
+      for info in configured {
+        if let row = byIndex[info.index] {
+          try applyRadioChannelInfo(info, to: row)
+        } else {
+          let channel = Channel(radioID: radioID, from: info)
+          modelContext.insert(channel)
+          byIndex[info.index] = channel
+        }
+      }
+
+      // A slot the radio reports empty has no legitimate history, so wipe it even
+      // when the row is already gone; that clears leftovers from earlier prunes.
+      for index in unconfiguredIndices {
+        try _deleteMessagesForChannelWithoutSaving(radioID: radioID, channelIndex: index)
+        if let stale = byIndex[index] {
+          modelContext.delete(stale)
+          byIndex[index] = nil
+        }
+      }
+
+      if let maxChannels {
+        for (index, row) in byIndex where index >= maxChannels {
+          try _deleteMessagesForChannelWithoutSaving(radioID: radioID, channelIndex: index)
+          modelContext.delete(row)
+          byIndex[index] = nil
+        }
+      }
+
       #if DEBUG
         try batchSaveChannelsFaultInjection?()
       #endif
@@ -250,50 +262,83 @@ public extension PersistenceStore {
     try modelContext.save()
   }
 
-  /// Delete a channel
+  /// Delete a channel together with its slot's messages in one save, so a
+  /// failed save rolls both back and a later channel at that slot starts empty.
   func deleteChannel(id: UUID) throws {
+    // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
+    try commitPendingRxLogEntries()
     let targetID = id
     let predicate = #Predicate<Channel> { channel in
       channel.id == targetID
     }
-    if let channel = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first {
+    guard let channel = try modelContext.fetch(FetchDescriptor(predicate: predicate)).first else { return }
+    do {
+      try _deleteMessagesForChannelWithoutSaving(radioID: channel.radioID, channelIndex: channel.index)
       modelContext.delete(channel)
       try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
     }
   }
 
-  /// Delete all messages for a channel.
-  /// Cascades PendingSend, MessageRepeat, and Reaction rows associated with the deleted
-  /// messages within a single save.
+  /// Delete all messages for a channel, cascading PendingSend, MessageRepeat, and
+  /// Reaction rows. A failed save rolls back so a later save cannot flush the staged deletes.
   func deleteMessagesForChannel(radioID: UUID, channelIndex: UInt8) throws {
+    // Commit batched RxLog inserts first so a failed save/rollback cannot discard them.
+    try commitPendingRxLogEntries()
+    do {
+      try _deleteMessagesForChannelWithoutSaving(radioID: radioID, channelIndex: channelIndex)
+      #if DEBUG
+        try deleteMessagesForChannelFaultInjection?()
+      #endif
+      try modelContext.save()
+    } catch {
+      modelContext.rollback()
+      throw error
+    }
+  }
+
+  /// Stages message, PendingSend, Reaction, and MessageRepeat deletes as registered
+  /// objects so a caller's `rollback()` restores them. Chunked under SQLITE_MAX_VARIABLE_NUMBER.
+  private func _deleteMessagesForChannelWithoutSaving(radioID: UUID, channelIndex: UInt8) throws {
     let targetRadioID = radioID
     let targetChannelIndex: UInt8? = channelIndex
     let messagePredicate = #Predicate<Message> { message in
       message.radioID == targetRadioID && message.channelIndex == targetChannelIndex
     }
+    let messages = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate))
+    guard !messages.isEmpty else { return }
 
-    let messageIDs = try modelContext.fetch(FetchDescriptor(predicate: messagePredicate)).map(\.id)
-
-    if !messageIDs.isEmpty {
-      try _deletePendingSendsForMessageIDsWithoutSaving(messageIDs: messageIDs)
-      // Cascade MessageRepeat alongside Reaction. Bulk `delete(model:where:)`
-      // bypasses the `@Relationship(deleteRule: .cascade)` declared on
-      // `Message → MessageRepeat`. Chunk both predicates to stay under
-      // SQLITE_MAX_VARIABLE_NUMBER (32766 on iOS 18+).
-      let chunkSize = 500
-      for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
-        let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
-        try modelContext.delete(model: Reaction.self, where: #Predicate {
-          chunk.contains($0.messageID)
-        })
-        try modelContext.delete(model: MessageRepeat.self, where: #Predicate {
-          chunk.contains($0.messageID)
-        })
+    let messageIDs = messages.map(\.id)
+    let chunkSize = 500
+    for start in stride(from: 0, to: messageIDs.count, by: chunkSize) {
+      let chunk = Array(messageIDs[start..<min(start + chunkSize, messageIDs.count)])
+      for row in try modelContext.fetch(FetchDescriptor<PendingSend>(predicate: #Predicate { chunk.contains($0.messageID) })) {
+        modelContext.delete(row)
+      }
+      for row in try modelContext.fetch(FetchDescriptor<Reaction>(predicate: #Predicate { chunk.contains($0.messageID) })) {
+        modelContext.delete(row)
+      }
+      for row in try modelContext.fetch(FetchDescriptor<MessageRepeat>(predicate: #Predicate { chunk.contains($0.messageID) })) {
+        modelContext.delete(row)
       }
     }
+    for message in messages {
+      modelContext.delete(message)
+    }
+  }
 
-    try modelContext.delete(model: Message.self, where: messagePredicate)
-    try modelContext.save()
+  /// Applies a radio-reported `ChannelInfo` to an existing row. A different secret
+  /// means a different occupant, so prior messages and derived counters are wiped first.
+  private func applyRadioChannelInfo(_ info: ChannelInfo, to row: Channel) throws {
+    if row.secret != info.secret {
+      try _deleteMessagesForChannelWithoutSaving(radioID: row.radioID, channelIndex: row.index)
+      row.lastMessageDate = nil
+      row.unreadCount = 0
+      row.unreadMentionCount = 0
+    }
+    row.update(from: info)
   }
 
   /// Update channel's last message info (nil clears the date)
@@ -424,6 +469,10 @@ public extension PersistenceStore {
   #if DEBUG
     func setBatchSaveChannelsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       batchSaveChannelsFaultInjection = hook
+    }
+
+    func setDeleteMessagesForChannelFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      deleteMessagesForChannelFaultInjection = hook
     }
   #endif
 }

@@ -196,6 +196,10 @@ struct MC1App: App {
   }
 
   private func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
+    appState.logToolbarResumeProbe(
+      source: "scenePhase",
+      scene: "\(scenePhaseName(oldPhase))->\(scenePhaseName(newPhase))"
+    )
     switch newPhase {
     case .active:
       Task {
@@ -214,6 +218,15 @@ struct MC1App: App {
       break
     @unknown default:
       break
+    }
+  }
+
+  private func scenePhaseName(_ phase: ScenePhase) -> String {
+    switch phase {
+    case .active: "active"
+    case .inactive: "inactive"
+    case .background: "background"
+    @unknown default: "unknown"
     }
   }
 

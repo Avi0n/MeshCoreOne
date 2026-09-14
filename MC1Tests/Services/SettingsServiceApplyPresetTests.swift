@@ -59,7 +59,7 @@ struct SettingsServiceApplyPresetTests {
 
   @Test
   @MainActor
-  func `USA/Canada writes RF, skips hash, and stamps catalog id`() async throws {
+  func `USA writes RF, skips hash, and stamps catalog id`() async throws {
     let mock = MockConfigurationSession(firmwareVersion: 10)
     let service = SettingsService(session: mock)
     let preset = try #require(RadioPresets.all.first(where: { $0.id == "us-ca" }))

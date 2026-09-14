@@ -38,6 +38,10 @@ struct ChatConversationView: View {
   /// cancelled-then-flushed synchronously on view teardown and app suspension.
   @State private var draftSaveTask: Task<Void, Never>?
 
+  /// `AppState.channelSlotGenerations` value for this channel slot when the view
+  /// appeared; a higher value later means a different channel now owns the slot.
+  @State private var slotGenerationOnAppear: Int?
+
   // MARK: - Sheet State
 
   @State private var showingInfo = false
@@ -321,6 +325,14 @@ struct ChatConversationView: View {
     .onChange(of: chatViewModel.composingText) { _, _ in
       scheduleDraftSave()
     }
+    .onAppear {
+      if slotGenerationOnAppear == nil {
+        slotGenerationOnAppear = currentSlotGeneration
+      }
+    }
+    .onChange(of: currentSlotGeneration) { _, _ in
+      leaveIfSlotReassigned()
+    }
     .onChange(of: scenePhase) { _, newPhase in
       // Notifications usually arrive while the app is backgrounded with this
       // chat already on screen, so re-clear the tray when we return to the
@@ -459,7 +471,35 @@ struct ChatConversationView: View {
   private func flushDraft() {
     draftSaveTask?.cancel()
     draftSaveTask = nil
+    // The slot's draft was already cleared for the next occupant; persisting the old
+    // composer here would hand it to the new channel.
+    if slotWasReassigned {
+      chatViewModel.composingText = ""
+    }
     chatViewModel.saveDraft(to: appState.draftStore, id: conversationType.draftConversationID)
+  }
+
+  // MARK: - Slot Reassignment
+
+  private var currentSlotGeneration: Int? {
+    guard case .channel = conversationType else { return nil }
+    return appState.channelSlotGenerations[conversationType.coordinatorID] ?? 0
+  }
+
+  private var slotWasReassigned: Bool {
+    guard let seen = slotGenerationOnAppear, let current = currentSlotGeneration else { return false }
+    return current > seen
+  }
+
+  /// Closes the chat when another channel took over its slot. Drop the composer
+  /// first so `flushDraft` cannot restore the old text; `AppState` cannot pop this view-owned stack.
+  private func leaveIfSlotReassigned() {
+    guard slotWasReassigned, case let .channel(channel) = conversationType else { return }
+    chatViewModel.composingText = ""
+    if case let .channel(selected) = appState.navigation.chatsSelectedRoute, selected.id == channel.id {
+      appState.navigation.chatsSelectedRoute = nil
+    }
+    dismiss()
   }
 
   // MARK: - Cleanup (.onDisappear)

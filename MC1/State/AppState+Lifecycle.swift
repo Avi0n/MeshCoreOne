@@ -1,6 +1,13 @@
 import Foundation
 import MC1Services
 
+/// Temporary resume snapshot for the iOS 26 toolbar exclusivity abort.
+/// `.notice` so unified logs keep it; grep `[DBG-toolbar-resume]` to remove.
+private enum ToolbarResumeProbe {
+  static let tag = "[DBG-toolbar-resume]"
+  static let log = PersistentLogger(subsystem: "mc1.diag", category: "toolbar-resume")
+}
+
 // MARK: - App Lifecycle
 
 extension AppState {
@@ -46,6 +53,7 @@ extension AppState {
 
   /// Called when app enters background
   func handleEnterBackground() {
+    logToolbarResumeProbe(source: "enterBackground")
     activeRecoveryFallbackTask?.cancel()
     activeRecoveryFallbackTask = nil
 
@@ -67,6 +75,10 @@ extension AppState {
 
   /// Called when app returns to foreground
   func handleReturnToForeground() async {
+    logToolbarResumeProbe(source: "returnToForeground")
+    await Task.yield()
+    await DebugLogBuffer.shared?.flush()
+
     // Update badge count from database
     await services?.notificationService.updateBadgeCount()
 
@@ -104,5 +116,42 @@ extension AppState {
     }
 
     offlineMapService.resumeAllPacks()
+    logToolbarResumeProbe(source: "returnToForegroundDone")
+  }
+
+  func logToolbarResumeProbe(source: String, scene: String? = nil) {
+    ToolbarResumeProbe.log.notice(toolbarResumeProbeMessage(source: source, scene: scene))
+  }
+
+  func toolbarResumeProbeMessage(source: String, scene: String? = nil) -> String {
+    let tab = AppTab(rawValue: navigation.selectedTab).map { String(describing: $0) }
+      ?? "unknown(\(navigation.selectedTab))"
+    let chatRoute = navigation.chatsSelectedRoute.map { String(describing: $0.kind) } ?? "none"
+    let nodesDetail = if navigation.nodesShowingDiscovery {
+      "discovery"
+    } else if navigation.selectedContact != nil {
+      "contact"
+    } else {
+      "none"
+    }
+    var parts = [
+      ToolbarResumeProbe.tag,
+      "source=\(source)",
+    ]
+    if let scene {
+      parts.append("scene=\(scene)")
+    }
+    parts.append(contentsOf: [
+      "tab=\(tab)",
+      "tabBar=\(navigation.tabBarVisibility)",
+      "chatRoute=\(chatRoute)",
+      "nodesDetail=\(nodesDetail)",
+      "tool=\(navigation.selectedTool.map { String(describing: $0) } ?? "none")",
+      "setting=\(navigation.selectedSetting.map { String(describing: $0) } ?? "none")",
+      "connection=\(connectionState)",
+      "hasDevice=\(connectedDevice != nil)",
+      "clientRepeat=\(connectedDevice?.clientRepeat == true)",
+    ])
+    return parts.joined(separator: " ")
   }
 }
