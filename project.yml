@@ -3,7 +3,7 @@ options:
   bundleIdPrefix: com.meshcoreone
   deploymentTarget:
     iOS: "18.0"
-  xcodeVersion: "26.0"
+  xcodeVersion: "27.0"
   generateEmptyDirectories: true
 
 # dev.yml is gitignored and supplies DEVELOPMENT_TEAM for local signing.
