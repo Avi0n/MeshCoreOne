@@ -16,12 +16,7 @@ struct PresetStepView: View {
     appState.regionSelection
   }
 
-  private var recommended: RadioPreset? {
-    guard let region else { return nil }
-    return RadioPresets.recommended(for: region)
-  }
-
-  private var alternatives: [RadioPreset] {
+  private var visiblePresets: [RadioPreset] {
     let base: [RadioPreset] = if let region, !RadioPresets.presets(for: region).isEmpty {
       RadioPresets.presets(for: region)
     } else {
@@ -30,15 +25,6 @@ struct PresetStepView: View {
     return base
       .filter { RadioPresets.isSelectable($0, in: region) }
       .sorted { $0.name < $1.name }
-  }
-
-  private var visiblePresets: [RadioPreset] {
-    var result: [RadioPreset] = []
-    if let recommended {
-      result.append(recommended)
-    }
-    result.append(contentsOf: alternatives.filter { $0.id != recommended?.id })
-    return result
   }
 
   private var canApply: Bool {
@@ -50,7 +36,6 @@ struct PresetStepView: View {
       .sensoryFeedback(.success, trigger: commitTrigger)
       .errorAlert($errorMessage)
       .retryAlert(retryAlert)
-      .onAppear { selectedID = recommended?.id ?? alternatives.first?.id }
   }
 
   private var pickerState: some View {
@@ -116,7 +101,7 @@ struct PresetStepView: View {
   }
 
   private var applyCTAText: String {
-    guard let preset = alternatives.first(where: { $0.id == selectedID }) ?? recommended else {
+    guard let preset = preset(id: selectedID) else {
       return L10n.Onboarding.Preset.continue
     }
     return L10n.Onboarding.Preset.use(preset.name)
@@ -149,8 +134,13 @@ struct PresetStepView: View {
     .accessibilityHint(L10n.Onboarding.Preset.Row.accessibilityHint)
   }
 
+  private func preset(id: String?) -> RadioPreset? {
+    guard let id else { return nil }
+    return visiblePresets.first { $0.id == id }
+  }
+
   private func apply(id: String) {
-    guard let preset = alternatives.first(where: { $0.id == id }) ?? recommended else { return }
+    guard let preset = preset(id: id) else { return }
     // Mock device has no radio to configure.
     if appState.connectedDevice?.id == MockDataProvider.simulatorDeviceID {
       commitTrigger.toggle()
