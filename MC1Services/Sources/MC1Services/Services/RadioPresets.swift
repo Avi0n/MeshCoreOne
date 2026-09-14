@@ -204,6 +204,10 @@ public enum RadioPresets {
                 frequencyMHz: 902.250, bandwidthKHz: 500, spreadingFactor: 11, codingRate: 5,
                 pathHashSize: 2,
                 availability: .subRegions(country: "US", areas: ["US-PA", "US-NJ", "US-DE", "US-MD"])),
+    RadioPreset(id: "lvmesh", name: "LVMesh", region: .northAmerica,
+                frequencyMHz: 910.525, bandwidthKHz: 500, spreadingFactor: 10, codingRate: 5,
+                pathHashSize: 2,
+                availability: .subRegions(country: "US", areas: ["US-PA", "US-NJ"])),
 
     // South America
     // Chile: community-standard settings from the MeshChile network (https://meshchile.cl).

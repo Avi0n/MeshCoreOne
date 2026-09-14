@@ -40,15 +40,15 @@ struct RadioPresetRecommendationTests {
   }
 
   @Test
-  func `Pennsylvania → phillymesh`() {
+  func `Pennsylvania → lvmesh`() {
     let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-PA", source: .location)
-    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+    #expect(RadioPresets.recommended(for: region)?.id == "lvmesh")
   }
 
   @Test
-  func `New Jersey → phillymesh`() {
+  func `New Jersey → lvmesh`() {
     let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-NJ", source: .location)
-    #expect(RadioPresets.recommended(for: region)?.id == "phillymesh")
+    #expect(RadioPresets.recommended(for: region)?.id == "lvmesh")
   }
 
   @Test
@@ -77,6 +77,18 @@ struct RadioPresetRecommendationTests {
     #expect(preset.bandwidthKHz == 500)
     #expect(preset.spreadingFactor == 11)
     #expect(preset.codingRate == 5)
+    #expect(preset.region == .northAmerica)
+  }
+
+  @Test
+  func `LVMesh preset carries the expected radio parameters`() throws {
+    let preset = try #require(RadioPresets.all.first(where: { $0.id == "lvmesh" }))
+    #expect(preset.name == "LVMesh")
+    #expect(preset.frequencyMHz == 910.525)
+    #expect(preset.bandwidthKHz == 500)
+    #expect(preset.spreadingFactor == 10)
+    #expect(preset.codingRate == 5)
+    #expect(preset.pathHashSize == 2)
     #expect(preset.region == .northAmerica)
   }
 
@@ -165,6 +177,7 @@ struct RadioPresetRecommendationTests {
     #expect(try size("nz-lr") == 1)
     #expect(try size("nz-narrow") == 2)
     #expect(try size("phillymesh") == 2)
+    #expect(try size("lvmesh") == 2)
     #expect(try size("ca") == 3)
     #expect(try size("wcmesh") == 3)
     #expect(try size("nl-li") == 2)
@@ -237,6 +250,7 @@ struct RadioPresetRecommendationTests {
     let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-TX", source: .location)
     let ids = RadioPresets.presets(for: region).map(\.id)
     #expect(ids.contains("phillymesh"))
+    #expect(ids.contains("lvmesh"))
     #expect(ids.contains("us-ca"))
     #expect(ids.contains("wcmesh"))
   }
@@ -282,6 +296,7 @@ struct RadioPresetRecommendationTests {
     #expect(!ids.contains("us-ca"))
     #expect(!ids.contains("wcmesh"))
     #expect(!ids.contains("phillymesh"))
+    #expect(!ids.contains("lvmesh"))
   }
 
   @Test
@@ -337,6 +352,7 @@ struct RadioPresetSelectabilityTests {
   func `nil region → WCMesh hidden, global presets selectable`() {
     #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: nil))
     #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: nil))
     #expect(!RadioPresets.isSelectable(preset("au-qld"), in: nil))
     #expect(!RadioPresets.isSelectable(preset("au-sa-wa"), in: nil))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
@@ -351,26 +367,47 @@ struct RadioPresetSelectabilityTests {
                                  countyKey: "los angeles", source: .location)
     #expect(RadioPresets.isSelectable(preset("wcmesh"), in: region))
     #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: region))
   }
 
   @Test
-  func `Pennsylvania → PhillyMesh selectable, WCMesh hidden, us-ca selectable`() {
+  func `Pennsylvania → PhillyMesh and LVMesh selectable, WCMesh hidden, us-ca selectable`() {
     let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-PA", source: .location)
     #expect(RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(RadioPresets.isSelectable(preset("lvmesh"), in: region))
     #expect(!RadioPresets.isSelectable(preset("wcmesh"), in: region))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
+  }
+
+  @Test
+  func `New Jersey → PhillyMesh and LVMesh selectable`() {
+    let region = RegionSelection(countryCode: "US", administrativeAreaCode: "US-NJ", source: .location)
+    #expect(RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(RadioPresets.isSelectable(preset("lvmesh"), in: region))
+  }
+
+  @Test
+  func `Delaware and Maryland → PhillyMesh selectable, LVMesh hidden`() {
+    let delaware = RegionSelection(countryCode: "US", administrativeAreaCode: "US-DE", source: .location)
+    let maryland = RegionSelection(countryCode: "US", administrativeAreaCode: "US-MD", source: .location)
+    #expect(RadioPresets.isSelectable(preset("phillymesh"), in: delaware))
+    #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: delaware))
+    #expect(RadioPresets.isSelectable(preset("phillymesh"), in: maryland))
+    #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: maryland))
   }
 
   @Test
   func `Manual US with no admin → PhillyMesh hidden`() {
     let region = RegionSelection(countryCode: "US", source: .manual)
     #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: region))
+    #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: region))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: region))
   }
 
   @Test
   func `nil region → PhillyMesh hidden, us-ca selectable`() {
     #expect(!RadioPresets.isSelectable(preset("phillymesh"), in: nil))
+    #expect(!RadioPresets.isSelectable(preset("lvmesh"), in: nil))
     #expect(RadioPresets.isSelectable(preset("us-ca"), in: nil))
   }
 
@@ -473,10 +510,34 @@ struct RadioPresetVisiblePresetsTests {
   }
 
   @Test
+  func `Pennsylvania shows PhillyMesh and LVMesh; Texas hides both`() {
+    let pennsylvania = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-PA",
+      source: .location
+    )
+    let paIDs = ids(pennsylvania, activeID: nil)
+    #expect(paIDs.contains("phillymesh"))
+    #expect(paIDs.contains("lvmesh"))
+    #expect(paIDs.contains("us-ca"))
+
+    let texas = RegionSelection(
+      countryCode: "US",
+      administrativeAreaCode: "US-TX",
+      source: .location
+    )
+    let texasIDs = ids(texas, activeID: nil)
+    #expect(!texasIDs.contains("phillymesh"))
+    #expect(!texasIDs.contains("lvmesh"))
+    #expect(texasIDs.contains("us-ca"))
+  }
+
+  @Test
   func `nil place uses locale list, hides county and sub-region presets, keeps country presets`() {
     let visible = ids(nil, activeID: nil)
     #expect(!visible.contains("wcmesh"))
     #expect(!visible.contains("phillymesh"))
+    #expect(!visible.contains("lvmesh"))
     #expect(!visible.contains("au-qld"))
     #expect(visible.contains("us-ca"))
     #expect(visible.contains("eu-narrow"))
@@ -553,6 +614,7 @@ struct RadioPresetAliasIdentityTests {
   func `unique RF still returns a one-element set`() throws {
     #expect(try matches(of: "au-qld") == ["au-qld"])
     #expect(try matches(of: "phillymesh") == ["phillymesh"])
+    #expect(try matches(of: "lvmesh") == ["lvmesh"])
   }
 
   @Test
