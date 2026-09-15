@@ -1,17 +1,30 @@
 import SwiftUI
 import UIKit
 
-/// Claims secondary-click hits for the context-menu interaction; primary clicks pass through
+/// Claims secondary-click and Control-click hits; unmodified primary clicks pass through
 /// so links and card taps under the overlay still receive them.
 final class SecondaryClickCatcherView: UIView {
-  nonisolated static func shouldClaimHit(buttonMask: UIEvent.ButtonMask) -> Bool {
-    buttonMask.contains(.secondary) || !buttonMask.contains(.primary)
+  /// Secondary or Control+primary. Two-finger click is a context-menu request, not a button.
+  nonisolated static func shouldReceiveButtonClick(
+    buttonMask: UIEvent.ButtonMask,
+    modifierFlags: UIKeyModifierFlags
+  ) -> Bool {
+    buttonMask.contains(.secondary)
+      || (buttonMask.contains(.primary) && modifierFlags.contains(.control))
+  }
+
+  nonisolated static func shouldClaimHit(
+    buttonMask: UIEvent.ButtonMask,
+    modifierFlags: UIKeyModifierFlags = []
+  ) -> Bool {
+    shouldReceiveButtonClick(buttonMask: buttonMask, modifierFlags: modifierFlags)
+      || !buttonMask.contains(.primary)
   }
 
   /// A nil event is claimed because two-finger click is a context-menu request, not a button.
   nonisolated static func shouldClaimHit(event: UIEvent?) -> Bool {
     guard let event else { return true }
-    return shouldClaimHit(buttonMask: event.buttonMask)
+    return shouldClaimHit(buttonMask: event.buttonMask, modifierFlags: event.modifierFlags)
   }
 
   override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -21,18 +34,9 @@ final class SecondaryClickCatcherView: UIView {
   }
 }
 
-/// A transparent catcher for a secondary click (right click, trackpad two-finger click, or
-/// control-click), used on Mac to open a message bubble's actions sheet — the shortcut a secondary
-/// click implies, matching the sustained press that opens it elsewhere.
-///
-/// It installs a `UIContextMenuInteraction`, the single interaction the "Designed for iPad" runtime
-/// routes every secondary-click affordance through, and suppresses the system menu (returns `nil`),
-/// firing our own action instead. A plain tap recognizer with `buttonMaskRequired = .secondary`
-/// catches only a control-click — a trackpad two-finger click never arrives as a button event, only
-/// as this context-menu request.
-///
-/// Off Mac it is never installed: there is no secondary click, and a `UIContextMenuInteraction`
-/// there would fire on long-press and fight the bubble's own long-press.
+/// Opens the bubble actions sheet on Mac secondary click. Two-finger and right-click arrive
+/// as a context-menu request; Control-click as a button tap. Off Mac this is never installed:
+/// `UIContextMenuInteraction` would fire on long-press and fight the bubble's own long-press.
 private struct SecondaryClickCatcher: UIViewRepresentable {
   let onSecondaryClick: () -> Void
 
@@ -44,6 +48,20 @@ private struct SecondaryClickCatcher: UIViewRepresentable {
     let view = SecondaryClickCatcherView()
     view.backgroundColor = .clear
     view.addInteraction(UIContextMenuInteraction(delegate: context.coordinator))
+
+    let secondaryTap = UITapGestureRecognizer(
+      target: context.coordinator,
+      action: #selector(Coordinator.handleButtonClick(_:))
+    )
+    secondaryTap.buttonMaskRequired = .secondary
+    view.addGestureRecognizer(secondaryTap)
+
+    let controlTap = UITapGestureRecognizer(
+      target: context.coordinator,
+      action: #selector(Coordinator.handleButtonClick(_:))
+    )
+    controlTap.buttonMaskRequired = .primary
+    view.addGestureRecognizer(controlTap)
     return view
   }
 
@@ -59,20 +77,32 @@ private struct SecondaryClickCatcher: UIViewRepresentable {
       self.onSecondaryClick = onSecondaryClick
     }
 
+    @objc func handleButtonClick(_ recognizer: UITapGestureRecognizer) {
+      guard SecondaryClickCatcherView.shouldReceiveButtonClick(
+        buttonMask: recognizer.buttonMask,
+        modifierFlags: recognizer.modifierFlags
+      ) else { return }
+      emit()
+    }
+
     func contextMenuInteraction(
       _ interaction: UIContextMenuInteraction,
       configurationForMenuAtLocation location: CGPoint
     ) -> UIContextMenuConfiguration? {
       // Defer past this synchronous delegate call so presenting the sheet doesn't race the
       // interaction's own teardown; return nil so no system menu appears.
-      DispatchQueue.main.async { [onSecondaryClick] in onSecondaryClick() }
+      emit()
       return nil
+    }
+
+    private func emit() {
+      DispatchQueue.main.async { [onSecondaryClick] in onSecondaryClick() }
     }
   }
 }
 
 extension View {
-  /// Fires `perform` on a secondary click, on Mac only; a no-op elsewhere.
+  /// Fires `perform` on a secondary click or Control-click, on Mac only; a no-op elsewhere.
   @ViewBuilder
   func onSecondaryClick(perform: @escaping () -> Void) -> some View {
     if ProcessInfo.processInfo.isiOSAppOnMac {
