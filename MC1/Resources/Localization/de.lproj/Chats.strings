@@ -1062,19 +1062,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for reaction badge */
-"reactions.badge_hint" = "Doppeltippen zum Reagieren, lange drücken für Details";
+"reactions.badge_hint" = "Zeigt, wer reagiert hat";
 
 /* Location: ReactionBadgesView.swift - Accessibility label for overflow badge */
 "reactions.more_badge" = "%d weitere Reaktionstypen";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for overflow badge */
-"reactions.more_badge_hint" = "Doppeltippen, um alle Reaktionen anzuzeigen";
+"reactions.more_badge_hint" = "Zeigt alle Reaktionen";
 
 /* Location: EmojiPickerRow.swift - Label for more emojis button */
 "reactions.more_emojis" = "Mehr Emojis";
-
-/* Location: ReactionBadgesView.swift - VoiceOver accessibility action */
-"reactions.view_details" = "Reaktionsdetails anzeigen";
 
 /* Location: ReactionDetailsSheet.swift - Navigation title */
 /* Location: ChatViewModel.swift - Error message when reaction fails */

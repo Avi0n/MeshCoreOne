@@ -31,7 +31,6 @@ struct MessageBubbleView: View, Equatable {
         imageResolver: { ref in resolver.image(ref) },
         callbacks: MessageBubbleCallbacks(
           onRetry: { actions.onRetryMessage(message) },
-          onReaction: { emoji in actions.onReaction(emoji, message) },
           onLongPress: { actions.onLongPress(message) },
           onImageTap: { actions.onImageTap(message) },
           onRetryInlineImage: { actions.onRetryInlineImage(message.id) },

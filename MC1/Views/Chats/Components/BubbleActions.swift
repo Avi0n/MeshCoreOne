@@ -19,7 +19,6 @@ import UIKit
 @MainActor
 struct BubbleActions {
   let onRetryMessage: (MessageDTO) -> Void
-  let onReaction: (String, MessageDTO) -> Void
   let onLongPress: (MessageDTO) -> Void
   let onImageTap: (MessageDTO) -> Void
   let onRetryInlineImage: (UUID) -> Void

@@ -1105,19 +1105,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Badge accessibility hint */
-"reactions.badge_hint" = "Tik twee keer om te reageren, houd ingedrukt voor details";
+"reactions.badge_hint" = "Toont wie heeft gereageerd";
 
 /* Location: ReactionBadgeView.swift - More badge showing additional reaction types */
 "reactions.more_badge" = "%d meer reactietypes";
 
 /* Location: ReactionBadgeView.swift - More badge accessibility hint */
-"reactions.more_badge_hint" = "Tik twee keer om alle reacties te bekijken";
+"reactions.more_badge_hint" = "Toont alle reacties";
 
 /* Location: EmojiPickerSheet.swift - More emojis button */
 "reactions.more_emojis" = "Meer emoji's";
-
-/* Location: ReactionBadgeView.swift - View details button */
-"reactions.view_details" = "Reactiedetails bekijken";
 
 /* Location: ReactionDetailsSheet.swift - Details sheet title */
 /* Location: ReactionSendError.swift - Send failed message */

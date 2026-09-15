@@ -1099,19 +1099,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Purpose: Badge accessibility hint */
-"reactions.badge_hint" = "Dotknij dwukrotnie, aby zareagować, przytrzymaj, aby zobaczyć szczegóły";
+"reactions.badge_hint" = "Pokazuje, kto zareagował";
 
 /* Location: ReactionBadgeView.swift - Purpose: Overflow badge showing additional reaction types */
 "reactions.more_badge" = "%d więcej typów reakcji";
 
 /* Location: ReactionBadgeView.swift - Purpose: Overflow badge accessibility hint */
-"reactions.more_badge_hint" = "Dotknij dwukrotnie, aby zobaczyć wszystkie reakcje";
+"reactions.more_badge_hint" = "Pokazuje wszystkie reakcje";
 
 /* Location: EmojiPickerSheet.swift - Purpose: More emoji button */
 "reactions.more_emojis" = "Więcej emoji";
-
-/* Location: ReactionBadgeView.swift - Purpose: View details button */
-"reactions.view_details" = "Zobacz szczegóły reakcji";
 
 /* Location: ReactionDetailsSheet.swift - Purpose: Details sheet title */
 /* Location: ReactionBadgeView.swift - Purpose: Error message when reaction fails */

@@ -123,10 +123,6 @@ struct ChatConversationMessagesContent: View {
       resolver: BubbleResolver(viewModel: viewModel),
       actions: BubbleActions(
         onRetryMessage: onRetryMessage,
-        onReaction: { emoji, message in
-          recentEmojisStore.recordUsage(emoji)
-          Task { await viewModel.sendReaction(emoji: emoji, to: message) }
-        },
         onLongPress: { message in selectedMessageForActions = message },
         onImageTap: { message in
           if let data = viewModel.imageData(for: message.id) {

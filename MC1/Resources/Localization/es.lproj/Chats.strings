@@ -1103,19 +1103,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Purpose: Accessibility hint for reaction badge */
-"reactions.badge_hint" = "Toca dos veces para reaccionar, mantén presionado para ver detalles";
+"reactions.badge_hint" = "Muestra quién reaccionó";
 
 /* Location: ReactionBadgeView.swift - Purpose: Overflow badge showing additional reaction types */
 "reactions.more_badge" = "%d tipos de reacción más";
 
 /* Location: ReactionBadgeView.swift - Purpose: Accessibility hint for overflow badge */
-"reactions.more_badge_hint" = "Toca dos veces para ver todas las reacciones";
+"reactions.more_badge_hint" = "Muestra todas las reacciones";
 
 /* Location: EmojiPickerSheet.swift - Purpose: More emojis button */
 "reactions.more_emojis" = "Más emojis";
-
-/* Location: ReactionBadgeView.swift - Purpose: View details button */
-"reactions.view_details" = "Ver detalles de reacciones";
 
 /* Location: ReactionDetailsSheet.swift - Purpose: Details sheet title */
 /* Location: ReactionService.swift - Purpose: Error when sending reaction fails */

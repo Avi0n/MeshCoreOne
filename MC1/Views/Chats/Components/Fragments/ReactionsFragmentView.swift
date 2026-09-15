@@ -10,14 +10,12 @@ struct ReactionsFragmentView: View {
   /// `ReactionBadgesView` takes `summary: String?`; Swift auto-wraps the
   /// non-optional into `Optional` at the call site.
   let summary: String
-  let onTapReaction: (String) -> Void
-  let onLongPress: () -> Void
+  let onSelect: (String?) -> Void
 
   var body: some View {
     ReactionBadgesView(
       summary: summary,
-      onTapReaction: onTapReaction,
-      onLongPress: onLongPress
+      onSelect: onSelect
     )
     .offset(y: -6)
     .padding(.bottom, -6)

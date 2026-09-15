@@ -1098,19 +1098,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Accessibility hint for reaction badge */
-"reactions.badge_hint" = "Натисніть двічі, щоб відреагувати, утримуйте для деталей";
+"reactions.badge_hint" = "Показує, хто відреагував";
 
 /* Location: ReactionBadgeView.swift - More reaction types badge */
 "reactions.more_badge" = "Ще %d типів реакцій";
 
 /* Location: ReactionBadgeView.swift - Accessibility hint for more badge */
-"reactions.more_badge_hint" = "Натисніть двічі, щоб побачити всі реакції";
+"reactions.more_badge_hint" = "Показує всі реакції";
 
 /* Location: ReactionBadgeView.swift - More emojis button */
 "reactions.more_emojis" = "Більше емодзі";
-
-/* Location: ReactionBadgeView.swift - View details button */
-"reactions.view_details" = "Деталі реакцій";
 
 /* Location: ReactionDetailsSheet.swift - Details title */
 /* Location: ReactionBadgeView.swift - Send failed error */

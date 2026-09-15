@@ -1096,19 +1096,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Badge accessibility hint */
-"reactions.badge_hint" = "Нажмите дважды, чтобы отреагировать, удерживайте для подробностей";
+"reactions.badge_hint" = "Показывает, кто отреагировал";
 
 /* Location: ReactionBadgeView.swift - More reactions badge */
 "reactions.more_badge" = "Ещё %d типов реакций";
 
 /* Location: ReactionBadgeView.swift - More reactions badge accessibility hint */
-"reactions.more_badge_hint" = "Нажмите дважды, чтобы увидеть все реакции";
+"reactions.more_badge_hint" = "Показывает все реакции";
 
 /* Location: EmojiPickerSheet.swift - More emojis button */
 "reactions.more_emojis" = "Больше эмодзи";
-
-/* Location: ReactionDetailsSheet.swift - View details button */
-"reactions.view_details" = "Подробности реакций";
 
 /* Location: ReactionDetailsSheet.swift - Details sheet title */
 /* Location: ReactionViewModel.swift - Send failed error */

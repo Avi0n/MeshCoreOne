@@ -1063,19 +1063,17 @@ public enum L10n {
         return L10n.tr("Chats", "reactions.badge", String(describing: p1), p2, fallback: "%@ %d")
       }
       /// Location: ReactionBadgesView.swift - Accessibility hint for reaction badge
-      public static let badgeHint = L10n.tr("Chats", "reactions.badge_hint", fallback: "Double tap to add your reaction, long press for details")
+      public static let badgeHint = L10n.tr("Chats", "reactions.badge_hint", fallback: "Shows who reacted")
       /// Location: ReactionBadgesView.swift - Accessibility label for overflow badge - %d is count
       public static func moreBadge(_ p1: Int) -> String {
         return L10n.tr("Chats", "reactions.more_badge", p1, fallback: "%d more reaction types")
       }
       /// Location: ReactionBadgesView.swift - Accessibility hint for overflow badge
-      public static let moreBadgeHint = L10n.tr("Chats", "reactions.more_badge_hint", fallback: "Double tap to see all reactions")
+      public static let moreBadgeHint = L10n.tr("Chats", "reactions.more_badge_hint", fallback: "Shows all reactions")
       /// Location: EmojiPickerRow.swift - Label for more emojis button
       public static let moreEmojis = L10n.tr("Chats", "reactions.more_emojis", fallback: "More emojis")
       /// Location: ReactionDetailsSheet.swift - Navigation title
       public static let title = L10n.tr("Chats", "reactions.title", fallback: "Reactions")
-      /// Location: ReactionBadgesView.swift - VoiceOver accessibility action to view reaction details
-      public static let viewDetails = L10n.tr("Chats", "reactions.view_details", fallback: "View reaction details")
       public enum Emoji {
         /// Location: EmojiPickerSheet.swift - Search placeholder
         public static let searchPlaceholder = L10n.tr("Chats", "reactions.emoji.searchPlaceholder", fallback: "Search emojis")

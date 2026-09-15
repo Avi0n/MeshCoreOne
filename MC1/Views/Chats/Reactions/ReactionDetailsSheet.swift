@@ -6,6 +6,7 @@ import SwiftUI
 /// Sheet showing who reacted with each emoji.
 struct ReactionDetailsSheet: View {
   let messageID: UUID
+  var initialEmoji: String?
 
   @Environment(\.appState) private var appState
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -106,14 +107,26 @@ struct ReactionDetailsSheet: View {
 
     do {
       reactions = try await dataStore.fetchReactions(for: messageID)
-      if let first = emojiGroups.first {
-        selectedEmoji = first.emoji
-      }
+      selectedEmoji = Self.resolvedSelection(
+        preferred: initialEmoji,
+        available: emojiGroups.map(\.emoji)
+      )
     } catch {
       logger.debug("Failed to fetch reactions for message \(messageID): \(error)")
     }
 
     isLoading = false
+  }
+}
+
+extension ReactionDetailsSheet {
+  /// Uses `preferred` when it is still in `available`; otherwise the first group so overflow
+  /// and a vanished reaction still land on a tab.
+  static func resolvedSelection(preferred: String?, available: [String]) -> String? {
+    if let preferred, available.contains(preferred) {
+      return preferred
+    }
+    return available.first
   }
 }
 

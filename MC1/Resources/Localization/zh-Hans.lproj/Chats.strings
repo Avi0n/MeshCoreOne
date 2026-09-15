@@ -793,19 +793,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for reaction badge */
-"reactions.badge_hint" = "双击可添加反应，长按查看详情";
+"reactions.badge_hint" = "显示谁做出了反应";
 
 /* Location: ReactionBadgesView.swift - Accessibility label for overflow badge - %d is count */
 "reactions.more_badge" = "还有 %d 种反应类型";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for overflow badge */
-"reactions.more_badge_hint" = "双击以查看所有反应";
+"reactions.more_badge_hint" = "显示所有反应";
 
 /* Location: EmojiPickerRow.swift - Label for more emojis button */
 "reactions.more_emojis" = "更多表情";
-
-/* Location: ReactionBadgesView.swift - VoiceOver accessibility action to view reaction details */
-"reactions.view_details" = "查看反应详情";
 
 /* Location: ReactionDetailsSheet.swift - Navigation title */
 /* Location: ChatViewModel.swift - Error message when reaction fails to send */
