@@ -33,6 +33,14 @@ public protocol RxLogPersisting: Actor {
     senderTimestamp: UInt32
   ) async throws -> RxLogEntryDTO?
 
+  /// Same channel predicate as `findRxLogEntry`, no fetch limit, oldest `receivedAt` first
+  /// so harvest is deterministic.
+  func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    senderTimestamp: UInt32
+  ) async throws -> [RxLogEntryDTO]
+
   /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
   /// Fallback for when the primary timestamp-based lookup fails.
   func findRxLogEntryBySenderPrefix(

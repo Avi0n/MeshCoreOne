@@ -2,8 +2,8 @@ import Foundation
 import MeshCore
 import SwiftData
 
-/// Represents a single heard repeat of a sent channel message.
-/// Each repeat is an observation of the message being re-broadcast by a repeater.
+/// An RX observation of a known message: an extra incoming flood path, or an
+/// echo of a message this radio sent. Each row is one distinct hearing.
 @Model
 final class MessageRepeat {
   #Index<MessageRepeat>(
@@ -175,5 +175,26 @@ public struct MessageRepeatDTO: Sendable, Identifiable, Equatable, Hashable, Cod
   public var snrFormatted: String {
     guard let snr else { return "—" }
     return snr.formatted(.number.precision(.fractionLength(1))) + " dB"
+  }
+
+  /// Hash size per hop in bytes (1, 2, or 3) when the path length byte encodes a
+  /// valid hash mode; nil for reserved modes or the no-path marker (0xFF).
+  public var pathHashSizeIfKnown: Int? {
+    decodePathLen(pathLength)?.hashSize
+  }
+
+  /// Each hop as its raw hash bytes plus uppercase hex.
+  public var pathHops: [(data: Data, hex: String)] {
+    pathNodes.pathHops(hashSize: hashSize)
+  }
+
+  /// Path as arrow-separated string (e.g., "A3 → 7F → 42")
+  public var pathString: String {
+    pathNodesHex.joined(separator: " → ")
+  }
+
+  /// Path as comma-separated string for clipboard (e.g., "A3,7F,42")
+  public var pathStringForClipboard: String {
+    pathNodesHex.joined(separator: ",")
   }
 }

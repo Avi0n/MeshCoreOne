@@ -66,6 +66,10 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     messages.values.contains { $0.deduplicationKey == deduplicationKey && $0.radioID == radioID }
   }
 
+  public func fetchMessage(deduplicationKey: String, radioID: UUID) async throws -> MessageDTO? {
+    messages.values.first { $0.deduplicationKey == deduplicationKey && $0.radioID == radioID }
+  }
+
   public func saveMessage(_ dto: MessageDTO) async throws {
     savedMessages.append(dto)
     if let error = stubbedSaveMessageError {
@@ -1393,6 +1397,20 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
     }
   }
 
+  public func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    senderTimestamp: UInt32
+  ) throws -> [RxLogEntryDTO] {
+    mockRxLogEntries
+      .filter { entry in
+        entry.radioID == radioID &&
+          entry.channelIndex == channelIndex &&
+          entry.senderTimestamp == senderTimestamp
+      }
+      .sorted { $0.receivedAt < $1.receivedAt }
+  }
+
   public func findRxLogEntryBySenderPrefix(
     radioID: UUID,
     senderPrefixByte: UInt8,
@@ -1572,6 +1590,15 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
 
   public func incrementMessageHeardRepeats(id: UUID) async throws -> Int {
     0 // Stub
+  }
+
+  public func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) async throws -> Bool {
+    guard var message = messages[id] else { return false }
+    if message.pathNodes != nil { return false }
+    message.pathNodes = pathNodes
+    message.pathLength = pathLength
+    messages[id] = message
+    return true
   }
 
   public func incrementMessageSendCount(id: UUID) async throws -> Int {

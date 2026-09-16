@@ -82,6 +82,7 @@ extension MC1MapView.Coordinator {
     // Clustered (contact) source — rebuild only when the clusterable subset changed,
     // so toggling a fixed pin (the chat-dropped pin) does not re-cluster all contacts.
     if clusterablePoints != lastAppliedClusterablePoints {
+      registerSprites(for: clusterablePoints, style: style)
       if let source = clusterSource {
         source.shape = MLNShapeCollectionFeature(
           shapes: clusterablePoints.map { pointFeature(for: $0) }
@@ -106,6 +107,7 @@ extension MC1MapView.Coordinator {
 
     // Fixed source — rebuild only when the fixed subset changed.
     if fixedPoints != lastAppliedFixedPoints {
+      registerSprites(for: fixedPoints, style: style)
       if let source = fixedSource {
         source.shape = MLNShapeCollectionFeature(
           shapes: fixedPoints.map { pointFeature(for: $0) }
@@ -434,9 +436,24 @@ extension MC1MapView.Coordinator {
 
   // MARK: - Private helpers
 
+  /// Register pin and name-label sprites before replacing the source so the
+  /// first layout already has images and `didFailToLoadImage` does not fire.
+  private func registerSprites(for points: [MapPoint], style: MLNStyle) {
+    for point in points {
+      _ = PinSpriteRenderer.renderOnDemand(name: spriteName(for: point), into: style)
+      if let label = point.label {
+        _ = PinSpriteRenderer.renderOnDemand(
+          name: PinSpriteRenderer.labelSpritePrefix + label,
+          into: style
+        )
+      }
+    }
+  }
+
   private func pointFeature(for point: MapPoint) -> MLNPointFeature {
     let feature = MLNPointFeature()
     feature.coordinate = point.coordinate
+    feature.identifier = point.id.uuidString
     var attributes: [String: Any] = [
       "pointId": point.id.uuidString,
       "spriteName": spriteName(for: point),

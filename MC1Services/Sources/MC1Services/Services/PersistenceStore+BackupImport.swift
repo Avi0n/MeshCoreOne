@@ -263,13 +263,19 @@ public extension PersistenceStore {
     let allMessageIDs = Set(messages.map { messageIDMapping[$0.id] ?? $0.id })
     applyMessageIDMapping(messageIDMapping, toRepeats: &messageRepeats, toReactions: &reactions)
 
+    let incomingPathMerge = try mergeIncomingPathArrivals(
+      skippedIncomingParents: messageResult.skippedIncomingParents,
+      repeats: &messageRepeats,
+      messageIDs: allMessageIDs
+    )
+
     let existingRepeatIDs = try existingMessageRepeatIDs(messageIDs: allMessageIDs)
     let repeatResult = try batchInsertMessageRepeats(
       messageRepeats,
       existingIDs: existingRepeatIDs,
       existingMessageIDs: allMessageIDs
     )
-    result.record(.messageRepeats, inserted: repeatResult.inserted, skipped: repeatResult.skipped)
+    result.record(.messageRepeats, inserted: repeatResult.inserted + incomingPathMerge.promoted, skipped: repeatResult.skipped + incomingPathMerge.skipped)
 
     let existingReactionKeys = try existingReactionKeys(messageIDs: allMessageIDs)
     let reactionResult = try batchInsertReactions(
@@ -279,7 +285,7 @@ public extension PersistenceStore {
     )
     result.record(.reactions, inserted: reactionResult.inserted, skipped: reactionResult.skipped, dropped: droppedChildren.reactions)
 
-    let affectedMessageIDs = repeatResult.affectedMessageIDs.union(reactionResult.affectedMessageIDs)
+    let affectedMessageIDs = repeatResult.affectedMessageIDs.union(reactionResult.affectedMessageIDs).union(incomingPathMerge.affectedMessageIDs)
     try recomputeMessageCaches(messageIDs: affectedMessageIDs)
 
     let sessionIDMapping = buildSessionIDMapping(

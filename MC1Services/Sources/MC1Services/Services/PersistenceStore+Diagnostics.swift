@@ -277,6 +277,29 @@ public extension PersistenceStore {
     }
   }
 
+  func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    senderTimestamp: UInt32
+  ) throws -> [RxLogEntryDTO] {
+    let targetRadioID = radioID
+    let targetTimestamp = Int(senderTimestamp)
+    let channelIndexInt = Int(channelIndex)
+
+    let predicate = #Predicate<RxLogEntry> { entry in
+      entry.radioID == targetRadioID &&
+        entry.channelIndex == channelIndexInt &&
+        entry.senderTimestamp == targetTimestamp
+    }
+
+    let descriptor = FetchDescriptor<RxLogEntry>(
+      predicate: predicate,
+      sortBy: [SortDescriptor(\.receivedAt, order: .forward)]
+    )
+
+    return try modelContext.fetch(descriptor).map { RxLogEntryDTO(from: $0) }
+  }
+
   /// Find a DM RxLogEntry by matching the sender prefix byte in the packet payload.
   ///
   /// Fallback for when the primary `findRxLogEntry(senderTimestamp:)` fails because

@@ -13,15 +13,21 @@ struct PathDistanceBanner: View {
   var body: some View {
     HStack(spacing: 4) {
       Text(L10n.Contacts.Contacts.Trace.Map.hops(hopCount))
+        .contentTransition(.identity)
       if let distance = totalPathDistance {
         Text("•")
-        Text(Measurement(value: distance, unit: UnitLength.meters),
-             format: .measurement(width: .abbreviated, usage: .road))
+        Text(
+          Measurement(value: distance, unit: UnitLength.meters),
+          format: .measurement(width: .abbreviated, usage: .road)
+        )
+        .contentTransition(.identity)
       }
     }
     .font(.subheadline.weight(.medium))
     .padding(.horizontal, Self.horizontalPadding)
     .padding(.vertical, Self.verticalPadding)
+    .geometryGroup()
     .liquidGlass(in: .capsule)
+    .transaction { $0.animation = nil }
   }
 }

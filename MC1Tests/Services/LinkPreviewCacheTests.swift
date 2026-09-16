@@ -397,6 +397,10 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     0
   }
 
+  func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) async throws -> Bool {
+    false
+  }
+
   func deleteMessageRepeats(messageID: UUID) async throws {}
   func incrementMessageSendCount(id: UUID) async throws -> Int {
     0
@@ -427,6 +431,14 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
     nil
   }
 
+  func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    senderTimestamp: UInt32
+  ) async throws -> [RxLogEntryDTO] {
+    []
+  }
+
   func findRxLogEntryBySenderPrefix(radioID: UUID, senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? {
     nil
   }
@@ -443,6 +455,10 @@ private actor MockPreviewDataStore: PersistenceStoreProtocol {
 
   func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool {
     false
+  }
+
+  func fetchMessage(deduplicationKey: String, radioID: UUID) async throws -> MessageDTO? {
+    nil
   }
 
   func isDuplicateRoomMessage(sessionID: UUID, deduplicationKey: String) async throws -> Bool {

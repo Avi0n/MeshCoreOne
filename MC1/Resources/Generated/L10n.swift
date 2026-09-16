@@ -632,6 +632,8 @@ public enum L10n {
           public static func openWebLink(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.action.openWebLink", String(describing: p1), fallback: "Open Link: %@")
           }
+          /// Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet
+          public static let pathDetails = L10n.tr("Chats", "chats.message.action.pathDetails", fallback: "Path Details")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view repeat details
           public static let repeatDetails = L10n.tr("Chats", "chats.message.action.repeatDetails", fallback: "Repeat Details")
           /// Location: UnifiedMessageBubble.swift - Context menu action to reply
@@ -656,6 +658,14 @@ public enum L10n {
           public static let viewPath = L10n.tr("Chats", "chats.message.action.viewPath", fallback: "View Path")
           /// Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet
           public static let viewReactions = L10n.tr("Chats", "chats.message.action.viewReactions", fallback: "View Reactions")
+          public enum HeardTimes {
+            /// Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn
+            public static func plural(_ p1: Int) -> String {
+              return L10n.tr("Chats", "chats.message.action.heardTimes.plural", p1, fallback: "Heard %d Times")
+            }
+            /// Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn
+            public static let singular = L10n.tr("Chats", "chats.message.action.heardTimes.singular", fallback: "Heard 1 Time")
+          }
         }
         public enum HopCount {
           /// Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count
@@ -849,8 +859,26 @@ public enum L10n {
         public static let copyButton = L10n.tr("Chats", "chats.path.copyButton", fallback: "Copy Path")
         /// Location: MessagePathSheet.swift - Accessibility hint for copy button
         public static let copyHint = L10n.tr("Chats", "chats.path.copyHint", fallback: "Copies node IDs as hexadecimal values")
+        /// Location: MessageActionsSheet.swift - Alert when extra path fetch fails
+        public static let extrasLoadFailed = L10n.tr("Chats", "chats.path.extrasLoadFailed", fallback: "Couldn't load extra paths.")
         /// Location: MessagePathMapView.swift - Path map button and sheet navigation title
         public static let map = L10n.tr("Chats", "chats.path.map", fallback: "Path Map")
+        public enum Accessibility {
+          /// Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map
+          public static let viewOnMap = L10n.tr("Chats", "chats.path.accessibility.viewOnMap", fallback: "View path on map")
+        }
+        public enum Arrival {
+          /// Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival
+          public static let first = L10n.tr("Chats", "chats.path.arrival.first", fallback: "First")
+          /// Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s
+          public static func offset(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.path.arrival.offset", String(describing: p1), fallback: "+%@")
+          }
+          /// Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration
+          public static func offsetAccessibility(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("Chats", "chats.path.arrival.offsetAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, %@ after the first arrival")
+          }
+        }
         public enum Hop {
           /// Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID
           public static func nodeId(_ p1: Any) -> String {

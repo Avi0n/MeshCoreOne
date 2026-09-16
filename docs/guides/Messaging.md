@@ -251,7 +251,7 @@ static func contentBased(
 - **Timestamp**: Message timestamp (UInt32)
 - **Content Hash**: First 4 bytes of SHA256 hash of message content, uppercase hex
 
-When a message is received, the system checks if a message with the same deduplication key already exists (`isDuplicateMessage`). If found, the duplicate is ignored. This prevents the same message from appearing multiple times if it's received via multiple mesh paths.
+When a message is received, the system checks if a message with the same deduplication key already exists (`fetchMessage(deduplicationKey:radioID:)`). If found, the duplicate **message** is not stored again. A later flood copy whose `pathNodes` differ from the canonical path is recorded as a `MessageRepeat` extra arrival (`recordDistinctPathIfNeeded`). Extra `PUSH_CODE_LOG_RX_DATA` (0x88) rows that arrived before the first `saveMessage` are harvested afterward (`harvestIncomingPaths`): the coordinator re-decrypts those rows (`decryptEntry`) and `ChannelRXCorrelation` joins them to the saved message by `DeduplicationKey`, not stamp alone. This keeps one timeline bubble while preserving every distinct path. The first incoming path stays on `Message.pathNodes`; extra incoming paths do not change outgoing every-echo repeats.
 
 The SHA256 hash ensures that:
 - Identical messages in the same conversation at the same timestamp are deduplicated

@@ -28,8 +28,7 @@ struct MessageActionsSheet: View {
   @State private var showEmojiPicker = false
   @State private var isDetailExpanded = false
   @State private var repeats: [MessageRepeatDTO]?
-  @State private var contacts: [ContactDTO] = []
-  @State private var discoveredNodes: [DiscoveredNodeDTO] = []
+  @State private var errorMessage: String?
   @State private var pathViewModel = MessagePathViewModel()
 
   var body: some View {
@@ -70,8 +69,6 @@ struct MessageActionsSheet: View {
               availability: availability,
               isDetailExpanded: $isDetailExpanded,
               repeats: repeats,
-              contacts: contacts,
-              discoveredNodes: discoveredNodes,
               pathViewModel: pathViewModel
             )
             ActionsDestructiveSection(
@@ -97,25 +94,33 @@ struct MessageActionsSheet: View {
     .presentationDragIndicator(.visible)
     .presentationBackground(Color(.systemBackground))
     .sensoryFeedback(.warning, trigger: destructiveHapticTrigger)
-    .task {
-      if availability.canShowRepeatDetails {
-        guard let services = appState.services else { return }
-        // The three loads share no data, so run them concurrently rather
-        // than stacking three actor round-trips while the detail rows are blank.
-        async let fetchedRepeats = services.heardRepeatsService.refreshRepeats(for: message.id)
-        do {
-          async let fetchedContacts = services.dataStore.fetchContacts(radioID: message.radioID)
-          async let fetchedNodes = services.dataStore.fetchDiscoveredNodes(radioID: message.radioID)
-          contacts = try await fetchedContacts
-          discoveredNodes = try await fetchedNodes
-        } catch {
-          contacts = []
-          discoveredNodes = []
-        }
-        repeats = await fetchedRepeats
-      } else if availability.canViewPath {
-        await pathViewModel.loadContacts(dataStore: appState.offlineDataStore, radioID: message.radioID)
+    .errorAlert($errorMessage, retryAction: { Task { await loadPathExtras() } })
+    .task { await loadPathExtras() }
+  }
+
+  /// Process-lifetime store so extras survive disconnect; ServiceContainer
+  /// is torn down on disconnect and must not be the read path.
+  private func loadPathExtras() async {
+    guard availability.showsPathDetail else { return }
+    do {
+      async let loadedContacts: Void = pathViewModel.loadContacts(
+        dataStore: appState.offlineDataStore,
+        radioID: message.radioID
+      )
+      guard let store = appState.offlineDataStore else {
+        repeats = []
+        errorMessage = L10n.Chats.Chats.Path.extrasLoadFailed
+        await loadedContacts
+        return
       }
+      let fetched = try await store.fetchMessageRepeats(messageID: message.id)
+      repeats = fetched
+      await loadedContacts
+    } catch is CancellationError {
+      return
+    } catch {
+      repeats = []
+      errorMessage = L10n.Chats.Chats.Path.extrasLoadFailed
     }
   }
 }

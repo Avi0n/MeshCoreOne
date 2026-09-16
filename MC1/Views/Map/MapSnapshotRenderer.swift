@@ -1,4 +1,5 @@
 import CoreLocation
+import MapKit
 import MapLibre
 import UIKit
 
@@ -50,38 +51,57 @@ final class MapSnapshotRenderer: MapSnapshotRendering {
     return await start(MLNMapSnapshotter(options: options), overlayHandler: overlayHandler)
   }
 
-  /// Renders a static thumbnail of a plotted location path: the polyline plus its
-  /// pins, framed to the path's bounding region. A single-point path falls back
-  /// to the standard centered single-pin render.
-  func render(points: [MapPoint], line: MapLine?, isDark: Bool, isOffline: Bool) async -> UIImage? {
+  private static let minimumSnapshotDimension: CGFloat = 1
+
+  /// Path thumbnail (polyline + pins). `region` frames when set; otherwise a
+  /// multi-point path uses `boundingRegion()` and a single point uses chat-card zoom.
+  func render(
+    points: [MapPoint],
+    line: MapLine?,
+    region: MKCoordinateRegion?,
+    size: CGSize,
+    isDark: Bool,
+    isOffline: Bool
+  ) async -> UIImage? {
+    guard size.width >= Self.minimumSnapshotDimension,
+          size.height >= Self.minimumSnapshotDimension else { return nil }
     guard let first = points.first else { return nil }
-    let coordinates = points.map(\.coordinate)
-    guard coordinates.count > 1, let region = coordinates.boundingRegion() else {
-      return await render(MapSnapshotRequest(
-        latitude: first.coordinate.latitude,
-        longitude: first.coordinate.longitude,
-        isDark: isDark,
-        isOffline: isOffline
-      ))
-    }
 
     let pins = points.map { point in
-      (coordinate: point.coordinate, sprite: PinSpriteRenderer.snapshotSprite(named: Self.spriteName(for: point.pinStyle)))
+      (coordinate: point.coordinate, sprite: PinSpriteRenderer.snapshotSprite(named: Self.spriteName(for: point)))
     }
     let lineCoordinates = line.map(\.coordinates)
     let casingColor = UIColor.white.withAlphaComponent(Self.pathCasingOpacity)
 
-    let camera = MLNMapCamera()
+    let fittedBounds: MLNCoordinateBounds? = if let region {
+      region.toMLNCoordinateBounds()
+    } else if points.count > 1 {
+      points.map(\.coordinate).boundingRegion()?.toMLNCoordinateBounds()
+    } else {
+      nil
+    }
+    let camera = if fittedBounds != nil {
+      MLNMapCamera()
+    } else {
+      MLNMapCamera(
+        lookingAtCenter: first.coordinate,
+        altitude: 0,
+        pitch: 0,
+        heading: 0
+      )
+    }
     let options = MLNMapSnapshotOptions(
       styleURL: MapStyleSelection.standard.styleURL(isDarkMode: isDark, isOffline: isOffline),
       camera: camera,
-      size: CGSize(width: MapSnapshotLayout.width, height: MapSnapshotLayout.height)
+      size: size
     )
-    // A non-empty `coordinateBounds` overrides the camera's center and altitude,
-    // framing the whole path instead of a fixed zoom.
-    options.coordinateBounds = region.toMLNCoordinateBounds()
     options.showsLogo = false
     options.showsAttribution = false
+    if let fittedBounds {
+      options.coordinateBounds = fittedBounds
+    } else {
+      options.zoomLevel = MapSnapshotLayout.zoomLevel
+    }
 
     let overlayHandler: @Sendable (MLNMapSnapshotOverlay) -> Void = { overlay in
       UIGraphicsPushContext(overlay.context)
@@ -118,12 +138,17 @@ final class MapSnapshotRenderer: MapSnapshotRendering {
   private nonisolated static let pathCasingWidth: CGFloat = 6
   private nonisolated static let pathLineWidth: CGFloat = 3
 
-  /// Sprite names for the styles `LocationPathMapBuilder` emits; anything else
-  /// falls back to the dropped pin.
-  private static func spriteName(for style: MapPoint.PinStyle) -> String {
-    switch style {
+  /// A / B / hop names match `MC1MapView`; anything else uses the dropped pin.
+  private static func spriteName(for point: MapPoint) -> String {
+    switch point.pinStyle {
     case .pointA: "pin-point-a"
     case .pointB: "pin-point-b"
+    case .repeaterHop:
+      if let hop = point.hopIndex {
+        "pin-repeater-hop-\(min(hop, PinSpriteRenderer.maxHopBadge))"
+      } else {
+        "pin-repeater"
+      }
     default: "pin-dropped"
     }
   }

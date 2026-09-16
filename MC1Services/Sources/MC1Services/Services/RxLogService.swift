@@ -504,6 +504,11 @@ public actor RxLogService {
 
   // MARK: - Decryption
 
+  /// Re-decrypt a batch of RX log entries. One hop for coordinator lookup and harvest.
+  public func decodedEntries(_ entries: [RxLogEntryDTO]) -> [RxLogEntryDTO] {
+    entries.map { decryptEntry($0) }
+  }
+
   /// Attempt to decrypt a channel message entry using current secrets.
   /// Returns a copy of the entry with `decodedText` populated if decryption succeeds.
   /// This is reusable for export and other features that need decrypted content.

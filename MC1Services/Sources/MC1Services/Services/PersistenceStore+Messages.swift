@@ -379,6 +379,18 @@ public extension PersistenceStore {
     return try modelContext.fetchCount(FetchDescriptor(predicate: predicate)) > 0
   }
 
+  /// Fetch the message with this deduplication key for the given radio, if any.
+  func fetchMessage(deduplicationKey: String, radioID: UUID) throws -> MessageDTO? {
+    let targetKey = deduplicationKey
+    let targetRadioID = radioID
+    let predicate = #Predicate<Message> {
+      $0.deduplicationKey == targetKey && $0.radioID == targetRadioID
+    }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    return try modelContext.fetch(descriptor).first.map { MessageDTO(from: $0) }
+  }
+
   /// Save a new message
   func saveMessage(_ dto: MessageDTO) throws {
     modelContext.insert(Message(dto: dto))
@@ -799,6 +811,20 @@ public extension PersistenceStore {
     message.heardRepeats += 1
     try modelContext.save()
     return message.heardRepeats
+  }
+
+  /// Writes `pathNodes` and `pathLength` only when the column is still nil.
+  func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) throws -> Bool {
+    let targetID = id
+    let predicate = #Predicate<Message> { message in message.id == targetID }
+    var descriptor = FetchDescriptor(predicate: predicate)
+    descriptor.fetchLimit = 1
+    guard let message = try modelContext.fetch(descriptor).first else { return false }
+    if message.pathNodes != nil { return false }
+    message.pathNodes = pathNodes
+    message.pathLength = pathLength
+    try modelContext.save()
+    return true
   }
 
   /// Increments the sendCount for a message and returns the new count.

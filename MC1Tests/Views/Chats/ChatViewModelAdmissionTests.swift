@@ -433,6 +433,10 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
     false
   }
 
+  func fetchMessage(deduplicationKey: String, radioID: UUID) async throws -> MessageDTO? {
+    nil
+  }
+
   func saveMessage(_ dto: MessageDTO) async throws {}
   func fetchMessage(id: UUID) async throws -> MessageDTO? {
     nil
@@ -595,6 +599,10 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
     0
   }
 
+  func adoptIncomingPathIfUnknown(id: UUID, pathNodes: Data, pathLength: UInt8) async throws -> Bool {
+    false
+  }
+
   func deleteMessageRepeats(messageID: UUID) async throws {}
   func incrementMessageSendCount(id: UUID) async throws -> Int {
     0
@@ -620,6 +628,14 @@ private actor AdmissionStubDataStore: PersistenceStoreProtocol {
 
   func findRxLogEntry(radioID: UUID, channelIndex: UInt8?, senderTimestamp: UInt32) async throws -> RxLogEntryDTO? {
     nil
+  }
+
+  func fetchRxLogEntries(
+    radioID: UUID,
+    channelIndex: UInt8,
+    senderTimestamp: UInt32
+  ) async throws -> [RxLogEntryDTO] {
+    []
   }
 
   func findRxLogEntryBySenderPrefix(radioID: UUID, senderPrefixByte: UInt8, receivedSince: Date) async throws -> RxLogEntryDTO? {

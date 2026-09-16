@@ -12,7 +12,7 @@ enum ChannelMessageFormat {
       return nil
     }
 
-    let senderName = String(text[..<colonIndex])
+    let senderName = String(text[..<colonIndex]).trimmingCharacters(in: .whitespaces)
     let afterColon = text.index(after: colonIndex)
 
     guard afterColon < text.endIndex else {

@@ -336,6 +336,7 @@ extension MC1MapView {
       currentShowLabels = true
 
       PinSpriteRenderer.renderAll(into: style, isDarkMode: currentIsDarkMode)
+      style.performsPlacementTransitions = false
       setupRasterSources(style: style, mapView: mapView)
       setupLineLayers(style: style)
 
@@ -344,12 +345,15 @@ extension MC1MapView {
     }
 
     func mapView(_ mapView: MLNMapView, didFailToLoadImage imageName: String) -> UIImage? {
-      if let style = mapView.style,
-         let image = PinSpriteRenderer.renderOnDemand(name: imageName, into: style) {
+      if let image = PinSpriteRenderer.image(named: imageName) {
         return image
       }
       logger.error("didFailToLoadImage: \(imageName)")
       return nil
+    }
+
+    func mapView(_ mapView: MLNMapView, shouldRemoveStyleImage imageName: String) -> Bool {
+      !PinSpriteRenderer.shouldRetainStyleImage(imageName)
     }
 
     // MARK: - Region changes
