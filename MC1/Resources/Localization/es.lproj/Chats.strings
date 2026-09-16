@@ -825,6 +825,15 @@
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centrar en la ruta";
 
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Distancia de ruta";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Distancia de Ruta";
+
+/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
+"chats.path.distance.incompleteExplanation" = "La distancia solo usa los saltos que se pudieron colocar en el mapa. Se omiten los saltos desconocidos, los que no tienen ubicación o los que coinciden con más de un nodo, así que la distancia puede ser más corta que la de la ruta real o no mostrarse.";
+
 // MARK: - Path Hop Row View
 
 /* Location: PathHopRowView.swift - Unknown node name */

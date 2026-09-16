@@ -826,6 +826,15 @@
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centreren op pad";
 
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Padafstand";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Padafstand";
+
+/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
+"chats.path.distance.incompleteExplanation" = "Afstand gebruikt alleen sprongen die op de kaart geplaatst konden worden. Sprongen die onbekend zijn, geen locatie hebben of met meer dan één node overeenkomen, worden overgeslagen, zodat de afstand korter kan zijn dan het werkelijke pad of niet wordt getoond.";
+
 // MARK: - Path Hop Row View
 
 /* Location: PathHopRowView.swift - Unknown node name */

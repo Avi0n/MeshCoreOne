@@ -45,6 +45,7 @@ struct MessagePathMapView: View {
     let locatedCount: Int
     let selectedCoordinates: [CLLocationCoordinate2D]
     let hopCount: Int
+    let isDistanceIncomplete: Bool
   }
 
   private var canvas: CanvasModel {
@@ -80,7 +81,8 @@ struct MessagePathMapView: View {
           ToolbarItem(placement: .principal) {
             PathDistanceBanner(
               hopCount: canvas.hopCount,
-              totalPathDistance: canvas.selectedCoordinates.totalDistance()
+              totalPathDistance: canvas.selectedCoordinates.totalDistance(),
+              isDistanceIncomplete: canvas.isDistanceIncomplete
             )
           }
         }
@@ -261,6 +263,7 @@ struct MessagePathMapView: View {
     var lines: [MapLine] = []
     var selectedCoordinates: [CLLocationCoordinate2D] = []
     var selectedHopCount = 0
+    var isDistanceIncomplete = false
 
     if let selectedArrival = arrivals.first(where: { $0.id == selected }) {
       let path = locatedPath(
@@ -272,6 +275,7 @@ struct MessagePathMapView: View {
       )
       selectedCoordinates = path.coordinates
       selectedHopCount = selectedArrival.hopCount
+      isDistanceIncomplete = path.isDistanceIncomplete
       if path.coordinates.count >= 2 {
         lines.append(MapLine(
           id: "message-path-\(selectedArrival.id)",
@@ -316,13 +320,15 @@ struct MessagePathMapView: View {
       cameraRegion: camera,
       locatedCount: points.count,
       selectedCoordinates: selectedCoordinates,
-      hopCount: selectedHopCount
+      hopCount: selectedHopCount,
+      isDistanceIncomplete: isDistanceIncomplete
     )
   }
 
   private struct LocatedPath {
     let coordinates: [CLLocationCoordinate2D]
     let hopPoints: [(key: Data, point: MapPoint)]
+    let isDistanceIncomplete: Bool
   }
 
   private static func locatedPath(
@@ -340,6 +346,7 @@ struct MessagePathMapView: View {
     }
 
     var seenKeys = Set<Data>()
+    var isDistanceIncomplete = false
     for (index, hop) in arrival.pathHops.enumerated() {
       let hopNumber = index + 1
       let resolvedContact = RepeaterResolver.resolve(
@@ -354,9 +361,12 @@ struct MessagePathMapView: View {
       )
       let resolved: (node: any RepeaterResolvable, matchKind: NodeNameMatchKind)? =
         resolvedContact.map { ($0.node, $0.matchKind) } ?? resolvedNode.map { ($0.node, $0.matchKind) }
-      guard let resolved, resolved.matchKind == .exact else { continue }
+      guard let resolved, resolved.matchKind == .exact, resolved.node.hasLocation else {
+        isDistanceIncomplete = true
+        continue
+      }
       let r = resolved.node
-      if r.hasLocation, seenKeys.insert(r.publicKey).inserted {
+      if seenKeys.insert(r.publicKey).inserted {
         let coord = CLLocationCoordinate2D(latitude: r.latitude, longitude: r.longitude)
         coordinates.append(coord)
         hopPoints.append((r.publicKey, MapPoint(
@@ -381,7 +391,11 @@ struct MessagePathMapView: View {
       }
     }
 
-    return LocatedPath(coordinates: coordinates, hopPoints: hopPoints)
+    return LocatedPath(
+      coordinates: coordinates,
+      hopPoints: hopPoints,
+      isDistanceIncomplete: isDistanceIncomplete
+    )
   }
 
   private static func hopPointID(publicKey: Data) -> UUID {

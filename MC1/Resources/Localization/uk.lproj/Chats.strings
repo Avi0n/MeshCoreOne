@@ -820,6 +820,15 @@
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Центрувати на шляху";
 
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Відстань шляху";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Відстань Шляху";
+
+/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
+"chats.path.distance.incompleteExplanation" = "Відстань враховує лише переходи, які вдалося розмістити на карті. Невідомі переходи, переходи без місцезнаходження або ті, що збігаються з кількома вузлами, пропускаються, тож відстань може бути коротшою за справжній шлях або не показуватися.";
+
 // MARK: - Path Hop Row View
 
 /* Location: PathHopRowView.swift - Unknown node name */

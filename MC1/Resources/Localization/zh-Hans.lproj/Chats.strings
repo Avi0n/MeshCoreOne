@@ -916,6 +916,15 @@
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "在路径上居中";
 
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "路径距离";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "路径距离";
+
+/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
+"chats.path.distance.incompleteExplanation" = "距离仅使用能在地图上标出的跳。未知、无位置或匹配多个节点的跳会被跳过，因此距离可能短于实际路径，或不显示。";
+
 // MARK: - Path Hop Row View
 
 /* Location: PathHopRowView.swift - Unknown node name */

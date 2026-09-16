@@ -879,6 +879,14 @@ public enum L10n {
             return L10n.tr("Chats", "chats.path.arrival.offsetAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, %@ after the first arrival")
           }
         }
+        public enum Distance {
+          /// Location: PathDistanceBanner.swift - VoiceOver label for path distance help
+          public static let incomplete = L10n.tr("Chats", "chats.path.distance.incomplete", fallback: "Path distance")
+          /// Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops
+          public static let incompleteExplanation = L10n.tr("Chats", "chats.path.distance.incompleteExplanation", fallback: "Distance only uses hops that could be placed on the map. Hops that are unknown, have no location, or match more than one node are skipped, so distance can be shorter than the real path or not shown.")
+          /// Location: PathDistanceBanner.swift - Title for path distance popover
+          public static let incompleteTitle = L10n.tr("Chats", "chats.path.distance.incompleteTitle", fallback: "Path Distance")
+        }
         public enum Hop {
           /// Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID
           public static func nodeId(_ p1: Any) -> String {

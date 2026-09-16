@@ -920,6 +920,15 @@
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centrar na rota";
 
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Distância da rota";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Distância da rota";
+
+/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
+"chats.path.distance.incompleteExplanation" = "A distância usa apenas os saltos que foi possível colocar no mapa. Os saltos desconhecidos, sem localização ou que correspondem a mais do que um nó são ignorados, por isso a distância pode ser mais curta do que a da rota real ou não ser mostrada.";
+
 // MARK: - Path Hop Row View
 
 /* Location: PathHopRowView.swift - Unknown node name */

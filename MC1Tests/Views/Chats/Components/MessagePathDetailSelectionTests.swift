@@ -316,6 +316,90 @@ struct MessagePathDetailSelectionTests {
     #expect(firstB?.label == extraB?.label)
   }
 
+  @Test
+  @MainActor
+  func `canvasModel distance is complete when every path hop is exact and located`() {
+    let fixture = makeTwoLocatedArrivals()
+    let first = canvasModel(for: fixture, selectedID: nil)
+    let extra = canvasModel(for: fixture, selectedID: fixture.extra.id)
+    #expect(first.isDistanceIncomplete == false)
+    #expect(extra.isDistanceIncomplete == false)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel distance is incomplete when a hop is unresolved`() {
+    let canvas = incomingPathCanvas(
+      pathNodes: Data([0xFF]),
+      hopCount: 1,
+      repeaters: []
+    )
+    #expect(canvas.isDistanceIncomplete == true)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel distance is incomplete when an exact hop has no location`() {
+    let hop = locatedContact(
+      prefix: 0xDD,
+      name: "NoGPS",
+      type: .repeater,
+      latitude: 0,
+      longitude: 0
+    )
+    let canvas = incomingPathCanvas(
+      pathNodes: Data([0xDD]),
+      hopCount: 1,
+      repeaters: [hop]
+    )
+    #expect(canvas.isDistanceIncomplete == true)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel distance is incomplete when a hop is a fallback match`() {
+    let one = locatedContact(
+      prefix: 0xCC,
+      second: 0x01,
+      name: "One",
+      type: .repeater,
+      latitude: 37.1,
+      longitude: -122.1
+    )
+    let two = locatedContact(
+      prefix: 0xCC,
+      second: 0x02,
+      name: "Two",
+      type: .repeater,
+      latitude: 37.2,
+      longitude: -122.2
+    )
+    let canvas = incomingPathCanvas(
+      pathNodes: Data([0xCC]),
+      hopCount: 1,
+      repeaters: [one, two]
+    )
+    #expect(canvas.isDistanceIncomplete == true)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel distance stays complete when the same located hop appears twice`() {
+    let hop = locatedContact(
+      prefix: 0xAA,
+      name: "HopA",
+      type: .repeater,
+      latitude: Self.firstHopLatitude,
+      longitude: -122.1
+    )
+    let canvas = incomingPathCanvas(
+      pathNodes: Data([0xAA, 0xAA]),
+      hopCount: 2,
+      repeaters: [hop]
+    )
+    #expect(canvas.isDistanceIncomplete == false)
+  }
+
   private static let firstHopLatitude = 37.11
   private static let extraHopLatitude = 38.22
   private static let senderLatitude = 36.0
@@ -419,12 +503,59 @@ struct MessagePathDetailSelectionTests {
     )
   }
 
+  @MainActor
+  private func incomingPathCanvas(
+    pathNodes: Data,
+    hopCount: Int,
+    repeaters: [ContactDTO]
+  ) -> MessagePathMapView.CanvasModel {
+    let message = MessageDTO(
+      id: UUID(),
+      radioID: UUID(),
+      contactID: nil,
+      channelIndex: 0,
+      text: "flood",
+      timestamp: 1,
+      createdAt: Date(),
+      direction: .incoming,
+      status: .delivered,
+      textType: .plain,
+      ackCode: nil,
+      pathLength: UInt8(hopCount),
+      snr: nil,
+      pathNodes: pathNodes,
+      senderKeyPrefix: nil,
+      senderNodeName: nil,
+      isRead: true,
+      replyToID: nil,
+      roundTripTime: nil,
+      heardRepeats: 0,
+      retryAttempt: 0,
+      maxRetryAttempts: 0
+    )
+    let pathViewModel = MessagePathViewModel()
+    pathViewModel.contacts = repeaters
+    pathViewModel.repeaters = repeaters
+    return MessagePathMapView.canvasModel(
+      message: message,
+      arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
+      selectedID: nil,
+      pathViewModel: pathViewModel,
+      connectedDevice: nil,
+      userLocation: CLLocation(
+        latitude: Self.receiverLatitude,
+        longitude: Self.receiverLongitude
+      )
+    )
+  }
+
   private func hopLatitudes(in canvas: MessagePathMapView.CanvasModel) -> [Double] {
     canvas.points.filter { $0.pinStyle == .repeaterHop }.map(\.coordinate.latitude)
   }
 
   private func locatedContact(
     prefix: UInt8,
+    second: UInt8 = 0,
     name: String,
     type: ContactType,
     latitude: Double,
@@ -433,7 +564,7 @@ struct MessagePathDetailSelectionTests {
     ContactDTO(
       id: UUID(),
       radioID: UUID(),
-      publicKey: Data([prefix] + Array(repeating: UInt8(0), count: 31)),
+      publicKey: Data([prefix, second] + Array(repeating: UInt8(0), count: 30)),
       name: name,
       typeRawValue: type.rawValue,
       flags: 0,
