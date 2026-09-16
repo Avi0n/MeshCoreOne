@@ -889,6 +889,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Os dados da rota não estão disponíveis para esta mensagem";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Não é possível colocar a rota";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Os saltos desconhecidos, sem localização ou que correspondem a mais do que um nó não são colocados no mapa.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Copiar rota";
 

@@ -795,6 +795,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Padgegevens zijn niet beschikbaar voor dit bericht";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Kan pad niet plaatsen";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Sprongen die onbekend zijn, geen locatie hebben of met meer dan één node overeenkomen, worden niet op de kaart geplaatst.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Pad kopiëren";
 

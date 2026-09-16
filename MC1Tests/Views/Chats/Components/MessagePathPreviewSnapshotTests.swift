@@ -23,6 +23,8 @@ struct MessagePathViewModelPreviewTests {
     let viewModel = MessagePathViewModel(renderPreview: fake.asRenderer)
     viewModel.isLoading = false
     let fixture = Self.locatedFixture()
+    viewModel.contacts = [fixture.hop]
+    viewModel.repeaters = [fixture.hop]
 
     await viewModel.prefetchPreviews(
       message: fixture.message,
@@ -63,6 +65,8 @@ struct MessagePathViewModelPreviewTests {
     let viewModel = MessagePathViewModel(renderPreview: fake.asRenderer)
     viewModel.isLoading = false
     let fixture = Self.locatedFixture()
+    viewModel.contacts = [fixture.hop]
+    viewModel.repeaters = [fixture.hop]
 
     await viewModel.prefetchPreviews(
       message: fixture.message,
@@ -107,6 +111,8 @@ struct MessagePathViewModelPreviewTests {
     let viewModel = MessagePathViewModel(renderPreview: fake.asRenderer)
     viewModel.isLoading = false
     let fixture = Self.locatedFixture()
+    viewModel.contacts = [fixture.hop]
+    viewModel.repeaters = [fixture.hop]
 
     await viewModel.prefetchPreviews(
       message: fixture.message,
@@ -146,9 +152,31 @@ struct MessagePathViewModelPreviewTests {
     let message: MessageDTO
     let arrivals: [MessagePathArrival]
     let userLocation: CLLocation
+    let hop: ContactDTO
   }
 
   private static func locatedFixture() -> LocatedFixture {
+    let hop = ContactDTO(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data([0xAA] + Array(repeating: UInt8(0), count: 31)),
+      name: "HopA",
+      typeRawValue: ContactType.repeater.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 37.11,
+      longitude: -122.1,
+      lastModified: 0,
+      lastHeardTimestamp: nil,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
     let message = MessageDTO(
       id: UUID(),
       radioID: UUID(),
@@ -177,7 +205,8 @@ struct MessagePathViewModelPreviewTests {
     return LocatedFixture(
       message: message,
       arrivals: arrivals,
-      userLocation: CLLocation(latitude: 37.5, longitude: -122.3)
+      userLocation: CLLocation(latitude: 37.5, longitude: -122.3),
+      hop: hop
     )
   }
 

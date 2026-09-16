@@ -794,6 +794,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Pfaddaten sind für diese Nachricht nicht verfügbar";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Pfad nicht platzierbar";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Sprünge, die unbekannt sind, keinen Standort haben oder zu mehr als einem Knoten passen, werden nicht auf der Karte platziert.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Pfad kopieren";
 

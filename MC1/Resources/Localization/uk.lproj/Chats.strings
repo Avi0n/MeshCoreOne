@@ -789,6 +789,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Дані про шлях недоступні для цього повідомлення";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Неможливо розмістити шлях";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Невідомі переходи, переходи без місцезнаходження або ті, що збігаються з кількома вузлами, не розміщуються на карті.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Копіювати шлях";
 

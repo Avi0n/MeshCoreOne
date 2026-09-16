@@ -889,6 +889,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "I dati del percorso non sono disponibili per questo messaggio";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Percorso non posizionabile";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "I salti sconosciuti, senza posizione o che corrispondono a più nodi non vengono posizionati sulla mappa.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Copia percorso";
 

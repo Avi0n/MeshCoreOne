@@ -790,6 +790,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Dane ścieżki nie są dostępne dla tej wiadomości";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Nie można umieścić ścieżki";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Skoki, które są nieznane, nie mają lokalizacji lub pasują do więcej niż jednego węzła, nie są umieszczane na mapie.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Kopiuj ścieżkę";
 

@@ -254,7 +254,7 @@ final class MessagePathViewModel {
       connectedDevice: connectedDevice,
       userLocation: userLocation
     )
-    guard canvas.locatedCount >= 1 else { return }
+    guard canvas.showsPathMap else { return }
 
     let image = await renderPreview(
       canvas.points,

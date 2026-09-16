@@ -179,8 +179,7 @@ struct MessagePathDetailBlock: View {
 
   @ViewBuilder
   private var previewMap: some View {
-    let located = (previewMapModel?.locatedCount ?? 0) >= 1
-    if located, let key = previewKey {
+    if previewMapModel?.showsPathMap == true, let key = previewKey {
       if let image = pathViewModel.previewImage(for: key) {
         MessagePathPreviewMap(
           image: image,

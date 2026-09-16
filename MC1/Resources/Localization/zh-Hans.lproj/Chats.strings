@@ -885,6 +885,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "此消息的路径数据不可用";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "无法标出路径";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "未知、无位置或匹配多个节点的跳不会在地图上标出。";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "复制路径";
 

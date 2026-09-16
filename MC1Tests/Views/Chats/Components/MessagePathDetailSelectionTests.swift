@@ -85,6 +85,7 @@ struct MessagePathDetailSelectionTests {
     #expect(first.points.map(\.id) == second.points.map(\.id))
     #expect(!first.points.isEmpty)
     #expect(first.locatedCount >= 1)
+    #expect(first.showsPathMap == true)
   }
 
   @Test
@@ -324,6 +325,8 @@ struct MessagePathDetailSelectionTests {
     let extra = canvasModel(for: fixture, selectedID: fixture.extra.id)
     #expect(first.isDistanceIncomplete == false)
     #expect(extra.isDistanceIncomplete == false)
+    #expect(first.showsPathMap == true)
+    #expect(extra.showsPathMap == true)
   }
 
   @Test
@@ -335,6 +338,8 @@ struct MessagePathDetailSelectionTests {
       repeaters: []
     )
     #expect(canvas.isDistanceIncomplete == true)
+    #expect(canvas.locatedCount >= 1)
+    #expect(canvas.showsPathMap == false)
   }
 
   @Test
@@ -398,6 +403,91 @@ struct MessagePathDetailSelectionTests {
       repeaters: [hop]
     )
     #expect(canvas.isDistanceIncomplete == false)
+    #expect(canvas.showsPathMap == true)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel hides the path map for a 0-hop arrival with no located endpoint`() {
+    let canvas = incomingPathCanvas(
+      pathNodes: Data(),
+      hopCount: 0,
+      repeaters: [],
+      userLocation: nil
+    )
+    #expect(canvas.locatedCount == 0)
+    #expect(canvas.showsPathMap == false)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel hides the path map when a hop is unique in contacts but collides with a discovered node`() {
+    let saved = locatedContact(
+      prefix: 0xAA,
+      second: 0x01,
+      name: "Saved",
+      type: .repeater,
+      latitude: Self.firstHopLatitude,
+      longitude: -122.1
+    )
+    let discovered = locatedDiscoveredRepeater(prefix: 0xAA, second: 0x02, name: "Heard")
+    let canvas = incomingPathCanvas(
+      pathNodes: Data([0xAA]),
+      hopCount: 1,
+      repeaters: [saved],
+      discoveredRepeaters: [discovered]
+    )
+    #expect(canvas.isDistanceIncomplete == true)
+    #expect(hopLatitudes(in: canvas).isEmpty)
+    #expect(canvas.locatedCount >= 1)
+    #expect(canvas.showsPathMap == false)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel hides the path map when only one hop is placed`() {
+    let hop = locatedContact(
+      prefix: 0xAA,
+      name: "HopA",
+      type: .repeater,
+      latitude: Self.firstHopLatitude,
+      longitude: -122.1
+    )
+    let canvas = incomingPathCanvas(
+      pathNodes: Data([0xAA, 0xFF]),
+      hopCount: 2,
+      repeaters: [hop]
+    )
+    #expect(canvas.isDistanceIncomplete == true)
+    #expect(hopLatitudes(in: canvas) == [Self.firstHopLatitude])
+    #expect(canvas.showsPathMap == false)
+  }
+
+  @Test
+  @MainActor
+  func `canvasModel shows the path map when two hops are placed and another is skipped`() {
+    let first = locatedContact(
+      prefix: 0xAA,
+      name: "HopA",
+      type: .repeater,
+      latitude: Self.firstHopLatitude,
+      longitude: -122.1
+    )
+    let extra = locatedContact(
+      prefix: 0xBB,
+      name: "HopB",
+      type: .repeater,
+      latitude: Self.extraHopLatitude,
+      longitude: -123.2
+    )
+    let canvas = incomingPathCanvas(
+      pathNodes: Data([0xAA, 0xBB, 0xFF]),
+      hopCount: 3,
+      repeaters: [first, extra]
+    )
+    #expect(canvas.isDistanceIncomplete == true)
+    #expect(Set(hopLatitudes(in: canvas)) == Set([Self.firstHopLatitude, Self.extraHopLatitude]))
+    #expect(canvas.showsPathMap == true)
   }
 
   private static let firstHopLatitude = 37.11
@@ -507,7 +597,12 @@ struct MessagePathDetailSelectionTests {
   private func incomingPathCanvas(
     pathNodes: Data,
     hopCount: Int,
-    repeaters: [ContactDTO]
+    repeaters: [ContactDTO],
+    discoveredRepeaters: [DiscoveredNodeDTO] = [],
+    userLocation: CLLocation? = CLLocation(
+      latitude: Self.receiverLatitude,
+      longitude: Self.receiverLongitude
+    )
   ) -> MessagePathMapView.CanvasModel {
     let message = MessageDTO(
       id: UUID(),
@@ -536,21 +631,41 @@ struct MessagePathDetailSelectionTests {
     let pathViewModel = MessagePathViewModel()
     pathViewModel.contacts = repeaters
     pathViewModel.repeaters = repeaters
+    pathViewModel.discoveredRepeaters = discoveredRepeaters
     return MessagePathMapView.canvasModel(
       message: message,
       arrivals: MessagePathArrivals.assemble(message: message, repeats: []),
       selectedID: nil,
       pathViewModel: pathViewModel,
       connectedDevice: nil,
-      userLocation: CLLocation(
-        latitude: Self.receiverLatitude,
-        longitude: Self.receiverLongitude
-      )
+      userLocation: userLocation
     )
   }
 
   private func hopLatitudes(in canvas: MessagePathMapView.CanvasModel) -> [Double] {
     canvas.points.filter { $0.pinStyle == .repeaterHop }.map(\.coordinate.latitude)
+  }
+
+  private func locatedDiscoveredRepeater(
+    prefix: UInt8,
+    second: UInt8,
+    name: String
+  ) -> DiscoveredNodeDTO {
+    DiscoveredNodeDTO(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data([prefix, second] + Array(repeating: UInt8(0), count: 30)),
+      name: name,
+      typeRawValue: ContactType.repeater.rawValue,
+      lastHeard: Date(),
+      lastAdvertTimestamp: 0,
+      latitude: 38.0,
+      longitude: -122.5,
+      outPathLength: 0,
+      outPath: Data(),
+      inboundHopCount: nil,
+      inboundHopAdvertTimestamp: nil
+    )
   }
 
   private func locatedContact(

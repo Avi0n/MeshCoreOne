@@ -925,6 +925,12 @@ public enum L10n {
           /// Location: MessagePathSheet.swift - Empty state title
           public static let title = L10n.tr("Chats", "chats.path.unavailable.title", fallback: "Path Unavailable")
         }
+        public enum Unplaceable {
+          /// Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed
+          public static let description = L10n.tr("Chats", "chats.path.unplaceable.description", fallback: "Hops that are unknown, have no location, or match more than one node aren't placed on the map.")
+          /// Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed
+          public static let title = L10n.tr("Chats", "chats.path.unplaceable.title", fallback: "Can't Place Path")
+        }
       }
       public enum Preview {
         /// Location: TapToLoadPreview.swift - Loading state text

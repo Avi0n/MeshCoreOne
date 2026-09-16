@@ -46,6 +46,15 @@ struct MessagePathMapView: View {
     let selectedCoordinates: [CLLocationCoordinate2D]
     let hopCount: Int
     let isDistanceIncomplete: Bool
+
+    /// Endpoint pins alone are not a path. A single hop pin with skipped hops is a shortcut, not the path.
+    var showsPathMap: Bool {
+      if hopCount == 0 { return locatedCount >= 1 }
+      let placedHopCount = points.filter { $0.pinStyle == .repeaterHop }.count
+      if placedHopCount == 0 { return false }
+      if placedHopCount == 1, isDistanceIncomplete { return false }
+      return true
+    }
   }
 
   private var canvas: CanvasModel {
@@ -65,11 +74,11 @@ struct MessagePathMapView: View {
         if pathViewModel.isLoading {
           ProgressView()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if canvas.locatedCount == 0 {
+        } else if !canvas.showsPathMap {
           ContentUnavailableView(
-            L10n.Chats.Chats.Path.Unavailable.title,
+            pathMapUnavailableTitle,
             systemImage: "map",
-            description: Text(L10n.Chats.Chats.Path.Unavailable.description)
+            description: Text(pathMapUnavailableDescription)
           )
           .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
@@ -77,7 +86,7 @@ struct MessagePathMapView: View {
         }
       }
       .toolbar {
-        if canvas.locatedCount > 0 {
+        if canvas.showsPathMap {
           ToolbarItem(placement: .principal) {
             PathDistanceBanner(
               hopCount: canvas.hopCount,
@@ -103,6 +112,18 @@ struct MessagePathMapView: View {
         completeInitialFitIfNeeded()
       }
     }
+  }
+
+  private var pathMapUnavailableTitle: String {
+    canvas.hopCount == 0
+      ? L10n.Chats.Chats.Path.Unavailable.title
+      : L10n.Chats.Chats.Path.Unplaceable.title
+  }
+
+  private var pathMapUnavailableDescription: String {
+    canvas.hopCount == 0
+      ? L10n.Chats.Chats.Path.Unavailable.description
+      : L10n.Chats.Chats.Path.Unplaceable.description
   }
 
   private var mapCanvas: some View {
@@ -141,7 +162,7 @@ struct MessagePathMapView: View {
             mapStyleSelection: $mapStyle,
             viewportBounds: cameraRegion?.toMLNCoordinateBounds()
           ) {
-            if canvas.locatedCount > 0 {
+            if canvas.showsPathMap {
               Button(L10n.Chats.Chats.Path.centerOnPath, systemImage: "arrow.up.left.and.arrow.down.right") {
                 isCenteredOnUser = false
                 fitCameraToSelectedPath()
@@ -349,6 +370,11 @@ struct MessagePathMapView: View {
     var isDistanceIncomplete = false
     for (index, hop) in arrival.pathHops.enumerated() {
       let hopNumber = index + 1
+      // Same match as PathHopRowView: a fallback hop is never a pin.
+      guard pathViewModel.repeaterResolution(for: hop.data, userLocation: userLocation).matchKind == .exact else {
+        isDistanceIncomplete = true
+        continue
+      }
       let resolvedContact = RepeaterResolver.resolve(
         for: hop.data,
         in: pathViewModel.repeaters,
