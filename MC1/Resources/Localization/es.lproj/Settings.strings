@@ -1313,6 +1313,10 @@
 
 "language.defaultTranslationApp.footer" = "Usa Traducir u otra app que hayas elegido en Ajustes.";
 
+"language.translationOffers.title" = "Ofrecer traducciones";
+
+"language.translationOffers.offFooter" = "Los mensajes entrantes en otros idiomas no mostrarán un botón Traducir.";
+
 "language.search.prompt" = "Buscar idiomas";
 
 "language.search.noResults" = "Sin resultados";

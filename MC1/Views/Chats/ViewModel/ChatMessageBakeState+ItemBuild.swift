@@ -113,7 +113,9 @@ extension ChatMessageBakeState {
     senderTables: ChatSenderTables
   ) -> MessageBuildInputs {
     seedPreviewStateIfNeeded(for: message, envInputs: envInputs)
-    seedDetectedLanguageIfNeeded(for: message)
+    if envInputs.translationOffersEnabled {
+      seedDetectedLanguageIfNeeded(for: message)
+    }
     let flags = Self.computeDisplayFlags(for: message, previous: previous, next: next)
     let cachedURL = cachedURLs[message.id].flatMap(\.self)
     // Extension-based image classification, minus URLs the fetch path has
@@ -210,7 +212,7 @@ extension ChatMessageBakeState {
       showNewMessagesDivider: message.id == newMessagesDividerMessageID,
       showDayDivider: flags.showDayDivider,
       incomingAvatar: incomingAvatar,
-      translation: message.isOutgoing
+      translation: message.isOutgoing || !envInputs.translationOffersEnabled
         ? nil
         : MessageTranslationChrome.resolved(
           detected: detectedLanguages[message.id],

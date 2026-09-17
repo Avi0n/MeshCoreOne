@@ -25,6 +25,7 @@ final class RoomConversationViewModel {
   var translationSessionRequest: TranslationSessionRequest?
 
   var preferredLanguageCode: String = EnvInputs.defaultPreferredLanguageCode
+  var translationOffersEnabled = AppStorageKey.defaultTranslationOffersEnabled
 
   /// Monotonic generation for in-flight translation. Apply a result only
   /// when it still matches `translationSessionRequest.generation`.

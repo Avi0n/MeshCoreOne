@@ -1311,6 +1311,10 @@
 
 "language.defaultTranslationApp.footer" = "Usa Traduci o un’altra app che hai scelto in Impostazioni.";
 
+"language.translationOffers.title" = "Offri traduzioni";
+
+"language.translationOffers.offFooter" = "I messaggi in arrivo in altre lingue non mostreranno il pulsante Traduci.";
+
 "language.search.prompt" = "Cerca lingue";
 
 "language.search.noResults" = "Nessun risultato";

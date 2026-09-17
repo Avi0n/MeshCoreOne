@@ -1313,6 +1313,10 @@
 
 "language.defaultTranslationApp.footer" = "Використовує «Перекладач» або інший застосунок, вибраний у Налаштуваннях.";
 
+"language.translationOffers.title" = "Пропонувати переклад";
+
+"language.translationOffers.offFooter" = "Вхідні повідомлення іншими мовами не показуватимуть кнопку «Перекласти».";
+
 "language.search.prompt" = "Пошук мов";
 
 "language.search.noResults" = "Немає результатів";

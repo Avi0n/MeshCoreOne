@@ -36,6 +36,9 @@ public struct EnvInputs: Sendable, Hashable {
   /// App-locale language code (`"en"`, `"de"`, `"zh"`), never a region qualifier.
   /// A change forces a full `buildItems()` so Translation chrome re-evaluates.
   public let preferredLanguageCode: String
+  /// User toggle for in-bubble Translate offers. When false, the bake skips
+  /// language detection and builds no Translation chrome.
+  public let translationOffersEnabled: Bool
 
   /// Dynamic Type size fingerprint. A `Sendable, Hashable` token (a `DynamicTypeSize` case
   /// name string supplied by the MC1 side, never the SwiftUI type itself) so a Dynamic Type
@@ -59,7 +62,8 @@ public struct EnvInputs: Sendable, Hashable {
     currentUserName: String,
     themeID: String,
     contentSizeCategory: String,
-    preferredLanguageCode: String
+    preferredLanguageCode: String,
+    translationOffersEnabled: Bool = AppStorageKey.defaultTranslationOffersEnabled
   ) {
     self.autoPlayGIFs = autoPlayGIFs
     self.showIncomingPath = showIncomingPath
@@ -75,6 +79,7 @@ public struct EnvInputs: Sendable, Hashable {
     self.themeID = themeID
     self.contentSizeCategory = contentSizeCategory
     self.preferredLanguageCode = preferredLanguageCode
+    self.translationOffersEnabled = translationOffersEnabled
   }
 
   /// Identifier of the built-in default theme. Shared so `EnvInputs.default` and `Theme.default.id`
