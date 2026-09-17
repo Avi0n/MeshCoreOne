@@ -1,13 +1,17 @@
 import Foundation
 import NaturalLanguage
+import Synchronization
 
-/// Synchronous language detection. A new `NLLanguageRecognizer` per call —
-/// Apple does not allow sharing one across threads.
+/// Synchronous language detection. One shared `NLLanguageRecognizer` guarded
+/// by a mutex, since a recognizer is not safe for concurrent use and creating
+/// one per call reloads its model, which is expensive.
 public enum MessageLanguageDetector: Sendable {
   public static let minimumLetterCount = 12
   public static let minimumConfidence = 0.80
   public static let minimumShortLetterCount = 8
   public static let minimumShortConfidence = 0.50
+
+  private static let recognizer = Mutex(NLLanguageRecognizer())
 
   /// Dominant language of the mention-stripped body, or `.undetermined`.
   public static func dominantLanguage(for text: String) -> DetectedLanguage {
@@ -21,12 +25,13 @@ public enum MessageLanguageDetector: Sendable {
       || (letterCount >= minimumShortLetterCount && sample.contains(where: \.isWhitespace))
     guard eligible else { return .undetermined }
 
-    let recognizer = NLLanguageRecognizer()
     // Do not set `languageHints`: a non-zero hint replaces the hypothesis at
     // confidence 1, so a foreign body would never produce a Translation offer.
-    recognizer.processString(sample)
-
-    let hypotheses = recognizer.languageHypotheses(withMaximum: 1)
+    let hypotheses = recognizer.withLock { recognizer in
+      recognizer.reset()
+      recognizer.processString(sample)
+      return recognizer.languageHypotheses(withMaximum: 1)
+    }
     guard let (language, confidence) = hypotheses.max(by: { $0.value < $1.value }) else {
       return .undetermined
     }
