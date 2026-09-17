@@ -12,7 +12,11 @@ struct StatusQueryIntent: AppIntent {
   static let description = IntentDescription(
     LocalizedStringResource("intent.status.description", table: "Tools")
   )
-  static let openAppWhenRun = false
+
+  @available(iOS 26, *)
+  static var supportedModes: IntentModes {
+    .background
+  }
 
   /// Reads only cached `@Observable` state and never touches the radio, so it is
   /// safe to answer from the lock screen. Without this the default

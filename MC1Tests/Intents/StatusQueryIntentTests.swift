@@ -1,3 +1,4 @@
+import AppIntents
 import Foundation
 @testable import MC1
 @testable import MC1Services
@@ -184,5 +185,13 @@ struct StatusQueryIntentTests {
   @Test func `absent battery is not present`() {
     #expect(BatteryInfo(level: 0).isBatteryPresent == false)
     #expect(BatteryInfo(level: Self.seededLevel).isBatteryPresent == true)
+  }
+
+  // MARK: - Execution modes (iOS 26)
+
+  @Test func `supported modes is background`() {
+    if #available(iOS 26, *) {
+      #expect(StatusQueryIntent.supportedModes == .background)
+    }
   }
 }

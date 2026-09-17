@@ -1,3 +1,4 @@
+import AppIntents
 import Foundation
 @testable import MC1
 @testable import MC1Services
@@ -161,9 +162,8 @@ struct SendMessageIntentTests {
 
   // MARK: - Error rewrap
 
-  /// `IntentError` carries a non-Equatable `MeshCoreError`, so cases are matched
-  /// structurally; the surfaced `errorDescription` (what Siri speaks) pins the
-  /// localized mapping.
+  /// `IntentError` is not Equatable (`MeshCoreError` isn't); match cases
+  /// structurally and pin the localized `errorDescription`.
   private func isCase(_ error: IntentError, _ expected: IntentError) -> Bool {
     switch (error, expected) {
     case (.notConnected, .notConnected),
@@ -437,5 +437,13 @@ struct SendMessageIntentTests {
       message: "nope", recipient: .contact(Self.makeContact()), in: appState
     )
     #expect(outcome == .mustForeground)
+  }
+
+  // MARK: - Execution modes (iOS 26)
+
+  @Test func `supported modes is background and dynamic foreground`() {
+    if #available(iOS 26, *) {
+      #expect(SendMessageIntent.supportedModes == [.background, .foreground(.dynamic)])
+    }
   }
 }
