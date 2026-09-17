@@ -83,10 +83,10 @@ struct LanguageSettingsView: View {
       }
       .disabled(usesSystemOverlay || !translationOffersEnabled)
 
-      Toggle(
-        L10n.Settings.Language.DefaultTranslationApp.title,
-        isOn: useDefaultTranslationApp
-      )
+      Toggle(isOn: useDefaultTranslationApp) {
+        Text(L10n.Settings.Language.DefaultTranslationApp.title)
+          .foregroundStyle(translationOffersEnabled ? .primary : .secondary)
+      }
       .disabled(!translationOffersEnabled)
     } footer: {
       Text(
