@@ -204,12 +204,13 @@ final class ContactsViewModel {
   /// Toggle favorite status on device and update local state
   func toggleFavorite(contact: ContactDTO) async {
     guard let contactService else { return }
+    guard let current = contacts.first(where: { $0.id == contact.id }) else { return }
 
     togglingFavoriteID = contact.id
     defer { togglingFavoriteID = nil }
 
     do {
-      try await contactService.setContactFavorite(contact.id, isFavorite: !contact.isFavorite)
+      try await contactService.setContactFavorite(contact.id, isFavorite: !current.isFavorite)
 
       // Reload to get updated state
       if contacts.contains(where: { $0.id == contact.id }) {
@@ -223,11 +224,12 @@ final class ContactsViewModel {
   /// Toggle blocked status
   func toggleBlocked(contact: ContactDTO) async {
     guard let contactService else { return }
+    guard let current = contacts.first(where: { $0.id == contact.id }) else { return }
 
     do {
       try await contactService.updateContactPreferences(
         contactID: contact.id,
-        isBlocked: !contact.isBlocked
+        isBlocked: !current.isBlocked
       )
 
       // Update local list

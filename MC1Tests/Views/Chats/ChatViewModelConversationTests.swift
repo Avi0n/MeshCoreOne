@@ -38,6 +38,24 @@ struct ChatViewModelConversationTests {
     )
   }
 
+  private func makeChannel(
+    id: UUID = UUID(),
+    name: String = "General",
+    isFavorite: Bool = false
+  ) -> ChannelDTO {
+    ChannelDTO(
+      id: id,
+      radioID: UUID(),
+      index: 1,
+      name: name,
+      secret: Data(repeating: 0, count: 16),
+      isEnabled: true,
+      lastMessageDate: nil,
+      unreadCount: 0,
+      isFavorite: isFavorite
+    )
+  }
+
   // MARK: - favoriteConversations Tests
 
   @Test
@@ -201,6 +219,42 @@ struct ChatViewModelConversationTests {
 
     #expect(favorites[0].displayName == "HasDate")
     #expect(favorites[1].displayName == "NoDate")
+  }
+
+  // MARK: - Stale swipe snapshots
+
+  /// Swipe chrome keeps the row from first reveal; a second tap must invert live mute state.
+  @Test
+  func `toggleMute with stale unmuted snapshot unmutes live row`() async {
+    let viewModel = ChatViewModel()
+    viewModel.connectionStateProvider = { .ready }
+    let contact = makeContact(name: "Alice")
+    viewModel.conversations = [contact]
+    viewModel.recomputeSnapshot()
+    let stale = Conversation.direct(contact)
+
+    await viewModel.toggleMute(stale)
+    #expect(viewModel.conversations[0].isMuted)
+
+    await viewModel.toggleMute(stale)
+    #expect(!viewModel.conversations[0].isMuted)
+  }
+
+  /// Channel favorite is app-only, so a second tap with a stale copy must unfavorite without a device.
+  @Test
+  func `toggleFavorite with stale unfavorited snapshot unfavorites live channel`() async {
+    let viewModel = ChatViewModel()
+    viewModel.connectionStateProvider = { .ready }
+    let channel = makeChannel(name: "General")
+    viewModel.channels = [channel]
+    viewModel.recomputeSnapshot()
+    let stale = Conversation.channel(channel)
+
+    await viewModel.toggleFavorite(stale)
+    #expect(viewModel.channels[0].isFavorite)
+
+    await viewModel.toggleFavorite(stale)
+    #expect(!viewModel.channels[0].isFavorite)
   }
 
   // MARK: - errorBannerMessage Tests
