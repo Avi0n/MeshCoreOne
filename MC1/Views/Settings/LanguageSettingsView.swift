@@ -93,8 +93,8 @@ struct LanguageSettingsView: View {
         !translationOffersEnabled
           ? L10n.Settings.Language.TranslationOffers.offFooter
           : usesSystemOverlay
-            ? L10n.Settings.Language.DefaultTranslationApp.footer
-            : L10n.Settings.Language.TranslateInto.footer
+          ? L10n.Settings.Language.DefaultTranslationApp.footer
+          : L10n.Settings.Language.TranslateInto.footer
       )
     }
     .themedRowBackground(theme)

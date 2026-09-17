@@ -191,7 +191,7 @@ struct ChatViewModelTranslationTests {
   }
 
   @Test
-  func `disabled offers skip detection and chrome until re-enabled`() async throws {
+  func `disabled offers skip detection and chrome until re-enabled`() async {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.bindCoordinatorForTesting(coordinator)
