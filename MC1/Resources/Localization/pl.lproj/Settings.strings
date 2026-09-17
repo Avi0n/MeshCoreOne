@@ -1313,6 +1313,10 @@
 
 "language.defaultTranslationApp.footer" = "Używa Tłumacza lub innej aplikacji wybranej w Ustawieniach.";
 
+"language.translationOffers.title" = "Proponuj tłumaczenia";
+
+"language.translationOffers.offFooter" = "Przychodzące wiadomości w innych językach nie będą pokazywać przycisku Tłumacz.";
+
 "language.search.prompt" = "Szukaj języków";
 
 "language.search.noResults" = "Brak wyników";

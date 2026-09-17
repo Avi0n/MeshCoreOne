@@ -98,7 +98,8 @@ extension AppState {
       themeID: themeID,
       contentSizeCategory: contentSizeCategory,
       preferredLanguageCode: TranslationTargetPreference(rawValue: translationTarget)
-        .resolvedLanguageCode(appLocale: Locale.current)
+        .resolvedLanguageCode(appLocale: Locale.current),
+      translationOffersEnabled: bool(.translationOffersEnabled, AppStorageKey.defaultTranslationOffersEnabled)
     )
   }
 

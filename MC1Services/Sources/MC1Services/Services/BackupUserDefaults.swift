@@ -38,6 +38,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var hasSeenRepeaterDragHint: Bool?
   public var translationTargetLanguage: String?
   public var useDefaultTranslationApp: Bool?
+  public var translationOffersEnabled: Bool?
   public var regionSelection: RegionSelection?
 
   // MARK: - Notification preferences
@@ -124,6 +125,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.showMapPreviewThumbnails, AppStorageKey.showMapPreviewThumbnails.rawValue),
     (\.hasSeenRepeaterDragHint, AppStorageKey.hasSeenRepeaterDragHint.rawValue),
     (\.useDefaultTranslationApp, AppStorageKey.useDefaultTranslationApp.rawValue),
+    (\.translationOffersEnabled, AppStorageKey.translationOffersEnabled.rawValue),
     (\.notifyContactMessages, AppStorageKey.notifyContactMessages.rawValue),
     (\.notifyChannelMessages, AppStorageKey.notifyChannelMessages.rawValue),
     (\.notifyRoomMessages, AppStorageKey.notifyRoomMessages.rawValue),

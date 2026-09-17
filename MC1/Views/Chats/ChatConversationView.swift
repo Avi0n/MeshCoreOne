@@ -75,6 +75,8 @@ struct ChatConversationView: View {
   private var translationTargetLanguage = AppStorageKey.defaultTranslationTargetLanguage
   @AppStorage(AppStorageKey.useDefaultTranslationApp.rawValue)
   private var useDefaultTranslationApp = AppStorageKey.defaultUseDefaultTranslationApp
+  @AppStorage(AppStorageKey.translationOffersEnabled.rawValue)
+  private var translationOffersEnabled = AppStorageKey.defaultTranslationOffersEnabled
 
   // MARK: - Environment
 
@@ -107,7 +109,8 @@ struct ChatConversationView: View {
       themeID: theme.id,
       contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize),
       preferredLanguageCode: TranslationTargetPreference(rawValue: translationTargetLanguage)
-        .resolvedLanguageCode(appLocale: locale)
+        .resolvedLanguageCode(appLocale: locale),
+      translationOffersEnabled: translationOffersEnabled
     )
   }
 

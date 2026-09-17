@@ -4904,6 +4904,12 @@ public enum L10n {
         /// Location: TranslateIntoLanguageView.swift - Purpose: Footer explaining the Translate Into list is in-app languages only
         public static let listFooter = L10n.tr("Settings", "language.translateInto.listFooter", fallback: "Languages this device can translate in the app. Other languages use your default translation app.")
       }
+      public enum TranslationOffers {
+        /// Location: LanguageSettingsView.swift - Purpose: Footer when Offer Translations is off
+        public static let offFooter = L10n.tr("Settings", "language.translationOffers.offFooter", fallback: "Incoming messages in other languages won't show a Translate button.")
+        /// Location: LanguageSettingsView.swift - Purpose: Toggle to show the Translate button on incoming messages
+        public static let title = L10n.tr("Settings", "language.translationOffers.title", fallback: "Offer Translations")
+      }
     }
     public enum LinkPreviews {
       /// Footer explaining link content privacy implications

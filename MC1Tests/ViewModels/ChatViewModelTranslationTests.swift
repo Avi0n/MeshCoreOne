@@ -191,6 +191,24 @@ struct ChatViewModelTranslationTests {
   }
 
   @Test
+  func `disabled offers skip detection and chrome until re-enabled`() async throws {
+    let viewModel = ChatViewModel()
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(coordinator)
+    viewModel.applyEnvInputs(envInputs(preferredLanguageCode: "en", translationOffersEnabled: false))
+    let message = germanMessage(timestamp: 1000)
+    viewModel.appendMessageIfNew(message)
+    await coordinator.buildItemsTask?.value
+
+    #expect(viewModel.translation(for: message.id) == nil)
+    #expect(viewModel.bake.detectedLanguages[message.id] == nil)
+
+    viewModel.applyEnvInputs(envInputs(preferredLanguageCode: "en"))
+    await coordinator.buildItemsTask?.value
+    #expect(viewModel.translation(for: message.id)?.phase == .offer)
+  }
+
+  @Test
   func `preferred language change does not reuse a translation for a different target`() async throws {
     let (viewModel, coordinator, message, translator) = try await seededGermanChat()
     viewModel.performTranslationAction(for: message.id)
@@ -323,7 +341,10 @@ struct ChatViewModelTranslationTests {
     makeMessage(timestamp: timestamp, text: german, direction: direction)
   }
 
-  private func envInputs(preferredLanguageCode: String) -> EnvInputs {
+  private func envInputs(
+    preferredLanguageCode: String,
+    translationOffersEnabled: Bool = true
+  ) -> EnvInputs {
     let base = EnvInputs.default
     return EnvInputs(
       autoPlayGIFs: base.autoPlayGIFs,
@@ -339,7 +360,8 @@ struct ChatViewModelTranslationTests {
       currentUserName: base.currentUserName,
       themeID: base.themeID,
       contentSizeCategory: base.contentSizeCategory,
-      preferredLanguageCode: preferredLanguageCode
+      preferredLanguageCode: preferredLanguageCode,
+      translationOffersEnabled: translationOffersEnabled
     )
   }
 

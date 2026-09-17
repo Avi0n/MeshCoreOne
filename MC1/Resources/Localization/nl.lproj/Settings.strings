@@ -1313,6 +1313,10 @@
 
 "language.defaultTranslationApp.footer" = "Gebruikt Vertalen of een andere app die je in Instellingen hebt gekozen.";
 
+"language.translationOffers.title" = "Vertalingen aanbieden";
+
+"language.translationOffers.offFooter" = "Inkomende berichten in andere talen tonen geen Vertaal-knop.";
+
 "language.search.prompt" = "Zoek talen";
 
 "language.search.noResults" = "Geen resultaten";

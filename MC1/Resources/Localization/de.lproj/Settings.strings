@@ -1313,6 +1313,10 @@
 
 "language.defaultTranslationApp.footer" = "Verwendet Übersetzen oder eine andere App, die du in den Einstellungen ausgewählt hast.";
 
+"language.translationOffers.title" = "Übersetzungen anbieten";
+
+"language.translationOffers.offFooter" = "Eingehende Nachrichten in anderen Sprachen zeigen keine Übersetzen-Taste.";
+
 "language.search.prompt" = "Sprachen suchen";
 
 "language.search.noResults" = "Keine Ergebnisse";

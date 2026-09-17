@@ -57,6 +57,21 @@ struct RoomConversationViewModelTranslationTests {
   }
 
   @Test
+  func `disabled offers skip detection and chrome until re-enabled`() throws {
+    let viewModel = RoomConversationViewModel()
+    viewModel.preferredLanguageCode = "en"
+    viewModel.applyTranslationOffersEnabled(false)
+    let message = roomMessage(text: german)
+    viewModel.appendMessageIfNew(message)
+
+    #expect(try #require(viewModel.tiledRows.first).translation == nil)
+    #expect(viewModel.detectedLanguages[message.id] == nil)
+
+    viewModel.applyTranslationOffersEnabled(true)
+    #expect(try #require(viewModel.tiledRows.first).translation?.phase == .offer)
+  }
+
+  @Test
   func `toggle and fake translator show then restore without writing stored text`() async throws {
     let viewModel = seededGermanRoom()
     let message = try #require(viewModel.messages.first)

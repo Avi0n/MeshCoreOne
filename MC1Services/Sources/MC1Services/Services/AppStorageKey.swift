@@ -49,6 +49,9 @@ public enum AppStorageKey: String {
   /// When true, tap-Translate opens the system Translate sheet. Separate from
   /// `translationTargetLanguage` so the language subtag is not overwritten.
   case useDefaultTranslationApp
+  /// When false, incoming messages skip language detection and show no
+  /// in-bubble Translate button.
+  case translationOffersEnabled
   case autoDeleteStaleNodesDays
   case lastStaleCleanupDate
   case frequentEmojis
@@ -94,6 +97,7 @@ public enum AppStorageKey: String {
   /// Sentinel: in-bubble Translate follows the app locale.
   public static let defaultTranslationTargetLanguage: String = "app"
   public static let defaultUseDefaultTranslationApp: Bool = false
+  public static let defaultTranslationOffersEnabled: Bool = true
   public static let defaultLiveActivityEnabled: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.
   public static let defaultAutoDeleteStaleNodesDays: Int = 0

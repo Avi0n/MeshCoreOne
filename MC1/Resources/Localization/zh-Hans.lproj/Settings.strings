@@ -1313,6 +1313,10 @@
 
 "language.defaultTranslationApp.footer" = "使用翻译，或您在设置中选择的其他应用。";
 
+"language.translationOffers.title" = "提供翻译";
+
+"language.translationOffers.offFooter" = "其他语言的收到消息将不显示翻译按钮。";
+
 "language.search.prompt" = "搜索语言";
 
 "language.search.noResults" = "无结果";
