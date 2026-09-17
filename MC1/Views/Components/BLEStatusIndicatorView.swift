@@ -24,7 +24,13 @@ struct BLEStatusIndicatorView: View {
     ToolbarMenu {
       menuContent
     } label: {
-      StatusIcon(iconName: iconName, iconColor: iconColor, isAnimating: isAnimating)
+      // Overflow uses the title; iconOnly keeps the bar glyph-only.
+      Label {
+        Text(L10n.Settings.BleStatus.accessibilityLabel)
+      } icon: {
+        StatusIcon(iconName: iconName, iconColor: iconColor, isAnimating: isAnimating)
+      }
+      .labelStyle(.iconOnly)
     }
     .popoverTip(deviceMenuTip)
     .dynamicTypeSize(...DynamicTypeSize.xLarge)

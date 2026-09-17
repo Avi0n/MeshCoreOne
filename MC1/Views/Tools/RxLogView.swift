@@ -103,10 +103,10 @@ struct RxLogView: View {
   @ToolbarContentBuilder
   private var toolbarContent: some ToolbarContent {
     ToolbarItem(placement: .topBarTrailing) {
-      HStack(spacing: 16) {
-        filterMenu
-        overflowMenu
-      }
+      filterMenu
+    }
+    ToolbarItem(placement: .topBarTrailing) {
+      overflowMenu
     }
   }
 

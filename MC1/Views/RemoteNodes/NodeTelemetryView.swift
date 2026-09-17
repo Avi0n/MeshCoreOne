@@ -26,12 +26,10 @@ struct NodeTelemetryView: View {
         }
 
         ToolbarItem(placement: .primaryAction) {
-          Button {
+          Button(L10n.RemoteNodes.RemoteNodes.Status.refresh, systemImage: "arrow.clockwise") {
             Task { await viewModel.requestTelemetry() }
-          } label: {
-            Image(systemName: "arrow.clockwise")
           }
-          .accessibilityLabel(L10n.RemoteNodes.RemoteNodes.Status.refresh)
+          .labelStyle(.iconOnly)
           .radioDisabled(
             for: appState.connectionState,
             or: viewModel.helper.isLoadingTelemetry
