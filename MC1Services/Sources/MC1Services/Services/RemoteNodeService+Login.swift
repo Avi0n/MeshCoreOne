@@ -38,7 +38,7 @@ public extension RemoteNodeService {
       let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
       logger.warning("Overwriting pending login for prefix \(prefixHex)")
       pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
-      existing.resume(throwing: RemoteNodeError.cancelled)
+      existing.continuation.resume(throwing: RemoteNodeError.cancelled)
     }
 
     // Log login request
@@ -50,7 +50,7 @@ public extension RemoteNodeService {
     logger.info("login: registering pending login for prefix \(prefixHex)")
     return try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { continuation in
-        pendingLogins[prefix] = continuation
+        pendingLogins[prefix] = PendingLogin(sessionID: sessionID, continuation: continuation)
 
         let timeoutTask = Task { [self] in
           let sentInfo: MessageSentInfo
@@ -69,7 +69,7 @@ public extension RemoteNodeService {
             if let pending = pendingLogins.removeValue(forKey: prefix) {
               let rnError = (error as? RemoteNodeError)
                 ?? .sessionError(error as? MeshCoreError ?? .connectionLost(underlying: error))
-              pending.resume(throwing: rnError)
+              pending.continuation.resume(throwing: rnError)
             }
             return
           }
@@ -118,7 +118,7 @@ public extension RemoteNodeService {
           if let pending = pendingLogins.removeValue(forKey: prefix) {
             logger.warning("Login timeout after \(timeout) for session \(sessionID), prefix \(prefixHex)")
             pendingLoginTimeoutTasks.removeValue(forKey: prefix)
-            pending.resume(throwing: RemoteNodeError.timeout)
+            pending.continuation.resume(throwing: RemoteNodeError.timeout)
           } else {
             logger.info("login: timeout elapsed but continuation already consumed for prefix \(prefixHex)")
           }
@@ -192,18 +192,19 @@ public extension RemoteNodeService {
     let prefixHex = prefix.map { String(format: "%02x", $0) }.joined()
     let pendingKeys = pendingLogins.keys.map { $0.map { String(format: "%02x", $0) }.joined() }
     logger.info("handleLoginResult: looking for prefix \(prefixHex), pending keys: \(pendingKeys)")
-    guard let continuation = pendingLogins.removeValue(forKey: prefix) else {
+    guard let pending = pendingLogins.removeValue(forKey: prefix) else {
       logger.warning("Login result with no pending request. Prefix: \(prefixHex)")
       return
     }
     pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
     logger.info("handleLoginResult: found continuation for prefix \(prefixHex)")
+    let continuation = pending.continuation
 
     if result.success {
       // Update session state
       do {
-        guard let remoteSession = try await dataStore.fetchRemoteNodeSessionByPrefix(prefix) else {
-          logger.error("handleLoginResult: no session found for prefix \(prefixHex) - database may be corrupted")
+        guard let remoteSession = try await dataStore.fetchRemoteNodeSession(id: pending.sessionID) else {
+          logger.error("handleLoginResult: no session found for \(pending.sessionID) - database may be corrupted")
           continuation.resume(returning: result)
           return
         }
@@ -242,7 +243,7 @@ public extension RemoteNodeService {
     } else {
       // Log failed login
       // Try to determine target type from existing session
-      if let remoteSession = try? await dataStore.fetchRemoteNodeSessionByPrefix(prefix) {
+      if let remoteSession = try? await dataStore.fetchRemoteNodeSession(id: pending.sessionID) {
         let targetType: CommandAuditLogger.Target = remoteSession.isRoom ? .room : .repeater
         await auditLogger.logLoginFailed(target: targetType, publicKey: prefix, reason: "authentication failed")
       } else {

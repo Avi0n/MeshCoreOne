@@ -12,17 +12,20 @@ struct ContactCleanupCoordinator: ContactCleanupHandling {
   private let syncCoordinator: SyncCoordinator
   private let notificationService: NotificationService
   private let remoteNodeService: RemoteNodeService
+  private let radioID: UUID
 
   init(
     dataStore: any ContactPersisting & RoomPersisting,
     syncCoordinator: SyncCoordinator,
     notificationService: NotificationService,
-    remoteNodeService: RemoteNodeService
+    remoteNodeService: RemoteNodeService,
+    radioID: UUID
   ) {
     self.dataStore = dataStore
     self.syncCoordinator = syncCoordinator
     self.notificationService = notificationService
     self.remoteNodeService = remoteNodeService
+    self.radioID = radioID
   }
 
   func handleCleanup(contactID: UUID, reason: ContactCleanupReason, publicKey: Data) async {
@@ -51,7 +54,8 @@ struct ContactCleanupCoordinator: ContactCleanupHandling {
 
     // Clean up any associated remote node session on delete
     if reason == .deleted {
-      if let session = try? await dataStore.fetchRemoteNodeSession(publicKey: publicKey) {
+      if let session = try? await dataStore.fetchRemoteNodeSessions(radioID: radioID)
+        .first(where: { $0.publicKey == publicKey }) {
         try? await remoteNodeService.removeSession(id: session.id, publicKey: publicKey)
       }
       await syncCoordinator.notifyConversationsChanged()

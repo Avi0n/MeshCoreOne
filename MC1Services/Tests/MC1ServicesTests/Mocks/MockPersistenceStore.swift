@@ -1778,8 +1778,9 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
   }
 
   public func cleanupDuplicateRemoteNodeSessions(publicKey: Data, keepID: UUID) async throws {
+    guard let kept = remoteNodeSessions[keepID] else { return }
     let duplicateIDs = remoteNodeSessions.values
-      .filter { $0.publicKey == publicKey && $0.id != keepID }
+      .filter { $0.publicKey == publicKey && $0.id != keepID && $0.radioID == kept.radioID }
       .map(\.id)
     for id in duplicateIDs {
       remoteNodeSessions.removeValue(forKey: id)

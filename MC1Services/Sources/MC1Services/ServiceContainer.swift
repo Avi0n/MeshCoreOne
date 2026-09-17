@@ -253,7 +253,8 @@ public final class ServiceContainer {
       dataStore: dataStore,
       syncCoordinator: syncCoordinator,
       notificationService: notificationService,
-      remoteNodeService: remoteNodeService
+      remoteNodeService: remoteNodeService,
+      radioID: radioID
     )
     contactService = ContactService(
       session: session,
@@ -305,7 +306,8 @@ public final class ServiceContainer {
     roomServerService = RoomServerService(
       session: session,
       remoteNodeService: remoteNodeService,
-      dataStore: dataStore
+      dataStore: dataStore,
+      radioID: radioID
     )
 
     chatSendQueueService = ChatSendQueueService(

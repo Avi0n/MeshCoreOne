@@ -36,6 +36,7 @@ public actor RoomServerService {
   private let session: any RemoteAccessSessionOps
   private let remoteNodeService: RemoteNodeService
   private let dataStore: any PersistenceStoreProtocol
+  private let radioID: UUID
   private let logger = PersistentLogger(subsystem: "com.mc1", category: "RoomServer")
   private let auditLogger = CommandAuditLogger()
 
@@ -58,11 +59,13 @@ public actor RoomServerService {
     session: any RemoteAccessSessionOps,
     remoteNodeService: RemoteNodeService,
     dataStore: any PersistenceStoreProtocol,
+    radioID: UUID,
     config: MessageServiceConfig = MessageServiceConfig()
   ) {
     self.session = session
     self.remoteNodeService = remoteNodeService
     self.dataStore = dataStore
+    self.radioID = radioID
     self.config = config
   }
 
@@ -411,10 +414,9 @@ public actor RoomServerService {
     authorPrefix: Data,
     text: String
   ) async throws -> RoomMessageDTO? {
-    // Find session by room server's key prefix
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSessionByPrefix(senderPublicKeyPrefix),
-          remoteSession.isRoom else {
-      return nil // Not from a known room
+    guard let remoteSession = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
+      .first(where: { $0.publicKey.prefix(6) == senderPublicKeyPrefix && $0.isRoom }) else {
+      return nil
     }
 
     // Receiving any message (even duplicate) proves session is active
@@ -510,8 +512,8 @@ public actor RoomServerService {
   /// - Parameter publicKeyPrefix: The 6-byte public key prefix
   /// - Returns: The session if found and connected, nil otherwise
   public func getConnectedSession(publicKeyPrefix: Data) async throws -> RemoteNodeSessionDTO? {
-    guard let remoteSession = try await dataStore.fetchRemoteNodeSessionByPrefix(publicKeyPrefix),
-          remoteSession.isRoom, remoteSession.isConnected else {
+    guard let remoteSession = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
+      .first(where: { $0.publicKey.prefix(6) == publicKeyPrefix && $0.isRoom && $0.isConnected }) else {
       return nil
     }
     return remoteSession

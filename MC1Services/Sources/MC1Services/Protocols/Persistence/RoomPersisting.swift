@@ -25,8 +25,8 @@ public protocol RoomPersisting: Actor {
   /// Update session connection state
   func updateRemoteNodeSessionConnection(id: UUID, isConnected: Bool, permissionLevel: RoomPermissionLevel) async throws
 
-  /// Clean up duplicate remote node sessions with the same public key.
-  /// Keeps the session with the specified ID and deletes any others.
+  /// Deletes extra sessions that share `publicKey` with `keepID` on `keepID`'s radio.
+  /// Another radio's session for the same node is a separate partition.
   func cleanupDuplicateRemoteNodeSessions(publicKey: Data, keepID: UUID) async throws
 
   /// Delete remote node session and all associated room messages
