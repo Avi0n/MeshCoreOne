@@ -48,6 +48,10 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   /// later `.id` rebuild does not re-jump to it.
   var onInitialTargetConsumed: (() -> Void)?
 
+  /// Message heights kept across views, so a reopen skips measuring
+  /// unchanged items. Nil measures on each open.
+  var sizeCache: TiledSizeCache<Item>?
+
   @Environment(\.appTheme) private var appTheme
   @Environment(\.colorScheme) private var colorScheme
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
@@ -71,7 +75,8 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     scrollTargetID: Item.ID? = nil,
     initialScrollTargetID: Item.ID? = nil,
     onLoadOlder: (@MainActor @Sendable () async -> Void)? = nil,
-    onInitialTargetConsumed: (() -> Void)? = nil
+    onInitialTargetConsumed: (() -> Void)? = nil,
+    sizeCache: TiledSizeCache<Item>? = nil
   ) {
     self.items = items
     self.cellContent = cellContent
@@ -86,6 +91,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     self.initialScrollTargetID = initialScrollTargetID
     self.onLoadOlder = onLoadOlder
     self.onInitialTargetConsumed = onInitialTargetConsumed
+    self.sizeCache = sizeCache
     // Open at the bottom by default; with an initial target present, hold off
     // append-follow until the geometry callback re-derives it from the resting
     // position, so an append during open does not fight the target.
@@ -97,10 +103,13 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
 
   var body: some View {
     host.content = cellContent
+    // Cached heights are only valid for the appearance they were measured in.
+    sizeCache?.context = appearanceIdentity
 
     return TiledView(items: items, scrollPosition: $scrollPosition) { item in
       ChatTiledCell(item: item, host: host)
     }
+    .sizeCache(sizeCache)
     .prependLoader(onLoadOlder.map { load in
       .loader(perform: load) {
         ProgressView().padding(.vertical, 8)
