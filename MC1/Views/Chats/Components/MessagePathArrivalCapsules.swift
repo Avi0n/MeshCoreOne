@@ -11,8 +11,8 @@ struct MessagePathArrivalCapsules: View {
   private static let selectionAnimationDuration: TimeInterval = 0.2
   private static let pillSpacing: CGFloat = 8
   private static let pillHorizontalPadding: CGFloat = 12
-  private static let pillVerticalPadding: CGFloat = 8
-  private static let subtitleSpacing: CGFloat = 2
+  static let pillVerticalPadding: CGFloat = 8
+  static let subtitleSpacing: CGFloat = 2
   private static let selectedSubtitleOpacity: Double = 0.7
 
   let arrivals: [MessagePathArrival]

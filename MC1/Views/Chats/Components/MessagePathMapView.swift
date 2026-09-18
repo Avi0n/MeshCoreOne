@@ -15,6 +15,8 @@ struct MessagePathMapView: View {
   private static let receiverPointID = pointID(namespace: "message-path-receiver", bytes: Data())
   private static let capsuleHorizontalPadding: CGFloat = 16
   private static let capsuleBottomPadding: CGFloat = 8
+  /// Space above the capsules so the MapLibre logo and attribution stay visible.
+  private static let legalOrnamentGap: CGFloat = 18
 
   @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
@@ -34,6 +36,8 @@ struct MessagePathMapView: View {
   @State private var isStyleLoaded = false
   @State private var isCenteredOnUser = false
   @State private var hasInitiallyFit = false
+  @State private var capsuleBarHeight: CGFloat = 0
+  @State private var bottomSafeArea: CGFloat = 0
 
   struct CanvasModel {
     let points: [MapPoint]
@@ -108,6 +112,12 @@ struct MessagePathMapView: View {
       .onChange(of: canvas.selectedCoordinates.count) { _, _ in
         completeInitialFitIfNeeded()
       }
+      .onChange(of: capsuleBarHeight) { _, _ in
+        completeInitialFitIfNeeded()
+      }
+      .onChange(of: bottomSafeArea) { _, _ in
+        completeInitialFitIfNeeded()
+      }
     }
   }
 
@@ -138,6 +148,8 @@ struct MessagePathMapView: View {
         isNorthLocked: isNorthLocked,
         cameraRegion: $cameraRegion,
         cameraRegionVersion: cameraRegionVersion,
+        cameraEdgePadding: pathCameraEdgePadding,
+        legalOrnamentBottomMargin: pathLegalOrnamentBottomMargin,
         onPointTap: nil,
         onMapTap: nil,
         onCameraRegionChange: { cameraRegion = $0 },
@@ -168,7 +180,7 @@ struct MessagePathMapView: View {
             }
           }
         }
-        if arrivals.count > 1 {
+        if showsArrivalCapsules {
           MessagePathArrivalCapsules(
             arrivals: arrivals,
             selectedID: $selectedID,
@@ -177,16 +189,74 @@ struct MessagePathMapView: View {
           )
           .padding(.horizontal, Self.capsuleHorizontalPadding)
           .padding(.bottom, Self.capsuleBottomPadding)
+          .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.size.height
+          } action: { height in
+            guard height > 0, height != capsuleBarHeight else { return }
+            capsuleBarHeight = height
+          }
         }
       }
       .safeAreaPadding(.bottom)
     }
+    .onGeometryChange(for: CGFloat.self) { proxy in
+      proxy.safeAreaInsets.bottom
+    } action: { bottom in
+      guard bottom != bottomSafeArea else { return }
+      bottomSafeArea = bottom
+    }
+  }
+
+  private var showsArrivalCapsules: Bool {
+    arrivals.count > 1
+  }
+
+  private var capsuleOverlayHeight: CGFloat {
+    capsuleBarHeight > 0 ? capsuleBarHeight : Self.estimatedCapsuleBarHeight
+  }
+
+  private var pathLegalOrnamentBottomMargin: CGFloat? {
+    guard showsArrivalCapsules else { return nil }
+    return Self.legalOrnamentBottomMargin(capsuleBarHeight: capsuleOverlayHeight)
+  }
+
+  private var pathCameraEdgePadding: UIEdgeInsets {
+    guard showsArrivalCapsules else { return .zero }
+    return UIEdgeInsets(
+      top: 0,
+      left: 0,
+      bottom: Self.pathCameraBottomInset(
+        safeAreaBottom: bottomSafeArea,
+        capsuleBarHeight: capsuleOverlayHeight
+      ),
+      right: 0
+    )
+  }
+
+  private static var estimatedCapsuleBarHeight: CGFloat {
+    let title = UIFont.preferredFont(forTextStyle: .caption1).lineHeight
+    let subtitle = UIFont.preferredFont(forTextStyle: .caption2).lineHeight
+    return MessagePathArrivalCapsules.pillVerticalPadding * 2
+      + title
+      + subtitle
+      + MessagePathArrivalCapsules.subtitleSpacing
+      + capsuleBottomPadding
+  }
+
+  private static func legalOrnamentBottomMargin(capsuleBarHeight: CGFloat) -> CGFloat {
+    capsuleBarHeight + legalOrnamentGap
+  }
+
+  private static func pathCameraBottomInset(safeAreaBottom: CGFloat, capsuleBarHeight: CGFloat) -> CGFloat {
+    safeAreaBottom + capsuleBarHeight
   }
 
   /// Frames the selected path once after style load. Later path taps leave the camera.
   private func completeInitialFitIfNeeded() {
     guard !hasInitiallyFit, isStyleLoaded else { return }
     guard !canvas.selectedCoordinates.isEmpty else { return }
+    // Camera edge padding uses the measured capsule bar; fitting first puts the path under the pills.
+    if showsArrivalCapsules, capsuleBarHeight == 0 { return }
     hasInitiallyFit = true
     fitCameraToSelectedPath()
   }

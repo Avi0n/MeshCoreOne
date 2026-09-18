@@ -26,6 +26,8 @@ struct MC1MapView: UIViewRepresentable {
   let cameraRegionVersion: Int
   var cameraEdgePadding: UIEdgeInsets = .zero
   var cameraBottomSheetFraction: CGFloat?
+  /// When set, the MapLibre logo and attribution sit this far above the safe-area bottom so overlay chrome does not cover them.
+  var legalOrnamentBottomMargin: CGFloat?
 
   // Programmatic selection: the id of the point to select, plus a version
   // counter bumped to (re)fire it, mirroring the camera region + version idiom.
@@ -56,9 +58,9 @@ struct MC1MapView: UIViewRepresentable {
 
     mapView.showsUserLocation = showsUserLocation
     mapView.compassViewPosition = .topRight
-    mapView.compassViewMargins = CGPoint(x: 8, y: 8)
+    mapView.compassViewMargins = OrnamentLayout.compassMargins
     mapView.attributionButtonPosition = .bottomLeft
-    mapView.attributionButtonMargins = CGPoint(x: 4, y: 30)
+    Self.applyOrnamentMargins(to: mapView, bottomClearance: legalOrnamentBottomMargin)
 
     if showsScale {
       mapView.showsScale = true
@@ -169,6 +171,8 @@ struct MC1MapView: UIViewRepresentable {
       }
     }
 
+    Self.applyOrnamentMargins(to: mapView, bottomClearance: legalOrnamentBottomMargin)
+
     // Camera region (version-number pattern)
     updateCameraRegion(in: mapView, coordinator: coordinator)
 
@@ -269,6 +273,49 @@ struct MC1MapView: UIViewRepresentable {
         animated: animated,
         completionHandler: nil
       )
+    }
+  }
+
+  enum OrnamentLayout {
+    static let compassMargins = CGPoint(x: 8, y: 8)
+    static let defaultLogoMargins = CGPoint(x: 8, y: 8)
+    static let defaultAttributionMargins = CGPoint(x: 4, y: 30)
+    static let clusterSpacing: CGFloat = 8
+
+    static func logoMargins(bottomClearance: CGFloat?) -> CGPoint {
+      guard let bottomClearance else { return defaultLogoMargins }
+      return CGPoint(x: defaultLogoMargins.x, y: max(defaultLogoMargins.y, bottomClearance))
+    }
+
+    static func attributionMargins(bottomClearance: CGFloat?, logoWidth: CGFloat) -> CGPoint {
+      guard let bottomClearance else { return defaultAttributionMargins }
+      let y = max(defaultLogoMargins.y, bottomClearance)
+      if logoWidth > 0 {
+        return CGPoint(
+          x: defaultLogoMargins.x + logoWidth + clusterSpacing,
+          y: y
+        )
+      }
+      let lift = max(0, y - defaultLogoMargins.y)
+      return CGPoint(
+        x: defaultAttributionMargins.x,
+        y: defaultAttributionMargins.y + lift
+      )
+    }
+  }
+
+  private static func applyOrnamentMargins(to mapView: MLNMapView, bottomClearance: CGFloat?) {
+    let logoWidth = mapView.logoView.image?.size.width ?? 0
+    let logo = OrnamentLayout.logoMargins(bottomClearance: bottomClearance)
+    let attribution = OrnamentLayout.attributionMargins(
+      bottomClearance: bottomClearance,
+      logoWidth: logoWidth
+    )
+    if mapView.logoViewMargins != logo {
+      mapView.logoViewMargins = logo
+    }
+    if mapView.attributionButtonMargins != attribution {
+      mapView.attributionButtonMargins = attribution
     }
   }
 }
