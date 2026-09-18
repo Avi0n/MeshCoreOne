@@ -31,8 +31,8 @@ struct BLEStatusIndicatorView: View {
         StatusIcon(iconName: iconName, iconColor: iconColor, isAnimating: isAnimating)
       }
       .labelStyle(.iconOnly)
+      .tint(iconColor)
     }
-    .tint(iconColor)
     .popoverTip(deviceMenuTip)
     .dynamicTypeSize(...DynamicTypeSize.xLarge)
     .sensoryFeedback(.success, trigger: successFeedbackTrigger)
@@ -74,6 +74,8 @@ struct BLEStatusIndicatorView: View {
             .foregroundStyle(.secondary)
           }
         }
+        .foregroundStyle(.secondary)
+        .tint(.secondary)
 
         Button {
           showingDeviceSelection = true
@@ -89,6 +91,7 @@ struct BLEStatusIndicatorView: View {
         } label: {
           Label(L10n.Settings.BleStatus.disconnect, systemImage: "eject")
         }
+        .tint(Color(.systemRed))
       }
 
       Section {
