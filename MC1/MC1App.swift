@@ -102,7 +102,7 @@ struct MC1App: App {
               // Tear down the BFU-bootstrap AppState's StoreService listener Task
               // before swapping in the real AppState — otherwise the bootstrap
               // instance's Transaction.updates listener leaks for the process
-              // lifetime and every later transaction event fires `walkCurrentEntitlements`
+              // lifetime and every later transaction event fires `refreshEntitlements`
               // twice (once per orphaned StoreService).
               appState.shutdown()
               let realAppState = AppState(modelContainer: container)

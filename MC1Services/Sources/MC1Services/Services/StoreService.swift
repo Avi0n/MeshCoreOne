@@ -10,8 +10,8 @@ public final class StoreService {
   public private(set) var ownedThemeIDs: Set<String> = []
   public private(set) var loadState: StoreLoadState = .idle
 
-  /// Invoked on `@MainActor` after each entitlement walk (load, restore, transaction update).
-  /// A later plan registers `ThemeService` here to drive theme-revert reactivity.
+  /// Invoked on `@MainActor` after each entitlement walk (load, restore, transaction update,
+  /// scene-active refresh).
   public var onEntitlementsChanged: (@MainActor () -> Void)?
 
   /// Invoked on `@MainActor` after a consumable transaction (tip) is finished via
@@ -83,7 +83,7 @@ public final class StoreService {
       onLoadStateFailed?()
       return
     }
-    await walkCurrentEntitlements()
+    await refreshEntitlements()
     loadState = .loaded
     logger.notice("[IAP] load complete: \(products.count) products, owned=\(ownedThemeIDs.count)")
   }
@@ -164,7 +164,7 @@ public final class StoreService {
       logger.error("[IAP] restore failed: \(String(describing: error))")
       throw StoreServiceError.purchaseFailed(reason: String(describing: error))
     }
-    await walkCurrentEntitlements()
+    await refreshEntitlements()
     logger.notice("[IAP] restore complete, owned=\(ownedThemeIDs.count)")
     return .completed
   }
@@ -183,7 +183,7 @@ public final class StoreService {
     if transaction.revocationDate != nil {
       // A refund or revocation is rare and the authoritative remaining set is whatever
       // currentEntitlements reports, so rebuild from it rather than fold the change in.
-      await walkCurrentEntitlements()
+      await refreshEntitlements()
     } else {
       apply(transaction)
     }
@@ -195,7 +195,7 @@ public final class StoreService {
 
   /// Finishes any transactions left unfinished while the app was closed (renewals,
   /// Ask-to-Buy approvals, refunds, cross-device purchases). Their entitlement state is
-  /// applied by the subsequent `walkCurrentEntitlements()` call in `load()`.
+  /// applied by the subsequent `refreshEntitlements()` call in `load()`.
   private func processUnfinishedTransactions() async {
     for await result in Transaction.unfinished {
       guard case let .verified(transaction) = result else {
@@ -206,9 +206,9 @@ public final class StoreService {
     }
   }
 
-  /// Rebuilds `ownedThemeIDs` from scratch each call (idempotent — double application is a
-  /// no-op). Bundle ownership expands to every purchasable theme ID.
-  private func walkCurrentEntitlements() async {
+  /// Rebuilds `ownedThemeIDs` from `Transaction.currentEntitlements` (idempotent). Call on
+  /// scene-active so a refund that never arrived on `Transaction.updates` is still applied.
+  public func refreshEntitlements() async {
     var owned: Set<String> = []
     for await result in Transaction.currentEntitlements {
       guard case let .verified(transaction) = result else {

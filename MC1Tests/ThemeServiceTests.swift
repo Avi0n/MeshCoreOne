@@ -245,8 +245,8 @@ final class ThemeServiceOwnershipTests {
   }
 
   @Test
-  func `refunding the bundle reverts the selected theme to default via the listener`() async throws {
-    let store = StoreService() // listener stays live for the refund path
+  func `refunding the bundle reverts the selected theme to default`() async throws {
+    let store = StoreService()
     await store.load()
     let defaults = freshDefaults()
     let theme = ThemeService(store: store, defaults: defaults)
@@ -261,8 +261,15 @@ final class ThemeServiceOwnershipTests {
     })
     try session.refundTransaction(identifier: txn.identifier)
 
-    try await waitUntil(timeout: .seconds(5)) {
-      theme.current.id == Theme.default.id
+    if #available(iOS 27, *) {
+      try await waitUntil(timeout: .seconds(5)) {
+        await store.refreshEntitlements()
+        return theme.current.id == Theme.default.id
+      }
+    } else {
+      try await waitUntil(timeout: .seconds(5)) {
+        theme.current.id == Theme.default.id
+      }
     }
     #expect(defaults.string(forKey: PersistenceKeys.selectedThemeID) == Theme.default.id)
   }

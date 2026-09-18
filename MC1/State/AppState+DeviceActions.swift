@@ -210,6 +210,10 @@ extension AppState {
   /// Called by View when scenePhase becomes active.
   func handleBecameActive() {
     logToolbarResumeProbe(source: "becameActive")
+    if storeState.service.loadState == .loaded {
+      // Re-walk currentEntitlements: a refund may never arrive on Transaction.updates.
+      Task { await storeState.service.refreshEntitlements() }
+    }
     // Clear the auth-failure latch so a still-invalid bond re-surfaces fresh
     // from the foreground reconnect instead of staying silenced from background.
     connectionManager.clearSurfacedAuthenticationFailure()
