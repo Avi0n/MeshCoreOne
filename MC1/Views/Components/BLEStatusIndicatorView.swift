@@ -32,6 +32,7 @@ struct BLEStatusIndicatorView: View {
       }
       .labelStyle(.iconOnly)
     }
+    .tint(iconColor)
     .popoverTip(deviceMenuTip)
     .dynamicTypeSize(...DynamicTypeSize.xLarge)
     .sensoryFeedback(.success, trigger: successFeedbackTrigger)
@@ -203,6 +204,7 @@ private struct StatusIcon: View {
   var body: some View {
     Image(systemName: iconName)
       .foregroundStyle(iconColor)
+      .tint(iconColor)
       .symbolEffect(.pulse, isActive: isAnimating)
   }
 }
