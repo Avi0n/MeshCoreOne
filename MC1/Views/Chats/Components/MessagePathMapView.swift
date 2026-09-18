@@ -13,11 +13,8 @@ struct MessagePathMapView: View {
   private static let pathBoundingPaddingMultiplier: Double = 2.5
   /// Stable annotation identity for the receiver pin across canvas rebuilds.
   private static let receiverPointID = pointID(namespace: "message-path-receiver", bytes: Data())
-  private static let capsuleBarInnerHorizontalPadding: CGFloat = 12
-  private static let capsuleBarInnerVerticalPadding: CGFloat = 8
-  private static let capsuleBarCornerRadius: CGFloat = 24
-  private static let capsuleBarOuterHorizontalPadding: CGFloat = 16
-  private static let capsuleBarOuterBottomPadding: CGFloat = 8
+  private static let capsuleHorizontalPadding: CGFloat = 16
+  private static let capsuleBottomPadding: CGFloat = 8
 
   @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
@@ -178,12 +175,8 @@ struct MessagePathMapView: View {
             reduceMotion: reduceMotion,
             chrome: .glass
           )
-          .padding(.horizontal, Self.capsuleBarInnerHorizontalPadding)
-          .padding(.vertical, Self.capsuleBarInnerVerticalPadding)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .liquidGlass(in: .rect(cornerRadius: Self.capsuleBarCornerRadius))
-          .padding(.horizontal, Self.capsuleBarOuterHorizontalPadding)
-          .padding(.bottom, Self.capsuleBarOuterBottomPadding)
+          .padding(.horizontal, Self.capsuleHorizontalPadding)
+          .padding(.bottom, Self.capsuleBottomPadding)
         }
       }
       .safeAreaPadding(.bottom)
