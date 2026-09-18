@@ -41,6 +41,7 @@ struct ChatConversationMessagesContent: View {
   let onRetryMessage: (MessageDTO) -> Void
   let onTranslationAction: (UUID) -> Void
 
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.openURL) private var openURL
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -92,7 +93,8 @@ struct ChatConversationMessagesContent: View {
       scrollTargetID: scrollToTargetID,
       initialScrollTargetID: initialScrollTargetID,
       onLoadOlder: { await viewModel.loadOlderMessages() },
-      onInitialTargetConsumed: onDividerTargetConsumed
+      onInitialTargetConsumed: onDividerTargetConsumed,
+      sizeCache: appState.chatSizeCache
     )
     .overlay {
       incomingAvatarFlight.overlay()
