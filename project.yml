@@ -150,6 +150,8 @@ schemes:
       config: Debug
     test:
       config: Debug
+      language: en
+      region: US
       targets:
         - MC1Tests
     profile:

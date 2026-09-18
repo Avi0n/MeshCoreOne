@@ -1,3 +1,4 @@
+import Foundation
 @testable import MC1Services
 import Testing
 
@@ -87,7 +88,7 @@ struct RegionalAreasTests {
   @Test
   func `displayName falls back to country name when admin is nil`() {
     let region = RegionSelection(countryCode: "US", source: .manual)
-    #expect(RegionalAreas.displayName(for: region) == "United States")
+    #expect(RegionalAreas.displayName(for: region, locale: Locale(identifier: "en_US")) == "United States")
   }
 
   @Test

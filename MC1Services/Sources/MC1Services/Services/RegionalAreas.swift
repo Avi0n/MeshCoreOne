@@ -220,8 +220,8 @@ public enum RegionalAreas {
 
   /// Returns a localized display name for Settings detail and Radio footer.
   /// Short form for unambiguous US states; disambiguated "State, Country" for ambiguous regions.
-  public static func displayName(for region: RegionSelection) -> String {
-    let countryName = Locale.current.localizedString(forRegionCode: region.countryCode) ?? region.countryCode
+  public static func displayName(for region: RegionSelection, locale: Locale = .current) -> String {
+    let countryName = locale.localizedString(forRegionCode: region.countryCode) ?? region.countryCode
     guard let admin = region.administrativeAreaCode else { return countryName }
     let stateName = subdivisionDisplayName(admin) ?? admin
     if region.countryCode == "US" || region.countryCode == "CA" {
