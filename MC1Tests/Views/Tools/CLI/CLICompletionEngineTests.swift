@@ -578,6 +578,30 @@ struct CLICompletionEngineTests {
     #expect(suggestions.contains("pwrmgt.source"))
     #expect(suggestions.contains("pwrmgt.bootreason"))
     #expect(suggestions.contains("pwrmgt.bootmv"))
+    #expect(suggestions.contains("cad"))
+    #expect(suggestions.contains("radio.fem.rxgain"))
+    #expect(suggestions.contains("extra.sf"))
+  }
+
+  @Test
+  func `set cad and radio.fem.rxgain suggest on/off`() {
+    let engine = createEngine()
+    #expect(engine.completions(for: "set cad ", isLocal: false) == ["off", "on"])
+    #expect(engine.completions(for: "set radio.fem.rxgain ", isLocal: false) == ["off", "on"])
+  }
+
+  @Test
+  func `remote command list includes room.post`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "room", isLocal: false)
+    #expect(suggestions.contains("room.post"))
+  }
+
+  @Test
+  func `local session does not offer room.post`() {
+    let engine = createEngine()
+    let suggestions = engine.completions(for: "room", isLocal: true)
+    #expect(!suggestions.contains("room.post"))
   }
 
   @Test

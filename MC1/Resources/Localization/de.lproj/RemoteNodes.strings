@@ -910,6 +910,7 @@
 "remoteNodes.status.sensor.illuminance" = "Beleuchtungsstärke";
 "remoteNodes.status.sensor.presence" = "Präsenz";
 "remoteNodes.status.sensor.temperature" = "Temperatur";
+"remoteNodes.status.sensor.mcuTemperature" = "MCU-Temperatur";
 "remoteNodes.status.sensor.humidity" = "Luftfeuchtigkeit";
 "remoteNodes.status.sensor.accelerometer" = "Beschleunigungssensor";
 "remoteNodes.status.sensor.barometer" = "Druck";

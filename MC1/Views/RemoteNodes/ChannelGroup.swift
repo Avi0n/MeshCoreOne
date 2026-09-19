@@ -1,3 +1,4 @@
+import Foundation
 import MC1Services
 
 struct ChannelGroup: Identifiable {
@@ -17,6 +18,7 @@ struct ChannelGroup: Identifiable {
     guard !allEntries.isEmpty else { return [] }
 
     var channelTypeGroups: [Int: [String: TelemetryChartGroup]] = [:]
+    var temperatureIndexBySnapshotChannel: [UUID: [Int: Int]] = [:]
 
     for item in allEntries {
       let channel = item.entry.channel
@@ -28,8 +30,21 @@ struct ChannelGroup: Identifiable {
         value: sensorType?.convertedValue(item.entry.value) ?? item.entry.value
       )
 
-      channelTypeGroups[channel, default: [:]][type, default: TelemetryChartGroup(
-        key: "\(channel)-\(type)", title: sensorType?.localizedName ?? type, sensorType: sensorType, dataPoints: []
+      var chartKey = "\(channel)-\(type)"
+      var title = sensorType?.localizedName ?? type
+      // A second temperature on the same channel in one snapshot is MCU; later
+      // snapshots start at 0 again so they stay on the ambient chart.
+      if sensorType == .temperature {
+        let seen = temperatureIndexBySnapshotChannel[item.snapshot.id, default: [:]][channel, default: 0]
+        temperatureIndexBySnapshotChannel[item.snapshot.id, default: [:]][channel] = seen + 1
+        if seen > 0 {
+          chartKey = "\(channel)-temperature-mcu"
+          title = L10n.RemoteNodes.RemoteNodes.Status.Sensor.mcuTemperature
+        }
+      }
+
+      channelTypeGroups[channel, default: [:]][chartKey, default: TelemetryChartGroup(
+        key: chartKey, title: title, sensorType: sensorType, dataPoints: []
       )].dataPoints.append(point)
     }
 

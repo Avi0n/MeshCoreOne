@@ -41,7 +41,7 @@ final class CLICompletionEngine {
   private static let repeaterCommands = [
     "ver", "board", "clock", "clkreboot",
     "neighbors", "get", "set", "sensor", "password",
-    "log", "reboot", "advert", "advert.zerohop", "setperm", "tempradio", "neighbor.remove",
+    "log", "reboot", "room.post", "advert", "advert.zerohop", "setperm", "tempradio", "neighbor.remove",
     "region", "gps", "powersaving", "clear", "discover.neighbors",
     "start"
   ]
@@ -88,7 +88,7 @@ final class CLICompletionEngine {
     "bridge.baud", "bridge.secret", "bridge.type",
     "adc.multiplier", "public.key", "prv.key", "role", "freq",
     "path.hash.mode", "loop.detect", "bootloader.ver",
-    "owner.info", "radio.rxgain", "bridge.channel",
+    "owner.info", "radio.rxgain", "radio.fem.rxgain", "cad", "extra.sf", "bridge.channel",
     "pwrmgt.support", "pwrmgt.source", "pwrmgt.bootreason", "pwrmgt.bootmv"
   ]
 
@@ -269,7 +269,8 @@ final class CLICompletionEngine {
       Self.pathHashModeValues.filter { $0.hasPrefix(prefix) }.sorted()
     case "loop.detect":
       Self.loopDetectValues.filter { $0.hasPrefix(prefix) }.sorted()
-    case "repeat", "allow.read.only", "bridge.enabled", "radio.rxgain":
+    case "repeat", "allow.read.only", "bridge.enabled",
+         "radio.rxgain", "radio.fem.rxgain", "cad":
       Self.onOffValues.filter { $0.hasPrefix(prefix) }.sorted()
     case "multi.acks":
       Self.multiAcksValues.filter { $0.hasPrefix(prefix) }.sorted()

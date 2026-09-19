@@ -3894,6 +3894,8 @@ public enum L10n {
           public static let illuminance = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.illuminance", fallback: "Illuminance")
           /// Load
           public static let load = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.load", fallback: "Load")
+          /// MCU temperature
+          public static let mcuTemperature = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.mcuTemperature", fallback: "MCU temperature")
           /// Percentage
           public static let percentage = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.percentage", fallback: "Percentage")
           /// Power

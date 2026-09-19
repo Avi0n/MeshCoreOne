@@ -910,6 +910,7 @@
 "remoteNodes.status.sensor.illuminance" = "Verlichtingssterkte";
 "remoteNodes.status.sensor.presence" = "Aanwezigheid";
 "remoteNodes.status.sensor.temperature" = "Temperatuur";
+"remoteNodes.status.sensor.mcuTemperature" = "MCU-temperatuur";
 "remoteNodes.status.sensor.humidity" = "Luchtvochtigheid";
 "remoteNodes.status.sensor.accelerometer" = "Versnellingsmeter";
 "remoteNodes.status.sensor.barometer" = "Druk";
