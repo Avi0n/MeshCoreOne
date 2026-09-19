@@ -34,8 +34,23 @@ extension PersistenceStoreError: LocalizedError {
 
 /// ModelActor for background SwiftData operations.
 /// Provides per-device data isolation and thread-safe access.
-@ModelActor
-public actor PersistenceStore: PersistenceStoreProtocol {
+public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
+  public nonisolated let modelExecutor: any ModelExecutor
+  public nonisolated let modelContainer: ModelContainer
+  /// `DefaultSerialModelExecutor` runs jobs on the caller's thread, so a
+  /// main-actor caller would run SwiftData work on the main thread.
+  private nonisolated let queue: DispatchSerialQueue
+
+  public nonisolated var unownedExecutor: UnownedSerialExecutor {
+    queue.asUnownedSerialExecutor()
+  }
+
+  public init(modelContainer: ModelContainer) {
+    modelExecutor = DefaultSerialModelExecutor(modelContext: ModelContext(modelContainer))
+    self.modelContainer = modelContainer
+    queue = DispatchSerialQueue(label: "PersistenceStore", qos: .userInitiated)
+  }
+
   var rxLogEntryCountsByDevice: [UUID: Int] = [:]
   var unsavedRxLogInsertCount = 0
   var rxLogFlushTask: Task<Void, Never>?

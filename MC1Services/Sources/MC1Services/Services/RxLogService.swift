@@ -51,6 +51,8 @@ public actor RxLogService {
   // Region resolution state
   var knownRegions: [String] = []
   var scopeKeyCache: [(name: String, key: Data)] = []
+  /// Bumped by region updates so a slower database load does not overwrite them.
+  var regionCacheGeneration = 0
   var lastRegionMissLogTime: Date?
   var lastRegionAmbiguousLogTime: Date?
 
@@ -86,12 +88,13 @@ public actor RxLogService {
     eventMonitorTask?.cancel()
     regionReprocessTask?.cancel()
     regionReprocessTask = nil
+    let generation = regionCacheGeneration
 
     eventMonitorTask = Task { [weak self] in
       guard let self else { return }
 
       // Build known-regions cache (and channel/contact secrets).
-      await loadSecretsFromDatabase(radioID: radioID)
+      await loadSecretsFromDatabase(radioID: radioID, generation: generation)
 
       // Subscribe before reprocess. EventDispatcher only buffers for existing
       // subscribers; awaiting full reprocess here would drop live RX.
@@ -116,7 +119,7 @@ public actor RxLogService {
   }
 
   /// Load channel secrets and contact public keys from database to enable decryption before sync completes.
-  private func loadSecretsFromDatabase(radioID: UUID) async {
+  private func loadSecretsFromDatabase(radioID: UUID, generation: Int) async {
     do {
       let channels = try await dataStore.fetchChannels(radioID: radioID)
       // Channels arrive sorted by slot index; a corrupt store can hold duplicate
@@ -141,6 +144,7 @@ public actor RxLogService {
     }
 
     let device = try? await dataStore.fetchDevice(radioID: radioID)
+    guard generation == regionCacheGeneration else { return }
     knownRegions = device?.knownRegions ?? []
     scopeKeyCache = Self.buildScopeKeyCache(from: knownRegions)
     if !knownRegions.isEmpty {
