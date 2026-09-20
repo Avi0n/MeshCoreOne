@@ -230,10 +230,11 @@ struct MainSidebarView: View {
   private var detailColumn: some View {
     switch selectedTab {
     case .chats:
+      let route = appState.navigation.chatsSelectedRoute
       NavigationStack {
-        ChatsSplitDetailContent(viewModel: chatViewModel)
+        ChatsSplitDetailContent(viewModel: chatViewModel, route: route)
       }
-      .id(appState.navigation.chatsSelectedRoute?.conversationID)
+      .id(route?.conversationID)
     case .nodes:
       NavigationStack {
         ContactsDetailColumn()
