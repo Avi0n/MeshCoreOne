@@ -12,7 +12,17 @@ enum ChatInputMetrics {
   static let fieldBorderWidth: CGFloat = 1
 }
 
-/// Reusable chat input bar with configurable styling
+/// Opaque plate behind the compose controls before iOS 26. `nil` on iOS 26+ so the
+/// field and send button can sample the timeline through a themed canvas.
+enum ChatInputBarChrome {
+  static func opaqueFill(themedCanvas: Color?) -> Color? {
+    if #available(iOS 26.0, *) {
+      return nil
+    }
+    return themedCanvas ?? Color(.systemBackground)
+  }
+}
+
 struct ChatInputBar<Leading: View>: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
@@ -40,7 +50,6 @@ struct ChatInputBar<Leading: View>: View {
   }
 
   private var shouldShowCharacterCount: Bool {
-    // Show when within 20 bytes of limit or over limit
     byteCount >= maxBytes - 20
   }
 
@@ -109,11 +118,8 @@ struct ChatInputBar<Leading: View>: View {
       !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !isOverLimit
   }
 
-  /// Sends in response to an unmodified hardware Return from the composer,
-  /// honoring the same gating as the send button. Returns `true` when a message
-  /// was sent so the composer consumes the Return; `false` when gated off so the
-  /// composer inserts a newline instead. The composer keeps focus on its own, so
-  /// no re-focus is needed here.
+  /// Hardware Return: `true` consumes it and sends under the same gates as the send
+  /// button; `false` inserts a newline. The composer keeps focus itself.
   private func handleHardwareSend() -> Bool {
     guard canSend else { return false }
     send()
@@ -136,8 +142,7 @@ struct ChatInputBar<Leading: View>: View {
 }
 
 extension ChatInputBar where Leading == EmptyView {
-  /// Builds an input bar with no leading accessory, preserving the original
-  /// call sites that pass only a trailing `onSend` closure.
+  /// Input bar with no leading accessory, for call sites that only pass `onSend`.
   init(
     text: Binding<String>,
     focusRequest: Int,
@@ -307,12 +312,10 @@ private extension View {
 
   @ViewBuilder
   func inputBarBackground(themedCanvas: Color?) -> some View {
-    if let themedCanvas {
-      background(themedCanvas)
-    } else if #available(iOS 26.0, *) {
-      self
+    if let fill = ChatInputBarChrome.opaqueFill(themedCanvas: themedCanvas) {
+      background(fill)
     } else {
-      background(Color(.systemBackground))
+      self
     }
   }
 }
