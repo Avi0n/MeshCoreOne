@@ -654,9 +654,10 @@ struct SavedPathHashSizeTests {
     // but the saved path has hashSize=2
     vm.loadSavedPath(savedPath)
 
-    // With hashSize=2: 4 bytes = 2 total hops, outbound = (2+1)/2 = 1 hop of 2 bytes
-    #expect(vm.outboundPath.count == 1)
-    #expect(vm.outboundPath.first?.hashBytes == Data([0xAA, 0xBB]))
+    #expect(vm.outboundPath.map(\.hashBytes) == [
+      Data([0xAA, 0xBB]), Data([0xCC, 0xDD])
+    ])
+    #expect(!vm.autoReturnPath)
   }
 
   @Test
@@ -698,10 +699,52 @@ struct SavedPathHashSizeTests {
     let vm = TracePathViewModel()
     vm.loadSavedPath(savedPath)
 
-    // With hashSize=1: 3 bytes = 3 total hops, outbound = (3+1)/2 = 2 hops of 1 byte each
-    #expect(vm.outboundPath.count == 2)
-    #expect(vm.outboundPath[0].hashBytes == Data([0xAA]))
-    #expect(vm.outboundPath[1].hashBytes == Data([0xBB]))
+    #expect(vm.outboundPath.map(\.hashBytes) == [
+      Data([0xAA]), Data([0xBB]), Data([0xCC])
+    ])
+    #expect(!vm.autoReturnPath)
+  }
+}
+
+// MARK: - Saved Path Load (auto-return)
+
+@Suite("Saved Path Load")
+@MainActor
+struct SavedPathLoadTests {
+  private func savedPath(bytes: [UInt8], hashSize: Int = 1) -> SavedTracePathDTO {
+    SavedTracePathDTO(
+      id: UUID(),
+      radioID: UUID(),
+      name: "Saved path",
+      pathBytes: Data(bytes),
+      hashSize: hashSize,
+      createdDate: Date(),
+      runs: []
+    )
+  }
+
+  @Test
+  func `loadSavedPath restores an asymmetric loop and turns auto-return off`() {
+    let vm = TracePathViewModel()
+    vm.autoReturnPath = true
+    vm.loadSavedPath(savedPath(bytes: [0x0A, 0x0B, 0x0C, 0x0A]))
+
+    #expect(vm.outboundPath.map(\.hashBytes) == [
+      Data([0x0A]), Data([0x0B]), Data([0x0C]), Data([0x0A])
+    ])
+    #expect(!vm.autoReturnPath)
+    #expect(Array(vm.fullPathData) == [0x0A, 0x0B, 0x0C, 0x0A])
+  }
+
+  @Test
+  func `loadSavedPath restores a symmetric path and turns auto-return on`() {
+    let vm = TracePathViewModel()
+    vm.autoReturnPath = false
+    vm.loadSavedPath(savedPath(bytes: [0x0A, 0x0B, 0x0A]))
+
+    #expect(vm.outboundPath.map(\.hashBytes) == [Data([0x0A]), Data([0x0B])])
+    #expect(vm.autoReturnPath)
+    #expect(Array(vm.fullPathData) == [0x0A, 0x0B, 0x0A])
   }
 }
 

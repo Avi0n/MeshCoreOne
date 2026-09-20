@@ -237,8 +237,7 @@ final class TracePathViewModel {
     guard !outbound.isEmpty else { return Data() }
 
     if autoReturnPath {
-      let returnPath = outbound.reversed().dropFirst()
-      return Data((outbound + returnPath).flatMap(\.self))
+      return Data((outbound + SavedPathCodec.mirroredReturn(of: outbound)).flatMap(\.self))
     } else {
       return Data(outbound.flatMap(\.self))
     }
@@ -633,16 +632,37 @@ final class TracePathViewModel {
     }
   }
 
+  /// Shared with `fullPathData` so load inverts the same auto-return mirror.
+  private enum SavedPathCodec {
+    static func mirroredReturn(of outbound: [Data]) -> [Data] {
+      Array(outbound.reversed().dropFirst())
+    }
+
+    static func hopHashes(from pathBytes: Data, hashSize: Int) -> [Data] {
+      stride(from: 0, to: pathBytes.count, by: hashSize).map { start in
+        let end = min(start + hashSize, pathBytes.count)
+        return Data(pathBytes[start..<end])
+      }
+    }
+
+    /// `nil` unless hops equal outbound plus `mirroredReturn`. Odd length is required (`2n-1`) but not sufficient.
+    static func autoReturnOutboundCount(in hops: [Data]) -> Int? {
+      guard !hops.count.isMultiple(of: 2) else { return nil }
+      let outboundCount = (hops.count + 1) / 2
+      let outbound = Array(hops.prefix(outboundCount))
+      guard Array(hops.dropFirst(outboundCount)) == mirroredReturn(of: outbound) else {
+        return nil
+      }
+      return outboundCount
+    }
+  }
+
   /// Load a saved path into the builder
   func loadSavedPath(_ savedPath: SavedTracePathDTO) {
-    // Clear existing path
     outboundPath.removeAll()
     result = nil
     pendingPathHash = nil
 
-    // Reconstruct outbound path from saved bytes
-    // The saved pathBytes contains full path (outbound + return)
-    // We need to extract just the outbound portion
     let fullPath = savedPath.pathBytes
     let size = savedPath.hashSize
     guard !fullPath.isEmpty else { return }
@@ -656,14 +676,19 @@ final class TracePathViewModel {
       traceHashMode = nil
     }
 
-    // Calculate total hops, then outbound is first half (rounded up)
-    let totalHops = fullPath.count / size
-    let outboundHopCount = (totalHops + 1) / 2
-    let outboundByteCount = outboundHopCount * size
+    // Invert `fullPathData`: a mirrored palindrome is outbound plus auto-return;
+    // any other blob is the full hop list with auto-return off.
+    let hops = SavedPathCodec.hopHashes(from: fullPath, hashSize: size)
+    let outboundCount: Int
+    if let count = SavedPathCodec.autoReturnOutboundCount(in: hops) {
+      autoReturnPath = true
+      outboundCount = count
+    } else {
+      autoReturnPath = false
+      outboundCount = hops.count
+    }
 
-    for start in stride(from: 0, to: min(outboundByteCount, fullPath.count), by: size) {
-      let end = min(start + size, fullPath.count)
-      let hashBytes = Data(fullPath[start..<end])
+    for hashBytes in hops.prefix(outboundCount) {
       let match = resolveNode(for: hashBytes)
       outboundPath.append(PathHop(
         hashBytes: hashBytes,
