@@ -80,6 +80,13 @@ final class ContactsViewModel {
   /// `pendingRemovalIDs`, the post-confirmation mask.
   var deletingIDs: Set<UUID> = []
 
+  /// Bumped at the start of each `loadContacts` so a slower fetch cannot overwrite a newer list.
+  private var loadGeneration = 0
+
+  /// Upserted rows held until a fetch includes the same id or public key and radio.
+  /// A slower load must not drop a just-added contact.
+  private var pendingAdmissions: [UUID: ContactDTO] = [:]
+
   /// True while a delete for this row is either confirmed-but-unreloaded or in flight.
   func isDeletePending(_ id: UUID) -> Bool {
     pendingRemovalIDs.contains(id) || deletingIDs.contains(id)
@@ -124,26 +131,90 @@ final class ContactsViewModel {
   func loadContacts(radioID: UUID) async {
     guard let dataStore else { return }
 
+    loadGeneration += 1
+    let generation = loadGeneration
+
     isLoading = true
     errorMessage = nil
 
     do {
-      contacts = try await dataStore.fetchContacts(radioID: radioID)
+      let fetched = try await dataStore.fetchContacts(radioID: radioID)
+      guard generation == loadGeneration else { return }
+      contacts = mergeAdmissions(into: fetched)
       // Self-heal the mask: once a deleted row is gone from the fetch, stop masking it.
       pendingRemovalIDs.formIntersection(Set(contacts.map(\.id)))
+    } catch is CancellationError {
+      if generation == loadGeneration {
+        isLoading = false
+      }
+      return
     } catch {
+      guard generation == loadGeneration else { return }
       errorMessage = error.userFacingMessage
     }
 
     // Best-effort inbound-hop fallback from the volatile discovered-node table; a failure here
     // must not fail the contact load, so it is fetched outside the throwing load path.
-    inboundHopByKey = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID))?
+    let hops: [Data: Int] = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID))?
       .reduce(into: [:]) { map, node in
         if let inbound = node.inboundHopCount { map[node.publicKey] = inbound }
       } ?? [:]
+    guard generation == loadGeneration else { return }
 
+    inboundHopByKey = hops
     hasLoadedOnce = true
     isLoading = false
+  }
+
+  /// Inserts or replaces by `id`, then public key and `radioID`.
+  /// Unmasks `pendingRemovalIDs` so a re-add is visible before the next load.
+  func upsert(_ contact: ContactDTO) {
+    rememberAdmission(contact)
+    applyUpsert(contact)
+  }
+
+  private func rememberAdmission(_ contact: ContactDTO) {
+    pendingAdmissions = pendingAdmissions.filter { id, existing in
+      id != contact.id
+        && !(existing.publicKey == contact.publicKey && existing.radioID == contact.radioID)
+    }
+    pendingAdmissions[contact.id] = contact
+  }
+
+  private func applyUpsert(_ contact: ContactDTO) {
+    pendingRemovalIDs.remove(contact.id)
+    if let index = contacts.firstIndex(where: { $0.id == contact.id }) {
+      contacts[index] = contact
+      return
+    }
+    if let index = contacts.firstIndex(where: {
+      $0.publicKey == contact.publicKey && $0.radioID == contact.radioID
+    }) {
+      pendingRemovalIDs.remove(contacts[index].id)
+      contacts[index] = contact
+      return
+    }
+    contacts.append(contact)
+  }
+
+  private func mergeAdmissions(into fetched: [ContactDTO]) -> [ContactDTO] {
+    var result = fetched
+    var resolved: [UUID] = []
+    for (id, contact) in pendingAdmissions {
+      let present = result.contains {
+        $0.id == contact.id
+          || ($0.publicKey == contact.publicKey && $0.radioID == contact.radioID)
+      }
+      if present {
+        resolved.append(id)
+      } else {
+        result.append(contact)
+      }
+    }
+    for id in resolved {
+      pendingAdmissions.removeValue(forKey: id)
+    }
+    return result
   }
 
   // MARK: - Sync Contacts
@@ -299,6 +370,7 @@ final class ContactsViewModel {
   private func hideDeletedContact(_ contact: ContactDTO) {
     withAnimation(.snappy) {
       pendingRemovalIDs.insert(contact.id)
+      pendingAdmissions.removeValue(forKey: contact.id)
       contacts.removeAll { $0.id == contact.id }
     }
   }

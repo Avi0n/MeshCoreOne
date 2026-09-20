@@ -5,6 +5,11 @@ import SwiftUI
 private let sidebarLogger = Logger(subsystem: "com.mc1", category: "NodesListView")
 
 struct ContactsSidebarContent: View {
+  private struct LoadID: Equatable {
+    let servicesVersion: Int
+    let contactsVersion: Int
+  }
+
   @Environment(\.appState) private var appState
 
   @Bindable var viewModel: ContactsViewModel
@@ -143,14 +148,19 @@ struct ContactsSidebarContent: View {
         contactService: { [appState] in appState.services?.contactService },
         advertisementService: { [appState] in appState.services?.advertisementService }
       )
-      await onLoadContacts()
-      sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")
       onAnnounceOfflineStateIfNeeded()
 
       // Request location for distance display (only if already authorized)
       if appState.locationService.isAuthorized {
         appState.locationService.requestLocation()
       }
+    }
+    .task(id: LoadID(
+      servicesVersion: appState.servicesVersion,
+      contactsVersion: appState.contactsVersion
+    )) {
+      await onLoadContacts()
+      sidebarLogger.info("NodesListView: loaded, contacts=\(viewModel.contacts.count)")
     }
     .task(id: sortOrder) {
       if sortOrder == .distance {
@@ -161,16 +171,6 @@ struct ContactsSidebarContent: View {
         } else {
           appState.locationService.requestPermissionIfNeeded()
         }
-      }
-    }
-    .onChange(of: appState.servicesVersion) { _, _ in
-      Task {
-        await onLoadContacts()
-      }
-    }
-    .onChange(of: appState.contactsVersion) { _, _ in
-      Task {
-        await onLoadContacts()
       }
     }
     .onChange(of: viewModel.hasLoadedOnce) { _, loaded in
@@ -189,6 +189,8 @@ struct ContactsSidebarContent: View {
     }
     .onChange(of: appState.navigation.pendingContactDetail, initial: true) { _, contact in
       guard let contact else { return }
+
+      viewModel.upsert(contact)
 
       if shouldUseSplitView {
         selectedContact = contact
