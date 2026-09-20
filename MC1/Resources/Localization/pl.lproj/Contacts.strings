@@ -464,6 +464,12 @@
 /* Location: AddContactSheet.swift - Purpose: Add button */
 "contacts.add.add" = "Dodaj";
 
+/* Location: ContactAddConfirmationContent.swift - Purpose: Primary button when the scanned contact already exists */
+"contacts.add.view" = "View";
+
+/* Location: ContactAddConfirmationContent.swift - Purpose: VoiceOver label for View; %@ is the saved contact name */
+"contacts.add.viewAccessibility" = "View %@";
+
 /* Location: AddContactSheet.swift - Purpose: Scan QR button label */
 "contacts.add.scanQR" = "Skanuj kod QR";
 
@@ -490,6 +496,12 @@
 
 /* Location: AddContactSheet.swift - Purpose: Public key footer */
 "contacts.add.publicKeyFooter" = "Wprowadź %d-znakowy szesnastkowy klucz publiczny kontaktu";
+
+/* Location: ContactAddConfirmationContent.swift - Purpose: Footer when the scanned public key already matches a contact */
+"contacts.add.alreadyAdded" = "Already added";
+
+/* Location: ContactAddConfirmationContent.swift - Purpose: Caption when the QR name differs from the saved contact; %@ is the QR name */
+"contacts.add.scannedAs" = "Scanned as %@";
 
 /* Location: AddContactSheet.swift - Purpose: Not connected error */
 "contacts.add.error.notConnected" = "Nie połączono z urządzeniem";
@@ -568,6 +580,12 @@
 /* Location: ScanContactQRView.swift - Purpose: Invalid public key error */
 /* Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description */
 "contacts.scan.error.importFailed" = "Nie udało się zaimportować kontaktu: %@";
+
+/* Location: ScanContactQRView.swift - Purpose: Scan a different QR code */
+"contacts.scan.scanAgain" = "Scan Again";
+
+/* Location: ScanContactQRView.swift - Purpose: VoiceOver announcement after a node is added, %@ is the node name */
+"contacts.scan.accessibility.added" = "Added %@";
 
 // MARK: - Discovery View
 

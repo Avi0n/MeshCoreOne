@@ -85,9 +85,8 @@ struct AddContactSheet: View {
         }
       }
       .navigationDestination(isPresented: $showScanner) {
-        ScanContactQRView { _, _ in
-          // Scanner handles import automatically
-          // Dismiss both sheets on success
+        ScanContactQRView { contact in
+          appState.navigation.navigateToContactDetail(contact)
           showScanner = false
           dismiss()
         }

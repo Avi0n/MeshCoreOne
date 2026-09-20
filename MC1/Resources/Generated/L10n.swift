@@ -1161,6 +1161,8 @@ public enum L10n {
       public enum Add {
         /// Location: AddContactSheet.swift - Purpose: Add button
         public static let add = L10n.tr("Contacts", "contacts.add.add", fallback: "Add")
+        /// Location: ContactAddConfirmationContent.swift - Purpose: Footer when the scanned public key already matches a contact
+        public static let alreadyAdded = L10n.tr("Contacts", "contacts.add.alreadyAdded", fallback: "Already added")
         /// Location: AddContactSheet.swift - Purpose: Character count status
         public static func characterCount(_ p1: Int, _ p2: Int) -> String {
           return L10n.tr("Contacts", "contacts.add.characterCount", p1, p2, fallback: "%d/%d characters")
@@ -1185,6 +1187,10 @@ public enum L10n {
         public static func publicKeyFooter(_ p1: Int) -> String {
           return L10n.tr("Contacts", "contacts.add.publicKeyFooter", p1, fallback: "Enter the %d-character hexadecimal public key of the contact")
         }
+        /// Location: ContactAddConfirmationContent.swift - Purpose: Caption when the QR name differs from the saved contact; %@ is the QR name
+        public static func scannedAs(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.add.scannedAs", String(describing: p1), fallback: "Scanned as %@")
+        }
         /// Location: AddContactSheet.swift - Purpose: Scan QR button label
         public static let scanQR = L10n.tr("Contacts", "contacts.add.scanQR", fallback: "Scan QR Code")
         /// Location: AddContactSheet.swift - Purpose: Navigation title
@@ -1193,6 +1199,12 @@ public enum L10n {
         public static let type = L10n.tr("Contacts", "contacts.add.type", fallback: "Type")
         /// Location: AddContactSheet.swift - Purpose: Valid key status
         public static let valid = L10n.tr("Contacts", "contacts.add.valid", fallback: "Valid")
+        /// Location: ContactAddConfirmationContent.swift - Purpose: Primary button when the scanned contact already exists
+        public static let view = L10n.tr("Contacts", "contacts.add.view", fallback: "View")
+        /// Location: ContactAddConfirmationContent.swift - Purpose: VoiceOver label for View; %@ is the saved contact name
+        public static func viewAccessibility(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.add.viewAccessibility", String(describing: p1), fallback: "View %@")
+        }
         public enum Error {
           /// Location: AddContactSheet.swift - Purpose: Invalid public key format error
           public static let invalidFormat = L10n.tr("Contacts", "contacts.add.error.invalidFormat", fallback: "Invalid public key format")
@@ -2023,8 +2035,16 @@ public enum L10n {
         public static let importing = L10n.tr("Contacts", "contacts.scan.importing", fallback: "Importing contact...")
         /// Location: ScanContactQRView.swift - Purpose: Scan instruction
         public static let instruction = L10n.tr("Contacts", "contacts.scan.instruction", fallback: "Point your camera at a contact QR code")
+        /// Location: ScanContactQRView.swift - Purpose: Scan a different QR code
+        public static let scanAgain = L10n.tr("Contacts", "contacts.scan.scanAgain", fallback: "Scan Again")
         /// Location: ScanContactQRView.swift - Purpose: Navigation title
         public static let title = L10n.tr("Contacts", "contacts.scan.title", fallback: "Scan QR Code")
+        public enum Accessibility {
+          /// Location: ScanContactQRView.swift - Purpose: VoiceOver announcement after a node is added, %@ is the node name
+          public static func added(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.scan.accessibility.added", String(describing: p1), fallback: "Added %@")
+          }
+        }
         public enum Error {
           /// Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description
           public static func importFailed(_ p1: Any) -> String {

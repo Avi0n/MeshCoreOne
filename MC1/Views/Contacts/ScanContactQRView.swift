@@ -1,20 +1,25 @@
+import Accessibility
 import MC1Services
 import os
 import SwiftUI
 import VisionKit
 
-/// View for scanning a contact QR code to import
 struct ScanContactQRView: View {
   @Environment(\.appState) private var appState
   @Environment(\.openURL) private var openURL
   @Environment(\.dismiss) private var dismiss
 
-  let onScan: (String, Data) -> Void
+  let onComplete: (ContactDTO) -> Void
 
+  @State private var scannedContact: MeshCoreURLParser.ContactResult?
+  @State private var existingContact: ContactDTO?
+  @State private var isResolvingScan = false
   @State private var isImporting = false
   @State private var errorMessage: String?
   @State private var cameraPermissionDenied = false
-  @State private var scanSuccessTrigger = false
+  @State private var parseSelectionTrigger = 0
+  @State private var successTrigger = 0
+  @State private var errorHapticTrigger = 0
 
   private let logger = Logger(subsystem: "com.mc1", category: "ScanContactQRView")
 
@@ -29,14 +34,33 @@ struct ScanContactQRView: View {
 
   var body: some View {
     Group {
-      if cameraPermissionDenied {
+      if let scannedContact {
+        ContactAddConfirmationContent(
+          contactResult: scannedContact,
+          existingContact: existingContact,
+          errorMessage: errorMessage,
+          isAdding: isImporting,
+          onAdd: {
+            if let existingContact {
+              onComplete(existingContact)
+              dismiss()
+            } else {
+              Task { await importContact(scannedContact) }
+            }
+          },
+          onScanAgain: resetToScanner
+        )
+      } else if cameraPermissionDenied {
         cameraPermissionDeniedView
       } else {
         scannerView
       }
     }
-    .navigationTitle(L10n.Contacts.Contacts.Scan.title)
+    .navigationTitle(confirmationTitle)
     .navigationBarTitleDisplayMode(.inline)
+    .sensoryFeedback(.selection, trigger: parseSelectionTrigger)
+    .sensoryFeedback(.success, trigger: successTrigger)
+    .sensoryFeedback(.error, trigger: errorHapticTrigger)
   }
 
   // MARK: - Scanner View
@@ -50,7 +74,6 @@ struct ScanContactQRView: View {
           cameraPermissionDenied = true
         }
       } else {
-        // Fallback for unsupported devices
         ContentUnavailableView(
           L10n.Contacts.Contacts.Scan.Unavailable.title,
           systemImage: "qrcode.viewfinder",
@@ -58,7 +81,6 @@ struct ScanContactQRView: View {
         )
       }
 
-      // Overlay with scan frame
       VStack {
         Spacer()
 
@@ -68,17 +90,7 @@ struct ScanContactQRView: View {
 
         Spacer()
 
-        if isImporting {
-          VStack(spacing: 12) {
-            ProgressView()
-            Text(L10n.Contacts.Contacts.Scan.importing)
-          }
-          .font(.subheadline)
-          .foregroundStyle(.white)
-          .padding()
-          .background(.black.opacity(Constants.overlayOpacity), in: .capsule)
-          .padding(.bottom, Constants.bottomPadding)
-        } else if let errorMessage {
+        if let errorMessage {
           Button {
             self.errorMessage = nil
           } label: {
@@ -100,7 +112,6 @@ struct ScanContactQRView: View {
         }
       }
     }
-    .sensoryFeedback(.success, trigger: scanSuccessTrigger)
     .ignoresSafeArea()
   }
 
@@ -134,39 +145,80 @@ struct ScanContactQRView: View {
 
   // MARK: - Private Methods
 
+  private var confirmationTitle: String {
+    if scannedContact == nil {
+      L10n.Contacts.Contacts.Scan.title
+    } else if let existingContact {
+      existingContact.displayName
+    } else {
+      L10n.Contacts.Contacts.Add.nodeTitle
+    }
+  }
+
   private func handleScanResult(_ result: String) {
-    guard !isImporting else { return }
+    guard scannedContact == nil, !isImporting, !isResolvingScan else { return }
 
     guard let parsed = MeshCoreURLParser.parseContactURL(result) else {
       logger.error("Invalid QR code format: \(result)")
       errorMessage = L10n.Contacts.Contacts.Scan.Error.invalidFormat
+      errorHapticTrigger += 1
       return
     }
 
-    scanSuccessTrigger.toggle()
-
-    // Claim the import synchronously so a second DataScanner callback can't slip
-    // past the guard before the async import flips the flag.
-    isImporting = true
+    parseSelectionTrigger += 1
     errorMessage = nil
+    // Claim the scan before the lookup so a second DataScanner callback cannot present another contact.
+    isResolvingScan = true
+    Task { await presentScannedContact(parsed) }
+  }
 
-    Task {
-      await importContact(parsed)
+  @MainActor
+  private func presentScannedContact(_ parsed: MeshCoreURLParser.ContactResult) async {
+    defer { isResolvingScan = false }
+    guard scannedContact == nil, !isImporting else { return }
+
+    // Resolve the saved row before showing the review so the first paint is View, not Add.
+    existingContact = await fetchExistingContact(publicKey: parsed.publicKey)
+    scannedContact = parsed
+
+    let announcement = if let existingContact {
+      "\(L10n.Contacts.Contacts.Add.alreadyAdded), \(existingContact.displayName)"
+    } else {
+      "\(parsed.name), \(parsed.contactType.localizedName)"
     }
+    AccessibilityNotification.Announcement(announcement).post()
+  }
+
+  private func fetchExistingContact(publicKey: Data) async -> ContactDTO? {
+    guard let radioID = appState.currentRadioID else { return nil }
+    let store = appState.services?.dataStore ?? appState.offlineDataStore
+    return try? await store?.fetchContact(radioID: radioID, publicKey: publicKey)
+  }
+
+  private func resetToScanner() {
+    scannedContact = nil
+    existingContact = nil
+    errorMessage = nil
+    isImporting = false
+    isResolvingScan = false
   }
 
   @MainActor
   private func importContact(_ contact: MeshCoreURLParser.ContactResult) async {
+    guard !isImporting else { return }
+
     guard let services = appState.services,
           let device = appState.connectedDevice else {
       logger.error("Services or device not available")
-      errorMessage = L10n.Contacts.Contacts.Add.Error.notConnected
-      isImporting = false
+      presentImportFailure(L10n.Contacts.Contacts.Add.Error.notConnected)
       return
     }
 
     let radioID = device.radioID
     let maxContacts = device.maxContacts
+
+    isImporting = true
+    errorMessage = nil
 
     do {
       let currentTimestamp = UInt32(Date().timeIntervalSince1970)
@@ -186,28 +238,46 @@ struct ScanContactQRView: View {
 
       logger.info("Importing contact: \(contact.name) (\(contact.publicKey.uppercaseHexString()))")
       try await services.contactService.addOrUpdateContact(radioID: radioID, contact: contactFrame)
+
+      // ContactDetailView takes a ContactDTO; the QR payload is not a list row.
+      guard let addedContact = try await services.dataStore.fetchContact(
+        radioID: radioID,
+        publicKey: contact.publicKey
+      ) else {
+        logger.error("Imported contact was not in the store")
+        presentImportFailure(L10n.Contacts.Contacts.Common.errorOccurred)
+        isImporting = false
+        return
+      }
+
       logger.info("Contact imported successfully")
-
-      // Reset state and dismiss before calling completion handler
-      isImporting = false
+      successTrigger += 1
+      AccessibilityNotification.Announcement(
+        L10n.Contacts.Contacts.Scan.Accessibility.added(contact.name)
+      ).post()
+      onComplete(addedContact)
       dismiss()
-
-      onScan(contact.name, contact.publicKey)
     } catch ContactServiceError.contactTableFull {
       logger.error("Node list is full")
-      errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
+      presentImportFailure(L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts)))
       isImporting = false
     } catch {
       logger.error("Failed to import contact: \(error.localizedDescription)")
-      errorMessage = L10n.Contacts.Contacts.Scan.Error.importFailed(error.userFacingMessage)
+      presentImportFailure(L10n.Contacts.Contacts.Scan.Error.importFailed(error.userFacingMessage))
       isImporting = false
     }
+  }
+
+  private func presentImportFailure(_ message: String) {
+    errorMessage = message
+    errorHapticTrigger += 1
+    AccessibilityNotification.Announcement(message).post()
   }
 }
 
 #Preview {
   NavigationStack {
-    ScanContactQRView { _, _ in }
+    ScanContactQRView { _ in }
   }
   .environment(\.appState, AppState())
 }

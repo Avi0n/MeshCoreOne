@@ -52,6 +52,8 @@ struct ChatsConversationSheets: ViewModifier {
           }
         }
         .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .presentationSizing(.page)
       }
       .sheet(item: Binding(
         get: { appState.navigation.pendingChannelLink },
