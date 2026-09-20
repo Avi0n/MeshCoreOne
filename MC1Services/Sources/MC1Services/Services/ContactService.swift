@@ -483,18 +483,16 @@ public actor ContactService {
   ///   - type: The contact type (chat, repeater, room)
   /// - Returns: Contact URI string in format: meshcore://contact/add?name=...&public_key=...&type=...
   public static func exportContactURI(name: String, publicKey: Data, type: ContactType) -> String {
-    // Build via URLComponents so reserved characters in the name (`&`, `=`, `+`, `?`) are
-    // percent-encoded per query item. String interpolation would let a crafted name inject
-    // its own public_key/type and spoof the parsed contact identity.
+    // Encode via MeshCoreURIQuery so `&`/`=` in the name cannot inject public_key/type.
     var components = URLComponents()
     components.scheme = contactURIScheme
     components.host = contactURIHost
     components.path = contactURIPath
-    components.queryItems = [
+    components.percentEncodedQueryItems = MeshCoreURIQuery.percentEncodedQueryItems(from: [
       URLQueryItem(name: contactURINameKey, value: name),
       URLQueryItem(name: contactURIPublicKeyKey, value: publicKey.uppercaseHexString()),
       URLQueryItem(name: contactURITypeKey, value: String(type.rawValue))
-    ]
+    ])
     return components.url?.absoluteString ?? ""
   }
 

@@ -65,6 +65,14 @@ struct MeshCoreURLParserTests {
   }
 
   @Test
+  func `parseContactURL decodes a stock MeshCore plus-encoded space in the name`() throws {
+    let url = "meshcore://contact/add?name=Example+Repeater&public_key=\(Self.validHex)&type=2"
+    let result = try #require(MeshCoreURLParser.parseContactURL(url))
+    #expect(result.name == "Example Repeater")
+    #expect(result.contactType == .repeater)
+  }
+
+  @Test
   func `Spaces, colons, and unicode round-trip intact`() throws {
     for name in ["Field Base", "12:30 rally point", "Café au lait", "北京"] {
       let result = try Self.roundTrip(name: name)
@@ -98,6 +106,13 @@ struct MeshCoreURLParserTests {
     #expect(result.name == "Ops")
     #expect(result.secret == Data(hexString: Self.privateSecretHex))
     #expect(result.regionScope == nil)
+  }
+
+  @Test
+  func `parseChannelURL decodes a plus-encoded space in the name`() throws {
+    let url = "meshcore://channel/add?name=Ops+Base&secret=\(Self.privateSecretHex)"
+    let result = try #require(MeshCoreURLParser.parseChannelURL(url))
+    #expect(result.name == "Ops Base")
   }
 
   @Test
@@ -306,12 +321,12 @@ struct MeshCoreURLParserTests {
   func `export and parse round-trip preserves name secret and region`() throws {
     let secret = try #require(Data(hexString: Self.privateSecretHex))
     let uri = ChannelService.exportChannelURI(
-      name: "Ops & #1",
+      name: "C++ & #1",
       secret: secret,
       floodScope: .region("testregion")
     )
     let result = try #require(MeshCoreURLParser.parseChannelURL(uri))
-    #expect(result.name == "Ops & #1")
+    #expect(result.name == "C++ & #1")
     #expect(result.secret == secret)
     #expect(result.regionScope == "testregion")
   }
