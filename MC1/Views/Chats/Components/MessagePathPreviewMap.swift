@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 import UIKit
 
@@ -12,6 +13,8 @@ struct MessagePathPreviewMap: View {
 
   let image: UIImage?
   let didFail: Bool
+  let totalPathDistance: CLLocationDistance?
+  let isDistanceIncomplete: Bool
   let onExpand: () -> Void
   let onRetry: () -> Void
 
@@ -27,6 +30,17 @@ struct MessagePathPreviewMap: View {
     .overlay(alignment: .topLeading) {
       if didFail {
         retryButton
+      }
+    }
+    .overlay(alignment: .bottom) {
+      if totalPathDistance != nil || isDistanceIncomplete {
+        // Distance only: hop count is already on arrival capsules or the hop list.
+        PathDistanceBanner(
+          totalPathDistance: totalPathDistance,
+          isDistanceIncomplete: isDistanceIncomplete,
+          showsHopCount: false
+        )
+        .padding(Self.expandChipOuterPadding)
       }
     }
     .clipShape(.rect(cornerRadius: Self.cornerRadius))

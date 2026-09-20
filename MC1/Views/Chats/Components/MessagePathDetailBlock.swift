@@ -1,3 +1,4 @@
+import CoreLocation
 import MC1Services
 import SwiftUI
 
@@ -179,42 +180,46 @@ struct MessagePathDetailBlock: View {
 
   @ViewBuilder
   private var previewMap: some View {
-    if previewMapModel?.showsPathMap == true, let key = previewKey {
+    if let model = previewMapModel, model.showsPathMap, let key = previewKey {
       if let image = pathViewModel.previewImage(for: key) {
-        MessagePathPreviewMap(
-          image: image,
-          didFail: false,
-          onExpand: { showFullMap = true },
-          onRetry: {}
-        )
+        pathPreview(image: image, didFail: false, model: model, onRetry: {})
       } else if pathViewModel.previewFailed(for: key) {
-        MessagePathPreviewMap(
-          image: nil,
-          didFail: true,
-          onExpand: { showFullMap = true },
-          onRetry: {
-            Task {
-              await pathViewModel.retryPreview(
-                arrivalID: key.arrivalID,
-                message: message,
-                arrivals: arrivals,
-                connectedDevice: appState.connectedDevice,
-                userLocation: appState.bestAvailableLocation,
-                isDark: colorScheme == .dark,
-                isOffline: isOffline,
-                containerWidth: containerWidth
-              )
-            }
-          }
-        )
+        pathPreview(image: nil, didFail: true, model: model, onRetry: retrySelectedPreview)
       } else if let stale = pathViewModel.lastPreviewImage {
-        MessagePathPreviewMap(
-          image: stale,
-          didFail: false,
-          onExpand: { showFullMap = true },
-          onRetry: {}
-        )
+        pathPreview(image: stale, didFail: false, model: model, onRetry: {})
       }
+    }
+  }
+
+  private func pathPreview(
+    image: UIImage?,
+    didFail: Bool,
+    model: MessagePathMapView.CanvasModel,
+    onRetry: @escaping () -> Void
+  ) -> MessagePathPreviewMap {
+    MessagePathPreviewMap(
+      image: image,
+      didFail: didFail,
+      totalPathDistance: model.selectedCoordinates.totalDistance(),
+      isDistanceIncomplete: model.isDistanceIncomplete,
+      onExpand: { showFullMap = true },
+      onRetry: onRetry
+    )
+  }
+
+  private func retrySelectedPreview() {
+    guard let key = previewKey else { return }
+    Task {
+      await pathViewModel.retryPreview(
+        arrivalID: key.arrivalID,
+        message: message,
+        arrivals: arrivals,
+        connectedDevice: appState.connectedDevice,
+        userLocation: appState.bestAvailableLocation,
+        isDark: colorScheme == .dark,
+        isOffline: isOffline,
+        containerWidth: containerWidth
+      )
     }
   }
 
