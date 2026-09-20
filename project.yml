@@ -34,7 +34,7 @@ packages:
     # generated .xcodeproj is), so branch tracking resolves to whatever each
     # machine last fetched and different developers silently build different
     # library code. Bump this hash deliberately when the fork advances.
-    revision: 6fa84e4a2255bb00218a71fc0885b86854412a95
+    revision: ad33f425cc4ba2feb70a54142cb26dd610483f26
 
 targets:
   MC1:
