@@ -1,0 +1,4 @@
+{
+  "name": "MeshCore One (Linux lint/format)",
+  "install": "bash .cursor/install.sh"
+}
