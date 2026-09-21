@@ -83,7 +83,18 @@ extension ConnectionManager {
     return systemConnected
   }
 
-  /// Attempts to adopt a system-connected BLE link for the *last connected* device.
+  /// True when a system-connected NUS peripheral is this app's radio: last
+  /// connected, in-flight ASK pair, or still in the system pairing registry.
+  func isOwnedSystemConnectedLink(_ deviceID: UUID) -> Bool {
+    if deviceID == lastConnectedDeviceID { return true }
+    if isPairingInProgress { return true }
+    if pairing.hasSystemPairingRegistry {
+      return pairing.isDeviceConnectable(deviceID)
+    }
+    return false
+  }
+
+  /// Attempts to adopt a system-connected BLE link.
   ///
   /// iOS can keep a BLE link alive across app termination (notably after app updates) while state
   /// restoration does not fire for the new process. In that case, CoreBluetooth may report the
@@ -92,12 +103,18 @@ extension ConnectionManager {
   /// Rather than treating this as "connected elsewhere" and blocking reconnect, we can adopt the
   /// existing link by running the restoration discovery chain against the connected peripheral.
   ///
+  /// - Parameter requireLastConnected: Health check and activate pass `true` so they
+  ///   only adopt the last radio. User-initiated connect passes `false` after
+  ///   `isOwnedSystemConnectedLink`.
   /// - Returns: `true` if an adoption attempt was started.
   func startAdoptingLastSystemConnectedPeripheralIfAvailable(
     deviceID: UUID,
-    context: String
+    context: String,
+    requireLastConnected: Bool = true
   ) async -> Bool {
-    guard deviceID == lastConnectedDeviceID else { return false }
+    if requireLastConnected {
+      guard deviceID == lastConnectedDeviceID else { return false }
+    }
     guard currentTransportType == nil || currentTransportType == .bluetooth else { return false }
     guard connectionState == .disconnected else { return false }
     guard connectionIntent.wantsConnection else { return false }

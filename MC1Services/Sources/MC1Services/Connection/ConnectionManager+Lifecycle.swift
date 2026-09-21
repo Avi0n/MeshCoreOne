@@ -451,25 +451,33 @@ public extension ConnectionManager {
       }
     }
 
-    // If the user is reconnecting to the last radio and iOS still has a system-level BLE link
-    // (common after app updates), adopt the existing link rather than blocking as "connected elsewhere".
-    if deviceID == lastConnectedDeviceID {
+    // Owned leftover GATT. Settings forget clears last-connected; ASK membership
+    // or in-flight pair still identifies the link as ours.
+    let ownedLink = isOwnedSystemConnectedLink(deviceID)
+    if ownedLink {
       connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
       persistIntent()
 
       if await startAdoptingLastSystemConnectedPeripheralIfAvailable(
         deviceID: deviceID,
-        context: "connect(to:)"
+        context: "connect(to:)",
+        requireLastConnected: false
       ) {
-        // Adoption owns the reconnect cycle now; release the claim.
+        if isPairingInProgress {
+          do {
+            try await waitForPairingAdoptionToSettle()
+          } catch {
+            if connectingDeviceID == deviceID { connectingDeviceID = nil }
+            throw error
+          }
+        }
         if connectingDeviceID == deviceID { connectingDeviceID = nil }
         return
       }
       guard connectingDeviceID == deviceID else { throw CancellationError() }
     }
 
-    // Check for other app connection before changing state
-    if await isDeviceConnectedToOtherApp(deviceID) {
+    if await isDeviceConnectedToOtherApp(deviceID), !ownedLink {
       if connectingDeviceID == deviceID { connectingDeviceID = nil }
       throw BLEError.deviceConnectedToOtherApp
     }

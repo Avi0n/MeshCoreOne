@@ -339,6 +339,13 @@ public final class ConnectionManager {
   static let defaultConnectAttempts = 4
   static let unverifiedConnectAttempts = 2
 
+  static let pairingAdoptionSettlePollInterval: Duration = .milliseconds(50)
+  /// Pairing bound: rebuild can remain `.connected` after reconnect UI timeout stands down.
+  static let pairingAdoptionSettleTimeout: Duration = .seconds(15)
+  static let pairingAdoptionFailedDetail = "adoption failed"
+  static let pairingAdoptionMissingSessionDetail = "adoption rebuilt no session"
+  static let pairingAdoptionTimedOutDetail = "adoption timed out"
+
   /// Consecutive entries into `handleReconnectionFailure` while intent still wants a
   /// connection that are allowed to preserve a live link (not radio handshakes — on the
   /// auto-reconnect path the coordinator's first failed rebuild retries once before
@@ -469,6 +476,14 @@ public final class ConnectionManager {
     typealias OtherAppWaitStrategy = @Sendable (UUID) async -> Bool
 
     var otherAppWaitStrategyOverride: OtherAppWaitStrategy?
+
+    /// Pairing leftover-GATT tests settle adoption without `rebuildSession`.
+    /// Invoked only after adoption started.
+    typealias PairingAdoptionSettleStrategy = @MainActor () async throws -> Void
+
+    var pairingAdoptionSettleStrategyOverride: PairingAdoptionSettleStrategy?
+
+    var testPairingAdoptionSettleTimeout: Duration?
 
     typealias HealthCheckSessionRebuildOverride = @MainActor (UUID) async throws -> Void
 

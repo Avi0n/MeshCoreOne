@@ -18,13 +18,15 @@ public extension ConnectionManager {
   ///   `accessoryAdded` removes the bond immediately. The device is not registered
   ///   when this point is reached, so no cleanup needed here.
   /// - `waitForOtherAppReconnection` — checks `Task.isCancelled` at the top of
-  ///   each iteration and short-circuits to `false`. The subsequent
-  ///   `try await connect(to:)` then surfaces the cancellation via its
-  ///   entry-point `Task.checkCancellation()`.
+  ///   each iteration and short-circuits to `false`. A system-connected result
+  ///   proceeds to `connect(to:)` rather than throwing other-app. Cancellation
+  ///   is surfaced at `connect(to:)`'s entry-point `Task.checkCancellation()`.
   /// - `connect(to:)` — runs `Task.checkCancellation()` before any state mutation
   ///   so a cancelled task cannot drive a real BLE connect through to success.
-  ///   Propagates `CancellationError` normally; we catch it explicitly and
-  ///   re-throw without re-wrapping so the UI alert path stays quiet.
+  ///   Leftover GATT this app owns is adopted; while pairing, that path waits
+  ///   until `isOperational` or throws. Propagates `CancellationError` normally;
+  ///   we catch it explicitly and re-throw without re-wrapping so the UI alert
+  ///   path stays quiet.
   ///
   /// Hard quit: process death; defer doesn't fire; the in-memory flag resets to
   /// `false` on next launch. No persistent state corruption.
@@ -54,8 +56,12 @@ public extension ConnectionManager {
 
     let deviceID = try await pairing.discoverDevice()
 
+    // ASK has just associated this radio. A leftover system GATT link is ours
+    // (or the accessory we just set up); `connect(to:)` adopts or connects.
     if await waitForOtherAppReconnection(deviceID) {
-      throw PairingError.deviceConnectedToOtherApp(deviceID: deviceID)
+      logger.info(
+        "[OtherAppCheck] System-connected after pairing \(deviceID.uuidString.prefix(8)); connecting"
+      )
     }
 
     do {
@@ -89,10 +95,49 @@ public extension ConnectionManager {
   private func cleanupPartialPairing(deviceID: UUID) async {
     logger.info("Removing partially-paired device \(deviceID.uuidString.prefix(8)) from pairing registry")
     try? await pairing.removeDevice(deviceID)
+    reconnectionCoordinator.cancelTimeout()
+    reconnectionCoordinator.clearReconnectingDevice()
+    await transport.disconnect()
     // Defensive backstop — connectWithRetry and switchDevice both reset state
     // on throw, so this is normally a no-op. Kept so a future cancellation
     // path that lands here without doing so still leaves a clean UI.
     connectionState = .disconnected
+  }
+
+  /// Pairing leftover-GATT wait. `.syncing` already has a session
+  /// (`promoteToReady(syncSucceeded: false)`); `.connected` is still rebuilding.
+  func waitForPairingAdoptionToSettle() async throws {
+    #if DEBUG
+      if let strategy = pairingAdoptionSettleStrategyOverride {
+        try await strategy()
+        return
+      }
+    #endif
+
+    let timeout: Duration
+    #if DEBUG
+      timeout = testPairingAdoptionSettleTimeout ?? Self.pairingAdoptionSettleTimeout
+    #else
+      timeout = Self.pairingAdoptionSettleTimeout
+    #endif
+    let deadline = ContinuousClock.now + timeout
+
+    while true {
+      try Task.checkCancellation()
+      if connectionState.isOperational {
+        guard services != nil else {
+          throw BLEError.connectionFailed(Self.pairingAdoptionMissingSessionDetail)
+        }
+        return
+      }
+      if connectionState == .disconnected {
+        throw BLEError.connectionFailed(Self.pairingAdoptionFailedDetail)
+      }
+      guard ContinuousClock.now < deadline else {
+        throw BLEError.connectionFailed(Self.pairingAdoptionTimedOutDetail)
+      }
+      try await Task.sleep(for: Self.pairingAdoptionSettlePollInterval)
+    }
   }
 
   /// ASK accessories with no `Device` row. Activates the pairing session first.
@@ -620,7 +665,16 @@ extension ConnectionManager: DevicePairingDelegate {
         await disconnect(reason: .deviceRemovedFromSettings)
       }
 
-      // Demote to ghost — preserve publicKey ↔ radioID bridge
+      // iOS can fire accessoryRemoved while session.accessories still lists the
+      // id. Ghosting then turns a still-authorized radio into a Set Up leftover
+      // that blocks Scan. Keep the Device row so Connect still works.
+      if pairing.isDeviceConnectable(bluetoothID) {
+        logger.info(
+          "ASK still lists \(bluetoothID.uuidString.prefix(8)) after removal; keeping Device row"
+        )
+        return
+      }
+
       let dataStore = persistenceStore
       do {
         try await dataStore.demoteDeviceToGhost(id: bluetoothID)
