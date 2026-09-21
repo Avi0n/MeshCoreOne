@@ -198,8 +198,8 @@ private struct HostedConversationList: View {
       selectedFilter: $selectedFilter,
       hasLoadedOnce: true,
       emptyStateMessage: ("None", "None", "message"),
-      onNavigate: { _ in },
-      onRequestRoomAuth: { _ in },
+      selectedRoute: nil,
+      onSelect: { _ in },
       onDeleteConversation: { _ in }
     )
     .environment(\.appState, appState)

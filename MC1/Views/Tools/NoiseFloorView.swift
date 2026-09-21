@@ -5,10 +5,13 @@ struct NoiseFloorView: View {
   @Environment(\.appState) private var appState
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @State private var viewModel = NoiseFloorViewModel()
-  @State private var chartStartTime = Date()
 
   private var isConnected: Bool {
     appState.services?.session != nil
+  }
+
+  private var isWorkspaceActive: Bool {
+    appState.navigation.isToolWorkspaceActive(.noiseFloor)
   }
 
   var body: some View {
@@ -21,12 +24,17 @@ struct NoiseFloorView: View {
         mainContent
       }
     }
+    .navigationTitle(L10n.Tools.Tools.noiseFloor)
     .task(id: appState.servicesVersion) {
-      chartStartTime = Date()
+      guard isWorkspaceActive else { return }
       viewModel.startPolling { appState.services?.session }
     }
-    .onDisappear {
-      viewModel.stopPolling()
+    .onChange(of: isWorkspaceActive) { _, isActive in
+      if isActive {
+        viewModel.startPolling { appState.services?.session }
+      } else {
+        viewModel.stopPolling()
+      }
     }
   }
 }
@@ -60,7 +68,7 @@ extension NoiseFloorView {
         ErrorBanner(message: error)
       }
 
-      ChartSection(viewModel: viewModel, startTime: chartStartTime)
+      ChartSection(viewModel: viewModel)
 
       if horizontalSizeClass == .compact {
         VStack(spacing: 16) {
@@ -162,7 +170,6 @@ private struct CurrentReadingSection: View {
 
 private struct ChartSection: View {
   let viewModel: NoiseFloorViewModel
-  let startTime: Date
 
   private var trendDescription: String {
     let readings = viewModel.readings
@@ -192,18 +199,8 @@ private struct ChartSection: View {
     return L10n.Tools.Tools.NoiseFloor.chartAccessibility(count, Int(stats.min), Int(stats.max), Int(stats.average), trendDescription)
   }
 
-  /// Visible chart window duration in seconds.
-  private let chartWindowSeconds: Double = 300
-
-  private var chartDomain: ClosedRange<Double> {
-    guard let lastReading = viewModel.readings.last else {
-      return 0...chartWindowSeconds
-    }
-    let latestElapsed = lastReading.timestamp.timeIntervalSince(startTime)
-    if latestElapsed <= chartWindowSeconds {
-      return 0...chartWindowSeconds
-    }
-    return (latestElapsed - chartWindowSeconds)...latestElapsed
+  private var startTime: Date {
+    viewModel.chartStartTime ?? viewModel.readings.first?.timestamp ?? Date()
   }
 
   var body: some View {
@@ -227,7 +224,7 @@ private struct ChartSection: View {
         .foregroundStyle(.blue.opacity(0.1))
       }
       .chartYScale(domain: -130 ... -60)
-      .chartXScale(domain: chartDomain)
+      .chartXScale(domain: viewModel.chartDomain)
       .chartXAxis {
         AxisMarks(values: .stride(by: 60)) { value in
           AxisGridLine()

@@ -4,11 +4,8 @@ import SwiftUI
 
 private let chatListActionsLogger = Logger(subsystem: "com.mc1", category: "ChatListActions")
 
-/// Layout-independent chat-list actions shared by the compact `ChatsView` (stack) and the iPad
-/// `ChatsContentColumn` (split). Both run identical delete, pending-navigation, and offline-announce
-/// sequences; only `navigate` and `clearNavigationIfActive` differ between the stack and split
-/// paths, so those are injected. Built fresh per body evaluation; the bindings point
-/// at each view's own `@State`, so the captured state stays live.
+/// Shared chat-list delete and pending-navigation sequences. Injected `navigate`
+/// keeps the split host and the list column on one route.
 @MainActor
 struct ChatListActions {
   let viewModel: ChatViewModel
@@ -101,21 +98,29 @@ struct ChatListActions {
   }
 
   func handlePendingNavigation() {
-    guard let contact = appState.navigation.pendingChatContact else { return }
-    navigate(.direct(contact))
-    appState.navigation.clearPendingNavigation()
+    consumePending(route: appState.navigation.pendingChatContact.map { .direct($0) }) {
+      appState.navigation.clearPendingNavigation()
+    }
   }
 
   func handlePendingChannelNavigation() {
-    guard let channel = appState.navigation.pendingChannel else { return }
-    navigate(.channel(channel))
-    appState.navigation.clearPendingChannelNavigation()
+    consumePending(route: appState.navigation.pendingChannel.map { .channel($0) }) {
+      appState.navigation.clearPendingChannelNavigation()
+    }
   }
 
   func handlePendingRoomNavigation() {
-    guard let session = appState.navigation.pendingRoomSession else { return }
-    navigate(.room(session))
-    appState.navigation.clearPendingRoomNavigation()
+    consumePending(route: appState.navigation.pendingRoomSession.map { .room($0) }) {
+      appState.navigation.clearPendingRoomNavigation()
+    }
+  }
+
+  /// Selects the pending route through the same `navigate` entry as a row tap,
+  /// then clears only the intent this consumer handled.
+  private func consumePending(route: ChatRoute?, clear: () -> Void) {
+    guard let route else { return }
+    navigate(route)
+    clear()
   }
 
   /// Presents the room auth sheet for a disconnected room a notification tap

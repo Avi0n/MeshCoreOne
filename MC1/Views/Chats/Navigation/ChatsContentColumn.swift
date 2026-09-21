@@ -1,11 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// The iPad sidebar's Chats content column. It mirrors the regular-width (split) path of
-/// `ChatsView`, supplying real action closures to `ChatsSplitSidebarContent` and attaching
-/// the same sheets, alerts, and pending-navigation handlers. The compact (stack) path stays
-/// solely in `ChatsView`. The `viewModel` is passed in so the content and detail columns
-/// share one instance.
+/// Conversation list for the Chats split. Search, filter, and sheet state live
+/// here so they survive column collapse. Selection is `chatsSelectedRoute`.
 struct ChatsContentColumn: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
@@ -14,17 +11,13 @@ struct ChatsContentColumn: View {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   let viewModel: ChatViewModel
+  var observesPendingNavigation: Bool = true
 
   @State private var searchText = ""
   @State private var selectedFilter: ChatFilter = .all
   @State private var showingNewChat = false
   @State private var showingChannelOptions = false
 
-  /// View-local mirror of `appState.navigation.chatsSelectedRoute`; the detail column keys
-  /// off the latter, and `ChatsSplitSidebarContent.onChange` keeps the two in sync. Re-seeded
-  /// from the preserved route in `.task` because leaving and re-entering Chats rebuilds this
-  /// column and resets the mirror, which would otherwise un-highlight the row the detail shows.
-  @State private var selectedRoute: ChatRoute?
   @State private var lastSelectedRoomIsConnected: Bool?
 
   @State private var roomToAuthenticate: RemoteNodeSessionDTO?
@@ -79,54 +72,51 @@ struct ChatsContentColumn: View {
       filteredOthers: filteredOthers,
       emptyStateMessage: emptyStateMessage,
       hasLoadedOnce: viewModel.hasLoadedOnce,
-      selectedRoute: $selectedRoute,
+      selectedRoute: appState.navigation.chatsSelectedRoute,
       selectedFilter: $selectedFilter,
       searchText: $searchText,
       showingNewChat: $showingNewChat,
       showingChannelOptions: $showingChannelOptions,
-      roomToAuthenticate: $roomToAuthenticate,
       lastSelectedRoomIsConnected: $lastSelectedRoomIsConnected,
+      onSelect: { navigate(to: $0) },
       onDeleteConversation: actions.handleDeleteConversation,
-      onHandlePendingNavigation: actions.handlePendingNavigation,
-      onHandlePendingChannelNavigation: actions.handlePendingChannelNavigation,
-      onHandlePendingRoomNavigation: actions.handlePendingRoomNavigation,
+      onHandlePendingNavigation: {
+        guard observesPendingNavigation else { return }
+        actions.handlePendingNavigation()
+      },
+      onHandlePendingChannelNavigation: {
+        guard observesPendingNavigation else { return }
+        actions.handlePendingChannelNavigation()
+      },
+      onHandlePendingRoomNavigation: {
+        guard observesPendingNavigation else { return }
+        actions.handlePendingRoomNavigation()
+      },
       onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
     )
     .task {
-      seedSelectionFromPreservedRoute()
+      lastSelectedRoomIsConnected = appState.navigation.chatsSelectedRoute?.roomIsConnected
+      if let route = appState.navigation.chatsSelectedRoute {
+        prefetch(route)
+      }
       actions.consumePendingRoomAuthentication()
     }
     .onChange(of: appState.navigation.pendingRoomAuthentication) { _, _ in
       actions.consumePendingRoomAuthentication()
     }
     .onChange(of: appState.navigation.chatsSelectedRoute) { _, newRoute in
-      // The detail column keys off chatsSelectedRoute, but the list highlight keys off the
-      // view-local mirror. An external clear (a radio switch runs clearPerRadioSelection while
-      // Chats stays mounted, so .task never re-seeds) only nils the coordinator route, so drop
-      // the mirror here too to keep the list highlight and detail pane in agreement.
-      if newRoute == nil {
-        selectedRoute = nil
-        lastSelectedRoomIsConnected = nil
-      } else if let newRoute {
-        // Sidebar taps bind selection directly (bypassing `navigate(to:)`), so warm the
-        // coordinator here — the universal hook for every split-view selection.
+      if let newRoute {
         prefetch(newRoute)
       }
     }
-    // Refresh the selected route's payload as the snapshot recomputes and re-run the
-    // room reauth guard; a route whose conversation was removed resolves to nil and clears.
     .onChange(of: viewModel.snapshotGeneration) { _, _ in
-      let refreshed = selectedRoute?.refreshedPayload(from: viewModel.allConversations)
-      selectedRoute = refreshed
-
-      if lastSelectedRoomIsConnected == true,
-         case let .room(session) = selectedRoute,
-         !session.isConnected {
-        roomToAuthenticate = session
-        selectedRoute = nil
-      }
-
-      lastSelectedRoomIsConnected = selectedRoute?.roomIsConnected
+      refreshSelectedRoutePayload()
+    }
+    .onChange(of: appState.connectedDevice?.radioID) { _, _ in
+      dismissStaleRoomAuthentication()
+    }
+    .onChange(of: appState.currentRadioID) { _, _ in
+      dismissStaleRoomAuthentication()
     }
     .modifier(ChatsConversationSheets(
       viewModel: viewModel,
@@ -146,13 +136,16 @@ struct ChatsContentColumn: View {
   }
 
   private func navigate(to route: ChatRoute) {
-    selectedRoute = route
+    if case let .room(session) = route, !session.isConnected {
+      roomToAuthenticate = session
+      appState.navigation.chatsSelectedRoute = nil
+      lastSelectedRoomIsConnected = nil
+      return
+    }
+
     appState.navigation.chatsSelectedRoute = route
   }
 
-  /// Warms the shared coordinator for the selected conversation before the detail
-  /// column swaps in, so the chat renders populated instead of jumping in a frame
-  /// later on a cold open.
   private func prefetch(_ route: ChatRoute) {
     guard let conversation = route.chatConversationType else { return }
     appState.prefetchConversation(
@@ -169,18 +162,36 @@ struct ChatsContentColumn: View {
 
   private func clearNavigationIfActive(_ route: ChatRoute) {
     if appState.navigation.chatsSelectedRoute == route {
-      selectedRoute = nil
       appState.navigation.chatsSelectedRoute = nil
     }
   }
 
-  /// Restores the view-local selection from the route preserved in `NavigationCoordinator` when
-  /// this column is rebuilt on Chats re-entry, so the list re-highlights the row the detail pane
-  /// is still showing and the room-reauth guard regains its `lastSelectedRoomIsConnected` baseline.
-  /// Skips when a selection already exists so a pending navigation that ran first is not clobbered.
-  private func seedSelectionFromPreservedRoute() {
-    guard selectedRoute == nil, let route = appState.navigation.chatsSelectedRoute else { return }
-    selectedRoute = route
-    lastSelectedRoomIsConnected = route.roomIsConnected
+  private func refreshSelectedRoutePayload() {
+    let current = appState.navigation.chatsSelectedRoute
+    let refreshed = current?.refreshedPayload(from: viewModel.allConversations)
+
+    if lastSelectedRoomIsConnected == true,
+       case let .room(session) = refreshed,
+       !session.isConnected {
+      roomToAuthenticate = session
+      appState.navigation.chatsSelectedRoute = nil
+      lastSelectedRoomIsConnected = nil
+      return
+    }
+
+    appState.navigation.chatsSelectedRoute = refreshed
+    lastSelectedRoomIsConnected = refreshed?.roomIsConnected
+  }
+
+  private func dismissStaleRoomAuthentication() {
+    guard let session = roomToAuthenticate else { return }
+    guard ChatsRadioScopedSheets.shouldKeepRoomAuth(
+      sessionRadioID: session.radioID,
+      currentRadioID: appState.currentRadioID,
+      hasConnectedDevice: appState.connectedDevice != nil
+    ) else {
+      roomToAuthenticate = nil
+      return
+    }
   }
 }

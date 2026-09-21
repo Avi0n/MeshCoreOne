@@ -1,10 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// Layout-independent Nodes-list derived state and actions shared by the compact `ContactsListView`
-/// (stack) and the iPad `ContactsContentColumn` (split). Both compute the same filtered list and run
-/// the same load/sync sequences; only selection plumbing differs, so that stays in each view. Built
-/// fresh per body evaluation; `syncSuccessTrigger` points at each view's own `@State`.
+/// Nodes-list derived state and actions used by `ContactsContentColumn`. Built
+/// fresh per body evaluation; `syncSuccessTrigger` points at the column's `@State`.
 @MainActor
 struct ContactListActions {
   let viewModel: ContactsViewModel

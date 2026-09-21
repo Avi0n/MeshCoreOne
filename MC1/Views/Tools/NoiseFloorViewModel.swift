@@ -70,6 +70,22 @@ final class NoiseFloorViewModel {
   var readings: [NoiseFloorReading] = []
   var isPolling = false
   var errorMessage: String?
+  /// Chart x-axis origin for this workspace. Kept across stop/start so a gap
+  /// in polling does not shift retained samples.
+  private(set) var chartStartTime: Date?
+
+  static let chartWindowSeconds: Double = 300
+
+  var chartDomain: ClosedRange<Double> {
+    guard let startTime = chartStartTime, let lastReading = readings.last else {
+      return 0...Self.chartWindowSeconds
+    }
+    let latestElapsed = max(0, lastReading.timestamp.timeIntervalSince(startTime))
+    if latestElapsed <= Self.chartWindowSeconds {
+      return 0...Self.chartWindowSeconds
+    }
+    return (latestElapsed - Self.chartWindowSeconds)...latestElapsed
+  }
 
   private let maxReadings = 200
   private let pollingInterval: Duration = .seconds(1.5)
@@ -111,6 +127,9 @@ final class NoiseFloorViewModel {
 
   func startPolling(sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
     self.sessionProvider = sessionProvider
+    if chartStartTime == nil {
+      chartStartTime = Date()
+    }
     guard pollingTask == nil else { return }
     isPolling = true
 

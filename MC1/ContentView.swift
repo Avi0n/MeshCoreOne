@@ -4,21 +4,20 @@ import SwiftUI
 struct ContentView: View {
   @Environment(\.appState) private var appState
   @Environment(\.scenePhase) private var scenePhase
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
   var body: some View {
     @Bindable var connectionUI = appState.connectionUI
 
     Group {
-      if appState.onboarding.hasCompletedOnboarding {
-        if horizontalSizeClass == .regular {
-          MainSidebarView()
+      #if DEBUG
+        if ProcessInfo.processInfo.isGateAPrototype {
+          GateAPrototypeHost()
         } else {
-          MainTabView()
+          productionShell
         }
-      } else {
-        OnboardingView()
-      }
+      #else
+        productionShell
+      #endif
     }
     .animation(.default, value: appState.onboarding.hasCompletedOnboarding)
     .onChange(of: scenePhase) { _, newPhase in
@@ -116,6 +115,15 @@ struct ContentView: View {
       && appState.connectionUI.pendingSystemPairingSetup == nil
       && !(appState.connectionManager.bluetoothScanPicker?.isPresenting ?? false)
   }
+
+  @ViewBuilder
+  private var productionShell: some View {
+    if appState.onboarding.hasCompletedOnboarding {
+      MainTabView()
+    } else {
+      OnboardingView()
+    }
+  }
 }
 
 // MARK: - Onboarding View
@@ -142,58 +150,6 @@ struct OnboardingView: View {
             PresetStepView()
           }
         }
-    }
-  }
-}
-
-// MARK: - Main Tab View
-
-struct MainTabView: View {
-  @Environment(\.appState) private var appState
-  @Environment(\.appTheme) private var theme
-  @State private var showingDeviceSelection = false
-
-  var body: some View {
-    @Bindable var navigation = appState.navigation
-
-    TabView(selection: $navigation.selectedTab) {
-      Tab(L10n.Localizable.Tabs.chats, systemImage: "message.fill", value: AppTab.chats.rawValue) {
-        ChatsView()
-      }
-      .badge(appState.services?.notificationService.badgeCount ?? 0)
-
-      Tab(L10n.Localizable.Tabs.nodes, systemImage: "flipphone", value: AppTab.nodes.rawValue) {
-        ContactsListView()
-      }
-
-      Tab(L10n.Localizable.Tabs.map, systemImage: "map.fill", value: AppTab.map.rawValue) {
-        MapView()
-      }
-
-      Tab(L10n.Localizable.Tabs.tools, systemImage: "wrench.and.screwdriver", value: AppTab.tools.rawValue) {
-        ToolsView()
-      }
-
-      Tab(L10n.Localizable.Tabs.settings, systemImage: "gear", value: AppTab.settings.rawValue) {
-        SettingsView()
-      }
-    }
-    .themedChrome(theme)
-    .syncingPillOverlay(onDisconnectedTap: { showingDeviceSelection = true })
-    .onChange(of: appState.navigation.selectedTab) { _, _ in
-      // Donate pending device menu tip when returning to a valid tab
-      if appState.navigation.pendingDeviceMenuTipDonation, appState.navigation.isOnValidTabForDeviceMenuTip {
-        Task {
-          await appState.donateDeviceMenuTipIfOnValidTab()
-        }
-      }
-    }
-    .sheet(isPresented: $showingDeviceSelection, onDismiss: {
-      appState.handleDeviceSelectionSheetDismissed()
-    }) {
-      DeviceSelectionSheet()
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
     }
   }
 }

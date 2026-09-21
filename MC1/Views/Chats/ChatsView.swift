@@ -3,131 +3,152 @@ import SwiftUI
 
 struct ChatsView: View {
   @Environment(\.appState) private var appState
+  @Environment(\.horizontalSizeClass) private var sizeClass
 
   @State private var viewModel = ChatViewModel()
-  @State private var searchText = ""
-  @State private var selectedFilter: ChatFilter = .all
-  @State private var showingNewChat = false
-  @State private var showingChannelOptions = false
+  @State private var columnVisibility = NavigationSplitViewVisibility.all
+  @State private var preferredCompactColumn = NavigationSplitViewColumn.sidebar
+  @State private var nestedPath = NavigationPath()
 
-  @State private var navigationPath = NavigationPath()
-  @State private var activeRoute: ChatRoute?
-
-  @State private var roomToAuthenticate: RemoteNodeSessionDTO?
-  @State private var roomToDelete: RemoteNodeSessionDTO?
-  @State private var showRoomDeleteAlert = false
-  @State private var showChannelDeleteFailed = false
-  @State private var channelDeleteFailure: ChatConversationActions.Failure?
-  @State private var pendingChatContact: ContactDTO?
-  @State private var pendingChannel: ChannelDTO?
-
-  private var filteredFavorites: [Conversation] {
-    viewModel.favoriteConversations.filtered(by: selectedFilter, searchText: searchText)
-  }
-
-  private var filteredOthers: [Conversation] {
-    viewModel.nonFavoriteConversations.filtered(by: selectedFilter, searchText: searchText)
-  }
-
-  private var emptyStateMessage: (title: String, description: String, systemImage: String) {
-    switch selectedFilter {
-    case .all:
-      (L10n.Chats.Chats.EmptyState.NoConversations.title, L10n.Chats.Chats.EmptyState.NoConversations.description, "message")
-    case .unread:
-      (L10n.Chats.Chats.EmptyState.NoUnread.title, L10n.Chats.Chats.EmptyState.NoUnread.description, "checkmark.circle")
-    case .directMessages:
-      (L10n.Chats.Chats.EmptyState.NoDirectMessages.title, L10n.Chats.Chats.EmptyState.NoDirectMessages.description, "person")
-    case .channels:
-      (L10n.Chats.Chats.EmptyState.NoChannels.title, L10n.Chats.Chats.EmptyState.NoChannels.description, "number")
-    case .rooms:
-      (L10n.Chats.Chats.EmptyState.NoRooms.title, L10n.Chats.Chats.EmptyState.NoRooms.description, "door.left.hand.open")
-    }
+  private var tabBarVisibility: Visibility {
+    ChatsSplitPresentation.tabBarVisibility(
+      sizeClass: sizeClass,
+      preferredColumn: preferredCompactColumn,
+      hasSelection: appState.navigation.chatsSelectedRoute != nil
+    )
   }
 
   private var actions: ChatListActions {
     ChatListActions(
       viewModel: viewModel,
       appState: appState,
-      roomToDelete: $roomToDelete,
-      showRoomDeleteAlert: $showRoomDeleteAlert,
-      channelDeleteFailure: $channelDeleteFailure,
-      showChannelDeleteFailed: $showChannelDeleteFailed,
-      roomToAuthenticate: $roomToAuthenticate,
-      navigate: { navigate(to: $0) },
+      roomToDelete: .constant(nil),
+      showRoomDeleteAlert: .constant(false),
+      channelDeleteFailure: .constant(nil),
+      showChannelDeleteFailed: .constant(false),
+      roomToAuthenticate: .constant(nil),
+      navigate: { selectRoute($0) },
       clearNavigationIfActive: clearNavigationIfActive
     )
   }
 
   var body: some View {
-    ChatsStackLayout(
-      viewModel: viewModel,
-      navigationPath: $navigationPath,
-      activeRoute: $activeRoute
+    NavigationSplitView(
+      columnVisibility: $columnVisibility,
+      preferredCompactColumn: $preferredCompactColumn
     ) {
-      ChatsStackRootContent(
-        viewModel: viewModel,
-        filteredFavorites: filteredFavorites,
-        filteredOthers: filteredOthers,
-        emptyStateMessage: emptyStateMessage,
-        hasLoadedOnce: viewModel.hasLoadedOnce,
-        selectedFilter: $selectedFilter,
-        searchText: $searchText,
-        showingNewChat: $showingNewChat,
-        showingChannelOptions: $showingChannelOptions,
-        roomToAuthenticate: $roomToAuthenticate,
-        navigationPath: $navigationPath,
-        onDeleteConversation: actions.handleDeleteConversation,
-        onHandlePendingNavigation: actions.handlePendingNavigation,
-        onHandlePendingChannelNavigation: actions.handlePendingChannelNavigation,
-        onHandlePendingRoomNavigation: actions.handlePendingRoomNavigation,
-        onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
-      )
+      ChatsContentColumn(viewModel: viewModel, observesPendingNavigation: false)
+        .sectionSplitColumnChrome()
+    } detail: {
+      ChatsDetailStack(viewModel: viewModel, path: $nestedPath)
+    }
+    .navigationSplitViewStyle(.balanced)
+    .sectionSplitChrome(tabBarVisibility: tabBarVisibility)
+    .onChange(of: sizeClass) { old, new in
+      applySizeClassChange(from: old, to: new)
+    }
+    .onChange(of: preferredCompactColumn) { _, _ in
+      applyPreferredColumnRecipe()
+    }
+    .onChange(of: nestedPath.count) { _, _ in
+      applyPreferredColumnRecipe()
+    }
+    .onChange(of: appState.navigation.chatsSelectedRoute) { oldRoute, newRoute in
+      handleSelectedRouteChange(from: oldRoute, to: newRoute)
+    }
+    .onChange(of: appState.navigation.chatsRootNavigationGeneration) { _, _ in
+      nestedPath = NavigationPath()
+    }
+    .onChange(of: appState.navigation.pendingChatContact) { _, _ in
+      actions.handlePendingNavigation()
+    }
+    .onChange(of: appState.navigation.pendingChannel) { _, _ in
+      actions.handlePendingChannelNavigation()
+    }
+    .onChange(of: appState.navigation.pendingRoomSession) { _, _ in
+      actions.handlePendingRoomNavigation()
     }
     .task {
-      actions.consumePendingRoomAuthentication()
+      if appState.navigation.chatsSelectedRoute != nil, sizeClass == .compact {
+        preferredCompactColumn = .detail
+      }
+      actions.handlePendingNavigation()
+      actions.handlePendingChannelNavigation()
+      actions.handlePendingRoomNavigation()
     }
-    .onChange(of: appState.navigation.pendingRoomAuthentication) { _, _ in
-      actions.consumePendingRoomAuthentication()
-    }
-    // Keep the pushed route's payload current as the snapshot recomputes; a route
-    // whose conversation was removed resolves to nil and the push unwinds.
-    .onChange(of: viewModel.snapshotGeneration) { _, _ in
-      activeRoute = activeRoute?.refreshedPayload(from: viewModel.allConversations)
-    }
-    .modifier(ChatsConversationSheets(
-      viewModel: viewModel,
-      showingNewChat: $showingNewChat,
-      showingChannelOptions: $showingChannelOptions,
-      roomToAuthenticate: $roomToAuthenticate,
-      roomToDelete: $roomToDelete,
-      showRoomDeleteAlert: $showRoomDeleteAlert,
-      channelDeleteFailure: $channelDeleteFailure,
-      showChannelDeleteFailed: $showChannelDeleteFailed,
-      pendingChatContact: $pendingChatContact,
-      pendingChannel: $pendingChannel,
-      navigate: { navigate(to: $0) },
-      deleteChannelConversation: actions.deleteChannelConversation,
-      deleteRoom: actions.deleteRoom
-    ))
   }
 
-  private func navigate(to route: ChatRoute) {
+  private func selectRoute(_ route: ChatRoute) {
     if case let .room(session) = route, !session.isConnected {
-      roomToAuthenticate = session
       return
     }
-
-    appState.navigation.tabBarVisibility = .hidden
-    navigationPath.removeLast(navigationPath.count)
-    navigationPath.append(route)
+    appState.navigation.chatsSelectedRoute = route
   }
 
   private func clearNavigationIfActive(_ route: ChatRoute) {
-    if activeRoute == route {
-      navigationPath.removeLast(navigationPath.count)
-      activeRoute = nil
-      appState.navigation.tabBarVisibility = .visible
+    if appState.navigation.chatsSelectedRoute == route {
+      appState.navigation.chatsSelectedRoute = nil
     }
+  }
+
+  private func handleSelectedRouteChange(from oldRoute: ChatRoute?, to newRoute: ChatRoute?) {
+    if oldRoute != newRoute {
+      nestedPath = NavigationPath()
+    }
+    if newRoute != nil {
+      if sizeClass == .compact {
+        preferredCompactColumn = .detail
+      }
+    } else if sizeClass == .compact {
+      preferredCompactColumn = .sidebar
+    }
+  }
+
+  private func applySizeClassChange(
+    from old: UserInterfaceSizeClass?,
+    to new: UserInterfaceSizeClass?
+  ) {
+    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
+      from: old,
+      to: new,
+      hasSelection: appState.navigation.chatsSelectedRoute != nil
+    )
+    if let visibility = presentation.columnVisibility {
+      columnVisibility = visibility
+    }
+    if let column = presentation.preferredColumn {
+      preferredCompactColumn = column
+    }
+  }
+
+  private func applyPreferredColumnRecipe() {
+    switch ChatsSplitPresentation.preferredColumnAction(
+      preferredColumn: preferredCompactColumn,
+      sizeClass: sizeClass,
+      nestedPathIsEmpty: nestedPath.isEmpty,
+      hasSelection: appState.navigation.chatsSelectedRoute != nil
+    ) {
+    case .clearRootSelection:
+      appState.navigation.chatsSelectedRoute = nil
+    case .none:
+      break
+    }
+  }
+}
+
+private struct ChatsDetailStack: View {
+  @Environment(\.appState) private var appState
+
+  let viewModel: ChatViewModel
+  @Binding var path: NavigationPath
+
+  var body: some View {
+    let route = appState.navigation.chatsSelectedRoute
+    NavigationStack(path: $path) {
+      ChatsSplitDetailContent(viewModel: viewModel, route: route)
+        .sectionSplitColumnChrome()
+    }
+    .id(route?.conversationID)
   }
 }
 

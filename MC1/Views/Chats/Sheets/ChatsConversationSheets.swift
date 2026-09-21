@@ -1,10 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// The deep-link sheets, conversation sheets, and destructive-action alerts shared by the compact
-/// `ChatsView` (stack) and the iPad `ChatsContentColumn` (split). Both attach an identical surface;
-/// only the navigation glue (`navigate` and the delete handlers) differs between
-/// the stack and split paths, so those are injected as closures.
+/// Chats-list sheets for links, compose, room auth, and deletes. Injected
+/// `navigate` keeps the split host and the list column on one route.
 struct ChatsConversationSheets: ViewModifier {
   @Environment(\.appState) private var appState
 
@@ -92,6 +90,11 @@ struct ChatsConversationSheets: ViewModifier {
       .sheet(item: $roomToAuthenticate) { session in
         RoomAuthenticationSheet(session: session) { authenticatedSession in
           roomToAuthenticate = nil
+          guard ChatsRadioScopedSheets.shouldKeepRoomAuth(
+            sessionRadioID: authenticatedSession.radioID,
+            currentRadioID: appState.currentRadioID,
+            hasConnectedDevice: appState.connectedDevice != nil
+          ) else { return }
           navigate(.room(authenticatedSession))
         }
         .presentationSizing(.page)

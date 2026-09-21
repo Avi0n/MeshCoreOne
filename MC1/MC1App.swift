@@ -129,6 +129,13 @@ struct MC1App: App {
           ])
 
           #if DEBUG
+            if ProcessInfo.processInfo.isGateAPrototype {
+              pendingExternalURL.markReady(appState)
+              return
+            }
+          #endif
+
+          #if DEBUG
             if ProcessInfo.processInfo.isScreenshotMode {
               await setupScreenshotMode()
             } else {

@@ -1,10 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// The iPad sidebar's Nodes detail column. It reproduces the regular-width (split) detail
-/// branch of `ContactsListView`: Discovery wins when active, otherwise the selected contact,
-/// otherwise an empty placeholder. Selection and discovery state are read from
-/// `appState.navigation` so this column stays in sync with `ContactsContentColumn`.
+/// Nodes split detail: Discovery when active, otherwise the selected contact,
+/// otherwise the empty prompt. Reads `appState.navigation`.
 struct ContactsDetailColumn: View {
   @Environment(\.appState) private var appState
 

@@ -5,18 +5,12 @@ import SwiftUI
 /// The nodes list rendered as a `ScrollView` + `LazyVStack` rather than a `List`. `List` is backed
 /// by `UpdateCoalescingCollectionView`, whose batch-consistency assertion is violated when the
 /// selected row is deleted; a `LazyVStack` has no collection view, so that crash cannot occur.
-/// One view serves both layouts: the compact stack navigates via `NavigationLink`, the iPad split
-/// drives a selection binding the detail column reads.
 struct ContactsListContent: View {
-  enum ListMode {
-    case selection(Binding<ContactDTO?>)
-    case navigation
-  }
-
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
 
-  let mode: ListMode
+  let selectedContact: ContactDTO?
+  let onSelect: (ContactDTO) -> Void
   @Binding var selectedSegment: NodeSegment
   let isSearching: Bool
   let searchText: String
@@ -106,33 +100,18 @@ struct ContactsListContent: View {
 
   private var rows: some View {
     ForEach(Array(filteredContacts.enumerated()), id: \.element.id) { index, contact in
-      rowView(contact)
-        .transition(.opacity)
-      if index < filteredContacts.count - 1 {
-        Divider().padding(.leading, Self.rowSeparatorLeadingInset)
-      }
-    }
-  }
-
-  @ViewBuilder
-  private func rowView(_ contact: ContactDTO) -> some View {
-    switch mode {
-    case let .selection(selection):
       ContactSelectionRow(
         contact: contact,
         viewModel: viewModel,
         isSearching: isSearching,
         userLocation: appState.bestAvailableLocation,
-        isSelected: selection.wrappedValue?.id == contact.id,
-        onSelect: { selection.wrappedValue = contact }
+        isSelected: selectedContact?.id == contact.id,
+        onSelect: { onSelect(contact) }
       )
-    case .navigation:
-      ContactNavigationRow(
-        contact: contact,
-        viewModel: viewModel,
-        isSearching: isSearching,
-        userLocation: appState.bestAvailableLocation
-      )
+      .transition(.opacity)
+      if index < filteredContacts.count - 1 {
+        Divider().padding(.leading, Self.rowSeparatorLeadingInset)
+      }
     }
   }
 }
@@ -144,7 +123,7 @@ private enum ContactRowLayout {
   static let verticalPadding: CGFloat = 6
 }
 
-/// Renders a node's row body, shared by the selection and navigation rows.
+/// Renders a node's row body, shared by selection rows.
 private struct ContactListRowLabel: View {
   let contact: ContactDTO
   let viewModel: ContactsViewModel
@@ -166,8 +145,6 @@ private struct ContactListRowLabel: View {
   }
 }
 
-// MARK: - Extracted Rows
-
 private struct ContactSelectionRow: View {
   let contact: ContactDTO
   let viewModel: ContactsViewModel
@@ -187,27 +164,6 @@ private struct ContactSelectionRow: View {
     .buttonStyle(.plain)
     .selectedRowHighlight(isSelected: isSelected)
     .accessibilityAddTraits(isSelected ? .isSelected : [])
-    .deletingRowOverlay(isDeleting: isDeleting)
-    .contactContextMenu(contact: contact, viewModel: viewModel)
-    .contactSwipeActions(contact: contact, viewModel: viewModel)
-  }
-}
-
-private struct ContactNavigationRow: View {
-  let contact: ContactDTO
-  let viewModel: ContactsViewModel
-  let isSearching: Bool
-  let userLocation: CLLocation?
-
-  private var isDeleting: Bool {
-    viewModel.deletingIDs.contains(contact.id)
-  }
-
-  var body: some View {
-    NavigationLink(value: ContactRoute.detail(contact)) {
-      ContactListRowLabel(contact: contact, viewModel: viewModel, isSearching: isSearching, userLocation: userLocation)
-    }
-    .buttonStyle(.plain)
     .deletingRowOverlay(isDeleting: isDeleting)
     .contactContextMenu(contact: contact, viewModel: viewModel)
     .contactSwipeActions(contact: contact, viewModel: viewModel)

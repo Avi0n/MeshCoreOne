@@ -130,7 +130,7 @@ struct NavigationCoordinatorNotificationTests {
 
     #expect(coordinator.pendingChatContact?.id == contact.id)
     #expect(coordinator.chatsSelectedRoute == .direct(contact))
-    #expect(coordinator.selectedTab == 0)
+    #expect(coordinator.selectedTab == AppTab.chats.rawValue)
   }
 
   // MARK: - New Contact Notification Tap
@@ -155,7 +155,9 @@ struct NavigationCoordinatorNotificationTests {
     await notificationService.onNewContactNotificationTapped?(contact.id)
 
     #expect(coordinator.pendingDiscoveryNavigation == true)
-    #expect(coordinator.selectedTab == 1)
+    #expect(coordinator.nodesShowingDiscovery == true)
+    #expect(coordinator.selectedContact == nil)
+    #expect(coordinator.selectedTab == AppTab.nodes.rawValue)
   }
 
   @Test
@@ -178,7 +180,9 @@ struct NavigationCoordinatorNotificationTests {
     await notificationService.onNewContactNotificationTapped?(contact.id)
 
     #expect(coordinator.pendingContactDetail?.id == contact.id)
-    #expect(coordinator.selectedTab == 1)
+    #expect(coordinator.selectedContact?.id == contact.id)
+    #expect(coordinator.nodesShowingDiscovery == false)
+    #expect(coordinator.selectedTab == AppTab.nodes.rawValue)
   }
 
   // MARK: - Channel Notification Tap
@@ -205,7 +209,7 @@ struct NavigationCoordinatorNotificationTests {
 
     #expect(coordinator.pendingChannel?.id == channel.id)
     #expect(coordinator.chatsSelectedRoute == .channel(channel))
-    #expect(coordinator.selectedTab == 0)
+    #expect(coordinator.selectedTab == AppTab.chats.rawValue)
   }
 
   // MARK: - Reaction Notification Tap
@@ -231,7 +235,8 @@ struct NavigationCoordinatorNotificationTests {
 
     #expect(coordinator.pendingChatContact?.id == contact.id)
     #expect(coordinator.pendingScrollToMessageID == messageID)
-    #expect(coordinator.selectedTab == 0)
+    #expect(coordinator.pendingScrollTarget?.conversationID == contact.id)
+    #expect(coordinator.selectedTab == AppTab.chats.rawValue)
   }
 
   @Test
@@ -258,7 +263,105 @@ struct NavigationCoordinatorNotificationTests {
 
     #expect(coordinator.pendingChannel?.id == channel.id)
     #expect(coordinator.pendingScrollToMessageID == messageID)
-    #expect(coordinator.selectedTab == 0)
+    #expect(coordinator.pendingScrollTarget?.kind == .channel)
+    #expect(coordinator.selectedTab == AppTab.chats.rawValue)
+  }
+
+  // MARK: - Cross-kind and room authentication
+
+  private static func makeRoomSession(
+    id: UUID = UUID(),
+    radioID: UUID = UUID(),
+    isConnected: Bool
+  ) -> RemoteNodeSessionDTO {
+    RemoteNodeSessionDTO(
+      id: id,
+      radioID: radioID,
+      publicKey: Data(repeating: 0xBB, count: 32),
+      name: "TestRoom",
+      role: .roomServer,
+      latitude: 0,
+      longitude: 0,
+      isConnected: isConnected,
+      permissionLevel: .readWrite,
+      lastConnectedDate: nil,
+      lastBatteryMillivolts: nil,
+      lastUptimeSeconds: nil,
+      lastNoiseFloor: nil,
+      unreadCount: 0,
+      notificationLevel: .all,
+      isFavorite: false,
+      lastRxAirtimeSeconds: nil,
+      neighborCount: 0,
+      lastSyncTimestamp: 0,
+      lastMessageDate: nil
+    )
+  }
+
+  @Test
+  func `room notification after a DM reaction does not keep the DM scroll target`() async throws {
+    let contact = Self.makeContact()
+    let session = Self.makeRoomSession(isConnected: true)
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dataStore = PersistenceStore(modelContainer: container)
+    try await dataStore.saveContact(contact)
+    try await dataStore.saveChannel(Self.makeChannel())
+    try await dataStore.saveRemoteNodeSessionDTO(session)
+    let coordinator = NavigationCoordinator()
+    let notificationService = NotificationService()
+    coordinator.configureNotificationHandlers(
+      notificationService: notificationService,
+      dataStore: dataStore,
+      connectedDevice: { nil }
+    )
+
+    await notificationService.onReactionNotificationTapped?(contact.id, nil, nil, UUID())
+    await notificationService.onRoomNotificationTapped?(session.id)
+
+    #expect(coordinator.chatsSelectedRoute == .room(session))
+    #expect(coordinator.pendingScrollTarget == nil)
+    #expect(coordinator.pendingChatContact == nil)
+    #expect(coordinator.pendingRoomAuthentication == nil)
+  }
+
+  @Test
+  func `disconnected room notification requests authentication instead of selecting the room`() async throws {
+    let session = Self.makeRoomSession(isConnected: false)
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dataStore = PersistenceStore(modelContainer: container)
+    try await dataStore.saveContact(Self.makeContact())
+    try await dataStore.saveChannel(Self.makeChannel())
+    try await dataStore.saveRemoteNodeSessionDTO(session)
+    let coordinator = NavigationCoordinator()
+    let notificationService = NotificationService()
+    coordinator.configureNotificationHandlers(
+      notificationService: notificationService,
+      dataStore: dataStore,
+      connectedDevice: { nil }
+    )
+
+    await notificationService.onRoomNotificationTapped?(session.id)
+
+    #expect(coordinator.pendingRoomAuthentication?.id == session.id)
+    #expect(coordinator.chatsSelectedRoute == nil)
+    #expect(coordinator.pendingRoomSession == nil)
+    #expect(coordinator.selectedTab == AppTab.chats.rawValue)
+  }
+
+  @Test
+  func `per-radio clear while another tab is selected retires unconsumed chat intents`() {
+    let coordinator = NavigationCoordinator()
+    let contact = Self.makeContact()
+    coordinator.selectedTab = AppTab.nodes.rawValue
+    coordinator.navigateToChat(with: contact, scrollToMessageID: UUID())
+    #expect(coordinator.selectedTab == AppTab.chats.rawValue)
+
+    coordinator.selectedTab = AppTab.nodes.rawValue
+    coordinator.clearPerRadioSelection()
+
+    #expect(coordinator.pendingChatContact == nil)
+    #expect(coordinator.pendingScrollTarget == nil)
+    #expect(coordinator.chatsSelectedRoute == nil)
   }
 }
 
@@ -317,6 +420,17 @@ struct NavigationCoordinatorSettingsTests {
 
     #expect(coordinator.selectedSetting == .support)
     #expect(coordinator.selectedTab == AppTab.settings.rawValue)
+    #expect(coordinator.settingsRootNavigationGeneration == 1)
+  }
+
+  @Test
+  func `navigateToSetting replaces an open page and bumps generation`() {
+    let coordinator = NavigationCoordinator()
+    coordinator.navigateToSetting(.chats)
+    coordinator.navigateToSetting(.language)
+
+    #expect(coordinator.selectedSetting == .language)
+    #expect(coordinator.settingsRootNavigationGeneration == 2)
   }
 }
 
@@ -474,6 +588,19 @@ struct NavigationCoordinatorPendingLinkTests {
   }
 
   @Test
+  func `tool workspace is active only on the Tools tab with a matching selection`() {
+    let coordinator = NavigationCoordinator()
+    coordinator.selectedTab = AppTab.tools.rawValue
+    coordinator.selectedTool = .noiseFloor
+
+    #expect(coordinator.isToolWorkspaceActive(.noiseFloor))
+    #expect(!coordinator.isToolWorkspaceActive(.tracePath))
+
+    coordinator.selectedTab = AppTab.chats.rawValue
+    #expect(!coordinator.isToolWorkspaceActive(.noiseFloor))
+  }
+
+  @Test
   func `clearPerRadioSelection clears a per-device settings page`() {
     let coordinator = NavigationCoordinator()
     coordinator.selectedSetting = .radio
@@ -502,5 +629,38 @@ struct NavigationCoordinatorPendingLinkTests {
     #expect(coordinator.selectedSetting?.requiresDevice == false)
     coordinator.clearPerDeviceSelection()
     #expect(coordinator.selectedSetting == .language)
+  }
+
+  @Test
+  func `navigateToContactDetail bumps nodes generation without requiring a new identity`() {
+    let coordinator = NavigationCoordinator()
+    let contact = Self.makeContact()
+    coordinator.navigateToContactDetail(contact)
+    let generation = coordinator.nodesRootNavigationGeneration
+    coordinator.navigateToContactDetail(contact)
+    #expect(coordinator.selectedContact?.id == contact.id)
+    #expect(coordinator.nodesRootNavigationGeneration == generation + 1)
+  }
+
+  @Test
+  func `navigateToDiscovery bumps nodes generation and clears the contact`() {
+    let coordinator = NavigationCoordinator()
+    coordinator.navigateToContactDetail(Self.makeContact())
+    let generation = coordinator.nodesRootNavigationGeneration
+    coordinator.navigateToDiscovery()
+    #expect(coordinator.selectedContact == nil)
+    #expect(coordinator.nodesShowingDiscovery == true)
+    #expect(coordinator.nodesRootNavigationGeneration == generation + 1)
+  }
+
+  @Test
+  func `clearSelectedContact only drops the matching root`() {
+    let coordinator = NavigationCoordinator()
+    let contact = Self.makeContact()
+    coordinator.selectedContact = contact
+    coordinator.clearSelectedContact(matching: UUID())
+    #expect(coordinator.selectedContact?.id == contact.id)
+    coordinator.clearSelectedContact(matching: contact.id)
+    #expect(coordinator.selectedContact == nil)
   }
 }

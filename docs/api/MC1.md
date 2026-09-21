@@ -217,6 +217,8 @@ Manages state and calculations for RF line of sight analysis, including optional
 
 | Method | Description |
 |--------|-------------|
+| `configure(dataStore:radioID:deviceFrequencyKHz:)` | Rebinds live store/radio providers; device frequency is a one-shot seed |
+| `applyInitialRepeaterCameraFitIfNeeded()` | Fits repeater camera once; skips if the user already moved the camera |
 | `analyze()` | Fetches elevation and performs the A-to-B clearance analysis |
 | `analyzeWithRepeater()` | Performs two-segment relay analysis via the repeater |
 | `loadRepeaters() async` | Loads repeater contacts with locations |
@@ -422,7 +424,7 @@ The main entry point. Initializes `AppState` with a SwiftData `ModelContainer` a
 
 **File:** `MC1/ContentView.swift`
 
-Root view that switches between `OnboardingView()` and the connected UI based on `appState.onboarding.hasCompletedOnboarding`. The connected UI is `MainSidebarView()` on a regular horizontal size class (iPad) and `MainTabView()` on compact. Manages the overall app navigation structure and coordinates with `AppState` for navigation events.
+Root view that switches between `OnboardingView()` and `MainTabView()` based on `appState.onboarding.hasCompletedOnboarding`. Connection alerts, pairing sheets, and What's New stay on this host.
 
 ---
 
