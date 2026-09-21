@@ -932,8 +932,8 @@
 /* Location: PathDistanceBanner.swift - Title for path distance popover */
 "chats.path.distance.incompleteTitle" = "Path Distance";
 
-/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
-"chats.path.distance.incompleteExplanation" = "Distance only uses hops that could be placed on the map. Hops that are unknown, have no location, or match more than one node are skipped, so distance can be shorter than the real path or not shown.";
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Distance may be inaccurate. Hops that are unknown, have no location, or match more than one node are not included in the calculation.";
 
 // MARK: - Path Hop Row View
 

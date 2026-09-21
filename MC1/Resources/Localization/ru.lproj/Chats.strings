@@ -832,8 +832,8 @@
 /* Location: PathDistanceBanner.swift - Title for path distance popover */
 "chats.path.distance.incompleteTitle" = "Расстояние Пути";
 
-/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
-"chats.path.distance.incompleteExplanation" = "Расстояние учитывает только переходы, которые удалось разместить на карте. Переходы, которые неизвестны, не имеют местоположения или совпадают более чем с одним узлом, пропускаются, поэтому расстояние может быть короче реального пути или не отображаться.";
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Расстояние может быть неточным. Переходы, которые неизвестны, не имеют местоположения или совпадают более чем с одним узлом, не включаются в расчёт.";
 
 // MARK: - Path Hop Row View
 

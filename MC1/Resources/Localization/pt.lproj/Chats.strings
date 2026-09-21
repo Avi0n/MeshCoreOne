@@ -932,8 +932,8 @@
 /* Location: PathDistanceBanner.swift - Title for path distance popover */
 "chats.path.distance.incompleteTitle" = "Distância da rota";
 
-/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
-"chats.path.distance.incompleteExplanation" = "A distância usa apenas os saltos que foi possível colocar no mapa. Os saltos desconhecidos, sem localização ou que correspondem a mais do que um nó são ignorados, por isso a distância pode ser mais curta do que a da rota real ou não ser mostrada.";
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "A distância pode ser imprecisa. Os saltos desconhecidos, sem localização ou que correspondem a mais do que um nó não são incluídos no cálculo.";
 
 // MARK: - Path Hop Row View
 

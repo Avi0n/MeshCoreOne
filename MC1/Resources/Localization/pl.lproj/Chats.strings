@@ -833,8 +833,8 @@
 /* Location: PathDistanceBanner.swift - Title for path distance popover */
 "chats.path.distance.incompleteTitle" = "Odległość Trasy";
 
-/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
-"chats.path.distance.incompleteExplanation" = "Odległość uwzględnia tylko skoki, które udało się umieścić na mapie. Skoki, które są nieznane, nie mają lokalizacji lub pasują do więcej niż jednego węzła, są pomijane, więc odległość może być krótsza niż rzeczywista trasa albo nie zostać wyświetlona.";
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Odległość może być niedokładna. Skoki, które są nieznane, nie mają lokalizacji lub pasują do więcej niż jednego węzła, nie są uwzględniane w obliczeniach.";
 
 // MARK: - Path Hop Row View
 

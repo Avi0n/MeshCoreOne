@@ -837,8 +837,8 @@
 /* Location: PathDistanceBanner.swift - Title for path distance popover */
 "chats.path.distance.incompleteTitle" = "Pfadentfernung";
 
-/* Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops */
-"chats.path.distance.incompleteExplanation" = "Die Entfernung nutzt nur Sprünge, die auf der Karte platziert werden konnten. Sprünge, die unbekannt sind, keinen Standort haben oder zu mehr als einem Knoten passen, werden übersprungen, sodass die Entfernung kürzer als der tatsächliche Pfad sein oder nicht angezeigt werden kann.";
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Die Entfernung kann ungenau sein. Sprünge, die unbekannt sind, keinen Standort haben oder zu mehr als einem Knoten passen, werden in der Berechnung nicht berücksichtigt.";
 
 // MARK: - Path Hop Row View
 

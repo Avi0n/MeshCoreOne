@@ -882,8 +882,8 @@ public enum L10n {
         public enum Distance {
           /// Location: PathDistanceBanner.swift - VoiceOver label for path distance help
           public static let incomplete = L10n.tr("Chats", "chats.path.distance.incomplete", fallback: "Path distance")
-          /// Location: PathDistanceBanner.swift - Explanation that distance uses only placed hops
-          public static let incompleteExplanation = L10n.tr("Chats", "chats.path.distance.incompleteExplanation", fallback: "Distance only uses hops that could be placed on the map. Hops that are unknown, have no location, or match more than one node are skipped, so distance can be shorter than the real path or not shown.")
+          /// Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect
+          public static let incompleteExplanation = L10n.tr("Chats", "chats.path.distance.incompleteExplanation", fallback: "Distance may be inaccurate. Hops that are unknown, have no location, or match more than one node are not included in the calculation.")
           /// Location: PathDistanceBanner.swift - Title for path distance popover
           public static let incompleteTitle = L10n.tr("Chats", "chats.path.distance.incompleteTitle", fallback: "Path Distance")
         }
