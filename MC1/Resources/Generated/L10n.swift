@@ -6396,23 +6396,23 @@ public enum L10n {
       public static let fullReleaseNotes = L10n.tr("WhatsNew", "whatsNew.fullReleaseNotes", fallback: "See all new changes")
       /// Title of the What's New sheet shown once after an app update
       public static let title = L10n.tr("WhatsNew", "whatsNew.title", fallback: "What's New")
-      public enum FailedSends {
-        /// What's New v1.4 - Failed-send badges on the Chats list, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.failedSends.description", fallback: "The Chats list marks a conversation when a message fails to send.")
-        /// What's New v1.4 - Failed-send badges on the Chats list, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.failedSends.title", fallback: "Failed sends in Chats")
+      public enum FasterChatLoading {
+        /// What's New v1.5 - Faster chat loading, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.fasterChatLoading.description", fallback: "Opening a chat is up to 90%% faster.")
+        /// What's New v1.5 - Faster chat loading, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.fasterChatLoading.title", fallback: "Faster chat loading")
       }
-      public enum MessageTranslation {
-        /// What's New v1.4 - Incoming message translation feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.messageTranslation.description", fallback: "Translate incoming messages into your device's language. On iOS 26.4+, Apple Intelligence is used first, then Translate language packs.")
-        /// What's New v1.4 - Incoming message translation feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.messageTranslation.title", fallback: "Incoming message translation")
+      public enum PathDetails {
+        /// What's New v1.5 - Path Details feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.pathDetails.description", fallback: "Path Map has moved into Path Details, which lists every extra incoming path. And Repeat Details on sent messages lists every repeat path your radio heard.")
+        /// What's New v1.5 - Path Details feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.pathDetails.title", fallback: "Path Details")
       }
-      public enum SenderAvatars {
-        /// What's New v1.4 - Sender avatars in channels and rooms, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.senderAvatars.description", fallback: "Incoming messages in channels and rooms show the sender's avatar.")
-        /// What's New v1.4 - Sender avatars in channels and rooms, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.senderAvatars.title", fallback: "Channel & room avatars")
+      public enum WhoReacted {
+        /// What's New v1.5 - Tap a reaction to see who added it, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.whoReacted.description", fallback: "Tap a reaction on a message to see who added it, instead of sending the reaction.")
+        /// What's New v1.5 - Tap a reaction to see who added it, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.whoReacted.title", fallback: "Who reacted")
       }
     }
   }

@@ -16,17 +16,17 @@
 /* Link on the What's New sheet to the full GitHub release notes */
 "whatsNew.fullReleaseNotes" = "See all new changes";
 
-/* What's New v1.4 - Incoming message translation feature, title */
-"whatsNew.messageTranslation.title" = "Incoming message translation";
-/* What's New v1.4 - Incoming message translation feature, description */
-"whatsNew.messageTranslation.description" = "Translate incoming messages into your device's language. On iOS 26.4+, Apple Intelligence is used first, then Translate language packs.";
+/* What's New v1.5 - Path Details feature, title */
+"whatsNew.pathDetails.title" = "Path Details";
+/* What's New v1.5 - Path Details feature, description */
+"whatsNew.pathDetails.description" = "Path Map has moved into Path Details, which lists every extra incoming path. And Repeat Details on sent messages lists every repeat path your radio heard.";
 
-/* What's New v1.4 - Sender avatars in channels and rooms, title */
-"whatsNew.senderAvatars.title" = "Channel & room avatars";
-/* What's New v1.4 - Sender avatars in channels and rooms, description */
-"whatsNew.senderAvatars.description" = "Incoming messages in channels and rooms show the sender's avatar.";
+/* What's New v1.5 - Tap a reaction to see who added it, title */
+"whatsNew.whoReacted.title" = "Who reacted";
+/* What's New v1.5 - Tap a reaction to see who added it, description */
+"whatsNew.whoReacted.description" = "Tap a reaction on a message to see who added it, instead of sending the reaction.";
 
-/* What's New v1.4 - Failed-send badges on the Chats list, title */
-"whatsNew.failedSends.title" = "Failed sends in Chats";
-/* What's New v1.4 - Failed-send badges on the Chats list, description */
-"whatsNew.failedSends.description" = "The Chats list marks a conversation when a message fails to send.";
+/* What's New v1.5 - Faster chat loading, title */
+"whatsNew.fasterChatLoading.title" = "Faster chat loading";
+/* What's New v1.5 - Faster chat loading, description */
+"whatsNew.fasterChatLoading.description" = "Opening a chat is up to 90%% faster.";

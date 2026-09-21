@@ -16,17 +16,17 @@
 /* Link on the What's New sheet to the full GitHub release notes */
 "whatsNew.fullReleaseNotes" = "Переглянути всі нові зміни";
 
-/* What's New v1.4 - Incoming message translation feature, title */
-"whatsNew.messageTranslation.title" = "Переклад вхідних повідомлень";
-/* What's New v1.4 - Incoming message translation feature, description */
-"whatsNew.messageTranslation.description" = "Перекладайте вхідні повідомлення мовою пристрою. У iOS 26.4 і новіших спочатку використовується Apple Intelligence, потім мовні пакети «Перекладач».";
+/* What's New v1.5 - Path Details feature, title */
+"whatsNew.pathDetails.title" = "Деталі шляху";
+/* What's New v1.5 - Path Details feature, description */
+"whatsNew.pathDetails.description" = "«Карту шляху» перенесено до «Деталей шляху», де перелічено кожен додатковий вхідний шлях. А «Деталі повторів» на надісланих повідомленнях показують кожен шлях повтору, який почуло ваше радіо.";
 
-/* What's New v1.4 - Sender avatars in channels and rooms, title */
-"whatsNew.senderAvatars.title" = "Аватари в каналах і кімнатах";
-/* What's New v1.4 - Sender avatars in channels and rooms, description */
-"whatsNew.senderAvatars.description" = "Вхідні повідомлення в каналах і кімнатах показують аватар відправника.";
+/* What's New v1.5 - Tap a reaction to see who added it, title */
+"whatsNew.whoReacted.title" = "Хто відреагував";
+/* What's New v1.5 - Tap a reaction to see who added it, description */
+"whatsNew.whoReacted.description" = "Натисніть реакцію на повідомленні, щоб побачити, хто її додав, замість того щоб надіслати реакцію.";
 
-/* What's New v1.4 - Failed-send badges on the Chats list, title */
-"whatsNew.failedSends.title" = "Помилки надсилання в Чатах";
-/* What's New v1.4 - Failed-send badges on the Chats list, description */
-"whatsNew.failedSends.description" = "Список Чатів позначає розмову, якщо надсилання повідомлення не вдається.";
+/* What's New v1.5 - Faster chat loading, title */
+"whatsNew.fasterChatLoading.title" = "Швидше завантаження чатів";
+/* What's New v1.5 - Faster chat loading, description */
+"whatsNew.fasterChatLoading.description" = "Відкриття чату тепер до 90%% швидше.";

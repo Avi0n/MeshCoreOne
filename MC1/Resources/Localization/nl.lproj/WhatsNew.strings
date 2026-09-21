@@ -16,17 +16,17 @@
 /* Link on the What's New sheet to the full GitHub release notes */
 "whatsNew.fullReleaseNotes" = "Bekijk alle nieuwe wijzigingen";
 
-/* What's New v1.4 - Incoming message translation feature, title */
-"whatsNew.messageTranslation.title" = "Vertaling van inkomende berichten";
-/* What's New v1.4 - Incoming message translation feature, description */
-"whatsNew.messageTranslation.description" = "Vertaal inkomende berichten naar de taal van je apparaat. Op iOS 26.4+ wordt eerst Apple Intelligence gebruikt, daarna de taalpakketten van Vertalen.";
+/* What's New v1.5 - Path Details feature, title */
+"whatsNew.pathDetails.title" = "Padgegevens";
+/* What's New v1.5 - Path Details feature, description */
+"whatsNew.pathDetails.description" = "Padkaart zit nu in Padgegevens, waar elk extra inkomend pad wordt weergegeven. Herhalingsdetails bij verzonden berichten toont elk herhalingspad dat je radio heeft gehoord.";
 
-/* What's New v1.4 - Sender avatars in channels and rooms, title */
-"whatsNew.senderAvatars.title" = "Avatars in kanalen en kamers";
-/* What's New v1.4 - Sender avatars in channels and rooms, description */
-"whatsNew.senderAvatars.description" = "Inkomende berichten in kanalen en kamers tonen de avatar van de afzender.";
+/* What's New v1.5 - Tap a reaction to see who added it, title */
+"whatsNew.whoReacted.title" = "Wie heeft gereageerd";
+/* What's New v1.5 - Tap a reaction to see who added it, description */
+"whatsNew.whoReacted.description" = "Tik op een reactie bij een bericht om te zien wie die heeft toegevoegd, in plaats van de reactie te verzenden.";
 
-/* What's New v1.4 - Failed-send badges on the Chats list, title */
-"whatsNew.failedSends.title" = "Mislukte verzendingen in Chats";
-/* What's New v1.4 - Failed-send badges on the Chats list, description */
-"whatsNew.failedSends.description" = "De Chatlijst markeert een gesprek als het verzenden van een bericht mislukt.";
+/* What's New v1.5 - Faster chat loading, title */
+"whatsNew.fasterChatLoading.title" = "Sneller laden van chats";
+/* What's New v1.5 - Faster chat loading, description */
+"whatsNew.fasterChatLoading.description" = "Een chat openen is tot 90%% sneller.";

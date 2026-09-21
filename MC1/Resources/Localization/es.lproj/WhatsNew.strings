@@ -16,17 +16,17 @@
 /* Link on the What's New sheet to the full GitHub release notes */
 "whatsNew.fullReleaseNotes" = "Ver todos los cambios nuevos";
 
-/* What's New v1.4 - Incoming message translation feature, title */
-"whatsNew.messageTranslation.title" = "Traducción de mensajes recibidos";
-/* What's New v1.4 - Incoming message translation feature, description */
-"whatsNew.messageTranslation.description" = "Traduce los mensajes recibidos al idioma del dispositivo. En iOS 26.4 o posterior, se usa primero Apple Intelligence y después los paquetes de idioma de Traducir.";
+/* What's New v1.5 - Path Details feature, title */
+"whatsNew.pathDetails.title" = "Detalles de ruta";
+/* What's New v1.5 - Path Details feature, description */
+"whatsNew.pathDetails.description" = "El mapa de ruta ahora está en Detalles de ruta, que lista todas las rutas extra de entrada. En los mensajes enviados, Detalles de repetición lista todas las rutas de repetición que escuchó tu radio.";
 
-/* What's New v1.4 - Sender avatars in channels and rooms, title */
-"whatsNew.senderAvatars.title" = "Avatares en canales y salas";
-/* What's New v1.4 - Sender avatars in channels and rooms, description */
-"whatsNew.senderAvatars.description" = "Los mensajes recibidos en canales y salas muestran el avatar del remitente.";
+/* What's New v1.5 - Tap a reaction to see who added it, title */
+"whatsNew.whoReacted.title" = "Quién reaccionó";
+/* What's New v1.5 - Tap a reaction to see who added it, description */
+"whatsNew.whoReacted.description" = "Toca una reacción en un mensaje para ver quién la añadió, en lugar de enviar la reacción.";
 
-/* What's New v1.4 - Failed-send badges on the Chats list, title */
-"whatsNew.failedSends.title" = "Envíos fallidos en Chats";
-/* What's New v1.4 - Failed-send badges on the Chats list, description */
-"whatsNew.failedSends.description" = "La lista de Chats marca una conversación cuando un mensaje no se envía.";
+/* What's New v1.5 - Faster chat loading, title */
+"whatsNew.fasterChatLoading.title" = "Carga de chats más rápida";
+/* What's New v1.5 - Faster chat loading, description */
+"whatsNew.fasterChatLoading.description" = "Abrir un chat es hasta un 90%% más rápido.";
