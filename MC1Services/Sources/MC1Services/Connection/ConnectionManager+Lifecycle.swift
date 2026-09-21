@@ -451,37 +451,9 @@ public extension ConnectionManager {
       }
     }
 
-    // Owned leftover GATT. Settings forget clears last-connected; ASK membership
-    // or in-flight pair still identifies the link as ours.
-    let ownedLink = isOwnedSystemConnectedLink(deviceID)
-    if ownedLink {
-      connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
-      persistIntent()
-
-      if await startAdoptingLastSystemConnectedPeripheralIfAvailable(
-        deviceID: deviceID,
-        context: "connect(to:)",
-        requireLastConnected: false
-      ) {
-        if isPairingInProgress {
-          do {
-            try await waitForPairingAdoptionToSettle()
-          } catch {
-            if connectingDeviceID == deviceID { connectingDeviceID = nil }
-            throw error
-          }
-        }
-        if connectingDeviceID == deviceID { connectingDeviceID = nil }
-        return
-      }
-      guard connectingDeviceID == deviceID else { throw CancellationError() }
+    if try await adoptOrRejectSystemConnectedLink(deviceID: deviceID, forceFullSync: forceFullSync) {
+      return
     }
-
-    if await isDeviceConnectedToOtherApp(deviceID), !ownedLink {
-      if connectingDeviceID == deviceID { connectingDeviceID = nil }
-      throw BLEError.deviceConnectedToOtherApp
-    }
-    guard connectingDeviceID == deviceID else { throw CancellationError() }
 
     // Clear intentional disconnect flag before changing state,
     // so the didSet invariant check sees consistent state
@@ -534,6 +506,44 @@ public extension ConnectionManager {
       throw error
     }
     connectingDeviceID = nil
+  }
+
+  /// Adopts leftover GATT this app owns, or throws if another app holds the link.
+  /// Settings forget clears last-connected; ASK membership or an in-flight pair still marks it ours.
+  private func adoptOrRejectSystemConnectedLink(
+    deviceID: UUID,
+    forceFullSync: Bool
+  ) async throws -> Bool {
+    let ownedLink = isOwnedSystemConnectedLink(deviceID)
+    if ownedLink {
+      connectionIntent = .wantsConnection(forceFullSync: forceFullSync)
+      persistIntent()
+
+      if await startAdoptingLastSystemConnectedPeripheralIfAvailable(
+        deviceID: deviceID,
+        context: "connect(to:)",
+        requireLastConnected: false
+      ) {
+        if isPairingInProgress {
+          do {
+            try await waitForPairingAdoptionToSettle()
+          } catch {
+            if connectingDeviceID == deviceID { connectingDeviceID = nil }
+            throw error
+          }
+        }
+        if connectingDeviceID == deviceID { connectingDeviceID = nil }
+        return true
+      }
+      guard connectingDeviceID == deviceID else { throw CancellationError() }
+    }
+
+    if await isDeviceConnectedToOtherApp(deviceID), !ownedLink {
+      if connectingDeviceID == deviceID { connectingDeviceID = nil }
+      throw BLEError.deviceConnectedToOtherApp
+    }
+    guard connectingDeviceID == deviceID else { throw CancellationError() }
+    return false
   }
 
   /// Break-glass teardown for a user-initiated (`forceReconnect`) connect that found
