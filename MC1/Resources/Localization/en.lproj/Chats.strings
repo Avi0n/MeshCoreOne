@@ -630,6 +630,15 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
 "chats.message.action.viewPath" = "View Path";
 
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Path Details";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "Heard 1 Time";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "Heard %d Times";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Hops: %@";
 
@@ -793,19 +802,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for reaction badge */
-"reactions.badge_hint" = "Double tap to add your reaction, long press for details";
+"reactions.badge_hint" = "Shows who reacted";
 
 /* Location: ReactionBadgesView.swift - Accessibility label for overflow badge - %d is count */
 "reactions.more_badge" = "%d more reaction types";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for overflow badge */
-"reactions.more_badge_hint" = "Double tap to see all reactions";
+"reactions.more_badge_hint" = "Shows all reactions";
 
 /* Location: EmojiPickerRow.swift - Label for more emojis button */
 "reactions.more_emojis" = "More emojis";
-
-/* Location: ReactionBadgesView.swift - VoiceOver accessibility action to view reaction details */
-"reactions.view_details" = "View reaction details";
 
 /* Location: ReactionDetailsSheet.swift - Navigation title */
 /* Location: ChatViewModel.swift - Error message when reaction fails to send */
@@ -883,6 +889,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Path data is not available for this message";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Can't Place Path";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Hops that are unknown, have no location, or match more than one node aren't placed on the map.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Copy Path";
 
@@ -896,8 +908,32 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Path Map";
 
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "First";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ after the first arrival";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "View path on map";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Couldn't load extra paths.";
+
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Center on path";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Path distance";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Path Distance";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Distance may be inaccurate. Hops that are unknown, have no location, or match more than one node are not included in the calculation.";
 
 // MARK: - Path Hop Row View
 

@@ -24,6 +24,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var showIncomingPath: Bool?
   public var showIncomingHopCount: Bool?
   public var showIncomingRegion: Bool?
+  public var showIncomingHeardCount: Bool?
   public var showIncomingSendTime: Bool?
   public var autoDeleteStaleNodesDays: Int?
   public var discoverySortOrder: String?
@@ -38,6 +39,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
   public var hasSeenRepeaterDragHint: Bool?
   public var translationTargetLanguage: String?
   public var useDefaultTranslationApp: Bool?
+  public var translationOffersEnabled: Bool?
   public var regionSelection: RegionSelection?
 
   // MARK: - Notification preferences
@@ -117,6 +119,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.showIncomingPath, AppStorageKey.showIncomingPath.rawValue),
     (\.showIncomingHopCount, AppStorageKey.showIncomingHopCount.rawValue),
     (\.showIncomingRegion, AppStorageKey.showIncomingRegion.rawValue),
+    (\.showIncomingHeardCount, AppStorageKey.showIncomingHeardCount.rawValue),
     (\.showIncomingSendTime, AppStorageKey.showIncomingSendTime.rawValue),
     (\.linkPreviewsEnabled, AppStorageKey.linkPreviewsEnabled.rawValue),
     (\.linkPreviewsAutoResolveDM, AppStorageKey.linkPreviewsAutoResolveDM.rawValue),
@@ -124,6 +127,7 @@ public struct BackupUserDefaults: Codable, Sendable, Equatable {
     (\.showMapPreviewThumbnails, AppStorageKey.showMapPreviewThumbnails.rawValue),
     (\.hasSeenRepeaterDragHint, AppStorageKey.hasSeenRepeaterDragHint.rawValue),
     (\.useDefaultTranslationApp, AppStorageKey.useDefaultTranslationApp.rawValue),
+    (\.translationOffersEnabled, AppStorageKey.translationOffersEnabled.rawValue),
     (\.notifyContactMessages, AppStorageKey.notifyContactMessages.rawValue),
     (\.notifyChannelMessages, AppStorageKey.notifyChannelMessages.rawValue),
     (\.notifyRoomMessages, AppStorageKey.notifyRoomMessages.rawValue),

@@ -682,6 +682,75 @@ struct PersistenceStoreTests {
   // MARK: - Message Tests
 
   @Test
+  func `fetchMessage by dedup key returns the row for the same radio`() async throws {
+    let store = try await createTestStore()
+    let radioID = UUID()
+    let otherRadioID = UUID()
+    let key = "ch-0-1-Alice-ABCD"
+    var message = MessageDTO.testChannelMessage(
+      radioID: radioID,
+      channelIndex: 0,
+      text: "hello",
+      direction: .incoming,
+      senderNodeName: "Alice"
+    )
+    message.deduplicationKey = key
+    try await store.saveMessage(message)
+
+    let found = try await store.fetchMessage(deduplicationKey: key, radioID: radioID)
+    #expect(found?.id == message.id)
+
+    let otherRadio = try await store.fetchMessage(deduplicationKey: key, radioID: otherRadioID)
+    #expect(otherRadio == nil)
+  }
+
+  @Test
+  func `adoptIncomingPathIfUnknown writes the first path onto a nil column`() async throws {
+    let store = try await createTestStore()
+    var message = MessageDTO.testChannelMessage(
+      radioID: UUID(),
+      channelIndex: 0,
+      text: "unknown path",
+      direction: .incoming,
+      snr: 7.5
+    )
+    message.pathNodes = nil
+    try await store.saveMessage(message)
+
+    let adopted = Data([0xAA])
+    let first = try await store.adoptIncomingPathIfUnknown(
+      id: message.id,
+      pathNodes: adopted,
+      pathLength: 1
+    )
+    #expect(first == true)
+
+    let second = try await store.adoptIncomingPathIfUnknown(
+      id: message.id,
+      pathNodes: Data([0xBB]),
+      pathLength: 2
+    )
+    #expect(second == false)
+
+    let fetched = try await store.fetchMessage(id: message.id)
+    #expect(fetched?.pathNodes == adopted)
+    #expect(fetched?.pathLength == 1)
+    #expect(fetched?.heardRepeats == 0)
+    #expect(fetched?.snr == 7.5)
+  }
+
+  @Test
+  func `adoptIncomingPathIfUnknown returns false when the row is missing`() async throws {
+    let store = try await createTestStore()
+    let result = try await store.adoptIncomingPathIfUnknown(
+      id: UUID(),
+      pathNodes: Data([0xAA]),
+      pathLength: 1
+    )
+    #expect(result == false)
+  }
+
+  @Test
   func `Save and fetch messages for contact`() async throws {
     let store = try await createTestStore()
     let device = createTestDevice()
@@ -2434,7 +2503,9 @@ struct PersistenceStoreTests {
     transportCode: Data? = nil,
     channelIndex: UInt8? = 1,
     packetPayload: Data = Data([0xAB, 0xCD, 0xEF]),
-    receivedAt: Date = Date()
+    receivedAt: Date = Date(),
+    pathNodes: [UInt8] = [0x42],
+    pathLength: UInt8 = 1
   ) -> RxLogEntryDTO {
     // Create minimal ParsedRxLogData for the DTO
     let parsed = ParsedRxLogData(
@@ -2446,8 +2517,8 @@ struct PersistenceStoreTests {
       payloadVersion: 0,
       payloadTypeBits: payloadTypeBits,
       transportCode: transportCode,
-      pathLength: 1,
-      pathNodes: [0x42],
+      pathLength: pathLength,
+      pathNodes: pathNodes,
       packetPayload: packetPayload
     )
 
@@ -2647,6 +2718,54 @@ struct PersistenceStoreTests {
     let entries = try await store.fetchRxLogEntries(radioID: device.id, limit: 40)
     #expect(entries.count == RxLogRetention.batchSize)
     #expect(await store.rxLogInitiatedSaveCount == 1)
+  }
+
+  @Test
+  func `fetchRxLogEntries returns every matching channel row in receivedAt order`() async throws {
+    let store = try await createTestStore()
+    let device = createTestDevice()
+    try await store.saveDevice(device)
+
+    let earlier = Date(timeIntervalSince1970: 1_700_000_000)
+    let later = earlier.addingTimeInterval(2)
+    let pathA: [UInt8] = [0xAA]
+    let pathB: [UInt8] = [0xBB]
+    try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 42,
+      channelIndex: 1,
+      receivedAt: later,
+      pathNodes: pathB
+    ))
+    try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 42,
+      channelIndex: 1,
+      receivedAt: earlier,
+      pathNodes: pathA
+    ))
+    try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 42,
+      channelIndex: 2,
+      receivedAt: earlier,
+      pathNodes: [0xCC]
+    ))
+    try await store.saveRxLogEntry(createTestRxLogEntryDTO(
+      radioID: device.id,
+      senderTimestamp: 43,
+      channelIndex: 1,
+      receivedAt: earlier,
+      pathNodes: [0xDD]
+    ))
+
+    let matches = try await store.fetchRxLogEntries(
+      radioID: device.id,
+      channelIndex: 1,
+      senderTimestamp: 42
+    )
+    #expect(matches.count == 2)
+    #expect(matches.map(\.pathNodes) == [Data(pathA), Data(pathB)])
   }
 
   @Test

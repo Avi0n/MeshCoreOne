@@ -293,6 +293,7 @@ struct AppBackupEnvelopeTests {
     prefs.notifyContactMessages = false
     prefs.linkPreviewsEnabled = true
     prefs.showIncomingRegion = true
+    prefs.showIncomingHeardCount = true
     prefs.showIncomingSendTime = true
     prefs.showInlineImages = false
 
@@ -301,6 +302,7 @@ struct AppBackupEnvelopeTests {
 
     #expect(decoded == prefs)
     #expect(decoded.showIncomingRegion == true)
+    #expect(decoded.showIncomingHeardCount == true)
     #expect(decoded.showIncomingSendTime == true)
     #expect(decoded.showInlineImages == false)
   }
@@ -320,6 +322,24 @@ struct AppBackupEnvelopeTests {
     defer { defaults.removePersistentDomain(forName: suiteName) }
 
     let key = AppStorageKey.showIncomingSendTime.rawValue
+    let setKeys = decoded.restore(to: defaults)
+    #expect(!setKeys.contains(key))
+    #expect(defaults.object(forKey: key) == nil)
+  }
+
+  @Test
+  func `Legacy envelope without showIncomingHeardCount decodes to nil and restore skips it`() throws {
+    let legacyJSON = "{\"hasCompletedOnboarding\":true}"
+    let data = Data(legacyJSON.utf8)
+
+    let decoded = try JSONDecoder().decode(BackupUserDefaults.self, from: data)
+    #expect(decoded.showIncomingHeardCount == nil)
+
+    let suiteName = "test.showIncomingHeardCount.\(UUID().uuidString)"
+    let defaults = try #require(UserDefaults(suiteName: suiteName))
+    defer { defaults.removePersistentDomain(forName: suiteName) }
+
+    let key = AppStorageKey.showIncomingHeardCount.rawValue
     let setKeys = decoded.restore(to: defaults)
     #expect(!setKeys.contains(key))
     #expect(defaults.object(forKey: key) == nil)

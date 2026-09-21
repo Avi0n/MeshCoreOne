@@ -16,17 +16,17 @@
 /* Link on the What's New sheet to the full GitHub release notes */
 "whatsNew.fullReleaseNotes" = "查看全部新变化";
 
-/* What's New v1.4 - Incoming message translation feature, title */
-"whatsNew.messageTranslation.title" = "收到消息翻译";
-/* What's New v1.4 - Incoming message translation feature, description */
-"whatsNew.messageTranslation.description" = "可将收到的消息翻译成设备语言。iOS 26.4 及以上会先使用 Apple Intelligence，再使用“翻译”语言包。";
+/* What's New v1.5 - Path Details feature, title */
+"whatsNew.pathDetails.title" = "链路详情";
+/* What's New v1.5 - Path Details feature, description */
+"whatsNew.pathDetails.description" = "路径地图已移入链路详情，其中会列出每条额外入站链路。已发送消息上的转发详情会列出电台听到的每条转发路径。";
 
-/* What's New v1.4 - Sender avatars in channels and rooms, title */
-"whatsNew.senderAvatars.title" = "频道和房间头像";
-/* What's New v1.4 - Sender avatars in channels and rooms, description */
-"whatsNew.senderAvatars.description" = "频道和房间中的收到消息会显示发送者头像。";
+/* What's New v1.5 - Tap a reaction to see who added it, title */
+"whatsNew.whoReacted.title" = "谁做出了反应";
+/* What's New v1.5 - Tap a reaction to see who added it, description */
+"whatsNew.whoReacted.description" = "点击消息上的反应会显示是谁添加的，而不是发送该反应。";
 
-/* What's New v1.4 - Failed-send badges on the Chats list, title */
-"whatsNew.failedSends.title" = "聊天列表发送失败";
-/* What's New v1.4 - Failed-send badges on the Chats list, description */
-"whatsNew.failedSends.description" = "消息发送失败时，聊天列表会标记该对话。";
+/* What's New v1.5 - Faster chat loading, title */
+"whatsNew.fasterChatLoading.title" = "聊天加载更快";
+/* What's New v1.5 - Faster chat loading, description */
+"whatsNew.fasterChatLoading.description" = "打开聊天速度最高可提升 90%%。";

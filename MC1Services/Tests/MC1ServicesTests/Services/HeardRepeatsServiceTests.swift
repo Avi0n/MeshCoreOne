@@ -65,6 +65,13 @@ struct HeardRepeatsServiceTests {
     #expect(result?.senderName == "Node With Spaces")
   }
 
+  @Test
+  func `parse trims leading and trailing whitespace from sender`() {
+    let result = ChannelMessageFormat.parse("Alice : hello")
+    #expect(result?.senderName == "Alice")
+    #expect(result?.messageText == "hello")
+  }
+
   // MARK: - processForRepeats Matching Tests
 
   private static let testNodeName = "TestNode"
@@ -84,7 +91,10 @@ struct HeardRepeatsServiceTests {
     senderTimestamp: UInt32,
     body: String,
     senderName: String = testNodeName,
-    id: UUID = UUID()
+    id: UUID = UUID(),
+    pathNodes: [UInt8] = [0x42],
+    pathLength: UInt8 = 1,
+    receivedAt: Date = Date()
   ) -> RxLogEntryDTO {
     let parsed = ParsedRxLogData(
       snr: 8.0,
@@ -95,13 +105,14 @@ struct HeardRepeatsServiceTests {
       payloadVersion: 0,
       payloadTypeBits: 5,
       transportCode: nil,
-      pathLength: 1,
-      pathNodes: [0x42],
+      pathLength: pathLength,
+      pathNodes: pathNodes,
       packetPayload: Data([0x01, 0x02, 0x03])
     )
     return RxLogEntryDTO(
       id: id,
       radioID: radioID,
+      receivedAt: receivedAt,
       from: parsed,
       channelIndex: channelIndex,
       channelName: "Test",
@@ -109,6 +120,42 @@ struct HeardRepeatsServiceTests {
       senderTimestamp: senderTimestamp,
       decodedText: "\(senderName): \(body)"
     )
+  }
+
+  private func incomingChannelMessage(
+    id: UUID = UUID(),
+    radioID: UUID,
+    channelIndex: UInt8,
+    text: String,
+    senderName: String,
+    wireTimestamp: UInt32,
+    pathNodes: Data?,
+    pathLength: UInt8,
+    timestampCorrected: Bool = false,
+    receiveTime: Date = Date()
+  ) -> MessageDTO {
+    var message = MessageDTO.testChannelMessage(
+      id: id,
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: text,
+      timestamp: timestampCorrected ? UInt32(receiveTime.timeIntervalSince1970) : wireTimestamp,
+      createdAt: receiveTime,
+      direction: .incoming,
+      pathLength: pathLength,
+      senderNodeName: senderName
+    )
+    message.pathNodes = pathNodes
+    message.timestampCorrected = timestampCorrected
+    message.senderTimestamp = timestampCorrected ? wireTimestamp : nil
+    message.deduplicationKey = DeduplicationKey.contentBased(
+      contactID: nil,
+      channelIndex: channelIndex,
+      senderNodeName: senderName,
+      timestamp: wireTimestamp,
+      content: text
+    )
+    return message
   }
 
   @Test
@@ -260,5 +307,356 @@ struct HeardRepeatsServiceTests {
     #expect(lastCount == 3)
     let repeats = try await store.fetchMessageRepeats(messageID: messageID)
     #expect(repeats.count == 3)
+  }
+
+  // MARK: - Incoming extra paths
+
+  @Test
+  func `incoming channel RX with a different path inserts a repeat`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let wireTimestamp: UInt32 = 1_704_067_200
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "flood copy",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: Data([0xAA]),
+      pathLength: 1
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let extra = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "flood copy",
+      pathNodes: [0xBB]
+    )
+    let count = await service.processForRepeats(extra)
+
+    #expect(count == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.count == 1)
+    #expect(repeats.first?.pathNodes == Data([0xBB]))
+    let updated = try await store.fetchMessage(id: message.id)
+    #expect(updated?.heardRepeats == 1)
+  }
+
+  @Test
+  func `incoming RX whose path equals message pathNodes inserts nothing`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let wireTimestamp: UInt32 = 1_704_067_201
+    let canonical = Data([0xAA])
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "same path",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: canonical,
+      pathLength: 1
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let echo = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "same path",
+      pathNodes: [0xAA]
+    )
+    #expect(await service.processForRepeats(echo) == nil)
+    #expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty)
+    #expect(try await store.fetchMessage(id: message.id)?.heardRepeats == 0)
+  }
+
+  @Test
+  func `second incoming RX with the same extra path inserts nothing`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let wireTimestamp: UInt32 = 1_704_067_202
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "collapse",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: Data([0xAA]),
+      pathLength: 1
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let first = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "collapse",
+      pathNodes: [0xBB]
+    )
+    let second = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "collapse",
+      pathNodes: [0xBB]
+    )
+    #expect(await service.processForRepeats(first) == 1)
+    #expect(await service.processForRepeats(second) == nil)
+    #expect(try await store.fetchMessageRepeats(messageID: message.id).count == 1)
+  }
+
+  @Test
+  func `clock-corrected incoming message still joins extra RX by wire timestamp`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 1
+    let wireTimestamp: UInt32 = 100
+    let receiveTime = Date(timeIntervalSince1970: 1_704_067_200)
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "skewed clock",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: Data([0xAA]),
+      pathLength: 1,
+      timestampCorrected: true,
+      receiveTime: receiveTime
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let extra = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "skewed clock",
+      pathNodes: [0xCC]
+    )
+    #expect(await service.processForRepeats(extra) == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.first?.pathNodes == Data([0xCC]))
+  }
+
+  @Test
+  func `empty path extra is recorded as a 0-hop arrival`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let wireTimestamp: UInt32 = 1_704_067_203
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "zero hop extra",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: Data([0xAA]),
+      pathLength: 1
+    )
+    try await store.saveMessage(message)
+    await service.configure(radioID: radioID)
+
+    let extra = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "zero hop extra",
+      pathNodes: [],
+      pathLength: 0
+    )
+    #expect(await service.processForRepeats(extra) == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.first?.pathNodes == Data())
+    #expect(repeats.first?.pathLength == 0)
+  }
+
+  @Test
+  func `harvest after save records extras from RX rows that arrived first`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let wireTimestamp: UInt32 = 1_704_067_204
+    let earlier = Date(timeIntervalSince1970: 1_700_000_000)
+    let later = earlier.addingTimeInterval(1)
+    let pathA: [UInt8] = [0xA1]
+    let pathB: [UInt8] = [0xB2]
+
+    let rxA = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "harvest me",
+      pathNodes: pathA,
+      receivedAt: earlier
+    )
+    let rxB = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "harvest me",
+      pathNodes: pathB,
+      receivedAt: later
+    )
+    await service.configure(radioID: radioID)
+
+    #expect(await service.processForRepeats(rxA) == nil)
+    #expect(await service.processForRepeats(rxB) == nil)
+
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "harvest me",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: Data(pathB),
+      pathLength: 1,
+      receiveTime: later
+    )
+    try await store.saveMessage(message)
+    await service.harvestIncomingPaths(for: message, decodedCandidates: [rxA, rxB])
+
+    let updated = try await store.fetchMessage(id: message.id)
+    #expect(updated?.heardRepeats == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.count == 1)
+    #expect(repeats.first?.pathNodes == Data(pathA))
+  }
+
+  @Test
+  func `harvest ignores a same-stamp 0x88 whose body does not match`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let stamp: UInt32 = 42
+    let pathA: [UInt8] = [0xA1]
+    let pathB: [UInt8] = [0xB2]
+    let canonical = Data([0xC0])
+
+    let aliceRX = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: stamp,
+      body: "one",
+      senderName: "Alice",
+      pathNodes: pathA
+    )
+    let bobRX = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: stamp,
+      body: "two",
+      senderName: "Bob",
+      pathNodes: pathB
+    )
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "one",
+      senderName: "Alice",
+      wireTimestamp: stamp,
+      pathNodes: canonical,
+      pathLength: 1
+    )
+    try await store.saveMessage(message)
+    await service.harvestIncomingPaths(
+      for: message,
+      decodedCandidates: [aliceRX, bobRX]
+    )
+
+    let updated = try await store.fetchMessage(id: message.id)
+    #expect(updated?.heardRepeats == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.count == 1)
+    #expect(repeats.first?.pathNodes == Data(pathA))
+    #expect(repeats.first?.rxLogEntryID == aliceRX.id)
+    #expect(try await store.messageRepeatExists(rxLogEntryID: bobRX.id) == false)
+  }
+
+  @Test
+  func `harvest adopts a matching path onto an unknown incoming message`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let wireTimestamp: UInt32 = 1_704_067_205
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "adopt me",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: nil,
+      pathLength: 0
+    )
+    try await store.saveMessage(message)
+
+    let rx = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "adopt me",
+      pathNodes: [0xAA]
+    )
+    await service.harvestIncomingPaths(for: message, decodedCandidates: [rx])
+
+    let updated = try await store.fetchMessage(id: message.id)
+    #expect(updated?.pathNodes == Data([0xAA]))
+    #expect(updated?.pathLength == 1)
+    #expect(updated?.heardRepeats == 0)
+    #expect(try await store.fetchMessageRepeats(messageID: message.id).isEmpty)
+  }
+
+  @Test
+  func `harvest adopts the first matching path and records the later extra`() async throws {
+    let (store, service) = try makeStoreAndService()
+    let radioID = UUID()
+    let channelIndex: UInt8 = 0
+    let wireTimestamp: UInt32 = 1_704_067_206
+    let earlier = Date(timeIntervalSince1970: 1_700_000_000)
+    let later = earlier.addingTimeInterval(1)
+    let message = incomingChannelMessage(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      text: "two paths",
+      senderName: Self.testNodeName,
+      wireTimestamp: wireTimestamp,
+      pathNodes: nil,
+      pathLength: 0
+    )
+    try await store.saveMessage(message)
+
+    let first = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "two paths",
+      pathNodes: [0xAA],
+      receivedAt: earlier
+    )
+    let second = makeEcho(
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: wireTimestamp,
+      body: "two paths",
+      pathNodes: [0xBB],
+      receivedAt: later
+    )
+    await service.harvestIncomingPaths(for: message, decodedCandidates: [second, first])
+
+    let updated = try await store.fetchMessage(id: message.id)
+    #expect(updated?.pathNodes == Data([0xAA]))
+    #expect(updated?.pathLength == 1)
+    #expect(updated?.heardRepeats == 1)
+    let repeats = try await store.fetchMessageRepeats(messageID: message.id)
+    #expect(repeats.count == 1)
+    #expect(repeats.first?.pathNodes == Data([0xBB]))
   }
 }

@@ -12,6 +12,10 @@ public protocol MessagePersisting: Actor {
   /// display when the user switches devices.
   func isDuplicateMessage(deduplicationKey: String, radioID: UUID) async throws -> Bool
 
+  /// Same radio scope as `isDuplicateMessage`. A later flood copy with a distinct
+  /// path attaches as an extra rather than being dropped.
+  func fetchMessage(deduplicationKey: String, radioID: UUID) async throws -> MessageDTO?
+
   /// Save a new message
   func saveMessage(_ dto: MessageDTO) async throws
 

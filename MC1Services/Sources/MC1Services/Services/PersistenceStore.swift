@@ -32,10 +32,39 @@ extension PersistenceStoreError: LocalizedError {
 
 // MARK: - PersistenceStore Actor
 
+/// `DefaultSerialModelExecutor` runs jobs on the caller's thread, so a
+/// main-actor caller would run SwiftData work on the main thread.  This runs
+/// the actor and owns its `ModelContext` on a dedicated queue instead.
+private final class StoreExecutor: SerialModelExecutor, @unchecked Sendable {
+  let modelContext: ModelContext
+  private let queue: DispatchSerialQueue
+
+  init(container: ModelContainer) {
+    let queue = DispatchSerialQueue(label: "PersistenceStore")
+    modelContext = queue.sync { ModelContext(container) }
+    self.queue = queue
+  }
+
+  func enqueue(_ job: consuming ExecutorJob) {
+    queue.enqueue(job)
+  }
+
+  func asUnownedSerialExecutor() -> UnownedSerialExecutor {
+    queue.asUnownedSerialExecutor()
+  }
+}
+
 /// ModelActor for background SwiftData operations.
 /// Provides per-device data isolation and thread-safe access.
-@ModelActor
-public actor PersistenceStore: PersistenceStoreProtocol {
+public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
+  public nonisolated let modelExecutor: any ModelExecutor
+  public nonisolated let modelContainer: ModelContainer
+
+  public init(modelContainer: ModelContainer) {
+    modelExecutor = StoreExecutor(container: modelContainer)
+    self.modelContainer = modelContainer
+  }
+
   var rxLogEntryCountsByDevice: [UUID: Int] = [:]
   var unsavedRxLogInsertCount = 0
   var rxLogFlushTask: Task<Void, Never>?

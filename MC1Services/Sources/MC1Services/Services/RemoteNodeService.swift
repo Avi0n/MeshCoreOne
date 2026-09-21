@@ -22,9 +22,15 @@ public actor RemoteNodeService {
   let logger = PersistentLogger(subsystem: "com.mc1", category: "RemoteNode")
   let auditLogger = CommandAuditLogger()
 
+  struct PendingLogin {
+    /// Session that called `login`, so a prefix match cannot update another radio's row.
+    let sessionID: UUID
+    let continuation: CheckedContinuation<LoginResult, Error>
+  }
+
   /// Pending login continuations keyed by 6-byte public key prefix.
   /// Using 6-byte prefix matches MeshCore protocol format for login results.
-  var pendingLogins: [Data: CheckedContinuation<LoginResult, Error>] = [:]
+  var pendingLogins: [Data: PendingLogin] = [:]
 
   /// Timeout tasks for pending logins, keyed by 6-byte public key prefix.
   /// Cancelled when login succeeds/fails before timeout.
@@ -245,8 +251,8 @@ public actor RemoteNodeService {
 
   func cancelPendingLogin(for prefix: Data) {
     pendingLoginTimeoutTasks.removeValue(forKey: prefix)?.cancel()
-    if let continuation = pendingLogins.removeValue(forKey: prefix) {
-      continuation.resume(throwing: RemoteNodeError.cancelled)
+    if let pending = pendingLogins.removeValue(forKey: prefix) {
+      pending.continuation.resume(throwing: RemoteNodeError.cancelled)
     }
   }
 
@@ -302,8 +308,8 @@ public actor RemoteNodeService {
 
     let pubKeyHex = contact.publicKey.prefix(6).map { String(format: "%02x", $0) }.joined()
 
-    // Check for existing session - reuse to avoid duplicates
-    let existing = try? await dataStore.fetchRemoteNodeSession(publicKey: contact.publicKey)
+    let existing = try await dataStore.fetchRemoteNodeSessions(radioID: radioID)
+      .first { $0.publicKey == contact.publicKey }
 
     if let existing {
       logger.info("createSession: reusing existing session \(existing.id) for \(pubKeyHex), isConnected=\(existing.isConnected)")
@@ -315,10 +321,9 @@ public actor RemoteNodeService {
 
     try await dataStore.saveRemoteNodeSessionDTO(dto)
 
-    // Clean up any duplicate sessions with the same public key but different IDs
     try await dataStore.cleanupDuplicateRemoteNodeSessions(publicKey: contact.publicKey, keepID: dto.id)
 
-    guard let saved = try await dataStore.fetchRemoteNodeSession(publicKey: contact.publicKey) else {
+    guard let saved = try await dataStore.fetchRemoteNodeSession(id: dto.id) else {
       logger.error("createSession: failed to fetch saved session for \(pubKeyHex)")
       throw RemoteNodeError.sessionNotFound
     }

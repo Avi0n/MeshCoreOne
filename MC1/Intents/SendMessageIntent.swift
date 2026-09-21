@@ -14,7 +14,11 @@ struct SendMessageIntent: AppIntent {
   static let description = IntentDescription(
     LocalizedStringResource("intent.send.description", table: "Tools")
   )
-  static let openAppWhenRun = false
+
+  @available(iOS 26, *)
+  static var supportedModes: IntentModes {
+    [.background, .foreground(.dynamic)]
+  }
 
   /// A send broadcasts under the user's identity, so it must not run from a
   /// locked device; this gates running the send, not entity-picker resolution.
@@ -45,7 +49,7 @@ struct SendMessageIntent: AppIntent {
   @MainActor
   private func executeSend() async throws {
     guard let appState = bridge.appState else {
-      try await continueInForeground()
+      try await handOffToForeground()
       return
     }
 
@@ -65,15 +69,15 @@ struct SendMessageIntent: AppIntent {
       case .queued:
         return
       case .mustForeground:
-        try await continueInForeground()
+        try await handOffToForeground()
       }
     case .foregroundEscalate:
-      try await continueInForeground()
+      try await handOffToForeground()
     case .notConnected:
       let hasRestorableRadio = appState.connectionManager.lastConnectedRadioID != nil
       switch Self.disconnectedRoute(hasRestorableRadio: hasRestorableRadio) {
       case .foregroundEscalate:
-        try await continueInForeground()
+        try await handOffToForeground()
       default:
         throw IntentError.notConnected
       }
@@ -198,15 +202,19 @@ struct SendMessageIntent: AppIntent {
     return .queued
   }
 
-  /// Foregrounds the app (still launching, connecting, or a restorable
-  /// disconnect) so the user can finish the send there, speaking the handoff
-  /// prompt as it hands off. The dictated text is not carried across: this
-  /// hands control to the app rather than enqueuing the message itself.
+  /// Foregrounds the app so the user can finish the send; dictated text is not
+  /// carried across because this hands off control instead of enqueuing.
   @MainActor
-  private func continueInForeground() async throws {
-    try await requestToContinueInForeground(
-      IntentDialog(stringLiteral: L10n.Tools.Intent.Send.foreground)
-    )
+  private func handOffToForeground() async throws {
+    let dialog = IntentDialog(stringLiteral: L10n.Tools.Intent.Send.foreground)
+    if #available(iOS 26, *) {
+      guard systemContext.currentMode.canContinueInForeground else {
+        throw needsToContinueInForegroundError(dialog)
+      }
+      try await continueInForeground(dialog)
+    } else {
+      try await requestToContinueInForeground(dialog)
+    }
   }
 }
 

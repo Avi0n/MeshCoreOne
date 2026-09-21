@@ -306,11 +306,17 @@ extension PersistenceStore {
     _ dtos: [MessageDTO],
     existingKeys: Set<String>,
     existingIDsByKey: [String: [UUID]]
-  ) throws -> (inserted: Int, skipped: Int, messageIDByBackupID: [UUID: UUID]) {
+  ) throws -> (
+    inserted: Int,
+    skipped: Int,
+    messageIDByBackupID: [UUID: UUID],
+    skippedIncomingParents: [(localMessageID: UUID, dto: MessageDTO)]
+  ) {
     var knownKeys = existingKeys
     var idsByKey = existingIDsByKey
     var knownIDs = Set(existingIDsByKey.values.flatMap(\.self))
     var messageIDByBackupID: [UUID: UUID] = [:]
+    var skippedIncomingParents: [(localMessageID: UUID, dto: MessageDTO)] = []
     var toInsert: [MessageDTO] = []
     toInsert.reserveCapacity(dtos.count)
     var skipped = 0
@@ -325,6 +331,9 @@ extension PersistenceStore {
         let winning = idsByKey[key]?.min(by: { $0.uuidString < $1.uuidString })
         if let winning, winning != dto.id {
           messageIDByBackupID[dto.id] = winning
+        }
+        if dto.direction == .incoming {
+          skippedIncomingParents.append((localMessageID: winning ?? dto.id, dto: dto))
         }
         skipped += 1
         continue
@@ -349,7 +358,12 @@ extension PersistenceStore {
       modelContext.insert(Message(dto: dto))
     }
 
-    return (inserted: toInsert.count, skipped: skipped, messageIDByBackupID: messageIDByBackupID)
+    return (
+      inserted: toInsert.count,
+      skipped: skipped,
+      messageIDByBackupID: messageIDByBackupID,
+      skippedIncomingParents: skippedIncomingParents
+    )
   }
 
   @discardableResult
@@ -382,6 +396,95 @@ extension PersistenceStore {
       construct: { MessageRepeat(dto: $0, message: messagesByID[$0.messageID]) }
     )
     return (result.inserted, result.skipped, result.affectedParentIDs)
+  }
+
+  /// Incoming: adopt a skipped parent's non-nil path onto an unknown local column,
+  /// or promote a distinct path to `MessageRepeat`. Outgoing identical-path repeats stay.
+  func mergeIncomingPathArrivals(
+    skippedIncomingParents: [(localMessageID: UUID, dto: MessageDTO)],
+    repeats: inout [MessageRepeatDTO],
+    messageIDs: Set<UUID>
+  ) throws -> (promoted: Int, skipped: Int, affectedMessageIDs: Set<UUID>) {
+    let relevantIDs = Set(skippedIncomingParents.map(\.localMessageID)).union(Set(repeats.map(\.messageID)))
+      .intersection(messageIDs)
+    guard !relevantIDs.isEmpty else { return (0, 0, []) }
+
+    let parents = try fetchInChunks(keys: Array(relevantIDs)) { chunk in
+      let predicate = #Predicate<Message> { chunk.contains($0.id) }
+      return try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    }
+    let parentsByID = Dictionary(parents.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+    let existingRepeats = try fetchInChunks(keys: Array(relevantIDs)) { chunk in
+      let predicate = #Predicate<MessageRepeat> { chunk.contains($0.messageID) }
+      return try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    }
+    var extrasByMessage: [UUID: Set<Data>] = [:]
+    for existing in existingRepeats {
+      extrasByMessage[existing.messageID, default: []].insert(existing.pathNodes)
+    }
+
+    var incomingIDs = Set<UUID>()
+    var canonicalByMessage: [UUID: Data] = [:]
+    for parent in parents where parent.direction == .incoming {
+      incomingIDs.insert(parent.id)
+      if let path = parent.pathNodes {
+        canonicalByMessage[parent.id] = path
+      }
+    }
+
+    var promoted = 0
+    var skipped = 0
+    var affectedMessageIDs = Set<UUID>()
+
+    for skippedParent in skippedIncomingParents {
+      let localID = skippedParent.localMessageID
+      guard incomingIDs.contains(localID), let parent = parentsByID[localID] else { continue }
+      let foreignPath = skippedParent.dto.pathNodes
+
+      if parent.pathNodes == nil {
+        if let foreignPath {
+          parent.pathNodes = foreignPath
+          parent.pathLength = skippedParent.dto.pathLength
+          canonicalByMessage[localID] = foreignPath
+          affectedMessageIDs.insert(localID)
+        }
+        continue
+      }
+
+      guard let foreignPath, foreignPath != parent.pathNodes else { continue }
+      guard extrasByMessage[localID, default: []].insert(foreignPath).inserted else { continue }
+      modelContext.insert(MessageRepeat(
+        dto: MessageRepeatDTO(
+          messageID: localID,
+          receivedAt: skippedParent.dto.createdAt,
+          pathNodes: foreignPath,
+          pathLength: skippedParent.dto.pathLength,
+          snr: skippedParent.dto.snr,
+          rssi: nil,
+          rxLogEntryID: nil
+        ),
+        message: parent
+      ))
+      promoted += 1
+      affectedMessageIDs.insert(localID)
+    }
+
+    repeats.removeAll { repeatDTO in
+      guard incomingIDs.contains(repeatDTO.messageID) else { return false }
+      if let canonical = canonicalByMessage[repeatDTO.messageID],
+         repeatDTO.pathNodes == canonical {
+        skipped += 1
+        return true
+      }
+      if !extrasByMessage[repeatDTO.messageID, default: []].insert(repeatDTO.pathNodes).inserted {
+        skipped += 1
+        return true
+      }
+      return false
+    }
+
+    return (promoted, skipped, affectedMessageIDs)
   }
 
   @discardableResult

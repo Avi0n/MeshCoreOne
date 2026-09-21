@@ -10,7 +10,7 @@ final class StoreServiceTests {
   /// SKTestSession cannot produce the required conditions:
   ///   1. Unverified-transaction drop + deduped warning log. SKTestSession only ever
   ///      produces VerificationResult.verified transactions, so the `.unverified` branch
-  ///      in walkCurrentEntitlements / applyTransactionUpdate / processUnfinishedTransactions
+  ///      in refreshEntitlements / applyTransactionUpdate / processUnfinishedTransactions
   ///      is unreachable from a test. The production handling (noteUnverified) is verified by
   ///      inspecting StoreService and exercised in the sandbox pre-submission checklist.
   ///   2. CancellationError filtering in restorePurchases(). AppStore.sync() cannot be made to
@@ -101,6 +101,7 @@ final class StoreServiceTests {
     // approved out-of-band (the inline product.purchase() path never reaches it for inline
     // buys; only `applyTransactionUpdate` does, and that path only runs for transactions
     // delivered through `Transaction.updates`). This test exercises the production trigger.
+    try await waitForClearedStoreKitSession(session)
     session.askToBuyEnabled = true
     let service = StoreService()
     await service.load()
@@ -112,6 +113,7 @@ final class StoreServiceTests {
     let outcome = try await purchaseWithRetry(coffee, on: service)
     #expect(outcome == .pending)
 
+    try await waitForTestTransaction(in: session, productID: StoreCatalog.Tip.coffee)
     let pendingTxn = try #require(session.allTransactions().first {
       $0.productIdentifier == StoreCatalog.Tip.coffee
     })
@@ -124,7 +126,7 @@ final class StoreServiceTests {
   }
 
   @Test
-  func `refunding the bundle revokes its theme entitlements via the listener`() async throws {
+  func `refunding the bundle revokes its theme entitlements`() async throws {
     let service = StoreService()
     await service.load()
     let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
@@ -136,8 +138,15 @@ final class StoreServiceTests {
     })
     try session.refundTransaction(identifier: txn.identifier)
 
-    try await waitUntil(timeout: .seconds(5)) {
-      service.ownedThemeIDs.isEmpty
+    if #available(iOS 27, *) {
+      try await waitUntil(timeout: .seconds(5)) {
+        await service.refreshEntitlements()
+        return service.ownedThemeIDs.isEmpty
+      }
+    } else {
+      try await waitUntil(timeout: .seconds(5)) {
+        service.ownedThemeIDs.isEmpty
+      }
     }
   }
 
@@ -192,15 +201,18 @@ final class StoreServiceTests {
 
   @Test
   func `Ask-to-Buy yields a pending outcome, then the approval grants entitlement`() async throws {
+    try await waitForClearedStoreKitSession(session)
     session.askToBuyEnabled = true
     let service = StoreService()
     await service.load()
+    #expect(service.ownedThemeIDs.isEmpty)
     let bundle = try #require(service.product(for: StoreCatalog.Theme.bundleAll))
 
     let outcome = try await purchaseWithRetry(bundle, on: service)
     #expect(outcome == .pending)
     #expect(service.ownedThemeIDs.isEmpty)
 
+    try await waitForTestTransaction(in: session, productID: StoreCatalog.Theme.bundleAll)
     let pending = try #require(session.allTransactions().first {
       $0.productIdentifier == StoreCatalog.Theme.bundleAll
     })

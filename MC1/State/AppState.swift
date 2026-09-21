@@ -2,6 +2,7 @@ import CoreLocation
 import MapKit
 import MC1Services
 import MeshCore
+import MessagingUI
 import OSLog
 import SwiftData
 import SwiftUI
@@ -156,6 +157,11 @@ final class AppState {
   /// identity is not load-bearing: durable preview state lives in the DB tier
   /// and the shared decoded caches, same as the `\.linkPreviewCache` default.
   @ObservationIgnored lazy var backgroundLinkPreviewCache: any LinkPreviewCaching = LinkPreviewCache()
+
+  /// Measured chat message heights, kept across conversation views so a
+  /// reopen skips measuring unchanged messages. Message IDs are unique
+  /// across conversations, so one cache serves them all.
+  @ObservationIgnored let chatSizeCache = TiledSizeCache<MessageItem>()
 
   /// Radio ID for data access - returns connected device's radio ID or last-connected radio ID for offline browsing
   var currentRadioID: UUID? {

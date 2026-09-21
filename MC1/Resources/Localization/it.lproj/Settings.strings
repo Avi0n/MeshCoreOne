@@ -1015,6 +1015,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "Region in arrivo";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Numero di ricevuti in arrivo";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Mostra informazioni di routing e timing nelle bolle dei messaggi in arrivo.";
 
@@ -1310,6 +1313,10 @@
 "language.defaultTranslationApp.title" = "Usa l’app di traduzione predefinita";
 
 "language.defaultTranslationApp.footer" = "Usa Traduci o un’altra app che hai scelto in Impostazioni.";
+
+"language.translationOffers.title" = "Offri traduzioni";
+
+"language.translationOffers.offFooter" = "I messaggi in arrivo in altre lingue non mostreranno il pulsante Traduci.";
 
 "language.search.prompt" = "Cerca lingue";
 

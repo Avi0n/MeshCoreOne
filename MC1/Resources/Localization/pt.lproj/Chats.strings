@@ -630,6 +630,15 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
 "chats.message.action.viewPath" = "Ver rota";
 
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Detalhes da rota";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "Recebido 1 vez";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "Recebido %d vezes";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Saltos: %@";
 
@@ -793,19 +802,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for reaction badge */
-"reactions.badge_hint" = "Toque duas vezes para adicionar uma reação, toque sem soltar para ver detalhes";
+"reactions.badge_hint" = "Mostra quem reagiu";
 
 /* Location: ReactionBadgesView.swift - Accessibility label for overflow badge - %d is count */
 "reactions.more_badge" = "%d tipos de reação adicionais";
 
 /* Location: ReactionBadgesView.swift - Accessibility hint for overflow badge */
-"reactions.more_badge_hint" = "Toque duas vezes para ver todas as reações";
+"reactions.more_badge_hint" = "Mostra todas as reações";
 
 /* Location: EmojiPickerRow.swift - Label for more emojis button */
 "reactions.more_emojis" = "Mais emojis";
-
-/* Location: ReactionBadgesView.swift - VoiceOver accessibility action to view reaction details */
-"reactions.view_details" = "Ver detalhes das reações";
 
 /* Location: ReactionDetailsSheet.swift - Navigation title */
 /* Location: ChatViewModel.swift - Error message when reaction fails to send */
@@ -883,6 +889,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Os dados da rota não estão disponíveis para esta mensagem";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Não é possível colocar a rota";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Os saltos desconhecidos, sem localização ou que correspondem a mais do que um nó não são colocados no mapa.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Copiar rota";
 
@@ -896,8 +908,32 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Mapa da rota";
 
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Primeira";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ após a primeira chegada";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Ver rota no mapa";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Não foi possível carregar as rotas extra.";
+
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centrar na rota";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Distância da rota";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Distância da rota";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "A distância pode ser imprecisa. Os saltos desconhecidos, sem localização ou que correspondem a mais do que um nó não são incluídos no cálculo.";
 
 // MARK: - Path Hop Row View
 

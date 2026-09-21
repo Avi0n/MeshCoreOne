@@ -17,6 +17,16 @@ struct MapNameLabelVisibilityTests {
     #expect(layer.isVisible == true)
   }
 
+  @Test
+  func `managed style images are not evicted`() {
+    let coordinator = MC1MapView.Coordinator()
+    let mapView = coordinator.mapView
+    #expect(coordinator.mapView(mapView, shouldRemoveStyleImage: "label-Alice") == false)
+    #expect(coordinator.mapView(mapView, shouldRemoveStyleImage: "pin-repeater") == false)
+    #expect(coordinator.mapView(mapView, shouldRemoveStyleImage: "pill-bg") == false)
+    #expect(coordinator.mapView(mapView, shouldRemoveStyleImage: "osm-sprite") == true)
+  }
+
   private static func configuredLayer(showLabels: Bool) -> MLNSymbolStyleLayer {
     let coordinator = MC1MapView.Coordinator()
     coordinator.currentShowLabels = showLabels

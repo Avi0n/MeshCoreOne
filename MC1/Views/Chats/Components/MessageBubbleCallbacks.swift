@@ -9,7 +9,6 @@ import UIKit
 /// than reaching `MapSnapshotStore.shared` from the view body.
 struct MessageBubbleCallbacks {
   var onRetry: (() -> Void)?
-  var onReaction: ((String) -> Void)?
   var onLongPress: (() -> Void)?
   var onImageTap: (() -> Void)?
   var onRetryInlineImage: (() -> Void)?

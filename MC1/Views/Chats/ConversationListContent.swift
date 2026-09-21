@@ -4,7 +4,7 @@ import SwiftUI
 /// The conversation list rendered as a `ScrollView` + `LazyVStack` rather than a `List`.
 /// `List` is backed by `UpdateCoalescingCollectionView`, whose batch-consistency assertion
 /// is violated when the selected row is deleted; a `LazyVStack` has no collection view, so
-/// that crash cannot occur. Row actions live in a `.contextMenu`.
+/// that crash cannot occur.
 struct ConversationListContent: View {
   enum ListMode {
     case selection(Binding<ChatRoute?>)
@@ -112,6 +112,7 @@ struct ConversationListContent: View {
         }
       }
     }
+    .swipeActionsContainerIfAvailable()
   }
 
   private var filterHeader: some View {
@@ -259,6 +260,7 @@ private struct ConversationSelectionRow: View {
     .accessibilityAddTraits(isSelected ? .isSelected : [])
     .deletingRowOverlay(isDeleting: isDeleting)
     .conversationContextMenu(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
+    .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
   }
 }
 
@@ -281,6 +283,7 @@ private struct ConversationNavigationRow: View {
     .buttonStyle(.plain)
     .deletingRowOverlay(isDeleting: isDeleting)
     .conversationContextMenu(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
+    .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
   }
 
   private func tap() {

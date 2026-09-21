@@ -907,6 +907,7 @@
 "remoteNodes.status.sensor.illuminance" = "Освітленість";
 "remoteNodes.status.sensor.presence" = "Присутність";
 "remoteNodes.status.sensor.temperature" = "Температура";
+"remoteNodes.status.sensor.mcuTemperature" = "Температура MCU";
 "remoteNodes.status.sensor.humidity" = "Вологість";
 "remoteNodes.status.sensor.accelerometer" = "Акселерометр";
 "remoteNodes.status.sensor.barometer" = "Тиск";

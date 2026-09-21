@@ -1,12 +1,11 @@
-// MC1/Views/Chats/Components/MessagePathContent.swift
 import CoreLocation
 import MC1Services
 import SwiftUI
 
-/// Inline content for message path visualization, extracted from MessagePathSheet.
-/// Shows sender, intermediate hops, receiver, raw path hex, and a copy button.
+/// Hop list for one arrival: sender, hops, receiver, and copyable path hex.
 struct MessagePathContent: View {
   let message: MessageDTO
+  let arrival: MessagePathArrival
   let viewModel: MessagePathViewModel
   let receiverName: String
   let userLocation: CLLocation?
@@ -18,17 +17,16 @@ struct MessagePathContent: View {
       ProgressView()
         .frame(maxWidth: .infinity, alignment: .center)
         .padding()
-    } else if message.pathNodes == nil {
+    } else if arrival.isPathUnavailable {
       ContentUnavailableView(
         L10n.Chats.Chats.Path.Unavailable.title,
         systemImage: "point.topleft.down.to.point.bottomright.curvepath",
         description: Text(L10n.Chats.Chats.Path.Unavailable.description)
       )
     } else {
-      let senderResolution = viewModel.senderResolution(for: message)
-      let pathHops = message.pathHops
+      let senderResolution = viewModel.senderResolution(for: message, localDeviceName: receiverName)
+      let pathHops = arrival.pathHops
 
-      // Sender
       PathHopRowView(
         hopType: .sender,
         nodeName: senderResolution.displayName,
@@ -37,7 +35,6 @@ struct MessagePathContent: View {
         matchKind: senderResolution.matchKind
       )
 
-      // Intermediate hops
       ForEach(Array(pathHops.enumerated()), id: \.offset) { index, hop in
         let repeaterResolution = viewModel.repeaterResolution(
           for: hop.data,
@@ -52,27 +49,25 @@ struct MessagePathContent: View {
         )
       }
 
-      // Receiver
       PathHopRowView(
         hopType: .receiver,
         nodeName: receiverName,
         nodeID: nil,
-        snr: message.snr
+        snr: arrival.snr
       )
 
-      // Raw path hex + copy button
       if !pathHops.isEmpty {
         HStack {
           Button(L10n.Chats.Chats.Path.copyButton, systemImage: "doc.on.doc") {
             copyHapticTrigger += 1
-            UIPasteboard.general.string = message.pathStringForClipboard
+            UIPasteboard.general.string = arrival.pathStringForClipboard
           }
           .labelStyle(.iconOnly)
           .buttonStyle(.borderless)
           .accessibilityLabel(L10n.Chats.Chats.Path.copyAccessibility)
           .accessibilityHint(L10n.Chats.Chats.Path.copyHint)
 
-          Text(message.pathString)
+          Text(arrival.pathString)
             .font(.caption.monospaced())
             .foregroundStyle(.secondary)
 

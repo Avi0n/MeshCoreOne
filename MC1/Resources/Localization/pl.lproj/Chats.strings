@@ -596,6 +596,15 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
 "chats.message.action.viewPath" = "Zobacz ścieżkę";
 
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Szczegóły ścieżki";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "Odebrano 1 raz";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "Odebrano %d razy";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Skoki: %@";
 
@@ -781,6 +790,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Dane ścieżki nie są dostępne dla tej wiadomości";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Nie można umieścić ścieżki";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Skoki, które są nieznane, nie mają lokalizacji lub pasują do więcej niż jednego węzła, nie są umieszczane na mapie.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Kopiuj ścieżkę";
 
@@ -794,8 +809,32 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Mapa trasy";
 
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Pierwsze";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ po pierwszym przybyciu";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Zobacz trasę na mapie";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Nie udało się załadować dodatkowych ścieżek.";
+
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Wyśrodkuj na trasie";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Odległość trasy";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Odległość Trasy";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Odległość może być niedokładna. Skoki, które są nieznane, nie mają lokalizacji lub pasują do więcej niż jednego węzła, nie są uwzględniane w obliczeniach.";
 
 // MARK: - Path Hop Row View
 
@@ -1099,19 +1138,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Purpose: Badge accessibility hint */
-"reactions.badge_hint" = "Dotknij dwukrotnie, aby zareagować, przytrzymaj, aby zobaczyć szczegóły";
+"reactions.badge_hint" = "Pokazuje, kto zareagował";
 
 /* Location: ReactionBadgeView.swift - Purpose: Overflow badge showing additional reaction types */
 "reactions.more_badge" = "%d więcej typów reakcji";
 
 /* Location: ReactionBadgeView.swift - Purpose: Overflow badge accessibility hint */
-"reactions.more_badge_hint" = "Dotknij dwukrotnie, aby zobaczyć wszystkie reakcje";
+"reactions.more_badge_hint" = "Pokazuje wszystkie reakcje";
 
 /* Location: EmojiPickerSheet.swift - Purpose: More emoji button */
 "reactions.more_emojis" = "Więcej emoji";
-
-/* Location: ReactionBadgeView.swift - Purpose: View details button */
-"reactions.view_details" = "Zobacz szczegóły reakcji";
 
 /* Location: ReactionDetailsSheet.swift - Purpose: Details sheet title */
 /* Location: ReactionBadgeView.swift - Purpose: Error message when reaction fails */

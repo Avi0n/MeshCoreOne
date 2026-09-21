@@ -910,6 +910,7 @@
 "remoteNodes.status.sensor.illuminance" = "照度";
 "remoteNodes.status.sensor.presence" = "存在检测";
 "remoteNodes.status.sensor.temperature" = "温度";
+"remoteNodes.status.sensor.mcuTemperature" = "MCU 温度";
 "remoteNodes.status.sensor.humidity" = "湿度";
 "remoteNodes.status.sensor.accelerometer" = "加速度计";
 "remoteNodes.status.sensor.barometer" = "气压";

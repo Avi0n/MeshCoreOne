@@ -1003,6 +1003,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "Incoming Region";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Incoming Heard Count";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Display routing and timing information inside incoming message bubbles.";
 
@@ -1309,6 +1312,12 @@
 
 /* Location: LanguageSettingsView.swift - Purpose: Footer for Use Default Translation App */
 "language.defaultTranslationApp.footer" = "Uses Translate, or another app you've chosen in iOS Settings.";
+
+/* Location: LanguageSettingsView.swift - Purpose: Toggle to show the Translate button on incoming messages */
+"language.translationOffers.title" = "Offer Translations";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer when Offer Translations is off */
+"language.translationOffers.offFooter" = "Incoming messages in other languages won't show a Translate button.";
 
 /* Location: TranslateIntoLanguageView.swift - Purpose: Search field placeholder */
 "language.search.prompt" = "Search Languages";

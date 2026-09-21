@@ -595,6 +595,15 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
 "chats.message.action.viewPath" = "Посмотреть путь";
 
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Детали пути";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "Услышано 1 раз";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "Услышано %d раз";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Переходов: %@";
 
@@ -780,6 +789,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Данные о пути недоступны для этого сообщения";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Нельзя разместить путь";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Переходы, которые неизвестны, не имеют местоположения или совпадают более чем с одним узлом, не размещаются на карте.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Копировать путь";
 
@@ -793,8 +808,32 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Карта пути";
 
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Первое";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ после первого прибытия";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Посмотреть путь на карте";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Не удалось загрузить дополнительные пути.";
+
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Центрировать по маршруту";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Расстояние пути";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Расстояние Пути";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Расстояние может быть неточным. Переходы, которые неизвестны, не имеют местоположения или совпадают более чем с одним узлом, не включаются в расчёт.";
 
 // MARK: - Path Hop Row View
 
@@ -1096,19 +1135,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Badge accessibility hint */
-"reactions.badge_hint" = "Нажмите дважды, чтобы отреагировать, удерживайте для подробностей";
+"reactions.badge_hint" = "Показывает, кто отреагировал";
 
 /* Location: ReactionBadgeView.swift - More reactions badge */
 "reactions.more_badge" = "Ещё %d типов реакций";
 
 /* Location: ReactionBadgeView.swift - More reactions badge accessibility hint */
-"reactions.more_badge_hint" = "Нажмите дважды, чтобы увидеть все реакции";
+"reactions.more_badge_hint" = "Показывает все реакции";
 
 /* Location: EmojiPickerSheet.swift - More emojis button */
 "reactions.more_emojis" = "Больше эмодзи";
-
-/* Location: ReactionDetailsSheet.swift - View details button */
-"reactions.view_details" = "Подробности реакций";
 
 /* Location: ReactionDetailsSheet.swift - Details sheet title */
 /* Location: ReactionViewModel.swift - Send failed error */

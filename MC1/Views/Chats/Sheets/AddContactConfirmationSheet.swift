@@ -13,6 +13,8 @@ struct AddContactConfirmationSheet: View {
   let contactResult: MeshCoreURLParser.ContactResult
   let onComplete: (ContactDTO?) -> Void
 
+  @State private var existingContact: ContactDTO?
+  @State private var didResolveExisting = false
   @State private var isAdding = false
   @State private var errorMessage: String?
   @State private var successTrigger = 0
@@ -23,8 +25,9 @@ struct AddContactConfirmationSheet: View {
 
   var body: some View {
     NavigationStack {
-      VStack(spacing: 0) {
-        if isMissingDevice {
+      Group {
+        // Wait for the local lookup so a saved contact can View while disconnected.
+        if isMissingDevice, didResolveExisting, existingContact == nil {
           ContactMissingDeviceContent(
             contactName: contactResult.name,
             onDismiss: {
@@ -32,18 +35,31 @@ struct AddContactConfirmationSheet: View {
               dismiss()
             }
           )
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .background(Color(.systemGroupedBackground))
         } else {
           ContactAddConfirmationContent(
             contactResult: contactResult,
+            existingContact: existingContact,
             errorMessage: errorMessage,
             isAdding: isAdding,
-            onAdd: { Task { await addContact() } }
+            onAdd: {
+              if let existingContact {
+                onComplete(existingContact)
+                dismiss()
+              } else {
+                Task { await addContact() }
+              }
+            },
+            onScanAgain: nil
           )
         }
       }
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .background(Color(.systemGroupedBackground))
-      .navigationTitle(L10n.Contacts.Contacts.Add.nodeTitle)
+      .navigationTitle(existingContact?.displayName ?? L10n.Contacts.Contacts.Add.nodeTitle)
+      .task {
+        existingContact = await fetchExistingContact()
+        didResolveExisting = true
+      }
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
@@ -59,6 +75,15 @@ struct AddContactConfirmationSheet: View {
   }
 
   // MARK: - Private Methods
+
+  private func fetchExistingContact() async -> ContactDTO? {
+    guard let radioID = appState.currentRadioID else { return nil }
+    let store = appState.services?.dataStore ?? appState.offlineDataStore
+    return try? await store?.fetchContact(
+      radioID: radioID,
+      publicKey: contactResult.publicKey
+    )
+  }
 
   private func addContact() async {
     guard let radioID = appState.connectedDevice?.radioID else { return }
@@ -124,74 +149,6 @@ private struct ContactMissingDeviceContent: View {
     } actions: {
       Button(L10n.Contacts.Contacts.Common.ok, action: onDismiss)
         .liquidGlassProminentButtonStyle()
-    }
-  }
-}
-
-private struct ContactAddConfirmationContent: View {
-  let contactResult: MeshCoreURLParser.ContactResult
-  let errorMessage: String?
-  let isAdding: Bool
-  let onAdd: () -> Void
-
-  var body: some View {
-    VStack(spacing: 24) {
-      Spacer()
-
-      VStack(spacing: 16) {
-        ZStack {
-          Circle()
-            .fill(contactResult.contactType.displayColor)
-            .frame(width: 80, height: 80)
-
-          Image(systemName: contactResult.contactType.iconSystemName)
-            .font(.system(size: 36, weight: .bold))
-            .foregroundStyle(.white)
-        }
-
-        // The name is free text the sender controls; the public key is the
-        // verifiable identity, so the key takes primary prominence to defeat
-        // name-over-key phishing from a planted QR code or link.
-        Text(contactResult.name)
-          .font(.title3)
-          .foregroundStyle(.secondary)
-
-        Text(contactResult.contactType.localizedName)
-          .font(.caption)
-          .foregroundStyle(.secondary)
-
-        VStack(spacing: 6) {
-          Text(L10n.Contacts.Contacts.Add.publicKey)
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-
-          Text(contactResult.publicKey.uppercaseHexString(separator: " "))
-            .font(.callout.monospaced())
-            .multilineTextAlignment(.center)
-            .foregroundStyle(.primary)
-            .textSelection(.enabled)
-            .padding(.horizontal, 8)
-        }
-      }
-
-      if let errorMessage {
-        Text(errorMessage)
-          .font(.callout)
-          .foregroundStyle(.red)
-          .padding(.horizontal)
-      }
-
-      Button(action: onAdd) {
-        if isAdding {
-          ProgressView()
-        } else {
-          Text(L10n.Contacts.Contacts.Add.add)
-        }
-      }
-      .liquidGlassProminentButtonStyle()
-      .disabled(isAdding)
-      .padding(.horizontal, 48)
-      .padding(.bottom, 32)
     }
   }
 }

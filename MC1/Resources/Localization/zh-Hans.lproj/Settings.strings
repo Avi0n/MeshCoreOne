@@ -1000,6 +1000,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "传入区域";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "传入听到次数";
+
 /* Footer explaining what message display options show */
 "messages.footer" = "在传入消息气泡内显示路由和时间信息。";
 
@@ -1312,6 +1315,10 @@
 "language.defaultTranslationApp.title" = "使用默认翻译应用";
 
 "language.defaultTranslationApp.footer" = "使用翻译，或您在设置中选择的其他应用。";
+
+"language.translationOffers.title" = "提供翻译";
+
+"language.translationOffers.offFooter" = "其他语言的收到消息将不显示翻译按钮。";
 
 "language.search.prompt" = "搜索语言";
 

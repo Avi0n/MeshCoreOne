@@ -209,7 +209,7 @@ public actor ChannelService {
     if case let .region(regionName) = floodScope, !regionName.isEmpty {
       queryItems.append(URLQueryItem(name: channelURIRegionScopeKey, value: regionName))
     }
-    components.queryItems = queryItems
+    components.percentEncodedQueryItems = MeshCoreURIQuery.percentEncodedQueryItems(from: queryItems)
     return components.url?.absoluteString ?? ""
   }
 

@@ -88,6 +88,7 @@ extension AppState {
       showIncomingPath: bool(.showIncomingPath, AppStorageKey.defaultShowIncomingPath),
       showIncomingHopCount: bool(.showIncomingHopCount, AppStorageKey.defaultShowIncomingHopCount),
       showIncomingRegion: bool(.showIncomingRegion, AppStorageKey.defaultShowIncomingRegion),
+      showIncomingHeardCount: bool(.showIncomingHeardCount, AppStorageKey.defaultShowIncomingHeardCount),
       showIncomingSendTime: bool(.showIncomingSendTime, AppStorageKey.defaultShowIncomingSendTime),
       previewsEnabled: bool(.linkPreviewsEnabled, AppStorageKey.defaultLinkPreviewsEnabled),
       isHighContrast: isHighContrast,
@@ -98,7 +99,8 @@ extension AppState {
       themeID: themeID,
       contentSizeCategory: contentSizeCategory,
       preferredLanguageCode: TranslationTargetPreference(rawValue: translationTarget)
-        .resolvedLanguageCode(appLocale: Locale.current)
+        .resolvedLanguageCode(appLocale: Locale.current),
+      translationOffersEnabled: bool(.translationOffersEnabled, AppStorageKey.defaultTranslationOffersEnabled)
     )
   }
 

@@ -4,10 +4,8 @@ import SwiftUI
 /// Horizontal row of reaction badges displayed below message bubbles
 struct ReactionBadgesView: View {
   let summary: String? // Format: "👍:3,❤️:2,😂:1"
-  let onTapReaction: (String) -> Void
-  let onLongPress: () -> Void
-
-  @State private var longPressTriggered = false
+  /// Emoji to pre-select in `ReactionDetailsSheet`, or `nil` for overflow (first tab).
+  let onSelect: (String?) -> Void
 
   private var reactions: [(emoji: String, count: Int)] {
     ReactionParser.parseSummary(summary)
@@ -26,7 +24,7 @@ struct ReactionBadgesView: View {
       HStack(spacing: 0) {
         ForEach(visibleReactions, id: \.emoji) { reaction in
           Button {
-            onTapReaction(reaction.emoji)
+            onSelect(reaction.emoji)
           } label: {
             ReactionBadge(emoji: reaction.emoji, count: reaction.count)
           }
@@ -37,7 +35,7 @@ struct ReactionBadgesView: View {
 
         if overflowCount > 0 {
           Button {
-            onLongPress()
+            onSelect(nil)
           } label: {
             OverflowBadge(count: overflowCount)
           }
@@ -45,17 +43,6 @@ struct ReactionBadgesView: View {
           .accessibilityLabel(L10n.Chats.Reactions.moreBadge(overflowCount))
           .accessibilityHint(L10n.Chats.Reactions.moreBadgeHint)
         }
-      }
-      .simultaneousGesture(
-        LongPressGesture(minimumDuration: 0.3)
-          .onEnded { _ in
-            longPressTriggered.toggle()
-            onLongPress()
-          }
-      )
-      .sensoryFeedback(.impact(weight: .medium), trigger: longPressTriggered)
-      .accessibilityAction(named: L10n.Chats.Reactions.viewDetails) {
-        onLongPress()
       }
     }
   }
@@ -102,20 +89,17 @@ private struct OverflowBadge: View {
   VStack(spacing: 20) {
     ReactionBadgesView(
       summary: "👍:3,❤️:2,😂:1",
-      onTapReaction: { _ in },
-      onLongPress: {}
+      onSelect: { _ in }
     )
 
     ReactionBadgesView(
       summary: "👍:5,❤️:3,😂:2,😮:1,😢:1,🎉:1",
-      onTapReaction: { _ in },
-      onLongPress: {}
+      onSelect: { _ in }
     )
 
     ReactionBadgesView(
       summary: nil,
-      onTapReaction: { _ in },
-      onLongPress: {}
+      onSelect: { _ in }
     )
   }
   .padding()

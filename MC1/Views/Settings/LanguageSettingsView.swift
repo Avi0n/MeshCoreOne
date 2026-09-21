@@ -9,6 +9,8 @@ struct LanguageSettingsView: View {
   private var translationTargetLanguage = AppStorageKey.defaultTranslationTargetLanguage
   @AppStorage(AppStorageKey.useDefaultTranslationApp.rawValue)
   private var storedUseDefaultTranslationApp = AppStorageKey.defaultUseDefaultTranslationApp
+  @AppStorage(AppStorageKey.translationOffersEnabled.rawValue)
+  private var translationOffersEnabled = AppStorageKey.defaultTranslationOffersEnabled
 
   private var preference: TranslationTargetPreference {
     TranslationTargetPreference(rawValue: translationTargetLanguage)
@@ -66,6 +68,11 @@ struct LanguageSettingsView: View {
 
   private var translationSection: some View {
     Section {
+      Toggle(
+        L10n.Settings.Language.TranslationOffers.title,
+        isOn: $translationOffersEnabled
+      )
+
       NavigationLink(value: SettingsSubpage.translateIntoLanguage) {
         HStack {
           Text(L10n.Settings.Language.TranslateInto.header)
@@ -74,15 +81,18 @@ struct LanguageSettingsView: View {
             .foregroundStyle(.secondary)
         }
       }
-      .disabled(usesSystemOverlay)
+      .disabled(usesSystemOverlay || !translationOffersEnabled)
 
-      Toggle(
-        L10n.Settings.Language.DefaultTranslationApp.title,
-        isOn: useDefaultTranslationApp
-      )
+      Toggle(isOn: useDefaultTranslationApp) {
+        Text(L10n.Settings.Language.DefaultTranslationApp.title)
+          .foregroundStyle(translationOffersEnabled ? .primary : .secondary)
+      }
+      .disabled(!translationOffersEnabled)
     } footer: {
       Text(
-        usesSystemOverlay
+        !translationOffersEnabled
+          ? L10n.Settings.Language.TranslationOffers.offFooter
+          : usesSystemOverlay
           ? L10n.Settings.Language.DefaultTranslationApp.footer
           : L10n.Settings.Language.TranslateInto.footer
       )

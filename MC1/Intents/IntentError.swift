@@ -3,7 +3,7 @@ import MC1Services
 
 /// Errors thrown by MeshCore One's App Intents, mirroring the
 /// `.sessionError(MeshCoreError)` wrapping convention of `MessageServiceError`.
-enum IntentError: LocalizedError {
+enum IntentError: LocalizedError, CustomLocalizedStringResourceConvertible {
   case notConnected
   case invalidRecipient
   case messageTooLong
@@ -11,8 +11,17 @@ enum IntentError: LocalizedError {
   case advertFailed
   case sessionError(MeshCoreError)
 
-  /// Siri and Shortcuts read `errorDescription`, so this is the L10n seam.
+  /// App Intents speaks `localizedStringResource` on Siri and Shortcuts;
+  /// `errorDescription` stays for in-process callers and tests.
   var errorDescription: String? {
+    message
+  }
+
+  var localizedStringResource: LocalizedStringResource {
+    LocalizedStringResource(stringLiteral: message)
+  }
+
+  private var message: String {
     switch self {
     case .notConnected:
       L10n.Localizable.Error.Intent.notConnected

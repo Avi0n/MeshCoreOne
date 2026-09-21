@@ -91,12 +91,20 @@ struct ToolbarMenu<Content: View, LabelView: View>: View {
 
   var body: some View {
     if #available(iOS 26, *) {
-      label
-        .accessibilityHidden(true)
-        .overlay {
-          Menu { content } label: { label }
-            .colorMultiply(.clear)
+      // Sibling layout so a tint on the visible label does not flow into
+      // menu rows (destructive, secondary, and default each keep their color).
+      ZStack {
+        label
+          .accessibilityHidden(true)
+        Menu {
+          content
+        } label: {
+          Rectangle()
+            .fill(.clear)
+            .contentShape(Rectangle())
         }
+        .colorMultiply(.clear)
+      }
     } else {
       Menu { content } label: { label }
     }

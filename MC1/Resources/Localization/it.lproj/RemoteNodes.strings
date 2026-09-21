@@ -577,6 +577,7 @@
 "remoteNodes.status.sensor.illuminance" = "Illuminamento";
 "remoteNodes.status.sensor.presence" = "Presenza";
 "remoteNodes.status.sensor.temperature" = "Temperatura";
+"remoteNodes.status.sensor.mcuTemperature" = "Temperatura MCU";
 "remoteNodes.status.sensor.humidity" = "Umidità";
 "remoteNodes.status.sensor.accelerometer" = "Accelerometro";
 "remoteNodes.status.sensor.barometer" = "Pressione";

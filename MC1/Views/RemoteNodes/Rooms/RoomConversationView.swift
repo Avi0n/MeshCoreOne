@@ -31,6 +31,8 @@ struct RoomConversationView: View {
   private var translationTargetLanguage = AppStorageKey.defaultTranslationTargetLanguage
   @AppStorage(AppStorageKey.useDefaultTranslationApp.rawValue)
   private var useDefaultTranslationApp = AppStorageKey.defaultUseDefaultTranslationApp
+  @AppStorage(AppStorageKey.translationOffersEnabled.rawValue)
+  private var translationOffersEnabled = AppStorageKey.defaultTranslationOffersEnabled
 
   init(session: RemoteNodeSessionDTO) {
     _session = State(initialValue: session)
@@ -138,6 +140,7 @@ struct RoomConversationView: View {
         )
         await chatViewModel.loadAllContacts(radioID: session.radioID)
         viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: locale))
+        viewModel.applyTranslationOffersEnabled(translationOffersEnabled)
         await viewModel.loadMessages(for: session)
       }
       .conversationTranslationSession(
@@ -167,6 +170,9 @@ struct RoomConversationView: View {
       }
       .onChange(of: translationTargetLanguage) { _, _ in
         viewModel.applyPreferredLanguageCode(resolvedPreferredLanguage(from: locale))
+      }
+      .onChange(of: translationOffersEnabled) { _, enabled in
+        viewModel.applyTranslationOffersEnabled(enabled)
       }
       .errorAlert($viewModel.errorMessage)
       .onChange(of: appState.contactsVersion) { _, _ in

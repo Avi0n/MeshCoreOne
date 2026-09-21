@@ -965,6 +965,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "Inkomende regio";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Inkomend aantal gehoord";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Routerings- en tijdsinformatie weergeven in inkomende berichtballonnen.";
 
@@ -1312,6 +1315,10 @@
 "language.defaultTranslationApp.title" = "Standaardvertaalapp gebruiken";
 
 "language.defaultTranslationApp.footer" = "Gebruikt Vertalen of een andere app die je in Instellingen hebt gekozen.";
+
+"language.translationOffers.title" = "Vertalingen aanbieden";
+
+"language.translationOffers.offFooter" = "Inkomende berichten in andere talen tonen geen Vertaal-knop.";
 
 "language.search.prompt" = "Zoek talen";
 

@@ -47,7 +47,16 @@ struct UnifiedMessageBubble: View, Equatable {
   @Environment(\.openURL) private var openURL
   @Environment(\.appTheme) private var theme
 
-  @State private var showingReactionDetails = false
+  private struct ReactionDetailsRequest: Identifiable {
+    var id: UUID {
+      messageID
+    }
+
+    let messageID: UUID
+    let initialEmoji: String?
+  }
+
+  @State private var reactionDetails: ReactionDetailsRequest?
   @State private var isLongPressing = false
   @State private var longPressTrigger = 0
 
@@ -134,7 +143,7 @@ struct UnifiedMessageBubble: View, Equatable {
           }
           if hasReactionSummary {
             Button(L10n.Chats.Chats.Message.Action.viewReactions) {
-              showingReactionDetails = true
+              reactionDetails = ReactionDetailsRequest(messageID: message.id, initialEmoji: nil)
             }
           }
           ForEach(MessageLinkAccessibility.actions(
@@ -182,8 +191,8 @@ struct UnifiedMessageBubble: View, Equatable {
         callbacks.onRequestPreviewFetch?()
       }
     }
-    .sheet(isPresented: $showingReactionDetails) {
-      ReactionDetailsSheet(messageID: message.id)
+    .sheet(item: $reactionDetails) { request in
+      ReactionDetailsSheet(messageID: request.messageID, initialEmoji: request.initialEmoji)
     }
   }
 
@@ -198,11 +207,8 @@ struct UnifiedMessageBubble: View, Equatable {
     )
   }
 
-  /// Renders one fragment from `layout.siblings` (reactions, malware warning, link preview, map
-  /// preview). Content cards carry the bubble's long-press so a press anywhere opens the actions
-  /// sheet; reactions keep their own. The text and inline-image kinds never reach the sibling list
-  /// (they render inside `BubbleFragmentStack`), so their arm exists only to keep the switch
-  /// exhaustive.
+  /// Sibling fragment: content cards keep the actions long-press; reactions open details on tap.
+  /// Text and inline-image stay in `BubbleFragmentStack`; their switch arm is exhaustive-only.
   @ViewBuilder
   private func siblingFragmentView(_ fragment: MessageFragment) -> some View {
     let content = siblingFragmentBody(fragment)
@@ -219,8 +225,9 @@ struct UnifiedMessageBubble: View, Equatable {
     case let .reactionSummary(summary):
       ReactionsFragmentView(
         summary: summary,
-        onTapReaction: { emoji in callbacks.onReaction?(emoji) },
-        onLongPress: { showingReactionDetails = true }
+        onSelect: { emoji in
+          reactionDetails = ReactionDetailsRequest(messageID: message.id, initialEmoji: emoji)
+        }
       )
     case let .malwareWarning(url):
       MalwareWarningCard(url: url)
@@ -243,9 +250,8 @@ struct UnifiedMessageBubble: View, Equatable {
     }
   }
 
-  /// Whether a sibling fragment carries the bubble's actions-sheet long-press. Content cards
-  /// (link, map, malware) do, so a press anywhere on the bubble opens the sheet. Reactions keep
-  /// their own long-press; text and inline image render in the box, which already carries it.
+  /// Content cards carry the actions-sheet long-press so a press on the card opens it.
+  /// Reactions open details on tap; text and inline image already carry it on the box.
   static func siblingWantsActionsLongPress(_ fragment: MessageFragment) -> Bool {
     switch fragment {
     case .linkPreview, .mapPreview, .malwareWarning:

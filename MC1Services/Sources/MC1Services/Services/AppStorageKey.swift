@@ -18,6 +18,7 @@ public enum AppStorageKey: String {
   case showIncomingPath
   case showIncomingHopCount
   case showIncomingRegion
+  case showIncomingHeardCount
   case showIncomingSendTime
   case linkPreviewsEnabled
   case linkPreviewsAutoResolveDM
@@ -49,6 +50,9 @@ public enum AppStorageKey: String {
   /// When true, tap-Translate opens the system Translate sheet. Separate from
   /// `translationTargetLanguage` so the language subtag is not overwritten.
   case useDefaultTranslationApp
+  /// When false, incoming messages skip language detection and show no
+  /// in-bubble Translate button.
+  case translationOffersEnabled
   case autoDeleteStaleNodesDays
   case lastStaleCleanupDate
   case frequentEmojis
@@ -77,6 +81,7 @@ public enum AppStorageKey: String {
   public static let defaultShowIncomingPath: Bool = false
   public static let defaultShowIncomingHopCount: Bool = false
   public static let defaultShowIncomingRegion: Bool = false
+  public static let defaultShowIncomingHeardCount: Bool = false
   public static let defaultShowIncomingSendTime: Bool = false
   public static let defaultLinkPreviewsEnabled: Bool = false
   public static let defaultLinkPreviewsAutoResolveDM: Bool = true
@@ -94,6 +99,7 @@ public enum AppStorageKey: String {
   /// Sentinel: in-bubble Translate follows the app locale.
   public static let defaultTranslationTargetLanguage: String = "app"
   public static let defaultUseDefaultTranslationApp: Bool = false
+  public static let defaultTranslationOffersEnabled: Bool = true
   public static let defaultLiveActivityEnabled: Bool = true
   /// Days before a non-favorite node is auto-deleted; 0 disables cleanup.
   public static let defaultAutoDeleteStaleNodesDays: Int = 0

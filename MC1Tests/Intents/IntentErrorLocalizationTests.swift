@@ -3,10 +3,8 @@ import Foundation
 @testable import MC1Services
 import Testing
 
-/// `IntentError.errorDescription` is the localization seam Siri and Shortcuts
-/// read, so it must route through `L10n` in every locale, never an English
-/// fallback. These tests pin every shipped case to its `L10n` key and confirm
-/// the raw key resolves to real copy in all 11 locales.
+/// App Intents speaks `localizedStringResource`; it must match `errorDescription`
+/// and the `L10n` key in every locale, never the raw key.
 struct IntentErrorLocalizationTests {
   /// The localizable table backing the `error.intent.*` keys.
   private static let table = "Localizable"
@@ -32,6 +30,13 @@ struct IntentErrorLocalizationTests {
   @Test func `error description routes through L 10 n for each case`() {
     for entry in Self.casesWithKeys {
       #expect(entry.error.errorDescription == entry.generatedAccessor)
+    }
+  }
+
+  @Test func `localized string resource matches error description`() {
+    let cases: [IntentError] = Self.casesWithKeys.map(\.error) + [.sessionError(.timeout)]
+    for error in cases {
+      #expect(error.errorDescription == String(localized: error.localizedStringResource))
     }
   }
 

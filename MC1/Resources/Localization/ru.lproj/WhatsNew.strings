@@ -16,17 +16,17 @@
 /* Link on the What's New sheet to the full GitHub release notes */
 "whatsNew.fullReleaseNotes" = "Смотреть все новые изменения";
 
-/* What's New v1.4 - Incoming message translation feature, title */
-"whatsNew.messageTranslation.title" = "Перевод входящих сообщений";
-/* What's New v1.4 - Incoming message translation feature, description */
-"whatsNew.messageTranslation.description" = "Переводите входящие сообщения на язык устройства. В iOS 26.4 и новее сначала используется Apple Intelligence, затем языковые пакеты «Перевод».";
+/* What's New v1.5 - Path Details feature, title */
+"whatsNew.pathDetails.title" = "Детали пути";
+/* What's New v1.5 - Path Details feature, description */
+"whatsNew.pathDetails.description" = "«Карта пути» перенесена в «Детали пути», где перечислены все дополнительные входящие пути. А в «Деталях повторов» на отправленных сообщениях перечислены все пути повторов, которые услышало ваше радио.";
 
-/* What's New v1.4 - Sender avatars in channels and rooms, title */
-"whatsNew.senderAvatars.title" = "Аватары в каналах и комнатах";
-/* What's New v1.4 - Sender avatars in channels and rooms, description */
-"whatsNew.senderAvatars.description" = "Входящие сообщения в каналах и комнатах показывают аватар отправителя.";
+/* What's New v1.5 - Tap a reaction to see who added it, title */
+"whatsNew.whoReacted.title" = "Кто отреагировал";
+/* What's New v1.5 - Tap a reaction to see who added it, description */
+"whatsNew.whoReacted.description" = "Нажмите на реакцию в сообщении, чтобы увидеть, кто её добавил, вместо отправки реакции.";
 
-/* What's New v1.4 - Failed-send badges on the Chats list, title */
-"whatsNew.failedSends.title" = "Ошибки отправки в Чатах";
-/* What's New v1.4 - Failed-send badges on the Chats list, description */
-"whatsNew.failedSends.description" = "Список Чатов отмечает переписку, если отправка сообщения не удаётся.";
+/* What's New v1.5 - Faster chat loading, title */
+"whatsNew.fasterChatLoading.title" = "Более быстрая загрузка чатов";
+/* What's New v1.5 - Faster chat loading, description */
+"whatsNew.fasterChatLoading.description" = "Открытие чата стало до 90%% быстрее.";

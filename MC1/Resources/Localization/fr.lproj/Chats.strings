@@ -601,6 +601,15 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
 "chats.message.action.viewPath" = "Voir le chemin";
 
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Détails du chemin";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "Reçu 1 fois";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "Reçu %d fois";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Sauts : %@";
 
@@ -785,6 +794,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Les données de chemin ne sont pas disponibles pour ce message";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Chemin impossible à placer";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Les sauts inconnus, sans position ou correspondant à plus d'un nœud ne sont pas placés sur la carte.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Copier le chemin";
 
@@ -798,8 +813,32 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Carte du trajet";
 
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Première";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ après la première arrivée";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Voir le chemin sur la carte";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Impossible de charger les chemins supplémentaires.";
+
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centrer sur le chemin";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Distance du trajet";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Distance du Trajet";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "La distance peut être imprécise. Les sauts inconnus, sans position ou correspondant à plus d'un nœud ne sont pas inclus dans le calcul.";
 
 // MARK: - Path Hop Row View
 
@@ -1103,19 +1142,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Badge accessibility hint */
-"reactions.badge_hint" = "Touchez deux fois pour réagir, appui long pour les détails";
+"reactions.badge_hint" = "Affiche qui a réagi";
 
 /* Location: ReactionBadgeView.swift - More badge: additional reaction types count */
 "reactions.more_badge" = "%d autres types de réaction";
 
 /* Location: ReactionBadgeView.swift - More badge accessibility hint */
-"reactions.more_badge_hint" = "Touchez deux fois pour voir toutes les réactions";
+"reactions.more_badge_hint" = "Affiche toutes les réactions";
 
 /* Location: EmojiPickerSheet.swift - More emojis button */
 "reactions.more_emojis" = "Plus d'émojis";
-
-/* Location: ReactionBadgeView.swift - View details button */
-"reactions.view_details" = "Voir les détails des réactions";
 
 /* Location: ReactionDetailsSheet.swift - Details sheet title */
 /* Location: ReactionViewModel.swift - Send failed error */

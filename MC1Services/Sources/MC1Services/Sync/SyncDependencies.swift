@@ -33,6 +33,9 @@ struct SyncDependencies {
   /// public keys, channel secrets).
   let rxLogService: RxLogService
 
+  /// Service recording extra incoming flood paths and sent-echo repeats.
+  let heardRepeatsService: HeardRepeatsService
+
   /// Service persisting signed room messages.
   let roomServerService: RoomServerService
 
@@ -61,6 +64,7 @@ struct SyncDependencies {
     reactionService: ReactionService,
     advertisementService: AdvertisementService,
     rxLogService: RxLogService,
+    heardRepeatsService: HeardRepeatsService,
     roomServerService: RoomServerService,
     roomAdminService: RoomAdminService,
     repeaterAdminService: RepeaterAdminService,
@@ -76,6 +80,7 @@ struct SyncDependencies {
     self.reactionService = reactionService
     self.advertisementService = advertisementService
     self.rxLogService = rxLogService
+    self.heardRepeatsService = heardRepeatsService
     self.roomServerService = roomServerService
     self.roomAdminService = roomAdminService
     self.repeaterAdminService = repeaterAdminService
@@ -101,6 +106,7 @@ extension ServiceContainer {
       reactionService: reactionService,
       advertisementService: advertisementService,
       rxLogService: rxLogService,
+      heardRepeatsService: heardRepeatsService,
       roomServerService: roomServerService,
       roomAdminService: roomAdminService,
       repeaterAdminService: repeaterAdminService,

@@ -965,6 +965,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "Входящий регион";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Входящее количество услышанных";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Показывать информацию о маршрутизации и времени во входящих сообщениях.";
 
@@ -1312,6 +1315,10 @@
 "language.defaultTranslationApp.title" = "Использовать приложение перевода по умолчанию";
 
 "language.defaultTranslationApp.footer" = "Использует приложение «Перевод» или другое приложение, выбранное в Настройках.";
+
+"language.translationOffers.title" = "Предлагать перевод";
+
+"language.translationOffers.offFooter" = "Входящие сообщения на других языках не будут показывать кнопку «Перевести».";
 
 "language.search.prompt" = "Поиск языков";
 

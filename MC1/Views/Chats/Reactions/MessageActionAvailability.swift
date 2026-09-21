@@ -1,7 +1,6 @@
 import MC1Services
 
-/// Determines which message actions are available based on message state.
-/// Extracted for testability and reuse across UI components.
+/// Which actions the message sheet offers for a given `MessageDTO`.
 struct MessageActionAvailability {
   let canReply: Bool
   let canCopy: Bool
@@ -11,6 +10,8 @@ struct MessageActionAvailability {
   let canShowRepeatDetails: Bool
   let canViewPath: Bool
   let canDelete: Bool
+  /// True when the actions sheet shows the path disclosure.
+  let showsPathDetail: Bool
 
   init(message: MessageDTO) {
     canReply = !message.isOutgoing
@@ -24,5 +25,6 @@ struct MessageActionAvailability {
       && message.isFloodRouted
       && !(message.pathNodes?.isEmpty ?? true)
     canDelete = true
+    showsPathDetail = canViewPath || canShowRepeatDetails || (!message.isOutgoing && message.heardRepeats > 0)
   }
 }

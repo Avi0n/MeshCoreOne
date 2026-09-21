@@ -11,7 +11,14 @@ import AppIntents
 /// `SendMessageIntent` in the app process.
 struct OpenRadioStatusIntent: AppIntent {
   static let title = LocalizedStringResource("Open MeshCore One")
+  /// Kept so iOS 18 still foregrounds the control; iOS 26 uses `supportedModes`.
   static let openAppWhenRun = true
+
+  @available(iOS 26, *)
+  static var supportedModes: IntentModes {
+    .foreground
+  }
+
   static let isDiscoverable = false
 
   static let authenticationPolicy: IntentAuthenticationPolicy = .requiresAuthentication

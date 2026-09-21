@@ -49,6 +49,7 @@ extension RxLogService {
   /// Runs even when the new list is empty so sticky labels can clear.
   public func updateKnownRegions(_ regions: [String]) async {
     guard knownRegions != regions else { return }
+    regionCacheGeneration += 1
     knownRegions = regions
     scopeKeyCache = Self.buildScopeKeyCache(from: regions)
     await reprocessRegionEntries()
@@ -59,6 +60,7 @@ extension RxLogService {
   func replaceScopeKeyCacheAndReprocess(
     _ cache: [(name: String, key: Data)]
   ) async {
+    regionCacheGeneration += 1
     knownRegions = cache.map(\.name)
     scopeKeyCache = cache
     await reprocessRegionEntries()

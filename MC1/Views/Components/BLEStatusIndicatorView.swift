@@ -24,7 +24,14 @@ struct BLEStatusIndicatorView: View {
     ToolbarMenu {
       menuContent
     } label: {
-      StatusIcon(iconName: iconName, iconColor: iconColor, isAnimating: isAnimating)
+      // Overflow uses the title; iconOnly keeps the bar glyph-only.
+      Label {
+        Text(L10n.Settings.BleStatus.accessibilityLabel)
+      } icon: {
+        StatusIcon(iconName: iconName, iconColor: iconColor, isAnimating: isAnimating)
+      }
+      .labelStyle(.iconOnly)
+      .tint(iconColor)
     }
     .popoverTip(deviceMenuTip)
     .dynamicTypeSize(...DynamicTypeSize.xLarge)
@@ -67,6 +74,8 @@ struct BLEStatusIndicatorView: View {
             .foregroundStyle(.secondary)
           }
         }
+        .foregroundStyle(.secondary)
+        .tint(.secondary)
 
         Button {
           showingDeviceSelection = true
@@ -82,6 +91,7 @@ struct BLEStatusIndicatorView: View {
         } label: {
           Label(L10n.Settings.BleStatus.disconnect, systemImage: "eject")
         }
+        .tint(Color(.systemRed))
       }
 
       Section {
@@ -197,6 +207,7 @@ private struct StatusIcon: View {
   var body: some View {
     Image(systemName: iconName)
       .foregroundStyle(iconColor)
+      .tint(iconColor)
       .symbolEffect(.pulse, isActive: isAnimating)
   }
 }

@@ -14,7 +14,11 @@ struct SendAdvertIntent: AppIntent {
   static let description = IntentDescription(
     LocalizedStringResource("intent.advert.description", table: "Tools")
   )
-  static let openAppWhenRun = false
+
+  @available(iOS 26, *)
+  static var supportedModes: IntentModes {
+    .background
+  }
 
   /// The advert transmits the radio's live GPS, so it must run only when this
   /// iPhone is unlocked, not merely an authenticated companion device.

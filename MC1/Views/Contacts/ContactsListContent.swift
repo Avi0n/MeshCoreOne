@@ -4,9 +4,9 @@ import SwiftUI
 
 /// The nodes list rendered as a `ScrollView` + `LazyVStack` rather than a `List`. `List` is backed
 /// by `UpdateCoalescingCollectionView`, whose batch-consistency assertion is violated when the
-/// selected row is deleted; a `LazyVStack` has no collection view, so that crash cannot occur. Row
-/// actions live in a `.contextMenu`. One view serves both layouts: the compact stack navigates via
-/// `NavigationLink`, the iPad split drives a selection binding the detail column reads.
+/// selected row is deleted; a `LazyVStack` has no collection view, so that crash cannot occur.
+/// One view serves both layouts: the compact stack navigates via `NavigationLink`, the iPad split
+/// drives a selection binding the detail column reads.
 struct ContactsListContent: View {
   enum ListMode {
     case selection(Binding<ContactDTO?>)
@@ -75,6 +75,7 @@ struct ContactsListContent: View {
           .id(Self.topScrollAnchor)
         scrollContent
       }
+      .swipeActionsContainerIfAvailable()
       .refreshable {
         await onRefresh()
         // `.refreshable` on ScrollView leaves the large title jumped; scrollTo restacks it.
@@ -188,6 +189,7 @@ private struct ContactSelectionRow: View {
     .accessibilityAddTraits(isSelected ? .isSelected : [])
     .deletingRowOverlay(isDeleting: isDeleting)
     .contactContextMenu(contact: contact, viewModel: viewModel)
+    .contactSwipeActions(contact: contact, viewModel: viewModel)
   }
 }
 
@@ -208,5 +210,6 @@ private struct ContactNavigationRow: View {
     .buttonStyle(.plain)
     .deletingRowOverlay(isDeleting: isDeleting)
     .contactContextMenu(contact: contact, viewModel: viewModel)
+    .contactSwipeActions(contact: contact, viewModel: viewModel)
   }
 }

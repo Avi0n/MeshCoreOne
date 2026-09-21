@@ -14,7 +14,7 @@ concurrency:
 jobs:
   spm-tests:
     name: SPM Package Tests
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 25
 
     steps:
@@ -101,7 +101,7 @@ jobs:
 
   xcode-build:
     name: Xcode Build
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 15
 
     steps:

@@ -601,6 +601,15 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
 "chats.message.action.viewPath" = "Ver ruta";
 
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Detalles de ruta";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "Escuchado 1 vez";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "Escuchado %d veces";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Saltos: %@";
 
@@ -785,6 +794,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Los datos de ruta no están disponibles para este mensaje";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "No se puede colocar la ruta";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Los saltos desconocidos, los que no tienen ubicación o los que coinciden con más de un nodo no se colocan en el mapa.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Copiar ruta";
 
@@ -798,8 +813,32 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Mapa de ruta";
 
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Primera";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ después de la primera llegada";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Ver ruta en el mapa";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "No se pudieron cargar las rutas extra.";
+
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centrar en la ruta";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Distancia de ruta";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Distancia de Ruta";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "La distancia puede ser inexacta. Los saltos desconocidos, los que no tienen ubicación o los que coinciden con más de un nodo no se incluyen en el cálculo.";
 
 // MARK: - Path Hop Row View
 
@@ -1103,19 +1142,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Purpose: Accessibility hint for reaction badge */
-"reactions.badge_hint" = "Toca dos veces para reaccionar, mantén presionado para ver detalles";
+"reactions.badge_hint" = "Muestra quién reaccionó";
 
 /* Location: ReactionBadgeView.swift - Purpose: Overflow badge showing additional reaction types */
 "reactions.more_badge" = "%d tipos de reacción más";
 
 /* Location: ReactionBadgeView.swift - Purpose: Accessibility hint for overflow badge */
-"reactions.more_badge_hint" = "Toca dos veces para ver todas las reacciones";
+"reactions.more_badge_hint" = "Muestra todas las reacciones";
 
 /* Location: EmojiPickerSheet.swift - Purpose: More emojis button */
 "reactions.more_emojis" = "Más emojis";
-
-/* Location: ReactionBadgeView.swift - Purpose: View details button */
-"reactions.view_details" = "Ver detalles de reacciones";
 
 /* Location: ReactionDetailsSheet.swift - Purpose: Details sheet title */
 /* Location: ReactionService.swift - Purpose: Error when sending reaction fails */

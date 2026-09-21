@@ -53,6 +53,47 @@ struct MessageActionAvailabilityTests {
     #expect(availability.canViewPath == true)
   }
 
+  // MARK: - showsPathDetail
+
+  @Test
+  func `incoming flood with no extras still shows path detail via canViewPath`() {
+    let message = makeMessage(pathNodes: Data([0xA3, 0x7F]), routeType: .flood)
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canViewPath == true)
+    #expect(availability.showsPathDetail == true)
+  }
+
+  @Test
+  func `incoming flood with empty path and one extra still shows path detail`() {
+    let message = makeMessage(pathNodes: Data(), routeType: .flood, heardRepeats: 1)
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canViewPath == false)
+    #expect(availability.showsPathDetail == true)
+  }
+
+  @Test
+  func `incoming flood with nil path and one extra still shows path detail`() {
+    let message = makeMessage(pathNodes: nil, routeType: .flood, heardRepeats: 1)
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canViewPath == false)
+    #expect(availability.showsPathDetail == true)
+  }
+
+  @Test
+  func `outgoing with heard repeats shows path detail`() {
+    let message = makeMessage(direction: .outgoing, heardRepeats: 2)
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.canShowRepeatDetails == true)
+    #expect(availability.showsPathDetail == true)
+  }
+
+  @Test
+  func `outgoing with no repeats hides path detail`() {
+    let message = makeMessage(direction: .outgoing, heardRepeats: 0)
+    let availability = MessageActionAvailability(message: message)
+    #expect(availability.showsPathDetail == false)
+  }
+
   // MARK: - isFloodRouted
 
   @Test
@@ -165,7 +206,8 @@ struct MessageActionAvailabilityTests {
     pathNodes: Data? = Data([0xA3, 0x7F]),
     direction: MessageDirection = .incoming,
     routeType: RouteType? = nil,
-    senderKeyPrefix: Data? = nil
+    senderKeyPrefix: Data? = nil,
+    heardRepeats: Int = 0
   ) -> MessageDTO {
     MessageDTO(
       id: UUID(),
@@ -187,7 +229,7 @@ struct MessageActionAvailabilityTests {
       isRead: true,
       replyToID: nil,
       roundTripTime: nil,
-      heardRepeats: 0,
+      heardRepeats: heardRepeats,
       retryAttempt: 0,
       maxRetryAttempts: 0,
       routeType: routeType

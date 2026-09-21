@@ -601,6 +601,15 @@
 /* Location: UnifiedMessageBubble.swift - Context menu action to view path */
 "chats.message.action.viewPath" = "Pad bekijken";
 
+/* Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet */
+"chats.message.action.pathDetails" = "Padgegevens";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn */
+"chats.message.action.heardTimes.singular" = "1 keer gehoord";
+
+/* Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn */
+"chats.message.action.heardTimes.plural" = "%d keer gehoord";
+
 /* Location: UnifiedMessageBubble.swift - Context menu text showing hop count - %@ is count or "Direct" */
 "chats.message.info.hops" = "Sprongen: %@";
 
@@ -786,6 +795,12 @@
 /* Location: MessagePathSheet.swift - Empty state description */
 "chats.path.unavailable.description" = "Padgegevens zijn niet beschikbaar voor dit bericht";
 
+/* Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed */
+"chats.path.unplaceable.title" = "Kan pad niet plaatsen";
+
+/* Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed */
+"chats.path.unplaceable.description" = "Sprongen die onbekend zijn, geen locatie hebben of met meer dan één node overeenkomen, worden niet op de kaart geplaatst.";
+
 /* Location: MessagePathSheet.swift - Button to copy path */
 "chats.path.copyButton" = "Pad kopiëren";
 
@@ -799,8 +814,32 @@
 /* Location: MessagePathMapView.swift - Path map button and sheet navigation title */
 "chats.path.map" = "Padkaart";
 
+/* Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival */
+"chats.path.arrival.first" = "Eerste";
+
+/* Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s */
+"chats.path.arrival.offset" = "+%@";
+
+/* Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration */
+"chats.path.arrival.offsetAccessibility" = "%@, %@ na de eerste aankomst";
+
+/* Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map */
+"chats.path.accessibility.viewOnMap" = "Pad op kaart bekijken";
+
+/* Location: MessageActionsSheet.swift - Alert when extra path fetch fails */
+"chats.path.extrasLoadFailed" = "Kan extra paden niet laden.";
+
 /* Location: MessagePathMapView.swift - Center on path map control accessibility label */
 "chats.path.centerOnPath" = "Centreren op pad";
+
+/* Location: PathDistanceBanner.swift - VoiceOver label for path distance help */
+"chats.path.distance.incomplete" = "Padafstand";
+
+/* Location: PathDistanceBanner.swift - Title for path distance popover */
+"chats.path.distance.incompleteTitle" = "Padafstand";
+
+/* Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect */
+"chats.path.distance.incompleteExplanation" = "Afstand kan onnauwkeurig zijn. Sprongen die onbekend zijn, geen locatie hebben of met meer dan één node overeenkomen, worden niet meegenomen in de berekening.";
 
 // MARK: - Path Hop Row View
 
@@ -1105,19 +1144,16 @@
 "reactions.badge" = "%@ %d";
 
 /* Location: ReactionBadgeView.swift - Badge accessibility hint */
-"reactions.badge_hint" = "Tik twee keer om te reageren, houd ingedrukt voor details";
+"reactions.badge_hint" = "Toont wie heeft gereageerd";
 
 /* Location: ReactionBadgeView.swift - More badge showing additional reaction types */
 "reactions.more_badge" = "%d meer reactietypes";
 
 /* Location: ReactionBadgeView.swift - More badge accessibility hint */
-"reactions.more_badge_hint" = "Tik twee keer om alle reacties te bekijken";
+"reactions.more_badge_hint" = "Toont alle reacties";
 
 /* Location: EmojiPickerSheet.swift - More emojis button */
 "reactions.more_emojis" = "Meer emoji's";
-
-/* Location: ReactionBadgeView.swift - View details button */
-"reactions.view_details" = "Reactiedetails bekijken";
 
 /* Location: ReactionDetailsSheet.swift - Details sheet title */
 /* Location: ReactionSendError.swift - Send failed message */

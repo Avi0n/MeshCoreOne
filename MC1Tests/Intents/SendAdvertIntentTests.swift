@@ -1,3 +1,4 @@
+import AppIntents
 import Foundation
 @testable import MC1
 @testable import MC1Services
@@ -57,6 +58,14 @@ struct SendAdvertIntentTests {
     #expect(Self.tag(SendAdvertIntent.mapToIntentError(Self.UnmappedError())) == "advertFailed")
     // An already-localized IntentError passes through unchanged.
     #expect(Self.tag(SendAdvertIntent.mapToIntentError(IntentError.messageTooLong as Error)) == "messageTooLong")
+  }
+
+  // MARK: - Execution modes (iOS 26)
+
+  @Test func `supported modes is background`() {
+    if #available(iOS 26, *) {
+      #expect(SendAdvertIntent.supportedModes == .background)
+    }
   }
 
   private struct UnmappedError: Error {}

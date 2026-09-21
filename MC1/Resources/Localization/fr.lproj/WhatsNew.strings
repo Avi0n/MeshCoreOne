@@ -16,17 +16,17 @@
 /* Link on the What's New sheet to the full GitHub release notes */
 "whatsNew.fullReleaseNotes" = "Voir tous les nouveaux changements";
 
-/* What's New v1.4 - Incoming message translation feature, title */
-"whatsNew.messageTranslation.title" = "Traduction des messages reçus";
-/* What's New v1.4 - Incoming message translation feature, description */
-"whatsNew.messageTranslation.description" = "Traduisez les messages reçus dans la langue de votre appareil. Sur iOS 26.4 ou version ultérieure, Apple Intelligence est utilisé en premier, puis les packs linguistiques de Traduire.";
+/* What's New v1.5 - Path Details feature, title */
+"whatsNew.pathDetails.title" = "Détails du chemin";
+/* What's New v1.5 - Path Details feature, description */
+"whatsNew.pathDetails.description" = "La Carte du trajet a été déplacée dans Détails du chemin, qui liste chaque chemin supplémentaire entrant. Détails des répétitions, sur les messages envoyés, liste chaque chemin de répétition entendu par votre radio.";
 
-/* What's New v1.4 - Sender avatars in channels and rooms, title */
-"whatsNew.senderAvatars.title" = "Avatars des canaux et salons";
-/* What's New v1.4 - Sender avatars in channels and rooms, description */
-"whatsNew.senderAvatars.description" = "Les messages reçus dans les canaux et les salons affichent l’avatar de l’expéditeur.";
+/* What's New v1.5 - Tap a reaction to see who added it, title */
+"whatsNew.whoReacted.title" = "Qui a réagi";
+/* What's New v1.5 - Tap a reaction to see who added it, description */
+"whatsNew.whoReacted.description" = "Appuyez sur une réaction dans un message pour voir qui l'a ajoutée, au lieu d'envoyer la réaction.";
 
-/* What's New v1.4 - Failed-send badges on the Chats list, title */
-"whatsNew.failedSends.title" = "Échecs d’envoi dans Messages";
-/* What's New v1.4 - Failed-send badges on the Chats list, description */
-"whatsNew.failedSends.description" = "La liste Messages signale une conversation lorsqu’un envoi échoue.";
+/* What's New v1.5 - Faster chat loading, title */
+"whatsNew.fasterChatLoading.title" = "Chargement plus rapide des messages";
+/* What's New v1.5 - Faster chat loading, description */
+"whatsNew.fasterChatLoading.description" = "L'ouverture d'une conversation est jusqu'à 90%% plus rapide.";

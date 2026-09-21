@@ -67,13 +67,16 @@ enum PinSpriteRenderer {
 
   /// A base pin sprite rendered once and reused, so snapshot thumbnails composite
   /// the exact pins the live map drops. Unknown names return an empty image.
-  /// Must be called on the main actor.
   static func snapshotSprite(named name: String) -> UIImage {
     if let cached = cachedSnapshotSprites[name] { return cached }
-    guard let spec = allSpecs.first(where: { $0.name == name }) else {
+    let image: UIImage
+    if let spec = allSpecs.first(where: { $0.name == name }) {
+      image = render(spec)
+    } else if let hopImage = renderHopVariant(named: name) {
+      image = hopImage
+    } else {
       return UIImage()
     }
-    let image = render(spec)
     cachedSnapshotSprites[name] = image
     return image
   }
@@ -83,10 +86,8 @@ enum PinSpriteRenderer {
     snapshotSprite(named: "pin-dropped")
   }
 
-  /// Registers base pin sprites into the style. Hop-ring variants are rendered
-  /// lazily via `renderOnDemand(name:into:)` when MapLibre requests a missing image.
-  /// `isDarkMode` selects the location-dot recency palette; the style reloads on a
-  /// theme switch, so this re-renders those sprites for the new basemap each time.
+  /// Registers base pin sprites. Hop-ring and name-label sprites load lazily via
+  /// `renderOnDemand` / `image(named:)`. `isDarkMode` picks the location-dot palette.
   static func renderAll(into style: MLNStyle, isDarkMode: Bool) {
     var rendered: [String: UIImage] = [:]
     for spec in allSpecs {
@@ -111,32 +112,22 @@ enum PinSpriteRenderer {
     }
   }
 
-  /// Renders a hop-ring sprite on demand when MapLibre requests a missing image name.
-  /// Returns the rendered image so the caller can pass it back to MapLibre as
-  /// the immediate fallback, avoiding a single-frame blink.
-  static func renderOnDemand(name: String, into style: MLNStyle) -> UIImage? {
+  /// Keep label, pin, and pill-bg sprites across source replaces. Basemap sprites still evict.
+  static func shouldRetainStyleImage(_ name: String) -> Bool {
+    name == "pill-bg"
+      || name.hasPrefix(labelSpritePrefix)
+      || name.hasPrefix("pin-")
+  }
+
+  /// Cached hop-ring or name-label sprite for `didFailToLoadImage` to register once.
+  static func image(named name: String) -> UIImage? {
     if let cached = cachedImages?[name] {
-      style.setImage(cached, forName: name)
       return cached
     }
 
     let image: UIImage
-    if name.hasPrefix("pin-repeater-ring-white-hop-") {
-      guard let hopString = name.split(separator: "-").last,
-            let hop = Int(hopString),
-            (1...maxHopBadge).contains(hop),
-            let ringWhiteSpec = allSpecs.first(where: { $0.name == "pin-repeater-ring-white" }) else {
-        return nil
-      }
-      image = render(ringWhiteSpec, hopIndex: hop)
-    } else if name.hasPrefix("pin-repeater-hop-") {
-      guard let hopString = name.split(separator: "-").last,
-            let hop = Int(hopString),
-            (1...maxHopBadge).contains(hop),
-            let repeaterSpec = allSpecs.first(where: { $0.name == "pin-repeater" }) else {
-        return nil
-      }
-      image = render(repeaterSpec, hopIndex: hop)
+    if let hopImage = renderHopVariant(named: name) {
+      image = hopImage
     } else if name.hasPrefix(labelSpritePrefix) {
       let text = String(name.dropFirst(labelSpritePrefix.count))
       guard !text.isEmpty else { return nil }
@@ -146,8 +137,41 @@ enum PinSpriteRenderer {
     }
 
     cachedImages?[name] = image
-    style.setImage(image, forName: name)
     return image
+  }
+
+  /// Registers the sprite only when the style does not already have it, so a
+  /// source replace does not rebuild the image atlas.
+  static func renderOnDemand(name: String, into style: MLNStyle) -> UIImage? {
+    guard let image = image(named: name) else { return nil }
+    if style.image(forName: name) == nil {
+      style.setImage(image, forName: name)
+    }
+    return image
+  }
+
+  /// Hop-badged names are not in `allSpecs`. Snapshots have no `MLNStyle`, so they
+  /// cannot go through `renderOnDemand`.
+  private static func renderHopVariant(named name: String) -> UIImage? {
+    if name.hasPrefix("pin-repeater-ring-white-hop-") {
+      guard let hopString = name.split(separator: "-").last,
+            let hop = Int(hopString),
+            (1...maxHopBadge).contains(hop),
+            let ringWhiteSpec = allSpecs.first(where: { $0.name == "pin-repeater-ring-white" }) else {
+        return nil
+      }
+      return render(ringWhiteSpec, hopIndex: hop)
+    }
+    if name.hasPrefix("pin-repeater-hop-") {
+      guard let hopString = name.split(separator: "-").last,
+            let hop = Int(hopString),
+            (1...maxHopBadge).contains(hop),
+            let repeaterSpec = allSpecs.first(where: { $0.name == "pin-repeater" }) else {
+        return nil
+      }
+      return render(repeaterSpec, hopIndex: hop)
+    }
+    return nil
   }
 
   // MARK: - Sprite specifications

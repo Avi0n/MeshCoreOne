@@ -91,14 +91,17 @@ final class StoreStatePurchaseTests {
 
   @Test
   func `an Ask-to-Buy purchase sets a pending banner, then reconcile clears it on approval`() async throws {
+    try await waitForClearedStoreKitSession(session)
     session.askToBuyEnabled = true
     let service = StoreService()
     await service.load()
+    #expect(service.ownedThemeIDs.isEmpty)
     let state = StoreState(service: service)
 
     await state.purchase(productID: StoreCatalog.Theme.bundleAll) { try await $0.purchase() }
     #expect(state.pendingPurchase?.productID == StoreCatalog.Theme.bundleAll)
 
+    try await waitForTestTransaction(in: session, productID: StoreCatalog.Theme.bundleAll)
     let pending = try #require(session.allTransactions().first {
       $0.productIdentifier == StoreCatalog.Theme.bundleAll
     })
@@ -152,11 +155,13 @@ final class StoreStatePurchaseTests {
   }
 
   @Test
-  func `an unrelated .purchased does not clear an in-flight pending purchase`() async {
+  func `an unrelated .purchased does not clear an in-flight pending purchase`() async throws {
     // Ask-to-Buy on while the bundle is bought: outcome is .pending, banner is set.
+    try await waitForClearedStoreKitSession(session)
     session.askToBuyEnabled = true
     let service = StoreService()
     await service.load()
+    #expect(service.ownedThemeIDs.isEmpty)
     let state = StoreState(service: service)
 
     _ = await state.purchase(productID: StoreCatalog.Theme.bundleAll) { try await $0.purchase() }

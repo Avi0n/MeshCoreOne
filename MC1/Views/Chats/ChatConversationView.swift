@@ -67,6 +67,8 @@ struct ChatConversationView: View {
   @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = AppStorageKey.defaultShowIncomingPath
   @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = AppStorageKey.defaultShowIncomingHopCount
   @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = AppStorageKey.defaultShowIncomingRegion
+  @AppStorage(AppStorageKey.showIncomingHeardCount.rawValue)
+  private var showIncomingHeardCount = AppStorageKey.defaultShowIncomingHeardCount
   @AppStorage(AppStorageKey.showIncomingSendTime.rawValue) private var showIncomingSendTime = AppStorageKey.defaultShowIncomingSendTime
   @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
   @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
@@ -75,6 +77,8 @@ struct ChatConversationView: View {
   private var translationTargetLanguage = AppStorageKey.defaultTranslationTargetLanguage
   @AppStorage(AppStorageKey.useDefaultTranslationApp.rawValue)
   private var useDefaultTranslationApp = AppStorageKey.defaultUseDefaultTranslationApp
+  @AppStorage(AppStorageKey.translationOffersEnabled.rawValue)
+  private var translationOffersEnabled = AppStorageKey.defaultTranslationOffersEnabled
 
   // MARK: - Environment
 
@@ -97,6 +101,7 @@ struct ChatConversationView: View {
       showIncomingPath: showIncomingPath,
       showIncomingHopCount: showIncomingHopCount,
       showIncomingRegion: showIncomingRegion,
+      showIncomingHeardCount: showIncomingHeardCount,
       showIncomingSendTime: showIncomingSendTime,
       previewsEnabled: previewsEnabled,
       isHighContrast: colorSchemeContrast == .increased,
@@ -107,7 +112,8 @@ struct ChatConversationView: View {
       themeID: theme.id,
       contentSizeCategory: AppearanceToken.contentSizeCategoryToken(dynamicTypeSize),
       preferredLanguageCode: TranslationTargetPreference(rawValue: translationTargetLanguage)
-        .resolvedLanguageCode(appLocale: locale)
+        .resolvedLanguageCode(appLocale: locale),
+      translationOffersEnabled: translationOffersEnabled
     )
   }
 

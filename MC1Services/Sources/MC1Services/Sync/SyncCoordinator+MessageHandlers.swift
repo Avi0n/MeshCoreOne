@@ -94,6 +94,76 @@ extension SyncCoordinator {
     return .direct(message, contact: materialized)
   }
 
+  /// Re-decrypts stamp-matched 0x88 rows and harvests extras, then refetches
+  /// so the channel broadcast carries the extra count.
+  private func harvestAndRefreshChannelMessage(
+    messageDTO: MessageDTO,
+    radioID: UUID,
+    dependencies: SyncDependencies
+  ) async throws -> MessageDTO {
+    guard let channelIndex = messageDTO.channelIndex else { return messageDTO }
+    let stamp = messageDTO.senderTimestamp ?? messageDTO.timestamp
+    do {
+      let raw = try await dependencies.dataStore.fetchRxLogEntries(
+        radioID: radioID,
+        channelIndex: channelIndex,
+        senderTimestamp: stamp
+      )
+      let decoded = await dependencies.rxLogService.decodedEntries(raw)
+      await dependencies.heardRepeatsService.harvestIncomingPaths(
+        for: messageDTO,
+        decodedCandidates: decoded
+      )
+    } catch {
+      logger.error("Failed to harvest incoming channel paths: \(error)")
+    }
+    if let refreshed = try await dependencies.dataStore.fetchMessage(id: messageDTO.id) {
+      return refreshed
+    }
+    return messageDTO
+  }
+
+  /// True when a row already owns this content key. A known distinct channel path
+  /// is recorded as an extra; a nil path is unknown and is not written as one.
+  private func recordArrivalAndSkipDuplicate(
+    resolvedKind: IncomingMessageKind,
+    deduplicationKey: String,
+    radioID: UUID,
+    rxResult: RxLogLookupResult,
+    snr: Double?,
+    receiveTime: Date,
+    dependencies: SyncDependencies
+  ) async -> Bool {
+    do {
+      guard let existing = try await dependencies.dataStore.fetchMessage(
+        deduplicationKey: deduplicationKey,
+        radioID: radioID
+      ) else {
+        return false
+      }
+      if case .channel = resolvedKind {
+        guard let path = rxResult.pathNodes else {
+          logger.info("Skipping duplicate \(resolvedKind.logLabel) message")
+          return true
+        }
+        await dependencies.heardRepeatsService.recordDistinctPathIfNeeded(
+          message: existing,
+          pathNodes: path,
+          pathLength: rxResult.pathLength,
+          snr: snr,
+          rssi: nil,
+          receivedAt: receiveTime,
+          rxLogEntryID: nil
+        )
+      }
+      logger.info("Skipping duplicate \(resolvedKind.logLabel) message")
+      return true
+    } catch {
+      logger.warning("Dedup check failed, proceeding with save: \(error)")
+      return false
+    }
+  }
+
   /// Shared ingestion pipeline for incoming direct and channel messages:
   /// timestamp correction, RX-log path correlation, dedup, reaction
   /// short-circuit, persistence, unread/notification updates, and UI refresh.
@@ -159,23 +229,24 @@ extension SyncCoordinator {
 
     let sortDate = Self.sortDate(for: context, receiveTime: receiveTime)
 
-    // Look up path data from RxLogEntry using the sender timestamp stored
-    // during decryption (for direct messages, channelIndex is nil)
-    let rxResult = await lookupRxLogEntry(
-      dependencies: dependencies,
-      radioID: radioID,
-      channelIndex: channelIndex,
-      senderTimestamp: timestamp,
-      senderPublicKeyPrefix: senderKeyPrefix,
-      defaultPathLength: reportedPathLength
-    )
-
     // Use content-based key for dedup (stable across retry attempts).
     // The RX log packetHash is per-encrypted-packet and differs between
     // retries with different attempt counters, so it must not drive dedup.
     let deduplicationKey = Self.fallbackDeduplicationKey(
       contactID: contactID, channelIndex: channelIndex,
       senderNodeName: senderNodeName, timestamp: timestamp, content: text
+    )
+
+    // Channel lookup joins decrypted 0x88 rows by DeduplicationKey; DMs still
+    // match timestamp then sender-prefix.
+    let rxResult = await lookupRxLogEntry(
+      dependencies: dependencies,
+      radioID: radioID,
+      channelIndex: channelIndex,
+      senderTimestamp: timestamp,
+      senderPublicKeyPrefix: senderKeyPrefix,
+      defaultPathLength: reportedPathLength,
+      channelDeduplicationKey: channelIndex != nil ? deduplicationKey : nil
     )
 
     // Check for self-mention before creating DTO
@@ -238,14 +309,16 @@ extension SyncCoordinator {
       regionScopeMatches: rxResult.regionScopeMatches
     )
 
-    // Check for duplicate before saving
-    do {
-      if try await dependencies.dataStore.isDuplicateMessage(deduplicationKey: deduplicationKey, radioID: radioID) {
-        logger.info("Skipping duplicate \(resolvedKind.logLabel) message")
-        return
-      }
-    } catch {
-      logger.warning("Dedup check failed, proceeding with save: \(error)")
+    if await recordArrivalAndSkipDuplicate(
+      resolvedKind: resolvedKind,
+      deduplicationKey: deduplicationKey,
+      radioID: radioID,
+      rxResult: rxResult,
+      snr: snr,
+      receiveTime: receiveTime,
+      dependencies: dependencies
+    ) {
+      return
     }
 
     // Stamp before the reaction early return so bodies and reactions both count.
@@ -297,11 +370,19 @@ extension SyncCoordinator {
 
     do {
       try await dependencies.dataStore.saveMessage(messageDTO)
+      var savedDTO = messageDTO
+      if case .channel = resolvedKind {
+        savedDTO = try await harvestAndRefreshChannelMessage(
+          messageDTO: messageDTO,
+          radioID: radioID,
+          dependencies: dependencies
+        )
+      }
 
       switch resolvedKind {
       case let .direct(_, contact):
         try await indexAndNotifyDirectMessage(
-          messageDTO: messageDTO,
+          messageDTO: savedDTO,
           contact: contact,
           messageText: text,
           timestamp: timestamp,
@@ -311,7 +392,7 @@ extension SyncCoordinator {
         )
       case let .channel(message, channel):
         try await indexAndNotifyChannelMessage(
-          messageDTO: messageDTO,
+          messageDTO: savedDTO,
           channel: channel,
           channelIndex: message.channelIndex,
           senderNodeName: senderNodeName,
@@ -328,7 +409,7 @@ extension SyncCoordinator {
 
       // Broadcast for real-time chat updates
       if case let .direct(_, contact) = resolvedKind, let contact {
-        dataEventBroadcaster.yield(.directMessageReceived(message: messageDTO, contact: contact))
+        dataEventBroadcaster.yield(.directMessageReceived(message: savedDTO, contact: contact))
       }
     } catch {
       switch resolvedKind {

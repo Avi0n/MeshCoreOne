@@ -1,27 +1,47 @@
 import MapKit
 import SwiftUI
 
-/// Path summary shown in place of the map sheet's navigation title: hop count
-/// and, when at least two nodes have coordinates, the drawn-path distance.
+/// Drawn-path distance over a path map, with hop count unless the host already shows hops.
+/// A question-mark control appears when hops could not be placed, so distance may be shorter or omitted.
 struct PathDistanceBanner: View {
   private static let horizontalPadding: CGFloat = 16
   private static let verticalPadding: CGFloat = 8
 
-  let hopCount: Int
+  var hopCount: Int = 0
   let totalPathDistance: CLLocationDistance?
+  var isDistanceIncomplete = false
+  var showsHopCount = true
 
   var body: some View {
     HStack(spacing: 4) {
-      Text(L10n.Contacts.Contacts.Trace.Map.hops(hopCount))
+      if showsHopCount {
+        Text(L10n.Contacts.Contacts.Trace.Map.hops(hopCount))
+          .contentTransition(.identity)
+        if totalPathDistance != nil {
+          Text("•")
+        }
+      }
       if let distance = totalPathDistance {
-        Text("•")
-        Text(Measurement(value: distance, unit: UnitLength.meters),
-             format: .measurement(width: .abbreviated, usage: .road))
+        Text(
+          Measurement(value: distance, unit: UnitLength.meters),
+          format: .measurement(width: .abbreviated, usage: .road)
+        )
+        .contentTransition(.identity)
+      }
+      if isDistanceIncomplete {
+        FallbackMatchIndicatorView(
+          accessibilityLabel: L10n.Chats.Chats.Path.Distance.incomplete,
+          accessibilityHint: L10n.Chats.Chats.Path.Distance.incompleteExplanation,
+          title: L10n.Chats.Chats.Path.Distance.incompleteTitle,
+          explanation: L10n.Chats.Chats.Path.Distance.incompleteExplanation
+        )
       }
     }
     .font(.subheadline.weight(.medium))
     .padding(.horizontal, Self.horizontalPadding)
     .padding(.vertical, Self.verticalPadding)
+    .geometryGroup()
     .liquidGlass(in: .capsule)
+    .transaction { $0.animation = nil }
   }
 }

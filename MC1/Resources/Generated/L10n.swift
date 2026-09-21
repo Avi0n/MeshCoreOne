@@ -632,6 +632,8 @@ public enum L10n {
           public static func openWebLink(_ p1: Any) -> String {
             return L10n.tr("Chats", "chats.message.action.openWebLink", String(describing: p1), fallback: "Open Link: %@")
           }
+          /// Location: MessagePathDetailBlock.swift - Disclosure row in the message actions sheet
+          public static let pathDetails = L10n.tr("Chats", "chats.message.action.pathDetails", fallback: "Path Details")
           /// Location: UnifiedMessageBubble.swift - Context menu action to view repeat details
           public static let repeatDetails = L10n.tr("Chats", "chats.message.action.repeatDetails", fallback: "Repeat Details")
           /// Location: UnifiedMessageBubble.swift - Context menu action to reply
@@ -656,6 +658,14 @@ public enum L10n {
           public static let viewPath = L10n.tr("Chats", "chats.message.action.viewPath", fallback: "View Path")
           /// Location: UnifiedMessageBubble.swift - VoiceOver action to open the reactions detail sheet
           public static let viewReactions = L10n.tr("Chats", "chats.message.action.viewReactions", fallback: "View Reactions")
+          public enum HeardTimes {
+            /// Location: MessagePathDetailBlock.swift - VoiceOver label for extra path count - %d is the count, not drawn
+            public static func plural(_ p1: Int) -> String {
+              return L10n.tr("Chats", "chats.message.action.heardTimes.plural", p1, fallback: "Heard %d Times")
+            }
+            /// Location: MessagePathDetailBlock.swift - VoiceOver label for a single extra path, not drawn
+            public static let singular = L10n.tr("Chats", "chats.message.action.heardTimes.singular", fallback: "Heard 1 Time")
+          }
         }
         public enum HopCount {
           /// Location: UnifiedMessageBubble.swift - Accessibility label for hop count display - %d is count
@@ -849,8 +859,34 @@ public enum L10n {
         public static let copyButton = L10n.tr("Chats", "chats.path.copyButton", fallback: "Copy Path")
         /// Location: MessagePathSheet.swift - Accessibility hint for copy button
         public static let copyHint = L10n.tr("Chats", "chats.path.copyHint", fallback: "Copies node IDs as hexadecimal values")
+        /// Location: MessageActionsSheet.swift - Alert when extra path fetch fails
+        public static let extrasLoadFailed = L10n.tr("Chats", "chats.path.extrasLoadFailed", fallback: "Couldn't load extra paths.")
         /// Location: MessagePathMapView.swift - Path map button and sheet navigation title
         public static let map = L10n.tr("Chats", "chats.path.map", fallback: "Path Map")
+        public enum Accessibility {
+          /// Location: MessagePathPreviewMap.swift - VoiceOver label for expanding the compact path map
+          public static let viewOnMap = L10n.tr("Chats", "chats.path.accessibility.viewOnMap", fallback: "View path on map")
+        }
+        public enum Arrival {
+          /// Location: MessagePathDetailBlock.swift - Capsule subtitle for the first arrival
+          public static let first = L10n.tr("Chats", "chats.path.arrival.first", fallback: "First")
+          /// Location: MessagePathArrivalCapsules.swift - Later capsule subtitle, %@ is a duration like 3s
+          public static func offset(_ p1: Any) -> String {
+            return L10n.tr("Chats", "chats.path.arrival.offset", String(describing: p1), fallback: "+%@")
+          }
+          /// Location: MessagePathArrivalCapsules.swift - VoiceOver for a later capsule. First %@ is hops/SNR title, second %@ is duration
+          public static func offsetAccessibility(_ p1: Any, _ p2: Any) -> String {
+            return L10n.tr("Chats", "chats.path.arrival.offsetAccessibility", String(describing: p1), String(describing: p2), fallback: "%@, %@ after the first arrival")
+          }
+        }
+        public enum Distance {
+          /// Location: PathDistanceBanner.swift - VoiceOver label for path distance help
+          public static let incomplete = L10n.tr("Chats", "chats.path.distance.incomplete", fallback: "Path distance")
+          /// Location: PathDistanceBanner.swift - Explanation that omitted hops can make distance incorrect
+          public static let incompleteExplanation = L10n.tr("Chats", "chats.path.distance.incompleteExplanation", fallback: "Distance may be inaccurate. Hops that are unknown, have no location, or match more than one node are not included in the calculation.")
+          /// Location: PathDistanceBanner.swift - Title for path distance popover
+          public static let incompleteTitle = L10n.tr("Chats", "chats.path.distance.incompleteTitle", fallback: "Path Distance")
+        }
         public enum Hop {
           /// Location: PathHopRowView.swift - Accessibility value format for non-last hops - %@ is hex ID
           public static func nodeId(_ p1: Any) -> String {
@@ -888,6 +924,12 @@ public enum L10n {
           public static let description = L10n.tr("Chats", "chats.path.unavailable.description", fallback: "Path data is not available for this message")
           /// Location: MessagePathSheet.swift - Empty state title
           public static let title = L10n.tr("Chats", "chats.path.unavailable.title", fallback: "Path Unavailable")
+        }
+        public enum Unplaceable {
+          /// Location: MessagePathMapView.swift - Empty state description when hops exist but none can be placed
+          public static let description = L10n.tr("Chats", "chats.path.unplaceable.description", fallback: "Hops that are unknown, have no location, or match more than one node aren't placed on the map.")
+          /// Location: MessagePathMapView.swift - Empty state title when hops exist but none can be placed
+          public static let title = L10n.tr("Chats", "chats.path.unplaceable.title", fallback: "Can't Place Path")
         }
       }
       public enum Preview {
@@ -1063,19 +1105,17 @@ public enum L10n {
         return L10n.tr("Chats", "reactions.badge", String(describing: p1), p2, fallback: "%@ %d")
       }
       /// Location: ReactionBadgesView.swift - Accessibility hint for reaction badge
-      public static let badgeHint = L10n.tr("Chats", "reactions.badge_hint", fallback: "Double tap to add your reaction, long press for details")
+      public static let badgeHint = L10n.tr("Chats", "reactions.badge_hint", fallback: "Shows who reacted")
       /// Location: ReactionBadgesView.swift - Accessibility label for overflow badge - %d is count
       public static func moreBadge(_ p1: Int) -> String {
         return L10n.tr("Chats", "reactions.more_badge", p1, fallback: "%d more reaction types")
       }
       /// Location: ReactionBadgesView.swift - Accessibility hint for overflow badge
-      public static let moreBadgeHint = L10n.tr("Chats", "reactions.more_badge_hint", fallback: "Double tap to see all reactions")
+      public static let moreBadgeHint = L10n.tr("Chats", "reactions.more_badge_hint", fallback: "Shows all reactions")
       /// Location: EmojiPickerRow.swift - Label for more emojis button
       public static let moreEmojis = L10n.tr("Chats", "reactions.more_emojis", fallback: "More emojis")
       /// Location: ReactionDetailsSheet.swift - Navigation title
       public static let title = L10n.tr("Chats", "reactions.title", fallback: "Reactions")
-      /// Location: ReactionBadgesView.swift - VoiceOver accessibility action to view reaction details
-      public static let viewDetails = L10n.tr("Chats", "reactions.view_details", fallback: "View reaction details")
       public enum Emoji {
         /// Location: EmojiPickerSheet.swift - Search placeholder
         public static let searchPlaceholder = L10n.tr("Chats", "reactions.emoji.searchPlaceholder", fallback: "Search emojis")
@@ -1121,6 +1161,8 @@ public enum L10n {
       public enum Add {
         /// Location: AddContactSheet.swift - Purpose: Add button
         public static let add = L10n.tr("Contacts", "contacts.add.add", fallback: "Add")
+        /// Location: ContactAddConfirmationContent.swift - Purpose: Footer when the scanned public key already matches a contact
+        public static let alreadyAdded = L10n.tr("Contacts", "contacts.add.alreadyAdded", fallback: "Already added")
         /// Location: AddContactSheet.swift - Purpose: Character count status
         public static func characterCount(_ p1: Int, _ p2: Int) -> String {
           return L10n.tr("Contacts", "contacts.add.characterCount", p1, p2, fallback: "%d/%d characters")
@@ -1145,6 +1187,10 @@ public enum L10n {
         public static func publicKeyFooter(_ p1: Int) -> String {
           return L10n.tr("Contacts", "contacts.add.publicKeyFooter", p1, fallback: "Enter the %d-character hexadecimal public key of the contact")
         }
+        /// Location: ContactAddConfirmationContent.swift - Purpose: Caption when the QR name differs from the saved contact; %@ is the QR name
+        public static func scannedAs(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.add.scannedAs", String(describing: p1), fallback: "Scanned as %@")
+        }
         /// Location: AddContactSheet.swift - Purpose: Scan QR button label
         public static let scanQR = L10n.tr("Contacts", "contacts.add.scanQR", fallback: "Scan QR Code")
         /// Location: AddContactSheet.swift - Purpose: Navigation title
@@ -1153,6 +1199,12 @@ public enum L10n {
         public static let type = L10n.tr("Contacts", "contacts.add.type", fallback: "Type")
         /// Location: AddContactSheet.swift - Purpose: Valid key status
         public static let valid = L10n.tr("Contacts", "contacts.add.valid", fallback: "Valid")
+        /// Location: ContactAddConfirmationContent.swift - Purpose: Primary button when the scanned contact already exists
+        public static let view = L10n.tr("Contacts", "contacts.add.view", fallback: "View")
+        /// Location: ContactAddConfirmationContent.swift - Purpose: VoiceOver label for View; %@ is the saved contact name
+        public static func viewAccessibility(_ p1: Any) -> String {
+          return L10n.tr("Contacts", "contacts.add.viewAccessibility", String(describing: p1), fallback: "View %@")
+        }
         public enum Error {
           /// Location: AddContactSheet.swift - Purpose: Invalid public key format error
           public static let invalidFormat = L10n.tr("Contacts", "contacts.add.error.invalidFormat", fallback: "Invalid public key format")
@@ -1983,8 +2035,16 @@ public enum L10n {
         public static let importing = L10n.tr("Contacts", "contacts.scan.importing", fallback: "Importing contact...")
         /// Location: ScanContactQRView.swift - Purpose: Scan instruction
         public static let instruction = L10n.tr("Contacts", "contacts.scan.instruction", fallback: "Point your camera at a contact QR code")
+        /// Location: ScanContactQRView.swift - Purpose: Scan a different QR code
+        public static let scanAgain = L10n.tr("Contacts", "contacts.scan.scanAgain", fallback: "Scan Again")
         /// Location: ScanContactQRView.swift - Purpose: Navigation title
         public static let title = L10n.tr("Contacts", "contacts.scan.title", fallback: "Scan QR Code")
+        public enum Accessibility {
+          /// Location: ScanContactQRView.swift - Purpose: VoiceOver announcement after a node is added, %@ is the node name
+          public static func added(_ p1: Any) -> String {
+            return L10n.tr("Contacts", "contacts.scan.accessibility.added", String(describing: p1), fallback: "Added %@")
+          }
+        }
         public enum Error {
           /// Location: ScanContactQRView.swift - Purpose: Contact import failed, %@ is the error description
           public static func importFailed(_ p1: Any) -> String {
@@ -3854,6 +3914,8 @@ public enum L10n {
           public static let illuminance = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.illuminance", fallback: "Illuminance")
           /// Load
           public static let load = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.load", fallback: "Load")
+          /// MCU temperature
+          public static let mcuTemperature = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.mcuTemperature", fallback: "MCU temperature")
           /// Percentage
           public static let percentage = L10n.tr("RemoteNodes", "remoteNodes.status.sensor.percentage", fallback: "Percentage")
           /// Power
@@ -4864,6 +4926,12 @@ public enum L10n {
         /// Location: TranslateIntoLanguageView.swift - Purpose: Footer explaining the Translate Into list is in-app languages only
         public static let listFooter = L10n.tr("Settings", "language.translateInto.listFooter", fallback: "Languages this device can translate in the app. Other languages use your default translation app.")
       }
+      public enum TranslationOffers {
+        /// Location: LanguageSettingsView.swift - Purpose: Footer when Offer Translations is off
+        public static let offFooter = L10n.tr("Settings", "language.translationOffers.offFooter", fallback: "Incoming messages in other languages won't show a Translate button.")
+        /// Location: LanguageSettingsView.swift - Purpose: Toggle to show the Translate button on incoming messages
+        public static let title = L10n.tr("Settings", "language.translationOffers.title", fallback: "Offer Translations")
+      }
     }
     public enum LinkPreviews {
       /// Footer explaining link content privacy implications
@@ -4954,6 +5022,8 @@ public enum L10n {
       public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing and timing information inside incoming message bubbles.")
       /// Section header for message info settings in chats
       public static let header = L10n.tr("Settings", "messages.header", fallback: "Message Info")
+      /// Toggle label for showing the extra-arrival ear chip on incoming message bubbles
+      public static let showIncomingHeardCount = L10n.tr("Settings", "messages.showIncomingHeardCount", fallback: "Incoming Heard Count")
       /// Toggle label for showing hop count on incoming messages
       public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Incoming Hop Count")
       /// Toggle label for showing routing path on incoming messages
@@ -6328,23 +6398,23 @@ public enum L10n {
       public static let fullReleaseNotes = L10n.tr("WhatsNew", "whatsNew.fullReleaseNotes", fallback: "See all new changes")
       /// Title of the What's New sheet shown once after an app update
       public static let title = L10n.tr("WhatsNew", "whatsNew.title", fallback: "What's New")
-      public enum FailedSends {
-        /// What's New v1.4 - Failed-send badges on the Chats list, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.failedSends.description", fallback: "The Chats list marks a conversation when a message fails to send.")
-        /// What's New v1.4 - Failed-send badges on the Chats list, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.failedSends.title", fallback: "Failed sends in Chats")
+      public enum FasterChatLoading {
+        /// What's New v1.5 - Faster chat loading, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.fasterChatLoading.description", fallback: "Opening a chat is up to 90%% faster.")
+        /// What's New v1.5 - Faster chat loading, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.fasterChatLoading.title", fallback: "Faster chat loading")
       }
-      public enum MessageTranslation {
-        /// What's New v1.4 - Incoming message translation feature, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.messageTranslation.description", fallback: "Translate incoming messages into your device's language. On iOS 26.4+, Apple Intelligence is used first, then Translate language packs.")
-        /// What's New v1.4 - Incoming message translation feature, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.messageTranslation.title", fallback: "Incoming message translation")
+      public enum PathDetails {
+        /// What's New v1.5 - Path Details feature, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.pathDetails.description", fallback: "Path Map has moved into Path Details, which lists every extra incoming path. And Repeat Details on sent messages lists every repeat path your radio heard.")
+        /// What's New v1.5 - Path Details feature, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.pathDetails.title", fallback: "Path Details")
       }
-      public enum SenderAvatars {
-        /// What's New v1.4 - Sender avatars in channels and rooms, description
-        public static let description = L10n.tr("WhatsNew", "whatsNew.senderAvatars.description", fallback: "Incoming messages in channels and rooms show the sender's avatar.")
-        /// What's New v1.4 - Sender avatars in channels and rooms, title
-        public static let title = L10n.tr("WhatsNew", "whatsNew.senderAvatars.title", fallback: "Channel & room avatars")
+      public enum WhoReacted {
+        /// What's New v1.5 - Tap a reaction to see who added it, description
+        public static let description = L10n.tr("WhatsNew", "whatsNew.whoReacted.description", fallback: "Tap a reaction on a message to see who added it, instead of sending the reaction.")
+        /// What's New v1.5 - Tap a reaction to see who added it, title
+        public static let title = L10n.tr("WhatsNew", "whatsNew.whoReacted.title", fallback: "Who reacted")
       }
     }
   }

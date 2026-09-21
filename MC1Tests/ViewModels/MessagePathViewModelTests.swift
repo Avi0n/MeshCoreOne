@@ -38,7 +38,12 @@ struct MessagePathViewModelTests {
     )
   }
 
-  private func createMessage(senderKeyPrefix: Data?, senderNodeName: String? = nil, channelIndex: UInt8? = nil) -> MessageDTO {
+  private func createMessage(
+    senderKeyPrefix: Data?,
+    senderNodeName: String? = nil,
+    channelIndex: UInt8? = nil,
+    direction: MessageDirection = .incoming
+  ) -> MessageDTO {
     MessageDTO(
       id: UUID(),
       radioID: UUID(),
@@ -47,7 +52,7 @@ struct MessagePathViewModelTests {
       text: "Test",
       timestamp: 0,
       createdAt: Date(),
-      direction: .incoming,
+      direction: direction,
       status: .delivered,
       textType: .plain,
       ackCode: nil,
@@ -77,7 +82,7 @@ struct MessagePathViewModelTests {
 
     let message = createMessage(senderKeyPrefix: contactB.publicKeyPrefix)
 
-    #expect(viewModel.senderName(for: message) == "Bravo")
+    #expect(viewModel.senderName(for: message, localDeviceName: "") == "Bravo")
   }
 
   @Test
@@ -88,7 +93,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [older, newer]
 
     let message = createMessage(senderKeyPrefix: Data([0xAA]))
-    let result = viewModel.senderResolution(for: message)
+    let result = viewModel.senderResolution(for: message, localDeviceName: "")
 
     #expect(result.displayName == "Newer")
     #expect(result.matchKind == .fallback)
@@ -101,7 +106,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let message = createMessage(senderKeyPrefix: Data([0xAA]))
-    let result = viewModel.senderResolution(for: message)
+    let result = viewModel.senderResolution(for: message, localDeviceName: "")
 
     #expect(result.displayName == "Alpha")
     #expect(result.matchKind == .exact)
@@ -114,7 +119,7 @@ struct MessagePathViewModelTests {
     viewModel.contacts = [contact]
 
     let message = createMessage(senderKeyPrefix: contact.publicKeyPrefix)
-    let result = viewModel.senderResolution(for: message)
+    let result = viewModel.senderResolution(for: message, localDeviceName: "")
 
     #expect(result.displayName == "Alpha")
     #expect(result.matchKind == .exact)
@@ -124,7 +129,7 @@ struct MessagePathViewModelTests {
   func `sender name returns channel sender node name for channel messages`() {
     let viewModel = MessagePathViewModel()
     let message = createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
-    #expect(viewModel.senderName(for: message) == "RemoteNode")
+    #expect(viewModel.senderName(for: message, localDeviceName: "") == "RemoteNode")
   }
 
   @Test
@@ -135,7 +140,30 @@ struct MessagePathViewModelTests {
     ]
 
     let message = createMessage(senderKeyPrefix: Data([0x11, 0x22, 0x33, 0x44, 0x55, 0x66]))
-    #expect(viewModel.senderName(for: message) == L10n.Chats.Chats.Path.Hop.unknown)
+    #expect(viewModel.senderName(for: message, localDeviceName: "") == L10n.Chats.Chats.Path.Hop.unknown)
+  }
+
+  @Test
+  func `sender resolution uses local device name for outgoing channel messages`() {
+    let viewModel = MessagePathViewModel()
+    let message = createMessage(
+      senderKeyPrefix: nil,
+      senderNodeName: nil,
+      channelIndex: 0,
+      direction: .outgoing
+    )
+    let result = viewModel.senderResolution(for: message, localDeviceName: "Radio")
+    #expect(result.displayName == "Radio")
+    #expect(result.matchKind == .exact)
+  }
+
+  @Test
+  func `sender resolution ignores local device name for incoming channel messages`() {
+    let viewModel = MessagePathViewModel()
+    let message = createMessage(senderKeyPrefix: nil, senderNodeName: "RemoteNode", channelIndex: 0)
+    let result = viewModel.senderResolution(for: message, localDeviceName: "Radio")
+    #expect(result.displayName == "RemoteNode")
+    #expect(result.matchKind == .exact)
   }
 
   // MARK: - senderNodeID

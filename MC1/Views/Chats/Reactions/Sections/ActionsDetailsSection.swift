@@ -6,27 +6,28 @@ struct ActionsDetailsSection: View {
   let availability: MessageActionAvailability
   @Binding var isDetailExpanded: Bool
   let repeats: [MessageRepeatDTO]?
-  let contacts: [ContactDTO]
-  let discoveredNodes: [DiscoveredNodeDTO]
   let pathViewModel: MessagePathViewModel
 
-  @State private var showPathMap = false
+  private var arrivals: [MessagePathArrival] {
+    MessagePathArrivals.assemble(message: message, repeats: repeats ?? [])
+  }
+
+  private var incomingArrivalCount: Int {
+    if repeats == nil {
+      max(arrivals.count, MessagePathArrivals.arrivalCount(for: message))
+    } else {
+      arrivals.count
+    }
+  }
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      if availability.canViewPath {
-        pathMapButton
-      }
-
-      if availability.canShowRepeatDetails || availability.canViewPath {
-        ActionsExpandableDetailRow(
+      if availability.showsPathDetail {
+        MessagePathDetailBlock(
           message: message,
-          availability: availability,
-          isDetailExpanded: $isDetailExpanded,
-          repeats: repeats,
-          contacts: contacts,
-          discoveredNodes: discoveredNodes,
-          pathViewModel: pathViewModel
+          arrivals: arrivals,
+          pathViewModel: pathViewModel,
+          isDetailExpanded: $isDetailExpanded
         )
       }
 
@@ -40,117 +41,11 @@ struct ActionsDetailsSection: View {
       if message.isOutgoing {
         ActionsOutgoingDetailsRows(message: message)
       } else {
-        ActionsIncomingDetailsRows(message: message)
-      }
-    }
-    .sheet(isPresented: $showPathMap) {
-      MessagePathMapView(message: message, pathViewModel: pathViewModel)
-    }
-  }
-
-  private var pathMapButton: some View {
-    Button {
-      showPathMap = true
-    } label: {
-      HStack {
-        Label(L10n.Chats.Chats.Path.map, systemImage: "map")
-        Spacer()
-      }
-      .padding()
-      .contentShape(.rect)
-    }
-    .foregroundStyle(.primary)
-  }
-}
-
-private struct ActionsExpandableDetailRow: View {
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-  let message: MessageDTO
-  let availability: MessageActionAvailability
-  @Binding var isDetailExpanded: Bool
-  let repeats: [MessageRepeatDTO]?
-  let contacts: [ContactDTO]
-  let discoveredNodes: [DiscoveredNodeDTO]
-  let pathViewModel: MessagePathViewModel
-
-  var body: some View {
-    VStack(spacing: 0) {
-      Button {
-        withAnimation(reduceMotion ? nil : .default) {
-          isDetailExpanded.toggle()
-        }
-      } label: {
-        HStack {
-          Label(
-            availability.canShowRepeatDetails
-              ? L10n.Chats.Chats.Message.Action.repeatDetails
-              : L10n.Chats.Chats.Message.Action.viewPath,
-            systemImage: availability.canShowRepeatDetails
-              ? "arrow.triangle.branch"
-              : "point.topleft.down.to.point.bottomright.curvepath"
-          )
-          Spacer()
-          Image(systemName: "chevron.right")
-            .rotationEffect(.degrees(isDetailExpanded ? 90 : 0))
-            .foregroundStyle(.secondary)
-            .font(.caption)
-            .accessibilityHidden(true)
-        }
-        .padding()
-        .contentShape(.rect)
-      }
-      .foregroundStyle(.primary)
-      .accessibilityValue(
-        isDetailExpanded
-          ? L10n.Chats.Chats.Message.Action.expanded
-          : L10n.Chats.Chats.Message.Action.collapsed
-      )
-
-      if isDetailExpanded {
-        Divider()
-          .padding(.horizontal)
-        ActionsExpandedContent(
+        ActionsIncomingDetailsRows(
           message: message,
-          availability: availability,
-          repeats: repeats,
-          contacts: contacts,
-          discoveredNodes: discoveredNodes,
-          pathViewModel: pathViewModel
+          arrivalCount: incomingArrivalCount
         )
-        .padding(.horizontal)
-        .padding(.bottom)
-        .id("expandedContent")
       }
-    }
-  }
-}
-
-private struct ActionsExpandedContent: View {
-  @Environment(\.appState) private var appState
-
-  let message: MessageDTO
-  let availability: MessageActionAvailability
-  let repeats: [MessageRepeatDTO]?
-  let contacts: [ContactDTO]
-  let discoveredNodes: [DiscoveredNodeDTO]
-  let pathViewModel: MessagePathViewModel
-
-  var body: some View {
-    if availability.canShowRepeatDetails {
-      RepeatDetailsContent(
-        repeats: repeats,
-        contacts: contacts,
-        discoveredNodes: discoveredNodes,
-        userLocation: appState.bestAvailableLocation
-      )
-    } else if availability.canViewPath {
-      MessagePathContent(
-        message: message,
-        viewModel: pathViewModel,
-        receiverName: appState.connectedDevice?.nodeName ?? L10n.Chats.Chats.Path.Receiver.you,
-        userLocation: appState.bestAvailableLocation
-      )
     }
   }
 }
@@ -178,10 +73,14 @@ private struct ActionsOutgoingDetailsRows: View {
 
 private struct ActionsIncomingDetailsRows: View {
   let message: MessageDTO
+  let arrivalCount: Int
 
   var body: some View {
+    let hopsText = L10n.Chats.Chats.Message.Info.hops(hopCountFormatted(message))
     ActionInfoRow(
-      text: L10n.Chats.Chats.Message.Info.hops(hopCountFormatted(message)),
+      text: arrivalCount > 1
+        ? "\(hopsText) · \(L10n.Chats.Chats.Path.Arrival.first)"
+        : hopsText,
       icon: "arrowshape.bounce.right"
     )
 
@@ -224,7 +123,12 @@ private struct ActionsIncomingDetailsRows: View {
     ))
 
     if let snr = message.snr {
-      ActionInfoRow(text: L10n.Chats.Chats.Message.Info.snr(snrFormatted(snr)))
+      let snrText = L10n.Chats.Chats.Message.Info.snr(snrFormatted(snr))
+      ActionInfoRow(
+        text: arrivalCount > 1
+          ? "\(snrText) · \(L10n.Chats.Chats.Path.Arrival.first)"
+          : snrText
+      )
     }
   }
 

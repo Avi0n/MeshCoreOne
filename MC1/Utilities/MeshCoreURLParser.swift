@@ -60,12 +60,18 @@ enum MeshCoreURLParser {
       return nil
     }
 
-    let name = queryItems.first(where: { $0.name == channelNameKey })?.value ?? ""
+    let name = MeshCoreURIQuery.formDecodedValue(
+      named: channelNameKey,
+      from: components.percentEncodedQueryItems
+    )
     guard !name.isEmpty else { return nil }
 
     let secretRaw = queryItems.first(where: { $0.name == channelSecretKey })?.value
     let regionScope = normalizedRegionScope(
-      queryItems.first(where: { $0.name == channelRegionScopeKey })?.value
+      MeshCoreURIQuery.formDecodedValue(
+        named: channelRegionScopeKey,
+        from: components.percentEncodedQueryItems
+      )
     )
 
     if let secretRaw, !secretRaw.isEmpty {
@@ -107,9 +113,10 @@ enum MeshCoreURLParser {
       return nil
     }
 
-    // Custom scheme, not x-www-form-urlencoded: a literal "+" is a name character, not a
-    // space. URLComponents has already percent-decoded the value, so use it verbatim.
-    let name = queryItems.first(where: { $0.name == "name" })?.value ?? ""
+    let name = MeshCoreURIQuery.formDecodedValue(
+      named: "name",
+      from: components.percentEncodedQueryItems
+    )
     let publicKeyHex = queryItems.first(where: { $0.name == "public_key" })?.value ?? ""
 
     guard !name.isEmpty,

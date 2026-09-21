@@ -96,7 +96,7 @@ public final class Message {
   /// Round-trip time in ms (when ACK received)
   public var roundTripTime: UInt32?
 
-  /// Count of mesh repeats heard for this message (outgoing only)
+  /// Extra RX observations of this message. Outgoing: every echo. Incoming: distinct extra paths.
   public var heardRepeats: Int = 0
 
   /// Number of times this message has been sent (1 = original, 2+ = sent again)

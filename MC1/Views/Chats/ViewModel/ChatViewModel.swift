@@ -133,10 +133,7 @@ final class ChatViewModel {
     coordinator?.renderState ?? .empty
   }
 
-  /// Environment-derived inputs (seven `@AppStorage` toggles, contrast,
-  /// current user name) that feed `MessageItem` construction.
-  /// `ChatConversationView` pushes via `applyEnvInputs(_:)` before
-  /// `loadMessages` and on subsequent toggle changes.
+  /// Environment-derived inputs that feed `MessageItem` construction.
   var envInputs: EnvInputs {
     get { timeline.envInputs }
     set { timeline.envInputs = newValue }

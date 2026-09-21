@@ -9,6 +9,12 @@ extension RoomConversationViewModel {
     refreshTiledRows()
   }
 
+  func applyTranslationOffersEnabled(_ enabled: Bool) {
+    guard translationOffersEnabled != enabled else { return }
+    translationOffersEnabled = enabled
+    refreshTiledRows()
+  }
+
   func performTranslationAction(for messageID: UUID) {
     if case .showing = translationPhases[messageID] {
       translationPhases[messageID] = .offer
@@ -129,6 +135,10 @@ extension RoomConversationViewModel {
   }
 
   func refreshTiledRows() {
+    guard translationOffersEnabled else {
+      tiledRows = Self.tiledRows(in: messages, translations: [:])
+      return
+    }
     seedDetectedLanguages()
     var translations: [UUID: MessageTranslationChrome] = [:]
     for message in messages {

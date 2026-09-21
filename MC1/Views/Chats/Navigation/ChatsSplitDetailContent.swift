@@ -5,9 +5,12 @@ struct ChatsSplitDetailContent: View {
   @Environment(\.appState) private var appState
 
   let viewModel: ChatViewModel
+  /// Passed in so this view sees the same route as the parent's `.id`. Reading
+  /// it here would build the new conversation before the `.id` changes.
+  let route: ChatRoute?
 
   var body: some View {
-    switch appState.navigation.chatsSelectedRoute {
+    switch route {
     case let .direct(contact):
       ChatConversationView(
         conversationType: .dm(contact),

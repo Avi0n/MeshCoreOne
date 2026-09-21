@@ -14,31 +14,56 @@ extension SyncCoordinator {
   }
 
   /// Looks up path data from an RxLogEntry to correlate with an incoming message.
+  /// Channel rows join by DeduplicationKey after decrypt; DMs still use timestamp
+  /// and sender-prefix fallback.
   func lookupRxLogEntry(
     dependencies: SyncDependencies,
     radioID: UUID,
     channelIndex: UInt8?,
     senderTimestamp: UInt32,
     senderPublicKeyPrefix: Data?,
-    defaultPathLength: UInt8
+    defaultPathLength: UInt8,
+    channelDeduplicationKey: String?
   ) async -> RxLogLookupResult {
     if let channelIndex {
       logger.debug("Looking up RxLogEntry for channel \(channelIndex) with senderTimestamp: \(senderTimestamp)")
     }
 
     do {
-      if let rxEntry = try await dependencies.dataStore.findRxLogEntry(
+      if let channelIndex {
+        if let channelDeduplicationKey {
+          let raw = try await dependencies.dataStore.fetchRxLogEntries(
+            radioID: radioID,
+            channelIndex: channelIndex,
+            senderTimestamp: senderTimestamp
+          )
+          let decoded = await dependencies.rxLogService.decodedEntries(raw)
+          if let rxEntry = ChannelRXCorrelation.matching(
+            decoded,
+            deduplicationKey: channelDeduplicationKey
+          ).first {
+            let pathLength = rxEntry.pathLength
+            let pathNodes = rxEntry.pathNodes
+            logger.info("Correlated channel message to RxLogEntry: pathLength=\(pathLength), pathNodes=\(pathNodes.count) bytes")
+            return RxLogLookupResult(
+              pathNodes: pathNodes,
+              pathLength: pathLength,
+              packetHash: rxEntry.packetHash,
+              routeType: rxEntry.routeType,
+              regionScope: rxEntry.regionScope,
+              regionScopeMatches: rxEntry.regionScopeMatches
+            )
+          }
+        }
+        logger.warning("No RxLogEntry found for channel \(channelIndex), senderTimestamp: \(senderTimestamp)")
+      } else if let rxEntry = try await dependencies.dataStore.findRxLogEntry(
         radioID: radioID,
-        channelIndex: channelIndex,
+        channelIndex: nil,
         senderTimestamp: senderTimestamp
       ) {
         let pathLength = rxEntry.pathLength
         let pathNodes = rxEntry.pathNodes
-        if channelIndex != nil {
-          logger.info("Correlated channel message to RxLogEntry: pathLength=\(pathLength), pathNodes=\(pathNodes.count) bytes")
-        } else {
-          logger.debug("Correlated incoming direct message to RxLogEntry, pathLength: \(pathLength), pathNodes: \(pathNodes.count) bytes")
-        }
+        logger.debug("Correlated incoming direct message to RxLogEntry, pathLength: \(pathLength), pathNodes: \(pathNodes.count) bytes")
         return RxLogLookupResult(
           pathNodes: pathNodes,
           pathLength: pathLength,
@@ -47,13 +72,10 @@ extension SyncCoordinator {
           regionScope: rxEntry.regionScope,
           regionScopeMatches: rxEntry.regionScopeMatches
         )
-      }
-
-      // Fallback for DMs: if timestamp-based lookup failed (e.g., RxLog decryption
-      // hadn't extracted the timestamp yet), try matching by sender prefix byte
-      // in the raw packet payload within a recent time window.
-      if channelIndex == nil,
-         let prefixByte = senderPublicKeyPrefix?.first {
+      } else if let prefixByte = senderPublicKeyPrefix?.first {
+        // Fallback for DMs: if timestamp-based lookup failed (e.g., RxLog decryption
+        // hadn't extracted the timestamp yet), try matching by sender prefix byte
+        // in the raw packet payload within a recent time window.
         let lookbackWindow = Date().addingTimeInterval(-30)
         if let rxEntry = try await dependencies.dataStore.findRxLogEntryBySenderPrefix(
           radioID: radioID,
@@ -71,8 +93,6 @@ extension SyncCoordinator {
           )
         }
         logger.debug("No RxLogEntry found for direct message (primary + fallback), senderTimestamp: \(senderTimestamp)")
-      } else if let channelIndex {
-        logger.warning("No RxLogEntry found for channel \(channelIndex), senderTimestamp: \(senderTimestamp)")
       } else {
         logger.debug("No RxLogEntry found for direct message, senderTimestamp: \(senderTimestamp)")
       }
