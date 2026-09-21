@@ -25,6 +25,27 @@ struct MessageBubblePredicateTests {
   }
 
   @Test(arguments: [
+    // (showFlag, direction, heardRepeats, expected)
+    (false, MessageDirection.incoming, 2, false),
+    (true, MessageDirection.incoming, 2, true),
+    (true, MessageDirection.incoming, 0, false),
+    (true, MessageDirection.outgoing, 2, false),
+  ])
+  func `showHeardCount: gated by flag AND incoming AND heardRepeats`(
+    showFlag: Bool,
+    direction: MessageDirection,
+    heardRepeats: Int,
+    expected: Bool
+  ) {
+    let message = makeMessage(direction: direction, heardRepeats: heardRepeats)
+    let bundle = MessageBubbleTestData.messageItem(
+      message: message,
+      showIncomingHeardCount: showFlag
+    )
+    #expect(bundle.item.footer.showHeardCount == expected)
+  }
+
+  @Test(arguments: [
     // (showFlag, routeType, scope, expected)
     (true, RouteType.flood, "United States" as String?, "United States" as String?), // happy path
     (true, RouteType.tcFlood, "United States" as String?, "United States" as String?), // tcFlood is flood
@@ -241,6 +262,7 @@ struct MessageBubblePredicateTests {
     pathLength: UInt8 = 0x02,
     pathNodes: Data? = Data([0xA3, 0x7F]),
     direction: MessageDirection = .incoming,
+    heardRepeats: Int = 0,
     routeType: RouteType? = nil,
     regionScope: String? = nil,
     regionScopeMatches: [String] = []
@@ -265,7 +287,7 @@ struct MessageBubblePredicateTests {
       isRead: true,
       replyToID: nil,
       roundTripTime: nil,
-      heardRepeats: 0,
+      heardRepeats: heardRepeats,
       retryAttempt: 0,
       maxRetryAttempts: 0,
       routeType: routeType,

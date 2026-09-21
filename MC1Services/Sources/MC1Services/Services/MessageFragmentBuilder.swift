@@ -210,6 +210,9 @@ public enum MessageFragmentBuilder {
     envInputs: EnvInputs
   ) -> MessageFooter {
     let showHop = envInputs.showIncomingHopCount && message.isFloodRouted && !message.isOutgoing
+    let showHeardCount = envInputs.showIncomingHeardCount
+      && !message.isOutgoing
+      && message.heardRepeats > 0
     // Region chip: flood routes only, when the setting is on. Coalesce dual
     // fields; bake the slash join here so the scroll path does not re-filter.
     let regionToShow: String?
@@ -245,6 +248,7 @@ public enum MessageFragmentBuilder {
       status: message.status,
       isChannelMessage: message.isChannelMessage,
       heardRepeats: message.heardRepeats,
+      showHeardCount: showHeardCount,
       retryAttempt: message.retryAttempt,
       maxRetryAttempts: message.maxRetryAttempts,
       sendCount: message.sendCount

@@ -1,15 +1,13 @@
 import Foundation
 
-/// Environment-derived inputs that influence `MessageItem` content. Sourced
-/// from `@AppStorage` (seven toggles), `@Environment(\.colorSchemeContrast)`,
-/// and the parent view's `deviceName`. `ChatConversationView` constructs one
-/// and pushes it to `ChatViewModel.applyEnvInputs(_:)`; the view model
-/// rebuilds `MessageItem`s when the value changes.
+/// Environment-derived inputs that influence `MessageItem` content, from
+/// `@AppStorage`, contrast, and the parent view's `deviceName`.
 public struct EnvInputs: Sendable, Hashable {
   public let autoPlayGIFs: Bool
   public let showIncomingPath: Bool
   public let showIncomingHopCount: Bool
   public let showIncomingRegion: Bool
+  public let showIncomingHeardCount: Bool
   public let showIncomingSendTime: Bool
   public let previewsEnabled: Bool
   public let isHighContrast: Bool
@@ -53,6 +51,7 @@ public struct EnvInputs: Sendable, Hashable {
     showIncomingPath: Bool,
     showIncomingHopCount: Bool,
     showIncomingRegion: Bool,
+    showIncomingHeardCount: Bool,
     showIncomingSendTime: Bool,
     previewsEnabled: Bool,
     isHighContrast: Bool,
@@ -69,6 +68,7 @@ public struct EnvInputs: Sendable, Hashable {
     self.showIncomingPath = showIncomingPath
     self.showIncomingHopCount = showIncomingHopCount
     self.showIncomingRegion = showIncomingRegion
+    self.showIncomingHeardCount = showIncomingHeardCount
     self.showIncomingSendTime = showIncomingSendTime
     self.previewsEnabled = previewsEnabled
     self.isHighContrast = isHighContrast
@@ -104,6 +104,7 @@ public struct EnvInputs: Sendable, Hashable {
     showIncomingPath: AppStorageKey.defaultShowIncomingPath,
     showIncomingHopCount: AppStorageKey.defaultShowIncomingHopCount,
     showIncomingRegion: AppStorageKey.defaultShowIncomingRegion,
+    showIncomingHeardCount: AppStorageKey.defaultShowIncomingHeardCount,
     showIncomingSendTime: AppStorageKey.defaultShowIncomingSendTime,
     previewsEnabled: AppStorageKey.defaultLinkPreviewsEnabled,
     isHighContrast: false,

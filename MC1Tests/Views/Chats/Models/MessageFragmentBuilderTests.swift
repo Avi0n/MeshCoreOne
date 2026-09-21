@@ -709,6 +709,7 @@ struct MessageFragmentBuilderTests {
       showIncomingPath: showIncomingPath,
       showIncomingHopCount: showIncomingHopCount,
       showIncomingRegion: showIncomingRegion,
+      showIncomingHeardCount: false,
       showIncomingSendTime: showIncomingSendTime,
       previewsEnabled: previewsEnabled,
       isHighContrast: isHighContrast,

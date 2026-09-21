@@ -1000,6 +1000,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "传入区域";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "传入听到次数";
+
 /* Footer explaining what message display options show */
 "messages.footer" = "在传入消息气泡内显示路由和时间信息。";
 

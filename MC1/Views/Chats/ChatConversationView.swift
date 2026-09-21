@@ -67,6 +67,8 @@ struct ChatConversationView: View {
   @AppStorage(AppStorageKey.showIncomingPath.rawValue) private var showIncomingPath = AppStorageKey.defaultShowIncomingPath
   @AppStorage(AppStorageKey.showIncomingHopCount.rawValue) private var showIncomingHopCount = AppStorageKey.defaultShowIncomingHopCount
   @AppStorage(AppStorageKey.showIncomingRegion.rawValue) private var showIncomingRegion = AppStorageKey.defaultShowIncomingRegion
+  @AppStorage(AppStorageKey.showIncomingHeardCount.rawValue)
+  private var showIncomingHeardCount = AppStorageKey.defaultShowIncomingHeardCount
   @AppStorage(AppStorageKey.showIncomingSendTime.rawValue) private var showIncomingSendTime = AppStorageKey.defaultShowIncomingSendTime
   @AppStorage(AppStorageKey.linkPreviewsEnabled.rawValue) private var previewsEnabled = AppStorageKey.defaultLinkPreviewsEnabled
   @AppStorage(AppStorageKey.replyWithQuote.rawValue) private var replyWithQuote = AppStorageKey.defaultReplyWithQuote
@@ -99,6 +101,7 @@ struct ChatConversationView: View {
       showIncomingPath: showIncomingPath,
       showIncomingHopCount: showIncomingHopCount,
       showIncomingRegion: showIncomingRegion,
+      showIncomingHeardCount: showIncomingHeardCount,
       showIncomingSendTime: showIncomingSendTime,
       previewsEnabled: previewsEnabled,
       isHighContrast: colorSchemeContrast == .increased,

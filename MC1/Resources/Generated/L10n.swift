@@ -5022,6 +5022,8 @@ public enum L10n {
       public static let footer = L10n.tr("Settings", "messages.footer", fallback: "Display routing and timing information inside incoming message bubbles.")
       /// Section header for message info settings in chats
       public static let header = L10n.tr("Settings", "messages.header", fallback: "Message Info")
+      /// Toggle label for showing the extra-arrival ear chip on incoming message bubbles
+      public static let showIncomingHeardCount = L10n.tr("Settings", "messages.showIncomingHeardCount", fallback: "Incoming Heard Count")
       /// Toggle label for showing hop count on incoming messages
       public static let showIncomingHopCount = L10n.tr("Settings", "messages.showIncomingHopCount", fallback: "Incoming Hop Count")
       /// Toggle label for showing routing path on incoming messages

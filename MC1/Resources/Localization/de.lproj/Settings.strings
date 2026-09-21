@@ -965,6 +965,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "Eingehende Region";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Eingehende Gehört-Anzahl";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Routing- und Zeitinformationen in eingehenden Nachrichtenblasen anzeigen.";
 

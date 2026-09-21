@@ -65,7 +65,7 @@ struct BubbleFooterRow: View {
       )))
     }
 
-    if footer.heardRepeats > 0 {
+    if footer.heardRepeats > 0 && (footer.showStatusRow || footer.showHeardCount) {
       let repeatCount = footer.showStatusRow
         ? footer.heardRepeats
         : 1 + footer.heardRepeats

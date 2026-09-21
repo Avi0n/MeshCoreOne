@@ -351,6 +351,7 @@ struct ChatViewModelTranslationTests {
       showIncomingPath: base.showIncomingPath,
       showIncomingHopCount: base.showIncomingHopCount,
       showIncomingRegion: base.showIncomingRegion,
+      showIncomingHeardCount: base.showIncomingHeardCount,
       showIncomingSendTime: base.showIncomingSendTime,
       previewsEnabled: base.previewsEnabled,
       isHighContrast: base.isHighContrast,

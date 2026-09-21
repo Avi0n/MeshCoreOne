@@ -291,6 +291,7 @@ struct ChatViewModelAdmissionTests {
       showIncomingPath: false,
       showIncomingHopCount: false,
       showIncomingRegion: false,
+      showIncomingHeardCount: false,
       showIncomingSendTime: false,
       previewsEnabled: previewsEnabled,
       isHighContrast: false,

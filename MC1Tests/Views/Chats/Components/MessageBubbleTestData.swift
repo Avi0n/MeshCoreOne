@@ -132,6 +132,7 @@ enum MessageBubbleTestData {
     formattedPath: String? = nil,
     showIncomingHopCount: Bool = false,
     showIncomingRegion: Bool = false,
+    showIncomingHeardCount: Bool = false,
     senderResolution: NodeNameResolution = NodeNameResolution(displayName: "Unknown", matchKind: .unresolved)
   ) -> ItemBundle {
     let isInlineImageURL = detectedURL.map { ImageURLClassifier.isImageURL($0) } ?? false
@@ -159,6 +160,7 @@ enum MessageBubbleTestData {
       showIncomingPath: formattedPath != nil,
       showIncomingHopCount: showIncomingHopCount,
       showIncomingRegion: showIncomingRegion,
+      showIncomingHeardCount: showIncomingHeardCount,
       showIncomingSendTime: false,
       previewsEnabled: previewsEnabled,
       isHighContrast: false,

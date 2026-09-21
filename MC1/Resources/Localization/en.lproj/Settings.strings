@@ -1003,6 +1003,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "Incoming Region";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Incoming Heard Count";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Display routing and timing information inside incoming message bubbles.";
 

@@ -1015,6 +1015,9 @@
 /* Toggle label for showing the radio region an incoming message was flooded under */
 "messages.showIncomingRegion" = "Region in arrivo";
 
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "Numero di ricevuti in arrivo";
+
 /* Footer explaining what the message display options show */
 "messages.footer" = "Mostra informazioni di routing e timing nelle bolle dei messaggi in arrivo.";
 
