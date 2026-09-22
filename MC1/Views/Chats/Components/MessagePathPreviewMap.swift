@@ -35,12 +35,8 @@ struct MessagePathPreviewMap: View {
     .overlay(alignment: .bottom) {
       if totalPathDistance != nil || isDistanceIncomplete {
         // Distance only: hop count is already on arrival capsules or the hop list.
-        PathDistanceBanner(
-          totalPathDistance: totalPathDistance,
-          isDistanceIncomplete: isDistanceIncomplete,
-          showsHopCount: false
-        )
-        .padding(Self.expandChipOuterPadding)
+        distanceBanner
+          .padding(Self.expandChipOuterPadding)
       }
     }
     .clipShape(.rect(cornerRadius: Self.cornerRadius))
@@ -67,6 +63,22 @@ struct MessagePathPreviewMap: View {
     .accessibilityHidden(true)
   }
 
+  var previewShowsHopCount: Bool {
+    false
+  }
+
+  var expandAccessibilityLabel: String {
+    L10n.Chats.Chats.Path.Accessibility.viewOnMap
+  }
+
+  var distanceBanner: PathDistanceBanner {
+    PathDistanceBanner(
+      totalPathDistance: totalPathDistance,
+      isDistanceIncomplete: isDistanceIncomplete,
+      showsHopCount: previewShowsHopCount
+    )
+  }
+
   private var expandButton: some View {
     Button(action: onExpand) {
       Image(systemName: "arrow.up.left.and.arrow.down.right")
@@ -77,7 +89,7 @@ struct MessagePathPreviewMap: View {
     }
     .buttonStyle(.plain)
     .padding(Self.expandChipOuterPadding)
-    .accessibilityLabel(L10n.Chats.Chats.Path.Accessibility.viewOnMap)
+    .accessibilityLabel(expandAccessibilityLabel)
   }
 
   private var retryButton: some View {
