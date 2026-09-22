@@ -1,0 +1,14 @@
+/* Widget localization — Korean. AI-translated - please verify with native speakers. */
+
+/* Connection status shown when radio is disconnected */
+"Disconnected" = "연결 끊김";
+
+
+/* Accessibility: packet rate */
+"%lld packets per minute" = "분당 패킷 %lld개";
+
+/* Accessibility: battery level */
+"Battery %lld percent" = "배터리 %lld퍼센트";
+
+/* Control Center button: opens the app */
+"Open MeshCore One" = "MeshCore One 열기";

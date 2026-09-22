@@ -6,7 +6,7 @@ import Testing
 struct RegionalSubdivisionLocalizationTests {
   private static let table = "Settings"
   private static let locales = [
-    "de", "en", "es", "fr", "it", "nl", "pl", "pt", "ru", "uk", "zh-Hans",
+    "de", "en", "es", "fr", "it", "ko", "nl", "pl", "pt", "ru", "uk", "zh-Hans",
   ]
   private static let sentinel = "\u{0}__subdivision_key_missing__\u{0}"
 
