@@ -45,7 +45,6 @@ The central state management object for the application. Navigation and onboardi
 | `navigateToDiscovery()` | Triggers navigation to contact discovery screen |
 | `navigateToRoom(with:)` | Triggers navigation to a room server session |
 | `navigateToContacts()` | Switches to Contacts tab |
-| `clearPendingNavigation()` | Clears pending navigation state |
 
 ### Lifecycle Methods
 

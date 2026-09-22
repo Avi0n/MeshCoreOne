@@ -11,7 +11,6 @@ struct ChatsContentColumn: View {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   let viewModel: ChatViewModel
-  var observesPendingNavigation: Bool = true
 
   @State private var searchText = ""
   @State private var selectedFilter: ChatFilter = .all
@@ -25,8 +24,8 @@ struct ChatsContentColumn: View {
   @State private var showRoomDeleteAlert = false
   @State private var showChannelDeleteFailed = false
   @State private var channelDeleteFailure: ChatConversationActions.Failure?
-  @State private var pendingChatContact: ContactDTO?
-  @State private var pendingChannel: ChannelDTO?
+  @State private var newChatContact: ContactDTO?
+  @State private var newChannel: ChannelDTO?
 
   private var filteredFavorites: [Conversation] {
     viewModel.favoriteConversations.filtered(by: selectedFilter, searchText: searchText)
@@ -60,7 +59,6 @@ struct ChatsContentColumn: View {
       channelDeleteFailure: $channelDeleteFailure,
       showChannelDeleteFailed: $showChannelDeleteFailed,
       roomToAuthenticate: $roomToAuthenticate,
-      navigate: { navigate(to: $0) },
       clearNavigationIfActive: clearNavigationIfActive
     )
   }
@@ -80,18 +78,6 @@ struct ChatsContentColumn: View {
       lastSelectedRoomIsConnected: $lastSelectedRoomIsConnected,
       onSelect: { navigate(to: $0) },
       onDeleteConversation: actions.handleDeleteConversation,
-      onHandlePendingNavigation: {
-        guard observesPendingNavigation else { return }
-        actions.handlePendingNavigation()
-      },
-      onHandlePendingChannelNavigation: {
-        guard observesPendingNavigation else { return }
-        actions.handlePendingChannelNavigation()
-      },
-      onHandlePendingRoomNavigation: {
-        guard observesPendingNavigation else { return }
-        actions.handlePendingRoomNavigation()
-      },
       onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
     )
     .task {
@@ -127,8 +113,8 @@ struct ChatsContentColumn: View {
       showRoomDeleteAlert: $showRoomDeleteAlert,
       channelDeleteFailure: $channelDeleteFailure,
       showChannelDeleteFailed: $showChannelDeleteFailed,
-      pendingChatContact: $pendingChatContact,
-      pendingChannel: $pendingChannel,
+      newChatContact: $newChatContact,
+      newChannel: $newChannel,
       navigate: { navigate(to: $0) },
       deleteChannelConversation: actions.deleteChannelConversation,
       deleteRoom: actions.deleteRoom

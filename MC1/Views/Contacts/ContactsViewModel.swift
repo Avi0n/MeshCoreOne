@@ -166,6 +166,17 @@ final class ContactsViewModel {
     isLoading = false
   }
 
+  /// Holds a contact the list does not already show until a fetch includes it.
+  /// A listed row is not pinned, or the next load puts it back after a delete or a radio switch.
+  func admitIfAbsent(_ contact: ContactDTO) {
+    let alreadyListed = contacts.contains { existing in
+      existing.id == contact.id
+        || (existing.publicKey == contact.publicKey && existing.radioID == contact.radioID)
+    }
+    guard !alreadyListed else { return }
+    upsert(contact)
+  }
+
   /// Inserts or replaces by `id`, then public key and `radioID`.
   /// Unmasks `pendingRemovalIDs` so a re-add is visible before the next load.
   func upsert(_ contact: ContactDTO) {

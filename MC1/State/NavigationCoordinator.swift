@@ -8,28 +8,13 @@ final class NavigationCoordinator {
   /// Selected tab index
   var selectedTab: Int = 0
 
-  /// Contact to navigate to
-  var pendingChatContact: ContactDTO?
-
   /// The currently selected route in the Chats split view detail pane
   var chatsSelectedRoute: ChatRoute?
-
-  /// Channel to navigate to
-  var pendingChannel: ChannelDTO?
-
-  /// Room session to navigate to
-  var pendingRoomSession: RemoteNodeSessionDTO?
 
   /// Room session a notification tap wants the user to authenticate into, set
   /// when the tapped room is not currently connected. ChatsView presents
   /// RoomAuthenticationSheet, mirroring a disconnected-room list tap.
   var pendingRoomAuthentication: RemoteNodeSessionDTO?
-
-  /// Whether to navigate to Discovery
-  var pendingDiscoveryNavigation = false
-
-  /// Contact to navigate to (for detail view on Contacts tab)
-  var pendingContactDetail: ContactDTO?
 
   /// The currently selected contact in the Nodes split view detail pane. Kept in memory
   /// only and never persisted: it carries a public key and `radioID` (identity-bearing
@@ -92,7 +77,6 @@ final class NavigationCoordinator {
   func navigateToChat(with contact: ContactDTO, scrollToMessageID: UUID? = nil) {
     let route = ChatRoute.direct(contact)
     replaceConversationIntents()
-    pendingChatContact = contact
     if let scrollToMessageID {
       pendingScrollTarget = PendingScrollTarget(route: route, messageID: scrollToMessageID)
     }
@@ -104,7 +88,6 @@ final class NavigationCoordinator {
     replaceConversationIntents()
     selectedTab = AppTab.chats.rawValue
     if session.isConnected {
-      pendingRoomSession = session
       selectChatsRoot(.room(session))
     } else {
       pendingRoomAuthentication = session
@@ -114,7 +97,6 @@ final class NavigationCoordinator {
   func navigateToChannel(with channel: ChannelDTO, scrollToMessageID: UUID? = nil) {
     let route = ChatRoute.channel(channel)
     replaceConversationIntents()
-    pendingChannel = channel
     if let scrollToMessageID {
       pendingScrollTarget = PendingScrollTarget(route: route, messageID: scrollToMessageID)
     }
@@ -123,10 +105,8 @@ final class NavigationCoordinator {
   }
 
   func navigateToDiscovery() {
-    pendingDiscoveryNavigation = true
     nodesShowingDiscovery = true
     selectedContact = nil
-    pendingContactDetail = nil
     nodesRootNavigationGeneration += 1
     selectedTab = AppTab.nodes.rawValue
   }
@@ -136,10 +116,8 @@ final class NavigationCoordinator {
   }
 
   func navigateToContactDetail(_ contact: ContactDTO) {
-    pendingContactDetail = contact
     selectedContact = contact
     nodesShowingDiscovery = false
-    pendingDiscoveryNavigation = false
     nodesRootNavigationGeneration += 1
     selectedTab = AppTab.nodes.rawValue
   }
@@ -158,24 +136,8 @@ final class NavigationCoordinator {
     selectedTab = AppTab.settings.rawValue
   }
 
-  func clearPendingNavigation() {
-    pendingChatContact = nil
-  }
-
-  func clearPendingRoomNavigation() {
-    pendingRoomSession = nil
-  }
-
   func clearPendingRoomAuthentication() {
     pendingRoomAuthentication = nil
-  }
-
-  func clearPendingChannelNavigation() {
-    pendingChannel = nil
-  }
-
-  func clearPendingDiscoveryNavigation() {
-    pendingDiscoveryNavigation = false
   }
 
   func clearPendingScrollToMessage() {
@@ -191,10 +153,6 @@ final class NavigationCoordinator {
     }
     pendingScrollTarget = nil
     return target.messageID
-  }
-
-  func clearPendingContactDetailNavigation() {
-    pendingContactDetail = nil
   }
 
   /// Drops the Nodes root when the matching contact was actually removed.
@@ -237,18 +195,13 @@ final class NavigationCoordinator {
     selectedContact = nil
     nodesShowingDiscovery = false
     chatsSelectedRoute = nil
-    pendingContactDetail = nil
-    pendingDiscoveryNavigation = false
     replaceConversationIntents()
     clearPerDeviceSelection()
   }
 
-  /// Drops pending DM/channel/room/auth/scroll intents so a later open cannot
-  /// inherit another conversation's target. Link-confirmation sheets stay put.
+  /// Drops pending room-auth and scroll intents so a later open cannot inherit
+  /// another conversation's target. Link-confirmation sheets stay put.
   private func replaceConversationIntents() {
-    pendingChatContact = nil
-    pendingChannel = nil
-    pendingRoomSession = nil
     pendingRoomAuthentication = nil
     pendingScrollTarget = nil
   }

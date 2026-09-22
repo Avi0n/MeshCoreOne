@@ -128,7 +128,6 @@ struct NavigationCoordinatorNotificationTests {
     // Invoke the handler directly
     await notificationService.onNotificationTapped?(contact.id)
 
-    #expect(coordinator.pendingChatContact?.id == contact.id)
     #expect(coordinator.chatsSelectedRoute == .direct(contact))
     #expect(coordinator.selectedTab == AppTab.chats.rawValue)
   }
@@ -154,7 +153,6 @@ struct NavigationCoordinatorNotificationTests {
 
     await notificationService.onNewContactNotificationTapped?(contact.id)
 
-    #expect(coordinator.pendingDiscoveryNavigation == true)
     #expect(coordinator.nodesShowingDiscovery == true)
     #expect(coordinator.selectedContact == nil)
     #expect(coordinator.selectedTab == AppTab.nodes.rawValue)
@@ -179,7 +177,6 @@ struct NavigationCoordinatorNotificationTests {
 
     await notificationService.onNewContactNotificationTapped?(contact.id)
 
-    #expect(coordinator.pendingContactDetail?.id == contact.id)
     #expect(coordinator.selectedContact?.id == contact.id)
     #expect(coordinator.nodesShowingDiscovery == false)
     #expect(coordinator.selectedTab == AppTab.nodes.rawValue)
@@ -207,7 +204,6 @@ struct NavigationCoordinatorNotificationTests {
 
     await notificationService.onChannelNotificationTapped?(radioID, channelIndex)
 
-    #expect(coordinator.pendingChannel?.id == channel.id)
     #expect(coordinator.chatsSelectedRoute == .channel(channel))
     #expect(coordinator.selectedTab == AppTab.chats.rawValue)
   }
@@ -233,7 +229,6 @@ struct NavigationCoordinatorNotificationTests {
 
     await notificationService.onReactionNotificationTapped?(contact.id, nil, nil, messageID)
 
-    #expect(coordinator.pendingChatContact?.id == contact.id)
     #expect(coordinator.pendingScrollToMessageID == messageID)
     #expect(coordinator.pendingScrollTarget?.conversationID == contact.id)
     #expect(coordinator.selectedTab == AppTab.chats.rawValue)
@@ -261,7 +256,7 @@ struct NavigationCoordinatorNotificationTests {
     // contactID is nil → falls through to channel branch
     await notificationService.onReactionNotificationTapped?(nil, channelIndex, radioID, messageID)
 
-    #expect(coordinator.pendingChannel?.id == channel.id)
+    #expect(coordinator.chatsSelectedRoute == .channel(channel))
     #expect(coordinator.pendingScrollToMessageID == messageID)
     #expect(coordinator.pendingScrollTarget?.kind == .channel)
     #expect(coordinator.selectedTab == AppTab.chats.rawValue)
@@ -320,7 +315,6 @@ struct NavigationCoordinatorNotificationTests {
 
     #expect(coordinator.chatsSelectedRoute == .room(session))
     #expect(coordinator.pendingScrollTarget == nil)
-    #expect(coordinator.pendingChatContact == nil)
     #expect(coordinator.pendingRoomAuthentication == nil)
   }
 
@@ -344,7 +338,6 @@ struct NavigationCoordinatorNotificationTests {
 
     #expect(coordinator.pendingRoomAuthentication?.id == session.id)
     #expect(coordinator.chatsSelectedRoute == nil)
-    #expect(coordinator.pendingRoomSession == nil)
     #expect(coordinator.selectedTab == AppTab.chats.rawValue)
   }
 
@@ -359,7 +352,6 @@ struct NavigationCoordinatorNotificationTests {
     coordinator.selectedTab = AppTab.nodes.rawValue
     coordinator.clearPerRadioSelection()
 
-    #expect(coordinator.pendingChatContact == nil)
     #expect(coordinator.pendingScrollTarget == nil)
     #expect(coordinator.chatsSelectedRoute == nil)
   }

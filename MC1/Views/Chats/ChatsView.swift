@@ -18,76 +18,30 @@ struct ChatsView: View {
     )
   }
 
-  private var actions: ChatListActions {
-    ChatListActions(
-      viewModel: viewModel,
-      appState: appState,
-      roomToDelete: .constant(nil),
-      showRoomDeleteAlert: .constant(false),
-      channelDeleteFailure: .constant(nil),
-      showChannelDeleteFailed: .constant(false),
-      roomToAuthenticate: .constant(nil),
-      navigate: { selectRoute($0) },
-      clearNavigationIfActive: clearNavigationIfActive
-    )
-  }
-
   var body: some View {
     NavigationSplitView(
       columnVisibility: $columnVisibility,
       preferredCompactColumn: $preferredCompactColumn
     ) {
-      ChatsContentColumn(viewModel: viewModel, observesPendingNavigation: false)
+      ChatsContentColumn(viewModel: viewModel)
         .sectionSplitColumnChrome()
     } detail: {
       ChatsDetailStack(viewModel: viewModel, path: $nestedPath)
     }
     .navigationSplitViewStyle(.balanced)
     .sectionSplitChrome(tabBarVisibility: tabBarVisibility)
-    .onChange(of: sizeClass) { old, new in
-      applySizeClassChange(from: old, to: new)
-    }
-    .onChange(of: preferredCompactColumn) { _, _ in
-      applyPreferredColumnRecipe()
-    }
-    .onChange(of: nestedPath.count) { _, _ in
-      applyPreferredColumnRecipe()
-    }
+    .sectionSplitState(
+      columnVisibility: $columnVisibility,
+      preferredCompactColumn: $preferredCompactColumn,
+      nestedPathIsEmpty: nestedPath.isEmpty,
+      hasSelection: appState.navigation.chatsSelectedRoute != nil,
+      onClearRootSelection: { appState.navigation.chatsSelectedRoute = nil }
+    )
     .onChange(of: appState.navigation.chatsSelectedRoute) { oldRoute, newRoute in
       handleSelectedRouteChange(from: oldRoute, to: newRoute)
     }
     .onChange(of: appState.navigation.chatsRootNavigationGeneration) { _, _ in
       nestedPath = NavigationPath()
-    }
-    .onChange(of: appState.navigation.pendingChatContact) { _, _ in
-      actions.handlePendingNavigation()
-    }
-    .onChange(of: appState.navigation.pendingChannel) { _, _ in
-      actions.handlePendingChannelNavigation()
-    }
-    .onChange(of: appState.navigation.pendingRoomSession) { _, _ in
-      actions.handlePendingRoomNavigation()
-    }
-    .task {
-      if appState.navigation.chatsSelectedRoute != nil, sizeClass == .compact {
-        preferredCompactColumn = .detail
-      }
-      actions.handlePendingNavigation()
-      actions.handlePendingChannelNavigation()
-      actions.handlePendingRoomNavigation()
-    }
-  }
-
-  private func selectRoute(_ route: ChatRoute) {
-    if case let .room(session) = route, !session.isConnected {
-      return
-    }
-    appState.navigation.chatsSelectedRoute = route
-  }
-
-  private func clearNavigationIfActive(_ route: ChatRoute) {
-    if appState.navigation.chatsSelectedRoute == route {
-      appState.navigation.chatsSelectedRoute = nil
     }
   }
 
@@ -101,37 +55,6 @@ struct ChatsView: View {
       }
     } else if sizeClass == .compact {
       preferredCompactColumn = .sidebar
-    }
-  }
-
-  private func applySizeClassChange(
-    from old: UserInterfaceSizeClass?,
-    to new: UserInterfaceSizeClass?
-  ) {
-    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
-      from: old,
-      to: new,
-      hasSelection: appState.navigation.chatsSelectedRoute != nil
-    )
-    if let visibility = presentation.columnVisibility {
-      columnVisibility = visibility
-    }
-    if let column = presentation.preferredColumn {
-      preferredCompactColumn = column
-    }
-  }
-
-  private func applyPreferredColumnRecipe() {
-    switch ChatsSplitPresentation.preferredColumnAction(
-      preferredColumn: preferredCompactColumn,
-      sizeClass: sizeClass,
-      nestedPathIsEmpty: nestedPath.isEmpty,
-      hasSelection: appState.navigation.chatsSelectedRoute != nil
-    ) {
-    case .clearRootSelection:
-      appState.navigation.chatsSelectedRoute = nil
-    case .none:
-      break
     }
   }
 }

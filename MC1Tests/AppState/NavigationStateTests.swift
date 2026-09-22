@@ -93,12 +93,7 @@ struct NavigationStateTests {
   func `Default navigation state is tab 0 with no pending navigation`() {
     let appState = AppState()
     #expect(appState.navigation.selectedTab == 0)
-    #expect(appState.navigation.pendingChatContact == nil)
-    #expect(appState.navigation.pendingChannel == nil)
-    #expect(appState.navigation.pendingRoomSession == nil)
     #expect(appState.navigation.pendingRoomAuthentication == nil)
-    #expect(appState.navigation.pendingDiscoveryNavigation == false)
-    #expect(appState.navigation.pendingContactDetail == nil)
     #expect(appState.navigation.pendingScrollToMessageID == nil)
     #expect(appState.navigation.pendingScrollTarget == nil)
     #expect(appState.navigation.chatsSelectedRoute == nil)
@@ -118,7 +113,6 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToChat(with: contact)
 
-    #expect(appState.navigation.pendingChatContact == contact)
     #expect(appState.navigation.chatsSelectedRoute == .direct(contact))
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
     #expect(appState.navigation.pendingScrollToMessageID == nil)
@@ -133,7 +127,6 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToChat(with: contact, scrollToMessageID: messageID)
 
-    #expect(appState.navigation.pendingChatContact == contact)
     #expect(appState.navigation.pendingScrollToMessageID == messageID)
     #expect(appState.navigation.pendingScrollTarget?.conversationID == contact.id)
     #expect(appState.navigation.pendingScrollTarget?.kind == .direct)
@@ -150,7 +143,7 @@ struct NavigationStateTests {
     appState.navigation.navigateToChat(with: contact)
 
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
-    #expect(appState.navigation.pendingChatContact == contact)
+    #expect(appState.navigation.chatsSelectedRoute == .direct(contact))
   }
 
   // MARK: - navigateToRoom
@@ -162,7 +155,6 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToRoom(with: session)
 
-    #expect(appState.navigation.pendingRoomSession == session)
     #expect(appState.navigation.chatsSelectedRoute == .room(session))
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
     #expect(appState.navigation.pendingRoomAuthentication == nil)
@@ -177,7 +169,6 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToChannel(with: channel)
 
-    #expect(appState.navigation.pendingChannel == channel)
     #expect(appState.navigation.chatsSelectedRoute == .channel(channel))
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
     #expect(appState.navigation.pendingScrollToMessageID == nil)
@@ -191,19 +182,18 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToChannel(with: channel, scrollToMessageID: messageID)
 
-    #expect(appState.navigation.pendingChannel == channel)
+    #expect(appState.navigation.chatsSelectedRoute == .channel(channel))
     #expect(appState.navigation.pendingScrollToMessageID == messageID)
   }
 
   // MARK: - navigateToDiscovery
 
   @Test
-  func `navigateToDiscovery sets pending flag and contacts tab`() {
+  func `navigateToDiscovery shows discovery on the nodes tab`() {
     let appState = AppState()
 
     appState.navigation.navigateToDiscovery()
 
-    #expect(appState.navigation.pendingDiscoveryNavigation == true)
     #expect(appState.navigation.nodesShowingDiscovery == true)
     #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
   }
@@ -238,33 +228,12 @@ struct NavigationStateTests {
 
     appState.navigation.navigateToContactDetail(contact)
 
-    #expect(appState.navigation.pendingContactDetail == contact)
     #expect(appState.navigation.selectedContact == contact)
     #expect(appState.navigation.nodesShowingDiscovery == false)
     #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
   }
 
   // MARK: - Clear Methods
-
-  @Test
-  func `clearPendingNavigation clears chat contact`() {
-    let appState = AppState()
-    appState.navigation.pendingChatContact = Self.makeContact()
-
-    appState.navigation.clearPendingNavigation()
-
-    #expect(appState.navigation.pendingChatContact == nil)
-  }
-
-  @Test
-  func `clearPendingRoomNavigation clears room session`() {
-    let appState = AppState()
-    appState.navigation.pendingRoomSession = Self.makeRoomSession()
-
-    appState.navigation.clearPendingRoomNavigation()
-
-    #expect(appState.navigation.pendingRoomSession == nil)
-  }
 
   @Test
   func `clearPendingRoomAuthentication clears room auth session`() {
@@ -274,26 +243,6 @@ struct NavigationStateTests {
     appState.navigation.clearPendingRoomAuthentication()
 
     #expect(appState.navigation.pendingRoomAuthentication == nil)
-  }
-
-  @Test
-  func `clearPendingChannelNavigation clears channel`() {
-    let appState = AppState()
-    appState.navigation.pendingChannel = Self.makeChannel()
-
-    appState.navigation.clearPendingChannelNavigation()
-
-    #expect(appState.navigation.pendingChannel == nil)
-  }
-
-  @Test
-  func `clearPendingDiscoveryNavigation clears discovery flag`() {
-    let appState = AppState()
-    appState.navigation.pendingDiscoveryNavigation = true
-
-    appState.navigation.clearPendingDiscoveryNavigation()
-
-    #expect(appState.navigation.pendingDiscoveryNavigation == false)
   }
 
   @Test
@@ -311,16 +260,6 @@ struct NavigationStateTests {
     #expect(appState.navigation.pendingScrollTarget == nil)
   }
 
-  @Test
-  func `clearPendingContactDetailNavigation clears contact detail`() {
-    let appState = AppState()
-    appState.navigation.pendingContactDetail = Self.makeContact()
-
-    appState.navigation.clearPendingContactDetailNavigation()
-
-    #expect(appState.navigation.pendingContactDetail == nil)
-  }
-
   // MARK: - Cross-Tab Navigation
 
   @Test
@@ -332,7 +271,6 @@ struct NavigationStateTests {
     appState.navigation.navigateToChat(with: contact)
 
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
-    #expect(appState.navigation.pendingChatContact == contact)
     #expect(appState.navigation.chatsSelectedRoute == .direct(contact))
     #expect(appState.navigation.chatsRootNavigationGeneration == 1)
   }
@@ -346,7 +284,6 @@ struct NavigationStateTests {
     appState.navigation.navigateToChat(with: contact1)
     appState.navigation.navigateToChat(with: contact2)
 
-    #expect(appState.navigation.pendingChatContact == contact2)
     #expect(appState.navigation.chatsSelectedRoute == .direct(contact2))
   }
 
@@ -368,9 +305,7 @@ struct NavigationStateTests {
     appState.navigation.navigateToChat(with: contact, scrollToMessageID: messageID)
     appState.navigation.navigateToRoom(with: session)
 
-    #expect(appState.navigation.pendingChatContact == nil)
     #expect(appState.navigation.pendingScrollTarget == nil)
-    #expect(appState.navigation.pendingRoomSession == session)
     #expect(appState.navigation.chatsSelectedRoute == .room(session))
   }
 
@@ -383,9 +318,7 @@ struct NavigationStateTests {
     appState.navigation.navigateToChat(with: contact, scrollToMessageID: UUID())
     appState.navigation.navigateToChannel(with: channel)
 
-    #expect(appState.navigation.pendingChatContact == nil)
     #expect(appState.navigation.pendingScrollTarget == nil)
-    #expect(appState.navigation.pendingChannel == channel)
     #expect(appState.navigation.chatsSelectedRoute == .channel(channel))
   }
 
@@ -399,7 +332,6 @@ struct NavigationStateTests {
     appState.navigation.navigateToChat(with: contact)
 
     #expect(appState.navigation.pendingRoomAuthentication == nil)
-    #expect(appState.navigation.pendingRoomSession == nil)
     #expect(appState.navigation.chatsSelectedRoute == .direct(contact))
   }
 
@@ -411,7 +343,6 @@ struct NavigationStateTests {
     appState.navigation.navigateToRoom(with: session)
 
     #expect(appState.navigation.pendingRoomAuthentication == session)
-    #expect(appState.navigation.pendingRoomSession == nil)
     #expect(appState.navigation.chatsSelectedRoute == nil)
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
   }
@@ -505,8 +436,6 @@ struct NavigationStateTests {
 
     #expect(appState.navigation.nodesShowingDiscovery == true)
     #expect(appState.navigation.selectedContact == nil)
-    #expect(appState.navigation.pendingContactDetail == nil)
-    #expect(appState.navigation.pendingDiscoveryNavigation == true)
   }
 
   @Test
@@ -518,7 +447,6 @@ struct NavigationStateTests {
     appState.navigation.navigateToContactDetail(contact)
 
     #expect(appState.navigation.nodesShowingDiscovery == false)
-    #expect(appState.navigation.pendingDiscoveryNavigation == false)
     #expect(appState.navigation.selectedContact == contact)
   }
 
@@ -564,8 +492,6 @@ struct NavigationStateTests {
     appState.navigation.pendingRoomAuthentication = session
     appState.navigation.selectedContact = contact
     appState.navigation.nodesShowingDiscovery = true
-    appState.navigation.pendingContactDetail = contact
-    appState.navigation.pendingDiscoveryNavigation = true
     appState.navigation.selectedTool = .tracePath
     appState.navigation.selectedSetting = .radio
     appState.navigation.pendingContactLink = MeshCoreURLParser.ContactResult(
@@ -577,13 +503,10 @@ struct NavigationStateTests {
     appState.navigation.clearPerRadioSelection()
 
     #expect(appState.navigation.chatsSelectedRoute == nil)
-    #expect(appState.navigation.pendingChatContact == nil)
     #expect(appState.navigation.pendingScrollTarget == nil)
     #expect(appState.navigation.pendingRoomAuthentication == nil)
     #expect(appState.navigation.selectedContact == nil)
     #expect(appState.navigation.nodesShowingDiscovery == false)
-    #expect(appState.navigation.pendingContactDetail == nil)
-    #expect(appState.navigation.pendingDiscoveryNavigation == false)
     #expect(appState.navigation.selectedTool == nil)
     #expect(appState.navigation.selectedSetting == nil)
     #expect(appState.navigation.pendingContactLink != nil)

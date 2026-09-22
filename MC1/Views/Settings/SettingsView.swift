@@ -47,15 +47,13 @@ struct SettingsView: View {
     }
     .navigationSplitViewStyle(.balanced)
     .sectionSplitChrome(tabBarVisibility: tabBarVisibility)
-    .onChange(of: sizeClass) { old, new in
-      applySizeClassChange(from: old, to: new)
-    }
-    .onChange(of: preferredCompactColumn) { _, _ in
-      applyPreferredColumnRecipe()
-    }
-    .onChange(of: nestedPath.count) { _, _ in
-      applyPreferredColumnRecipe()
-    }
+    .sectionSplitState(
+      columnVisibility: $columnVisibility,
+      preferredCompactColumn: $preferredCompactColumn,
+      nestedPathIsEmpty: nestedPath.isEmpty,
+      hasSelection: appState.navigation.selectedSetting != nil,
+      onClearRootSelection: { appState.navigation.selectedSetting = nil }
+    )
     .onChange(of: appState.navigation.selectedSetting) { _, newSetting in
       nestedPath = NavigationPath()
       if newSetting != nil {
@@ -68,42 +66,6 @@ struct SettingsView: View {
     }
     .onChange(of: appState.navigation.settingsRootNavigationGeneration) { _, _ in
       nestedPath = NavigationPath()
-    }
-    .task {
-      if appState.navigation.selectedSetting != nil, sizeClass == .compact {
-        preferredCompactColumn = .detail
-      }
-    }
-  }
-
-  private func applySizeClassChange(
-    from old: UserInterfaceSizeClass?,
-    to new: UserInterfaceSizeClass?
-  ) {
-    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
-      from: old,
-      to: new,
-      hasSelection: appState.navigation.selectedSetting != nil
-    )
-    if let visibility = presentation.columnVisibility {
-      columnVisibility = visibility
-    }
-    if let column = presentation.preferredColumn {
-      preferredCompactColumn = column
-    }
-  }
-
-  private func applyPreferredColumnRecipe() {
-    switch ChatsSplitPresentation.preferredColumnAction(
-      preferredColumn: preferredCompactColumn,
-      sizeClass: sizeClass,
-      nestedPathIsEmpty: nestedPath.isEmpty,
-      hasSelection: appState.navigation.selectedSetting != nil
-    ) {
-    case .clearRootSelection:
-      appState.navigation.selectedSetting = nil
-    case .none:
-      break
     }
   }
 }

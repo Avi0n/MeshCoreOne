@@ -4,8 +4,7 @@ import SwiftUI
 
 private let chatListActionsLogger = Logger(subsystem: "com.mc1", category: "ChatListActions")
 
-/// Shared chat-list delete and pending-navigation sequences. Injected `navigate`
-/// keeps the split host and the list column on one route.
+/// Shared chat-list delete sequences and disconnected-room authentication.
 @MainActor
 struct ChatListActions {
   let viewModel: ChatViewModel
@@ -15,7 +14,6 @@ struct ChatListActions {
   let channelDeleteFailure: Binding<ChatConversationActions.Failure?>
   let showChannelDeleteFailed: Binding<Bool>
   let roomToAuthenticate: Binding<RemoteNodeSessionDTO?>
-  let navigate: (ChatRoute) -> Void
   let clearNavigationIfActive: (ChatRoute) -> Void
 
   func handleDeleteConversation(_ conversation: Conversation) {
@@ -95,32 +93,6 @@ struct ChatListActions {
       viewModel.errorMessage = error.userFacingMessage
     }
     viewModel.requestConversationReload()
-  }
-
-  func handlePendingNavigation() {
-    consumePending(route: appState.navigation.pendingChatContact.map { .direct($0) }) {
-      appState.navigation.clearPendingNavigation()
-    }
-  }
-
-  func handlePendingChannelNavigation() {
-    consumePending(route: appState.navigation.pendingChannel.map { .channel($0) }) {
-      appState.navigation.clearPendingChannelNavigation()
-    }
-  }
-
-  func handlePendingRoomNavigation() {
-    consumePending(route: appState.navigation.pendingRoomSession.map { .room($0) }) {
-      appState.navigation.clearPendingRoomNavigation()
-    }
-  }
-
-  /// Selects the pending route through the same `navigate` entry as a row tap,
-  /// then clears only the intent this consumer handled.
-  private func consumePending(route: ChatRoute?, clear: () -> Void) {
-    guard let route else { return }
-    navigate(route)
-    clear()
   }
 
   /// Presents the room auth sheet for a disconnected room a notification tap

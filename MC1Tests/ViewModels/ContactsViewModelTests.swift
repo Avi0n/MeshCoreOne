@@ -508,4 +508,86 @@ struct ContactsViewModelTests {
     await viewModel.loadContacts(radioID: radioID)
     #expect(viewModel.contacts.filter { $0.id == added.id }.count == 1)
   }
+
+  @Test
+  func `admitIfAbsent keeps a contact the list does not show until the fetch includes it`() async throws {
+    let radioID = UUID()
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let existing = createContact(radioID: radioID, name: "Alex")
+    let added = createContact(radioID: radioID, name: "Sam")
+    try await store.saveContact(existing)
+
+    let viewModel = ContactsViewModel()
+    viewModel.configure(
+      dataStore: { store },
+      contactService: { nil },
+      advertisementService: { nil }
+    )
+    await viewModel.loadContacts(radioID: radioID)
+    viewModel.admitIfAbsent(added)
+
+    await viewModel.loadContacts(radioID: radioID)
+    #expect(Set(viewModel.contacts.map(\.id)) == Set([existing.id, added.id]))
+
+    try await store.saveContact(added)
+    await viewModel.loadContacts(radioID: radioID)
+    #expect(viewModel.contacts.filter { $0.id == added.id }.count == 1)
+  }
+
+  @Test
+  func `admitIfAbsent does not restore a listed contact after delete or a radio switch`() async throws {
+    let radioID = UUID()
+    let otherRadioID = UUID()
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let listed = createContact(radioID: radioID, name: "Alex")
+    try await store.saveContact(listed)
+
+    let viewModel = ContactsViewModel()
+    viewModel.configure(
+      dataStore: { store },
+      contactService: { nil },
+      advertisementService: { nil }
+    )
+    await viewModel.loadContacts(radioID: radioID)
+    viewModel.admitIfAbsent(listed)
+
+    await viewModel.loadContacts(radioID: otherRadioID)
+    #expect(viewModel.contacts.isEmpty)
+
+    await viewModel.loadContacts(radioID: radioID)
+    #expect(viewModel.contacts.map(\.id) == [listed.id])
+
+    try await store.deleteContact(id: listed.id)
+    await viewModel.loadContacts(radioID: radioID)
+    #expect(viewModel.contacts.isEmpty)
+  }
+
+  @Test
+  func `admitIfAbsent does not pin a new id for a listed public key and radio`() async throws {
+    let radioID = UUID()
+    let publicKey = Data((0..<ProtocolLimits.publicKeySize).map { _ in UInt8.random(in: 0...255) })
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let original = createContact(radioID: radioID, publicKey: publicKey, name: "Alex")
+    let sameNode = createContact(id: UUID(), radioID: radioID, publicKey: publicKey, name: "Sam")
+    try await store.saveContact(original)
+
+    let viewModel = ContactsViewModel()
+    viewModel.configure(
+      dataStore: { store },
+      contactService: { nil },
+      advertisementService: { nil }
+    )
+    await viewModel.loadContacts(radioID: radioID)
+    viewModel.admitIfAbsent(sameNode)
+
+    #expect(viewModel.contacts.map(\.id) == [original.id])
+    #expect(viewModel.contacts.map(\.name) == ["Alex"])
+
+    try await store.deleteContact(id: original.id)
+    await viewModel.loadContacts(radioID: radioID)
+    #expect(viewModel.contacts.isEmpty)
+  }
 }

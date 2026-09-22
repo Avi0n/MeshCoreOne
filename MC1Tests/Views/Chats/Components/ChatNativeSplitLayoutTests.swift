@@ -858,8 +858,7 @@ private final class ChatNativeSplitHarnessModel {
     switch ChatsSplitPresentation.preferredColumnAction(
       preferredColumn: preferredCompactColumn,
       sizeClass: horizontalSizeClass,
-      nestedPathIsEmpty: true,
-      hasSelection: selectedRoute != nil
+      nestedPathIsEmpty: true
     ) {
     case .clearRootSelection:
       selectedRoute = nil

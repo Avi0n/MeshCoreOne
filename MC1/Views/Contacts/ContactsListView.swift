@@ -37,7 +37,7 @@ struct ContactsListView: View {
       preferredCompactColumn: $preferredCompactColumn
     ) {
       NavigationStack {
-        ContactsContentColumn(viewModel: viewModel, observesPendingNavigation: false)
+        ContactsContentColumn(viewModel: viewModel)
           .sectionSplitColumnChrome()
       }
     } detail: {
@@ -49,15 +49,16 @@ struct ContactsListView: View {
     }
     .navigationSplitViewStyle(.balanced)
     .sectionSplitChrome(tabBarVisibility: tabBarVisibility)
-    .onChange(of: sizeClass) { old, new in
-      applySizeClassChange(from: old, to: new)
-    }
-    .onChange(of: preferredCompactColumn) { _, _ in
-      applyPreferredColumnRecipe()
-    }
-    .onChange(of: nestedPath.count) { _, _ in
-      applyPreferredColumnRecipe()
-    }
+    .sectionSplitState(
+      columnVisibility: $columnVisibility,
+      preferredCompactColumn: $preferredCompactColumn,
+      nestedPathIsEmpty: nestedPath.isEmpty,
+      hasSelection: hasSelection,
+      onClearRootSelection: {
+        appState.navigation.selectedContact = nil
+        appState.navigation.nodesShowingDiscovery = false
+      }
+    )
     .onChange(of: appState.navigation.selectedContact?.id) { _, _ in
       nestedPath = NavigationPath()
       updatePreferredColumnForSelection()
@@ -69,29 +70,6 @@ struct ContactsListView: View {
     .onChange(of: appState.navigation.nodesRootNavigationGeneration) { _, _ in
       nestedPath = NavigationPath()
     }
-    .onChange(of: appState.navigation.pendingDiscoveryNavigation) { _, _ in
-      consumePendingNodesNavigation()
-    }
-    .onChange(of: appState.navigation.pendingContactDetail) { _, _ in
-      consumePendingNodesNavigation()
-    }
-    .task {
-      if hasSelection, sizeClass == .compact {
-        preferredCompactColumn = .detail
-      }
-      consumePendingNodesNavigation()
-    }
-  }
-
-  private func consumePendingNodesNavigation() {
-    if appState.navigation.pendingDiscoveryNavigation {
-      appState.navigation.clearPendingDiscoveryNavigation()
-      preferredCompactColumn = .detail
-    }
-    if appState.navigation.pendingContactDetail != nil {
-      appState.navigation.clearPendingContactDetailNavigation()
-      preferredCompactColumn = .detail
-    }
   }
 
   private func updatePreferredColumnForSelection() {
@@ -101,38 +79,6 @@ struct ContactsListView: View {
       }
     } else if sizeClass == .compact {
       preferredCompactColumn = .sidebar
-    }
-  }
-
-  private func applySizeClassChange(
-    from old: UserInterfaceSizeClass?,
-    to new: UserInterfaceSizeClass?
-  ) {
-    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
-      from: old,
-      to: new,
-      hasSelection: hasSelection
-    )
-    if let visibility = presentation.columnVisibility {
-      columnVisibility = visibility
-    }
-    if let column = presentation.preferredColumn {
-      preferredCompactColumn = column
-    }
-  }
-
-  private func applyPreferredColumnRecipe() {
-    switch ChatsSplitPresentation.preferredColumnAction(
-      preferredColumn: preferredCompactColumn,
-      sizeClass: sizeClass,
-      nestedPathIsEmpty: nestedPath.isEmpty,
-      hasSelection: hasSelection
-    ) {
-    case .clearRootSelection:
-      appState.navigation.selectedContact = nil
-      appState.navigation.nodesShowingDiscovery = false
-    case .none:
-      break
     }
   }
 }

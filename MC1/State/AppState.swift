@@ -530,11 +530,6 @@ final class AppState {
       }
       navigation.chatsSelectedRoute = nil
     }
-    if let pending = navigation.pendingChannel,
-       pending.radioID == radioID,
-       indices.contains(pending.index) {
-      navigation.clearPendingChannelNavigation()
-    }
     refreshConversations()
   }
 

@@ -7,7 +7,6 @@ struct ContactsContentColumn: View {
   @Environment(\.appState) private var appState
 
   let viewModel: ContactsViewModel
-  var observesPendingNavigation: Bool = true
 
   @State private var searchText = ""
   @State private var selectedSegment: NodeSegment = .contacts
@@ -37,7 +36,6 @@ struct ContactsContentColumn: View {
       showAddContact: $showAddContact,
       showLocationDeniedAlert: $showLocationDeniedAlert,
       showOfflineRefreshAlert: $showOfflineRefreshAlert,
-      observesPendingNavigation: observesPendingNavigation,
       onSelect: selectContact,
       onLoadContacts: actions.loadContacts,
       onSyncContacts: actions.syncContacts,

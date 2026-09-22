@@ -52,8 +52,7 @@ struct AdaptiveNavigationTests {
     let action = ChatsSplitPresentation.preferredColumnAction(
       preferredColumn: .sidebar,
       sizeClass: .compact,
-      nestedPathIsEmpty: true,
-      hasSelection: true
+      nestedPathIsEmpty: true
     )
     #expect(action == .clearRootSelection)
   }
@@ -63,8 +62,7 @@ struct AdaptiveNavigationTests {
     let action = ChatsSplitPresentation.preferredColumnAction(
       preferredColumn: .sidebar,
       sizeClass: .compact,
-      nestedPathIsEmpty: false,
-      hasSelection: true
+      nestedPathIsEmpty: false
     )
     #expect(action == .none)
   }
@@ -74,8 +72,7 @@ struct AdaptiveNavigationTests {
     let action = ChatsSplitPresentation.preferredColumnAction(
       preferredColumn: .sidebar,
       sizeClass: .regular,
-      nestedPathIsEmpty: true,
-      hasSelection: true
+      nestedPathIsEmpty: true
     )
     #expect(action == .none)
   }

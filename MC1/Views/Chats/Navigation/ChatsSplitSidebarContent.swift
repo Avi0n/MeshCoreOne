@@ -17,9 +17,6 @@ struct ChatsSplitSidebarContent: View {
 
   let onSelect: (ChatRoute) -> Void
   let onDeleteConversation: (Conversation) -> Void
-  let onHandlePendingNavigation: () -> Void
-  let onHandlePendingChannelNavigation: () -> Void
-  let onHandlePendingRoomNavigation: () -> Void
   let onAnnounceOfflineStateIfNeeded: () -> Void
 
   var body: some View {
@@ -39,10 +36,7 @@ struct ChatsSplitSidebarContent: View {
       searchText: $searchText,
       showingNewChat: $showingNewChat,
       showingChannelOptions: $showingChannelOptions,
-      onAnnounceOfflineStateIfNeeded: onAnnounceOfflineStateIfNeeded,
-      onHandlePendingNavigation: onHandlePendingNavigation,
-      onHandlePendingChannelNavigation: onHandlePendingChannelNavigation,
-      onHandlePendingRoomNavigation: onHandlePendingRoomNavigation
+      onAnnounceOfflineStateIfNeeded: onAnnounceOfflineStateIfNeeded
     ))
     .onChange(of: selectedRoute) { oldValue, newValue in
       if oldValue != nil {

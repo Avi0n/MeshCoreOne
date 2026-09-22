@@ -29,8 +29,7 @@ enum ChatsSplitPresentation {
   static func preferredColumnAction(
     preferredColumn: NavigationSplitViewColumn,
     sizeClass: UserInterfaceSizeClass?,
-    nestedPathIsEmpty: Bool,
-    hasSelection _: Bool
+    nestedPathIsEmpty: Bool
   ) -> PreferredColumnAction {
     if preferredColumn == .sidebar, sizeClass == .compact, nestedPathIsEmpty {
       return .clearRootSelection
@@ -54,6 +53,26 @@ enum ChatsSplitPresentation {
 }
 
 extension View {
+  /// Owns column visibility, the compact preferred column, and the Back recipe.
+  /// Each section still resets its nested path and decides what a cleared root means.
+  func sectionSplitState(
+    columnVisibility: Binding<NavigationSplitViewVisibility>,
+    preferredCompactColumn: Binding<NavigationSplitViewColumn>,
+    nestedPathIsEmpty: Bool,
+    hasSelection: Bool,
+    onClearRootSelection: @escaping () -> Void
+  ) -> some View {
+    modifier(
+      SectionSplitStateModifier(
+        columnVisibility: columnVisibility,
+        preferredCompactColumn: preferredCompactColumn,
+        nestedPathIsEmpty: nestedPathIsEmpty,
+        hasSelection: hasSelection,
+        onClearRootSelection: onClearRootSelection
+      )
+    )
+  }
+
   /// Compact collapsed detail hides the tab bar. iOS 26+ ignores the top container inset
   /// so the split extends under the iPad tab bar; earlier OS keeps it so the timeline
   /// stays below the header. Ignoring safe area on `NavigationSplitView` crashes layout.
@@ -73,6 +92,64 @@ extension View {
   /// through the status bar the way `NavigationStack` tabs already do.
   func sectionSplitColumnChrome() -> some View {
     modifier(SectionSplitColumnChromeModifier())
+  }
+}
+
+private struct SectionSplitStateModifier: ViewModifier {
+  @Environment(\.horizontalSizeClass) private var sizeClass
+
+  @Binding var columnVisibility: NavigationSplitViewVisibility
+  @Binding var preferredCompactColumn: NavigationSplitViewColumn
+  let nestedPathIsEmpty: Bool
+  let hasSelection: Bool
+  let onClearRootSelection: () -> Void
+
+  func body(content: Content) -> some View {
+    content
+      .onChange(of: sizeClass) { old, new in
+        applySizeClassChange(from: old, to: new)
+      }
+      .onChange(of: preferredCompactColumn) { _, _ in
+        applyPreferredColumnRecipe()
+      }
+      .onChange(of: nestedPathIsEmpty) { _, _ in
+        applyPreferredColumnRecipe()
+      }
+      .task {
+        if hasSelection, sizeClass == .compact {
+          preferredCompactColumn = .detail
+        }
+      }
+  }
+
+  private func applySizeClassChange(
+    from old: UserInterfaceSizeClass?,
+    to new: UserInterfaceSizeClass?
+  ) {
+    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
+      from: old,
+      to: new,
+      hasSelection: hasSelection
+    )
+    if let visibility = presentation.columnVisibility {
+      columnVisibility = visibility
+    }
+    if let column = presentation.preferredColumn {
+      preferredCompactColumn = column
+    }
+  }
+
+  private func applyPreferredColumnRecipe() {
+    switch ChatsSplitPresentation.preferredColumnAction(
+      preferredColumn: preferredCompactColumn,
+      sizeClass: sizeClass,
+      nestedPathIsEmpty: nestedPathIsEmpty
+    ) {
+    case .clearRootSelection:
+      onClearRootSelection()
+    case .none:
+      break
+    }
   }
 }
 

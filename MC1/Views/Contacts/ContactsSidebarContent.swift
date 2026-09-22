@@ -27,7 +27,6 @@ struct ContactsSidebarContent: View {
   @Binding var showLocationDeniedAlert: Bool
   @Binding var showOfflineRefreshAlert: Bool
 
-  var observesPendingNavigation: Bool = true
   let onSelect: (ContactDTO) -> Void
   let onLoadContacts: () async -> Void
   let onSyncContacts: () async -> Void
@@ -173,17 +172,11 @@ struct ContactsSidebarContent: View {
         selectedSegment = .favorites
       }
     }
-    .onChange(of: appState.navigation.pendingDiscoveryNavigation, initial: true) { _, shouldNavigate in
-      guard observesPendingNavigation, shouldNavigate else { return }
-      appState.navigation.clearPendingDiscoveryNavigation()
-    }
-    .onChange(of: appState.navigation.pendingContactDetail, initial: true) { _, contact in
+    .onChange(of: appState.navigation.selectedContact, initial: true) { _, contact in
       guard let contact else { return }
       // Admit a just-added contact before the next reload, or the list drops the row
       // the detail pane is already showing.
-      viewModel.upsert(contact)
-      guard observesPendingNavigation else { return }
-      appState.navigation.clearPendingContactDetailNavigation()
+      viewModel.admitIfAbsent(contact)
     }
     .onChange(of: appState.locationService.authorizationStatus) { _, status in
       if sortOrder == .distance {
