@@ -19,6 +19,14 @@ public enum MockDataProvider {
   public static let frankWilsonID = UUID(uuidString: "00000000-0000-0000-0000-000000000060")!
   public static let ghostNodeID = UUID(uuidString: "00000000-0000-0000-0000-000000000070")!
   public static let hannahLeeID = UUID(uuidString: "00000000-0000-0000-0000-000000000080")!
+  public static let northRidgeRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000091")!
+  public static let twinPeaksRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000092")!
+  public static let oaklandRepeaterID = UUID(uuidString: "00000000-0000-0000-0000-000000000093")!
+
+  /// Byte 0 of `mockPublicKey(seed:)`. A 1-byte hop hash of this value matches that repeater only.
+  static let northRidgeRepeaterSeed: UInt8 = 0x91
+  static let twinPeaksRepeaterSeed: UInt8 = 0x92
+  static let oaklandRepeaterSeed: UInt8 = 0x93
 
   /// Channel UUIDs
   public static let publicChannelID = UUID(uuidString: "000000C0-0000-0000-0000-000000000000")!
@@ -37,6 +45,8 @@ public enum MockDataProvider {
   static let aliceReactedMessageID = UUID(uuidString: "10000000-0000-0000-0000-000000000002")!
   static let aliceLinkPreviewMessageID = UUID(uuidString: "10000000-0000-0000-0000-00000000000A")!
   static let frankRepeatMessageID = UUID(uuidString: "60000000-0000-0000-0000-000000000002")!
+  static let aliceMultiPathMessageID = UUID(uuidString: "10000000-0000-0000-0000-000000000010")!
+  static let publicMultiPathMessageID = UUID(uuidString: "C0000000-0000-0000-0000-000000000006")!
   static let frankFloodUniqueMessageID = UUID(uuidString: "60000000-0000-0000-0000-000000000004")!
   static let frankFloodAmbiguousMessageID = UUID(uuidString: "60000000-0000-0000-0000-000000000005")!
   static let bayAreaReactedMessageID = UUID(uuidString: "C1000000-0000-0000-0000-000000000002")!
