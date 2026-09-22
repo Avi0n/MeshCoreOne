@@ -29,6 +29,12 @@
             "value" : "Envoyer une annonce dans ${applicationName}"
           }
         },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 애드버트 보내기"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -93,6 +99,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Envoyer une annonce ${reach} dans ${applicationName}"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 ${reach} 애드버트 보내기"
           }
         },
         "nl" : {
@@ -161,6 +173,12 @@
             "value" : "Vérifier l'état de la radio dans ${applicationName}"
           }
         },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 무선 기기 상태 확인"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -225,6 +243,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ma radio est-elle connectée dans ${applicationName}"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 내 무선 기기가 연결되어 있어"
           }
         },
         "nl" : {
@@ -293,6 +317,12 @@
             "value" : "Envoyer un message à ${target} dans ${applicationName}"
           }
         },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 ${target}에게 메시지 보내기"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -359,6 +389,12 @@
             "value" : "Envoyer un message dans ${applicationName}"
           }
         },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 메시지 보내기"
+          }
+        },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
@@ -423,6 +459,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quel est le niveau de batterie de ma radio dans ${applicationName}"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 내 무선 기기 배터리는 얼마야"
           }
         },
         "nl" : {
