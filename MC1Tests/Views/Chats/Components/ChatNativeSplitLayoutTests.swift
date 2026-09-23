@@ -11,6 +11,8 @@ import UIKit
 struct ChatNativeSplitLayoutTests {
   private enum Layout {
     static let regularSize = CGSize(width: 1024, height: 768)
+    /// Regular width and compact height, a wide phone in landscape.
+    static let phoneLandscapeSize = CGSize(width: 932, height: 430)
     static let collectionWaitTimeout: TimeInterval = 6
     static let runLoopSlice: TimeInterval = 0.05
     static let settle: TimeInterval = 0.35
@@ -96,6 +98,40 @@ struct ChatNativeSplitLayoutTests {
     #expect(cell.maxX <= snapshot.detailFrame.maxX + Layout.geometrySlop)
     #expect(fixture.model.selectedRoute != nil, "hiding the list must not clear the route")
     #expect(fixture.model.tabBarVisibility == .automatic, "regular overlay must not hide tabs")
+  }
+
+  @Test
+  func `phone landscape split keeps a long bubble inside the detail`() async throws {
+    let fixture = try await makeChatFixture(includeLongBubble: true)
+    let host = try mountSelected(
+      fixture,
+      size: Layout.phoneLandscapeSize,
+      regularWidth: true,
+      regularHeight: false
+    )
+    defer { host.window.isHidden = true }
+
+    #expect(host.controller.view.traitCollection.horizontalSizeClass == .regular)
+    #expect(host.controller.view.traitCollection.verticalSizeClass == .compact)
+
+    let found = try requireCollection(host, itemCount: fixture.model.chatViewModel.items.count)
+    let longID = try #require(fixture.longMessageID)
+    let cell = try screenFrame(of: longID, in: found, items: fixture.model.chatViewModel.items)
+    let snapshot = try geometrySnapshot(host: host, collectionView: found.collectionView)
+    recordSnapshot("phone-landscape-list-shown", snapshot, extra: "longCell=\(cell)")
+
+    #expect(snapshot.sidebarWidth >= Layout.sidebarOccupiedMinWidth, "\(snapshot.summary)")
+    #expect(
+      snapshot.collectionWidth + Layout.sidebarOccupiedMinWidth
+        <= snapshot.windowWidth + Layout.geometrySlop,
+      "collection \(snapshot.collectionWidth) is window-wide \(snapshot.windowWidth) while the list is shown. \(snapshot.summary)"
+    )
+    #expect(cell.width <= snapshot.detailWidth + Layout.geometrySlop, "\(snapshot.summary)")
+    #expect(cell.minX >= snapshot.detailFrame.minX - Layout.geometrySlop)
+    #expect(
+      cell.maxX <= snapshot.detailFrame.maxX + Layout.geometrySlop,
+      "long bubble extends past the detail: cell=\(cell) detail=\(snapshot.detailFrame)"
+    )
   }
 
   @Test
@@ -395,6 +431,7 @@ struct ChatNativeSplitLayoutTests {
     _ fixture: ChatFixture,
     size: CGSize = Layout.regularSize,
     regularWidth: Bool = true,
+    regularHeight: Bool = true,
     additionalSafeAreaInsets: UIEdgeInsets = .zero,
     columnVisibility: NavigationSplitViewVisibility = .all
   ) throws -> Host {
@@ -406,6 +443,7 @@ struct ChatNativeSplitLayoutTests {
       model: fixture.model,
       size: size,
       regularWidth: regularWidth,
+      regularHeight: regularHeight,
       additionalSafeAreaInsets: additionalSafeAreaInsets
     )
   }
@@ -414,13 +452,14 @@ struct ChatNativeSplitLayoutTests {
     model: ChatNativeSplitHarnessModel,
     size: CGSize,
     regularWidth: Bool,
+    regularHeight: Bool = true,
     additionalSafeAreaInsets: UIEdgeInsets = .zero
   ) throws -> Host {
     let controller = UIHostingController(rootView: ChatNativeSplitHarness(model: model))
     let window = makeWindow(size: size)
     window.rootViewController = controller
     controller.additionalSafeAreaInsets = additionalSafeAreaInsets
-    applySizeClass(controller, regularWidth: regularWidth)
+    applySizeClass(controller, regularWidth: regularWidth, regularHeight: regularHeight)
     window.frame = CGRect(origin: .zero, size: size)
     controller.view.frame = window.bounds
     window.makeKeyAndVisible()
@@ -443,14 +482,23 @@ struct ChatNativeSplitLayoutTests {
     return window
   }
 
-  private func applySizeClass(_ controller: UIViewController, regularWidth: Bool) {
+  private func applySizeClass(
+    _ controller: UIViewController,
+    regularWidth: Bool,
+    regularHeight: Bool = true
+  ) {
     controller.traitOverrides.horizontalSizeClass = regularWidth ? .regular : .compact
-    controller.traitOverrides.verticalSizeClass = .regular
+    controller.traitOverrides.verticalSizeClass = regularHeight ? .regular : .compact
   }
 
-  private func resize(_ host: Host, to size: CGSize, regularWidth: Bool) {
+  private func resize(
+    _ host: Host,
+    to size: CGSize,
+    regularWidth: Bool,
+    regularHeight: Bool = true
+  ) {
     host.window.frame = CGRect(origin: .zero, size: size)
-    applySizeClass(host.controller, regularWidth: regularWidth)
+    applySizeClass(host.controller, regularWidth: regularWidth, regularHeight: regularHeight)
     host.window.layoutIfNeeded()
     settle(host.window)
   }
