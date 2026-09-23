@@ -22,7 +22,6 @@ struct PointRowButtonsView: View {
   }
 
   var body: some View {
-    // Share menu
     Menu {
       if let coord = coordinate {
         Button(L10n.Tools.Tools.LineOfSight.openInMaps, systemImage: "map") {
@@ -53,7 +52,6 @@ struct PointRowButtonsView: View {
     .sensoryFeedback(.success, trigger: copyHapticTrigger)
     .controlSize(.small)
 
-    // Relocate button (toggles on/off)
     Button {
       if viewModel.relocatingPoint == pointID {
         viewModel.relocatingPoint = nil
@@ -70,7 +68,6 @@ struct PointRowButtonsView: View {
     .controlSize(.small)
     .disabled(viewModel.relocatingPoint != nil && viewModel.relocatingPoint != pointID)
 
-    // Edit/Done toggle
     Button {
       withAnimation {
         editingPoint = isEditing ? nil : pointID
@@ -91,7 +88,6 @@ struct PointRowButtonsView: View {
     .liquidGlassSecondaryButtonStyle()
     .controlSize(.small)
 
-    // Clear button
     Button(action: onClear) {
       Label(L10n.Tools.Tools.LineOfSight.clear, systemImage: "xmark")
         .labelStyle(.iconOnly)

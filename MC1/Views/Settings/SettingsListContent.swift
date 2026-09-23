@@ -2,9 +2,8 @@ import MC1Services
 import SwiftUI
 import TipKit
 
-/// The settings list itself, shared by the compact `SettingsView` (stack) and the iPad
-/// `MainSidebarView` content column (split). `isSidebar` switches the iPad-only selection binding
-/// and themed-row treatment; the compact stack pushes via value-based `NavigationLink` instead.
+/// Settings list for `SettingsView`. Selection is always `selectedSetting`.
+/// `isSidebar` only changes list style and row flattening.
 struct SettingsListContent: View {
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
@@ -16,9 +15,6 @@ struct SettingsListContent: View {
   let isSidebar: Bool
   private let liveActivityTip = LiveActivityTip()
 
-  /// Drives the iPad split's selected settings page. The compact stack leaves it nil — inside a
-  /// `NavigationStack` a value-based `NavigationLink` drives the stack path (via `SettingsView`'s
-  /// `navigationDestination`), not the list selection — so persistent selection stays iPad-only.
   private var settingSelection: Binding<SettingsDetail?> {
     Binding(
       get: { appState.navigation.selectedSetting },
@@ -42,16 +38,13 @@ struct SettingsListContent: View {
       }
   }
 
-  /// Only the iPad sidebar column carries a selection binding, where it drives the detail pane. The
-  /// compact stack must omit it: a `List(selection:)` turns a row tap into a selection instead of
-  /// letting the value-based `NavigationLink` push, which would break compact navigation.
   @ViewBuilder
   private var settingsList: some View {
     if isSidebar {
       List(selection: settingSelection) { sections }
         .listStyle(.sidebar)
     } else {
-      List { sections }
+      List(selection: settingSelection) { sections }
     }
   }
 

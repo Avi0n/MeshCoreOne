@@ -41,6 +41,9 @@ struct ChatConversationView: View {
   /// `AppState.channelSlotGenerations` value for this channel slot when the view
   /// appeared; a higher value later means a different channel now owns the slot.
   @State private var slotGenerationOnAppear: Int?
+  /// False until the first load finishes so a reaction-scroll request stays
+  /// pending until the timeline can honor it.
+  @State private var didCompleteInitialLoad = false
 
   // MARK: - Sheet State
 
@@ -298,6 +301,9 @@ struct ChatConversationView: View {
     .task(id: appState.servicesVersion) {
       await performInitialLoad()
     }
+    .onChange(of: appState.navigation.pendingScrollTarget?.requestID) { _, _ in
+      deliverPendingScrollIfNeeded()
+    }
     .conversationTranslationSession(
       configuration: $translationConfiguration,
       request: $chatViewModel.translationSessionRequest,
@@ -321,9 +327,8 @@ struct ChatConversationView: View {
         )
     }
     .onDisappear {
-      // Load-bearing on iPad: MainSidebarView pins the Chats detail stack with
-      // `.id(chatsSelectedRoute.conversationID)`, so a detail swap tears down this view's
-      // @State (including draftSaveTask) before the debounce fires — flush here.
+      // Conversation identity remounts this view, discarding @State before the
+      // debounce fires, so flush the draft here.
       flushDraft()
       chatViewModel.cancelPendingTranslation()
       performCleanup()
@@ -394,11 +399,7 @@ struct ChatConversationView: View {
   // MARK: - Initial Load (.task)
 
   private func performInitialLoad() async {
-    // Capture pending scroll target before loading
-    let pendingTarget = appState.navigation.pendingScrollToMessageID
-    if pendingTarget != nil {
-      appState.navigation.clearPendingScrollToMessage()
-    }
+    didCompleteInitialLoad = false
 
     chatViewModel.configure(
       dependencies: appState.makeChatViewModelDependencies(),
@@ -428,16 +429,25 @@ struct ChatConversationView: View {
     // bubble tracking, mark them all seen here so chat-list mention badges clear.
     await markConversationMentionsSeen()
 
-    // Trigger scroll to target message if pending (notification deeplink)
-    if let targetID = pendingTarget {
-      scrollToTargetID = targetID
-      scrollToTargetRequest += 1
-    }
+    didCompleteInitialLoad = true
+    deliverPendingScrollIfNeeded()
 
     // Clear any notifications for this conversation still sitting in the tray
     // (delivered while the app was backgrounded). The load above already
     // cleared the unread count, so the recomputed badge stays correct.
     await clearDeliveredNotifications()
+  }
+
+  private func deliverPendingScrollIfNeeded() {
+    if let targetID = ChatScrollRequestDelivery.takeIfHonorable(
+      from: appState.navigation,
+      kind: conversationType.chatRouteKind,
+      conversationID: conversationType.conversationID,
+      canHonor: didCompleteInitialLoad
+    ) {
+      scrollToTargetID = targetID
+      scrollToTargetRequest += 1
+    }
   }
 
   /// Removes delivered lock-screen / Notification Center notifications for the

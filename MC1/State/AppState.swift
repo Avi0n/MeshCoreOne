@@ -525,6 +525,9 @@ final class AppState {
     if case let .channel(selected) = navigation.chatsSelectedRoute,
        selected.radioID == radioID,
        indices.contains(selected.index) {
+      if navigation.pendingScrollTarget?.conversationID == selected.id {
+        navigation.clearPendingScrollToMessage()
+      }
       navigation.chatsSelectedRoute = nil
     }
     refreshConversations()
@@ -692,13 +695,6 @@ final class AppState {
     } else {
       navigation.pendingDeviceMenuTipDonation = true
     }
-  }
-
-  /// Donates the tip unconditionally. Used on iPad where the radio is always
-  /// visible in the sidebar regardless of which section is selected.
-  func donateDeviceMenuTip() async {
-    navigation.pendingDeviceMenuTipDonation = false
-    await DeviceMenuTip.hasCompletedOnboarding.donate()
   }
 
   #if DEBUG

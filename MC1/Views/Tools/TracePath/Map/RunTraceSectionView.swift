@@ -35,13 +35,7 @@ struct RunTraceSectionView: View {
           .accessibilityHint(L10n.Contacts.Contacts.Trace.List.runningHint)
         } else {
           Button {
-            Task {
-              if viewModel.batchEnabled {
-                await viewModel.runBatchTrace()
-              } else {
-                await viewModel.runTrace()
-              }
-            }
+            viewModel.startTrace()
           } label: {
             Text(L10n.Contacts.Contacts.Trace.List.runTrace)
               .frame(minWidth: 160)

@@ -82,3 +82,57 @@ struct SyncingPillViewTests {
     #expect(state.textColor == .primary)
   }
 }
+
+@Suite("SyncingPillPlacement")
+struct SyncingPillPlacementTests {
+  private let overlayHeight: CGFloat = 1180
+
+  @Test
+  func `missing tab bar keeps the compact top gap`() {
+    let padding = SyncingPillPlacement.topPadding(
+      tabBarFrameInOverlay: nil,
+      overlayHeight: overlayHeight
+    )
+    #expect(padding == SyncingPillPlacement.contentGap)
+  }
+
+  @Test
+  func `bottom tab bar keeps the compact top gap`() {
+    let bottomBar = CGRect(x: 0, y: 1100, width: 820, height: 50)
+    let padding = SyncingPillPlacement.topPadding(
+      tabBarFrameInOverlay: bottomBar,
+      overlayHeight: overlayHeight
+    )
+    #expect(padding == SyncingPillPlacement.contentGap)
+  }
+
+  @Test
+  func `top tab bar sits the pill below the bar`() {
+    let topBar = CGRect(x: 0, y: 32, width: 820, height: 44)
+    let padding = SyncingPillPlacement.topPadding(
+      tabBarFrameInOverlay: topBar,
+      overlayHeight: overlayHeight
+    )
+    #expect(padding == 32 + 44 + SyncingPillPlacement.contentGap)
+  }
+
+  @Test
+  func `full-screen chrome is not treated as a top tab bar`() {
+    let chrome = CGRect(x: 0, y: 0, width: 820, height: overlayHeight)
+    let padding = SyncingPillPlacement.topPadding(
+      tabBarFrameInOverlay: chrome,
+      overlayHeight: overlayHeight
+    )
+    #expect(padding == SyncingPillPlacement.contentGap)
+  }
+
+  @Test
+  func `zero overlay height keeps the compact top gap`() {
+    let topBar = CGRect(x: 0, y: 32, width: 820, height: 44)
+    let padding = SyncingPillPlacement.topPadding(
+      tabBarFrameInOverlay: topBar,
+      overlayHeight: 0
+    )
+    #expect(padding == SyncingPillPlacement.contentGap)
+  }
+}

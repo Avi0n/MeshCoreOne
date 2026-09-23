@@ -1,7 +1,7 @@
 import CoreLocation
-import MapKit
 import MC1Services
 import SwiftUI
+import UIKit
 
 private let analysisSheetDetentCollapsed: PresentationDetent = .fraction(0.25)
 private let analysisSheetDetentHalf: PresentationDetent = .fraction(0.5)
@@ -9,30 +9,27 @@ private let analysisSheetDetentExpanded: PresentationDetent = .large
 
 // MARK: - Line of Sight View
 
-/// Full-screen map view for analyzing line-of-sight between two points
+/// Sole Line of Sight workspace: one view model, one editor/sheet owner, and a
+/// layout choice between paired analysis/map and map plus analysis sheet.
 struct LineOfSightView: View {
   @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
+  @Environment(\.appTheme) private var theme
 
   @State private var viewModel: LineOfSightViewModel
+  @State private var layoutMode: LineOfSightLayoutMode = .mapWithSheet
+  @State private var workspaceSize: CGSize = .zero
   @State private var sheetDetent: PresentationDetent = analysisSheetDetentCollapsed
   @State private var enableHalfDetent = false
-  @State private var showAnalysisSheet: Bool
+  @State private var showAnalysisSheet = false
   @State private var editingPoint: PointID?
-  @AppStorage(AppStorageKey.mapStyleSelection.rawValue) private var mapStyleSelection: MapStyleSelection = .standard
-  @AppStorage(AppStorageKey.mapShowLabels.rawValue) private var showLabels = AppStorageKey.defaultMapShowLabels
-  @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
-  private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
-  @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
-  @State private var sheetBottomInset: CGFloat = 220
+  @State private var analysisSheetMinY: CGFloat = 0
+  @State private var mapOverlayMaxY: CGFloat = 0
   @State private var isResultsExpanded = false
   @State private var isRFSettingsExpanded = false
   @State private var copyHapticTrigger = 0
-
-  private let layoutMode: LineOfSightLayoutMode
-
-  // One-time drag hint tooltip for repeater marker
-  @AppStorage(AppStorageKey.hasSeenRepeaterDragHint.rawValue) private var hasSeenDragHint = AppStorageKey.defaultHasSeenRepeaterDragHint
+  @AppStorage(AppStorageKey.hasSeenRepeaterDragHint.rawValue)
+  private var hasSeenDragHint = AppStorageKey.defaultHasSeenRepeaterDragHint
   @State private var showDragHint = false
   @State private var repeaterMarkerCenter: CGPoint?
   @State private var isNavigatingBack = false
@@ -42,11 +39,15 @@ struct LineOfSightView: View {
   }
 
   private var shouldShowExpandedAnalysis: Bool {
-    sheetDetent != analysisSheetDetentCollapsed
+    layoutMode == .paired || sheetDetent != analysisSheetDetentCollapsed
   }
 
   private var mapOverlayBottomPadding: CGFloat {
-    showAnalysisSheet ? sheetBottomInset : 0
+    guard layoutMode == .mapWithSheet, showAnalysisSheet else { return 0 }
+    return LineOfSightMapOverlayPadding.amount(
+      overlayMaxY: mapOverlayMaxY,
+      sheetMinY: analysisSheetMinY
+    )
   }
 
   private var availableSheetDetents: Set<PresentationDetent> {
@@ -57,168 +58,203 @@ struct LineOfSightView: View {
     }
   }
 
-  // MARK: - Initialization
+  private var isWorkspaceActive: Bool {
+    if appState.navigation.selectedTool == .lineOfSight {
+      return appState.navigation.isToolWorkspaceActive(.lineOfSight)
+    }
+    return true
+  }
+
+  private var workspaceBindID: String {
+    "\(appState.servicesVersion)-\(appState.currentRadioID?.uuidString ?? "offline")"
+  }
 
   init(preselectedContact: ContactDTO? = nil) {
     _viewModel = State(initialValue: LineOfSightViewModel(preselectedContact: preselectedContact))
-    layoutMode = .mapWithSheet
-    _showAnalysisSheet = State(initialValue: true)
   }
-
-  init(viewModel: LineOfSightViewModel, layoutMode: LineOfSightLayoutMode) {
-    _viewModel = State(initialValue: viewModel)
-    self.layoutMode = layoutMode
-    _showAnalysisSheet = State(initialValue: layoutMode == .mapWithSheet)
-  }
-
-  // MARK: - Body
 
   var body: some View {
-    switch layoutMode {
-    case .panel:
-      ScrollView {
-        analysisSheetContent
+    workspaceWithObservers
+  }
+
+  private var workspaceWithObservers: some View {
+    workspaceWithChrome
+      .task(id: workspaceBindID) {
+        await bindWorkspaceIfActive()
       }
-      .scrollDismissesKeyboard(.immediately)
+      .onChange(of: isWorkspaceActive, handleWorkspaceActiveChange)
+      .onChange(of: viewModel.pointA, handlePointAChange)
+      .onChange(of: viewModel.pointB, handlePointBChange)
+      .onChange(of: sheetDetent, handleSheetDetentChange)
+      .onChange(of: viewModel.repeaterPoint, handleRepeaterPointChange)
+      .onChange(of: viewModel.analysisStatus) { _, newStatus in
+        handleAnalysisStatusChange(newStatus)
+      }
+  }
 
-    case .map:
-      mapCanvasWithBehaviors(showSheet: false)
+  private var workspaceWithChrome: some View {
+    workspaceContent
+      .navigationBarBackButtonHidden(layoutMode == .mapWithSheet && showAnalysisSheet)
+      .liquidGlassToolbarBackground()
+      .background {
+        GeometryReader { proxy in
+          LineOfSightLayoutProbe(identifier: layoutMode.accessibilityIdentifier)
+            .onAppear { applyLayout(for: proxy.size) }
+            .onChange(of: proxy.size) { _, size in
+              applyLayout(for: size)
+            }
+        }
+      }
+  }
 
-    case .mapWithSheet:
-      mapCanvasWithBehaviors(showSheet: true)
+  private var workspaceContent: some View {
+    Group {
+      switch layoutMode {
+      case .paired:
+        pairedWorkspace
+      case .mapWithSheet:
+        sheetWorkspace
+      }
     }
   }
 
-  @ViewBuilder
-  private func mapCanvasWithBehaviors(showSheet: Bool) -> some View {
-    let base = LOSMapCanvasView(
+  private var pairedWorkspace: some View {
+    HStack(spacing: 0) {
+      ScrollView {
+        analysisContent
+      }
+      .scrollDismissesKeyboard(.immediately)
+      .frame(width: LineOfSightLayoutMode.analysisColumnWidth(in: workspaceSize))
+      .frame(maxHeight: .infinity)
+      .background(analysisSurface)
+
+      Divider()
+
+      // Bleed tiles under the status bar without lifting the analysis list.
+      mapCanvas(cameraBottomSheetFraction: 0)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.container, edges: .top)
+    }
+  }
+
+  private var sheetWorkspace: some View {
+    mapCanvas(cameraBottomSheetFraction: showAnalysisSheet ? 0.25 : 0)
+      .toolbar { compactBackToolbar }
+      .sheet(isPresented: $showAnalysisSheet) {
+        analysisSheetPresentation
+      }
+  }
+
+  @ToolbarContentBuilder
+  private var compactBackToolbar: some ToolbarContent {
+    if showAnalysisSheet {
+      ToolbarItem(placement: .topBarLeading) {
+        Button {
+          dismissLineOfSight()
+        } label: {
+          Label(L10n.Tools.Tools.LineOfSight.back, systemImage: "chevron.left")
+            .labelStyle(.titleAndIcon)
+        }
+        .accessibilityLabel(L10n.Tools.Tools.LineOfSight.back)
+      }
+    }
+  }
+
+  private var analysisSheetPresentation: some View {
+    analysisSheet
+      .onGeometryChange(for: CGFloat.self) { proxy in
+        proxy.frame(in: .global).minY
+      } action: { minY in
+        if sheetDetent == analysisSheetDetentCollapsed {
+          analysisSheetMinY = minY
+        }
+      }
+      .presentationDetents(availableSheetDetents, selection: $sheetDetent)
+      .presentationDragIndicator(.visible)
+      .presentationBackgroundInteraction(.enabled)
+      .presentationBackground(.regularMaterial)
+      .interactiveDismissDisabled()
+  }
+
+  private var analysisSheet: some View {
+    NavigationStack {
+      ScrollView {
+        analysisContent
+      }
+      .scrollDismissesKeyboard(.immediately)
+      .toolbar(.hidden, for: .navigationBar)
+    }
+  }
+
+  private var analysisContent: some View {
+    LineOfSightAnalysisView(
       viewModel: viewModel,
-      appState: appState,
-      mapStyleSelection: $mapStyleSelection,
-      showLabels: $showLabels,
-      clusteringEnabled: $clusteringEnabled,
-      isNorthLocked: $isNorthLocked,
+      showsExpandedResults: shouldShowExpandedAnalysis,
+      copyHapticTrigger: $copyHapticTrigger,
+      editingPoint: $editingPoint,
+      isResultsExpanded: $isResultsExpanded,
+      isRFSettingsExpanded: $isRFSettingsExpanded,
+      showDragHint: $showDragHint,
+      repeaterMarkerCenter: $repeaterMarkerCenter,
+      onRelocate: {
+        if layoutMode == .mapWithSheet {
+          withAnimation { sheetDetent = analysisSheetDetentCollapsed }
+        }
+      },
+      onAnalyze: {
+        if layoutMode == .mapWithSheet {
+          withAnimation { sheetDetent = analysisSheetDetentExpanded }
+        }
+      }
+    )
+  }
+
+  private var analysisSurface: Color {
+    theme.surfaces?.canvas ?? Color(.systemBackground)
+  }
+
+  private func mapCanvas(cameraBottomSheetFraction: CGFloat) -> some View {
+    LineOfSightMapView(
+      viewModel: viewModel,
       mapOverlayBottomPadding: mapOverlayBottomPadding,
-      cameraBottomSheetFraction: showSheet ? 0.25 : 0,
+      cameraBottomSheetFraction: cameraBottomSheetFraction,
       onRepeaterTap: { handleRepeaterTap($0) },
       onMapTap: { handleMapTap(at: $0) },
       onMapLongPress: { handleMapLongPress(at: $0) }
     )
-    .onChange(of: viewModel.pointA) { oldValue, newValue in
-      if oldValue == nil, newValue != nil, viewModel.pointB != nil {
-        if showSheet {
-          enableHalfDetent = true
-          withAnimation {
-            sheetDetent = analysisSheetDetentHalf
-          }
-        }
-      }
+    .onGeometryChange(for: CGFloat.self) { proxy in
+      proxy.frame(in: .global).maxY
+    } action: { maxY in
+      mapOverlayMaxY = maxY
+    }
+  }
 
-      if showSheet, newValue == nil, viewModel.pointB == nil {
-        withAnimation {
-          sheetDetent = analysisSheetDetentCollapsed
-        }
-      }
-    }
-    .onChange(of: viewModel.pointB) { oldValue, newValue in
-      if oldValue == nil, newValue != nil, viewModel.pointA != nil {
-        if showSheet {
-          enableHalfDetent = true
-          withAnimation {
-            sheetDetent = analysisSheetDetentHalf
-          }
-        }
-      }
+  @MainActor
+  private func bindWorkspaceIfActive() async {
+    guard isWorkspaceActive else { return }
+    appState.locationService.requestPermissionIfNeeded()
+    viewModel.configure(
+      dataStore: { [appState] in appState.offlineDataStore },
+      radioID: { [appState] in appState.currentRadioID },
+      deviceFrequencyKHz: appState.connectedDevice?.frequency
+    )
+    await viewModel.loadRepeaters()
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+  }
 
-      if showSheet, newValue == nil, viewModel.pointA == nil {
-        withAnimation {
-          sheetDetent = analysisSheetDetentCollapsed
-        }
-      }
+  private func applyLayout(for size: CGSize) {
+    guard size.width > 0, size.height > 0 else { return }
+    workspaceSize = size
+    let newMode = LineOfSightLayoutMode.preferred(in: size)
+    let modeChanged = newMode != layoutMode
+    layoutMode = newMode
+    if newMode == .paired {
+      showAnalysisSheet = false
+    } else if !isNavigatingBack {
+      showAnalysisSheet = true
     }
-    .onChange(of: sheetDetent) { oldValue, newValue in
-      guard showSheet else { return }
-
-      if isRelocating, newValue != analysisSheetDetentCollapsed {
-        viewModel.relocatingPoint = nil
-      }
-
-      // Disable half detent once user drags away from it
-      if oldValue == analysisSheetDetentHalf, newValue != analysisSheetDetentHalf {
-        enableHalfDetent = false
-      }
-    }
-    .onChange(of: viewModel.repeaterPoint) { oldValue, newValue in
-      if oldValue == nil,
-         newValue != nil,
-         newValue?.isOnPath == true,
-         !hasSeenDragHint {
-        withAnimation(.easeIn(duration: 0.3)) {
-          showDragHint = true
-        }
-        hasSeenDragHint = true
-        Task {
-          try? await Task.sleep(for: .seconds(5))
-          withAnimation(.easeOut(duration: 0.3)) {
-            showDragHint = false
-          }
-        }
-      }
-    }
-    .onChange(of: viewModel.analysisStatus) { _, newStatus in
-      handleAnalysisStatusChange(newStatus, showSheet: showSheet)
-    }
-    .task {
-      appState.locationService.requestPermissionIfNeeded()
-      viewModel.configure(
-        dataStore: { [appState] in appState.offlineDataStore },
-        radioID: { [appState] in appState.currentRadioID },
-        deviceFrequencyKHz: appState.connectedDevice?.frequency
-      )
-      viewModel.showLabels = showLabels
-      await viewModel.loadRepeaters()
-      viewModel.centerOnAllRepeaters()
-    }
-    .onChange(of: showLabels) { _, newValue in
-      viewModel.showLabels = newValue
-    }
-
-    if showSheet {
-      base
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-          ToolbarItem(placement: .topBarLeading) {
-            Button {
-              dismissLineOfSight()
-            } label: {
-              Label(L10n.Tools.Tools.LineOfSight.back, systemImage: "chevron.left")
-                .labelStyle(.titleAndIcon)
-            }
-            .accessibilityLabel(L10n.Tools.Tools.LineOfSight.back)
-          }
-        }
-        .liquidGlassToolbarBackground()
-        .onDisappear {
-          showAnalysisSheet = false
-        }
-        .sheet(isPresented: $showAnalysisSheet) {
-          analysisSheet
-            .onGeometryChange(for: CGFloat.self) { proxy in
-              proxy.size.height - proxy.safeAreaInsets.bottom - 16
-            } action: { inset in
-              if sheetDetent == analysisSheetDetentCollapsed {
-                sheetBottomInset = max(0, inset)
-              }
-            }
-            .presentationDetents(availableSheetDetents, selection: $sheetDetent)
-            .presentationDragIndicator(.visible)
-            .presentationBackgroundInteraction(.enabled)
-            .presentationBackground(.regularMaterial)
-            .interactiveDismissDisabled()
-        }
-    } else {
-      base
-        .liquidGlassToolbarBackground()
+    if modeChanged {
+      viewModel.restoreCameraAfterMapRecreation()
     }
   }
 
@@ -226,128 +262,79 @@ struct LineOfSightView: View {
   private func dismissLineOfSight() {
     guard !isNavigatingBack else { return }
     isNavigatingBack = true
-
     showAnalysisSheet = false
     viewModel.relocatingPoint = nil
-
-    // Yield to let showAnalysisSheet = false commit before dismiss fires,
-    // avoiding a sheet-dismissal animation conflict.
     Task { @MainActor in
       await Task.yield()
       dismiss()
     }
   }
 
-  // MARK: - Analysis Sheet
-
-  private var analysisSheet: some View {
-    NavigationStack {
-      ScrollView {
-        analysisSheetContent
-      }
-      .scrollDismissesKeyboard(.immediately)
-      .toolbar(.hidden, for: .navigationBar)
+  private func handleWorkspaceActiveChange(_: Bool, isActive: Bool) {
+    guard isActive else { return }
+    if layoutMode == .mapWithSheet, !isNavigatingBack {
+      showAnalysisSheet = true
     }
+    Task { await bindWorkspaceIfActive() }
   }
 
-  private var analysisSheetContent: some View {
-    VStack(alignment: .leading, spacing: 16) {
-      PointsSummarySectionView(
-        viewModel: viewModel,
-        copyHapticTrigger: $copyHapticTrigger,
-        editingPoint: $editingPoint,
-        onRelocate: { withAnimation { sheetDetent = analysisSheetDetentCollapsed } }
-      )
-
-      // Before analysis: show analyze button, then RF settings
-      if viewModel.canAnalyze, !hasAnalysisResult {
-        analyzeButtonSection
-        RFSettingsSectionView(viewModel: viewModel, isRFSettingsExpanded: $isRFSettingsExpanded)
-      }
-
-      // After analysis: show button, results, terrain, then RF settings
-      if case let .result(result) = viewModel.analysisStatus {
-        analyzeButtonSection
-
-        resultSummarySection(result)
-
-        if shouldShowExpandedAnalysis {
-          TerrainProfileSectionView(
-            viewModel: viewModel,
-            showDragHint: $showDragHint,
-            repeaterMarkerCenter: $repeaterMarkerCenter
-          )
-          RFSettingsSectionView(viewModel: viewModel, isRFSettingsExpanded: $isRFSettingsExpanded)
-        }
-      }
-
-      // Relay analysis: show relay-specific results card
-      if case let .relayResult(result) = viewModel.analysisStatus {
-        analyzeButtonSection
-
-        RelayResultsCardView(result: result, isExpanded: $isResultsExpanded)
-
-        if shouldShowExpandedAnalysis {
-          TerrainProfileSectionView(
-            viewModel: viewModel,
-            showDragHint: $showDragHint,
-            repeaterMarkerCenter: $repeaterMarkerCenter
-          )
-          RFSettingsSectionView(viewModel: viewModel, isRFSettingsExpanded: $isRFSettingsExpanded)
-        }
-      }
-
-      if case let .error(message) = viewModel.analysisStatus {
-        AnalysisErrorView(
-          message: message,
-          hasRepeater: viewModel.repeaterPoint != nil,
-          onRetry: {
-            if viewModel.repeaterPoint != nil {
-              viewModel.analyzeWithRepeater()
-            } else {
-              viewModel.analyze()
-            }
-          }
-        )
-      }
-    }
-    .padding()
-  }
-
-  // MARK: - Analyze Button Section
-
-  private var analyzeButtonSection: some View {
-    AnalyzeButton(
-      viewModel: viewModel,
-      hasAnalysisResult: hasAnalysisResult,
-      onAnalyze: {
-        withAnimation { sheetDetent = analysisSheetDetentExpanded }
-      }
+  private func handlePointAChange(oldValue: SelectedPoint?, newValue: SelectedPoint?) {
+    handlePointPresenceChange(
+      oldIsNil: oldValue == nil,
+      newIsNil: newValue == nil,
+      otherIsNil: viewModel.pointB == nil
     )
   }
 
-  // MARK: - Result Summary Section
-
-  private func resultSummarySection(_ result: PathAnalysisResult) -> some View {
-    ResultsCardView(result: result, isExpanded: $isResultsExpanded)
+  private func handlePointBChange(oldValue: SelectedPoint?, newValue: SelectedPoint?) {
+    handlePointPresenceChange(
+      oldIsNil: oldValue == nil,
+      newIsNil: newValue == nil,
+      otherIsNil: viewModel.pointA == nil
+    )
   }
 
-  // MARK: - Computed Properties
-
-  private var analysisResult: PathAnalysisResult? {
-    if case let .result(result) = viewModel.analysisStatus {
-      return result
+  private func handleSheetDetentChange(oldValue: PresentationDetent, newValue: PresentationDetent) {
+    guard layoutMode == .mapWithSheet else { return }
+    if isRelocating, newValue != analysisSheetDetentCollapsed {
+      viewModel.relocatingPoint = nil
     }
-    return nil
+    if oldValue == analysisSheetDetentHalf, newValue != analysisSheetDetentHalf {
+      enableHalfDetent = false
+    }
   }
 
-  private var hasAnalysisResult: Bool {
-    if case .result = viewModel.analysisStatus { return true }
-    if case .relayResult = viewModel.analysisStatus { return true }
-    return false
+  private func handleRepeaterPointChange(oldValue: RepeaterPoint?, newValue: RepeaterPoint?) {
+    guard oldValue == nil,
+          newValue != nil,
+          newValue?.isOnPath == true,
+          !hasSeenDragHint else { return }
+    withAnimation(.easeIn(duration: 0.3)) {
+      showDragHint = true
+    }
+    hasSeenDragHint = true
+    Task {
+      try? await Task.sleep(for: .seconds(5))
+      withAnimation(.easeOut(duration: 0.3)) {
+        showDragHint = false
+      }
+    }
   }
 
-  // MARK: - Helper Methods
+  private func handlePointPresenceChange(oldIsNil: Bool, newIsNil: Bool, otherIsNil: Bool) {
+    guard layoutMode == .mapWithSheet else { return }
+    if oldIsNil, !newIsNil, !otherIsNil {
+      enableHalfDetent = true
+      withAnimation {
+        sheetDetent = analysisSheetDetentHalf
+      }
+    }
+    if newIsNil, otherIsNil {
+      withAnimation {
+        sheetDetent = analysisSheetDetentCollapsed
+      }
+    }
+  }
 
   private func handleMapTap(at coordinate: CLLocationCoordinate2D) {
     if let relocating = viewModel.relocatingPoint {
@@ -373,19 +360,20 @@ struct LineOfSightView: View {
       viewModel.setRepeaterOffPath(coordinate: coordinate)
     }
 
-    // Clear results and show Analyze button
     viewModel.clearAnalysisResults()
     viewModel.relocatingPoint = nil
-    enableHalfDetent = true
-    withAnimation {
-      sheetDetent = analysisSheetDetentHalf
+    if layoutMode == .mapWithSheet {
+      enableHalfDetent = true
+      withAnimation {
+        sheetDetent = analysisSheetDetentHalf
+      }
     }
   }
 
-  private func handleAnalysisStatusChange(_ status: AnalysisStatus, showSheet: Bool) {
+  private func handleAnalysisStatusChange(_ status: AnalysisStatus) {
     switch status {
     case .result:
-      if showSheet {
+      if layoutMode == .mapWithSheet {
         sheetDetent = analysisSheetDetentExpanded
       }
     case .relayResult:
@@ -405,205 +393,32 @@ struct LineOfSightView: View {
   }
 }
 
-// MARK: - Map Canvas View
+// MARK: - Layout probe
 
-private struct LOSMapCanvasView: View {
-  @Bindable var viewModel: LineOfSightViewModel
-  let appState: AppState
-  @Environment(\.colorScheme) private var colorScheme
-  @Binding var mapStyleSelection: MapStyleSelection
-  @Binding var showLabels: Bool
-  @Binding var clusteringEnabled: Bool
-  @Binding var isNorthLocked: Bool
-  let mapOverlayBottomPadding: CGFloat
-  let cameraBottomSheetFraction: CGFloat?
-  let onRepeaterTap: (ContactDTO) -> Void
-  let onMapTap: (CLLocationCoordinate2D) -> Void
-  let onMapLongPress: (CLLocationCoordinate2D) -> Void
+/// UIKit identifier probe. SwiftUI identifiers often do not copy onto `UIView`.
+private struct LineOfSightLayoutProbe: UIViewRepresentable {
+  var identifier: String
 
-  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
-  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
-
-  @State private var isCenteredOnUser = false
-
-  private var mapIsDark: Bool {
-    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
-    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
+  func makeUIView(context: Context) -> UIView {
+    let view = UIView()
+    view.isUserInteractionEnabled = false
+    view.backgroundColor = .clear
+    view.accessibilityIdentifier = identifier
+    return view
   }
 
-  var body: some View {
-    ZStack {
-      MC1MapView(
-        points: viewModel.mapPoints,
-        lines: viewModel.mapLines,
-        mapStyle: mapStyleSelection,
-        isDarkMode: mapIsDark,
-        isOffline: !appState.offlineMapService.isNetworkAvailable,
-        showLabels: showLabels,
-        clusteringEnabled: clusteringEnabled,
-        showsUserLocation: true,
-        isInteractive: true,
-        showsScale: true,
-        isNorthLocked: isNorthLocked,
-        cameraRegion: $viewModel.cameraRegion,
-        cameraRegionVersion: viewModel.cameraRegionVersion,
-        cameraBottomSheetFraction: cameraBottomSheetFraction,
-        onPointTap: { point, _ in
-          if let repeater = viewModel.repeatersWithLocation.first(where: { $0.id == point.id }) {
-            onRepeaterTap(repeater)
-          }
-        },
-        onMapTap: onMapTap,
-        onMapLongPress: onMapLongPress,
-        onCameraRegionChange: { region in
-          viewModel.cameraRegion = region
-        },
-        isCenteredOnUser: $isCenteredOnUser
-      )
-      .ignoresSafeArea()
-
-      VStack {
-        Spacer()
-        HStack {
-          Spacer()
-          MapControlsToolbar(
-            onLocationTap: {
-              // Unlike other maps, LOS needs a precise fresh fix (no device-GPS fallback,
-              // tighter span), so it fetches live rather than using AppState.centerOnUserLocation.
-              Task {
-                if let location = try? await appState.locationService.requestCurrentLocation() {
-                  viewModel.setCameraRegion(MKCoordinateRegion(
-                    center: location.coordinate,
-                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                  ))
-                  isCenteredOnUser = true
-                }
-              }
-            },
-            isCenteredOnUser: isCenteredOnUser,
-            isNorthLocked: $isNorthLocked,
-            showLabels: $showLabels,
-            clusteringEnabled: $clusteringEnabled,
-            mapStyleSelection: $mapStyleSelection,
-            viewportBounds: viewModel.cameraRegion?.toMLNCoordinateBounds()
-          ) {
-            EmptyView()
-          }
-        }
-      }
-      .padding(.bottom, mapOverlayBottomPadding)
-    }
-  }
-}
-
-// MARK: - Frequency Input Row
-
-/// Extracted view for frequency input with its own @FocusState
-/// This is necessary because @FocusState doesn't work properly when declared in a parent view
-/// and used in sheet content.
-struct FrequencyInputRow: View {
-  @Bindable var viewModel: LineOfSightViewModel
-  @FocusState private var isFocused: Bool
-  @State private var text: String = ""
-
-  var body: some View {
-    HStack {
-      Label(L10n.Tools.Tools.LineOfSight.frequency, systemImage: "antenna.radiowaves.left.and.right")
-        .foregroundStyle(.secondary)
-      Spacer()
-      TextField(L10n.Tools.Tools.LineOfSight.mhz, text: $text)
-        .keyboardType(.decimalPad)
-        .multilineTextAlignment(.trailing)
-        .frame(width: 80)
-        .focused($isFocused)
-        .onChange(of: text) { _, newValue in
-          let replaced = newValue.replacing(",", with: ".")
-          if replaced != newValue {
-            text = replaced
-          }
-        }
-        .onChange(of: isFocused) { _, focused in
-          if focused {
-            // Sync text from view model when gaining focus
-            text = viewModel.formatFrequencyForEditing(viewModel.frequencyMHz)
-          } else {
-            // Commit when focus is lost
-            commitEdit()
-          }
-        }
-
-      Text(L10n.Tools.Tools.LineOfSight.mhz)
-        .foregroundStyle(.secondary)
-
-      if isFocused {
-        Button {
-          commitEdit()
-          isFocused = false
-        } label: {
-          Image(systemName: "checkmark.circle.fill")
-            .foregroundStyle(.green)
-            .font(.title2)
-        }
-        .buttonStyle(.plain)
-      }
-    }
-    .onAppear {
-      text = viewModel.formatFrequencyForEditing(viewModel.frequencyMHz)
-    }
-  }
-
-  private func commitEdit() {
-    guard let parsed = viewModel.parseFrequency(text) else {
-      // Reject empty, unparseable, or non-positive input by restoring
-      // the last valid value rather than passing it to analysis.
-      text = viewModel.formatFrequencyForEditing(viewModel.frequencyMHz)
-      return
-    }
-    viewModel.frequencyMHz = parsed
-    viewModel.commitFrequencyChange()
-  }
-}
-
-// MARK: - Analyze Button
-
-private struct AnalyzeButton: View {
-  var viewModel: LineOfSightViewModel
-  let hasAnalysisResult: Bool
-  let onAnalyze: () -> Void
-
-  var body: some View {
-    Button {
-      viewModel.shouldAutoZoomOnNextResult = true
-      onAnalyze()
-      if viewModel.repeaterPoint != nil {
-        viewModel.analyzeWithRepeater()
-      } else {
-        viewModel.analyze()
-      }
-    } label: {
-      if viewModel.isAnalyzing {
-        HStack {
-          ProgressView()
-            .controlSize(.small)
-          Text(L10n.Tools.Tools.LineOfSight.analyzing)
-        }
-        .frame(maxWidth: .infinity)
-      } else {
-        Label(L10n.Tools.Tools.LineOfSight.analyze, systemImage: "waveform.path")
-          .frame(maxWidth: .infinity)
-      }
-    }
-    .liquidGlassProminentButtonStyle()
-    .controlSize(.large)
-    .disabled(viewModel.isAnalyzing)
+  func updateUIView(_ uiView: UIView, context: Context) {
+    uiView.accessibilityIdentifier = identifier
   }
 }
 
 // MARK: - Preview
 
 #Preview("Empty") {
-  LineOfSightView()
-    .environment(\.appState, AppState())
+  NavigationStack {
+    LineOfSightView()
+  }
+  .environment(\.appState, AppState())
 }
 
 #Preview("With Contact") {
@@ -629,6 +444,8 @@ private struct AnalyzeButton: View {
     unreadCount: 0
   )
 
-  LineOfSightView(preselectedContact: contact)
-    .environment(\.appState, AppState())
+  NavigationStack {
+    LineOfSightView(preselectedContact: contact)
+  }
+  .environment(\.appState, AppState())
 }

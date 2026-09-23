@@ -1,6 +1,5 @@
 import CoreLocation
 import MC1Services
-import SwiftUI
 
 /// Manages tab selection, pending navigation targets, and cross-tab navigation coordination.
 @Observable
@@ -9,36 +8,13 @@ final class NavigationCoordinator {
   /// Selected tab index
   var selectedTab: Int = 0
 
-  var tabBarVisibility: Visibility = .visible
-
-  /// Whether the split container can tile all three columns side by side, measured at the shell.
-  /// When true, row selection leaves the sidebar tiled open instead of collapsing it. Defaults to
-  /// false so an unmeasured layout takes the safe collapse-on-selection branch rather than claiming
-  /// wide while actually narrow and overlaying the sidebar on a too-narrow container.
-  var isSidebarWide = false
-
-  /// Contact to navigate to
-  var pendingChatContact: ContactDTO?
-
   /// The currently selected route in the Chats split view detail pane
   var chatsSelectedRoute: ChatRoute?
-
-  /// Channel to navigate to
-  var pendingChannel: ChannelDTO?
-
-  /// Room session to navigate to
-  var pendingRoomSession: RemoteNodeSessionDTO?
 
   /// Room session a notification tap wants the user to authenticate into, set
   /// when the tapped room is not currently connected. ChatsView presents
   /// RoomAuthenticationSheet, mirroring a disconnected-room list tap.
   var pendingRoomAuthentication: RemoteNodeSessionDTO?
-
-  /// Whether to navigate to Discovery
-  var pendingDiscoveryNavigation = false
-
-  /// Contact to navigate to (for detail view on Contacts tab)
-  var pendingContactDetail: ContactDTO?
 
   /// The currently selected contact in the Nodes split view detail pane. Kept in memory
   /// only and never persisted: it carries a public key and `radioID` (identity-bearing
@@ -49,19 +25,37 @@ final class NavigationCoordinator {
   /// Shared so the iPad content and detail columns agree on which detail to render.
   var nodesShowingDiscovery = false
 
-  /// The selected tool on the Tools tab, shared so the iPad content and detail columns agree on
-  /// which tool is open. Held here rather than in the split view so it survives the section-switch
-  /// teardown of the inactive Tools tree. Radio-only tools clear on disconnect (`requiresRadio`).
+  /// Tools stack path, kept across tab switches. Selections with `requiresRadio` clear on disconnect.
   var selectedTool: ToolSelection?
 
-  /// The selected settings page on the Settings tab, shared so the iPad content and detail columns
-  /// agree on which page is open. Held here rather than in the split view so it survives the
-  /// section-switch teardown of the inactive Settings tree. My Device pages clear on disconnect
-  /// (`requiresDevice`).
+  /// Listening and polling run only while Tools is selected and this workspace
+  /// is on the stack. Resize does not change either value.
+  func isToolWorkspaceActive(_ tool: ToolSelection) -> Bool {
+    selectedTab == AppTab.tools.rawValue && selectedTool == tool
+  }
+
+  /// The selected settings page. Settings list and detail bind this at every
+  /// width. My Device pages clear on disconnect (`requiresDevice`).
   var selectedSetting: SettingsDetail?
 
-  /// Message to scroll to after navigation (for reaction notifications)
-  var pendingScrollToMessageID: UUID?
+  /// Reaction/deeplink scroll intent bound to one conversation and a per-tap request id.
+  var pendingScrollTarget: PendingScrollTarget?
+
+  var pendingScrollToMessageID: UUID? {
+    pendingScrollTarget?.messageID
+  }
+
+  /// Bumped by explicit root-conversation navigation so a stable host can reset
+  /// nested destinations even when the selected root identity is unchanged.
+  var chatsRootNavigationGeneration = 0
+
+  /// Bumped by explicit Nodes root navigation (contact or Discovery) so nested
+  /// destinations reset even when the selected contact identity is unchanged.
+  var nodesRootNavigationGeneration = 0
+
+  /// Bumped by explicit settings-page navigation so nested subpages reset even
+  /// when the selected page identity is unchanged.
+  var settingsRootNavigationGeneration = 0
 
   /// Whether device menu tip donation is pending (waiting for valid tab)
   var pendingDeviceMenuTipDonation = false
@@ -81,40 +75,51 @@ final class NavigationCoordinator {
   // MARK: - Navigation
 
   func navigateToChat(with contact: ContactDTO, scrollToMessageID: UUID? = nil) {
-    tabBarVisibility = .hidden // Hide tab bar BEFORE switching tabs
-    pendingChatContact = contact
-    pendingScrollToMessageID = scrollToMessageID
-    chatsSelectedRoute = .direct(contact)
-    selectedTab = 0
+    let route = ChatRoute.direct(contact)
+    replaceConversationIntents()
+    if let scrollToMessageID {
+      pendingScrollTarget = PendingScrollTarget(route: route, messageID: scrollToMessageID)
+    }
+    selectChatsRoot(route)
+    selectedTab = AppTab.chats.rawValue
   }
 
   func navigateToRoom(with session: RemoteNodeSessionDTO) {
-    tabBarVisibility = .hidden // Hide tab bar BEFORE switching tabs
-    pendingRoomSession = session
-    chatsSelectedRoute = .room(session)
-    selectedTab = 0
+    replaceConversationIntents()
+    selectedTab = AppTab.chats.rawValue
+    if session.isConnected {
+      selectChatsRoot(.room(session))
+    } else {
+      pendingRoomAuthentication = session
+    }
   }
 
   func navigateToChannel(with channel: ChannelDTO, scrollToMessageID: UUID? = nil) {
-    tabBarVisibility = .hidden
-    pendingChannel = channel
-    pendingScrollToMessageID = scrollToMessageID
-    chatsSelectedRoute = .channel(channel)
-    selectedTab = 0
+    let route = ChatRoute.channel(channel)
+    replaceConversationIntents()
+    if let scrollToMessageID {
+      pendingScrollTarget = PendingScrollTarget(route: route, messageID: scrollToMessageID)
+    }
+    selectChatsRoot(route)
+    selectedTab = AppTab.chats.rawValue
   }
 
   func navigateToDiscovery() {
-    pendingDiscoveryNavigation = true
-    selectedTab = 1
+    nodesShowingDiscovery = true
+    selectedContact = nil
+    nodesRootNavigationGeneration += 1
+    selectedTab = AppTab.nodes.rawValue
   }
 
   func navigateToContacts() {
-    selectedTab = 1
+    selectedTab = AppTab.nodes.rawValue
   }
 
   func navigateToContactDetail(_ contact: ContactDTO) {
-    pendingContactDetail = contact
-    selectedTab = 1
+    selectedContact = contact
+    nodesShowingDiscovery = false
+    nodesRootNavigationGeneration += 1
+    selectedTab = AppTab.nodes.rawValue
   }
 
   func navigateToMap(coordinate: CLLocationCoordinate2D) {
@@ -123,40 +128,38 @@ final class NavigationCoordinator {
     selectedTab = AppTab.map.rawValue
   }
 
-  /// Switches to the Settings tab and opens the given detail page. Compact
-  /// `SettingsView` observes `selectedSetting` and pushes it onto its stack;
-  /// the iPad split reads the same value for its detail column.
+  /// Switches to the Settings tab and opens the given detail page. Compact and
+  /// regular hosts both bind `selectedSetting` as the split detail.
   func navigateToSetting(_ detail: SettingsDetail) {
     selectedSetting = detail
+    settingsRootNavigationGeneration += 1
     selectedTab = AppTab.settings.rawValue
-  }
-
-  func clearPendingNavigation() {
-    pendingChatContact = nil
-  }
-
-  func clearPendingRoomNavigation() {
-    pendingRoomSession = nil
   }
 
   func clearPendingRoomAuthentication() {
     pendingRoomAuthentication = nil
   }
 
-  func clearPendingChannelNavigation() {
-    pendingChannel = nil
-  }
-
-  func clearPendingDiscoveryNavigation() {
-    pendingDiscoveryNavigation = false
-  }
-
   func clearPendingScrollToMessage() {
-    pendingScrollToMessageID = nil
+    pendingScrollTarget = nil
   }
 
-  func clearPendingContactDetailNavigation() {
-    pendingContactDetail = nil
+  /// Returns the pending message id when it belongs to this conversation, then
+  /// retires the intent. A different conversation leaves the target in place.
+  func takePendingScrollTarget(matchingKind kind: ChatRoute.Kind, conversationID: UUID) -> UUID? {
+    guard let target = pendingScrollTarget,
+          target.matches(kind: kind, conversationID: conversationID) else {
+      return nil
+    }
+    pendingScrollTarget = nil
+    return target.messageID
+  }
+
+  /// Drops the Nodes root when the matching contact was actually removed.
+  func clearSelectedContact(matching id: UUID) {
+    if selectedContact?.id == id {
+      selectedContact = nil
+    }
   }
 
   func clearPendingMapFocus() {
@@ -192,7 +195,20 @@ final class NavigationCoordinator {
     selectedContact = nil
     nodesShowingDiscovery = false
     chatsSelectedRoute = nil
+    replaceConversationIntents()
     clearPerDeviceSelection()
+  }
+
+  /// Drops pending room-auth and scroll intents so a later open cannot inherit
+  /// another conversation's target. Link-confirmation sheets stay put.
+  private func replaceConversationIntents() {
+    pendingRoomAuthentication = nil
+    pendingScrollTarget = nil
+  }
+
+  private func selectChatsRoot(_ route: ChatRoute) {
+    chatsSelectedRoute = route
+    chatsRootNavigationGeneration += 1
   }
 
   /// Clears only device-scoped selections (the radio-requiring tool and the My Device settings
@@ -270,12 +286,7 @@ final class NavigationCoordinator {
     notificationService.onRoomNotificationTapped = { [weak self] sessionID in
       guard let self else { return }
       guard let session = try? await dataStore.fetchRemoteNodeSession(id: sessionID) else { return }
-      if session.isConnected {
-        navigateToRoom(with: session)
-      } else {
-        selectedTab = 0
-        pendingRoomAuthentication = session
-      }
+      navigateToRoom(with: session)
     }
   }
 }

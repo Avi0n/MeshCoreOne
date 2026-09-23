@@ -1,9 +1,7 @@
 import SwiftUI
 
-/// A settings list row that opens a `SettingsDetail` page. The value-based `NavigationLink` pushes
-/// onto the compact stack (via `SettingsView`'s `navigationDestination`) and drives the iPad split's
-/// `List(selection:)` binding (`NavigationCoordinator.selectedSetting`, read by `SettingsDetailView`
-/// in the detail column).
+/// A settings list row whose value is `SettingsDetail`. `List(selection:)`
+/// writes that value to `selectedSetting`, which the split detail renders.
 struct SettingsDetailRow<Label: View>: View {
   let detail: SettingsDetail
   @ViewBuilder let label: () -> Label

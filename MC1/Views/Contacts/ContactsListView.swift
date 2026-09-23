@@ -1,61 +1,85 @@
 import MC1Services
-import OSLog
 import SwiftUI
 
-private let nodesListLogger = Logger(subsystem: "com.mc1", category: "NodesListView")
-
-/// List of all contacts discovered on the mesh network
+/// Nodes tab host. One list model and one native split at every width; nested
+/// telemetry lives on the detail stack, Blocked Contacts on the list stack.
 struct ContactsListView: View {
   @Environment(\.appState) private var appState
+  @Environment(\.horizontalSizeClass) private var sizeClass
 
   @State private var viewModel = ContactsViewModel()
-  @State private var navigationPath = NavigationPath()
-  @State private var searchText = ""
-  @State private var selectedSegment: NodeSegment = .contacts
-  @AppStorage(AppStorageKey.nodesSortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
-  @State private var showDiscovery = false
-  @State private var syncSuccessTrigger = false
-  @State private var showShareMyContact = false
-  @State private var showAddContact = false
-  @State private var showLocationDeniedAlert = false
-  @State private var showOfflineRefreshAlert = false
+  @State private var columnVisibility = NavigationSplitViewVisibility.all
+  @State private var preferredCompactColumn = NavigationSplitViewColumn.sidebar
+  @State private var nestedPath = NavigationPath()
 
-  private var actions: ContactListActions {
-    ContactListActions(viewModel: viewModel, appState: appState, syncSuccessTrigger: $syncSuccessTrigger)
+  private var hasSelection: Bool {
+    appState.navigation.selectedContact != nil || appState.navigation.nodesShowingDiscovery
+  }
+
+  private var tabBarVisibility: Visibility {
+    ChatsSplitPresentation.tabBarVisibility(
+      sizeClass: sizeClass,
+      preferredColumn: preferredCompactColumn,
+      hasSelection: hasSelection
+    )
+  }
+
+  private var nodesDetailIdentity: String? {
+    if appState.navigation.nodesShowingDiscovery {
+      return "discovery"
+    }
+    return appState.navigation.selectedContact?.id.uuidString
   }
 
   var body: some View {
-    NavigationStack(path: $navigationPath) {
-      sidebarContent
-        .navigationDestination(isPresented: $showDiscovery) {
-          DiscoveryView()
-        }
+    NavigationSplitView(
+      columnVisibility: $columnVisibility,
+      preferredCompactColumn: $preferredCompactColumn
+    ) {
+      NavigationStack {
+        ContactsContentColumn(viewModel: viewModel)
+          .sectionSplitColumnChrome()
+      }
+    } detail: {
+      NavigationStack(path: $nestedPath) {
+        ContactsDetailColumn()
+          .sectionSplitColumnChrome()
+      }
+      .id(nodesDetailIdentity)
+    }
+    .navigationSplitViewStyle(.balanced)
+    .sectionSplitChrome(tabBarVisibility: tabBarVisibility)
+    .sectionSplitState(
+      columnVisibility: $columnVisibility,
+      preferredCompactColumn: $preferredCompactColumn,
+      nestedPathIsEmpty: nestedPath.isEmpty,
+      hasSelection: hasSelection,
+      onClearRootSelection: {
+        appState.navigation.selectedContact = nil
+        appState.navigation.nodesShowingDiscovery = false
+      }
+    )
+    .onChange(of: appState.navigation.selectedContact?.id) { _, _ in
+      nestedPath = NavigationPath()
+      updatePreferredColumnForSelection()
+    }
+    .onChange(of: appState.navigation.nodesShowingDiscovery) { _, _ in
+      nestedPath = NavigationPath()
+      updatePreferredColumnForSelection()
+    }
+    .onChange(of: appState.navigation.nodesRootNavigationGeneration) { _, _ in
+      nestedPath = NavigationPath()
     }
   }
 
-  private var sidebarContent: some View {
-    ContactsSidebarContent(
-      viewModel: viewModel,
-      filteredContacts: actions.filteredContacts(searchText: searchText, segment: selectedSegment, sortOrder: sortOrder),
-      isSearching: !searchText.isEmpty,
-      searchPrompt: actions.searchPrompt,
-      shouldUseSplitView: false,
-      selectedSegment: $selectedSegment,
-      // Split-only: the compact stack navigates via navigationPath, so it has no selection.
-      selectedContact: .constant(nil),
-      searchText: $searchText,
-      sortOrder: $sortOrder,
-      showDiscovery: $showDiscovery,
-      syncSuccessTrigger: $syncSuccessTrigger,
-      showShareMyContact: $showShareMyContact,
-      showAddContact: $showAddContact,
-      showLocationDeniedAlert: $showLocationDeniedAlert,
-      showOfflineRefreshAlert: $showOfflineRefreshAlert,
-      navigationPath: $navigationPath,
-      onLoadContacts: actions.loadContacts,
-      onSyncContacts: actions.syncContacts,
-      onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
-    )
+  private func updatePreferredColumnForSelection() {
+    if hasSelection {
+      if sizeClass == .compact {
+        preferredCompactColumn = .detail
+      }
+    } else if sizeClass == .compact {
+      preferredCompactColumn = .sidebar
+    }
   }
 }
 

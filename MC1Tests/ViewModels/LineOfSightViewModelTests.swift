@@ -1,4 +1,5 @@
 import CoreLocation
+import MapKit
 @testable import MC1
 @testable import MC1Services
 import Testing
@@ -1301,7 +1302,7 @@ struct LoadRepeatersTests {
     await mockDataStore.addContact(roomWithLocation)
 
     let viewModel = LineOfSightViewModel(elevationService: mockService)
-    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID })
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID }, deviceFrequencyKHz: nil)
 
     await viewModel.loadRepeaters()
 
@@ -1335,7 +1336,7 @@ struct LoadRepeatersTests {
     await mockDataStore.addContact(repeater2)
 
     let viewModel = LineOfSightViewModel(elevationService: mockService)
-    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID })
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID }, deviceFrequencyKHz: nil)
 
     await viewModel.loadRepeaters()
 
@@ -1381,7 +1382,7 @@ struct LoadRepeatersTests {
     await mockDataStore.addContact(repeaterDevice2)
 
     let viewModel = LineOfSightViewModel(elevationService: mockService)
-    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID1 })
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID1 }, deviceFrequencyKHz: nil)
 
     await viewModel.loadRepeaters()
 
@@ -2148,6 +2149,136 @@ struct AnalysisTaskHygieneTests {
     // clear() resets status to idle; a cancelled fetch must not flip it to error
     if case .error = viewModel.analysisStatus {
       Issue.record("Cancelled off-path analysis surfaced a user-visible error")
+    }
+  }
+}
+
+// MARK: - Workspace configuration
+
+@Suite("Line of Sight workspace configuration")
+@MainActor
+struct LineOfSightWorkspaceConfigurationTests {
+  @Test
+  func `device frequency is seeded once and later edits survive reconfigure`() {
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+    viewModel.configure(dataStore: { nil }, radioID: { nil }, deviceFrequencyKHz: 906_000)
+    #expect(viewModel.frequencyMHz == 906.0)
+
+    viewModel.frequencyMHz = 433
+    viewModel.commitFrequencyChange()
+    viewModel.configure(dataStore: { nil }, radioID: { nil }, deviceFrequencyKHz: 915_000)
+    #expect(viewModel.frequencyMHz == 433)
+  }
+
+  @Test
+  func `nil then device frequency still seeds until the user edits`() {
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+    viewModel.configure(dataStore: { nil }, radioID: { nil }, deviceFrequencyKHz: nil)
+    #expect(viewModel.frequencyMHz == 906.0)
+
+    viewModel.configure(dataStore: { nil }, radioID: { nil }, deviceFrequencyKHz: 433_000)
+    #expect(viewModel.frequencyMHz == 433.0)
+  }
+
+  @Test
+  func `initial repeater camera fit runs once`() async {
+    let mockService = MockElevationService()
+    let mockDataStore = MockPersistenceStore()
+    let radioID = UUID()
+    let repeater = createTestContact(
+      name: "Repeater 1",
+      latitude: 37.7749,
+      longitude: -122.4194,
+      type: .repeater,
+      radioID: radioID
+    )
+    await mockDataStore.addContact(repeater)
+
+    let viewModel = LineOfSightViewModel(elevationService: mockService)
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID }, deviceFrequencyKHz: nil)
+    await viewModel.loadRepeaters()
+
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+    let fittedRegion = viewModel.cameraRegion
+    let fittedVersion = viewModel.cameraRegionVersion
+    #expect(fittedRegion != nil)
+    #expect(fittedVersion > 0)
+    #expect(viewModel.hasAppliedInitialCameraFit)
+
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+    #expect(viewModel.cameraRegionVersion == fittedVersion)
+  }
+
+  @Test
+  func `late initial camera fit does not override a user camera`() async {
+    let mockService = MockElevationService()
+    let mockDataStore = MockPersistenceStore()
+    let radioID = UUID()
+    let repeater = createTestContact(
+      name: "Repeater 1",
+      latitude: 37.7749,
+      longitude: -122.4194,
+      type: .repeater,
+      radioID: radioID
+    )
+    await mockDataStore.addContact(repeater)
+
+    let viewModel = LineOfSightViewModel(elevationService: mockService)
+    let userRegion = MKCoordinateRegion(
+      center: oakland,
+      span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+    )
+    viewModel.acceptUserCameraRegion(userRegion)
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID }, deviceFrequencyKHz: nil)
+    await viewModel.loadRepeaters()
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+
+    #expect(viewModel.cameraRegion?.center.latitude == oakland.latitude)
+    #expect(viewModel.cameraRegion?.center.longitude == oakland.longitude)
+    #expect(viewModel.cameraRegionVersion == 0)
+    #expect(viewModel.hasAppliedInitialCameraFit)
+  }
+
+  @Test
+  func `recreated map reapplies the retained camera region`() {
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+    let region = MKCoordinateRegion(
+      center: sanFrancisco,
+      span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    )
+    viewModel.setCameraRegion(region)
+    let version = viewModel.cameraRegionVersion
+
+    viewModel.restoreCameraAfterMapRecreation()
+    #expect(viewModel.cameraRegion?.center.latitude == sanFrancisco.latitude)
+    #expect(viewModel.cameraRegionVersion == version + 1)
+  }
+
+  @Test
+  func `reconfigure does not cancel in-flight analysis`() async throws {
+    let mockService = MockElevationService()
+    let viewModel = LineOfSightViewModel(elevationService: mockService)
+
+    viewModel.setPointA(coordinate: sanFrancisco)
+    viewModel.setPointB(coordinate: oakland)
+    try await waitForBothPointElevations(viewModel)
+
+    await mockService.setFetchDelay(.milliseconds(400))
+    viewModel.analyze()
+    try await waitUntil("analysis should start") {
+      viewModel.isAnalyzing
+    }
+
+    viewModel.configure(dataStore: { nil }, radioID: { nil }, deviceFrequencyKHz: 915_000)
+    await viewModel.loadRepeaters()
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+    #expect(viewModel.isAnalyzing)
+
+    try await waitForAnalysisResult(viewModel)
+    if case .result = viewModel.analysisStatus {
+      #expect(!viewModel.isAnalyzing)
+    } else {
+      Issue.record("Expected analysis result after reconfigure, got: \(viewModel.analysisStatus)")
     }
   }
 }
