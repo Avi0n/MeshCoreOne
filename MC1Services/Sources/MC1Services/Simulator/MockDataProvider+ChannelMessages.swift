@@ -128,7 +128,10 @@ extension MockDataProvider {
         routeType: .tcFlood,
         regionScope: nil,
         regionScopeMatches: ambiguousRegionNames
-      )
+      ),
+      // Same routes as `aliceMultiPathMessage`. `senderNodeName` matches Alice Chen
+      // so `locatedSender(for:)` finds her.
+      publicMultiPathMessage(now: now)
     ]
   }
 

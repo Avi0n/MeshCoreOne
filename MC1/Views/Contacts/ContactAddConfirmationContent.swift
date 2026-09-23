@@ -12,7 +12,7 @@ struct ContactAddConfirmationContent: View {
   let onAdd: () -> Void
   let onScanAgain: (() -> Void)?
 
-  private var displayedName: String {
+  var displayedName: String {
     existingContact?.displayName ?? contactResult.name
   }
 
@@ -20,9 +20,25 @@ struct ContactAddConfirmationContent: View {
     existingContact?.type ?? contactResult.contactType
   }
 
-  private var scannedAsName: String? {
+  var scannedAsName: String? {
     guard existingContact != nil, contactResult.name != displayedName else { return nil }
     return contactResult.name
+  }
+
+  var scannedAsText: String? {
+    scannedAsName.map { L10n.Contacts.Contacts.Add.scannedAs($0) }
+  }
+
+  var publicKeyText: String {
+    contactResult.publicKey.uppercaseHexString(separator: " ")
+  }
+
+  var showsScanAgain: Bool {
+    onScanAgain != nil
+  }
+
+  var hidesIdentityGlyph: Bool {
+    true
   }
 
   var body: some View {
@@ -33,7 +49,7 @@ struct ContactAddConfirmationContent: View {
         errorSection(errorMessage)
       }
       addSection
-      if let onScanAgain {
+      if showsScanAgain, let onScanAgain {
         scanAgainSection(onScanAgain)
       }
     }
@@ -44,7 +60,7 @@ struct ContactAddConfirmationContent: View {
     Section {
       VStack(spacing: 12) {
         identityGlyph
-          .accessibilityHidden(true)
+          .accessibilityHidden(hidesIdentityGlyph)
 
         Text(displayedName)
           .font(.headline)
@@ -53,8 +69,8 @@ struct ContactAddConfirmationContent: View {
           .font(.subheadline)
           .foregroundStyle(.secondary)
 
-        if let scannedAsName {
-          Text(L10n.Contacts.Contacts.Add.scannedAs(scannedAsName))
+        if let scannedAsText {
+          Text(scannedAsText)
             .font(.footnote)
             .foregroundStyle(.secondary)
         }
@@ -88,7 +104,7 @@ struct ContactAddConfirmationContent: View {
   /// Name is claimed; the public key is the verifiable identity.
   private var publicKeySection: some View {
     Section {
-      Text(contactResult.publicKey.uppercaseHexString(separator: " "))
+      Text(publicKeyText)
         .font(.system(.body, design: .monospaced))
         .textSelection(.enabled)
     } header: {
@@ -131,7 +147,7 @@ struct ContactAddConfirmationContent: View {
       : L10n.Contacts.Contacts.Add.view
   }
 
-  private var primaryAccessibilityLabel: String {
+  var primaryAccessibilityLabel: String {
     if isAdding {
       L10n.Contacts.Contacts.Scan.importing
     } else if let existingContact {

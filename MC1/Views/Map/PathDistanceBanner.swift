@@ -15,22 +15,19 @@ struct PathDistanceBanner: View {
   var body: some View {
     HStack(spacing: 4) {
       if showsHopCount {
-        Text(L10n.Contacts.Contacts.Trace.Map.hops(hopCount))
+        Text(hopCountText)
           .contentTransition(.identity)
         if totalPathDistance != nil {
           Text("•")
         }
       }
       if let distance = totalPathDistance {
-        Text(
-          Measurement(value: distance, unit: UnitLength.meters),
-          format: .measurement(width: .abbreviated, usage: .road)
-        )
-        .contentTransition(.identity)
+        Text(Self.distanceText(distance))
+          .contentTransition(.identity)
       }
       if isDistanceIncomplete {
         FallbackMatchIndicatorView(
-          accessibilityLabel: L10n.Chats.Chats.Path.Distance.incomplete,
+          accessibilityLabel: incompleteAccessibilityLabel,
           accessibilityHint: L10n.Chats.Chats.Path.Distance.incompleteExplanation,
           title: L10n.Chats.Chats.Path.Distance.incompleteTitle,
           explanation: L10n.Chats.Chats.Path.Distance.incompleteExplanation
@@ -43,5 +40,32 @@ struct PathDistanceBanner: View {
     .geometryGroup()
     .liquidGlass(in: .capsule)
     .transaction { $0.animation = nil }
+  }
+
+  var spokenTexts: [String] {
+    var texts: [String] = []
+    if showsHopCount {
+      texts.append(hopCountText)
+    }
+    if let totalPathDistance {
+      texts.append(Self.distanceText(totalPathDistance))
+    }
+    if isDistanceIncomplete {
+      texts.append(incompleteAccessibilityLabel)
+    }
+    return texts
+  }
+
+  private var hopCountText: String {
+    L10n.Contacts.Contacts.Trace.Map.hops(hopCount)
+  }
+
+  private var incompleteAccessibilityLabel: String {
+    L10n.Chats.Chats.Path.Distance.incomplete
+  }
+
+  private static func distanceText(_ meters: CLLocationDistance) -> String {
+    Measurement(value: meters, unit: UnitLength.meters)
+      .formatted(.measurement(width: .abbreviated, usage: .road))
   }
 }
