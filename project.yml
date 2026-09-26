@@ -35,6 +35,11 @@ packages:
     # machine last fetched and different developers silently build different
     # library code. Bump this hash deliberately when the fork advances.
     revision: 4840eb1ebbcf9d922b9c011f17a292e871d8753e
+  SwiftCollections:
+    url: https://github.com/apple/swift-collections
+    # 1.7.0 calls _swift_initBorrow from the module Deque links. That symbol
+    # is absent from libswiftCore on iOS 18 and iOS 26, so the process aborts at launch.
+    exactVersion: 1.6.0
 
 targets:
   MC1:
@@ -51,6 +56,8 @@ targets:
       - package: Emojibase
       - package: MapLibre
       - package: MessagingUI
+      - package: SwiftCollections
+        product: DequeModule
       - target: MC1Widgets
     preBuildScripts:
       - name: SwiftGen
