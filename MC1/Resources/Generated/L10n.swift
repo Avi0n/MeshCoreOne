@@ -2823,6 +2823,8 @@ public enum L10n {
         public static let lockNorth = L10n.tr("Map", "map.controls.lockNorth", fallback: "North up")
         /// Location: MapControlsToolbar.swift - Purpose: Accessibility label for map options menu button
         public static let mapOptions = L10n.tr("Map", "map.controls.mapOptions", fallback: "Map options")
+        /// Location: MapControlsToolbar.swift - Purpose: Filter menu item that opens the Advanced Filters sheet
+        public static let moreFilters = L10n.tr("Map", "map.controls.moreFilters", fallback: "More Filters…")
         /// Location: MapView.swift - Purpose: Accessibility label for refresh button
         public static let refresh = L10n.tr("Map", "map.controls.refresh", fallback: "Refresh contacts")
         /// Location: MapView.swift - Purpose: Accessibility label when labels are hidden
@@ -2885,6 +2887,130 @@ public enum L10n {
         public static let add = L10n.tr("Map", "map.discoveredDetail.add", fallback: "Add to Nodes")
         /// Location: DiscoveredNodeDetailSheet.swift - Purpose: Navigation title for discovered node detail
         public static let title = L10n.tr("Map", "map.discoveredDetail.title", fallback: "Discovered Node")
+      }
+      public enum Filters {
+        /// Location: MapActiveFiltersBar.swift - Purpose: Accessibility hint for tapping an active filter chip
+        public static let editHint = L10n.tr("Map", "map.filters.editHint", fallback: "Opens Advanced Filters")
+        /// Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the upper bound of a range
+        public static let maximum = L10n.tr("Map", "map.filters.maximum", fallback: "Maximum")
+        /// Location: MapAdvancedFiltersSheet.swift - Purpose: Row label for the lower bound of a range
+        public static let minimum = L10n.tr("Map", "map.filters.minimum", fallback: "Minimum")
+        /// Location: MapAdvancedFiltersSheet.swift - Purpose: Placeholder for an empty range bound
+        public static let noLimit = L10n.tr("Map", "map.filters.noLimit", fallback: "No limit")
+        /// Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for the preset buttons row
+        public static let presets = L10n.tr("Map", "map.filters.presets", fallback: "Presets")
+        /// Location: MapActiveFiltersBar.swift - Purpose: Accessibility label for the button removing one filter. %@ is the filter summary, e.g. "Heard ≤ 2h"
+        public static func remove(_ p1: Any) -> String {
+          return L10n.tr("Map", "map.filters.remove", String(describing: p1), fallback: "Remove filter: %@")
+        }
+        /// Location: MapAdvancedFiltersSheet.swift - Purpose: Toolbar button that clears all advanced filters
+        public static let reset = L10n.tr("Map", "map.filters.reset", fallback: "Reset")
+        /// Location: MapAdvancedFiltersSheet.swift - Purpose: Sheet title
+        public static let title = L10n.tr("Map", "map.filters.title", fallback: "Advanced Filters")
+        public enum Hops {
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the hop filter
+          public static let any = L10n.tr("Map", "map.filters.hops.any", fallback: "Any")
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Preset showing only nodes heard without a repeater
+          public static let direct = L10n.tr("Map", "map.filters.hops.direct", fallback: "Direct")
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining hop counts
+          public static let explanation = L10n.tr("Map", "map.filters.hops.explanation", fallback: "Hops are the repeaters between you and the node; 0 means heard directly. Nodes with an unknown hop count are hidden while this filter is on.")
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the hop-count range
+          public static let header = L10n.tr("Map", "map.filters.hops.header", fallback: "Hops")
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Preset for an upper hop bound. %d is the hop count
+          public static func upTo(_ p1: Int) -> String {
+            return L10n.tr("Map", "map.filters.hops.upTo", p1, fallback: "≤ %d")
+          }
+          public enum Chip {
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for a lower bound only. %d is the hop count
+            public static func atLeast(_ p1: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.chip.atLeast", p1, fallback: "Hops ≥ %d")
+            }
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for an upper bound only. %d is the hop count
+            public static func atMost(_ p1: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.chip.atMost", p1, fallback: "Hops ≤ %d")
+            }
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. %1$d is the minimum, %2$d the maximum
+            public static func between(_ p1: Int, _ p2: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.chip.between", p1, p2, fallback: "Hops %1$d–%2$d")
+            }
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for the direct-only range
+            public static let direct = L10n.tr("Map", "map.filters.hops.chip.direct", fallback: "Direct only")
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for a single hop count. %d is the hop count
+            public static func exactly(_ p1: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.chip.exactly", p1, fallback: "Hops = %d")
+            }
+          }
+          public enum Summary {
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no hop filter is set
+            public static let any = L10n.tr("Map", "map.filters.hops.summary.any", fallback: "Showing nodes at any hop count.")
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a lower bound only. %d is the hop count
+            public static func atLeast(_ p1: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.summary.atLeast", p1, fallback: "Showing nodes with a hop count of at least %d.")
+            }
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for an upper bound only. %d is the hop count
+            public static func atMost(_ p1: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.summary.atMost", p1, fallback: "Showing nodes with a hop count of at most %d.")
+            }
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. %1$d is the minimum, %2$d the maximum
+            public static func between(_ p1: Int, _ p2: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.summary.between", p1, p2, fallback: "Showing nodes with a hop count from %1$d to %2$d.")
+            }
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for the direct-only range
+            public static let direct = L10n.tr("Map", "map.filters.hops.summary.direct", fallback: "Showing only nodes heard directly, without a repeater.")
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a single hop count. %d is the hop count
+            public static func exactly(_ p1: Int) -> String {
+              return L10n.tr("Map", "map.filters.hops.summary.exactly", p1, fallback: "Showing nodes with a hop count of exactly %d.")
+            }
+          }
+        }
+        public enum LastHeard {
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Preset that disables the last-heard filter
+          public static let anyTime = L10n.tr("Map", "map.filters.lastHeard.anyTime", fallback: "Any Time")
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer explaining where last-heard time comes from
+          public static let explanation = L10n.tr("Map", "map.filters.lastHeard.explanation", fallback: "Based on adverts, messages, and pings received from each node. Nodes never heard are hidden while this filter is on.")
+          /// Location: MapAdvancedFiltersSheet.swift - Purpose: Section header for the last-heard time range
+          public static let header = L10n.tr("Map", "map.filters.lastHeard.header", fallback: "Last Heard")
+          public enum Chip {
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for a bounded range. First %@ is the minimum age, second the maximum age
+            public static func between(_ p1: Any, _ p2: Any) -> String {
+              return L10n.tr("Map", "map.filters.lastHeard.chip.between", String(describing: p1), String(describing: p2), fallback: "Heard %1$@–%2$@ ago")
+            }
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for a minimum-age-only range. %@ is a duration
+            public static func olderThan(_ p1: Any) -> String {
+              return L10n.tr("Map", "map.filters.lastHeard.chip.olderThan", String(describing: p1), fallback: "Heard ≥ %@ ago")
+            }
+            /// Location: MapActiveFiltersBar.swift - Purpose: Chip for a maximum-age-only range. %@ is a duration, e.g. "2h"
+            public static func within(_ p1: Any) -> String {
+              return L10n.tr("Map", "map.filters.lastHeard.chip.within", String(describing: p1), fallback: "Heard ≤ %@ ago")
+            }
+          }
+          public enum Summary {
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer when no last-heard filter is set
+            public static let any = L10n.tr("Map", "map.filters.lastHeard.summary.any", fallback: "Showing nodes no matter when they were last heard.")
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a bounded range. First %@ is the minimum age, second the maximum age
+            public static func between(_ p1: Any, _ p2: Any) -> String {
+              return L10n.tr("Map", "map.filters.lastHeard.summary.between", String(describing: p1), String(describing: p2), fallback: "Showing nodes last heard between %1$@ and %2$@ ago.")
+            }
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a minimum-age-only range. %@ is a duration
+            public static func olderThan(_ p1: Any) -> String {
+              return L10n.tr("Map", "map.filters.lastHeard.summary.olderThan", String(describing: p1), fallback: "Showing nodes last heard at least %@ ago.")
+            }
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Footer for a maximum-age-only range. %@ is a duration, e.g. "2h"
+            public static func within(_ p1: Any) -> String {
+              return L10n.tr("Map", "map.filters.lastHeard.summary.within", String(describing: p1), fallback: "Showing nodes last heard within the last %@.")
+            }
+          }
+          public enum Unit {
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option
+            public static let days = L10n.tr("Map", "map.filters.lastHeard.unit.days", fallback: "Days")
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option
+            public static let hours = L10n.tr("Map", "map.filters.lastHeard.unit.hours", fallback: "Hours")
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Accessibility label for a unit menu
+            public static let label = L10n.tr("Map", "map.filters.lastHeard.unit.label", fallback: "Unit")
+            /// Location: MapAdvancedFiltersSheet.swift - Purpose: Unit menu option
+            public static let minutes = L10n.tr("Map", "map.filters.lastHeard.unit.minutes", fallback: "Minutes")
+          }
+        }
       }
       public enum NodeKind {
         /// Location: MapView.swift ContactDetailSheet - Purpose: Display name for chat contact type

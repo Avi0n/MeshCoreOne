@@ -12,7 +12,7 @@ enum MapFilterHost: String, Sendable, CaseIterable {
 
   var capabilities: MapFilterCapabilities {
     switch self {
-    case .mainMap: .all
+    case .mainMap: [.all, .advanced]
     case .tracePath: [.favorites, .discovered]
     case .neighborSNR: [.favorites, .discovered]
     }
@@ -38,13 +38,34 @@ struct MapFilterCapabilities: OptionSet, Sendable, Hashable {
   static let chat = MapFilterCapabilities(rawValue: 1 << 2)
   static let repeater = MapFilterCapabilities(rawValue: 1 << 3)
   static let room = MapFilterCapabilities(rawValue: 1 << 4)
+  static let lastHeard = MapFilterCapabilities(rawValue: 1 << 5)
+  static let hops = MapFilterCapabilities(rawValue: 1 << 6)
 
-  /// Full Main Map control set (favorites, discovered, and contact types).
+  /// Quick-menu control set (favorites, discovered, and contact types).
   static let all: MapFilterCapabilities = [.favorites, .discovered, .chat, .repeater, .room]
   static let types: MapFilterCapabilities = [.chat, .repeater, .room]
+  /// Dimensions edited in the Advanced Filters sheet.
+  static let advanced: MapFilterCapabilities = [.lastHeard, .hops]
 
   var includesTypes: Bool {
     !intersection(.types).isEmpty
+  }
+
+  var includesAdvanced: Bool {
+    !intersection(.advanced).isEmpty
+  }
+}
+
+/// An Advanced Filters dimension that can be individually active and cleared.
+enum MapAdvancedFilterDimension: Sendable, Hashable, CaseIterable {
+  case lastHeard
+  case hops
+
+  var capability: MapFilterCapabilities {
+    switch self {
+    case .lastHeard: .lastHeard
+    case .hops: .hops
+    }
   }
 }
 
@@ -56,19 +77,41 @@ struct MapFilterState: Sendable, Equatable, Codable {
   private(set) var showChat: Bool
   private(set) var showRepeater: Bool
   private(set) var showRoom: Bool
+  private(set) var lastHeard: MapLastHeardRange
+  private(set) var hops: MapHopRange
 
   init(
     favoritesOnly: Bool = false,
     showDiscovered: Bool = false,
     showChat: Bool = true,
     showRepeater: Bool = true,
-    showRoom: Bool = true
+    showRoom: Bool = true,
+    lastHeard: MapLastHeardRange = .any,
+    hops: MapHopRange = .any
   ) {
     self.favoritesOnly = favoritesOnly
     self.showDiscovered = showDiscovered
     self.showChat = showChat
     self.showRepeater = showRepeater
     self.showRoom = showRoom
+    self.lastHeard = lastHeard
+    self.hops = hops
+  }
+
+  /// Every key is optional so rows written by older builds (or backups) decode with defaults
+  /// instead of being treated as corrupt and reset.
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let defaults = MapFilterState()
+    try self.init(
+      favoritesOnly: container.decodeIfPresent(Bool.self, forKey: .favoritesOnly) ?? defaults.favoritesOnly,
+      showDiscovered: container.decodeIfPresent(Bool.self, forKey: .showDiscovered) ?? defaults.showDiscovered,
+      showChat: container.decodeIfPresent(Bool.self, forKey: .showChat) ?? defaults.showChat,
+      showRepeater: container.decodeIfPresent(Bool.self, forKey: .showRepeater) ?? defaults.showRepeater,
+      showRoom: container.decodeIfPresent(Bool.self, forKey: .showRoom) ?? defaults.showRoom,
+      lastHeard: (try? container.decodeIfPresent(MapLastHeardRange.self, forKey: .lastHeard)) ?? .any,
+      hops: (try? container.decodeIfPresent(MapHopRange.self, forKey: .hops)) ?? .any
+    )
   }
 
   static func seed(for host: MapFilterHost) -> MapFilterState {
@@ -94,7 +137,27 @@ struct MapFilterState: Sendable, Equatable, Codable {
     if caps.contains(.chat), showChat != defaults.showChat { return true }
     if caps.contains(.repeater), showRepeater != defaults.showRepeater { return true }
     if caps.contains(.room), showRoom != defaults.showRoom { return true }
-    return false
+    return hasActiveAdvancedFilters(for: host)
+  }
+
+  /// Advanced dimensions currently narrowing the map, in display order.
+  func activeAdvancedDimensions(for host: MapFilterHost) -> [MapAdvancedFilterDimension] {
+    MapAdvancedFilterDimension.allCases.filter { dimension in
+      guard host.capabilities.contains(dimension.capability) else { return false }
+      switch dimension {
+      case .lastHeard: return lastHeard.isActive
+      case .hops: return hops.isActive
+      }
+    }
+  }
+
+  func hasActiveAdvancedFilters(for host: MapFilterHost) -> Bool {
+    !activeAdvancedDimensions(for: host).isEmpty
+  }
+
+  /// Advanced gate applied to every pin (including Favorites mode): all active dimensions must pass.
+  func allowsAdvanced(heardAt: Date?, hops hopCount: Int?, now: Date) -> Bool {
+    lastHeard.contains(heardAt: heardAt, now: now) && hops.contains(hopCount)
   }
 
   // MARK: Mutators
@@ -119,6 +182,26 @@ struct MapFilterState: Sendable, Equatable, Codable {
 
   mutating func setShowRoom(_ value: Bool, host: MapFilterHost) {
     setType(\.showRoom, value, host: host)
+  }
+
+  mutating func setLastHeard(_ range: MapLastHeardRange) {
+    lastHeard = range
+  }
+
+  mutating func setHops(_ range: MapHopRange) {
+    hops = range
+  }
+
+  mutating func clear(_ dimension: MapAdvancedFilterDimension) {
+    switch dimension {
+    case .lastHeard: lastHeard = .any
+    case .hops: hops = .any
+    }
+  }
+
+  mutating func resetAdvanced() {
+    lastHeard = .any
+    hops = .any
   }
 
   private mutating func setType(
@@ -157,6 +240,9 @@ struct MapFilterState: Sendable, Equatable, Codable {
       s.showRepeater = true
       s.showRoom = true
     }
+    // Hosts without an advanced dimension must never be narrowed by a stray stored value.
+    if !host.capabilities.contains(.lastHeard) { s.lastHeard = .any }
+    if !host.capabilities.contains(.hops) { s.hops = .any }
     return s
   }
 
