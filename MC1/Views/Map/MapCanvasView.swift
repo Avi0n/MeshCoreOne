@@ -47,10 +47,20 @@ struct MapCanvasView: View {
       )
       .ignoresSafeArea()
 
-      // Offline badge
-      if !appState.offlineMapService.isNetworkAvailable {
-        OfflineBadge()
+      // Offline badge and active filter chips
+      VStack(alignment: .trailing, spacing: 8) {
+        if !appState.offlineMapService.isNetworkAvailable {
+          OfflineBadge()
+            .padding(.trailing)
+        }
+        MapActiveFiltersBar(
+          host: filter.host,
+          state: filter.state,
+          onEdit: { filter.onShowAdvancedFilters?() }
+        )
       }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+      .padding(.top)
 
       // Floating controls
       VStack {

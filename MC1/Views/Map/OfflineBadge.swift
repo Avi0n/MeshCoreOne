@@ -12,9 +12,6 @@ struct OfflineBadge: View {
       .padding(.vertical, 6)
       .background(.ultraThinMaterial, in: .capsule)
       .accessibilityAddTraits(.isStaticText)
-      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-      .padding(.trailing)
-      .padding(.top)
       .onAppear {
         AccessibilityNotification.Announcement(L10n.Map.Map.OfflineBadge.label).post()
       }
