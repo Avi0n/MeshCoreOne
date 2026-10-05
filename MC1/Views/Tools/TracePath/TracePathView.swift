@@ -17,7 +17,26 @@ enum TracePathViewMode: String, CaseIterable {
 /// View for building and executing network path traces
 struct TracePathView: View {
   @Environment(\.appState) private var appState
-  @State private var viewModel = TracePathViewModel()
+
+  var body: some View {
+    Group {
+      if let viewModel = appState.tracePathViewModel {
+        TracePathWorkspace(viewModel: viewModel)
+      } else {
+        ProgressView()
+      }
+    }
+    .onAppear {
+      if appState.tracePathViewModel == nil {
+        appState.tracePathViewModel = TracePathViewModel()
+      }
+    }
+  }
+}
+
+private struct TracePathWorkspace: View {
+  @Environment(\.appState) private var appState
+  @Bindable var viewModel: TracePathViewModel
 
   // Haptic feedback triggers
   @State private var dragHapticTrigger = 0
@@ -76,17 +95,13 @@ struct TracePathView: View {
       }
     }
     .onChange(of: viewModel.resultID) { _, newID in
-      guard newID != nil else { return }
-      if let result = viewModel.result, result.success {
-        if viewMode == .list {
-          presentedResult = result
-        }
+      guard newID != nil, isWorkspaceActive else { return }
+      if let result = viewModel.result, result.success, viewMode == .list {
+        presentedResult = result
       }
     }
     .sheet(item: $presentedResult, onDismiss: {
-      if viewModel.isBatchInProgress {
-        viewModel.cancelBatchTrace()
-      }
+      viewModel.handleResultSheetDismiss()
     }) { result in
       TraceResultsSheet(result: result, viewModel: viewModel)
         .presentationDetents([.large])
@@ -128,15 +143,24 @@ struct TracePathView: View {
         bestAvailableLocation: { appState.bestAvailableLocation }
       ))
       viewModel.startListening()
+      if isWorkspaceActive {
+        viewModel.noteWorkspaceVisible(true)
+        if viewMode == .list, presentedResult == nil,
+           let result = viewModel.takeUnpresentedResultIfNeeded() {
+          presentedResult = result
+        }
+      }
       if let radioID = appState.connectedDevice?.radioID {
         await viewModel.loadContacts(radioID: radioID)
       }
     }
     .onChange(of: isWorkspaceActive) { _, isActive in
+      viewModel.noteWorkspaceVisible(isActive)
       if isActive {
         viewModel.startListening()
-      } else {
-        viewModel.deactivate()
+        if viewMode == .list, let result = viewModel.takeUnpresentedResultIfNeeded() {
+          presentedResult = result
+        }
       }
     }
   }

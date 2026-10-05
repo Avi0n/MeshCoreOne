@@ -241,7 +241,7 @@ Manages manual path construction, single and batch path tracing, and saved-path 
 | `activeSavedPath` | `SavedTracePathDTO?` | The saved path currently bound (runs are appended to it) |
 | `isRunning` | `Bool` | Trace in progress |
 | `batchEnabled` | `Bool` | Whether batch (repeated) trace mode is on |
-| `errorMessage` | `String?` | Error message (auto-clears after a delay) |
+| `errorMessage` | `String?` | Error message. Auto-clears after 4 seconds while the workspace is visible; a failure that lands while hidden stays until OK. |
 
 **Key Methods:**
 
@@ -252,7 +252,7 @@ Manages manual path construction, single and batch path tracing, and saved-path 
 | `runTrace() async` | Sends a single trace and awaits the response |
 | `runBatchTrace() async` | Runs `batchSize` sequential traces and aggregates results |
 | `savePath(name:) async` | Saves the current traced path with the given name |
-| `startListening()` / `stopListening()` | Subscribe to / cancel trace-response events |
+| `startListening()` / `stopListening()` | Subscribe to / cancel trace-response events. The model lives on `AppState` and the subscription stays up for an in-flight run even when the workspace is hidden. `startListening()` is idempotent for the current `AdvertisementService` instance. |
 
 **Note**: The Trace Path tool uses manual path construction where users select and order repeaters. Automatic path discovery (e.g., breadth-first search) is not currently implemented.
 

@@ -3,7 +3,6 @@ import SwiftUI
 
 struct NodeDiscoveryView: View {
   @Environment(\.appState) private var appState
-  @State private var viewModel = NodeDiscoveryViewModel()
 
   private var isConnected: Bool {
     appState.services?.session != nil
@@ -12,6 +11,32 @@ struct NodeDiscoveryView: View {
   private var isWorkspaceActive: Bool {
     appState.navigation.isToolWorkspaceActive(.nodeDiscovery)
   }
+
+  var body: some View {
+    Group {
+      if let viewModel = appState.nodeDiscoveryViewModel {
+        NodeDiscoveryWorkspace(
+          viewModel: viewModel,
+          isConnected: isConnected,
+          isWorkspaceActive: isWorkspaceActive
+        )
+      } else {
+        ProgressView()
+      }
+    }
+    .onAppear {
+      if appState.nodeDiscoveryViewModel == nil {
+        appState.nodeDiscoveryViewModel = NodeDiscoveryViewModel()
+      }
+    }
+  }
+}
+
+private struct NodeDiscoveryWorkspace: View {
+  @Environment(\.appState) private var appState
+  @Bindable var viewModel: NodeDiscoveryViewModel
+  let isConnected: Bool
+  let isWorkspaceActive: Bool
 
   var body: some View {
     Group {
@@ -51,9 +76,7 @@ struct NodeDiscoveryView: View {
       ))
     }
     .onChange(of: isWorkspaceActive) { _, isActive in
-      if !isActive {
-        viewModel.stopScan()
-      }
+      viewModel.noteWorkspaceVisible(isActive)
     }
     .onChange(of: viewModel.filter) { _, _ in
       viewModel.stopScan()
@@ -63,7 +86,7 @@ struct NodeDiscoveryView: View {
 
 // MARK: - States
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private var disconnectedState: some View {
     ContentUnavailableView {
       Label(L10n.Tools.Tools.RxLog.notConnected, systemImage: "antenna.radiowaves.left.and.right.slash")
@@ -91,7 +114,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Results List
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct ResultsList: View {
     @Bindable var viewModel: NodeDiscoveryViewModel
     @Environment(\.appTheme) private var theme
@@ -134,7 +157,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Scan Button
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct ScanButtonBar: View {
     let viewModel: NodeDiscoveryViewModel
 
@@ -165,7 +188,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Sort Menu
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct SortMenu: View {
     let viewModel: NodeDiscoveryViewModel
 

@@ -117,6 +117,7 @@ final class NodeDiscoveryViewModel {
 
   private var scanTask: Task<Void, Never>?
   private var timeoutTask: Task<Void, Never>?
+  private var scanDeadline: Date?
 
   // MARK: - Name resolution cache
 
@@ -164,6 +165,7 @@ final class NodeDiscoveryViewModel {
           try? await Task.sleep(for: Self.scanDuration)
           self?.scanTask?.cancel()
         }
+        scanDeadline = Date().addingTimeInterval(TimeInterval(Self.scanDuration.components.seconds))
 
         // Listen for responses
         let events = await session.events()
@@ -191,9 +193,28 @@ final class NodeDiscoveryViewModel {
     timeoutTask = nil
     scanTask?.cancel()
     scanTask = nil
+    scanDeadline = nil
     if isScanning {
       finishScan()
     }
+  }
+
+  func noteWorkspaceVisible(_: Bool) {
+    // Scan lifetime is the model. Stop and reset are the only scan ends.
+  }
+
+  func expireScanIfDeadlinePassed() {
+    guard isScanning, let scanDeadline, Date() >= scanDeadline else { return }
+    stopScan()
+  }
+
+  func reset() {
+    stopScan()
+    results = []
+    namesByKey = [:]
+    errorMessage = nil
+    addedPublicKeys = []
+    addingPublicKey = nil
   }
 
   // MARK: - Sorted results
@@ -305,4 +326,11 @@ final class NodeDiscoveryViewModel {
       self?.addingPublicKey = nil
     }
   }
+
+  #if DEBUG
+    func beginScanForTesting(deadline: Date) {
+      isScanning = true
+      scanDeadline = deadline
+    }
+  #endif
 }

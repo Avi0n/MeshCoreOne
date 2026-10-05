@@ -315,6 +315,12 @@ final class AppState {
   /// Persistent CLI tool view model (survives tab switches, reset on device disconnect)
   var cliToolViewModel: CLIToolViewModel?
 
+  /// Persistent Trace Path workspace (survives tab switches and Back; reset on radio change)
+  var tracePathViewModel: TracePathViewModel?
+
+  /// Persistent Node Discovery workspace (survives tab switches and Back; reset on radio change)
+  var nodeDiscoveryViewModel: NodeDiscoveryViewModel?
+
   /// Repeater and room settings/status/CLI models keyed by radio and public key.
   let remoteAdminWorkspaces = RemoteAdminWorkspaces()
 
@@ -538,6 +544,8 @@ final class AppState {
 
   private func resetRadioScopedToolWorkspaces() {
     cliToolViewModel?.reset()
+    tracePathViewModel?.reset()
+    nodeDiscoveryViewModel?.reset()
     remoteAdminWorkspaces.reset()
   }
 
