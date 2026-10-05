@@ -92,10 +92,8 @@ struct ExpandableSettingsSection<Content: View>: View {
       }
     }
     .task {
-      // Trigger initial load if section starts expanded
-      // (onChange only fires when value changes, not on initial render)
       if isExpanded, !isLoaded(), !isLoading {
-        await onLoad()
+        Task { await onLoad() }
       }
     }
   }
