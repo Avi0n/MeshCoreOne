@@ -73,9 +73,8 @@ extension View {
     )
   }
 
-  /// Compact collapsed detail hides the tab bar. iOS 26+ ignores the top container inset
-  /// so the split extends under the iPad tab bar; earlier OS keeps it so the timeline
-  /// stays below the header. Ignoring safe area on `NavigationSplitView` crashes layout.
+  /// Compact collapsed detail hides the tab bar. iOS 26+ ignores the top container inset so the split extends under it; earlier OS keeps the inset so the timeline stays below the header.
+  /// Ignoring safe area on `NavigationSplitView` crashes layout.
   @ViewBuilder
   func sectionSplitChrome(tabBarVisibility: Visibility) -> some View {
     if #available(iOS 26, *) {

@@ -600,8 +600,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `hosted tools stack follows selectedTool and survives a tab switch`() throws {
-    // One light destination. The path binding is the same for every tool, and
-    // the map-backed tools are what get the full suite killed.
+    // Every tool shares this path binding. Rx Log stands in so the suite does not host a map.
     let tool = ToolSelection.rxLog
     let appState = AppState()
     appState.navigation.selectedTab = AppTab.tools.rawValue

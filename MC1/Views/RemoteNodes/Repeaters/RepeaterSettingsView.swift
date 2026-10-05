@@ -72,7 +72,8 @@ private struct RepeaterSettingsWorkspace: View {
       viewModel.helper.noteSettingsAppeared()
       statusViewModel.noteTelemetryVisitAppeared()
     }
-    // Region commands already ran; only region save commits put, remove, and allow/deny, region default already persisted the map, and disappear must not pretend to undo either.
+    // Disappear does not undo region commands already sent.
+    // `region save` commits put, remove, and allow/deny; `region default` already persisted the map.
     .onDisappear {
       viewModel.helper.noteSettingsDisappeared()
       statusViewModel.noteTelemetryVisitDisappeared()

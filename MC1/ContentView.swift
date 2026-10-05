@@ -22,9 +22,8 @@ struct ContentView: View {
         if appState.connectionUI.failedPairingDeviceID != nil {
           switch appState.connectionUI.pairingFailureKind {
           case .authentication, .pinRejected:
-            // Bond can't proceed (a dead saved bond or a rejected fresh PIN), so
-            // destructive remove is the recovery. The two kinds share these
-            // buttons and differ only in the message copy set by the presenter.
+            // A dead bond or a rejected PIN cannot proceed, so remove is the recovery.
+            // Both kinds share these buttons; only the alert copy differs.
             Button(L10n.Localizable.Alert.ConnectionFailed.removeAndRetry, role: .destructive) {
               appState.removeFailedPairingAndRetry()
             }
@@ -33,11 +32,8 @@ struct ContentView: View {
               appState.connectionUI.failedPairingDeviceID = nil
             }
           case .transient, .none:
-            // Transient variant — bond is still good, prefer non-destructive retry.
-            // `.none` is unreachable in practice (every pairing-failure path routes
-            // through `presentPairingFailure`, which always sets the kind). Folding
-            // it into the safer branch ensures a missing kind can't promote a working
-            // bond into the destructive recovery.
+            // A transient failure leaves the bond intact, so Try Again stays available.
+            // `.none` uses this branch so a missing kind cannot offer only destructive remove.
             Button(L10n.Localizable.Common.tryAgain) {
               Task { await appState.retryFailedPairingConnect() }
             }
@@ -87,9 +83,8 @@ struct ContentView: View {
           onCancel: { appState.cancelSystemPairingSetup() }
         )
       }
-      // SwiftUI does not reliably co-present a sheet and an alert from the same host,
-      // so the binding yields a release only while the connection UI above is quiescent;
-      // `pendingRelease` stays set and re-presents on the next render once any alert clears.
+      // This host cannot present a sheet and an alert together, so What's New waits until connection UI is quiet.
+      // `pendingRelease` stays set and presents again on the next render.
       .sheet(item: Binding(
         get: { connectionUIQuiescent ? appState.whatsNew.pendingRelease : nil },
         set: { if $0 == nil { appState.whatsNew.markShown() } }
