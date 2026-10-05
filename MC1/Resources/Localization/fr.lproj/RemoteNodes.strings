@@ -88,29 +88,21 @@
 "remoteNodes.settings.done" = "Terminé";
 
 
-/* TODO: translate */
-"remoteNodes.settings.discardTitle" = "Discard Changes?";
+"remoteNodes.settings.discardTitle" = "Abandonner les modifications ?";
 
-/* TODO: translate */
-"remoteNodes.settings.discardChanges" = "Discard Changes";
+"remoteNodes.settings.discardChanges" = "Abandonner les modifications";
 
-/* TODO: translate */
-"remoteNodes.settings.keepEditing" = "Keep Editing";
+"remoteNodes.settings.keepEditing" = "Poursuivre la modification";
 
-/* TODO: translate */
-"remoteNodes.settings.unsavedRegionsTitle" = "Unsaved Regions";
+"remoteNodes.settings.unsavedRegionsTitle" = "Régions non enregistrées";
 
-/* TODO: translate */
-"remoteNodes.settings.unsavedRegionsMessage" = "Region changes are temporarily active. Save them if you want them to stay after a restart.";
+"remoteNodes.settings.unsavedRegionsMessage" = "Les modifications des régions sont temporairement actives. Enregistrez-les si vous voulez les conserver après un redémarrage.";
 
-/* TODO: translate */
-"remoteNodes.settings.dontSave" = "Don't Save";
+"remoteNodes.settings.dontSave" = "Ne pas enregistrer";
 
-/* TODO: translate */
-"remoteNodes.settings.savingRegions" = "A save is in progress.";
+"remoteNodes.settings.savingRegions" = "Un enregistrement est en cours.";
 
-/* TODO: translate */
-"remoteNodes.settings.applyInProgress" = "Work still in progress";
+"remoteNodes.settings.applyInProgress" = "Travail toujours en cours";
 
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "Réglages";
