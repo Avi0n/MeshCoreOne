@@ -16,7 +16,9 @@ private final class ControllableCLISend {
     return try await withCheckedThrowingContinuation { continuations.append($0) }
   }
 
-  func pendingCount() -> Int { continuations.count }
+  func pendingCount() -> Int {
+    continuations.count
+  }
 
   func completeOldest(_ value: String) {
     guard !continuations.isEmpty else { return }

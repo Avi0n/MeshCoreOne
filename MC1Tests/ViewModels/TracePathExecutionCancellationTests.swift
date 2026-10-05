@@ -403,7 +403,7 @@ struct TracePathExecutionCancellationTests {
   func `foreground return expires a passed deadline`() async throws {
     let send = ControllableTraceSend()
     send.hangUntilComplete = false
-    send.info = MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60_000)
+    send.info = MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60000)
     let viewModel = makeViewModel(send: send)
     viewModel.startTrace()
 
