@@ -572,4 +572,43 @@ struct TracePathExecutionCancellationTests {
     }
     #expect(viewModel.resultID == firstResultID)
   }
+
+  @Test
+  func `reset during success persist keeps the run and leaves activeSavedPath nil`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let savedPath = try await store.createSavedTracePath(
+      radioID: radioID,
+      name: "Saved",
+      pathBytes: Data([0xAB]),
+      hashSize: 1,
+      initialRun: nil
+    )
+
+    let viewModel = TracePathViewModel()
+    viewModel.configure(dependencies: TracePathViewModel.Dependencies(
+      dataStore: { store },
+      session: { nil },
+      advertisementService: { nil },
+      connectedDevice: { nil },
+      bestAvailableLocation: { nil }
+    ))
+    viewModel.addNode(makeContact())
+    viewModel.activeSavedPath = savedPath
+    viewModel.setPendingTagForTesting(42)
+    viewModel.setPendingPathHashForTesting([0xAB])
+
+    viewModel.handleTraceResponse(sampleTraceInfo(tag: 42), radioID: nil)
+    viewModel.reset()
+
+    try await waitUntil(timeout: .seconds(2), "success run should persist") {
+      let updated = try? await store.fetchSavedTracePath(id: savedPath.id)
+      return (updated?.runs.count ?? 0) == 1
+    }
+    #expect(viewModel.activeSavedPath == nil)
+    let persisted = try await store.fetchSavedTracePath(id: savedPath.id)
+    #expect(persisted?.runs.count == 1)
+    #expect(persisted?.runs.first?.success == true)
+  }
 }

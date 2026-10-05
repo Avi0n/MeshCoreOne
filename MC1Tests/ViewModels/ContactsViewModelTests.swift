@@ -590,4 +590,27 @@ struct ContactsViewModelTests {
     await viewModel.loadContacts(radioID: radioID)
     #expect(viewModel.contacts.isEmpty)
   }
+
+  @Test
+  func `admitIfAbsent pin for one radio stays out of another radio load`() async throws {
+    let radioA = UUID()
+    let radioB = UUID()
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let pin = createContact(radioID: radioA, name: "Pin")
+
+    let viewModel = ContactsViewModel()
+    viewModel.configure(
+      dataStore: { store },
+      contactService: { nil },
+      advertisementService: { nil }
+    )
+    viewModel.admitIfAbsent(pin)
+
+    await viewModel.loadContacts(radioID: radioB)
+    #expect(viewModel.contacts.isEmpty)
+
+    await viewModel.loadContacts(radioID: radioA)
+    #expect(viewModel.contacts.map(\.id) == [pin.id])
+  }
 }

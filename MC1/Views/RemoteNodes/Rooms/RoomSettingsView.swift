@@ -74,6 +74,8 @@ private struct RoomSettingsWorkspace: View {
       errorMessage: viewModel.helper.errorMessage,
       revertUncommittedSettingsEdits: { viewModel.revertUncommittedSettingsEdits() },
       saveRegions: nil,
+      regionSaveErrorMessage: { nil },
+      regionSaveHasUnsavedChanges: { false },
       discardUnsavedRegionChanges: {}
     )
     .task {

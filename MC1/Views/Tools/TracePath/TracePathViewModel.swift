@@ -1298,12 +1298,15 @@ final class TracePathViewModel {
         hopsSNR: hopsSNR
       )
 
+      let generation = executionGeneration
       Task { @MainActor [weak self] in
         do {
           try await dataStore.appendTracePathRun(pathID: savedPath.id, run: runDTO)
+          guard let self, generation == self.executionGeneration else { return }
           // Refresh saved path to get updated runs
           if let updated = try await dataStore.fetchSavedTracePath(id: savedPath.id) {
-            self?.activeSavedPath = updated
+            guard generation == self.executionGeneration else { return }
+            self.activeSavedPath = updated
           }
           logger.info("Appended run to saved path")
         } catch {

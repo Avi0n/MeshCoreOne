@@ -48,6 +48,12 @@ private struct RoomStatusWorkspace: View {
           }
         }
       }
+      .onAppear {
+        viewModel.noteTelemetryVisitAppeared()
+      }
+      .onDisappear {
+        viewModel.noteTelemetryVisitDisappeared()
+      }
       .task {
         viewModel.configure(
           roomAdminService: { appState.services?.roomAdminService },

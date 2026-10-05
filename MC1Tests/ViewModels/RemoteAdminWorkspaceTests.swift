@@ -208,7 +208,7 @@ struct RemoteAdminWorkspaceTests {
   }
 
   @Test
-  func `status reply after the telemetry visit ended does not set status`() async {
+  func `status reply after the telemetry visit ended does not set status and a later visit does`() async {
     let workspaces = RemoteAdminWorkspaces()
     let session = makeSession()
     let viewModel = workspaces.repeaterStatus(for: session)
@@ -242,6 +242,11 @@ struct RemoteAdminWorkspaceTests {
     await viewModel.helper.handleStatusResponse(response, visit: visit)
     #expect(workspaces.repeaterStatus(for: session) === viewModel)
     #expect(viewModel.helper.status == nil)
+
+    viewModel.noteTelemetryVisitAppeared()
+    let nextVisit = viewModel.helper.captureTelemetryVisit()
+    await viewModel.helper.handleStatusResponse(response, visit: nextVisit)
+    #expect(viewModel.helper.status?.batteryMillivolts == 3850)
   }
 
   @Test
@@ -1203,6 +1208,43 @@ struct RemoteAdminWorkspaceTests {
     let dismissed = state.finishRegionSave(errorMessage: "failed", hasUnsavedRegionChanges: true)
     #expect(dismissed == false)
     #expect(state.regionAlertPhase == .failed)
+    #expect(state.showRegionAlert)
+    #expect(state.didDismissSheet == false)
+  }
+
+  @Test
+  func `region alert failure after persist note stays up`() {
+    let state = SettingsExitGuardState()
+    state.presentRegionAlert()
+    state.beginRegionSave()
+    state.noteRegionsPersisted()
+    let dismissed = state.finishRegionSave(errorMessage: "failed", hasUnsavedRegionChanges: false)
+    #expect(dismissed == false)
+    #expect(state.regionAlertPhase == .failed)
+    #expect(state.showRegionAlert)
+    #expect(state.didDismissSheet == false)
+  }
+
+  @Test
+  func `region alert finish observes cleared flag without persist note`() {
+    let state = SettingsExitGuardState()
+    state.presentRegionAlert()
+    state.beginRegionSave()
+    let dismissed = state.finishRegionSave(errorMessage: nil, hasUnsavedRegionChanges: false)
+    #expect(dismissed)
+    #expect(state.regionAlertPhase == .succeeded)
+    #expect(state.showRegionAlert == false)
+    #expect(state.didDismissSheet)
+  }
+
+  @Test
+  func `region alert finish with unsaved changes returns to unsaved`() {
+    let state = SettingsExitGuardState()
+    state.presentRegionAlert()
+    state.beginRegionSave()
+    let dismissed = state.finishRegionSave(errorMessage: nil, hasUnsavedRegionChanges: true)
+    #expect(dismissed == false)
+    #expect(state.regionAlertPhase == .unsaved)
     #expect(state.showRegionAlert)
     #expect(state.didDismissSheet == false)
   }

@@ -88,6 +88,11 @@ enum ChatRoute: Hashable {
       let route = ChatRoute(conversation: conversation)
       return route.kind == kind && route.conversationID == conversationID
     }) else {
+      // Messageless directs are omitted from the conversation list until the
+      // first message, so keep the open route when no row matches.
+      if case .direct = self {
+        return self
+      }
       return nil
     }
 

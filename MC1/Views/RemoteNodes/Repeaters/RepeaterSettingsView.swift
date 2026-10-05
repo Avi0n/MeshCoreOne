@@ -85,6 +85,8 @@ private struct RepeaterSettingsWorkspace: View {
       errorMessage: viewModel.helper.errorMessage,
       revertUncommittedSettingsEdits: { viewModel.revertUncommittedSettingsEdits() },
       saveRegions: { await viewModel.saveRegions() },
+      regionSaveErrorMessage: { viewModel.helper.errorMessage },
+      regionSaveHasUnsavedChanges: { viewModel.hasUnsavedRegionChanges },
       discardUnsavedRegionChanges: { viewModel.hasUnsavedRegionChanges = false }
     )
     .task {

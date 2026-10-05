@@ -424,6 +424,47 @@ struct NavigationStateTests {
     #expect(ChatRoute.direct(original) != ChatRoute.direct(Self.makeContact(name: "Other")))
   }
 
+  @Test
+  func `refreshedPayload keeps unmatched direct and clears unmatched channel or room`() {
+    let contact = Self.makeContact(name: "Messageless")
+    let channel = Self.makeChannel()
+    let room = Self.makeRoomSession(isConnected: true)
+
+    #expect(ChatRoute.direct(contact).refreshedPayload(from: []) == .direct(contact))
+    #expect(ChatRoute.channel(channel).refreshedPayload(from: []) == nil)
+    #expect(ChatRoute.room(room).refreshedPayload(from: []) == nil)
+  }
+
+  @Test
+  func `refreshedPayload updates matched direct payload`() {
+    let id = UUID()
+    let original = Self.makeContact(id: id, name: "Original")
+    let refreshed = Self.makeContact(id: id, name: "Renamed")
+    let conversations: [Conversation] = [.direct(refreshed)]
+
+    let result = ChatRoute.direct(original).refreshedPayload(from: conversations)
+
+    #expect(result == .direct(refreshed))
+    guard case let .direct(contact) = result else {
+      Issue.record("Expected a direct route")
+      return
+    }
+    #expect(contact.name == "Renamed")
+  }
+
+  @Test
+  func `refreshedPayload returns matched disconnected room`() {
+    let id = UUID()
+    let connected = Self.makeRoomSession(id: id, isConnected: true)
+    let disconnected = Self.makeRoomSession(id: id, isConnected: false)
+    let conversations: [Conversation] = [.room(disconnected)]
+
+    let result = ChatRoute.room(connected).refreshedPayload(from: conversations)
+
+    #expect(result == .room(disconnected))
+    #expect(result?.roomIsConnected == false)
+  }
+
   // MARK: - Discovery / contact exclusivity
 
   @Test

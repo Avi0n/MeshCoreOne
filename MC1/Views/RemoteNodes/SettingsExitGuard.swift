@@ -69,7 +69,13 @@ final class SettingsExitGuardState {
       regionAlertPhase = .failed
       return false
     }
-    if regionAlertPhase == .saving, !hasUnsavedRegionChanges {
+    if hasUnsavedRegionChanges {
+      if regionAlertPhase == .saving {
+        regionAlertPhase = .unsaved
+      }
+      return false
+    }
+    if regionAlertPhase == .saving {
       regionAlertPhase = .succeeded
     }
     guard regionAlertPhase == .succeeded, showRegionAlert else { return false }
@@ -119,7 +125,14 @@ struct SettingsExitGuard: ViewModifier {
   var errorMessage: String?
   var revertUncommittedSettingsEdits: () -> Void
   var saveRegions: (() async -> Void)?
+  /// Live post-save reads; stored `errorMessage` / `hasUnsavedRegionChanges` can be stale.
+  var regionSaveErrorMessage: () -> String?
+  var regionSaveHasUnsavedChanges: () -> Bool
   var discardUnsavedRegionChanges: () -> Void
+
+  private var regionActionsDisabled: Bool {
+    exitState.regionAlertPhase == .saving
+  }
 
   func body(content: Content) -> some View {
     content
@@ -160,16 +173,20 @@ struct SettingsExitGuard: ViewModifier {
         isPresented: regionAlertBinding
       ) {
         Button(L10n.Localizable.Common.save) {
+          // `.saving` must land before the alert binding clears on an `.unsaved` phase.
+          exitState.beginRegionSave()
           Task { await runRegionSave() }
         }
+        .disabled(regionActionsDisabled)
         Button(L10n.RemoteNodes.RemoteNodes.Settings.dontSave) {
           exitState.tapDontSave(discardUnsavedRegions: discardUnsavedRegionChanges)
           consumeDismissIfNeeded()
         }
-        .disabled(exitState.regionAlertPhase == .succeeded)
+        .disabled(regionActionsDisabled || exitState.regionAlertPhase == .succeeded)
         Button(L10n.Localizable.Common.cancel, role: .cancel) {
           exitState.tapCancelRegion()
         }
+        .disabled(regionActionsDisabled)
       } message: {
         Text(regionAlertMessage)
       }
@@ -221,11 +238,10 @@ struct SettingsExitGuard: ViewModifier {
 
   private func runRegionSave() async {
     guard let saveRegions else { return }
-    exitState.beginRegionSave()
     await saveRegions()
     exitState.finishRegionSave(
-      errorMessage: errorMessage,
-      hasUnsavedRegionChanges: hasUnsavedRegionChanges
+      errorMessage: regionSaveErrorMessage(),
+      hasUnsavedRegionChanges: regionSaveHasUnsavedChanges()
     )
     consumeDismissIfNeeded()
   }
@@ -245,6 +261,8 @@ extension View {
     errorMessage: String?,
     revertUncommittedSettingsEdits: @escaping () -> Void,
     saveRegions: (() async -> Void)?,
+    regionSaveErrorMessage: @escaping () -> String?,
+    regionSaveHasUnsavedChanges: @escaping () -> Bool,
     discardUnsavedRegionChanges: @escaping () -> Void
   ) -> some View {
     modifier(
@@ -255,6 +273,8 @@ extension View {
         errorMessage: errorMessage,
         revertUncommittedSettingsEdits: revertUncommittedSettingsEdits,
         saveRegions: saveRegions,
+        regionSaveErrorMessage: regionSaveErrorMessage,
+        regionSaveHasUnsavedChanges: regionSaveHasUnsavedChanges,
         discardUnsavedRegionChanges: discardUnsavedRegionChanges
       )
     )

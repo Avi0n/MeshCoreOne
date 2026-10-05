@@ -140,7 +140,7 @@ final class ContactsViewModel {
     do {
       let fetched = try await dataStore.fetchContacts(radioID: radioID)
       guard generation == loadGeneration else { return }
-      contacts = mergeAdmissions(into: fetched)
+      contacts = mergeAdmissions(into: fetched, radioID: radioID)
       // Self-heal the mask: once a deleted row is gone from the fetch, stop masking it.
       pendingRemovalIDs.formIntersection(Set(contacts.map(\.id)))
     } catch is CancellationError {
@@ -208,10 +208,11 @@ final class ContactsViewModel {
     contacts.append(contact)
   }
 
-  private func mergeAdmissions(into fetched: [ContactDTO]) -> [ContactDTO] {
+  private func mergeAdmissions(into fetched: [ContactDTO], radioID: UUID) -> [ContactDTO] {
     var result = fetched
     var resolved: [UUID] = []
     for (id, contact) in pendingAdmissions {
+      guard contact.radioID == radioID else { continue }
       let present = result.contains {
         $0.id == contact.id
           || ($0.publicKey == contact.publicKey && $0.radioID == contact.radioID)

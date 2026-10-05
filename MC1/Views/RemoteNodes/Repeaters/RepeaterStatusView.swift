@@ -57,6 +57,12 @@ private struct RepeaterStatusWorkspace: View {
           }
         }
       }
+      .onAppear {
+        viewModel.noteTelemetryVisitAppeared()
+      }
+      .onDisappear {
+        viewModel.noteTelemetryVisitDisappeared()
+      }
       .task {
         viewModel.configure(
           repeaterAdminService: { appState.services?.repeaterAdminService },
