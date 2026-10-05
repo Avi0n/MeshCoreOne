@@ -1,0 +1,321 @@
+/*
+  Onboarding.strings
+  MC1
+
+  Korean (ko) translation of the Onboarding feature strings.
+  AI-translated - please verify with native speakers.
+*/
+
+
+// MARK: - Welcome View
+
+/* Location: WelcomeView.swift - App title displayed on welcome screen */
+"welcome.title" = "MeshCore One";
+
+/* Location: WelcomeView.swift - Subtitle describing the app */
+"welcome.subtitle" = "인터넷이 없어도 커뮤니티가 만든 네트워크로 메시지를 보내세요.";
+
+/* Location: WelcomeView.swift - Button to proceed to next onboarding step */
+"welcome.getStarted" = "시작";
+
+
+// MARK: - Permissions View
+
+/* Location: PermissionsView.swift - Screen title for permissions */
+"permissions.title" = "몇 가지 권한";
+
+/* Location: PermissionsView.swift - Subtitle encouraging notification permission */
+"permissions.subtitle" = "모두 선택 사항입니다. 언제든지 설정에서 변경할 수 있습니다.";
+
+/* Location: PermissionsView.swift - Permission card title for notifications */
+"permissions.notifications.title" = "알림";
+
+/* Location: PermissionsView.swift - Permission card description for notifications */
+"permissions.notifications.description" = "앱이 닫혀 있어도 새 메시지와 배터리 부족 알림을 받습니다.";
+
+/* Location: PermissionsView.swift - Permission card title for location */
+"permissions.location.title" = "위치";
+
+/* Location: PermissionsView.swift - Permission card description for location */
+"permissions.location.description" = "지역에 맞는 무선 프리셋을 제안하고, 지도에 내 위치를 표시하며, 연락처를 거리순으로 정렬합니다.";
+
+/* Location: PermissionsView.swift - Button to proceed to next step */
+"permissions.continue" = "계속";
+
+/* Location: PermissionsView.swift - Badge shown for optional permissions */
+"permissions.optional" = "선택 사항";
+
+/* Location: PermissionsView.swift - Button to open system settings */
+"permissions.openSettings" = "설정";
+
+/* Location: PermissionsView.swift - Button to begin a permission request */
+"permissions.request" = "계속";
+
+/* Location: PermissionsView.swift - Alert title for location permission */
+"permissions.locationAlert.title" = "위치 권한";
+
+/* Location: PermissionsView.swift - Alert button to open settings */
+"permissions.locationAlert.openSettings" = "설정 열기";
+
+/* Location: PermissionsView.swift - Alert message explaining denied location permission */
+"permissions.locationAlert.message" = "이전에 위치 권한이 거부되었습니다. 메시 연락처와 위치를 공유하려면 설정에서 허용하십시오.";
+
+
+// MARK: - Device Scan View
+
+/* Location: DeviceScanView.swift - Screen title for device pairing */
+"deviceScan.title" = "기기 페어링";
+
+/* Location: DeviceScanView.swift - Subtitle with pairing instructions */
+"deviceScan.subtitle" = "무선 기기의 전원을 켜고 다른 모든 앱 및 기기와의 연결을 끊은 다음 기기 추가를 탭하십시오.";
+
+/* Location: DeviceScanView.swift - Message shown when device is already paired */
+"deviceScan.alreadyPaired" = "기기가 이미 페어링되어 있습니다";
+
+/* Location: DeviceScanView.swift - "I don't have a device yet" tertiary */
+"deviceScan.noDeviceYet" = "아직 기기가 없습니다";
+
+/* Location: DeviceScanView.swift - Button to continue after pairing */
+"deviceScan.continue" = "계속";
+
+/* Location: DeviceScanView.swift - Button label while connecting */
+"deviceScan.connecting" = "연결 중...";
+
+/* Location: DeviceScanView.swift - Button to connect simulator (debug) */
+"deviceScan.connectSimulator" = "시뮬레이터 연결";
+
+/* Location: DeviceScanView.swift - Button to continue in demo mode */
+"deviceScan.continueDemo" = "데모 모드로 계속";
+
+/* Location: DeviceScanView.swift - Button to add a new device */
+"deviceScan.addDevice" = "기기 추가";
+
+/* Location: DeviceScanView.swift - Button to retry connection after other-app conflict */
+"deviceScan.retryConnection" = "다시 연결";
+
+/* Location: DeviceScanView.swift - Button for troubleshooting */
+"deviceScan.deviceNotAppearing" = "도움말";
+
+/* Location: DeviceScanView.swift - Button to connect via WiFi */
+"deviceScan.connectViaWifi" = "Wi-Fi로 연결";
+
+/* Location: DeviceScanView.swift - Alert title when demo mode is unlocked */
+"deviceScan.demoModeAlert.title" = "데모 모드 잠금 해제됨";
+
+/* Location: DeviceScanView.swift - Alert message for demo mode */
+"deviceScan.demoModeAlert.message" = "이제 기기 없이 계속할 수 있습니다. 데모 모드는 언제든지 설정에서 켜거나 끌 수 있습니다.";
+
+/* Location: ConnectionUIState.presentPairingFailure(_:) - Pairing failure alert messages */
+"deviceScan.error.authenticationFailed" = "이 무선 기기와의 저장된 페어링이 더 이상 작동하지 않습니다. 제거 후 다시 시도를 탭하여 앱에서 다시 페어링하십시오. 무선 기기에 새 페어링 코드가 표시될 수 있습니다.";
+/* Location: ConnectionUIState.presentPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.authenticationFailedMac" = "이 무선 기기와의 저장된 페어링이 더 이상 작동하지 않습니다. 시스템 설정의 Bluetooth에서 이 무선 기기를 지운 다음 제거 후 다시 시도를 탭하십시오.";
+"deviceScan.error.pinRejected" = "PIN이 승인되지 않았습니다. 기기에 표시된 PIN을 확인한 후 다시 시도하십시오. iOS에서 먼저 실패한 페어링을 제거할지 확인하라는 메시지가 표시됩니다.";
+/* Location: ConnectionUIState.presentFreshPairingFailure(_:) - macOS copy; app cannot forget the OS Bluetooth bond */
+"deviceScan.error.pinRejectedMac" = "PIN이 승인되지 않았습니다. 시스템 설정의 Bluetooth에서 이 무선 기기를 지운 다음 다시 시도하십시오.";
+"deviceScan.error.connectionFailed" = "기기에 연결할 수 없습니다. 다시 시도하거나, 문제가 계속되면 기기를 제거하십시오.";
+
+// MARK: - Troubleshooting Sheet
+
+/* Location: DeviceScanView.swift - Navigation title for troubleshooting sheet */
+"troubleshooting.title" = "문제 해결";
+
+/* Location: DeviceScanView.swift - Section header for basic checks */
+"troubleshooting.basicChecks.header" = "기본 점검";
+
+/* Location: DeviceScanView.swift - Check to ensure device is powered on */
+"troubleshooting.basicChecks.powerOn" = "기기의 전원이 켜져 있는지 확인하십시오";
+
+/* Location: DeviceScanView.swift - Check to move device closer */
+"troubleshooting.basicChecks.moveCloser" = "기기를 휴대폰 가까이로 옮기십시오";
+
+/* Location: TroubleshootingSheet.swift - Check that radio isn't connected elsewhere */
+"troubleshooting.basicChecks.notConnectedElsewhere" = "무선 기기가 다른 휴대폰이나 앱에 연결되어 있지 않은지 확인하십시오";
+
+/* Location: DeviceScanView.swift - Check to restart the device */
+"troubleshooting.basicChecks.restart" = "MeshCore 기기를 재시동하십시오";
+
+/* Location: DeviceScanView.swift - Section header for factory reset help */
+"troubleshooting.factoryReset.header" = "기기를 공장 초기화했습니까?";
+
+/* Location: DeviceScanView.swift - Explanation about stale pairings */
+"troubleshooting.factoryReset.explanation" = "MeshCore 기기를 공장 초기화했다면 iOS에 이전 페어링이 남아 있을 수 있습니다. 시스템 설정에서 이를 지우면 기기가 다시 나타납니다.";
+
+/* Location: DeviceScanView.swift - Additional explanation about removal confirmation */
+"troubleshooting.factoryReset.confirmationNote" = "아래를 탭하면 이전 페어링을 제거할지 확인하는 메시지가 표시됩니다. 이는 정상이며, 초기화한 기기가 다시 나타나도록 합니다.";
+
+/* Location: DeviceScanView.swift - Button to clear previous pairing */
+"troubleshooting.factoryReset.clearPairing" = "이전 페어링 지우기";
+
+/* Location: DeviceScanView.swift - Footer when no pairings found */
+"troubleshooting.factoryReset.noPairings" = "이전 페어링이 없습니다.";
+
+/* Location: DeviceScanView.swift - Footer showing pairing count - uses stringsdict */
+"troubleshooting.factoryReset.pairingsFound" = "이전 페어링 %d개를 찾았습니다.";
+
+/* Location: DeviceScanView.swift - Section header for system settings info */
+"troubleshooting.systemSettings.header" = "시스템 설정";
+
+/* Location: DeviceScanView.swift - Info about managing accessories */
+"troubleshooting.systemSettings.manageAccessories" = "다음 위치에서도 Bluetooth 액세서리를 관리할 수 있습니다.";
+
+/* Location: DeviceScanView.swift - Path to accessories in settings */
+"troubleshooting.systemSettings.path" = "설정 → 개인정보 보호 및 보안 → 액세서리";
+
+/* Location: TroubleshootingSheet.swift - Button that opens iOS Settings */
+"troubleshooting.systemSettings.openSettings" = "설정 열기";
+
+
+// MARK: - Still Not Appearing
+
+/* Location: TroubleshootingSheet.swift - Section header for last-resort flashing steps */
+"troubleshooting.stillNotAppearing.header" = "여전히 나타나지 않습니까?";
+
+/* Location: TroubleshootingSheet.swift - Body text explaining backup and reflash steps */
+"troubleshooting.stillNotAppearing.body" = "위의 방법을 모두 시도했다면 Liam Cottle의 MeshCore 앱에서 무선 기기 구성을 백업한 다음, 컴퓨터에서 https://flasher.meshcore.io 에 접속하여 기기를 지우고 펌웨어를 다시 설치하십시오.";
+
+
+// MARK: - Mesh Animation View
+
+/* Location: MeshAnimationView.swift - Accessibility label for mesh visualization */
+"meshAnimation.accessibilityLabel" = "메시 네트워크 시각화";
+
+
+// MARK: - No Device Sheet
+
+/* Location: NoDeviceSheet.swift - Sheet title */
+"noDevice.sheet.title" = "둘러보기";
+
+/* Location: NoDeviceSheet.swift - Sheet body */
+"noDevice.sheet.body" = "메시지를 주고받으려면 페어링된 무선 기기가 필요합니다. 지금은 앱을 둘러보고 언제든지 설정에서 페어링하십시오.";
+
+/* Location: NoDeviceSheet.swift - Primary CTA */
+"noDevice.sheet.confirm" = "계속";
+
+/* Location: NoDeviceSheet.swift - Secondary CTA */
+"noDevice.sheet.cancel" = "취소";
+
+
+// MARK: - Preset Step View
+
+/* Location: PresetStepView.swift - Title */
+"preset.title" = "프리셋 선택";
+
+/* Location: PresetStepView.swift - Subtitle listing presets for the selected place */
+"preset.subtitle.recommended" = "%@ 프리셋";
+
+/* Location: PresetStepView.swift - Subtitle for empty-region fallback */
+"preset.subtitle.locale" = "무선 기기에 사용할 프리셋을 선택하십시오.";
+
+/* Location: PresetStepView.swift - Footer help line pointing users to the MeshCore Discord */
+"preset.discordHelp" = "어떤 프리셋을 선택해야 할지 모르겠습니까? 공식 MeshCore Discord에 참여하여 질문하십시오! [https://meshcore.gg](https://meshcore.gg)";
+
+/* Location: PresetStepView.swift - Apply CTA "Use %@" */
+"preset.use" = "%@ 사용";
+
+/* Location: PresetStepView.apply(id:) - Error shown when user taps Apply before services finished wiring */
+"preset.error.notConnected" = "이 프리셋을 적용하려면 기기에 연결하십시오.";
+
+/* Location: PresetStepView.swift - Generic Continue label used when no preset is selected */
+"preset.continue" = "계속";
+
+/* Location: PresetStepView.swift - VoiceOver hint for tapping a preset card */
+"preset.row.accessibilityHint" = "이 프리셋을 선택합니다.";
+
+// MARK: - WiFi Connection Sheet
+
+/* Location: WiFiConnectionSheet.swift - Navigation title */
+"wifiConnection.title" = "Wi-Fi로 연결";
+
+/* Location: WiFiConnectionSheet.swift - Section header for connection details */
+"wifiConnection.connectionDetails.header" = "연결 정보";
+
+/* Location: WiFiConnectionSheet.swift - Placeholder for hostname or IP address field */
+"wifiConnection.ipAddress.placeholder" = "호스트 이름 또는 IP";
+
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear hostname or IP button */
+"wifiConnection.ipAddress.clearAccessibility" = "호스트 이름 또는 IP 지우기";
+
+/* Location: WiFiConnectionSheet.swift - Placeholder for port field */
+"wifiConnection.port.placeholder" = "포트";
+
+/* Location: WiFiConnectionSheet.swift - Accessibility label for clear port button */
+"wifiConnection.port.clearAccessibility" = "포트 지우기";
+
+/* Location: WiFiConnectionSheet.swift - Footer explaining connection details */
+"wifiConnection.connectionDetails.footer" = "MeshCore 기기의 호스트 이름 또는 IP 주소를 입력하십시오. 기본 포트는 5000입니다.";
+
+/* Location: WiFiConnectionSheet.swift - Button label while connecting */
+"wifiConnection.connecting" = "연결 중...";
+
+/* Location: WiFiConnectionSheet.swift - Button to initiate connection */
+"wifiConnection.connect" = "연결";
+
+/* Location: WiFiConnectionSheet.swift - Error message for invalid port */
+"wifiConnection.error.invalidPort" = "잘못된 포트 번호";
+
+
+// MARK: - Region Picker View
+
+/* Location: RegionPickerView.swift - Country picker label */
+"region.country" = "국가";
+
+/* Location: RegionPickerView.swift - State picker label (US, AU) */
+"region.state" = "주";
+
+/* Location: RegionPickerView.swift - Province picker label (Canada) */
+"region.province" = "주";
+
+/* Location: RegionPickerView.swift - Continue CTA in manual picker */
+"region.continue" = "계속";
+
+/* Location: RegionStepView.swift - Title (both states) */
+"region.title" = "지역 선택";
+
+/* Location: RegionStepView.swift - Subtitle for the region step */
+"region.subtitle" = "사용자 지역에서 작동하는 프리셋을 보여 드립니다.";
+
+/* Location: RegionStepView.swift - "Detected" tag */
+"region.detected.tag" = "감지됨";
+
+/* Location: RegionStepView.swift - Caption "From your location" */
+"region.detected.source" = "내 위치 기준";
+
+/* Location: RegionStepView.swift - Primary CTA in detected state */
+"region.useThisRegion" = "이 지역 사용";
+
+/* Location: RegionStepView.swift - "Choose another" link */
+"region.chooseAnother" = "다른 지역 선택";
+
+/* Location: RegionStepView.swift - "Use my location" link in manual state */
+"region.useMyLocation" = "내 위치 사용";
+
+/* Location: RegionStepView.swift - "Finding your region…" */
+"region.resolving" = "지역을 찾는 중…";
+
+/* Location: RegionStepView.swift - Error shown when user-initiated retry of "Use my location" cannot resolve a region */
+"region.useMyLocation.failure" = "위치 조회로 지역을 찾지 못했습니다. 아래에서 직접 선택하십시오.";
+
+
+// MARK: - Device Scanner Sheet (macOS)
+
+/* Location: DeviceScannerSheet.swift - Navigation title for the macOS BLE scanner */
+"deviceScanner.title" = "기기 선택";
+
+/* Location: DeviceScannerSheet.swift - Placeholder name for peripherals with no advertised name */
+"deviceScanner.unknownDevice" = "알 수 없는 기기";
+
+/* Location: DeviceScannerSheet.swift - Empty state shown while scanning for devices */
+"deviceScanner.scanning" = "기기 검색 중…";
+
+/* Location: DeviceScannerSheet.swift - Title shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.title" = "Bluetooth가 꺼져 있음";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when Bluetooth is powered off on the macOS scanner */
+"deviceScanner.bluetoothOff.message" = "주변 기기를 검색하려면 Bluetooth를 켜십시오.";
+
+/* Location: DeviceScannerSheet.swift - Title shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.title" = "Bluetooth 접근 권한 필요";
+
+/* Location: DeviceScannerSheet.swift - Guidance shown when the app is not authorized to use Bluetooth */
+"deviceScanner.bluetoothUnauthorized.message" = "주변 기기를 검색하려면 설정에서 Bluetooth 접근을 허용하십시오.";
+

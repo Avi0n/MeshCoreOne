@@ -19,7 +19,7 @@ thoughts/
 plans/
 specs/
 tmp/
-.xcodebuildmcp/
+.mobilebuildmcp/
 .codegraph
 .asc
 

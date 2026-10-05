@@ -61,17 +61,15 @@ struct ChatComposerTextView: UIViewRepresentable {
     textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     proxy.textView = textView
 
-    textView.accessibilityLabel = L10n.Chats.Chats.Input.accessibilityLabel
     textView.accessibilityHint = L10n.Chats.Chats.Input.accessibilityHint
+    textView.applyComposerAccessibility(isEncrypted: isEncrypted)
     return textView
   }
 
   func updateUIView(_ textView: ChatComposerUITextView, context: Context) {
     context.coordinator.parent = self
     textView.onSend = onSend
-    textView.accessibilityValue = isEncrypted
-      ? L10n.Chats.Chats.Input.encrypted
-      : L10n.Chats.Chats.Input.notEncrypted
+    textView.applyComposerAccessibility(isEncrypted: isEncrypted)
 
     if textView.text != text {
       if text.isEmpty {
@@ -147,6 +145,15 @@ final class ChatComposerUITextView: UITextView {
   private static let numpadEnterInput = "\u{3}"
 
   var onSend: (() -> Bool)?
+
+  func applyComposerAccessibility(isEncrypted: Bool) {
+    let status = isEncrypted
+      ? L10n.Chats.Chats.Input.encrypted
+      : L10n.Chats.Chats.Input.notEncrypted
+    accessibilityLabel = "\(L10n.Chats.Chats.Input.accessibilityLabel), \(status)"
+    // accessibilityValue stays nil. UITextView speaks the field text through that property.
+    accessibilityValue = nil
+  }
 
   /// Clears the field after a send through the text-input editing path.
   ///

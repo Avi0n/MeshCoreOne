@@ -62,6 +62,40 @@ struct SimulatorSeedTests {
   }
 
   @Test
+  func `incoming extra paths land on located repeater prefixes`() async throws {
+    let store = try await seededStore()
+    let contacts = try await store.fetchContacts(radioID: radioID)
+    let repeaterPrefixes = Set(
+      contacts
+        .filter { $0.type == .repeater && $0.hasLocation }
+        .map { Data($0.publicKey.prefix(1)) }
+    )
+    let seeds: [UInt8] = [
+      MockDataProvider.northRidgeRepeaterSeed,
+      MockDataProvider.twinPeaksRepeaterSeed,
+      MockDataProvider.oaklandRepeaterSeed
+    ]
+    for seed in seeds {
+      #expect(repeaterPrefixes.contains(Data([seed])))
+    }
+
+    for messageID in [MockDataProvider.aliceMultiPathMessageID, MockDataProvider.publicMultiPathMessageID] {
+      let message = try #require(try await store.fetchMessage(id: messageID))
+      #expect(message.isOutgoing == false)
+      #expect(message.heardRepeats == MockDataProvider.incomingExtraPathCount)
+      #expect(message.pathNodes == MockDataProvider.incomingFirstPath)
+      #expect(message.hopCount == 2)
+      let repeats = try await store.fetchMessageRepeats(messageID: messageID)
+      #expect(repeats.count == MockDataProvider.incomingExtraPathCount)
+      #expect(Set(repeats.map(\.hopCount)) == [1, 2, 3])
+      let hopBytes = repeats.flatMap(\.pathNodes)
+      for byte in hopBytes {
+        #expect(repeaterPrefixes.contains(Data([byte])))
+      }
+    }
+  }
+
+  @Test
   func `flood route fields round trip through save message`() async throws {
     let store = try await seededStore()
     let message = try #require(try await store.fetchMessage(id: MockDataProvider.frankFloodUniqueMessageID))
@@ -142,6 +176,8 @@ struct SimulatorSeedTests {
     #expect(channels.count == 4)
     let repeats = try await store.fetchMessageRepeats(messageID: MockDataProvider.frankRepeatMessageID)
     #expect(repeats.count == 3)
+    let incoming = try await store.fetchMessageRepeats(messageID: MockDataProvider.aliceMultiPathMessageID)
+    #expect(incoming.count == MockDataProvider.incomingExtraPathCount)
     let reactions = try await store.fetchReactions(for: MockDataProvider.aliceReactedMessageID)
     #expect(reactions.count == 3)
     let rx = try await store.fetchRxLogEntries(radioID: radioID)

@@ -1,0 +1,2001 @@
+/*
+  Settings.strings
+  MC1
+
+  Korean (ko) translation of the Settings feature strings.
+  AI-translated - please verify with native speakers.
+*/
+
+// MARK: - Main Settings View
+
+/* Navigation title for the main settings screen */
+"title" = "설정";
+
+/* Placeholder shown in split view detail when no setting is selected */
+"selectSetting" = "설정 선택";
+
+/* Section header for device-specific settings */
+"myDevice.header" = "내 기기";
+
+/* Section header for app-level settings */
+"appSettings.header" = "앱 설정";
+
+/* Footer text for the advanced settings row */
+/* Label for the advanced settings navigation row */
+"advancedSettings.title" = "고급 설정";
+
+/* Version display prefix with version number */
+"version" = "v%@";
+
+/* Build number display with build number */
+"build" = "빌드 %@";
+
+// MARK: - Demo Mode Section
+
+/* Section header for demo mode */
+"demoMode.header" = "데모 모드";
+
+/* Toggle label to enable demo mode */
+"demoMode.enabled" = "활성화";
+
+/* Footer explaining what demo mode does */
+"demoMode.footer" = "데모 모드에서는 모의 데이터를 사용하여 하드웨어 없이 테스트할 수 있습니다.";
+
+// MARK: - Device Section
+
+/* Section header for device information */
+"device.header" = "기기";
+
+/* Status shown when device is connected */
+"device.connected" = "연결됨";
+
+/* Footer shown when no device is connected */
+"device.noDeviceConnected" = "연결된 MeshCore 기기 없음";
+
+/* Button to connect a device */
+"device.connect" = "기기 연결";
+
+// MARK: - Device Info View
+
+/* Navigation title for device info screen */
+"deviceInfo.title" = "기기 정보";
+
+/* Section header for connection status */
+"deviceInfo.connection.header" = "연결";
+
+/* Label for connection status */
+"deviceInfo.connection.status" = "상태";
+
+/* Section header for power and storage */
+"deviceInfo.powerStorage.header" = "전원 및 저장 공간";
+
+/* Label for battery level */
+"deviceInfo.battery" = "배터리";
+
+/* Label for storage used */
+"deviceInfo.storageUsed" = "사용한 저장 공간";
+
+/* Combined label for battery and storage when loading */
+"deviceInfo.batteryAndStorage" = "배터리 및 저장 공간";
+
+/* Section header for firmware information */
+"deviceInfo.firmware.header" = "펌웨어";
+
+/* Label for firmware version */
+"deviceInfo.firmwareVersion" = "펌웨어 버전";
+
+/* Label for build date */
+"deviceInfo.buildDate" = "빌드 날짜";
+
+/* Label for manufacturer */
+"deviceInfo.manufacturer" = "제조사";
+
+/* Placeholder when a value is unknown */
+"deviceInfo.unknown" = "알 수 없음";
+
+/* Section header for device capabilities */
+"deviceInfo.capabilities.header" = "기능";
+
+/* Label for max nodes capability */
+"deviceInfo.maxNodes" = "최대 노드 수";
+
+/* Label for max channels capability */
+"deviceInfo.maxChannels" = "최대 채널 수";
+
+/* Label for max TX power capability */
+"deviceInfo.maxTxPower" = "최대 송신 출력";
+
+/* TX power display format with dBm unit */
+"deviceInfo.txPowerFormat" = "%@ dBm";
+
+/* Firmware version fallback format when no version string is reported - %@ is the numeric version code */
+"deviceInfo.firmwareVersionFormat" = "v%@";
+
+/* Section header for identity information */
+/* Label for public key */
+"deviceInfo.publicKey" = "공개 키";
+
+/* Button to share contact information */
+"deviceInfo.shareContact" = "내 연락처 공유";
+
+/* Title for ContentUnavailableView when no device is connected */
+"deviceInfo.noDevice.title" = "연결된 기기 없음";
+
+/* Description for ContentUnavailableView when no device is connected */
+"deviceInfo.noDevice.description" = "정보를 보려면 MeshCore 기기에 연결하십시오";
+
+/* Fallback manufacturer name */
+"deviceInfo.defaultManufacturer" = "MeshCore 기기";
+
+// MARK: - Public Key View
+
+/* Navigation title for public key screen */
+"publicKey.title" = "공개 키";
+
+/* Section header describing the key type */
+"publicKey.header" = "32바이트 Ed25519 공개 키";
+
+/* Footer explaining the public key's purpose */
+"publicKey.footer" = "이 키는 메시 네트워크에서 기기를 고유하게 식별합니다";
+
+// MARK: - Private Key View
+
+/* Section header describing the key type */
+"privateKey.header" = "64바이트 Ed25519 개인 키";
+
+/* Section header for base64 representation */
+"publicKey.base64.header" = "Base64";
+
+/* Button to copy key to clipboard */
+"publicKey.copy" = "클립보드에 복사";
+
+// MARK: - Device Selection Sheet
+
+/* Navigation title for device selection */
+"deviceSelection.title" = "기기 연결";
+
+/* Button to connect to selected device */
+/* Section header for previously paired devices */
+"deviceSelection.previouslyPaired" = "이전에 페어링된 기기";
+
+/* Footer text prompting user to select a device */
+/* Button to connect via WiFi */
+"deviceSelection.connectViaWifi" = "Wi-Fi로 연결";
+
+/* Button to scan for Bluetooth devices */
+"deviceSelection.scanBluetooth" = "Bluetooth 기기 검색";
+
+/* Trailing control on a previously paired row that still needs iPhone setup */
+"deviceSelection.setup" = "설정";
+
+/* Sheet title when one device needs setup. %@ is the accessory name */
+"deviceSelection.setupTitle" = "%@ 설정";
+
+/* Sheet title when several devices need setup */
+"deviceSelection.setupTitleGeneric" = "설정";
+
+/* Sheet body when one device is paired with iPhone */
+"deviceSelection.setupMessage" = "이 기기는 iPhone과 페어링되어 있습니다. MeshCore One에 추가하려면 먼저 이 기기를 지워야 합니다.";
+
+/* Sheet body when several devices are paired with iPhone */
+"deviceSelection.setupMessagePlural" = "이 기기들은 iPhone과 페어링되어 있습니다. MeshCore One에 무선 기기를 추가하려면 먼저 이 기기들을 지워야 합니다.";
+
+/* Reassurance that forgetting the iPhone pairing does not delete conversations */
+"deviceSelection.setupConversations" = "대화는 삭제되지 않습니다.";
+
+/* Destructive confirmation for one device */
+"deviceSelection.forgetThisDevice" = "이 기기 지우기";
+
+/* Destructive confirmation for several devices */
+"deviceSelection.forgetTheseDevices" = "이 기기들 지우기";
+
+/* Footer under Previously Paired when one needs-setup row is present */
+"deviceSelection.setupFooter" = "MeshCore One에 추가하려면 이 기기를 지우십시오.";
+
+/* Footer under Previously Paired when several needs-setup rows are present */
+"deviceSelection.setupFooterPlural" = "MeshCore One에 추가하려면 이 기기들을 지우십시오.";
+
+/* VoiceOver label for a needs-setup row. %@ is the accessory name */
+"deviceSelection.accessibility.setupLabel" = "%@, iPhone과 페어링됨";
+
+/* VoiceOver hint for a needs-setup row */
+"deviceSelection.accessibility.setupHint" = "설정하려면 이중 탭하십시오";
+
+/* Title for empty state when no devices are paired */
+"deviceSelection.noPairedDevices" = "페어링된 기기 없음";
+
+/* Description for empty state */
+"deviceSelection.noPairedDescription" = "아직 페어링한 기기가 없습니다.";
+
+/* Button to scan for new devices */
+"deviceSelection.scanForDevices" = "기기 검색";
+
+/* Accessibility label for a device connected to another app - %1$@ is device name */
+"deviceSelection.accessibility.connectedElsewhereLabel" = "%1$@, 다른 앱에 연결됨";
+
+/* Accessibility label for a device - %1$@ is device name, %2$@ is connection type */
+"deviceSelection.accessibility.deviceLabel" = "%1$@, %2$@";
+
+/* Accessibility hint for a device connected to another app */
+"deviceSelection.accessibility.connectedElsewhereHint" = "이 기기는 다른 앱에서 사용 중입니다. 연결하면 통신 문제가 발생할 수 있습니다.";
+
+/* Accessibility hint for selecting a device */
+"deviceSelection.accessibility.selectHint" = "연결하려면 이중 탭하십시오";
+
+/* Accessibility hint for a device that is out of Bluetooth range */
+"deviceSelection.accessibility.outOfRangeHint" = "기기가 Bluetooth 범위를 벗어남";
+
+/* Label shown when device is connected to another app */
+"deviceSelection.connectedElsewhere" = "다른 곳에 연결됨";
+
+/* Fallback connection type description */
+"deviceSelection.bluetooth" = "Bluetooth";
+
+// MARK: - Location Picker View
+
+/* Navigation title for location picker */
+"locationPicker.title" = "위치 설정";
+
+/* Marker title for node location on map */
+/* Button to clear the selected location */
+"locationPicker.clearLocation" = "위치 지우기";
+
+/* Button to drop a pin at the map center */
+"locationPicker.dropPin" = "중앙에 핀 놓기";
+
+/* Label for latitude display */
+"locationPicker.latitude" = "위도:";
+
+/* Label for longitude display */
+"locationPicker.longitude" = "경도:";
+
+// MARK: - Trusted Contacts Picker
+
+/* Navigation title for trusted contacts picker */
+"trustedContacts.title" = "신뢰하는 연락처";
+
+/* Title for empty state when no contacts exist */
+"trustedContacts.noContacts" = "연락처 없음";
+
+/* Description for empty state */
+"trustedContacts.noContactsDescription" = "신뢰하는 연락처를 선택하려면 연락처를 추가하십시오";
+
+/* Title for empty state when search returns no results */
+"trustedContacts.noResults" = "결과 없음";
+
+/* Description for empty state when search returns no results */
+"trustedContacts.noResultsDescription" = "\"%@\"와(과) 일치하는 연락처 없음";
+
+/* Search prompt for trusted contacts list */
+"trustedContacts.searchPrompt" = "연락처 검색";
+
+/* Toggle label for showing only favorite contacts */
+"trustedContacts.favoritesOnly" = "즐겨찾기만";
+
+/* Apply button label */
+"trustedContacts.apply" = "적용";
+
+// MARK: - About Section
+
+/* Section header for about links */
+"about.header" = "정보";
+
+/* Link to MeshCore website */
+"about.website" = "MeshCore 웹사이트";
+
+/* Link to MeshCore online map */
+"about.onlineMap" = "MeshCore 온라인 지도";
+
+/* Link to GitHub repository */
+"about.github" = "GitHub";
+
+/* Link to the privacy policy */
+"about.privacyPolicy" = "개인정보 처리방침";
+
+// MARK: - Advanced Radio Section
+
+/* Section header for manual radio parameters on Settings → Radio. */
+"advancedRadio.header" = "고급";
+
+/* Label for frequency input */
+"advancedRadio.frequency" = "주파수(MHz)";
+
+/* Placeholder for frequency text field */
+"advancedRadio.frequencyPlaceholder" = "MHz";
+
+/* Label for bandwidth picker */
+"advancedRadio.bandwidth" = "대역폭(kHz)";
+
+/* Label for spreading factor picker */
+"advancedRadio.spreadingFactor" = "확산 계수";
+
+/* Label for coding rate picker */
+"advancedRadio.codingRate" = "코딩 레이트";
+
+/* Label for TX power input */
+"advancedRadio.txPower" = "송신 출력(dBm)";
+
+/* Placeholder for TX power text field */
+"advancedRadio.txPowerPlaceholder" = "dBm";
+
+/* Accessibility label for bandwidth picker options - %@ is formatted bandwidth value */
+"advancedRadio.accessibility.bandwidthLabel" = "%@킬로헤르츠";
+
+/* Accessibility label for spreading factor picker options - %d is the factor value */
+"advancedRadio.accessibility.spreadingFactorLabel" = "확산 계수 %d";
+
+/* Accessibility label for coding rate picker options - %d is the rate value */
+"advancedRadio.accessibility.codingRateLabel" = "코딩 레이트 %d";
+
+/* Accessibility hint for bandwidth picker */
+"advancedRadio.accessibility.bandwidthHint" = "값이 낮을수록 도달 거리는 늘지만 속도는 느려집니다";
+
+/* Accessibility hint for spreading factor picker */
+"advancedRadio.accessibility.spreadingFactorHint" = "값이 높을수록 도달 거리는 늘지만 속도는 느려집니다";
+
+/* Accessibility hint for coding rate picker */
+"advancedRadio.accessibility.codingRateHint" = "값이 높을수록 오류 정정이 강화되지만 속도는 느려집니다";
+
+/* Button to apply radio settings */
+"advancedRadio.apply" = "무선 설정 적용";
+
+/* Footer warning about incorrect radio settings */
+"advancedRadio.footer" = "경고: 설정이 잘못되면 다른 메시 기기와 통신하지 못할 수 있습니다.";
+
+/* Footer when Repeat Mode is on: frequency is owned by Repeat Mode. */
+"advancedRadio.frequencyRepeatModeFooter" = "주파수는 리피트 모드에서 설정합니다.";
+
+/* Error message for invalid input */
+"advancedRadio.invalidInput" = "입력 값이 잘못되었거나 기기가 연결되지 않았습니다";
+
+// MARK: - Path Hash Mode Section
+
+/* Section header for path hash mode */
+"pathHashMode.header" = "경로 해시 크기";
+
+/* Label for path hash mode picker */
+"pathHashMode.label" = "해시 크기";
+
+/* Path hash mode option: 1 byte */
+"pathHashMode.oneByte" = "1바이트";
+
+/* Path hash mode option: 2 bytes */
+"pathHashMode.twoBytes" = "2바이트";
+
+/* Path hash mode option: 3 bytes */
+"pathHashMode.threeBytes" = "3바이트";
+
+/* Footer explaining path hash mode tradeoff */
+"pathHashMode.footer" = "해시가 클수록 라우팅 충돌이 줄지만 경로당 최대 홉 수가 제한됩니다. 펌웨어 1.14.0 미만을 실행하는 리피터는 해시 크기가 1바이트보다 큰 메시지를 중계하지 않습니다.";
+
+// MARK: - Default Flood Scope Section
+
+/* Section header for default flood scope picker */
+"defaultFloodScope.header" = "기본 플러드 범위";
+
+/* Footer explaining default flood scope */
+"defaultFloodScope.footer" = "설정하면 채널별 범위가 지정되지 않은 플러드 전송에 이 범위가 적용됩니다. 범위는 기기에 저장되며 재시동 후에도 유지됩니다.";
+
+/* Option to clear the persisted default flood scope */
+"defaultFloodScope.disabled" = "없음";
+
+// MARK: - Battery Curve Section
+
+/* Accessibility label for voltage text field - %d is the percentage level */
+"batteryCurve.accessibility.voltageLabel" = "%d퍼센트에서의 전압";
+
+/* Accessibility value for voltage text field - %d is the millivolt value */
+"batteryCurve.accessibility.voltageValue" = "%d밀리볼트";
+
+/* Accessibility hint for voltage text field */
+"batteryCurve.accessibility.voltageHint" = "이 충전 수준에서 예상되는 전압을 입력하십시오";
+
+/* Section header for battery curve */
+"batteryCurve.header" = "배터리 곡선";
+
+/* Footer explaining battery curve configuration */
+"batteryCurve.footer" = "기기 배터리의 전압-백분율 곡선을 구성합니다.";
+
+/* Label for preset picker */
+"batteryCurve.preset" = "프리셋";
+
+/* Option for custom battery curve */
+"batteryCurve.custom" = "사용자 설정";
+
+/* Disclosure group label for editing values */
+"batteryCurve.editValues" = "값 편집";
+
+/* Validation error for value out of range - %d is the percentage level */
+"batteryCurve.validation.outOfRange" = "%d%%의 값은 1000~99999mV여야 합니다";
+
+/* Validation error for non-descending values */
+"batteryCurve.validation.notDescending" = "값은 내림차순이어야 합니다";
+
+/* Unit label for millivolts */
+"batteryCurve.mV" = "mV";
+
+// MARK: - Bluetooth Section
+
+/* Section header for Bluetooth settings */
+"bluetooth.header" = "Bluetooth";
+
+/* Label for PIN type picker */
+"bluetooth.pinType" = "PIN 유형";
+
+/* PIN type option for default PIN */
+"bluetooth.pinType.default" = "기본값";
+
+/* PIN type option for custom PIN */
+"bluetooth.pinType.custom" = "사용자 설정 PIN";
+
+/* Label showing current PIN */
+"bluetooth.currentPin" = "현재 PIN";
+
+/* Button to change the PIN */
+"bluetooth.changePin" = "PIN 변경";
+
+/* Button to change the device display name */
+"bluetooth.changeDisplayName" = "표시 이름 변경";
+
+/* Footer explaining default PIN */
+"bluetooth.defaultPinFooter" = "기본 PIN은 123456입니다. 화면이 있는 기기는 자체 PIN을 표시합니다.";
+
+/* Alert title for setting custom PIN */
+"bluetooth.alert.setPin.title" = "사용자 설정 PIN 지정";
+
+/* Alert title for changing custom PIN */
+"bluetooth.alert.changePin.title" = "사용자 설정 PIN 변경";
+
+/* Placeholder for PIN text field */
+"bluetooth.pinPlaceholder" = "6자리 PIN";
+
+/* Button to set the PIN */
+"bluetooth.setPin" = "PIN 설정";
+
+/* Alert message for setting PIN */
+"bluetooth.alert.setPin.message" = "6자리 PIN을 입력하십시오. 변경 사항을 적용하기 위해 기기가 재시동됩니다.";
+
+/* Alert message for changing PIN */
+"bluetooth.alert.changePin.message" = "새 6자리 PIN을 입력하십시오. 변경 사항을 적용하기 위해 기기가 재시동됩니다.";
+
+/* Alert title for confirming PIN type change */
+"bluetooth.alert.changePinType.title" = "PIN 유형을 변경하겠습니까?";
+
+/* Button to confirm change */
+"bluetooth.alert.change" = "변경";
+
+/* Alert message for PIN type change */
+"bluetooth.alert.changePinType.message" = "변경 사항을 적용하기 위해 기기가 재시동됩니다.";
+
+/* Error for invalid PIN format */
+"bluetooth.error.invalidPin" = "PIN은 100000에서 999999 사이의 6자리 숫자여야 합니다";
+
+// MARK: - Contacts Settings Section
+
+/* Section header for nodes/contacts settings */
+/* Toggle label for auto-add nodes */
+/* Description for auto-add nodes toggle */
+// MARK: - Nodes Settings Section
+
+/* Section header for nodes settings */
+"nodes.header" = "노드";
+
+/* Label for auto-add mode picker */
+"nodes.autoAddMode" = "자동 추가 모드";
+
+/* Auto-add mode: manual */
+"nodes.autoAddMode.manual" = "수동";
+
+/* Auto-add mode: manual description */
+"nodes.autoAddMode.manualDescription" = "추가하기 전에 탐색에서 모든 노드 검토";
+
+/* Auto-add mode: selected types */
+"nodes.autoAddMode.selectedTypes" = "선택한 유형";
+
+/* Auto-add mode: selected types description */
+"nodes.autoAddMode.selectedTypesDescription" = "아래에서 활성화한 유형만 자동 추가";
+
+/* Auto-add mode: all */
+"nodes.autoAddMode.all" = "전체";
+
+/* Auto-add mode: all description */
+"nodes.autoAddMode.allDescription" = "발견된 모든 노드 자동 추가";
+
+/* Section header for auto-add types */
+/* Toggle label for auto-add contacts */
+"nodes.autoAddContacts" = "연락처";
+
+/* Toggle label for auto-add repeaters */
+"nodes.autoAddRepeaters" = "리피터";
+
+/* Toggle label for auto-add room servers */
+"nodes.autoAddRoomServers" = "룸 서버";
+
+/* Section header for storage settings */
+/* Toggle label for overwrite oldest */
+"nodes.overwriteOldest" = "가장 오래된 항목 덮어쓰기";
+
+/* Description for overwrite oldest toggle */
+"nodes.overwriteOldestDescription" = "저장 공간이 가득 차면 즐겨찾기가 아닌 가장 오래된 노드를 교체";
+
+/* Picker label for max hop distance */
+"nodes.maxHops" = "자동 추가 최대 홉 제한";
+
+/* No limit option */
+"nodes.maxHops.noLimit" = "제한 없음";
+
+/* Direct only option (0 hops) */
+"nodes.maxHops.directOnly" = "직접 연결만";
+
+/* Singular 1 hop option */
+"nodes.maxHops.oneHop" = "1홉";
+
+/* Plural hops format string */
+"nodes.maxHops.hops" = "%d홉";
+
+/* Footer text when hop limit is active */
+"nodes.maxHops.footerActive" = "선택한 홉 거리를 넘는 노드는 자동 추가되지 않습니다.";
+
+// MARK: - Auto-Remove Old Nodes Section
+
+/* Toggle label / section header for stale node cleanup */
+"nodes.staleCleanup.header" = "오래된 노드 자동 제거";
+
+/* Label for threshold picker */
+"nodes.staleCleanup.threshold" = "다음 기간보다 오래된 노드 제거";
+
+/* Picker placeholder when no threshold is selected */
+"nodes.staleCleanup.select" = "선택";
+
+/* Threshold option: number of days (%d = day count) */
+"nodes.staleCleanup.days" = "%d일";
+
+/* Footer when auto-remove is enabled (%d = day count) */
+"nodes.staleCleanup.footerEnabled" = "%d일 이내에 수정되지 않은 즐겨찾기가 아닌 노드는 연결 시 자동으로 제거됩니다.";
+
+/* Footer describing the auto-remove feature (shown when toggle is off) */
+"nodes.staleCleanup.footerDisabled" = "설정한 기간 내에 수정되지 않은 즐겨찾기가 아닌 노드를 자동으로 제거합니다. 즐겨찾기는 제거되지 않습니다.";
+
+/* Footer when toggle is on but no threshold selected yet */
+"nodes.staleCleanup.footerSelect" = "노드를 보관할 기간을 선택하십시오. 즐겨찾기는 제거되지 않습니다.";
+
+/* Footer when enabled but device is disconnected */
+"nodes.staleCleanup.footerDisconnected" = "다음 연결 시 오래된 노드를 확인합니다. 즐겨찾기는 제거되지 않습니다.";
+
+/* Last cleanup date row (%@ = relative date) */
+"nodes.staleCleanup.lastRun" = "마지막 확인: %@";
+
+// MARK: - Device Actions Section
+
+/* Section header for device actions */
+"deviceActions.header" = "기기";
+
+/* Button to reboot the device */
+"deviceActions.rebootDevice" = "기기 재시동";
+
+/* Text shown while rebooting */
+"deviceActions.rebooting" = "재시동 중...";
+
+/* Alert title for reboot confirmation */
+"deviceActions.alert.reboot.title" = "기기를 재시동하겠습니까?";
+
+/* Button to confirm reboot */
+"deviceActions.alert.reboot.confirm" = "재시동";
+
+/* Alert message for reboot confirmation */
+"deviceActions.alert.reboot.message" = "기기가 다시 시작되며 일시적으로 연결이 끊어집니다.";
+
+// MARK: - Danger Zone Section
+
+/* Section header for danger zone */
+"dangerZone.header" = "위험 구역";
+
+/* Button to forget/unpair the device */
+"dangerZone.forgetDevice" = "기기 지우기";
+
+/* Button to factory reset the device */
+"dangerZone.factoryReset" = "기기 공장 초기화";
+
+/* Text shown while resetting */
+"dangerZone.resetting" = "초기화 중...";
+
+/* Footer explaining factory reset */
+"dangerZone.footer" = "공장 초기화하면 기기의 모든 연락처, 메시지 및 설정이 지워집니다.";
+
+/* Confirmation dialog title for forget device */
+"dangerZone.dialog.forget.title" = "기기 지우기";
+
+/* Confirmation dialog message for forget device */
+"dangerZone.dialog.forget.message" = "기기의 페어링이 해제됩니다. 메시지, 연락처 및 채널을 유지하거나 삭제할 수 있습니다.";
+
+/* Button to forget device but keep data */
+"dangerZone.dialog.forget.keepData" = "기기 지우기";
+
+/* Button to forget device and delete all associated data */
+"dangerZone.dialog.forget.deleteAll" = "기기 지우기 및 데이터 삭제";
+
+/* Alert title for factory reset confirmation */
+"dangerZone.alert.reset.title" = "공장 초기화";
+
+/* Button to confirm reset */
+"dangerZone.alert.reset.confirm" = "초기화";
+
+/* Alert message for factory reset */
+"dangerZone.alert.reset.message" = "연락처, 메시지, 설정을 포함한 모든 기기 데이터가 지워집니다. 메시지가 표시되면 제거를 탭하여 기기의 페어링을 해제하십시오.";
+
+/* Error when services are not available */
+"dangerZone.error.servicesUnavailable" = "서비스를 사용할 수 없음";
+
+/* Button to remove non-favorite nodes */
+"dangerZone.removeUnfavorited" = "즐겨찾기가 아닌 노드 제거";
+
+/* Text shown while removing unfavorited nodes */
+"dangerZone.removing" = "제거 중...";
+
+/* Label shown after successful removal */
+"dangerZone.removed" = "노드 제거됨";
+
+/* Alert title for remove non-favorite confirmation */
+"dangerZone.alert.removeUnfavorited.title" = "즐겨찾기가 아닌 노드 제거";
+
+/* Button to confirm removal */
+"dangerZone.alert.removeUnfavorited.confirm" = "노드 제거";
+
+/* Alert title for removal result */
+"dangerZone.alert.removeUnfavorited.resultTitle" = "제거 결과";
+
+/* Alert message for remove unfavorited (%d = count) */
+"dangerZone.alert.removeUnfavorited.message" = "즐겨찾기로 표시되지 않은 노드 %d개와 해당 메시지가 기기와 앱에서 영구적으로 삭제됩니다.";
+
+/* Partial success message (%d = removed, %d = total) */
+"dangerZone.alert.removeUnfavorited.partial" = "노드 %2$d개 중 %1$d개를 제거했습니다. 연결이 중단되었습니다. 버튼을 다시 탭하여 남은 노드를 제거하십시오.";
+
+/* Message when no non-favorite nodes to remove */
+"dangerZone.alert.removeUnfavorited.noneFound" = "제거할 즐겨찾기가 아닌 노드가 없습니다.";
+
+// MARK: - Diagnostics Section
+
+/* Section header for diagnostics */
+"diagnostics.header" = "진단";
+
+/* Button to export debug logs */
+"diagnostics.exportLogs" = "디버그 로그 내보내기";
+
+/* Button to clear debug logs */
+"diagnostics.clearLogs" = "디버그 로그 지우기";
+
+/* Footer explaining log export */
+"diagnostics.footer" = "내보내기에는 모든 앱 세션의 디버그 로그가 포함됩니다. 로그는 로컬에 저장되며 7일 후 자동으로 삭제됩니다.";
+
+/* Alert title for clear logs confirmation */
+"diagnostics.alert.clear.title" = "디버그 로그 지우기";
+
+/* Button to confirm clear */
+"diagnostics.alert.clear.confirm" = "지우기";
+
+/* Alert message for clear logs */
+"diagnostics.alert.clear.message" = "저장된 모든 디버그 로그가 삭제됩니다. 내보낸 로그 파일에는 영향을 주지 않습니다.";
+
+/* Error when export fails */
+"diagnostics.error.exportFailed" = "내보내기 파일을 만들지 못함";
+
+// MARK: - Chat Settings
+
+/* Navigation title for chat settings page */
+"chatSettings.title" = "채팅";
+
+// MARK: - Link Preview Settings Section
+
+/* Section header for link content settings */
+"linkPreviews.header" = "링크 콘텐츠";
+
+/* Toggle label for the link content master switch */
+"linkPreviews.toggle" = "링크 콘텐츠 표시";
+
+/* Toggle label for showing link content in DMs */
+"linkPreviews.showInDMs" = "다이렉트 메시지에 표시";
+
+/* Toggle label for showing link content in channels */
+"linkPreviews.showInChannels" = "채널에 표시";
+
+/* Footer explaining link content privacy implications */
+"linkPreviews.footer" = "링크 미리 보기와 이미지는 메시가 아닌 휴대폰의 인터넷 연결을 통해 가져옵니다. 이로 인해 콘텐츠를 호스팅하는 서버에 IP 주소가 노출될 수 있으며 셀룰러 데이터를 사용할 수 있습니다.";
+
+/* Footer note shown when Reduce Motion is enabled */
+"linkPreviews.reduceMotionNote" = "동작 줄이기가 켜져 있어 GIF가 자동 재생되지 않습니다.";
+
+// MARK: - Inline Image Settings Section
+
+/* Toggle label for auto-play GIFs */
+"inlineImages.autoPlayGifs" = "GIF 자동 재생";
+
+// MARK: - Map Preview Settings Section
+
+/* Section header for chat map preview settings */
+"mapPreviews.header" = "지도 미리 보기";
+
+/* Toggle label for chat map thumbnails */
+"mapPreviews.toggle" = "지도 썸네일 표시";
+
+/* Footer explaining map preview privacy implications */
+"mapPreviews.footer" = "지도 썸네일을 표시하면 타사 서버에서 해당 좌표의 지도 타일을 가져오므로 IP 주소가 노출될 수 있습니다.";
+
+// MARK: - Node Settings Section
+
+/* Section header for node settings */
+"node.header" = "노드";
+
+/* Label for node name */
+"node.name" = "노드 이름";
+
+/* Default node name when unknown */
+/* Button text to copy */
+/* Label for set location button */
+"node.setLocation" = "위치 설정";
+
+/* Text shown when location is set */
+"node.locationSet" = "설정됨";
+
+/* Text shown when location is not set */
+"node.locationNotSet" = "설정되지 않음";
+
+/* Toggle label for share location publicly */
+"node.shareLocationPublicly" = "위치 공개적으로 공유";
+
+/* Footer explaining node visibility */
+"node.footer" = "공유하면 다른 메시 사용자에게 노드 이름이 표시됩니다.";
+
+/* Alert title for editing node name */
+"node.alert.editName.title" = "노드 이름 편집";
+
+// MARK: - Location Settings Section
+
+/* Section header for location settings */
+"location.header" = "위치";
+
+/* Footer for location settings section */
+"location.footer" = "위치 공개적으로 공유가 활성화되어 있으면 애드버트를 보낼 때 위치가 메시 전체에 브로드캐스트됩니다. 위치 자동 업데이트를 활성화하면 애드버트를 보내기 전에 기기의 위치가 자동으로 업데이트됩니다.";
+
+/* Toggle label for auto-update location */
+"location.autoUpdate" = "위치 자동 업데이트";
+
+/* Label for GPS source picker */
+"location.gpsSource" = "GPS 소스";
+
+/* GPS source option: phone GPS */
+"location.gpsSource.phone" = "휴대폰 GPS";
+
+/* GPS source option: device GPS */
+"location.gpsSource.device" = "기기 GPS";
+
+/* Section header for device GPS controls */
+"location.deviceGps.header" = "기기 GPS";
+
+/* Toggle label for device GPS power */
+"location.deviceGps.toggle" = "기기 GPS 활성화";
+
+/* Footer for device GPS controls */
+"location.deviceGps.footer" = "무선 기기의 내장 GPS를 켜거나 끕니다. 지도에서 위치를 직접 저장하면 기기 GPS가 꺼집니다.";
+
+/* Detail text when location is being shared publicly */
+"location.sharingPublicly" = "공개적으로 공유 중";
+
+/* Detail text when location is not being shared */
+"location.notSharing" = "공유 안 함";
+
+// MARK: - Notification Settings Section
+
+/* Section header for notifications */
+"notifications.header" = "알림";
+
+/* Toggle label for contact messages notifications */
+"notifications.contactMessages" = "연락처 메시지";
+
+/* Toggle label for channel messages notifications */
+"notifications.channelMessages" = "채널 메시지";
+
+/* Toggle label for room messages notifications */
+"notifications.roomMessages" = "룸 메시지";
+
+/* Toggle label for new contact discovered notifications */
+"notifications.newContactDiscovered" = "새 연락처 발견";
+
+/* Toggle label for companion discovery notifications */
+"notifications.discoveryContact" = "컴패니언";
+
+/* Toggle label for repeater discovery notifications */
+"notifications.discoveryRepeater" = "리피터";
+
+/* Toggle label for room discovery notifications */
+"notifications.discoveryRoom" = "룸";
+
+/* Toggle label for low battery warnings */
+"notifications.lowBattery" = "배터리 부족 경고";
+
+/* Toggle label for reaction notifications */
+"notifications.reactions" = "반응";
+
+/* Button to enable notifications */
+"notifications.enable" = "알림 켜기";
+
+/* Label shown when notifications are disabled */
+"notifications.disabled" = "알림 꺼짐";
+
+/* Button to open system settings */
+"notifications.openSettings" = "설정 열기";
+
+/* Message shown when device not connected */
+/* Footer for notifications navigation row */
+// MARK: - Radio Preset Section
+
+/* Section header for radio settings */
+"radio.header" = "무선";
+
+/* Label for radio preset picker */
+"radio.preset" = "무선 프리셋";
+
+/* Footer explaining radio presets. Location is geographic filter, not mesh Region. */
+"radio.footer" = "주변 무선 기기와 일치하는 프리셋을 선택하십시오. MeshCore 기기는 서로 통신하려면 같은 무선 설정을 사용해야 합니다.";
+
+/* Radio row and PresetLocationView navigation title. Not Settings → Location (GPS pin). */
+"radio.presetLocation" = "위치";
+
+/* Trailing value when the place is unset: Location row, and empty Country / State rows in RegionPickerRows (Radio and onboarding). */
+"radio.presetLocation.notSet" = "설정되지 않음";
+
+/* Footer on the Radio location section and the Location subpage. */
+"radio.presetLocation.footer" = "프리셋 목록을 필터링합니다. 무선 기기 설정은 변경하지 않습니다.";
+
+/* errorAlert when Use my location is authorized but resolve() returns nil. */
+"radio.presetLocation.useMyLocation.failure" = "현재 위치로 장소를 확인할 수 없습니다. 국가와 주를 선택하십시오.";
+
+/* Visible label + VoiceOver value on Use my location while GPS / geocode is in flight. Not onboarding region.resolving. */
+"radio.presetLocation.useMyLocation.locating" = "위치를 찾는 중…";
+
+/* Open Settings alert message when Use my location is denied or restricted. */
+"radio.presetLocation.denied" = "이전에 위치 권한이 거부되었습니다. 국가와 주를 자동으로 채우려면 설정에서 허용하십시오.";
+
+/* Toggle label for repeat mode */
+"radio.repeatMode" = "리피트 모드";
+
+/* Footer explaining repeat mode */
+"radio.repeatMode.footer" = "전용 주파수로 로컬 리피터를 만듭니다. 하이킹이나 외딴 지역에서 유용합니다.";
+
+/* Accessibility hint for repeat mode toggle */
+"radio.repeatMode.accessibilityHint" = "활성화하면 주 메시 네트워크와의 연결이 끊어집니다";
+
+/* Confirmation dialog title for enabling repeat mode */
+"radio.repeatMode.confirm.title" = "리피트 모드를 활성화하겠습니까?";
+
+/* Confirmation dialog message for enabling repeat mode */
+"radio.repeatMode.confirm.message" = "주 메시 네트워크와의 연결이 끊어집니다. 같은 리피트 모드 주파수를 사용하는 기기와만 통신할 수 있습니다.";
+
+/* Confirmation dialog enable button */
+"radio.repeatMode.confirm.enable" = "활성화";
+
+/* Location: RadioPresetSection.swift - Footer line listing the user's region */
+"radio.regionFooter" = "%@ 프리셋을 표시하는 중입니다.";
+
+/* Location: RadioPresetSection.swift - Footer reminding the operator to comply with local radio laws */
+"radio.regulationsFooter" = "현지 전파 관련 법규를 준수할 책임은 사용자에게 있습니다.";
+
+// MARK: - Telemetry Settings Section
+
+/* Section header for telemetry settings */
+"telemetry.header" = "텔레메트리";
+
+/* Toggle label for allowing telemetry requests */
+"telemetry.allowRequests" = "텔레메트리 요청 허용";
+
+/* Description for telemetry requests toggle */
+"telemetry.allowRequestsDescription" = "다른 사용자가 나에게 경로를 직접 추적하려면 필요합니다. 배터리 잔량을 공유합니다.";
+
+/* Toggle label for including location in telemetry */
+"telemetry.includeLocation" = "위치 포함";
+
+/* Description for include location toggle */
+"telemetry.includeLocationDescription" = "텔레메트리에 GPS 좌표 공유";
+
+/* Toggle label for including environment sensors */
+"telemetry.includeEnvironment" = "환경 센서 포함";
+
+/* Description for include environment toggle */
+"telemetry.includeEnvironmentDescription" = "온도, 습도 등 공유";
+
+/* Toggle label for trusted contacts only */
+"telemetry.trustedOnly" = "신뢰하는 연락처와만 공유";
+
+/* Description for trusted contacts toggle */
+"telemetry.trustedOnlyDescription" = "선택한 연락처로 텔레메트리 제한";
+
+/* Link to manage trusted contacts */
+"telemetry.manageTrusted" = "신뢰하는 연락처 관리";
+
+/* Footer explaining telemetry */
+"telemetry.footer" = "활성화하면 다른 노드가 내 기기의 텔레메트리 데이터를 요청할 수 있습니다.";
+
+// MARK: - WiFi Section
+
+/* Section header for WiFi settings */
+"wifi.header" = "Wi-Fi";
+
+/* Label for IP address */
+"wifi.address" = "주소";
+
+/* Label for port number */
+"wifi.port" = "포트";
+
+/* Button to edit WiFi connection */
+"wifi.editConnection" = "연결 편집";
+
+/* Footer explaining WiFi address */
+"wifi.footer" = "기기의 로컬 네트워크 주소";
+
+// MARK: - WiFi Edit Sheet
+
+/* Navigation title for WiFi edit sheet */
+"wifiEdit.title" = "Wi-Fi 연결 편집";
+
+/* Section header for connection details */
+"wifiEdit.connectionDetails" = "연결 정보";
+
+/* Placeholder for IP address field */
+/* Placeholder for port field */
+/* Accessibility label for clear IP button */
+/* Accessibility label for clear port button */
+/* Footer explaining reconnection */
+"wifiEdit.footer" = "이 값을 변경하면 연결이 끊어지고 새 주소로 다시 연결됩니다.";
+
+/* Text shown while reconnecting */
+"wifiEdit.reconnecting" = "다시 연결하는 중...";
+
+/* Button to save changes */
+"wifiEdit.saveChanges" = "변경 사항 저장";
+
+/* Error for invalid port */
+"wifiEdit.error.invalidPort" = "잘못된 포트 번호";
+
+// MARK: - Error Alert
+
+/* Alert title for generic errors */
+"alert.error.title" = "오류";
+
+// MARK: - Retry Alert
+
+/* Alert title when max retries exceeded */
+"alert.retry.unableToSave" = "설정을 저장할 수 없음";
+
+/* Alert title for connection errors */
+"alert.retry.connectionError" = "연결 오류";
+
+/* Button to retry the operation */
+"alert.retry.retry" = "다시 시도";
+
+/* Alert message when max retries exceeded */
+"alert.retry.ensureConnected" = "기기가 연결되어 있는지 확인하십시오.";
+
+/* Fallback message for retry alerts when error description is unavailable */
+"alert.retry.fallbackMessage" = "기기가 연결되어 있는지 확인한 후 다시 시도하십시오.";
+
+// MARK: - Battery Curve Chart
+
+/* Chart X axis label */
+"chart.percent" = "퍼센트";
+
+/* Chart Y axis label */
+"chart.voltage" = "전압(V)";
+
+/* Accessibility label for battery curve chart */
+"chart.accessibility" = "각 백분율 수준의 전압을 보여 주는 배터리 방전 곡선";
+
+// MARK: - Messages Settings Section
+
+/* Section header for message info settings in chats */
+"messages.header" = "메시지 정보";
+
+/* Toggle label for showing the raw uncorrected wire send time on incoming messages */
+/* Toggle label for showing routing path on incoming messages */
+"messages.showIncomingPath" = "수신 경로";
+
+/* Toggle label for showing hop count on incoming messages */
+"messages.showIncomingHopCount" = "수신 홉 수";
+
+/* Toggle label for showing the radio region an incoming message was flooded under */
+"messages.showIncomingRegion" = "수신 지역";
+
+/* Toggle label for showing the extra-arrival ear chip on incoming message bubbles */
+"messages.showIncomingHeardCount" = "수신 횟수";
+
+/* Footer explaining what the message display options show */
+"messages.footer" = "수신 메시지 말풍선 안에 라우팅 및 시간 정보를 표시합니다.";
+
+// MARK: - Direct Messages Settings Section
+
+/* Section header for direct message settings */
+"directMessages.header" = "다이렉트 메시지";
+
+/* Picker label for number of acknowledgments */
+"directMessages.acknowledgments" = "확인 응답";
+
+/* Footer explaining the acknowledgments setting */
+"directMessages.footer" = "다이렉트 메시지당 보내는 확인 응답 수입니다. 불안정한 링크에서 전달 확인을 개선하려면 2를 사용하십시오.";
+
+// MARK: - BLE Status Indicator
+
+/* Menu item to send a zero-hop advertisement */
+"bleStatus.sendZeroHopAdvert" = "제로 홉 애드버트 보내기";
+
+/* Menu item to send a flood advertisement */
+"bleStatus.sendFloodAdvert" = "플러드 애드버트 보내기";
+
+/* Menu item to change the connected device */
+"bleStatus.changeDevice" = "기기 변경";
+
+/* Menu item to disconnect from the current device */
+"bleStatus.disconnect" = "연결 해제";
+
+/* Status shown when device is disconnected */
+"bleStatus.status.disconnected" = "연결 끊김";
+
+/* Status shown when device is connecting */
+"bleStatus.status.connecting" = "연결 중...";
+
+/* Status shown when device is connected but not ready */
+"bleStatus.status.connected" = "연결됨";
+
+/* Status shown when device is syncing data */
+"bleStatus.status.syncing" = "동기화 중";
+
+/* Status shown when device is ready */
+"bleStatus.status.ready" = "준비됨";
+
+/* Accessibility label for BLE status indicator */
+"bleStatus.accessibilityLabel" = "Bluetooth 연결 상태";
+
+/* Accessibility hint when disconnected */
+"bleStatus.accessibilityHint.disconnected" = "기기를 연결하려면 이중 탭하십시오";
+
+/* Accessibility hint when connected */
+"bleStatus.accessibilityHint.connected" = "기기 연결 옵션을 표시합니다";
+
+/* Accessibility hint for zero-hop advert button */
+"bleStatus.sendZeroHopAdvert.hint" = "직접 연결된 이웃에게만 브로드캐스트합니다";
+
+/* Accessibility hint for flood advert button */
+"bleStatus.sendFloodAdvert.hint" = "메시 전체에 애드버트를 플러드합니다";
+
+/* Label shown in BLE status menu when repeat mode is active */
+"bleStatus.repeatModeActive" = "리피트 모드 활성";
+
+// MARK: - Config Export/Import
+
+/* Section title for config export/import */
+"configExport.sectionTitle" = "기기 구성";
+
+/* Section footer explaining config export/import */
+"configExport.sectionFooter" = "기기 설정, 채널 및 연락처를 JSON 파일로 내보내거나 가져옵니다.";
+
+/* Export navigation row label */
+"configExport.export" = "구성 내보내기";
+
+/* Export screen navigation title */
+"configExport.title" = "구성 내보내기";
+
+/* Export full config button */
+"configExport.exportFull" = "전체 구성 내보내기";
+
+/* Export selected sections button */
+"configExport.exportSelected" = "선택한 섹션 내보내기";
+
+/* Customize export disclosure label */
+/* Select all toggle label */
+"configExport.selectAll" = "모두 선택";
+
+/* Toggle labels for export sections */
+"configExport.nodeIdentity" = "노드 ID(이름 및 키)";
+"configExport.nodeIdentity.description" = "기기 이름, 공개 키 및 개인 키";
+"configExport.radioSettings" = "무선 설정";
+"configExport.radioSettings.description" = "주파수, 대역폭, 확산 계수, 코딩 레이트, 송신 출력";
+"configExport.positionSettings" = "위치";
+"configExport.positionSettings.description" = "위도 및 경도";
+"configExport.otherSettings" = "기타 설정";
+"configExport.otherSettings.description" = "연락처 권한, 위치 공유";
+"configExport.channels" = "채널";
+"configExport.channels.description" = "모든 채널 및 해당 암호화 키";
+"configExport.contacts" = "연락처";
+"configExport.contacts.description" = "이름, 키 및 마지막으로 알려진 위치";
+
+// MARK: - Config Import
+
+/* Import screen navigation title */
+"configImport.title" = "구성 가져오기";
+
+/* Select file button */
+"configImport.selectFile" = "JSON 파일 선택";
+
+/* Confirmation alert title */
+"configImport.confirmTitle" = "구성을 적용하겠습니까?";
+
+/* Confirmation alert message (param: device name) */
+"configImport.confirmMessage" = "선택한 설정이 %@에 병합됩니다. 기존 채널과 연락처는 업데이트되거나 추가됩니다.";
+
+/* Apply button label */
+"configImport.applyButton" = "기기에 적용";
+
+/* Apply button label (additive only — channels/contacts) */
+"configImport.applyButtonAdd" = "기기에 추가";
+
+/* Apply button label (overwrite settings) */
+"configImport.applyButtonOverwrite" = "설정 덮어쓰기";
+
+/* Confirmation alert title (additive only) */
+"configImport.confirmTitleAdd" = "기기에 추가하겠습니까?";
+
+/* Confirmation alert title (overwrite settings) */
+"configImport.confirmTitleOverwrite" = "설정을 덮어쓰겠습니까?";
+
+/* Confirmation alert message (additive only, param: device name) */
+"configImport.confirmMessageAdd" = "%@에 채널과 연락처가 추가됩니다. 기존 데이터는 제거되지 않습니다.";
+
+/* Confirmation alert message (overwrite only, param: device name) */
+"configImport.confirmMessageOverwrite" = "%@의 선택한 설정을 덮어씁니다. 현재 값이 교체됩니다.";
+
+/* Confirmation alert message (mixed, param: device name) */
+"configImport.confirmMessageMixed" = "%@의 설정을 덮어쓰고 채널/연락처를 추가합니다.";
+
+/* Proximity warning */
+"configImport.proximityWarning" = "가져오는 동안 기기를 가까이 두십시오";
+
+/* Import cancelled */
+"configImport.cancelled" = "가져오기가 취소되었습니다.";
+
+/* Import cancelled after one or more settings were already written to the device */
+"configImport.cancelledPartial" = "가져오기가 취소되었지만 일부 설정은 이미 기기에 기록되었습니다. 기기의 구성을 검토하십시오.";
+
+/* Import failed after one or more settings were already written; %@ is the underlying error message */
+"configImport.failedPartial" = "%@ 일부 설정이 이미 기기에 기록되었을 수 있습니다. 기기의 구성을 검토하십시오.";
+
+/* Import success */
+"configImport.importSuccess" = "구성을 가져왔습니다";
+
+/* Private key warning */
+"configImport.privateKeyWarning" = "노드의 암호학적 ID가 교체됩니다";
+
+"configImport.current" = "현재: %@";
+"configImport.new" = "새로운 값: %@";
+
+/* Channel count (param: integer) */
+"configImport.channelCount" = "기기에 채널 %d개를 추가/업데이트합니다";
+
+/* Import navigation row label */
+"configImport.importConfig" = "구성 가져오기";
+
+/* Radio settings change warning */
+"configImport.radioWarning" = "무선 설정을 변경하면 현재 메시 네트워크와의 연결이 끊어집니다";
+
+/* Contact count (param: integer) */
+"configImport.contactCount" = "기기에 연락처 %d개를 추가/업데이트합니다";
+
+/* Generic device-name fallback used in confirmation messages when the node has no name */
+"configImport.thisDevice" = "이 기기";
+
+/* Import progress: applying position */
+"configImport.stepPosition" = "위치 설정 중";
+
+/* Import progress: applying other parameters */
+"configImport.stepOtherParameters" = "기타 매개변수 설정 중";
+
+/* Import progress: importing the private key */
+"configImport.stepPrivateKey" = "개인 키 가져오는 중";
+
+/* Import progress: setting the node name */
+"configImport.stepNodeName" = "노드 이름 설정 중";
+
+/* Import progress: applying radio parameters */
+"configImport.stepRadioParameters" = "무선 매개변수 설정 중";
+
+/* Import progress: setting TX power */
+"configImport.stepTxPower" = "송신 출력 설정 중";
+
+/* Import progress: importing a channel (param: channel name) */
+"configImport.stepChannel" = "채널 가져오는 중: %@";
+
+/* Import progress: importing a contact (param: contact name) */
+"configImport.stepContact" = "연락처 가져오는 중: %@";
+
+/* Validation field label: radio frequency */
+"configImport.field.frequency" = "주파수";
+
+/* Validation field label: radio bandwidth */
+"configImport.field.bandwidth" = "대역폭";
+
+/* Validation field label: spreading factor */
+"configImport.field.spreadingFactor" = "확산 계수";
+
+/* Validation field label: coding rate */
+"configImport.field.codingRate" = "코딩 레이트";
+
+/* Validation field label: TX power */
+"configImport.field.txPower" = "송신 출력";
+
+/* Validation field label: latitude */
+"configImport.field.latitude" = "위도";
+
+/* Validation field label: longitude */
+"configImport.field.longitude" = "경도";
+
+/* Validation error: value outside radio's supported range (param: field label) */
+"configImport.error.radioOutOfRange" = "%@ 값이 무선 기기의 지원 범위를 벗어났습니다";
+
+/* Validation error: invalid coordinate (param: field label) */
+"configImport.error.positionInvalid" = "%@ 좌표가 잘못되었거나 범위를 벗어났습니다";
+
+/* Validation error: contact coordinate invalid (params: contact name, field label) */
+"configImport.error.contactCoordinateInvalid" = "연락처 \"%@\"의 %@ 좌표가 잘못되었거나 범위를 벗어났습니다";
+
+/* Validation error: contact has an invalid routing path (param: contact name) */
+"configImport.error.invalidOutPath" = "연락처 \"%@\"의 라우팅 경로가 잘못되었습니다";
+
+/* Validation error: not enough free contact slots (params: needed count, available count) */
+"configImport.error.contactCapacityExceeded" = "가져오려면 빈 연락처 슬롯이 %d개 필요하지만 기기에 %d개만 남아 있습니다";
+
+/* Validation error: channel secret wrong length (params: channel index, hex char count) */
+"configImport.error.invalidChannelSecret" = "채널 %1$lld의 비밀 키가 잘못되었습니다(16진수 %2$lld자, 32자 필요)";
+
+/* Validation error: contact public key malformed (param: contact name) */
+"configImport.error.invalidContactPublicKey" = "연락처 \"%@\"의 공개 키가 잘못되었습니다";
+
+/* Validation error: unsupported path hash mode (params: contact name, mode value) */
+"configImport.error.invalidPathHashMode" = "연락처 \"%1$@\"의 경로 해시 모드 %2$lld은(는) 지원되지 않습니다(0, 1 또는 2 필요)";
+
+/* Validation error: private key wrong length (params: hex char count, expected hex char count) */
+"configImport.error.invalidPrivateKey" = "잘못된 개인 키(16진수 %1$lld자, %2$lld자 필요)";
+
+/* Validation error: no empty channel slot left (param: channel name) */
+"configImport.error.noAvailableChannelSlot" = "\"%@\"에 사용할 빈 채널 슬롯이 없습니다";
+
+// MARK: - Blocking Section
+
+/* Location: BlockingSection.swift - Purpose: Section header */
+"blocking.header" = "차단";
+
+/* Location: BlockingSection.swift - Purpose: Channel senders row */
+"blocking.channelSenders" = "채널 발신자";
+
+/* Location: BlockingSection.swift - Purpose: Contacts row */
+"blocking.contacts" = "연락처";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Navigation title */
+"blocking.channelSenders.title" = "차단된 채널 발신자";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Empty state title */
+"blocking.channelSenders.empty.title" = "차단된 사용자 없음";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Empty state description */
+"blocking.channelSenders.empty.description" = "차단한 채널 발신자 이름이 여기에 표시됩니다.";
+
+/* Location: BlockedChannelSendersView.swift - Purpose: Swipe action to unblock */
+// MARK: - Language
+
+/* Location: SettingsView.swift - Purpose: Language row title */
+"language.title" = "언어";
+
+/* Location: LanguageSettingsView.swift - Purpose: App Language row title */
+"language.appLanguage.title" = "앱 언어";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer explaining App Language opens iOS Settings */
+"language.appLanguage.footer" = "버튼, 메뉴 및 기타 텍스트.";
+
+/* Location: LanguageSettingsView.swift - Purpose: VoiceOver hint that App Language opens iOS Settings */
+"language.appLanguage.accessibilityHint" = "iOS 설정을 엽니다";
+
+/* Location: LanguageSettingsView.swift - Purpose: Translate Into section header */
+"language.translateInto.header" = "번역할 언어";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer for Translate Into language list */
+"language.translateInto.footer" = "번역을 탭하면 수신 메시지가 이 언어로 번역됩니다.";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Footer explaining the Translate Into list is in-app languages only */
+"language.translateInto.listFooter" = "이 기기가 앱 내에서 번역할 수 있는 언어입니다. 다른 언어는 기본 번역 앱을 사용합니다.";
+
+/* Location: LanguageSettingsView.swift - Purpose: Option to follow the app UI language */
+"language.matchAppLanguage" = "앱 언어 사용";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Suggested languages section header */
+"language.suggested.header" = "제안";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: All languages section header */
+"language.all.header" = "언어";
+
+/* Location: LanguageSettingsView.swift - Purpose: Toggle to use the system Translate sheet / default translation app */
+"language.defaultTranslationApp.title" = "기본 번역 앱 사용";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer for Use Default Translation App */
+"language.defaultTranslationApp.footer" = "번역 앱 또는 iOS 설정에서 선택한 다른 앱을 사용합니다.";
+
+/* Location: LanguageSettingsView.swift - Purpose: Toggle to show the Translate button on incoming messages */
+"language.translationOffers.title" = "번역 제안";
+
+/* Location: LanguageSettingsView.swift - Purpose: Footer when Offer Translations is off */
+"language.translationOffers.offFooter" = "다른 언어로 된 수신 메시지에 번역 버튼이 표시되지 않습니다.";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Search field placeholder */
+"language.search.prompt" = "언어 검색";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Empty search title */
+"language.search.noResults" = "결과 없음";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Empty search description */
+"language.search.noResultsDescription" = "\"%@\"와(과) 일치하는 언어 없음";
+
+/* Location: TranslateIntoLanguageView.swift - Purpose: Search result when the queried language isn't available in the app */
+"language.search.unavailable" = "%@은(는) 앱에서 사용할 수 없습니다. 기본 번역 앱을 사용하여 번역하십시오.";
+
+// MARK: - Region
+
+/* Location: RegionalAreas.subdivisionDisplayName - California (US-CA) state name */
+"region.subdivision.US-CA" = "캘리포니아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Delaware (US-DE) state name */
+"region.subdivision.US-DE" = "델라웨어";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maryland (US-MD) state name */
+"region.subdivision.US-MD" = "메릴랜드";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Jersey (US-NJ) state name */
+"region.subdivision.US-NJ" = "뉴저지";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Pennsylvania (US-PA) state name */
+"region.subdivision.US-PA" = "펜실베이니아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Queensland (AU-QLD) state name */
+"region.subdivision.AU-QLD" = "퀸즐랜드";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Australia (AU-SA) state name */
+"region.subdivision.AU-SA" = "사우스오스트레일리아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Western Australia (AU-WA) state name */
+"region.subdivision.AU-WA" = "웨스턴오스트레일리아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alabama (US-AL) state name */
+"region.subdivision.US-AL" = "앨라배마";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Alaska (US-AK) state name */
+"region.subdivision.US-AK" = "알래스카";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arizona (US-AZ) state name */
+"region.subdivision.US-AZ" = "애리조나";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Arkansas (US-AR) state name */
+"region.subdivision.US-AR" = "아칸소";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Colorado (US-CO) state name */
+"region.subdivision.US-CO" = "콜로라도";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Connecticut (US-CT) state name */
+"region.subdivision.US-CT" = "코네티컷";
+
+/* Location: RegionalAreas.subdivisionDisplayName - District of Columbia (US-DC) state name */
+"region.subdivision.US-DC" = "컬럼비아 특별구";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Florida (US-FL) state name */
+"region.subdivision.US-FL" = "플로리다";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Georgia (US-GA) state name */
+"region.subdivision.US-GA" = "조지아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Hawaii (US-HI) state name */
+"region.subdivision.US-HI" = "하와이";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Idaho (US-ID) state name */
+"region.subdivision.US-ID" = "아이다호";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Illinois (US-IL) state name */
+"region.subdivision.US-IL" = "일리노이";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Indiana (US-IN) state name */
+"region.subdivision.US-IN" = "인디애나";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Iowa (US-IA) state name */
+"region.subdivision.US-IA" = "아이오와";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kansas (US-KS) state name */
+"region.subdivision.US-KS" = "캔자스";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Kentucky (US-KY) state name */
+"region.subdivision.US-KY" = "켄터키";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Louisiana (US-LA) state name */
+"region.subdivision.US-LA" = "루이지애나";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Maine (US-ME) state name */
+"region.subdivision.US-ME" = "메인";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Massachusetts (US-MA) state name */
+"region.subdivision.US-MA" = "매사추세츠";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Michigan (US-MI) state name */
+"region.subdivision.US-MI" = "미시간";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Minnesota (US-MN) state name */
+"region.subdivision.US-MN" = "미네소타";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Mississippi (US-MS) state name */
+"region.subdivision.US-MS" = "미시시피";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Missouri (US-MO) state name */
+"region.subdivision.US-MO" = "미주리";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Montana (US-MT) state name */
+"region.subdivision.US-MT" = "몬태나";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nebraska (US-NE) state name */
+"region.subdivision.US-NE" = "네브래스카";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Nevada (US-NV) state name */
+"region.subdivision.US-NV" = "네바다";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Hampshire (US-NH) state name */
+"region.subdivision.US-NH" = "뉴햄프셔";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New Mexico (US-NM) state name */
+"region.subdivision.US-NM" = "뉴멕시코";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New York (US-NY) state name */
+"region.subdivision.US-NY" = "뉴욕";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Carolina (US-NC) state name */
+"region.subdivision.US-NC" = "노스캐롤라이나";
+
+/* Location: RegionalAreas.subdivisionDisplayName - North Dakota (US-ND) state name */
+"region.subdivision.US-ND" = "노스다코타";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Ohio (US-OH) state name */
+"region.subdivision.US-OH" = "오하이오";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oklahoma (US-OK) state name */
+"region.subdivision.US-OK" = "오클라호마";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Oregon (US-OR) state name */
+"region.subdivision.US-OR" = "오리건";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Rhode Island (US-RI) state name */
+"region.subdivision.US-RI" = "로드아일랜드";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Carolina (US-SC) state name */
+"region.subdivision.US-SC" = "사우스캐롤라이나";
+
+/* Location: RegionalAreas.subdivisionDisplayName - South Dakota (US-SD) state name */
+"region.subdivision.US-SD" = "사우스다코타";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tennessee (US-TN) state name */
+"region.subdivision.US-TN" = "테네시";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Texas (US-TX) state name */
+"region.subdivision.US-TX" = "텍사스";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Utah (US-UT) state name */
+"region.subdivision.US-UT" = "유타";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Vermont (US-VT) state name */
+"region.subdivision.US-VT" = "버몬트";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Virginia (US-VA) state name */
+"region.subdivision.US-VA" = "버지니아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Washington (US-WA) state name */
+"region.subdivision.US-WA" = "워싱턴";
+
+/* Location: RegionalAreas.subdivisionDisplayName - West Virginia (US-WV) state name */
+"region.subdivision.US-WV" = "웨스트버지니아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wisconsin (US-WI) state name */
+"region.subdivision.US-WI" = "위스콘신";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Wyoming (US-WY) state name */
+"region.subdivision.US-WY" = "와이오밍";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Australian Capital Territory (AU-ACT) state name */
+"region.subdivision.AU-ACT" = "오스트레일리아 수도 준주";
+
+/* Location: RegionalAreas.subdivisionDisplayName - New South Wales (AU-NSW) state name */
+"region.subdivision.AU-NSW" = "뉴사우스웨일스";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Northern Territory (AU-NT) state name */
+"region.subdivision.AU-NT" = "노던 준주";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Tasmania (AU-TAS) state name */
+"region.subdivision.AU-TAS" = "태즈메이니아";
+
+/* Location: RegionalAreas.subdivisionDisplayName - Victoria (AU-VIC) state name */
+"region.subdivision.AU-VIC" = "빅토리아";
+
+
+// MARK: - Live Activity
+
+/* Label for the Live Activity toggle in App Settings */
+"liveActivity.title" = "실시간 현황";
+
+/* Title for the Live Activity tip shown after first connection */
+"liveActivity.tip.title" = "무선 기기 상태를 한눈에";
+
+/* Message for the Live Activity tip */
+"liveActivity.tip.message" = "앱을 열지 않아도 연결, 배터리 및 메시지를 계속 확인할 수 있습니다.";
+
+// MARK: - Regenerate Identity
+
+/* Section header for regenerate identity */
+"regenerateIdentity.header" = "ID";
+
+/* Button label to open regenerate identity sheet */
+"regenerateIdentity.title" = "키 재생성";
+
+/* Navigation title for the regenerate identity sheet */
+"regenerateIdentity.sheet.title" = "키 재생성";
+
+/* Explanation of what regenerating identity does */
+"regenerateIdentity.sheet.explanation" = "새 Ed25519 키 쌍을 생성하여 기기의 현재 ID를 교체합니다. 모든 연락처가 기기를 다시 발견해야 합니다.";
+
+/* Button to generate a new key */
+"regenerateIdentity.generate" = "키 생성";
+
+/* Button to generate another key after the first */
+/* Progress label while generating */
+"regenerateIdentity.generating" = "생성 중…";
+
+/* Button to apply the generated key to the device */
+"regenerateIdentity.replace" = "이 키 사용";
+
+/* Progress label while importing key to device */
+"regenerateIdentity.importing" = "가져오는 중…";
+
+/* Disclosure group label for custom prefix */
+"regenerateIdentity.prefix.label" = "사용자 설정 접두사";
+
+/* Placeholder for prefix text field */
+"regenerateIdentity.prefix.placeholder" = "예: 2BA1";
+
+/* Footer explaining vanity prefix */
+"regenerateIdentity.prefix.footer" = "선택적으로 공개 키가 시작될 16진수를 최대 4자까지 지정할 수 있습니다. 접두사가 길수록 시간이 더 걸립니다.";
+
+/* Error when prefix is not 1–4 hex characters */
+/* Error when prefix is 00 or FF */
+"regenerateIdentity.prefix.error.reserved" = "00과 FF는 예약되어 있어 사용할 수 없습니다";
+
+/* Alert title for replace identity confirmation */
+"regenerateIdentity.alert.replace.title" = "ID를 교체하겠습니까?";
+
+/* Alert confirm button for replace identity */
+"regenerateIdentity.alert.replace.confirm" = "교체";
+
+/* Alert message for replace identity */
+"regenerateIdentity.alert.replace.message" = "기기의 ID가 영구적으로 교체됩니다. 다른 기기에서는 새 연락처로 표시됩니다.";
+
+/* Error when firmware does not support key import */
+"regenerateIdentity.error.featureDisabled" = "이 펌웨어 버전은 키 가져오기를 지원하지 않습니다";
+
+/* Error when device rejects the key */
+"regenerateIdentity.error.deviceRejected" = "기기에서 키를 거부했습니다. 다시 시도하십시오.";
+
+// MARK: - Import Key
+
+/* Button label to open import key sheet */
+"importKey.title" = "키 가져오기";
+
+/* Navigation title for the import key sheet */
+"importKey.sheet.title" = "키 가져오기";
+
+/* Explanation of what importing a key does */
+"importKey.sheet.explanation" = "기존 Ed25519 개인 키(16진수 128자)를 붙여넣어 기기의 현재 ID를 교체합니다.";
+
+/* Label for the private key input field */
+"importKey.keyInput.label" = "개인 키";
+
+/* Placeholder for the key input field */
+"importKey.keyInput.placeholder" = "16진수 128자 키 붙여넣기";
+
+/* Button to import the key */
+"importKey.import" = "키 가져오기";
+
+/* Progress label while importing */
+"importKey.importing" = "가져오는 중…";
+
+/* Error when hex input is wrong length or invalid */
+"importKey.error.invalidHex" = "키는 정확히 16진수 128자여야 합니다";
+
+/* Error when key fails Ed25519 validation */
+"importKey.error.invalidKey" = "유효한 Ed25519 개인 키가 아닙니다";
+
+// Reply with Quote
+"replyWithQuote.toggle" = "인용하여 답장";
+"replyWithQuote.footer" = "답장할 때 원본 메시지의 미리 보기가 포함됩니다.";
+
+// MARK: - Maps
+
+/* Navigation title for Settings → Maps hub */
+"maps.title" = "지도";
+
+/* Section header for display preferences on Maps settings */
+"maps.displayHeader" = "표시";
+
+/* Picker label for map basemap appearance */
+"maps.appearance" = "지도 모양";
+
+/* Footer explaining map appearance is basemap-only */
+"maps.appearanceFooter" = "지도 기본 레이어에만 적용됩니다. 앱 색상은 계속 화면 모드 설정을 따릅니다.";
+
+/* Section header for Offline Maps entry under Maps settings */
+"maps.offlineHeader" = "오프라인 지도";
+
+// MARK: - Offline Maps
+
+/* Navigation title for offline maps settings */
+"offlineMaps.title" = "오프라인 지도";
+
+/* Title for empty state when no offline packs exist */
+"offlineMaps.emptyTitle" = "오프라인 지도 없음";
+
+/* Description for empty state */
+"offlineMaps.emptyDescription" = "인터넷 없이 사용할 지도 지역을 다운로드하십시오.";
+
+/* Button to download a new offline region */
+"offlineMaps.downloadRegion" = "지역 다운로드";
+
+/* Section header for storage info */
+"offlineMaps.storage" = "저장 공간";
+
+/* Label for total storage used */
+"offlineMaps.storageUsed" = "사용한 저장 공간";
+
+/* Fallback name for unknown region */
+"offlineMaps.unknownRegion" = "알 수 없는 지역";
+
+/* Status when pack download is complete */
+"offlineMaps.complete" = "다운로드됨";
+
+/* Status when pack is downloading */
+"offlineMaps.downloading" = "다운로드 중…";
+
+/* Navigation title for region picker sheet */
+"offlineMaps.pickRegion" = "지역 선택";
+
+/* Placeholder for region name text field */
+"offlineMaps.regionName" = "지역 이름";
+
+/* Button to start download */
+"offlineMaps.download" = "다운로드";
+
+/* Cancel button */
+"offlineMaps.cancel" = "취소";
+
+/* Delete confirmation title */
+/* Delete confirmation message */
+/* Delete button */
+/* Error: insufficient disk space */
+"offlineMaps.error.insufficientDiskSpace" = "저장 공간이 부족합니다. 최소 100MB가 필요합니다.";
+
+/* Error: tile limit reached */
+"offlineMaps.error.tileLimitReached" = "다운로드 타일 한도에 도달했습니다.";
+
+/* Pause download button */
+"offlineMaps.pause" = "일시 정지";
+
+/* Resume download button */
+"offlineMaps.resume" = "재개";
+
+/* Paused status label */
+"offlineMaps.paused" = "일시 정지됨";
+
+/* Estimated download size */
+"offlineMaps.estimatedSize" = "예상 크기: 약 %@";
+
+/* Large tile download warning */
+"offlineMaps.largeTileWarning" = "다운로드 영역이 큽니다. 시간이 오래 걸리고 저장 공간을 많이 사용할 수 있습니다.";
+
+/* Hint shown before estimate is available */
+"offlineMaps.downloadHint" = "이름을 입력하고 다운로드할 영역을 선택하십시오.";
+
+/* Download exceeds available storage */
+"offlineMaps.exceedsStorage" = "이 기기의 저장 공간이 부족합니다. 확대하여 더 작은 영역을 선택하십시오.";
+
+/* Layer type labels */
+"offlineMaps.layer.base" = "기본 지도";
+"offlineMaps.layer.topo" = "지형";
+
+/* Layers section header */
+"offlineMaps.layers" = "레이어";
+
+/* Include layers prompt */
+/* No network available */
+"offlineMaps.noNetwork" = "지도를 다운로드하려면 인터넷 연결이 필요합니다.";
+
+/* Storage section footer */
+"offlineMaps.storageFooter" = "지도 데이터와 내부 인덱스가 포함됩니다. 합계는 개별 다운로드의 합보다 클 수 있습니다.";
+
+// MARK: - Backup & Restore
+
+/* Navigation title for backup & restore screen */
+"settings.backup.title" = "백업 및 복원";
+
+/* Section header for file backup */
+"settings.backup.file_backup.header" = "파일 백업";
+
+/* Section footer for file backup */
+"settings.backup.file_backup.footer" = "메시지, 연락처, 채널, 저장된 경로 및 설정을 내보내거나 복원합니다.";
+
+/* Footer note that radio configuration is not included in the app-data backup */
+"settings.backup.file_backup.radio_config" = "백업에는 앱 데이터만 포함됩니다. 무선 기기 구성은 고급 설정에서 백업하십시오.";
+
+/* Export row title */
+"settings.backup.export.title" = "앱 데이터 내보내기";
+
+/* Export row subtitle */
+"settings.backup.export.subtitle" = ".mc1backup 파일로 저장";
+
+/* Import row title */
+"settings.backup.import.title" = "앱 데이터 가져오기";
+
+/* Import row subtitle */
+"settings.backup.import.subtitle" = ".mc1backup 파일에서 복원";
+
+/* Footer shown above the backup section when a radio is connected, explaining why import is disabled */
+"settings.backup.import.disabled_when_connected" = "백업을 가져오기 전에 무선 기기와의 연결을 해제하십시오.";
+
+/* Export confirmation alert title */
+"settings.backup.export.alert.title" = "보안 알림";
+
+/* Export confirmation alert message */
+"settings.backup.export.alert.message" = "이 백업에는 채널 암호화 키, 메시지 기록, 연락처 목록, Wi-Fi 노드의 로컬 네트워크 주소와 포트가 포함됩니다. 내보낸 파일을 안전하게 보관하십시오.";
+
+/* Export confirmation alert export button */
+"settings.backup.export.alert.export" = "내보내기";
+
+/* Export confirmation alert cancel button */
+"settings.backup.export.alert.cancel" = "취소";
+
+/* Export progress label */
+"settings.backup.export.progress" = "백업 준비 중…";
+
+/* Import preview navigation title */
+"settings.backup.import.preview.title" = "가져오기 미리 보기";
+
+/* Import preview section header: backup details */
+"settings.backup.import.preview.details" = "백업 세부 정보";
+
+/* Import preview label: export date */
+"settings.backup.import.preview.exported" = "내보낸 날짜";
+
+/* Import preview label: app version */
+"settings.backup.import.preview.app_version" = "앱 버전";
+
+/* Import preview section header: contents */
+"settings.backup.import.preview.contents" = "내용";
+
+/* Import preview manifest label: messages */
+"settings.backup.import.preview.messages" = "메시지";
+
+/* Import preview manifest label: contacts */
+"settings.backup.import.preview.contacts" = "연락처";
+
+/* Import preview manifest label: channels */
+"settings.backup.import.preview.channels" = "채널";
+
+/* Import preview manifest label: devices */
+"settings.backup.import.preview.devices" = "기기";
+
+/* Import preview manifest label: room messages */
+"settings.backup.import.preview.room_messages" = "룸 메시지";
+
+/* Import preview manifest label: reactions */
+"settings.backup.import.preview.reactions" = "반응";
+
+/* Import preview manifest label: saved paths */
+"settings.backup.import.preview.saved_paths" = "저장된 경로";
+
+/* Import preview manifest label: remote node sessions */
+"settings.backup.import.preview.remote_node_sessions" = "원격 노드 세션";
+
+/* Import preview info text */
+"settings.backup.import.preview.info" = "새 데이터만 추가되며 기존 기록은 덮어쓰지 않습니다. 이 백업 이후에 삭제한 연락처는 다시 나타나고, 백업에 있는 차단, 알림 끔 또는 즐겨찾기 표시가 다시 적용됩니다.";
+
+/* Import preview import button */
+"settings.backup.import.preview.button" = "데이터 가져오기";
+
+/* Import progress label */
+"settings.backup.import.progress" = "데이터 가져오는 중…";
+/* Import parsing label */
+"settings.backup.import.parsing" = "백업 읽는 중…";
+/* Import cancelling label shown after the user taps Cancel during an active import */
+"settings.backup.import.cancelling" = "취소하는 중…";
+/* Import preview cancel / dismiss toolbar button */
+"settings.backup.import.preview.cancel" = "취소";
+
+/* Import success title */
+"settings.backup.import.success.title" = "가져오기 완료";
+
+/* Import success section header: items that were newly added to this device */
+"settings.backup.import.success.added_section" = "이 기기에 추가됨";
+
+/* Import success section header: items in the backup that were already on this device */
+"settings.backup.import.success.already_here_section" = "이 기기에 이미 있음";
+
+/* Import success section footer: always visible under the "Already on this device" section */
+"settings.backup.import.success.already_here_footer" = "기기의 기존 데이터는 그대로 유지되었으며 덮어쓴 항목은 없습니다.";
+
+/* Import success hero subtitle when new items were added (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_added" = "항목 %d개가 추가되었습니다.";
+
+/* Import success hero subtitle when only existing items were refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.subtitle_refreshed" = "기존 항목 %d개가 갱신되었습니다.";
+
+/* Import success disclosure row summary for the "Already on this device" section (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_summary" = "항목 %d개가 이미 있음";
+
+/* Import success footer line appended when some of the already-here items had metadata refreshed (pluralized in .stringsdict) */
+"settings.backup.import.success.already_here_refreshed" = "이 중 %d개가 백업의 최신 정보로 갱신되었습니다.";
+
+/* Import success section header: channels that had no free local slot and couldn't be restored */
+"settings.backup.import.success.dropped_section" = "복원할 수 없음";
+
+/* Import success disclosure row summary for the "Couldn't be restored" section */
+"settings.backup.import.success.dropped_summary" = "항목 %d개를 복원할 수 없음";
+
+/* Import success footer explaining why some channels couldn't be restored and how to recover them */
+"settings.backup.import.success.dropped_footer" = "이 채널들은 이 무선 기기에 빈 슬롯이 없어 채널과 해당 메시지를 가져오지 못했습니다. 채널 슬롯을 비운 후 다시 가져와서 복원하십시오.";
+
+/* Import success footer when only discovered nodes exceeded the per-radio discover-list cap */
+"settings.backup.import.success.dropped_footer_discovered_nodes" = "이 무선 기기의 탐색 목록이 가득 차서(%d개 노드) 이 발견된 노드들을 복원할 수 없었습니다. 기존 로컬 노드는 유지되었으며, 누락된 노드는 메시에서 다시 애드버트됩니다.";
+
+/* Import success footer when both channel slots and the discover-list cap caused drops */
+"settings.backup.import.success.dropped_footer_mixed" = "일부 항목을 복원할 수 없었습니다. 무선 기기에 빈 슬롯이 없는 채널과 이 무선 기기의 탐색 목록 용량(%d개 노드)을 초과한 발견된 노드입니다. 채널은 채널 슬롯을 비운 후 다시 가져오십시오. 누락된 발견된 노드는 메시에서 다시 애드버트됩니다.";
+
+/* Import success done button */
+"settings.backup.import.success.done" = "완료";
+
+/* Import failure title */
+"settings.backup.import.error.title" = "가져오기 실패";
+
+/* Import error dismiss button */
+"settings.backup.import.error.dismiss" = "닫기";
+
+/* Import cancelled title shown after user cancels an import before it commits */
+"settings.backup.import.cancelled.title" = "가져오기 취소됨";
+
+/* Import cancelled message — rollback ran and nothing on device was changed */
+"settings.backup.import.cancelled.message" = "변경된 데이터가 없습니다.";
+
+/* File access error */
+/* Import preview manifest label: blocked senders */
+"settings.backup.import.preview.blocked_senders" = "차단된 발신자";
+
+/* Import preview manifest label: node status snapshots */
+"settings.backup.import.preview.node_status_snapshots" = "노드 스냅샷";
+
+/* Import preview manifest label: discovered nodes */
+"settings.backup.import.preview.discovered_nodes" = "발견된 노드";
+
+/* Import preview manifest label: message repeats */
+"settings.backup.import.preview.message_repeats" = "메시지 리피트";
+
+/* Import header title when the backup had nothing new to add (every record was skipped) */
+"settings.backup.import.nothing_to_import.title" = "모든 항목이 이미 있음";
+
+/* Import subtitle when the backup had nothing new to add */
+"settings.backup.import.nothing_to_import.subtitle" = "이 백업의 내용이 이미 이 기기에 있습니다.";
+
+/* Default filename for an exported backup; %@ is an ISO-style timestamp */
+"settings.backup.export.default_filename" = "MC1 백업 %@.mc1backup";
+
+/* Backup error: file is corrupt or unreadable */
+"settings.backup.error.invalid_file" = "백업 파일이 잘못되었거나 읽을 수 없습니다.";
+
+/* Backup error: file exceeds parser size cap; %1$d actual MB, %2$d max MB */
+"settings.backup.error.file_too_large" = "백업 파일이 너무 커서 가져올 수 없습니다(%1$dMB, 한도 %2$dMB).";
+
+/* Backup error: decompressed size exceeds safety cap; %d is max MB uncompressed */
+"settings.backup.error.decompressed_too_large" = "백업 파일의 압축을 풀면 안전 크기 한도(압축 해제 시 %dMB)를 초과합니다.";
+
+/* Backup error: file version too new; %1$d found, %2$d max supported */
+"settings.backup.error.unsupported_version" = "이 백업은 더 새로운 형식(버전 %1$d)으로 만들어졌습니다. 이 앱은 버전 %2$d까지 지원합니다. 앱을 업데이트한 후 다시 시도하십시오.";
+
+/* Backup error: manifest counts do not match arrays */
+"settings.backup.error.corrupted_manifest" = "백업 파일이 손상된 것 같습니다. 선언된 항목 수가 실제 데이터와 일치하지 않습니다.";
+
+/* Backup error: export failed; %@ is underlying error */
+"settings.backup.error.export_failed" = "백업을 만들지 못했습니다: %@";
+
+/* Backup error: import failed; %@ is underlying error */
+"settings.backup.error.import_failed" = "백업을 가져오지 못했습니다: %@";
+
+// MARK: - Export success
+
+/* Hero title on the backup export success sheet */
+"settings.backup.export.success.title" = "백업 저장됨";
+
+/* Section header listing record counts included in the export */
+"settings.backup.export.success.included_section" = "백업에 포함됨";
+
+/* Primary button on the export success sheet */
+"settings.backup.export.success.done" = "완료";
+
+/* VoiceOver announcement when the export success sheet appears; %@ is the filename */
+"settings.backup.export.success.announcement" = "백업이 %@(으)로 저장되었습니다";
+
+/* Error shown when applying a theme the user does not own */
+"Support.Error.ThemeNotOwned" = "소유하지 않은 테마입니다.";
+
+/* VoiceOver announcement when a refund reverts the active theme to the default */
+"Appearance.Accessibility.ThemeReverted" = "테마가 기본값으로 되돌아갔습니다.";
+
+/* MARK: Support (purchase) screen */
+"Support.Title" = "개발 지원";
+"Support.Header.Body" = "MC1이 마음에 드신다면 다음과 같은 방법으로 개발을 지원할 수 있습니다! 모두 선택 사항이며, 약간의 팁과 추가 테마가 있습니다.";
+"Support.Themes.Title" = "테마";
+"Support.Themes.Owned" = "소유함";
+"Support.Themes.PurchasedFooter" = "설정 → 화면 모드에서 새 테마를 적용하십시오.";
+"Support.Themes.AllUnlocked" = "모든 테마가 잠금 해제되었습니다!";
+"Support.Bundle.Title" = "모든 테마";
+"Support.Bundle.Subtitle" = "나중에 추가되는 테마도 포함됩니다.";
+"Support.Contributions.Title" = "팁";
+"Support.Contributions.Footer" = "팁은 감사의 표시이며 MC1 개발을 지원합니다. 상품, 서비스 또는 멤버십 혜택은 포함되지 않습니다.";
+"Support.Contributions.HighValueConfirm" = "%@을(를) 보내겠습니까?";
+"Support.Contributions.ConfirmButton" = "%@ 후원";
+"Support.Restore.Button" = "구입 항목 복원";
+"Support.Restore.Syncing" = "복원 중…";
+"Support.Refund.Link" = "환불 요청";
+"Support.Pending.Banner" = "승인 대기 중입니다. 승인되는 즉시 구입 항목이 잠금 해제됩니다.";
+"Support.Pending.Button" = "승인 대기 중";
+"Support.Contact.Link" = "개발자에게 이메일 보내기";
+"Support.ThankYou.Title" = "감사합니다!";
+"Support.ThankYou.Body" = "지원해 주셔서 정말 감사합니다. 앞으로도 MC1을 더 좋게 만들기 위해 노력하겠습니다!";
+
+/* MARK: Feedback screen */
+"Feedback.Title" = "피드백";
+"Feedback.Header.Body" = "GitHub Issues를 권장하지만 이메일도 괜찮습니다.";
+"Feedback.GitHub.Link" = "GitHub 이슈 열기";
+"Feedback.Email.Link" = "개발자에게 이메일 보내기";
+
+/* MARK: Theme display names */
+"Support.Theme.Default" = "기본";
+"Support.Theme.Ember" = "엠버";
+"Support.Theme.Fern" = "펀";
+"Support.Theme.Marine" = "마린";
+"Support.Theme.Olive" = "올리브";
+"Support.Theme.Lavender" = "라벤더";
+
+/* MARK: Support error messages (mapped from StoreServiceError) */
+"Support.Error.ProductsNotLoaded" = "제품을 불러올 수 없습니다.";
+"Support.Error.ProductNotFound" = "제품을 찾을 수 없습니다.";
+"Support.Error.PurchaseFailed" = "구입 실패: %@";
+"Support.Error.NetworkUnavailable" = "네트워크를 사용할 수 없습니다.";
+"Support.Error.VerificationFailed" = "구입을 확인할 수 없습니다.";
+"Support.Error.NotEntitled" = "이 기기에서는 구입이 제한되어 있습니다. 스크린 타임 콘텐츠 제한을 확인하십시오.";
+"Support.Error.StorefrontUnavailable" = "이 제품은 사용자의 지역에서 제공되지 않습니다.";
+"Support.Error.Unsupported" = "이 기기에서는 앱 내 구입을 지원하지 않습니다.";
+
+/* MARK: Support accessibility (label = identity+state, hint = action) */
+"Support.Accessibility.ThemeCard.LockedLabel" = "테마 %@, 잠김";
+"Support.Accessibility.ThemeCard.OwnedLabel" = "테마 %@, 소유함";
+"Support.Accessibility.BundleCard.LockedLabel" = "모든 테마 번들, 잠김, %@";
+"Support.Accessibility.BundleCard.LockedHint" = "모든 테마 번들을 구입합니다";
+"Support.Accessibility.BundleCard.LoadingLabel" = "모든 테마 번들, 가격 불러오는 중";
+"Support.Accessibility.ContributionRow.Label" = "%1$@, %2$@";
+"Support.Accessibility.ContributionRow.Hint" = "감사의 팁을 보냅니다";
+"Support.Accessibility.TipConfirmAnnouncement" = "팁을 보내 주셔서 감사합니다.";
+
+/* MARK: Appearance (selection) screen */
+"Appearance.Title" = "화면 모드";
+"Appearance.Scheme.Header" = "라이트/다크 모드";
+"Appearance.Scheme.System" = "시스템";
+"Appearance.Scheme.Light" = "라이트";
+"Appearance.Scheme.Dark" = "다크";
+"Appearance.Themes.Header" = "테마 선택";
+"Appearance.Themes.Selected" = "선택됨";
+"Appearance.MoreThemes.Link" = "테마 추가 구입";
+
+/* MARK: Appearance accessibility */
+"Appearance.Accessibility.ThemeCard.OwnedLabel" = "테마 %@, 소유함";
+"Appearance.Accessibility.ThemeCard.OwnedHint" = "이 테마를 적용합니다";
+"Appearance.Accessibility.ThemeCard.SelectedLabel" = "테마 %@, 현재 선택됨";
+"Appearance.Accessibility.Swatch.DualMode" = "%@, 라이트 및 다크 버전";
+"Appearance.Accessibility.Swatch.DarkOnly" = "%@, 다크 전용";

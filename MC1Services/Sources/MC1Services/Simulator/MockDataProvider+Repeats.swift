@@ -1,13 +1,29 @@
 import Foundation
 
 extension MockDataProvider {
-  /// Message IDs that carry seeded heard-repeat rows ("Repeat Details").
-  static let messagesWithRepeats: [UUID] = [frankRepeatMessageID]
+  /// Message IDs that carry seeded `MessageRepeat` rows.
+  /// Outgoing rows are send echoes. Incoming rows are later flood routes.
+  static let messagesWithRepeats: [UUID] = [
+    frankRepeatMessageID,
+    aliceMultiPathMessageID,
+    publicMultiPathMessageID
+  ]
 
-  /// Heard repeats for a message: distinct repeater-hash prefixes, hop counts, and
-  /// signal stats so "Repeat Details" lists multiple repeaters. The count matches the
-  /// parent message's `heardRepeats`.
+  /// Distinct repeater hashes, hop counts, and signal stats.
+  /// The row count matches the parent message's `heardRepeats`.
   static func messageRepeats(for messageID: UUID) -> [MessageRepeatDTO] {
+    if messageID == aliceMultiPathMessageID {
+      return incomingPathRepeats(
+        for: messageID,
+        receivedAt: Date().addingTimeInterval(aliceMultiPathAge)
+      )
+    }
+    if messageID == publicMultiPathMessageID {
+      return incomingPathRepeats(
+        for: messageID,
+        receivedAt: Date().addingTimeInterval(publicMultiPathAge)
+      )
+    }
     guard messageID == frankRepeatMessageID else { return [] }
     let now = Date()
     return [

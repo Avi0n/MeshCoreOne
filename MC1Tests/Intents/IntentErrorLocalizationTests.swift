@@ -21,9 +21,9 @@ struct IntentErrorLocalizationTests {
     (.advertFailed, "error.advertisement.sendFailed", L10n.Localizable.Error.Advertisement.sendFailed),
   ]
 
-  /// The 11 shipped locales. A key missing from any one would fall back to the
+  /// The 12 shipped locales. A key missing from any one would fall back to the
   /// raw key string at runtime, so each must resolve real copy.
-  private static let locales = ["de", "en", "es", "fr", "it", "nl", "pl", "pt", "ru", "uk", "zh-Hans"]
+  private static let locales = ["de", "en", "es", "fr", "it", "ko", "nl", "pl", "pt", "ru", "uk", "zh-Hans"]
 
   // MARK: - Generated accessor agreement
 
@@ -61,7 +61,7 @@ struct IntentErrorLocalizationTests {
     #expect(resolved?.isEmpty == false)
   }
 
-  // MARK: - No raw-key fallback across all 11 locales
+  // MARK: - No raw-key fallback across all 12 locales
 
   @Test func `every intent key resolves in every locale`() throws {
     for locale in Self.locales {

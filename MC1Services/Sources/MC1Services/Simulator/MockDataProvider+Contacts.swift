@@ -25,7 +25,7 @@ public extension MockDataProvider {
         isBlocked: false,
         isMuted: false,
         isFavorite: false,
-        lastMessageDate: now.addingTimeInterval(-1800), // 30 min ago
+        lastMessageDate: now.addingTimeInterval(-40),
         unreadCount: 3
       ),
 
@@ -188,7 +188,69 @@ public extension MockDataProvider {
         isFavorite: true,
         lastMessageDate: now.addingTimeInterval(-600), // 10 min ago
         unreadCount: 0
+      ),
+
+      // Located so a matched hop can be pinned.
+      locatedRepeater(
+        id: northRidgeRepeaterID,
+        seed: northRidgeRepeaterSeed,
+        name: "North Ridge",
+        latitude: 37.8320,
+        longitude: -122.4820,
+        advertAge: 180,
+        now: now
+      ),
+      locatedRepeater(
+        id: twinPeaksRepeaterID,
+        seed: twinPeaksRepeaterSeed,
+        name: "Twin Peaks",
+        latitude: 37.7544,
+        longitude: -122.4477,
+        advertAge: 240,
+        now: now
+      ),
+      locatedRepeater(
+        id: oaklandRepeaterID,
+        seed: oaklandRepeaterSeed,
+        name: "Oakland",
+        latitude: 37.8044,
+        longitude: -122.2712,
+        advertAge: 300,
+        now: now
       )
     ]
+  }
+
+  private static func locatedRepeater(
+    id: UUID,
+    seed: UInt8,
+    name: String,
+    latitude: Double,
+    longitude: Double,
+    advertAge: TimeInterval,
+    now: Date
+  ) -> ContactDTO {
+    let advert = UInt32(now.addingTimeInterval(-advertAge).timeIntervalSince1970)
+    return ContactDTO(
+      id: id,
+      radioID: simulatorDeviceID,
+      publicKey: mockPublicKey(seed: seed),
+      name: name,
+      typeRawValue: ContactType.repeater.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: advert,
+      latitude: latitude,
+      longitude: longitude,
+      lastModified: advert,
+      lastHeardTimestamp: nil,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
   }
 }

@@ -11,6 +11,7 @@ MeshCore One supports multiple languages. You can help improve translations enti
 | French                | fr      | AI-translated      |
 | German                | de      | AI-translated      |
 | Italian               | it      | Verified by corradoignoti #376 |
+| Korean                | ko      | AI-translated      |
 | Polish                | pl      | AI-translated      |
 | Portuguese (Portugal) | pt      | Verified by zadoke #413 |
 | Russian               | ru      | AI-translated      |
@@ -149,11 +150,13 @@ Add the same key to all other language files. You can use AI translation as a st
 "myFeature.submitButton" = "Absenden";
 ```
 
-### Pluralization
+### Language Notes
+
+#### Pluralization
 
 Use `.stringsdict` files for strings that change based on quantity.
 
-#### Simple Languages (English, German, Dutch, Spanish, French, Italian, Portuguese)
+##### Simple Languages (English, German, Dutch, Spanish, French, Italian, Portuguese)
 
 These languages use two forms: `one` (exactly 1) and `other` (0, 2+).
 
@@ -176,7 +179,16 @@ These languages use two forms: `one` (exactly 1) and `other` (0, 2+).
 </dict>
 ```
 
-#### Slavic Languages (Polish, Russian, Ukrainian)
+##### Single-Category Languages (Korean, Simplified Chinese)
+
+The plural rules for these languages have only one category, so provide only the `other` form.
+
+```xml
+<key>other</key>
+<string>메시지 %d개</string>
+```
+
+##### Slavic Languages (Polish, Russian, Ukrainian)
 
 These languages have complex plural rules with four forms:
 
@@ -198,6 +210,11 @@ Example for Russian:
 <key>other</key>
 <string>%d сообщений</string>
 ```
+
+#### Korean
+
+- Use Apple's Korean iOS terminology, for example 계속 rather than 계속하기 and 암호 rather than 비밀번호.
+- After a `%@` placeholder, write particles in the combined form, such as 을(를), 이(가), and 와(과).
 
 ### Testing Translations
 

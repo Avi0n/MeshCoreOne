@@ -142,7 +142,9 @@ extension MockDataProvider {
         pathNodes: Data((0..<25).flatMap { [UInt8(0x10 + $0), 0xA3, 0xB7] }),
         senderKeyPrefix: key,
         isRead: false
-      )
+      ),
+      // Incoming flood plus three later routes. `heardRepeats` matches those rows.
+      aliceMultiPathMessage(now: now, senderKey: key)
     ]
   }
 
