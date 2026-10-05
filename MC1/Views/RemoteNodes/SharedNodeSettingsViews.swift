@@ -128,9 +128,6 @@ struct NodeRadioSettingsSection: View {
             .multilineTextAlignment(.trailing)
             .frame(width: 100)
             .focused(focusedField, equals: .frequency)
-            .onChange(of: settings.frequency) { _, _ in
-              settings.radioSettingsModified = true
-            }
         } else {
           SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
             .frame(width: 100, alignment: .trailing)
@@ -151,9 +148,6 @@ struct NodeRadioSettingsSection: View {
         .pickerStyle(.menu)
         .tint(.primary)
         .accessibilityHint(L10n.RemoteNodes.RemoteNodes.Settings.bandwidthHint)
-        .onChange(of: settings.bandwidth) { _, _ in
-          settings.radioSettingsModified = true
-        }
       } else {
         HStack {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.bandwidthKHz)
@@ -176,9 +170,6 @@ struct NodeRadioSettingsSection: View {
         .pickerStyle(.menu)
         .tint(.primary)
         .accessibilityHint(L10n.RemoteNodes.RemoteNodes.Settings.spreadingFactorHint)
-        .onChange(of: settings.spreadingFactor) { _, _ in
-          settings.radioSettingsModified = true
-        }
       } else {
         HStack {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.spreadingFactor)
@@ -201,9 +192,6 @@ struct NodeRadioSettingsSection: View {
         .pickerStyle(.menu)
         .tint(.primary)
         .accessibilityHint(L10n.RemoteNodes.RemoteNodes.Settings.codingRateHint)
-        .onChange(of: settings.codingRate) { _, _ in
-          settings.radioSettingsModified = true
-        }
       } else {
         HStack {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.codingRate)

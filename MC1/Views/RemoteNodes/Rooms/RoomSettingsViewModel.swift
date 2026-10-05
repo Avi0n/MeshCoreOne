@@ -58,6 +58,52 @@ final class RoomSettingsViewModel {
       (floodMaxHops != nil && floodMaxHops != originalFloodMaxHops)
   }
 
+  var hasUncommittedSettingsEdits: Bool {
+    helper.hasUncommittedSharedSettingsEdits || behaviorModified || roomAccessModified
+  }
+
+  func revertUncommittedSettingsEdits() {
+    helper.revertUncommittedSharedSettingsEdits()
+    advertIntervalMinutes = originalAdvertIntervalMinutes
+    floodAdvertIntervalHours = originalFloodAdvertIntervalHours
+    floodMaxHops = originalFloodMaxHops
+    guestPassword = originalGuestPassword
+    allowReadOnly = originalAllowReadOnly
+    advertIntervalError = nil
+    floodAdvertIntervalError = nil
+    floodMaxHopsError = nil
+  }
+
+  func bindSettingsVisitReset() {
+    helper.onCollapseExtraSettingsSections = { [weak self] in
+      self?.isRoomAccessExpanded = false
+      self?.isBehaviorExpanded = false
+    }
+    helper.onClearCachedExtraSettings = { [weak self] in
+      self?.clearCachedRoomSettings()
+    }
+  }
+
+  private func clearCachedRoomSettings() {
+    guestPassword = nil
+    allowReadOnly = nil
+    originalGuestPassword = nil
+    originalAllowReadOnly = nil
+    isLoadingRoomAccess = false
+    roomAccessError = false
+    advertIntervalMinutes = nil
+    floodAdvertIntervalHours = nil
+    floodMaxHops = nil
+    originalAdvertIntervalMinutes = nil
+    originalFloodAdvertIntervalHours = nil
+    originalFloodMaxHops = nil
+    isLoadingBehavior = false
+    behaviorError = false
+    advertIntervalError = nil
+    floodAdvertIntervalError = nil
+    floodMaxHopsError = nil
+  }
+
   // MARK: - Dependencies
 
   private var roomAdminServiceProvider: @MainActor () -> RoomAdminService? = { nil }
@@ -78,6 +124,7 @@ final class RoomSettingsViewModel {
 
   /// Nil service mirrors a disconnected state; commands then no-op.
   func configure(roomAdminService: @escaping @MainActor () -> RoomAdminService?, session: RemoteNodeSessionDTO) async {
+    bindSettingsVisitReset()
     roomAdminServiceProvider = roomAdminService
 
     guard let roomAdminService = roomAdminService() else { return }
@@ -92,12 +139,21 @@ final class RoomSettingsViewModel {
       }
     )
 
-    helper.setNodeInfo(firmwareVersion: nil, name: session.name, ownerInfo: nil)
+    helper.onRevertUncommittedSettingsEdits = { [weak self] in
+      self?.revertUncommittedSettingsEdits()
+    }
+    helper.otherSettingsApplyInFlight = { [weak self] in
+      guard let self else { return false }
+      return isApplyingRoomAccess || isApplyingBehavior
+    }
+
+    seedUnloadedIdentity(session.name)
 
     // Room doesn't have binary protocol for node info — firmware fetched via CLI
     helper.onPreFetchNodeInfo = nil
 
     registerBehaviorLateRecovery()
+    registerRoomAccessLateRecovery()
 
     // Register CLI handler for late responses
     await roomAdminService.setCLIHandler { [weak self] message, _ in
@@ -106,6 +162,21 @@ final class RoomSettingsViewModel {
       }
     }
 
+    refreshDeviceClockIfIdle()
+  }
+
+  /// First open seeds both `name` and `originalName` from the contact so Apply
+  /// is clean until `get name` or an edit. Later configures leave them alone.
+  func seedUnloadedIdentity(_ sessionName: String) {
+    guard helper.originalName == nil else { return }
+    guard helper.allowsSettingsLoadWrite(.name, ticket: nil) else { return }
+    helper.setNodeInfo(firmwareVersion: nil, name: sessionName, ownerInfo: nil)
+  }
+
+  /// Reconfigure refreshes device time via `clock`. `fetchDeviceInfo` still
+  /// skips `ver` when the firmware version is already known.
+  func refreshDeviceClockIfIdle() {
+    guard !helper.isLoadingDeviceInfo else { return }
     Task { await helper.fetchDeviceInfo() }
   }
 
@@ -132,88 +203,152 @@ final class RoomSettingsViewModel {
 
   private func registerBehaviorLateRecovery() {
     helper.registerLateRecovery(query: "get advert.interval") { [weak self] value in
-      guard let self, case let .advertInterval(minutes) = value else { return }
+      guard let self,
+            helper.isSettingsLoadCurrent(query: "get advert.interval", field: .advertInterval),
+            case let .advertInterval(minutes) = value else { return }
       advertIntervalMinutes = minutes
       originalAdvertIntervalMinutes = minutes
       behaviorError = !behaviorSectionComplete
     }
     helper.registerLateRecovery(query: "get flood.advert.interval") { [weak self] value in
-      guard let self, case let .floodAdvertInterval(hours) = value else { return }
+      guard let self,
+            helper.isSettingsLoadCurrent(query: "get flood.advert.interval", field: .floodAdvertInterval),
+            case let .floodAdvertInterval(hours) = value else { return }
       floodAdvertIntervalHours = hours
       originalFloodAdvertIntervalHours = hours
       behaviorError = !behaviorSectionComplete
     }
     helper.registerLateRecovery(query: "get flood.max") { [weak self] value in
-      guard let self, case let .floodMax(hops) = value else { return }
+      guard let self,
+            helper.isSettingsLoadCurrent(query: "get flood.max", field: .floodMaxHops),
+            case let .floodMax(hops) = value else { return }
       floodMaxHops = hops
       originalFloodMaxHops = hops
       behaviorError = !behaviorSectionComplete
     }
   }
 
+  private func registerRoomAccessLateRecovery() {
+    helper.registerLateRecovery(query: "get guest.password") { [weak self] value in
+      guard let self,
+            helper.isSettingsLoadCurrent(query: "get guest.password", field: .guestPassword)
+      else { return }
+      applyGuestPasswordResponse(value)
+    }
+    helper.registerLateRecovery(query: "get allow.read.only") { [weak self] value in
+      guard let self,
+            helper.isSettingsLoadCurrent(query: "get allow.read.only", field: .allowReadOnly),
+            case let .raw(raw) = value else { return }
+      let isOn = raw.lowercased() == "on"
+      allowReadOnly = isOn
+      originalAllowReadOnly = isOn
+    }
+  }
+
+  private func applyGuestPasswordResponse(_ value: CLIResponse) {
+    switch value {
+    case .ok, .error, .unknownCommand:
+      guestPassword = ""
+      originalGuestPassword = ""
+    case let .raw(raw):
+      guestPassword = raw
+      originalGuestPassword = raw
+    default:
+      break
+    }
+  }
+
   // MARK: - Room Access Fetch/Apply
 
   func fetchRoomAccess() async {
+    let visit = helper.captureSettingsVisit()
+    guard helper.isSettingsVisitCurrent(visit) else { return }
     isLoadingRoomAccess = true
     roomAccessError = false
+    var hadTimeout = false
 
+    let guestTicket = helper.beginSettingsLoad(query: "get guest.password", fields: [.guestPassword])
     do {
       let response = try await helper.sendAndWait("get guest.password", rawMatching: true)
-      let parsed = CLIResponse.parse(response, forQuery: "get guest.password")
-      switch parsed {
-      case .ok, .error, .unknownCommand:
-        guestPassword = ""
-        originalGuestPassword = ""
-      default:
-        let trimmed = response.trimmingCharacters(in: .whitespacesAndNewlines)
-        let value = trimmed.hasPrefix("> ") ? String(trimmed.dropFirst(2)) : trimmed
-        guestPassword = value
-        originalGuestPassword = value
+      if helper.isSettingsLoadCurrent(guestTicket, field: .guestPassword) {
+        let parsed = CLIResponse.parse(response, forQuery: "get guest.password")
+        switch parsed {
+        case .ok, .error, .unknownCommand:
+          guestPassword = ""
+          originalGuestPassword = ""
+        default:
+          let trimmed = response.trimmingCharacters(in: .whitespacesAndNewlines)
+          let value = trimmed.hasPrefix("> ") ? String(trimmed.dropFirst(2)) : trimmed
+          guestPassword = value
+          originalGuestPassword = value
+        }
       }
     } catch {
-      if case RemoteNodeError.timeout = error { roomAccessError = true }
+      if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get guest password: \(error)")
     }
 
+    let readOnlyTicket = helper.beginSettingsLoad(
+      query: "get allow.read.only",
+      fields: [.allowReadOnly]
+    )
     do {
       let response = try await helper.sendAndWait("get allow.read.only", rawMatching: true)
-      let parsed = CLIResponse.parse(response, forQuery: "get allow.read.only")
-      switch parsed {
-      case let .raw(value):
-        let isOn = value.lowercased() == "on"
-        allowReadOnly = isOn
-        originalAllowReadOnly = isOn
-      default:
-        break
+      if helper.isSettingsLoadCurrent(readOnlyTicket, field: .allowReadOnly) {
+        let parsed = CLIResponse.parse(response, forQuery: "get allow.read.only")
+        switch parsed {
+        case let .raw(value):
+          let isOn = value.lowercased() == "on"
+          allowReadOnly = isOn
+          originalAllowReadOnly = isOn
+        default:
+          break
+        }
       }
     } catch {
-      if case RemoteNodeError.timeout = error { roomAccessError = true }
+      if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get allow read only: \(error)")
     }
 
-    isLoadingRoomAccess = false
+    helper.finishSettingsLoad(
+      visit,
+      timedOut: hadTimeout,
+      setError: { roomAccessError = $0 },
+      setLoading: { isLoadingRoomAccess = $0 }
+    )
   }
 
   func applyRoomAccess() async {
+    let snapshotGuestPassword = guestPassword
+    let snapshotAllowReadOnly = allowReadOnly
+    let owned: [NodeSettingsViewModel.OwnedSettingsField] = [.guestPassword, .allowReadOnly]
+    helper.takeApplyOwnership(of: owned)
     isApplyingRoomAccess = true
     helper.errorMessage = nil
+    defer {
+      isApplyingRoomAccess = false
+      helper.releaseApplyOwnership(of: owned)
+      helper.revertAbandonedDraftIfIdle()
+    }
 
     do {
       var allSucceeded = true
 
-      if let guestPassword, guestPassword != originalGuestPassword {
-        let response = try await helper.sendAndWait("set guest.password \(guestPassword)")
+      if let snapshotGuestPassword, snapshotGuestPassword != originalGuestPassword {
+        let response = try await helper.sendAndWait("set guest.password \(snapshotGuestPassword)")
         if case .ok = CLIResponse.parse(response) {
-          originalGuestPassword = guestPassword
+          originalGuestPassword = snapshotGuestPassword
         } else {
           allSucceeded = false
         }
       }
 
-      if let allowReadOnly, allowReadOnly != originalAllowReadOnly {
-        let response = try await helper.sendAndWait("set allow.read.only \(allowReadOnly ? "on" : "off")")
+      if let snapshotAllowReadOnly, snapshotAllowReadOnly != originalAllowReadOnly {
+        let response = try await helper.sendAndWait(
+          "set allow.read.only \(snapshotAllowReadOnly ? "on" : "off")"
+        )
         if case .ok = CLIResponse.parse(response) {
-          originalAllowReadOnly = allowReadOnly
+          originalAllowReadOnly = snapshotAllowReadOnly
         } else {
           allSucceeded = false
         }
@@ -224,27 +359,28 @@ final class RoomSettingsViewModel {
           setApplying: { isApplyingRoomAccess = $0 },
           setSuccess: { roomAccessApplySuccess = $0 }
         )
-        return
       } else {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
       }
     } catch {
       helper.errorMessage = error.userFacingMessage
     }
-
-    isApplyingRoomAccess = false
   }
 
   // MARK: - Behavior Fetch/Apply
 
   func fetchBehaviorSettings() async {
+    let visit = helper.captureSettingsVisit()
+    guard helper.isSettingsVisitCurrent(visit) else { return }
     isLoadingBehavior = true
     behaviorError = false
     var hadTimeout = false
 
+    let advertTicket = helper.beginSettingsLoad(query: "get advert.interval", fields: [.advertInterval])
     do {
       let response = try await helper.sendAndWait("get advert.interval")
-      if case let .advertInterval(minutes) = CLIResponse.parse(response, forQuery: "get advert.interval") {
+      if helper.isSettingsLoadCurrent(advertTicket, field: .advertInterval),
+         case let .advertInterval(minutes) = CLIResponse.parse(response, forQuery: "get advert.interval") {
         advertIntervalMinutes = minutes
         originalAdvertIntervalMinutes = minutes
       }
@@ -253,9 +389,16 @@ final class RoomSettingsViewModel {
       logger.warning("Failed to get advert interval: \(error)")
     }
 
+    let floodAdvertTicket = helper.beginSettingsLoad(
+      query: "get flood.advert.interval",
+      fields: [.floodAdvertInterval]
+    )
     do {
       let response = try await helper.sendAndWait("get flood.advert.interval")
-      if case let .floodAdvertInterval(hours) = CLIResponse.parse(response, forQuery: "get flood.advert.interval") {
+      if helper.isSettingsLoadCurrent(floodAdvertTicket, field: .floodAdvertInterval),
+         case let .floodAdvertInterval(hours) = CLIResponse.parse(
+           response, forQuery: "get flood.advert.interval"
+         ) {
         floodAdvertIntervalHours = hours
         originalFloodAdvertIntervalHours = hours
       }
@@ -264,9 +407,11 @@ final class RoomSettingsViewModel {
       logger.warning("Failed to get flood advert interval: \(error)")
     }
 
+    let floodMaxTicket = helper.beginSettingsLoad(query: "get flood.max", fields: [.floodMaxHops])
     do {
       let response = try await helper.sendAndWait("get flood.max")
-      if case let .floodMax(hops) = CLIResponse.parse(response, forQuery: "get flood.max") {
+      if helper.isSettingsLoadCurrent(floodMaxTicket, field: .floodMaxHops),
+         case let .floodMax(hops) = CLIResponse.parse(response, forQuery: "get flood.max") {
         floodMaxHops = hops
         originalFloodMaxHops = hops
       }
@@ -275,11 +420,12 @@ final class RoomSettingsViewModel {
       logger.warning("Failed to get flood max: \(error)")
     }
 
-    if hadTimeout {
-      behaviorError = true
-    }
-
-    isLoadingBehavior = false
+    helper.finishSettingsLoad(
+      visit,
+      timedOut: hadTimeout,
+      setError: { behaviorError = $0 },
+      setLoading: { isLoadingBehavior = $0 }
+    )
   }
 
   func applyBehaviorSettings() async {
@@ -294,34 +440,49 @@ final class RoomSettingsViewModel {
 
     if validation.hasErrors { return }
 
+    let snapshotAdvertInterval = advertIntervalMinutes
+    let snapshotFloodAdvertInterval = floodAdvertIntervalHours
+    let snapshotFloodMaxHops = floodMaxHops
+    let owned: [NodeSettingsViewModel.OwnedSettingsField] = [
+      .advertInterval, .floodAdvertInterval, .floodMaxHops
+    ]
+    helper.takeApplyOwnership(of: owned)
     isApplyingBehavior = true
     helper.errorMessage = nil
+    defer {
+      isApplyingBehavior = false
+      helper.releaseApplyOwnership(of: owned)
+      helper.revertAbandonedDraftIfIdle()
+    }
 
     do {
       var allSucceeded = true
 
-      if let advertIntervalMinutes, advertIntervalMinutes != originalAdvertIntervalMinutes {
-        let response = try await helper.sendAndWait("set advert.interval \(advertIntervalMinutes)")
+      if let snapshotAdvertInterval, snapshotAdvertInterval != originalAdvertIntervalMinutes {
+        let response = try await helper.sendAndWait("set advert.interval \(snapshotAdvertInterval)")
         if case .ok = CLIResponse.parse(response) {
-          originalAdvertIntervalMinutes = advertIntervalMinutes
+          originalAdvertIntervalMinutes = snapshotAdvertInterval
         } else {
           allSucceeded = false
         }
       }
 
-      if let floodAdvertIntervalHours, floodAdvertIntervalHours != originalFloodAdvertIntervalHours {
-        let response = try await helper.sendAndWait("set flood.advert.interval \(floodAdvertIntervalHours)")
+      if let snapshotFloodAdvertInterval,
+         snapshotFloodAdvertInterval != originalFloodAdvertIntervalHours {
+        let response = try await helper.sendAndWait(
+          "set flood.advert.interval \(snapshotFloodAdvertInterval)"
+        )
         if case .ok = CLIResponse.parse(response) {
-          originalFloodAdvertIntervalHours = floodAdvertIntervalHours
+          originalFloodAdvertIntervalHours = snapshotFloodAdvertInterval
         } else {
           allSucceeded = false
         }
       }
 
-      if let floodMaxHops, floodMaxHops != originalFloodMaxHops {
-        let response = try await helper.sendAndWait("set flood.max \(floodMaxHops)")
+      if let snapshotFloodMaxHops, snapshotFloodMaxHops != originalFloodMaxHops {
+        let response = try await helper.sendAndWait("set flood.max \(snapshotFloodMaxHops)")
         if case .ok = CLIResponse.parse(response) {
-          originalFloodMaxHops = floodMaxHops
+          originalFloodMaxHops = snapshotFloodMaxHops
         } else {
           allSucceeded = false
         }
@@ -332,14 +493,11 @@ final class RoomSettingsViewModel {
           setApplying: { isApplyingBehavior = $0 },
           setSuccess: { behaviorApplySuccess = $0 }
         )
-        return
       } else {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
       }
     } catch {
       helper.errorMessage = error.userFacingMessage
     }
-
-    isApplyingBehavior = false
   }
 }

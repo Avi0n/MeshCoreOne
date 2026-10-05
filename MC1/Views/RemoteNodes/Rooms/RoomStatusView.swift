@@ -4,10 +4,22 @@ import SwiftUI
 /// Guest standalone sheet for room server stats, telemetry, and battery curve.
 struct RoomStatusView: View {
   @Environment(\.appState) private var appState
+  let session: RemoteNodeSessionDTO
+
+  var body: some View {
+    RoomStatusWorkspace(
+      session: session,
+      viewModel: appState.remoteAdminWorkspaces.roomStatus(for: session)
+    )
+  }
+}
+
+private struct RoomStatusWorkspace: View {
+  @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
 
   let session: RemoteNodeSessionDTO
-  @State private var viewModel = RoomStatusViewModel()
+  @Bindable var viewModel: RoomStatusViewModel
 
   var body: some View {
     NavigationStack {
@@ -49,9 +61,6 @@ struct RoomStatusView: View {
           await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
       }
-    }
-    .onDisappear {
-      Task { await viewModel.cleanup() }
     }
     .presentationDetents([.large])
   }

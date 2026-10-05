@@ -87,6 +87,31 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Fertig";
 
+
+/* TODO: translate */
+"remoteNodes.settings.discardTitle" = "Discard Changes?";
+
+/* TODO: translate */
+"remoteNodes.settings.discardChanges" = "Discard Changes";
+
+/* TODO: translate */
+"remoteNodes.settings.keepEditing" = "Keep Editing";
+
+/* TODO: translate */
+"remoteNodes.settings.unsavedRegionsTitle" = "Unsaved Regions";
+
+/* TODO: translate */
+"remoteNodes.settings.unsavedRegionsMessage" = "Region changes are temporarily active. Save them if you want them to stay after a restart.";
+
+/* TODO: translate */
+"remoteNodes.settings.dontSave" = "Don't Save";
+
+/* TODO: translate */
+"remoteNodes.settings.savingRegions" = "A save is in progress.";
+
+/* TODO: translate */
+"remoteNodes.settings.applyInProgress" = "Work still in progress";
+
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "Einstellungen";
 

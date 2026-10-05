@@ -239,13 +239,6 @@ struct ContactDetailSheet: View {
         case let .adminSettings(session):
           NavigationStack {
             RepeaterSettingsView(session: session)
-              .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                  Button(L10n.Map.Map.Common.done) {
-                    activeSheet = nil
-                  }
-                }
-              }
           }
           .presentationSizing(.page)
 

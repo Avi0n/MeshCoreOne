@@ -4,15 +4,29 @@ import SwiftUI
 
 struct RepeaterSettingsView: View {
   @Environment(\.appState) private var appState
+  let session: RemoteNodeSessionDTO
+
+  var body: some View {
+    RepeaterSettingsWorkspace(
+      session: session,
+      viewModel: appState.remoteAdminWorkspaces.repeaterSettings(for: session),
+      statusViewModel: appState.remoteAdminWorkspaces.repeaterStatus(for: session),
+      cliViewModel: appState.remoteAdminWorkspaces.nodeCLI(for: session)
+    )
+  }
+}
+
+private struct RepeaterSettingsWorkspace: View {
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Environment(\.dismiss) private var dismiss
   @FocusState private var focusedField: NodeSettingsField?
 
   let session: RemoteNodeSessionDTO
-  @State private var viewModel = RepeaterSettingsViewModel()
-  @State private var statusViewModel = RepeaterStatusViewModel()
+  @Bindable var viewModel: RepeaterSettingsViewModel
+  @Bindable var statusViewModel: RepeaterStatusViewModel
+  @Bindable var cliViewModel: NodeCLIViewModel
   @State private var managementTab: NodeManagementTab = .settings
-  @State private var cliViewModel = NodeCLIViewModel()
   @State private var showRebootConfirmation = false
   @State private var showingLocationPicker = false
   @State private var addRegionParent: RepeaterRegionEntry.Parent?
@@ -54,6 +68,24 @@ struct RepeaterSettingsView: View {
           .pinnedFilterHeaderBackground(theme)
       }
     }
+    .onAppear {
+      viewModel.helper.noteSettingsAppeared()
+      statusViewModel.noteTelemetryVisitAppeared()
+    }
+    // Region commands already ran; only region save commits put, remove, and allow/deny, region default already persisted the map, and disappear must not pretend to undo either.
+    .onDisappear {
+      viewModel.helper.noteSettingsDisappeared()
+      statusViewModel.noteTelemetryVisitDisappeared()
+    }
+    .settingsExitGuard(
+      hasUncommittedSettingsEdits: viewModel.hasUncommittedSettingsEdits,
+      hasUnsavedRegionChanges: viewModel.hasUnsavedRegionChanges,
+      isApplying: viewModel.helper.isApplying,
+      errorMessage: viewModel.helper.errorMessage,
+      revertUncommittedSettingsEdits: { viewModel.revertUncommittedSettingsEdits() },
+      saveRegions: { await viewModel.saveRegions() },
+      discardUnsavedRegionChanges: { viewModel.hasUnsavedRegionChanges = false }
+    )
     .task {
       await viewModel.configure(
         repeaterAdminService: { appState.services?.repeaterAdminService },
@@ -93,13 +125,6 @@ struct RepeaterSettingsView: View {
         if let radioID = appState.connectedDevice?.radioID {
           await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
-      }
-    }
-    .onDisappear {
-      statusViewModel.stopDiscovery()
-      Task {
-        await statusViewModel.clearStatusHandlers()
-        await viewModel.cleanup()
       }
     }
     .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {

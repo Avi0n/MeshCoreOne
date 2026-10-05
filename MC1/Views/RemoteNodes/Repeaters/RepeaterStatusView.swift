@@ -4,10 +4,22 @@ import SwiftUI
 /// Guest standalone sheet for repeater stats, telemetry, and neighbors.
 struct RepeaterStatusView: View {
   @Environment(\.appState) private var appState
+  let session: RemoteNodeSessionDTO
+
+  var body: some View {
+    RepeaterStatusWorkspace(
+      session: session,
+      viewModel: appState.remoteAdminWorkspaces.repeaterStatus(for: session)
+    )
+  }
+}
+
+private struct RepeaterStatusWorkspace: View {
+  @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
 
   let session: RemoteNodeSessionDTO
-  @State private var viewModel = RepeaterStatusViewModel()
+  @Bindable var viewModel: RepeaterStatusViewModel
   @State private var contacts: [ContactDTO] = []
   @State private var discoveredNodes: [DiscoveredNodeDTO] = []
   /// The node's contact, kept live so the route section reflects the path the firmware learns after
@@ -67,10 +79,6 @@ struct RepeaterStatusView: View {
       .onChange(of: appState.contactsVersion) {
         Task { await refreshRouteContact() }
       }
-    }
-    .onDisappear {
-      viewModel.stopDiscovery()
-      Task { await viewModel.cleanup() }
     }
     .presentationDetents([.large])
   }

@@ -912,7 +912,7 @@ struct RepeaterSettingsDefaultScopeTests {
     #expect(recorder.commands == ["region remove duckburg", "region default <null>"])
     #expect(viewModel.regions.map(\.name) == ["*"])
     #expect(viewModel.defaultScopeName == nil)
-    #expect(viewModel.hasUnsavedRegionChanges)
+    #expect(viewModel.hasUnsavedRegionChanges == false)
     #expect(viewModel.helper.errorMessage == nil)
     #expect(!viewModel.helper.isApplying)
   }

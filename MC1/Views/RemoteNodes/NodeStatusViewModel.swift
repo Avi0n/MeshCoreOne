@@ -61,6 +61,17 @@ final class NodeStatusViewModel {
   /// Whether the telemetry disclosure group is expanded
   var telemetryExpanded = false
 
+  /// Captured when a telemetry load starts. A later visit does not match.
+  struct TelemetryVisitToken: Equatable {
+    fileprivate let generation: UInt
+    fileprivate let acceptsLoads: Bool
+  }
+
+  /// Loads taken while the management sheet is open. Ending the visit bumps
+  /// the generation so a reply from the previous visit cannot refill the next one.
+  private var telemetryVisitGeneration: UInt = 0
+  private var telemetryVisitAcceptsLoads = true
+
   /// Error text owned by the status counters section, scoped so a status
   /// failure surfaces only under the status section once sections load independently.
   var statusSectionError: String?
@@ -119,6 +130,74 @@ final class NodeStatusViewModel {
   /// Used for chat nodes that can be queried without authentication.
   func configureForDirectTelemetry(publicKey: Data) {
     directPublicKey = publicKey
+  }
+
+  func captureTelemetryVisit() -> TelemetryVisitToken {
+    TelemetryVisitToken(generation: telemetryVisitGeneration, acceptsLoads: telemetryVisitAcceptsLoads)
+  }
+
+  func allowsTelemetryWrite(_ visit: TelemetryVisitToken?) -> Bool {
+    if let visit {
+      return visit.acceptsLoads && visit.generation == telemetryVisitGeneration
+    }
+    return telemetryVisitAcceptsLoads
+  }
+
+  func beginTelemetryVisit() {
+    guard !telemetryVisitAcceptsLoads else { return }
+    telemetryVisitGeneration &+= 1
+    telemetryVisitAcceptsLoads = true
+  }
+
+  func endTelemetryVisit() {
+    if telemetryVisitAcceptsLoads {
+      telemetryVisitAcceptsLoads = false
+      telemetryVisitGeneration &+= 1
+    }
+    clearDisplayedTelemetry()
+  }
+
+  private func clearDisplayedTelemetry() {
+    status = nil
+    telemetry = nil
+    cachedDataPoints = []
+    isLoadingStatus = false
+    isLoadingTelemetry = false
+    statusLoaded = false
+    telemetryLoaded = false
+    statusExpanded = false
+    telemetryExpanded = false
+    isBatteryCurveExpanded = false
+    statusSectionError = nil
+    telemetrySectionError = nil
+  }
+
+  func runVisitedSectionRequest<T>(
+    visit: TelemetryVisitToken,
+    operationName: String,
+    setLoading: @escaping @MainActor (Bool) -> Void,
+    setError: @escaping @MainActor (String?) -> Void,
+    timeoutMessage: String = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut,
+    operation: @escaping @Sendable (Duration) async throws -> T,
+    onSuccess: @escaping @MainActor (T) async -> Void
+  ) async {
+    await runRetryingSectionRequest(
+      operationName: operationName,
+      setLoading: { loading in
+        guard self.allowsTelemetryWrite(visit) else { return }
+        setLoading(loading)
+      },
+      setError: { error in
+        guard self.allowsTelemetryWrite(visit) else { return }
+        setError(error)
+      },
+      timeoutMessage: timeoutMessage,
+      operation: operation,
+      onSuccess: { value in
+        guard self.allowsTelemetryWrite(visit) else { return }
+        await onSuccess(value)
+      }
+    )
   }
 
   // MARK: - Transient Retry Machinery
@@ -222,8 +301,10 @@ final class NodeStatusViewModel {
     rxAirtimeSeconds: UInt32? = nil,
     receiveErrors: UInt32? = nil,
     postedCount: UInt16? = nil,
-    postPushCount: UInt16? = nil
+    postPushCount: UInt16? = nil,
+    visit: TelemetryVisitToken? = nil
   ) async {
+    guard allowsTelemetryWrite(visit) else { return }
     guard let expectedPrefix = session?.publicKeyPrefix,
           response.publicKeyPrefix == expectedPrefix else {
       return
@@ -272,7 +353,11 @@ final class NodeStatusViewModel {
 
   // MARK: - Telemetry Response Handling
 
-  func handleTelemetryResponse(_ response: TelemetryResponse) async {
+  func handleTelemetryResponse(
+    _ response: TelemetryResponse,
+    visit: TelemetryVisitToken? = nil
+  ) async {
+    guard allowsTelemetryWrite(visit) else { return }
     guard let expectedPrefix = effectivePublicKeyPrefix,
           response.publicKeyPrefix == expectedPrefix else {
       return

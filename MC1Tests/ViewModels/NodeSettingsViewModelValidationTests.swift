@@ -249,7 +249,6 @@ struct NodeSettingsRadioApplyTests {
     viewModel.bandwidth = 250.0
     viewModel.spreadingFactor = 10
     viewModel.codingRate = 5
-    viewModel.radioSettingsModified = true
 
     await viewModel.applyRadioSettings()
 

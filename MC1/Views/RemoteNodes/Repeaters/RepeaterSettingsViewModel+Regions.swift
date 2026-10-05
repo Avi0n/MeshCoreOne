@@ -10,12 +10,19 @@ extension RepeaterSettingsViewModel {
   private static let defaultScopeSetReplyMarker = "default scope is now"
 
   func fetchRegions() async {
+    let visit = helper.captureSettingsVisit()
+    guard helper.isSettingsVisitCurrent(visit) else { return }
     isLoadingRegions = true
     regionsError = false
-    defer { isLoadingRegions = false }
+    defer {
+      if helper.isSettingsVisitCurrent(visit) {
+        isLoadingRegions = false
+      }
+    }
 
     do {
       let treeResponse = try await helper.sendAndWait("region", timeout: .seconds(10), rawMatching: true)
+      guard helper.isSettingsVisitCurrent(visit) else { return }
       let parsed = Self.parseRegionTree(treeResponse)
       guard !parsed.isEmpty else {
         originalRegions = nil
@@ -25,7 +32,7 @@ extension RepeaterSettingsViewModel {
       regions = parsed
       originalRegions = parsed
     } catch {
-      if case RemoteNodeError.timeout = error {
+      if case RemoteNodeError.timeout = error, helper.isSettingsVisitCurrent(visit) {
         regionsError = true
       }
       logger.warning("Failed to fetch regions: \(error)")
@@ -33,9 +40,15 @@ extension RepeaterSettingsViewModel {
   }
 
   func fetchDefaultScope() async {
+    let visit = helper.captureSettingsVisit()
+    guard helper.isSettingsVisitCurrent(visit) else { return }
     guard supportsRegionDefaultScope, !isLoadingDefaultScope else { return }
     isLoadingDefaultScope = true
-    defer { isLoadingDefaultScope = false }
+    defer {
+      if helper.isSettingsVisitCurrent(visit) {
+        isLoadingDefaultScope = false
+      }
+    }
 
     do {
       let defaultReply = try await helper.sendAndWait(
@@ -43,6 +56,7 @@ extension RepeaterSettingsViewModel {
         timeout: .seconds(10),
         rawMatching: true
       )
+      guard helper.isSettingsVisitCurrent(visit) else { return }
       if let parsed = Self.parseDefaultScopeReply(defaultReply) {
         applyParsedDefaultScope(parsed)
       } else {
@@ -147,6 +161,10 @@ extension RepeaterSettingsViewModel {
 
     helper.isApplying = true
     helper.errorMessage = nil
+    defer {
+      helper.isApplying = false
+      helper.revertAbandonedDraftIfIdle()
+    }
 
     do {
       let response = try await helper.sendAndWait(command)
@@ -161,8 +179,6 @@ extension RepeaterSettingsViewModel {
     } catch {
       helper.errorMessage = error.userFacingMessage
     }
-
-    helper.isApplying = false
   }
 
   func setDefaultScope(name: String?) async {
@@ -175,12 +191,17 @@ extension RepeaterSettingsViewModel {
 
     helper.isApplying = true
     helper.errorMessage = nil
+    defer {
+      helper.isApplying = false
+      helper.revertAbandonedDraftIfIdle()
+    }
 
     do {
       let response = try await helper.sendAndWait(command, rawMatching: true)
       if response.contains(Self.defaultScopeSetReplyMarker) {
         defaultScopeName = name
         defaultScopeLoaded = true
+        hasUnsavedRegionChanges = false
         if let name, let index = regions.firstIndex(where: { $0.name == name }) {
           regions[index].floodAllowed = true
         }
@@ -190,8 +211,6 @@ extension RepeaterSettingsViewModel {
     } catch {
       helper.errorMessage = error.userFacingMessage
     }
-
-    helper.isApplying = false
   }
 
   enum AddRegionError: Error, Equatable {
@@ -230,6 +249,10 @@ extension RepeaterSettingsViewModel {
 
     helper.isApplying = true
     helper.errorMessage = nil
+    defer {
+      helper.isApplying = false
+      helper.revertAbandonedDraftIfIdle()
+    }
 
     do {
       let response = try await helper.sendAndWait(command)
@@ -254,18 +277,15 @@ extension RepeaterSettingsViewModel {
           regions.append(newEntry)
         }
         hasUnsavedRegionChanges = true
-        helper.isApplying = false
         return
       } else {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.addFailed
       }
     } catch {
       helper.errorMessage = error.userFacingMessage
-      helper.isApplying = false
       throw error
     }
 
-    helper.isApplying = false
     throw AddRegionError.rejected
   }
 
@@ -274,6 +294,10 @@ extension RepeaterSettingsViewModel {
     helper.isApplying = true
     helper.errorMessage = nil
     let wasDefault = defaultScopeName == name
+    defer {
+      helper.isApplying = false
+      helper.revertAbandonedDraftIfIdle()
+    }
 
     do {
       let response = try await helper.sendAndWait("region remove \(name)")
@@ -287,6 +311,7 @@ extension RepeaterSettingsViewModel {
           )
           if clearReply.contains(Self.defaultScopeSetReplyMarker) {
             defaultScopeName = nil
+            hasUnsavedRegionChanges = false
           } else {
             helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion
           }
@@ -299,14 +324,16 @@ extension RepeaterSettingsViewModel {
     } catch {
       helper.errorMessage = error.userFacingMessage
     }
-
-    helper.isApplying = false
   }
 
   func saveRegions() async {
     guard !helper.isApplying else { return }
     helper.isApplying = true
     helper.errorMessage = nil
+    defer {
+      helper.isApplying = false
+      helper.revertAbandonedDraftIfIdle()
+    }
 
     do {
       let response = try await helper.sendAndWait("region save")
@@ -316,14 +343,11 @@ extension RepeaterSettingsViewModel {
           setApplying: { helper.isApplying = $0 },
           setSuccess: { regionsSaveSuccess = $0 }
         )
-        return
       } else {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveFailed
       }
     } catch {
       helper.errorMessage = error.userFacingMessage
     }
-
-    helper.isApplying = false
   }
 }

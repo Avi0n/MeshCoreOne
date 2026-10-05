@@ -396,11 +396,6 @@ struct ContactDetailView: View {
               RepeaterSettingsView(session: session)
             }
           }
-          .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-              Button(L10n.RemoteNodes.RemoteNodes.done) { activeSheet = nil }
-            }
-          }
         }
         .presentationSizing(.page)
       }

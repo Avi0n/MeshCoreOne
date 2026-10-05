@@ -11,6 +11,9 @@ final class RoomStatusViewModel {
 
   // MARK: - Dependencies
 
+  private var statusVisit: NodeStatusViewModel.TelemetryVisitToken?
+  private var telemetryVisit: NodeStatusViewModel.TelemetryVisitToken?
+
   private var roomAdminServiceProvider: @MainActor () -> RoomAdminService? = { nil }
   var roomAdminService: RoomAdminService? {
     roomAdminServiceProvider()
@@ -41,13 +44,19 @@ final class RoomStatusViewModel {
     guard let roomAdminService else { return }
 
     await roomAdminService.setStatusHandler { [weak self] status in
-      guard await self?.helper.matchesSession(status.publicKeyPrefix) == true else { return }
-      await self?.handleStatusResponse(status)
+      guard let self else { return }
+      guard await self.helper.matchesSession(status.publicKeyPrefix) else { return }
+      let visit = await self.statusVisit
+      guard await self.helper.allowsTelemetryWrite(visit) else { return }
+      await self.handleStatusResponse(status, visit: visit)
     }
 
     await roomAdminService.setTelemetryHandler { [weak self] response in
-      guard await self?.helper.matchesSession(response.publicKeyPrefix) == true else { return }
-      await self?.helper.handleTelemetryResponse(response)
+      guard let self else { return }
+      guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
+      let visit = await self.telemetryVisit
+      guard await self.helper.allowsTelemetryWrite(visit) else { return }
+      await self.helper.handleTelemetryResponse(response, visit: visit)
     }
   }
 
@@ -68,26 +77,41 @@ final class RoomStatusViewModel {
 
   // MARK: - Status
 
+  func noteTelemetryVisitAppeared() {
+    helper.beginTelemetryVisit()
+  }
+
+  func noteTelemetryVisitDisappeared() {
+    helper.endTelemetryVisit()
+  }
+
   func requestStatus(for session: RemoteNodeSessionDTO) async {
     guard let roomAdminService else { return }
     if helper.session == nil { helper.session = session }
+    let visit = helper.captureTelemetryVisit()
+    statusVisit = visit
 
-    await helper.runRetryingSectionRequest(
+    await helper.runVisitedSectionRequest(
+      visit: visit,
       operationName: "status",
       setLoading: { self.helper.isLoadingStatus = $0 },
       setError: { self.helper.statusSectionError = $0 },
       operation: { [roomAdminService] timeout in
         try await roomAdminService.requestStatus(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { await self.handleStatusResponse($0) }
+      onSuccess: { await self.handleStatusResponse($0, visit: visit) }
     )
   }
 
-  private func handleStatusResponse(_ response: RemoteNodeStatus) async {
+  private func handleStatusResponse(
+    _ response: RemoteNodeStatus,
+    visit: NodeStatusViewModel.TelemetryVisitToken?
+  ) async {
     await helper.handleStatusResponse(
       response,
       postedCount: response.roomServerPostedCount,
-      postPushCount: response.roomServerPostPushCount
+      postPushCount: response.roomServerPostPushCount,
+      visit: visit
     )
   }
 
@@ -97,14 +121,18 @@ final class RoomStatusViewModel {
     guard let roomAdminService else { return }
     if helper.session == nil { helper.session = session }
 
-    await helper.runRetryingSectionRequest(
+    let visit = helper.captureTelemetryVisit()
+    telemetryVisit = visit
+
+    await helper.runVisitedSectionRequest(
+      visit: visit,
       operationName: "telemetry",
       setLoading: { self.helper.isLoadingTelemetry = $0 },
       setError: { self.helper.telemetrySectionError = $0 },
       operation: { [roomAdminService] timeout in
         try await roomAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { await self.helper.handleTelemetryResponse($0) }
+      onSuccess: { await self.helper.handleTelemetryResponse($0, visit: visit) }
     )
   }
 

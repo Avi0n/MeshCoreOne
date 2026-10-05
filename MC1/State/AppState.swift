@@ -315,6 +315,9 @@ final class AppState {
   /// Persistent CLI tool view model (survives tab switches, reset on device disconnect)
   var cliToolViewModel: CLIToolViewModel?
 
+  /// Repeater and room settings/status/CLI models keyed by radio and public key.
+  let remoteAdminWorkspaces = RemoteAdminWorkspaces()
+
   /// Tracks the device ID for CLI state - reset CLI when device changes
   private var lastConnectedDeviceIDForCLI: UUID?
 
@@ -533,6 +536,11 @@ final class AppState {
     refreshConversations()
   }
 
+  private func resetRadioScopedToolWorkspaces() {
+    cliToolViewModel?.reset()
+    remoteAdminWorkspaces.reset()
+  }
+
   /// Wire services-dependent callbacks after a successful connection.
   func wireServicesIfConnected() async {
     guard let services else {
@@ -543,7 +551,7 @@ final class AppState {
         lastConnectedDeviceID: connectionManager.lastConnectedDeviceID,
         shouldSuppressDisconnectedPill: connectionManager.shouldSuppressDisconnectedPill
       )
-      cliToolViewModel?.reset()
+      resetRadioScopedToolWorkspaces()
       batteryMonitor.stop()
       batteryMonitor.clearThresholds()
       await liveActivityManager.handleConnectionLost()
@@ -570,7 +578,7 @@ final class AppState {
     if let newDeviceID = connectedDevice?.id,
        let oldDeviceID = lastConnectedDeviceIDForCLI,
        newDeviceID != oldDeviceID {
-      cliToolViewModel?.reset()
+      resetRadioScopedToolWorkspaces()
       navigation.clearPerRadioSelection()
     }
     lastConnectedDeviceIDForCLI = connectedDevice?.id

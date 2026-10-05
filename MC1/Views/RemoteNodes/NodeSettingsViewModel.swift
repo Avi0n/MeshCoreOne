@@ -55,9 +55,11 @@ final class NodeSettingsViewModel {
   var name: String?
   var latitude: Double?
   var longitude: Double?
+  /// Last value assigned by a load or successful `set name`, not by typing.
+  private(set) var nameBaseline: String?
   private(set) var originalName: String?
-  private(set) var originalLatitude: Double?
-  private(set) var originalLongitude: Double?
+  var originalLatitude: Double?
+  var originalLongitude: Double?
   var isLoadingIdentity = false
   var identityError = false
   var identityLoaded: Bool {
@@ -65,7 +67,7 @@ final class NodeSettingsViewModel {
   }
 
   var identitySettingsModified: Bool {
-    (name != nil && name != originalName) ||
+    (name != nameBaseline) ||
       (latitude != nil && latitude != originalLatitude) ||
       (longitude != nil && longitude != originalLongitude)
   }
@@ -80,13 +82,22 @@ final class NodeSettingsViewModel {
   var bandwidth: Double?
   var spreadingFactor: Int?
   var codingRate: Int?
+  var originalFrequency: Double?
+  var originalBandwidth: Double?
+  var originalSpreadingFactor: Int?
+  var originalCodingRate: Int?
   var isLoadingRadio = false
   var radioError = false
   var radioLoaded: Bool {
     frequency != nil
   }
 
-  var radioSettingsModified = false
+  var radioSettingsModified: Bool {
+    (frequency != nil && frequency != originalFrequency) ||
+      (bandwidth != nil && bandwidth != originalBandwidth) ||
+      (spreadingFactor != nil && spreadingFactor != originalSpreadingFactor) ||
+      (codingRate != nil && codingRate != originalCodingRate)
+  }
 
   // MARK: - Contact Info
 
@@ -140,6 +151,19 @@ final class NodeSettingsViewModel {
   var changePasswordSuccess = false
   var isSendingAdvert = false
 
+  /// When true, revert uncommitted edits once every settings Apply flag is idle.
+  private(set) var discardDraftWhenIdle = false
+  /// When true, drop cached settings once every settings Apply flag is idle.
+  private var clearCachedSettingsWhenIdle = false
+  /// Room sets this to room-access / behavior Apply; repeater leaves the default.
+  var otherSettingsApplyInFlight: () -> Bool = { false }
+  /// Full revert including repeater/room fields. Configure wires this.
+  var onRevertUncommittedSettingsEdits: () -> Void = {}
+  /// Repeater and room sections collapse with the shared ones.
+  var onCollapseExtraSettingsSections: () -> Void = {}
+  /// Repeater and room cached values clear with the shared ones.
+  var onClearCachedExtraSettings: () -> Void = {}
+
   // MARK: - Service Closures
 
   private var sendCommandClosure: ((UUID, String, Duration) async throws -> String)?
@@ -148,6 +172,231 @@ final class NodeSettingsViewModel {
   /// Called when firmware version or node info needs pre-fetching.
   /// Repeater sets this to binary requestOwnerInfo; Room sets this to CLI `ver`.
   var onPreFetchNodeInfo: (() async -> Void)?
+
+  // MARK: - Load / Apply field ownership
+
+  /// Fields an Apply may own so an older load cannot overwrite them.
+  enum OwnedSettingsField: Hashable {
+    case name, latitude, longitude, ownerInfo, radio
+    case advertInterval, floodAdvertInterval, floodMaxHops, repeaterEnabled
+    case guestPassword, allowReadOnly
+  }
+
+  /// Captured when a settings load starts. A later visit does not match.
+  struct SettingsVisitToken: Equatable {
+    fileprivate let generation: UInt
+    fileprivate let acceptsLoads: Bool
+  }
+
+  /// Snapshot of field revisions captured when a load starts.
+  struct SettingsLoadTicket {
+    fileprivate let revisions: [OwnedSettingsField: Int]
+    fileprivate let visit: SettingsVisitToken
+  }
+
+  /// Loads taken while the sheet is open. Ending the visit bumps the generation
+  /// so a reply from the previous visit cannot refill the next one.
+  private var settingsVisitGeneration: UInt = 0
+  private var settingsVisitAcceptsLoads = true
+
+  private var fieldRevision: [OwnedSettingsField: Int] = [:]
+  private var applyOwnedFields: Set<OwnedSettingsField> = []
+  private var loadTicketByQuery: [String: SettingsLoadTicket] = [:]
+
+  func captureSettingsVisit() -> SettingsVisitToken {
+    SettingsVisitToken(generation: settingsVisitGeneration, acceptsLoads: settingsVisitAcceptsLoads)
+  }
+
+  func isSettingsVisitCurrent(_ visit: SettingsVisitToken) -> Bool {
+    visit.acceptsLoads && visit.generation == settingsVisitGeneration
+  }
+
+  func isSettingsVisitCurrent(query: String) -> Bool {
+    guard let ticket = loadTicketByQuery[query] else { return false }
+    return isSettingsVisitCurrent(ticket.visit)
+  }
+
+  func beginSettingsLoad(fields: [OwnedSettingsField]) -> SettingsLoadTicket {
+    SettingsLoadTicket(
+      revisions: Dictionary(uniqueKeysWithValues: fields.map { ($0, fieldRevision[$0, default: 0]) }),
+      visit: captureSettingsVisit()
+    )
+  }
+
+  /// Skip section flags when the load's visit has ended, so a late finish
+  /// cannot clear a newer visit's spinner or restore its error.
+  func finishSettingsLoad(
+    _ visit: SettingsVisitToken,
+    timedOut: Bool,
+    setError: (Bool) -> Void,
+    setLoading: (Bool) -> Void
+  ) {
+    guard isSettingsVisitCurrent(visit) else { return }
+    if timedOut { setError(true) }
+    setLoading(false)
+  }
+
+  func beginSettingsLoad(query: String, fields: [OwnedSettingsField]) -> SettingsLoadTicket {
+    let ticket = beginSettingsLoad(fields: fields)
+    loadTicketByQuery[query] = ticket
+    return ticket
+  }
+
+  func isSettingsLoadCurrent(_ ticket: SettingsLoadTicket, field: OwnedSettingsField) -> Bool {
+    guard isSettingsVisitCurrent(ticket.visit) else { return false }
+    return ticket.revisions[field] == fieldRevision[field, default: 0]
+  }
+
+  func isSettingsLoadCurrent(query: String, field: OwnedSettingsField) -> Bool {
+    guard let ticket = loadTicketByQuery[query] else { return false }
+    return isSettingsLoadCurrent(ticket, field: field)
+  }
+
+  func takeApplyOwnership(of fields: [OwnedSettingsField]) {
+    for field in fields {
+      fieldRevision[field, default: 0] += 1
+      applyOwnedFields.insert(field)
+    }
+  }
+
+  func releaseApplyOwnership(of fields: [OwnedSettingsField]) {
+    applyOwnedFields.subtract(fields)
+  }
+
+  /// Unticketed writers (placeholder seed, direct `setNodeInfo`) skip fields Apply owns.
+  /// Ticketed writers use the revision captured when that load started.
+  func allowsSettingsLoadWrite(_ field: OwnedSettingsField, ticket: SettingsLoadTicket?) -> Bool {
+    if let ticket {
+      return isSettingsLoadCurrent(ticket, field: field)
+    }
+    guard settingsVisitAcceptsLoads else { return false }
+    return !applyOwnedFields.contains(field)
+  }
+
+  // MARK: - Discard on exit
+
+  var hasUncommittedSharedSettingsEdits: Bool {
+    identitySettingsModified
+      || radioSettingsModified
+      || contactInfoSettingsModified
+      || !newPassword.isEmpty
+      || !confirmPassword.isEmpty
+  }
+
+  func revertUncommittedSharedSettingsEdits() {
+    name = nameBaseline
+    latitude = originalLatitude
+    longitude = originalLongitude
+    if let originalFrequency {
+      frequency = originalFrequency
+    }
+    if let originalBandwidth {
+      bandwidth = originalBandwidth
+    }
+    if let originalSpreadingFactor {
+      spreadingFactor = originalSpreadingFactor
+    }
+    if let originalCodingRate {
+      codingRate = originalCodingRate
+    }
+    if contactInfoLoaded {
+      ownerInfo = originalOwnerInfo
+    }
+    newPassword = ""
+    confirmPassword = ""
+    nameError = nil
+    latitudeError = nil
+    longitudeError = nil
+  }
+
+  func noteSettingsDisappeared() {
+    if settingsVisitAcceptsLoads {
+      settingsVisitAcceptsLoads = false
+      settingsVisitGeneration &+= 1
+    }
+    collapseSettingsSections()
+    if isApplying || otherSettingsApplyInFlight() {
+      discardDraftWhenIdle = true
+      clearCachedSettingsWhenIdle = true
+    } else {
+      onRevertUncommittedSettingsEdits()
+      clearCachedSettingsNow()
+    }
+  }
+
+  func noteSettingsAppeared() {
+    discardDraftWhenIdle = false
+    clearCachedSettingsWhenIdle = false
+    guard !settingsVisitAcceptsLoads else { return }
+    settingsVisitGeneration &+= 1
+    settingsVisitAcceptsLoads = true
+  }
+
+  func revertAbandonedDraftIfIdle() {
+    guard discardDraftWhenIdle || clearCachedSettingsWhenIdle else { return }
+    guard !isApplying, !otherSettingsApplyInFlight() else { return }
+    let shouldRevert = discardDraftWhenIdle
+    let shouldClear = clearCachedSettingsWhenIdle
+    discardDraftWhenIdle = false
+    clearCachedSettingsWhenIdle = false
+    if shouldRevert {
+      onRevertUncommittedSettingsEdits()
+    }
+    if shouldClear {
+      clearCachedSettingsNow()
+    }
+  }
+
+  private func collapseSettingsSections() {
+    isDeviceInfoExpanded = false
+    isRadioExpanded = false
+    isIdentityExpanded = false
+    isContactInfoExpanded = false
+    isSecurityExpanded = false
+    onCollapseExtraSettingsSections()
+  }
+
+  private func clearCachedSettingsNow() {
+    clearCachedSharedSettings()
+    onClearCachedExtraSettings()
+  }
+
+  private func clearCachedSharedSettings() {
+    firmwareVersion = nil
+    deviceTimeUTC = nil
+    clockDrift = nil
+    isLoadingDeviceInfo = false
+    deviceInfoError = false
+
+    name = nil
+    nameBaseline = nil
+    originalName = nil
+    latitude = nil
+    longitude = nil
+    originalLatitude = nil
+    originalLongitude = nil
+    isLoadingIdentity = false
+    identityError = false
+    nameError = nil
+    latitudeError = nil
+    longitudeError = nil
+
+    frequency = nil
+    bandwidth = nil
+    spreadingFactor = nil
+    codingRate = nil
+    originalFrequency = nil
+    originalBandwidth = nil
+    originalSpreadingFactor = nil
+    originalCodingRate = nil
+    isLoadingRadio = false
+    radioError = false
+
+    ownerInfo = nil
+    originalOwnerInfo = nil
+    isLoadingContactInfo = false
+    contactInfoError = false
+  }
 
   // MARK: - Configuration
 
@@ -163,25 +412,54 @@ final class NodeSettingsViewModel {
   }
 
   /// Set name and owner info from an external source (e.g., binary protocol pre-fetch)
-  func setNodeInfo(firmwareVersion: String?, name: String?, ownerInfo: String?) {
+  func setNodeInfo(
+    firmwareVersion: String?,
+    name: String?,
+    ownerInfo: String?,
+    loadTicket: SettingsLoadTicket? = nil
+  ) {
+    if let loadTicket {
+      guard isSettingsVisitCurrent(loadTicket.visit) else { return }
+    } else if !settingsVisitAcceptsLoads {
+      return
+    }
     if let firmwareVersion { self.firmwareVersion = firmwareVersion }
-    if let name {
+    if let name, allowsSettingsLoadWrite(.name, ticket: loadTicket) {
       self.name = name
+      nameBaseline = name
       originalName = name
     }
-    if let ownerInfo {
+    if let ownerInfo, allowsSettingsLoadWrite(.ownerInfo, ticket: loadTicket) {
       self.ownerInfo = ownerInfo
       originalOwnerInfo = ownerInfo
     }
+  }
+
+  /// Contact display name as a first-open placeholder. Does not set `originalName`.
+  func adoptPlaceholderName(_ sessionName: String) {
+    guard allowsSettingsLoadWrite(.name, ticket: nil) else { return }
+    name = sessionName
+    nameBaseline = sessionName
   }
 
   func cleanup() {
     sendCommandClosure = nil
     sendRawCommandClosure = nil
     onPreFetchNodeInfo = nil
+    onRevertUncommittedSettingsEdits = {}
+    onCollapseExtraSettingsSections = {}
+    onClearCachedExtraSettings = {}
+    otherSettingsApplyInFlight = { false }
+    settingsVisitGeneration &+= 1
+    settingsVisitAcceptsLoads = true
+    clearCachedSettingsWhenIdle = false
     unansweredQueries.removeAll()
     recentResponses.removeAll()
     lateRecoveryAppliers.removeAll()
+    loadTicketByQuery.removeAll()
+    fieldRevision.removeAll()
+    applyOwnedFields.removeAll()
+    discardDraftWhenIdle = false
   }
 
   // MARK: - CLI Transport
@@ -212,8 +490,11 @@ final class NodeSettingsViewModel {
   // MARK: - Fetch Methods
 
   func fetchDeviceInfo() async {
+    let visit = captureSettingsVisit()
+    guard isSettingsVisitCurrent(visit) else { return }
     isLoadingDeviceInfo = true
     deviceInfoError = false
+    var hadTimeout = false
 
     if firmwareVersion == nil {
       await onPreFetchNodeInfo?()
@@ -222,33 +503,39 @@ final class NodeSettingsViewModel {
     if firmwareVersion == nil {
       do {
         let response = try await sendAndWait("ver")
-        if case let .version(version) = CLIResponse.parse(response, forQuery: "ver") {
+        if isSettingsVisitCurrent(visit),
+           case let .version(version) = CLIResponse.parse(response, forQuery: "ver") {
           firmwareVersion = version
         }
       } catch {
-        if case RemoteNodeError.timeout = error {
-          deviceInfoError = true
-        }
+        if case RemoteNodeError.timeout = error { hadTimeout = true }
         logger.warning("Failed to get firmware version: \(error)")
       }
     }
 
+    let clockTicket = beginSettingsLoad(query: "clock", fields: [])
     do {
       let response = try await sendAndWait("clock")
-      if case let .deviceTime(time) = CLIResponse.parse(response, forQuery: "clock") {
+      if isSettingsVisitCurrent(clockTicket.visit),
+         case let .deviceTime(time) = CLIResponse.parse(response, forQuery: "clock") {
         applyDeviceTime(time)
       }
     } catch {
-      if case RemoteNodeError.timeout = error {
-        deviceInfoError = true
-      }
+      if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get device time: \(error)")
     }
 
-    isLoadingDeviceInfo = false
+    finishSettingsLoad(
+      visit,
+      timedOut: hadTimeout,
+      setError: { deviceInfoError = $0 },
+      setLoading: { isLoadingDeviceInfo = $0 }
+    )
   }
 
   func fetchIdentity() async {
+    let visit = captureSettingsVisit()
+    guard isSettingsVisitCurrent(visit) else { return }
     isLoadingIdentity = true
     identityError = false
     var hadTimeout = false
@@ -258,10 +545,13 @@ final class NodeSettingsViewModel {
     }
 
     if originalName == nil {
+      let nameTicket = beginSettingsLoad(query: "get name", fields: [.name])
       do {
         let response = try await sendAndWait("get name")
-        if case let .name(n) = CLIResponse.parse(response, forQuery: "get name") {
+        if isSettingsLoadCurrent(nameTicket, field: .name),
+           case let .name(n) = CLIResponse.parse(response, forQuery: "get name") {
           name = n
+          nameBaseline = n
           originalName = n
         }
       } catch {
@@ -270,9 +560,11 @@ final class NodeSettingsViewModel {
       }
     }
 
+    let latTicket = beginSettingsLoad(query: "get lat", fields: [.latitude])
     do {
       let response = try await sendAndWait("get lat")
-      if case let .latitude(lat) = CLIResponse.parse(response, forQuery: "get lat") {
+      if isSettingsLoadCurrent(latTicket, field: .latitude),
+         case let .latitude(lat) = CLIResponse.parse(response, forQuery: "get lat") {
         latitude = lat
         originalLatitude = lat
       }
@@ -281,9 +573,11 @@ final class NodeSettingsViewModel {
       logger.warning("Failed to get latitude: \(error)")
     }
 
+    let lonTicket = beginSettingsLoad(query: "get lon", fields: [.longitude])
     do {
       let response = try await sendAndWait("get lon")
-      if case let .longitude(lon) = CLIResponse.parse(response, forQuery: "get lon") {
+      if isSettingsLoadCurrent(lonTicket, field: .longitude),
+         case let .longitude(lon) = CLIResponse.parse(response, forQuery: "get lon") {
         longitude = lon
         originalLongitude = lon
       }
@@ -292,62 +586,86 @@ final class NodeSettingsViewModel {
       logger.warning("Failed to get longitude: \(error)")
     }
 
-    if hadTimeout {
-      identityError = true
-    }
-
-    isLoadingIdentity = false
+    finishSettingsLoad(
+      visit,
+      timedOut: hadTimeout,
+      setError: { identityError = $0 },
+      setLoading: { isLoadingIdentity = $0 }
+    )
   }
 
   func fetchRadioSettings() async {
+    let visit = captureSettingsVisit()
+    guard isSettingsVisitCurrent(visit) else { return }
     isLoadingRadio = true
     radioError = false
     var hadTimeout = false
 
+    let radioTicket = beginSettingsLoad(query: "get radio", fields: [.radio])
     do {
       let response = try await sendAndWait("get radio")
-      if case let .radio(freq, bw, sf, cr) = CLIResponse.parse(response, forQuery: "get radio") {
-        frequency = freq
-        bandwidth = bw
-        spreadingFactor = sf
-        codingRate = cr
+      if isSettingsLoadCurrent(radioTicket, field: .radio),
+         case let .radio(freq, bw, sf, cr) = CLIResponse.parse(response, forQuery: "get radio") {
+        adoptRadioValues(frequency: freq, bandwidth: bw, spreadingFactor: sf, codingRate: cr)
       }
     } catch {
       if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get radio settings: \(error)")
     }
 
-    if hadTimeout {
-      radioError = true
-    }
+    finishSettingsLoad(
+      visit,
+      timedOut: hadTimeout,
+      setError: { radioError = $0 },
+      setLoading: { isLoadingRadio = $0 }
+    )
+  }
 
-    isLoadingRadio = false
+  func adoptRadioValues(frequency: Double, bandwidth: Double, spreadingFactor: Int, codingRate: Int) {
+    self.frequency = frequency
+    self.bandwidth = bandwidth
+    self.spreadingFactor = spreadingFactor
+    self.codingRate = codingRate
+    originalFrequency = frequency
+    originalBandwidth = bandwidth
+    originalSpreadingFactor = spreadingFactor
+    originalCodingRate = codingRate
   }
 
   func fetchContactInfo() async {
+    let visit = captureSettingsVisit()
+    guard isSettingsVisitCurrent(visit) else { return }
     if originalOwnerInfo == nil {
       await onPreFetchNodeInfo?()
     }
     if originalOwnerInfo != nil { return }
+    guard isSettingsVisitCurrent(visit) else { return }
 
     isLoadingContactInfo = true
     contactInfoError = false
 
+    let ownerTicket = beginSettingsLoad(query: "get owner.info", fields: [.ownerInfo])
     do {
       let response = try await sendAndWait("get owner.info")
-      if case let .ownerInfo(info) = CLIResponse.parse(response, forQuery: "get owner.info") {
+      if isSettingsLoadCurrent(ownerTicket, field: .ownerInfo),
+         case let .ownerInfo(info) = CLIResponse.parse(response, forQuery: "get owner.info") {
         let displayText = NodeSettingsResponseParser.displayOwnerInfo(fromWire: info)
         ownerInfo = displayText
         originalOwnerInfo = displayText
       }
     } catch {
-      if case RemoteNodeError.timeout = error {
+      if case RemoteNodeError.timeout = error, isSettingsVisitCurrent(visit) {
         contactInfoError = true
       }
       logger.warning("Failed to get owner info: \(error)")
     }
 
-    isLoadingContactInfo = false
+    finishSettingsLoad(
+      visit,
+      timedOut: false,
+      setError: { _ in },
+      setLoading: { isLoadingContactInfo = $0 }
+    )
   }
 
   // MARK: - Success Flash
@@ -374,15 +692,31 @@ final class NodeSettingsViewModel {
       errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.radioNotLoaded
       return
     }
+    guard radioSettingsModified else { return }
 
+    let snapshotFrequency = frequency
+    let snapshotBandwidth = bandwidth
+    let snapshotSpreadingFactor = spreadingFactor
+    let snapshotCodingRate = codingRate
+    let owned: [OwnedSettingsField] = [.radio]
+    takeApplyOwnership(of: owned)
     isApplying = true
     errorMessage = nil
+    defer {
+      isApplying = false
+      releaseApplyOwnership(of: owned)
+      revertAbandonedDraftIfIdle()
+    }
 
     do {
-      let radioCommand = "set radio \(frequency),\(bandwidth),\(spreadingFactor),\(codingRate)"
+      let radioCommand =
+        "set radio \(snapshotFrequency),\(snapshotBandwidth),\(snapshotSpreadingFactor),\(snapshotCodingRate)"
       let radioResponse = try await sendAndWait(radioCommand)
       if case .ok = CLIResponse.parse(radioResponse) {
-        radioSettingsModified = false
+        originalFrequency = snapshotFrequency
+        originalBandwidth = snapshotBandwidth
+        originalSpreadingFactor = snapshotSpreadingFactor
+        originalCodingRate = snapshotCodingRate
         successMessage = L10n.RemoteNodes.RemoteNodes.Settings.radioAppliedSuccess
         showSuccessAlert = true
       } else {
@@ -391,8 +725,6 @@ final class NodeSettingsViewModel {
     } catch {
       errorMessage = error.userFacingMessage
     }
-
-    isApplying = false
   }
 
   func applyIdentitySettings() async {
@@ -402,34 +734,45 @@ final class NodeSettingsViewModel {
     longitudeError = validation.longitude
     if validation.hasErrors { return }
 
+    let snapshotName = name
+    let snapshotLatitude = latitude
+    let snapshotLongitude = longitude
+    let owned: [OwnedSettingsField] = [.name, .latitude, .longitude]
+    takeApplyOwnership(of: owned)
     isApplying = true
     errorMessage = nil
+    defer {
+      isApplying = false
+      releaseApplyOwnership(of: owned)
+      revertAbandonedDraftIfIdle()
+    }
 
     do {
       var allSucceeded = true
 
-      if let name, name != originalName {
-        let response = try await sendAndWait("set name \(name)")
+      if let snapshotName, snapshotName != nameBaseline {
+        let response = try await sendAndWait("set name \(snapshotName)")
         if case .ok = CLIResponse.parse(response) {
-          originalName = name
+          originalName = snapshotName
+          nameBaseline = snapshotName
         } else {
           allSucceeded = false
         }
       }
 
-      if let latitude, latitude != originalLatitude {
-        let response = try await sendAndWait("set lat \(latitude)")
+      if let snapshotLatitude, snapshotLatitude != originalLatitude {
+        let response = try await sendAndWait("set lat \(snapshotLatitude)")
         if case .ok = CLIResponse.parse(response) {
-          originalLatitude = latitude
+          originalLatitude = snapshotLatitude
         } else {
           allSucceeded = false
         }
       }
 
-      if let longitude, longitude != originalLongitude {
-        let response = try await sendAndWait("set lon \(longitude)")
+      if let snapshotLongitude, snapshotLongitude != originalLongitude {
+        let response = try await sendAndWait("set lon \(snapshotLongitude)")
         if case .ok = CLIResponse.parse(response) {
-          originalLongitude = longitude
+          originalLongitude = snapshotLongitude
         } else {
           allSucceeded = false
         }
@@ -440,39 +783,41 @@ final class NodeSettingsViewModel {
           setApplying: { isApplying = $0 },
           setSuccess: { identityApplySuccess = $0 }
         )
-        return
       } else {
         errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
       }
     } catch {
       errorMessage = error.userFacingMessage
     }
-
-    isApplying = false
   }
 
   func applyContactInfoSettings() async {
+    let snapshotOwnerInfo = ownerInfo
+    let owned: [OwnedSettingsField] = [.ownerInfo]
+    takeApplyOwnership(of: owned)
     isApplying = true
     errorMessage = nil
+    defer {
+      isApplying = false
+      releaseApplyOwnership(of: owned)
+      revertAbandonedDraftIfIdle()
+    }
 
     do {
-      let pipeText = NodeSettingsResponseParser.wireOwnerInfo(fromDisplay: ownerInfo ?? "")
+      let pipeText = NodeSettingsResponseParser.wireOwnerInfo(fromDisplay: snapshotOwnerInfo ?? "")
       let response = try await sendAndWait("set owner.info \(pipeText)")
       if case .ok = CLIResponse.parse(response) {
-        originalOwnerInfo = ownerInfo
+        originalOwnerInfo = snapshotOwnerInfo
         await flashSuccess(
           setApplying: { isApplying = $0 },
           setSuccess: { contactInfoApplySuccess = $0 }
         )
-        return
       } else {
         errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
       }
     } catch {
       errorMessage = error.userFacingMessage
     }
-
-    isApplying = false
   }
 
   // MARK: - Location Picker
@@ -496,6 +841,10 @@ final class NodeSettingsViewModel {
 
     isApplying = true
     errorMessage = nil
+    defer {
+      isApplying = false
+      revertAbandonedDraftIfIdle()
+    }
 
     do {
       let response = try await sendAndWait("password \(newPassword)", rawMatching: true)
@@ -506,15 +855,12 @@ final class NodeSettingsViewModel {
           setApplying: { isApplying = $0 },
           setSuccess: { changePasswordSuccess = $0 }
         )
-        return
       } else {
         errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.passwordChangeFailed
       }
     } catch {
       errorMessage = error.userFacingMessage
     }
-
-    isApplying = false
   }
 
   // MARK: - Device Actions
@@ -555,6 +901,10 @@ final class NodeSettingsViewModel {
   func syncTime() async {
     isApplying = true
     errorMessage = nil
+    defer {
+      isApplying = false
+      revertAbandonedDraftIfIdle()
+    }
 
     do {
       let response = try await sendAndWait(
@@ -579,8 +929,6 @@ final class NodeSettingsViewModel {
     } catch {
       errorMessage = error.userFacingMessage
     }
-
-    isApplying = false
   }
 
   // MARK: - Shared Validation
@@ -667,6 +1015,11 @@ final class NodeSettingsViewModel {
     lateRecoveryAppliers[query] = apply
   }
 
+  /// Test seam: mark a structured query as timed-out so late recovery can run.
+  func markUnansweredQueryForTesting(_ query: String) {
+    unansweredQueries.insert(query)
+  }
+
   private func rememberSeenResponse(_ response: String) {
     recentResponses.append(response)
     if recentResponses.count > Self.recentResponsesLimit {
@@ -696,27 +1049,37 @@ final class NodeSettingsViewModel {
 
   private func registerSharedLateRecovery() {
     registerLateRecovery(query: "get radio") { [weak self] value in
-      guard let self, case let .radio(frequency, bandwidth, spreadingFactor, codingRate) = value else { return }
-      self.frequency = frequency
-      self.bandwidth = bandwidth
-      self.spreadingFactor = spreadingFactor
-      self.codingRate = codingRate
+      guard let self,
+            isSettingsLoadCurrent(query: "get radio", field: .radio),
+            case let .radio(frequency, bandwidth, spreadingFactor, codingRate) = value else { return }
+      adoptRadioValues(
+        frequency: frequency,
+        bandwidth: bandwidth,
+        spreadingFactor: spreadingFactor,
+        codingRate: codingRate
+      )
       radioError = false
     }
     registerLateRecovery(query: "get lat") { [weak self] value in
-      guard let self, case let .latitude(latitude) = value else { return }
+      guard let self,
+            isSettingsLoadCurrent(query: "get lat", field: .latitude),
+            case let .latitude(latitude) = value else { return }
       self.latitude = latitude
       originalLatitude = latitude
       identityError = !identitySectionComplete
     }
     registerLateRecovery(query: "get lon") { [weak self] value in
-      guard let self, case let .longitude(longitude) = value else { return }
+      guard let self,
+            isSettingsLoadCurrent(query: "get lon", field: .longitude),
+            case let .longitude(longitude) = value else { return }
       self.longitude = longitude
       originalLongitude = longitude
       identityError = !identitySectionComplete
     }
     registerLateRecovery(query: "clock") { [weak self] value in
-      guard let self, case let .deviceTime(time) = value else { return }
+      guard let self,
+            isSettingsVisitCurrent(query: "clock"),
+            case let .deviceTime(time) = value else { return }
       applyDeviceTime(time)
       deviceInfoError = firmwareVersion == nil
     }

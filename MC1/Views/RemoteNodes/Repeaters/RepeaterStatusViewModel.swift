@@ -40,6 +40,10 @@ final class RepeaterStatusViewModel {
 
   var discoverySecondsRemaining = 0
   private var discoverTask: Task<Void, Never>?
+  private var statusVisit: NodeStatusViewModel.TelemetryVisitToken?
+  private var neighborsVisit: NodeStatusViewModel.TelemetryVisitToken?
+  private var telemetryVisit: NodeStatusViewModel.TelemetryVisitToken?
+  private var ownerInfoVisit: NodeStatusViewModel.TelemetryVisitToken?
 
   private static let discoveryDuration = 60
   private static let pollIntervalTicks = 5
@@ -100,18 +104,27 @@ final class RepeaterStatusViewModel {
     guard let repeaterAdminService else { return }
 
     await repeaterAdminService.setStatusHandler { [weak self] status in
-      guard await self?.helper.matchesSession(status.publicKeyPrefix) == true else { return }
-      await self?.handleStatusResponse(status)
+      guard let self else { return }
+      guard await self.helper.matchesSession(status.publicKeyPrefix) else { return }
+      let visit = await self.statusVisit
+      guard await self.helper.allowsTelemetryWrite(visit) else { return }
+      await self.handleStatusResponse(status, visit: visit)
     }
 
     await repeaterAdminService.setNeighboursHandler { [weak self] response in
-      guard await self?.helper.matchesSession(response.publicKeyPrefix) == true else { return }
-      await self?.handleNeighboursResponse(response)
+      guard let self else { return }
+      guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
+      let visit = await self.neighborsVisit
+      guard await self.helper.allowsTelemetryWrite(visit) else { return }
+      await self.handleNeighboursResponse(response, visit: visit)
     }
 
     await repeaterAdminService.setTelemetryHandler { [weak self] response in
-      guard await self?.helper.matchesSession(response.publicKeyPrefix) == true else { return }
-      await self?.helper.handleTelemetryResponse(response)
+      guard let self else { return }
+      guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
+      let visit = await self.telemetryVisit
+      guard await self.helper.allowsTelemetryWrite(visit) else { return }
+      await self.helper.handleTelemetryResponse(response, visit: visit)
     }
   }
 
@@ -132,26 +145,56 @@ final class RepeaterStatusViewModel {
 
   // MARK: - Status
 
+  func noteTelemetryVisitAppeared() {
+    helper.beginTelemetryVisit()
+  }
+
+  func noteTelemetryVisitDisappeared() {
+    helper.endTelemetryVisit()
+    clearRepeaterTelemetryVisit()
+  }
+
+  private func clearRepeaterTelemetryVisit() {
+    neighbors = []
+    isLoadingNeighbors = false
+    neighborsLoaded = false
+    neighborsExpanded = false
+    neighborsSectionError = nil
+    ownerInfo = nil
+    firmwareVersion = nil
+    isLoadingOwnerInfo = false
+    ownerInfoExpanded = false
+    ownerInfoError = nil
+    stopDiscovery()
+  }
+
   func requestStatus(for session: RemoteNodeSessionDTO) async {
     guard let repeaterAdminService else { return }
     if helper.session == nil { helper.session = session }
+    let visit = helper.captureTelemetryVisit()
+    statusVisit = visit
 
-    await helper.runRetryingSectionRequest(
+    await helper.runVisitedSectionRequest(
+      visit: visit,
       operationName: "status",
       setLoading: { self.helper.isLoadingStatus = $0 },
       setError: { self.helper.statusSectionError = $0 },
       operation: { [repeaterAdminService] timeout in
         try await repeaterAdminService.requestStatus(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { await self.handleStatusResponse($0) }
+      onSuccess: { await self.handleStatusResponse($0, visit: visit) }
     )
   }
 
-  private func handleStatusResponse(_ response: RemoteNodeStatus) async {
+  private func handleStatusResponse(
+    _ response: RemoteNodeStatus,
+    visit: NodeStatusViewModel.TelemetryVisitToken?
+  ) async {
     await helper.handleStatusResponse(
       response,
       rxAirtimeSeconds: response.repeaterRxAirtimeSeconds,
-      receiveErrors: response.receiveErrors
+      receiveErrors: response.receiveErrors,
+      visit: visit
     )
   }
 
@@ -161,18 +204,26 @@ final class RepeaterStatusViewModel {
     guard let repeaterAdminService else { return }
     if helper.session == nil { helper.session = session }
 
-    await helper.runRetryingSectionRequest(
+    let visit = helper.captureTelemetryVisit()
+    neighborsVisit = visit
+
+    await helper.runVisitedSectionRequest(
+      visit: visit,
       operationName: "neighbors",
       setLoading: { self.isLoadingNeighbors = $0 },
       setError: { self.neighborsSectionError = $0 },
       operation: { [repeaterAdminService] timeout in
         try await repeaterAdminService.fetchAllNeighbors(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { await self.handleNeighboursResponse($0) }
+      onSuccess: { await self.handleNeighboursResponse($0, visit: visit) }
     )
   }
 
-  func handleNeighboursResponse(_ response: NeighboursResponse) async {
+  func handleNeighboursResponse(
+    _ response: NeighboursResponse,
+    visit: NodeStatusViewModel.TelemetryVisitToken? = nil
+  ) async {
+    guard helper.allowsTelemetryWrite(visit) else { return }
     neighbors = response.neighbours
     neighborKeyDisplayByteCount = NeighborNameResolver.keyDisplayByteCount(deviceHashSize: deviceHashSize)
     isLoadingNeighbors = false
@@ -198,7 +249,9 @@ final class RepeaterStatusViewModel {
           command: Self.discoverCommand
         )
       } catch {
-        neighborsSectionError = error.userFacingMessage
+        if helper.allowsTelemetryWrite(nil) {
+          neighborsSectionError = error.userFacingMessage
+        }
         discoverySecondsRemaining = 0
         discoverTask = nil
         return
@@ -228,6 +281,17 @@ final class RepeaterStatusViewModel {
     }
   }
 
+  #if DEBUG
+    func startDiscoveryForTesting() {
+      discoverySecondsRemaining = Self.discoveryDuration
+      discoverTask = Task {
+        try? await Task.sleep(for: .seconds(Self.discoveryDuration))
+        discoverySecondsRemaining = 0
+        discoverTask = nil
+      }
+    }
+  #endif
+
   func stopDiscovery() {
     discoverTask?.cancel()
     discoverTask = nil
@@ -240,14 +304,18 @@ final class RepeaterStatusViewModel {
     guard let repeaterAdminService else { return }
     if helper.session == nil { helper.session = session }
 
-    await helper.runRetryingSectionRequest(
+    let visit = helper.captureTelemetryVisit()
+    telemetryVisit = visit
+
+    await helper.runVisitedSectionRequest(
+      visit: visit,
       operationName: "telemetry",
       setLoading: { self.helper.isLoadingTelemetry = $0 },
       setError: { self.helper.telemetrySectionError = $0 },
       operation: { [repeaterAdminService] timeout in
         try await repeaterAdminService.requestTelemetry(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { await self.helper.handleTelemetryResponse($0) }
+      onSuccess: { await self.helper.handleTelemetryResponse($0, visit: visit) }
     )
   }
 
@@ -257,14 +325,21 @@ final class RepeaterStatusViewModel {
     guard let repeaterAdminService else { return }
     if helper.session == nil { helper.session = session }
 
-    await helper.runRetryingSectionRequest(
+    let visit = helper.captureTelemetryVisit()
+    ownerInfoVisit = visit
+
+    await helper.runVisitedSectionRequest(
+      visit: visit,
       operationName: "ownerInfo",
       setLoading: { self.isLoadingOwnerInfo = $0 },
       setError: { self.ownerInfoError = $0 },
       operation: { [repeaterAdminService] timeout in
         try await repeaterAdminService.requestOwnerInfo(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { self.applyOwnerInfo($0) }
+      onSuccess: { response in
+        guard self.helper.allowsTelemetryWrite(visit) else { return }
+        self.applyOwnerInfo(response)
+      }
     )
   }
 

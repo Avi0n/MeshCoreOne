@@ -4,14 +4,28 @@ import SwiftUI
 
 struct RoomSettingsView: View {
   @Environment(\.appState) private var appState
+  let session: RemoteNodeSessionDTO
+
+  var body: some View {
+    RoomSettingsWorkspace(
+      session: session,
+      viewModel: appState.remoteAdminWorkspaces.roomSettings(for: session),
+      statusViewModel: appState.remoteAdminWorkspaces.roomStatus(for: session),
+      cliViewModel: appState.remoteAdminWorkspaces.nodeCLI(for: session)
+    )
+  }
+}
+
+private struct RoomSettingsWorkspace: View {
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @FocusState private var focusedField: NodeSettingsField?
 
   let session: RemoteNodeSessionDTO
-  @State private var viewModel = RoomSettingsViewModel()
-  @State private var statusViewModel = RoomStatusViewModel()
+  @Bindable var viewModel: RoomSettingsViewModel
+  @Bindable var statusViewModel: RoomStatusViewModel
+  @Bindable var cliViewModel: NodeCLIViewModel
   @State private var managementTab: NodeManagementTab = .settings
-  @State private var cliViewModel = NodeCLIViewModel()
   @State private var showRebootConfirmation = false
   @State private var showingLocationPicker = false
   @State private var telemetryConfigured = false
@@ -43,6 +57,25 @@ struct RoomSettingsView: View {
           .pinnedFilterHeaderBackground(theme)
       }
     }
+    .onAppear {
+      viewModel.helper.noteSettingsAppeared()
+      statusViewModel.noteTelemetryVisitAppeared()
+    }
+    .onDisappear {
+      viewModel.helper.noteSettingsDisappeared()
+      statusViewModel.noteTelemetryVisitDisappeared()
+    }
+    .settingsExitGuard(
+      hasUncommittedSettingsEdits: viewModel.hasUncommittedSettingsEdits,
+      hasUnsavedRegionChanges: false,
+      isApplying: viewModel.helper.isApplying
+        || viewModel.isApplyingRoomAccess
+        || viewModel.isApplyingBehavior,
+      errorMessage: viewModel.helper.errorMessage,
+      revertUncommittedSettingsEdits: { viewModel.revertUncommittedSettingsEdits() },
+      saveRegions: nil,
+      discardUnsavedRegionChanges: {}
+    )
     .task {
       await viewModel.configure(
         roomAdminService: { appState.services?.roomAdminService },
@@ -70,12 +103,6 @@ struct RoomSettingsView: View {
         if let radioID = appState.connectedDevice?.radioID {
           await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
-      }
-    }
-    .onDisappear {
-      Task {
-        await statusViewModel.clearStatusHandlers()
-        await viewModel.cleanup()
       }
     }
     .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
