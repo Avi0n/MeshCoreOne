@@ -233,7 +233,7 @@ struct TracePathListenerTests {
       bestAvailableLocation: { nil }
     ))
     viewModel.sendTraceForTesting = { _, _, _ in
-      MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60_000)
+      MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60000)
     }
     viewModel.addNode(makeContact())
     let generationBefore = viewModel.executionGenerationForTesting

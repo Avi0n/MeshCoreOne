@@ -1365,6 +1365,7 @@ final class TracePathViewModel {
     var traceDeadlineForTesting: Date? {
       traceDeadline
     }
+
     var pendingTagForTesting: UInt32? {
       pendingTag
     }

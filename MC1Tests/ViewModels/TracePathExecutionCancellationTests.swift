@@ -690,7 +690,7 @@ struct TracePathExecutionCancellationTests {
     let (store, savedPath, viewModel) = try await makeSavedPathViewModel()
     let send = ControllableTraceSend()
     send.hangUntilComplete = false
-    send.info = MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60_000)
+    send.info = MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60000)
     viewModel.sendTraceForTesting = { tag, flags, path in
       try await send.send(tag: tag, flags: flags, path: path)
     }
