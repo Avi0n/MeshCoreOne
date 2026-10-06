@@ -31,7 +31,6 @@ struct CLITerminalView: View {
   let onPaste: () -> Void
   let onSessions: () -> Void
   let onCancel: () -> Void
-  let onDismiss: () -> Void
   let onClear: () -> Void
   let onUpdateGhostText: (_ cursorAtEnd: Bool) -> Void
   let onClearTabState: () -> Void
@@ -134,9 +133,7 @@ struct CLITerminalView: View {
     }
     .background(Color(.secondarySystemBackground))
     .contentShape(.rect)
-    // onTapGesture is intentional: a Button in .background can't receive
-    // taps through the ScrollView, and this is a non-semantic "tap anywhere
-    // to focus keyboard" gesture, not a discrete button action.
+    // A Button behind the ScrollView cannot receive the tap. Tap anywhere to focus.
     .onTapGesture {
       isKeyboardFocused = true
     }
@@ -153,7 +150,7 @@ struct CLITerminalView: View {
           onPaste: onPaste,
           onSessions: onSessions,
           onCancel: onCancel,
-          onDismiss: onDismiss
+          onDismiss: resignKeyboard
         )
         .padding(.bottom, {
           if #available(iOS 26.0, *) {
@@ -203,6 +200,16 @@ struct CLITerminalView: View {
       // can't persist across navigation and re-mount on return.
       isKeyboardFocused = false
     }
+  }
+
+  private func resignKeyboard() {
+    // UIKit resign only. A focus write from this button relayouts the bar while the keyboard is dismissing.
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder),
+      to: nil,
+      from: nil,
+      for: nil
+    )
   }
 
   private var inlinePrompt: some View {

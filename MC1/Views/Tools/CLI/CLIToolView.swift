@@ -143,7 +143,6 @@ private struct CLIToolContent: View {
       },
       onSessions: { viewModel.executeCommand("session list") },
       onCancel: { viewModel.cancelCurrentCommand() },
-      onDismiss: { isKeyboardFocused = false },
       onClear: { viewModel.executeCommand("clear") },
       onUpdateGhostText: { cursorAtEnd in viewModel.updateGhostText(cursorAtEnd: cursorAtEnd) },
       onClearTabState: { viewModel.clearTabState() },

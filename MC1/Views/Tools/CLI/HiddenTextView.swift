@@ -48,12 +48,11 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
       }
     }
 
-    // Manage focus. The accessory bar is gated on `isFocused`, which the
-    // delegate clears only via `textViewDidEndEditing`. That never fires when
-    // the responder request can't be honored (view not yet in a window), so
-    // reconcile the binding here to keep the bar from stranding with no keyboard.
+    // A become scheduled while focused must not run after the flag is cleared.
+    // A failed become still clears the flag so the bar cannot strand with no keyboard.
     if isFocused, !textView.isFirstResponder {
       Task { @MainActor in
+        guard isFocused else { return }
         guard textView.window != nil, textView.becomeFirstResponder() else {
           isFocused = false
           return
@@ -136,12 +135,6 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
         return
       }
       cursorPosition = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
-    }
-
-    func textViewDidBeginEditing(_ textView: UITextView) {
-      Task { @MainActor in
-        self.isFocused = true
-      }
     }
 
     func textViewDidEndEditing(_ textView: UITextView) {

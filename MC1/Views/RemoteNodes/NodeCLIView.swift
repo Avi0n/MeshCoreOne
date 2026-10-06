@@ -68,7 +68,6 @@ struct NodeCLIView: View {
       },
       onSessions: {},
       onCancel: { viewModel.cancelCurrentCommand() },
-      onDismiss: { isKeyboardFocused = false },
       onClear: { viewModel.executeCommand("clear") },
       onUpdateGhostText: { cursorAtEnd in viewModel.updateGhostText(cursorAtEnd: cursorAtEnd) },
       onClearTabState: { viewModel.clearTabState() },
