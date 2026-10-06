@@ -208,6 +208,31 @@ struct RemoteAdminWorkspaceTests {
   }
 
   @Test
+  func `reset stops discovery and a waiting node command`() async throws {
+    let workspaces = RemoteAdminWorkspaces()
+    let session = makeSession()
+    let settings = workspaces.repeaterSettings(for: session)
+    let status = workspaces.repeaterStatus(for: session)
+    status.startDiscoveryForTesting()
+    let send = ControllableCLISend()
+    let cli = workspaces.nodeCLI(for: session)
+    cli.configure(sessionName: session.name) { command, timeout in
+      try await send.send(sessionID: session.id, command: command, timeout: timeout)
+    }
+    cli.executeCommand("ver")
+    try await waitUntil(timeout: .seconds(1), "node CLI should wait") {
+      cli.isWaitingForResponse
+    }
+
+    workspaces.reset()
+
+    #expect(status.isDiscovering == false)
+    #expect(cli.isWaitingForResponse == false)
+    #expect(workspaces.repeaterSettings(for: session) !== settings)
+    send.completeOldest("")
+  }
+
+  @Test
   func `status reply after the telemetry visit ended does not set status and a later visit does`() async {
     let workspaces = RemoteAdminWorkspaces()
     let session = makeSession()
@@ -1180,12 +1205,31 @@ struct RemoteAdminWorkspaceTests {
     state.presentRegionAlert()
     state.beginRegionSave()
     state.noteRegionsPersisted()
+    #expect(state.beginRegionSave() == false)
+    #expect(state.regionAlertPhase == .succeeded)
+    state.tapDontSave()
+    #expect(state.showRegionAlert)
+    #expect(state.didDismissSheet == false)
     state.tapCancelRegion()
-    #expect(state.showRegionAlert == false)
+    #expect(state.showRegionAlert)
     #expect(state.didDismissSheet == false)
     let dismissed = state.finishRegionSave(errorMessage: nil, hasUnsavedRegionChanges: false)
-    #expect(dismissed == false)
-    #expect(state.didDismissSheet == false)
+    #expect(dismissed)
+    #expect(state.didDismissSheet)
+  }
+
+  @Test
+  func `region alert message follows the phase`() {
+    let state = SettingsExitGuardState()
+    state.presentRegionAlert()
+    #expect(state.regionAlertMessage(errorMessage: nil) == L10n.RemoteNodes.RemoteNodes.Settings.unsavedRegionsMessage)
+    state.beginRegionSave()
+    #expect(state.regionAlertMessage(errorMessage: nil) == L10n.RemoteNodes.RemoteNodes.Settings.savingRegions)
+    state.noteRegionsPersisted()
+    #expect(state.regionAlertMessage(errorMessage: "ignored") == L10n.RemoteNodes.RemoteNodes.Settings.savingRegions)
+    state.regionAlertPhase = .failed
+    #expect(state.regionAlertMessage(errorMessage: "failed") == "failed")
+    #expect(state.regionAlertMessage(errorMessage: nil) == L10n.RemoteNodes.RemoteNodes.Settings.unsavedRegionsMessage)
   }
 
   @Test

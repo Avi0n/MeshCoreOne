@@ -13,7 +13,6 @@ struct ChatsSplitSidebarContent: View {
   @Binding var searchText: String
   @Binding var showingNewChat: Bool
   @Binding var showingChannelOptions: Bool
-  @Binding var lastSelectedRoomIsConnected: Bool?
 
   let onSelect: (ChatRoute) -> Void
   let onDeleteConversation: (Conversation) -> Void
@@ -38,11 +37,10 @@ struct ChatsSplitSidebarContent: View {
       showingChannelOptions: $showingChannelOptions,
       onAnnounceOfflineStateIfNeeded: onAnnounceOfflineStateIfNeeded
     ))
-    .onChange(of: selectedRoute) { oldValue, newValue in
+    .onChange(of: selectedRoute) { oldValue, _ in
       if oldValue != nil {
         viewModel.requestConversationReload()
       }
-      lastSelectedRoomIsConnected = newValue?.roomIsConnected
     }
   }
 }

@@ -17,8 +17,6 @@ struct ChatsContentColumn: View {
   @State private var showingNewChat = false
   @State private var showingChannelOptions = false
 
-  @State private var lastSelectedRoomIsConnected: Bool?
-
   @State private var roomToAuthenticate: RemoteNodeSessionDTO?
   @State private var roomToDelete: RemoteNodeSessionDTO?
   @State private var showRoomDeleteAlert = false
@@ -75,13 +73,11 @@ struct ChatsContentColumn: View {
       searchText: $searchText,
       showingNewChat: $showingNewChat,
       showingChannelOptions: $showingChannelOptions,
-      lastSelectedRoomIsConnected: $lastSelectedRoomIsConnected,
       onSelect: { navigate(to: $0) },
       onDeleteConversation: actions.handleDeleteConversation,
       onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
     )
     .task {
-      lastSelectedRoomIsConnected = appState.navigation.chatsSelectedRoute?.roomIsConnected
       if let route = appState.navigation.chatsSelectedRoute {
         prefetch(route)
       }
@@ -96,7 +92,10 @@ struct ChatsContentColumn: View {
       }
     }
     .onChange(of: viewModel.snapshotGeneration) { _, _ in
-      refreshSelectedRoutePayload()
+      appState.navigation.refreshChatsSelection(
+        from: viewModel.allConversations,
+        retainingDirectContactIDs: viewModel.retainingDirectContactIDs
+      )
     }
     .onChange(of: appState.connectedDevice?.radioID) { _, _ in
       dismissStaleRoomAuthentication()
@@ -123,13 +122,11 @@ struct ChatsContentColumn: View {
 
   private func navigate(to route: ChatRoute) {
     if case let .room(session) = route, !session.isConnected {
-      roomToAuthenticate = session
-      appState.navigation.chatsSelectedRoute = nil
-      lastSelectedRoomIsConnected = nil
+      appState.navigation.navigateToRoom(with: session)
       return
     }
 
-    appState.navigation.chatsSelectedRoute = route
+    appState.navigation.setChatsRoute(route)
   }
 
   private func prefetch(_ route: ChatRoute) {
@@ -148,25 +145,8 @@ struct ChatsContentColumn: View {
 
   private func clearNavigationIfActive(_ route: ChatRoute) {
     if appState.navigation.chatsSelectedRoute == route {
-      appState.navigation.chatsSelectedRoute = nil
+      appState.navigation.setChatsRoute(nil)
     }
-  }
-
-  private func refreshSelectedRoutePayload() {
-    let current = appState.navigation.chatsSelectedRoute
-    let refreshed = current?.refreshedPayload(from: viewModel.allConversations)
-
-    if lastSelectedRoomIsConnected == true,
-       case let .room(session) = refreshed,
-       !session.isConnected {
-      roomToAuthenticate = session
-      appState.navigation.chatsSelectedRoute = nil
-      lastSelectedRoomIsConnected = nil
-      return
-    }
-
-    appState.navigation.chatsSelectedRoute = refreshed
-    lastSelectedRoomIsConnected = refreshed?.roomIsConnected
   }
 
   private func dismissStaleRoomAuthentication() {

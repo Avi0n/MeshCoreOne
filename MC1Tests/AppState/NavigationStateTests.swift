@@ -347,6 +347,80 @@ struct NavigationStateTests {
     #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
   }
 
+  @Test
+  func `presentDisconnectedRoom clears the route without changing tabs`() {
+    let appState = AppState()
+    let contact = Self.makeContact()
+    let session = Self.makeRoomSession(isConnected: false)
+    appState.navigation.navigateToChat(with: contact)
+    appState.navigation.selectedTab = AppTab.nodes.rawValue
+
+    appState.navigation.presentDisconnectedRoom(session)
+
+    #expect(appState.navigation.selectedTab == AppTab.nodes.rawValue)
+    #expect(appState.navigation.chatsSelectedRoute == nil)
+    #expect(appState.navigation.pendingRoomAuthentication == session)
+  }
+
+  @Test
+  func `disconnected navigateToRoom closes an open direct and selects Chats`() {
+    let appState = AppState()
+    let contact = Self.makeContact()
+    let session = Self.makeRoomSession(isConnected: false)
+    appState.navigation.navigateToChat(with: contact)
+
+    appState.navigation.navigateToRoom(with: session)
+
+    #expect(appState.navigation.chatsSelectedRoute == nil)
+    #expect(appState.navigation.pendingRoomAuthentication == session)
+    #expect(appState.navigation.selectedTab == AppTab.chats.rawValue)
+  }
+
+  @Test
+  func `refreshChatsSelection presents a room that dropped while selected`() {
+    let appState = AppState()
+    let connected = Self.makeRoomSession(isConnected: true)
+    let disconnected = Self.makeRoomSession(id: connected.id, isConnected: false)
+    appState.navigation.setChatsRoute(.room(connected))
+
+    appState.navigation.refreshChatsSelection(
+      from: [.room(disconnected)],
+      retainingDirectContactIDs: nil
+    )
+
+    #expect(appState.navigation.chatsSelectedRoute == nil)
+    #expect(appState.navigation.pendingRoomAuthentication == disconnected)
+    #expect(appState.navigation.lastSelectedRoomIsConnected == nil)
+  }
+
+  @Test
+  func `refreshChatsSelection keeps a room opened while disconnected`() {
+    let appState = AppState()
+    let disconnected = Self.makeRoomSession(isConnected: false)
+    appState.navigation.setChatsRoute(.room(disconnected))
+    #expect(appState.navigation.lastSelectedRoomIsConnected == false)
+
+    appState.navigation.refreshChatsSelection(
+      from: [.room(disconnected)],
+      retainingDirectContactIDs: nil
+    )
+    #expect(appState.navigation.chatsSelectedRoute == .room(disconnected))
+    #expect(appState.navigation.pendingRoomAuthentication == nil)
+  }
+
+  @Test
+  func `refreshChatsSelection clears an unmatched channel or room`() {
+    let appState = AppState()
+    appState.navigation.setChatsRoute(.channel(Self.makeChannel()))
+    appState.navigation.refreshChatsSelection(from: [], retainingDirectContactIDs: [])
+    #expect(appState.navigation.chatsSelectedRoute == nil)
+
+    appState.navigation.setChatsRoute(.room(Self.makeRoomSession(isConnected: false)))
+    appState.navigation.refreshChatsSelection(from: [], retainingDirectContactIDs: nil)
+    #expect(appState.navigation.chatsSelectedRoute == nil)
+    #expect(appState.navigation.pendingRoomAuthentication == nil)
+  }
+
   // MARK: - Reaction scroll consumption
 
   @Test
@@ -430,9 +504,24 @@ struct NavigationStateTests {
     let channel = Self.makeChannel()
     let room = Self.makeRoomSession(isConnected: true)
 
-    #expect(ChatRoute.direct(contact).refreshedPayload(from: []) == .direct(contact))
-    #expect(ChatRoute.channel(channel).refreshedPayload(from: []) == nil)
-    #expect(ChatRoute.room(room).refreshedPayload(from: []) == nil)
+    #expect(ChatRoute.direct(contact).refreshedPayload(
+      from: [],
+      retainingDirectContactIDs: [contact.id]
+    ) == .direct(contact))
+    #expect(ChatRoute.direct(contact).refreshedPayload(
+      from: [],
+      retainingDirectContactIDs: nil
+    ) == .direct(contact))
+    #expect(ChatRoute.direct(contact).refreshedPayload(
+      from: [],
+      retainingDirectContactIDs: []
+    ) == nil)
+    #expect(ChatRoute.direct(contact).refreshedPayload(
+      from: [],
+      retainingDirectContactIDs: [UUID()]
+    ) == nil)
+    #expect(ChatRoute.channel(channel).refreshedPayload(from: [], retainingDirectContactIDs: nil) == nil)
+    #expect(ChatRoute.room(room).refreshedPayload(from: [], retainingDirectContactIDs: [contact.id]) == nil)
   }
 
   @Test
@@ -442,7 +531,10 @@ struct NavigationStateTests {
     let refreshed = Self.makeContact(id: id, name: "Renamed")
     let conversations: [Conversation] = [.direct(refreshed)]
 
-    let result = ChatRoute.direct(original).refreshedPayload(from: conversations)
+    let result = ChatRoute.direct(original).refreshedPayload(
+      from: conversations,
+      retainingDirectContactIDs: []
+    )
 
     #expect(result == .direct(refreshed))
     guard case let .direct(contact) = result else {
@@ -459,7 +551,10 @@ struct NavigationStateTests {
     let disconnected = Self.makeRoomSession(id: id, isConnected: false)
     let conversations: [Conversation] = [.room(disconnected)]
 
-    let result = ChatRoute.room(connected).refreshedPayload(from: conversations)
+    let result = ChatRoute.room(connected).refreshedPayload(
+      from: conversations,
+      retainingDirectContactIDs: []
+    )
 
     #expect(result == .room(disconnected))
     #expect(result?.roomIsConnected == false)

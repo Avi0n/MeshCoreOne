@@ -1,120 +1,5 @@
 import SwiftUI
 
-/// Region-alert phase for settings sheet exit. Tests set this directly.
-enum SettingsExitRegionAlertPhase: Equatable {
-  case unsaved
-  case saving
-  case succeeded
-  case failed
-}
-
-/// Decision state for Done, discard, and the region save alert.
-@Observable
-@MainActor
-final class SettingsExitGuardState {
-  var showDiscardAlert = false
-  var showRegionAlert = false
-  var regionAlertPhase: SettingsExitRegionAlertPhase = .unsaved
-  private(set) var didDismissSheet = false
-
-  func tapDone(
-    isApplying: Bool,
-    hasUncommittedSettingsEdits: Bool,
-    hasUnsavedRegionChanges: Bool
-  ) {
-    guard !isApplying else { return }
-    if hasUncommittedSettingsEdits {
-      showDiscardAlert = true
-    } else if hasUnsavedRegionChanges {
-      presentRegionAlert()
-    } else {
-      dismissSheet()
-    }
-  }
-
-  func keepEditing() {
-    showDiscardAlert = false
-  }
-
-  func discardChanges(hasUnsavedRegionChanges: Bool, revert: () -> Void) {
-    showDiscardAlert = false
-    revert()
-    if hasUnsavedRegionChanges {
-      presentRegionAlert()
-    } else {
-      dismissSheet()
-    }
-  }
-
-  func presentRegionAlert() {
-    regionAlertPhase = .unsaved
-    showRegionAlert = true
-  }
-
-  func beginRegionSave() {
-    guard showRegionAlert else { return }
-    guard regionAlertPhase == .unsaved || regionAlertPhase == .failed else { return }
-    regionAlertPhase = .saving
-  }
-
-  func noteRegionsPersisted() {
-    guard regionAlertPhase == .saving else { return }
-    regionAlertPhase = .succeeded
-  }
-
-  /// True when the sheet should close because Save finished with the alert still up.
-  @discardableResult
-  func finishRegionSave(errorMessage: String?, hasUnsavedRegionChanges: Bool) -> Bool {
-    if errorMessage != nil {
-      regionAlertPhase = .failed
-      return false
-    }
-    if hasUnsavedRegionChanges {
-      if regionAlertPhase == .saving {
-        regionAlertPhase = .unsaved
-      }
-      return false
-    }
-    if regionAlertPhase == .saving {
-      regionAlertPhase = .succeeded
-    }
-    guard regionAlertPhase == .succeeded, showRegionAlert else { return false }
-    showRegionAlert = false
-    dismissSheet()
-    return true
-  }
-
-  func tapDontSave(discardUnsavedRegions: () -> Void = {}) {
-    switch regionAlertPhase {
-    case .saving, .succeeded:
-      return
-    case .unsaved, .failed:
-      discardUnsavedRegions()
-      showRegionAlert = false
-      dismissSheet()
-    }
-  }
-
-  func tapCancelRegion() {
-    switch regionAlertPhase {
-    case .saving:
-      return
-    case .unsaved, .failed, .succeeded:
-      showRegionAlert = false
-    }
-  }
-
-  private func dismissSheet() {
-    didDismissSheet = true
-  }
-
-  func consumeDismiss() -> Bool {
-    guard didDismissSheet else { return false }
-    didDismissSheet = false
-    return true
-  }
-}
-
 struct SettingsExitGuard: ViewModifier {
   @Environment(\.dismiss) private var dismiss
   @State private var exitState = SettingsExitGuardState()
@@ -131,7 +16,7 @@ struct SettingsExitGuard: ViewModifier {
   var discardUnsavedRegionChanges: () -> Void
 
   private var regionActionsDisabled: Bool {
-    exitState.regionAlertPhase == .saving
+    exitState.regionAlertPhase == .saving || exitState.regionAlertPhase == .succeeded
   }
 
   func body(content: Content) -> some View {
@@ -174,7 +59,7 @@ struct SettingsExitGuard: ViewModifier {
       ) {
         Button(L10n.Localizable.Common.save) {
           // `.saving` must land before the alert binding clears on an `.unsaved` phase.
-          exitState.beginRegionSave()
+          guard exitState.beginRegionSave() else { return }
           Task { await runRegionSave() }
         }
         .disabled(regionActionsDisabled)
@@ -182,7 +67,7 @@ struct SettingsExitGuard: ViewModifier {
           exitState.tapDontSave(discardUnsavedRegions: discardUnsavedRegionChanges)
           consumeDismissIfNeeded()
         }
-        .disabled(regionActionsDisabled || exitState.regionAlertPhase == .succeeded)
+        .disabled(regionActionsDisabled)
         Button(L10n.Localizable.Common.cancel, role: .cancel) {
           exitState.tapCancelRegion()
         }
@@ -224,16 +109,7 @@ struct SettingsExitGuard: ViewModifier {
   }
 
   private var regionAlertMessage: String {
-    switch exitState.regionAlertPhase {
-    case .unsaved:
-      L10n.RemoteNodes.RemoteNodes.Settings.unsavedRegionsMessage
-    case .saving:
-      L10n.RemoteNodes.RemoteNodes.Settings.savingRegions
-    case .succeeded:
-      L10n.RemoteNodes.RemoteNodes.Settings.unsavedRegionsMessage
-    case .failed:
-      errorMessage ?? L10n.RemoteNodes.RemoteNodes.Settings.unsavedRegionsMessage
-    }
+    exitState.regionAlertMessage(errorMessage: errorMessage)
   }
 
   private func runRegionSave() async {

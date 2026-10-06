@@ -106,4 +106,147 @@ struct TracePathListenerTests {
     #expect(await waitForResult(on: viewModel), "Trace response after a rebuild should reach the re-subscribed listener")
     viewModel.stopListening()
   }
+
+  @Test
+  func `finished stream on the same service is not subscribed again`() async throws {
+    let services = try makeServices()
+    let viewModel = try await makeRunningTrace(services: services)
+    viewModel.eventStreamEndedForTesting = false
+    try await Task.yield()
+    viewModel.eventStreamEndedForTesting = false
+
+    let subscribed = viewModel.subscribeCountForTesting
+    services.advertisementService.finishEvents()
+    try await waitUntil(timeout: .seconds(1), "finished stream should settle") {
+      viewModel.eventStreamEndedForTesting
+    }
+
+    #expect(viewModel.subscribeCountForTesting == subscribed)
+    #expect(viewModel.isRunning)
+    viewModel.stopListening()
+  }
+
+  @Test
+  func `hidden rebuild listens on the replacement service`() async throws {
+    let servicesA = try makeServices()
+    var current: ServiceContainer? = servicesA
+    let viewModel = try await makeRunningTrace(current: { current })
+    let servicesB = try makeServices()
+    current = servicesB
+    viewModel.noteWorkspaceVisible(false)
+    viewModel.startListening()
+
+    let tag = try #require(viewModel.pendingTagForTesting)
+    servicesB.advertisementService.eventBroadcaster.yield(
+      .traceResponse(traceInfo: makeTraceInfo(tag: tag), radioID: UUID())
+    )
+
+    #expect(await waitForResult(on: viewModel))
+    #expect(viewModel.isRunning == false)
+    #expect(viewModel.errorMessage == nil)
+    viewModel.stopListening()
+  }
+
+  @Test
+  func `passed deadline on a stale listener waits for the replacement service`() async throws {
+    let servicesA = try makeServices()
+    var current: ServiceContainer? = servicesA
+    let viewModel = try await makeRunningTrace(current: { current })
+    current = nil
+    viewModel.setTraceDeadlineForTesting(.distantPast)
+    viewModel.expireTraceIfDeadlinePassed()
+
+    #expect(viewModel.isRunning)
+    #expect(viewModel.pendingTagForTesting != nil)
+    #expect(viewModel.traceDeadlineForTesting == .distantPast)
+    #expect(viewModel.hasActiveTimeoutTaskForTesting)
+
+    let servicesB = try makeServices()
+    current = servicesB
+    viewModel.startListening()
+
+    #expect(viewModel.isRunning == false)
+    #expect(viewModel.errorMessage == L10n.Contacts.Contacts.Trace.Error.noResponse)
+    #expect(viewModel.pendingTagForTesting == nil)
+    viewModel.stopListening()
+  }
+
+  @Test
+  func `replacement listener accepts a response before the deadline`() async throws {
+    let servicesA = try makeServices()
+    var current: ServiceContainer? = servicesA
+    let viewModel = try await makeRunningTrace(current: { current })
+    viewModel.setTraceDeadlineForTesting(.distantFuture)
+    let servicesB = try makeServices()
+    current = servicesB
+    viewModel.noteWorkspaceVisible(false)
+    viewModel.startListening()
+
+    #expect(viewModel.isRunning)
+    #expect(viewModel.errorMessage == nil)
+    let tag = try #require(viewModel.pendingTagForTesting)
+    servicesB.advertisementService.eventBroadcaster.yield(
+      .traceResponse(traceInfo: makeTraceInfo(tag: tag), radioID: UUID())
+    )
+
+    #expect(await waitForResult(on: viewModel))
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.result?.success == true)
+    viewModel.stopListening()
+  }
+
+  private func makeContact() -> ContactDTO {
+    let contact = Contact(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data([0xAB] + Array(repeating: UInt8(0x00), count: 31)),
+      name: "Repeater",
+      typeRawValue: ContactType.repeater.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      lastHeardTimestamp: 0
+    )
+    return ContactDTO(from: contact)
+  }
+
+  private func makeRunningTrace(
+    services: ServiceContainer
+  ) async throws -> TracePathViewModel {
+    var current: ServiceContainer? = services
+    return try await makeRunningTrace(current: { current })
+  }
+
+  private func makeRunningTrace(
+    current: @escaping @MainActor () -> ServiceContainer?
+  ) async throws -> TracePathViewModel {
+    let viewModel = TracePathViewModel()
+    viewModel.configure(dependencies: TracePathViewModel.Dependencies(
+      dataStore: { nil },
+      session: { nil },
+      advertisementService: { current()?.advertisementService },
+      connectedDevice: { nil },
+      bestAvailableLocation: { nil }
+    ))
+    viewModel.sendTraceForTesting = { _, _, _ in
+      MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60_000)
+    }
+    viewModel.addNode(makeContact())
+    let generationBefore = viewModel.executionGenerationForTesting
+    viewModel.startListening()
+    #expect(viewModel.subscribeCountForTesting == 1)
+    #expect(viewModel.subscribedGenerationForTesting == generationBefore)
+    viewModel.startTrace()
+    #expect(viewModel.subscribeCountForTesting == 2)
+    #expect(viewModel.executionGenerationForTesting == generationBefore + 1)
+    #expect(viewModel.subscribedGenerationForTesting == viewModel.executionGenerationForTesting)
+    try await waitUntil(timeout: .seconds(1), "trace should be running") {
+      viewModel.isRunning && viewModel.pendingTagForTesting != nil
+    }
+    return viewModel
+  }
 }

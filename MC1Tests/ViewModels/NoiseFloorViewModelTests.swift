@@ -1,5 +1,6 @@
 import Foundation
 @testable import MC1
+import MeshCore
 import Testing
 
 @Suite("NoiseFloorReading")
@@ -257,5 +258,32 @@ struct NoiseFloorViewModelTests {
     ))
 
     #expect(viewModel.chartDomain == 100...400)
+  }
+
+  @Test
+  func `leaving the workspace stops polling and keeps the chart origin`() async throws {
+    let viewModel = NoiseFloorViewModel()
+    let session = MeshCoreSession(transport: MockTransport())
+    viewModel.setWorkspaceActive(true) { session }
+    let origin = try #require(viewModel.chartStartTime)
+    #expect(viewModel.isPolling)
+    try await waitUntil(timeout: .seconds(1), "stats read should start") {
+      viewModel.radioStatsReadCountForTesting >= 1
+    }
+
+    viewModel.setWorkspaceActive(false) { session }
+    let reads = viewModel.radioStatsReadCountForTesting
+    #expect(viewModel.isPolling == false)
+    #expect(viewModel.chartStartTime == origin)
+
+    try await Task.sleep(for: .milliseconds(1600))
+    #expect(viewModel.radioStatsReadCountForTesting == reads)
+
+    viewModel.setWorkspaceActive(true) { session }
+    #expect(viewModel.chartStartTime == origin)
+    try await waitUntil(timeout: .seconds(1), "stats read should resume") {
+      viewModel.radioStatsReadCountForTesting > reads
+    }
+    viewModel.stopPolling()
   }
 }

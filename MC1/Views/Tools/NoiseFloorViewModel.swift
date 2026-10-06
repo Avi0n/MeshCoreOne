@@ -89,6 +89,9 @@ final class NoiseFloorViewModel {
 
   private let maxReadings = 200
   private let pollingInterval: Duration = .seconds(1.5)
+  #if DEBUG
+    private(set) var radioStatsReadCountForTesting = 0
+  #endif
 
   // Re-evaluated each poll tick so a disconnect mid-poll surfaces immediately.
   private var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
@@ -125,6 +128,14 @@ final class NoiseFloorViewModel {
     errorMessage = nil
   }
 
+  func setWorkspaceActive(_ active: Bool, sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
+    if active {
+      startPolling(sessionProvider: sessionProvider)
+    } else {
+      stopPolling()
+    }
+  }
+
   func startPolling(sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
     self.sessionProvider = sessionProvider
     if chartStartTime == nil {
@@ -159,6 +170,9 @@ final class NoiseFloorViewModel {
     }
 
     do {
+      #if DEBUG
+        radioStatsReadCountForTesting += 1
+      #endif
       let stats = try await session.getStatsRadio()
       let reading = NoiseFloorReading(
         id: UUID(),

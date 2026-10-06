@@ -512,6 +512,7 @@ final class AppState {
     rxLogEventsTask = nil
     messageEventDispatcher.cancelAll()
     navigation.clearPendingLinks()
+    resetRadioScopedToolWorkspaces()
   }
 
   /// Presents the guided pairing-failure recovery for an invalidated bond, only
@@ -537,7 +538,7 @@ final class AppState {
       if navigation.pendingScrollTarget?.conversationID == selected.id {
         navigation.clearPendingScrollToMessage()
       }
-      navigation.chatsSelectedRoute = nil
+      navigation.setChatsRoute(nil)
     }
     refreshConversations()
   }
@@ -559,7 +560,6 @@ final class AppState {
         lastConnectedDeviceID: connectionManager.lastConnectedDeviceID,
         shouldSuppressDisconnectedPill: connectionManager.shouldSuppressDisconnectedPill
       )
-      resetRadioScopedToolWorkspaces()
       batteryMonitor.stop()
       batteryMonitor.clearThresholds()
       await liveActivityManager.handleConnectionLost()

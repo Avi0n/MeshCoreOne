@@ -611,4 +611,132 @@ struct TracePathExecutionCancellationTests {
     #expect(persisted?.runs.count == 1)
     #expect(persisted?.runs.first?.success == true)
   }
+
+  @Test
+  func `current cancellation clears the single send without a stored run`() async throws {
+    let (store, savedPath, viewModel) = try await makeSavedPathViewModel()
+    var didSend = false
+    viewModel.sendTraceForTesting = { _, _, _ in
+      didSend = true
+      throw CancellationError()
+    }
+
+    viewModel.startTrace()
+    try await waitUntil(timeout: .seconds(1), "cancelled send should run") {
+      didSend
+    }
+    try await Task.sleep(for: .milliseconds(50))
+
+    #expect(viewModel.isRunning == false)
+    #expect(viewModel.pendingTagForTesting == nil)
+    #expect(viewModel.errorMessage == nil)
+    let persisted = try await store.fetchSavedTracePath(id: savedPath.id)
+    #expect(persisted?.runs.isEmpty == true)
+  }
+
+  @Test
+  func `current cancellation stops the batch without a stored run`() async throws {
+    let (store, savedPath, viewModel) = try await makeSavedPathViewModel()
+    viewModel.batchEnabled = true
+    viewModel.batchSize = 3
+    var sendCount = 0
+    viewModel.sendTraceForTesting = { _, _, _ in
+      sendCount += 1
+      throw CancellationError()
+    }
+
+    viewModel.startTrace()
+    try await waitUntil(timeout: .seconds(1), "batch should stop after the cancelled member") {
+      sendCount == 1 && viewModel.isRunning == false
+    }
+
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(sendCount == 1)
+    #expect(viewModel.pendingTagForTesting == nil)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.completedResults.isEmpty)
+    let persisted = try await store.fetchSavedTracePath(id: savedPath.id)
+    #expect(persisted?.runs.isEmpty == true)
+  }
+
+  @Test
+  func `superseded cancellation leaves the replacement send running`() async throws {
+    let send = ControllableTraceSend()
+    let viewModel = makeViewModel(send: send)
+    viewModel.startTrace()
+
+    try await waitUntil(timeout: .seconds(1), "first send should start") {
+      send.sendCount == 1
+    }
+
+    viewModel.startTrace()
+    try await waitUntil(timeout: .seconds(1), "replacement send should start") {
+      send.sendCount == 2
+    }
+    let replacementTag = viewModel.pendingTagForTesting
+
+    send.failOldest(CancellationError())
+    try await Task.sleep(for: .milliseconds(30))
+
+    #expect(viewModel.isRunning)
+    #expect(viewModel.pendingTagForTesting == replacementTag)
+    #expect(viewModel.pendingTagForTesting != nil)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.completedResults.isEmpty)
+  }
+
+  @Test
+  func `reset during failed-run fetch leaves activeSavedPath nil`() async throws {
+    let (store, savedPath, viewModel) = try await makeSavedPathViewModel()
+    let send = ControllableTraceSend()
+    send.hangUntilComplete = false
+    send.info = MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60_000)
+    viewModel.sendTraceForTesting = { tag, flags, path in
+      try await send.send(tag: tag, flags: flags, path: path)
+    }
+    var fetched = false
+    viewModel.onFailedRunFetchedForTesting = {
+      viewModel.reset()
+      fetched = true
+    }
+
+    viewModel.startTrace()
+    try await waitUntil(timeout: .seconds(1), "timeout wait should be armed") {
+      viewModel.hasActiveTimeoutTaskForTesting && viewModel.pendingTagForTesting != nil
+    }
+
+    viewModel.setTraceDeadlineForTesting(.distantPast)
+    viewModel.expireTraceIfDeadlinePassed()
+    try await waitUntil(timeout: .seconds(2), "failed run should be fetched") {
+      fetched
+    }
+
+    #expect(viewModel.activeSavedPath == nil)
+    let persisted = try await store.fetchSavedTracePath(id: savedPath.id)
+    #expect(persisted?.runs.count == 1)
+    #expect(persisted?.runs.first?.success == false)
+  }
+
+  private func makeSavedPathViewModel() async throws -> (PersistenceStore, SavedTracePathDTO, TracePathViewModel) {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let savedPath = try await store.createSavedTracePath(
+      radioID: UUID(),
+      name: "Saved",
+      pathBytes: Data([0xAB]),
+      hashSize: 1,
+      initialRun: nil
+    )
+    let viewModel = TracePathViewModel()
+    viewModel.configure(dependencies: TracePathViewModel.Dependencies(
+      dataStore: { store },
+      session: { nil },
+      advertisementService: { nil },
+      connectedDevice: { nil },
+      bestAvailableLocation: { nil }
+    ))
+    viewModel.addNode(makeContact())
+    viewModel.activeSavedPath = savedPath
+    return (store, savedPath, viewModel)
+  }
 }

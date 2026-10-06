@@ -35,7 +35,7 @@ struct ChatsView: View {
       preferredCompactColumn: $preferredCompactColumn,
       nestedPathIsEmpty: nestedPath.isEmpty,
       hasSelection: appState.navigation.chatsSelectedRoute != nil,
-      onClearRootSelection: { appState.navigation.chatsSelectedRoute = nil }
+      onClearRootSelection: { appState.navigation.setChatsRoute(nil) }
     )
     .onChange(of: appState.navigation.chatsSelectedRoute) { oldRoute, newRoute in
       handleSelectedRouteChange(from: oldRoute, to: newRoute)

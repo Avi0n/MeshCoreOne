@@ -1,6 +1,7 @@
 import Foundation
 @testable import MC1
 @testable import MC1Services
+import MeshCore
 import Testing
 
 @Suite("AppState Lifecycle Transition Tests")
@@ -106,6 +107,120 @@ struct LifecycleTransitionTests {
     #expect(message.contains("connection=disconnected"))
     #expect(message.contains("hasDevice=false"))
     #expect(!message.contains(secretName))
+  }
+
+  @Test
+  func `disconnect resets trace discovery and remote admin`() async {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    let trace = TracePathViewModel()
+    trace.isRunning = true
+    appState.tracePathViewModel = trace
+    let discovery = NodeDiscoveryViewModel()
+    discovery.beginScanForTesting(deadline: Date().addingTimeInterval(15))
+    appState.nodeDiscoveryViewModel = discovery
+    let session = Self.makeRepeaterSession()
+    let settings = appState.remoteAdminWorkspaces.repeaterSettings(for: session)
+    settings.advertIntervalMinutes = 20
+
+    await appState.disconnect()
+
+    #expect(trace.isRunning == false)
+    #expect(discovery.isScanning == false)
+    #expect(appState.remoteAdminWorkspaces.repeaterSettings(for: session) !== settings)
+  }
+
+  @Test
+  func `device id change resets tool workspaces and the same id does not`() async throws {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    let deviceA = Self.makeDevice(id: UUID())
+    let servicesA = try await ServiceContainer.forTesting(session: MeshCoreSession(transport: MockTransport()))
+    appState.connectionManager.setTestState(
+      connectionState: .ready,
+      services: servicesA,
+      connectedDevice: deviceA
+    )
+    await appState.wireServicesIfConnected()
+
+    let trace = TracePathViewModel()
+    trace.isRunning = true
+    appState.tracePathViewModel = trace
+    let discovery = NodeDiscoveryViewModel()
+    discovery.beginScanForTesting(deadline: Date().addingTimeInterval(15))
+    appState.nodeDiscoveryViewModel = discovery
+    let session = Self.makeRepeaterSession()
+    let settings = appState.remoteAdminWorkspaces.repeaterSettings(for: session)
+    settings.advertIntervalMinutes = 20
+
+    await appState.wireServicesIfConnected()
+    #expect(trace.isRunning)
+    #expect(discovery.isScanning)
+    #expect(appState.remoteAdminWorkspaces.repeaterSettings(for: session) === settings)
+
+    let deviceB = Self.makeDevice(id: UUID())
+    let servicesB = try await ServiceContainer.forTesting(session: MeshCoreSession(transport: MockTransport()))
+    appState.connectionManager.setTestState(
+      connectionState: .ready,
+      services: servicesB,
+      connectedDevice: deviceB
+    )
+    await appState.wireServicesIfConnected()
+
+    #expect(trace.isRunning == false)
+    #expect(discovery.isScanning == false)
+    #expect(appState.remoteAdminWorkspaces.repeaterSettings(for: session) !== settings)
+  }
+
+  private static func makeRepeaterSession() -> RemoteNodeSessionDTO {
+    RemoteNodeSessionDTO(
+      radioID: UUID(),
+      publicKey: Data(repeating: 0x42, count: 32),
+      name: "Node",
+      role: .repeater,
+      isConnected: true,
+      permissionLevel: .admin
+    )
+  }
+
+  private static func makeDevice(id: UUID) -> DeviceDTO {
+    DeviceDTO(
+      id: id,
+      radioID: UUID(),
+      publicKey: Data(repeating: 0x01, count: 32),
+      nodeName: "Radio",
+      firmwareVersion: 8,
+      firmwareVersionString: "1.10",
+      manufacturerName: "Test",
+      buildDate: "",
+      maxContacts: 100,
+      maxChannels: 16,
+      frequency: 0,
+      bandwidth: 0,
+      spreadingFactor: 0,
+      codingRate: 0,
+      txPower: 0,
+      maxTxPower: 0,
+      latitude: 0,
+      longitude: 0,
+      blePin: 0,
+      clientRepeat: false,
+      pathHashMode: 0,
+      manualAddContacts: false,
+      autoAddConfig: 0,
+      autoAddMaxHops: 0,
+      multiAcks: 0,
+      telemetryModeBase: 0,
+      telemetryModeLoc: 0,
+      telemetryModeEnv: 0,
+      advertLocationPolicy: 0,
+      lastConnected: Date(),
+      lastContactSync: 0,
+      isActive: true,
+      ocvPreset: nil,
+      customOCVArrayString: nil,
+      connectionMethods: []
+    )
   }
 
   private static func makeContact(name: String) -> ContactDTO {

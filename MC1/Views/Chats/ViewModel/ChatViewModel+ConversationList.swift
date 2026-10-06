@@ -202,6 +202,7 @@ extension ChatViewModel {
     // Invalidates in-flight indicator refreshes; the list event task is not `reloadTask`.
     failedSendRefreshGeneration &+= 1
     failedSendConversationIDs = []
+    retainingDirectContactIDs = nil
     recomputeSnapshot()
   }
 
@@ -261,6 +262,17 @@ extension ChatViewModel {
     recomputeSnapshot()
   }
 
+  private func fetchRetainingDirectContactIDs(radioID: UUID) async -> Set<UUID>? {
+    guard let dataStore else { return nil }
+    do {
+      let contacts = try await dataStore.fetchContacts(radioID: radioID)
+      return Set(contacts.map(\.id))
+    } catch {
+      logger.error("fetchContacts failed: \(error.localizedDescription)")
+      return nil
+    }
+  }
+
   /// Load conversations for a device
   func loadConversations(radioID: UUID) async {
     guard let dataStore else { return }
@@ -269,7 +281,10 @@ extension ChatViewModel {
     errorBannerMessage = nil
 
     do {
-      conversations = try await dataStore.fetchConversations(radioID: radioID)
+      let fetchedConversations = try await dataStore.fetchConversations(radioID: radioID)
+      let contactIDs = await fetchRetainingDirectContactIDs(radioID: radioID)
+      conversations = fetchedConversations
+      retainingDirectContactIDs = contactIDs
       recomputeSnapshot()
     } catch {
       errorBannerMessage = L10n.Chats.Chats.Error.loadConversationsFailed
@@ -328,10 +343,13 @@ extension ChatViewModel {
     let fetchedRooms = await (try? dataStore.fetchRemoteNodeSessions(radioID: radioID))?
       .filter(\.isRoom)
     if Task.isCancelled { return }
+    let fetchedContactIDs = await fetchRetainingDirectContactIDs(radioID: radioID)
+    if Task.isCancelled { return }
 
     if let fetchedConversations { conversations = fetchedConversations }
     if let fetchedChannels { channels = fetchedChannels }
     if let fetchedRooms { roomSessions = fetchedRooms }
+    retainingDirectContactIDs = fetchedContactIDs
     errorBannerMessage = banner
     reconcilePendingRemovals()
     recomputeSnapshot()

@@ -17,9 +17,10 @@ struct CLITerminalView: View {
   let showSessionsButton: Bool
 
   @Binding var currentInput: String
-  @Binding var isKeyboardFocused: Bool
   @Binding var scrollPosition: ScrollPosition
   @Binding var cursorPosition: Int
+
+  @State private var keyboardFocus = CLIKeyboardFocus()
 
   let onSubmit: () -> Void
   let onHistoryUp: () -> Void
@@ -91,7 +92,7 @@ struct CLITerminalView: View {
       .onChange(of: outputLines.count) { _, _ in
         scrollPosition.scrollTo(edge: .bottom)
       }
-      .onChange(of: isKeyboardFocused) { _, focused in
+      .onChange(of: keyboardFocus.isFocused) { _, focused in
         if focused {
           Task {
             try? await Task.sleep(for: .milliseconds(100))
@@ -114,7 +115,7 @@ struct CLITerminalView: View {
 
       HiddenTextViewFocusable(
         text: $currentInput,
-        isFocused: $isKeyboardFocused,
+        keyboardFocus: $keyboardFocus,
         cursorPosition: $cursorPosition,
         onSubmit: onSubmit,
         onHistoryUp: onHistoryUp,
@@ -135,10 +136,10 @@ struct CLITerminalView: View {
     .contentShape(.rect)
     // A Button behind the ScrollView cannot receive the tap. Tap anywhere to focus.
     .onTapGesture {
-      isKeyboardFocused = true
+      keyboardFocus.onTap()
     }
     .safeAreaInset(edge: .bottom) {
-      if isKeyboardFocused {
+      if keyboardFocus.isFocused {
         CLIInputAccessoryView(
           isWaiting: isWaitingForResponse,
           showSessionsButton: showSessionsButton,
@@ -181,7 +182,7 @@ struct CLITerminalView: View {
       if isWaitingForResponse {
         onCancel()
       } else {
-        isKeyboardFocused = false
+        keyboardFocus.clearFocus()
       }
       return .handled
     }
@@ -193,12 +194,12 @@ struct CLITerminalView: View {
       return .ignored
     }
     .onAppear {
-      isKeyboardFocused = true
+      keyboardFocus.onAppear()
     }
     .onDisappear {
       // Clear the focus request when leaving so the gated accessory bar
       // can't persist across navigation and re-mount on return.
-      isKeyboardFocused = false
+      keyboardFocus.clearFocus()
     }
   }
 
@@ -225,7 +226,7 @@ struct CLITerminalView: View {
           .font(terminalFont)
           .accessibilityLabel(L10n.Tools.Tools.Cli.commandInput)
 
-        if isKeyboardFocused {
+        if keyboardFocus.isFocused {
           Rectangle()
             .fill(Color.primary)
             .frame(width: 2, height: 14)

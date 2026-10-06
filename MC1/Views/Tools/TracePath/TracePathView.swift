@@ -131,7 +131,7 @@ private struct TracePathWorkspace: View {
       }
     }
     .task(id: appState.servicesVersion) {
-      guard isWorkspaceActive else { return }
+      guard isWorkspaceActive || viewModel.isRunning else { return }
       // Keyed on servicesVersion: a late connect or reconnect rebuilds the
       // ServiceContainer, so the listener must re-subscribe to the fresh
       // AdvertisementService or trace responses are silently dropped.
@@ -143,12 +143,11 @@ private struct TracePathWorkspace: View {
         bestAvailableLocation: { appState.bestAvailableLocation }
       ))
       viewModel.startListening()
-      if isWorkspaceActive {
-        viewModel.noteWorkspaceVisible(true)
-        if viewMode == .list, presentedResult == nil,
-           let result = viewModel.takeUnpresentedResultIfNeeded() {
-          presentedResult = result
-        }
+      guard isWorkspaceActive else { return }
+      viewModel.noteWorkspaceVisible(true)
+      if viewMode == .list, presentedResult == nil,
+         let result = viewModel.takeUnpresentedResultIfNeeded() {
+        presentedResult = result
       }
       if let radioID = appState.connectedDevice?.radioID {
         await viewModel.loadContacts(radioID: radioID)

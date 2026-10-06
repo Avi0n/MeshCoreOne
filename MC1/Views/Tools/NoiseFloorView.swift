@@ -27,14 +27,10 @@ struct NoiseFloorView: View {
     .navigationTitle(L10n.Tools.Tools.noiseFloor)
     .task(id: appState.servicesVersion) {
       guard isWorkspaceActive else { return }
-      viewModel.startPolling { appState.services?.session }
+      viewModel.setWorkspaceActive(true) { appState.services?.session }
     }
     .onChange(of: isWorkspaceActive) { _, isActive in
-      if isActive {
-        viewModel.startPolling { appState.services?.session }
-      } else {
-        viewModel.stopPolling()
-      }
+      viewModel.setWorkspaceActive(isActive) { appState.services?.session }
     }
   }
 }

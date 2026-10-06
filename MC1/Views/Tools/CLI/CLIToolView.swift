@@ -5,7 +5,6 @@ import UIKit
 struct CLIToolView: View {
   @Environment(\.appState) private var appState
 
-  @State private var isKeyboardFocused = false
   @State private var scrollPosition = ScrollPosition(edge: .bottom)
   @State private var cursorPosition: Int = 0
 
@@ -27,7 +26,6 @@ struct CLIToolView: View {
       CLIToolContent(
         viewModel: viewModel,
         appState: appState,
-        isKeyboardFocused: $isKeyboardFocused,
         scrollPosition: $scrollPosition,
         cursorPosition: $cursorPosition
       )
@@ -40,7 +38,6 @@ struct CLIToolView: View {
 private struct CLIToolContent: View {
   @Bindable var viewModel: CLIToolViewModel
   let appState: AppState
-  @Binding var isKeyboardFocused: Bool
   @Binding var scrollPosition: ScrollPosition
   @Binding var cursorPosition: Int
 
@@ -95,7 +92,6 @@ private struct CLIToolContent: View {
       isWaitingForResponse: viewModel.isWaitingForResponse,
       showSessionsButton: true,
       currentInput: $viewModel.currentInput,
-      isKeyboardFocused: $isKeyboardFocused,
       scrollPosition: $scrollPosition,
       cursorPosition: $cursorPosition,
       onSubmit: {

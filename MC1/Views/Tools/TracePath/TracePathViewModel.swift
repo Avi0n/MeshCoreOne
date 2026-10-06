@@ -47,6 +47,8 @@ final class TracePathViewModel {
   private var isWorkspaceVisible = true
   private var hasUnpresentedCompletion = false
   private var listeningService: AdvertisementService?
+  /// `executionGeneration` captured when `listeningService` was subscribed.
+  private var listeningGeneration = 0
   private var traceDeadline: Date?
   private var timeoutIsBatch = false
   private var timeoutGeneration = 0
@@ -176,24 +178,22 @@ final class TracePathViewModel {
 
   private var traceEventsTask: Task<Void, Never>?
 
-  /// Start listening for trace responses on the current connection's
-  /// `AdvertisementService`. Idempotent for the live service instance: a
-  /// second call while that subscription is up does not cancel it. The
-  /// owning `ServiceContainer` is rebuilt on every connection and finishes
-  /// its event stream on teardown; a current run then resubscribes without
-  /// bumping `executionGeneration`.
+  /// Subscribes at the current `executionGeneration`, replacing the subscription when the service instance or generation differs.
+  /// A finished stream resubscribes only for a different live instance, so the same ended stream is not subscribed again.
   func startListening() {
     #if DEBUG
       startListeningCallCountForTesting += 1
       if allowListeningWithoutServiceForTesting {
         if let traceEventsTask, !traceEventsTask.isCancelled { return }
         subscribeCountForTesting += 1
+        listeningGeneration = executionGeneration
         traceEventsTask = Task {}
         return
       }
     #endif
     guard let advertisementService else { return }
     if let listeningService, listeningService === advertisementService,
+       listeningGeneration == executionGeneration,
        let traceEventsTask, !traceEventsTask.isCancelled {
       return
     }
@@ -203,6 +203,7 @@ final class TracePathViewModel {
   private func subscribeToTraceEvents(_ advertisementService: AdvertisementService) {
     traceEventsTask?.cancel()
     listeningService = advertisementService
+    listeningGeneration = executionGeneration
     #if DEBUG
       subscribeCountForTesting += 1
     #endif
@@ -215,10 +216,14 @@ final class TracePathViewModel {
         handleTraceResponse(traceInfo, radioID: radioID)
       }
       guard let self else { return }
+      #if DEBUG
+        self.eventStreamEndedForTesting = true
+      #endif
       guard generation == executionGeneration, isRunning else { return }
-      listeningService = nil
+      guard let current = self.advertisementService, current !== advertisementService else { return }
       startListening()
     }
+    expireTraceIfDeadlinePassed()
   }
 
   /// Stop listening for trace responses
@@ -897,6 +902,7 @@ final class TracePathViewModel {
       )
       logger.info("Sent trace with tag \(tag), path: \(self.fullPathString), timeout: \(timeoutSeconds)s")
     } catch is CancellationError {
+      clearCancelledSendIfCurrent(generation)
       return
     } catch {
       guard isCurrentExecution(generation) else { return }
@@ -989,7 +995,7 @@ final class TracePathViewModel {
 
   /// Execute a single trace within a batch, storing result in completedResults
   private func executeSingleTrace(generation: Int) async {
-    guard isCurrentExecution(generation) else { return }
+    guard isCurrentExecution(generation), canSendTrace else { return }
 
     pendingPathHash = fullPathBytes
 
@@ -1010,6 +1016,8 @@ final class TracePathViewModel {
         "Sent batch trace \(self.currentTraceIndex)/\(self.batchSize) with tag \(tag), timeout: \(timeoutSeconds)s"
       )
     } catch is CancellationError {
+      guard clearCancelledSendIfCurrent(generation) else { return }
+      batchCancelled = true
       return
     } catch {
       guard isCurrentExecution(generation) else { return }
@@ -1043,6 +1051,18 @@ final class TracePathViewModel {
     generation == executionGeneration && !Task.isCancelled
   }
 
+  /// `performSendTrace` throws `CancellationError` when `session` is nil after the run is marked started.
+  /// Only a still-current generation drops that send.
+  @discardableResult
+  private func clearCancelledSendIfCurrent(_ generation: Int) -> Bool {
+    guard generation == executionGeneration else { return false }
+    pendingTag = nil
+    pendingDeviceID = nil
+    pendingPathHash = nil
+    isRunning = false
+    return true
+  }
+
   private func performSendTrace(tag: UInt32, flags: UInt8, path: Data) async throws -> MessageSentInfo {
     #if DEBUG
       if let sendTraceForTesting {
@@ -1074,6 +1094,11 @@ final class TracePathViewModel {
   private func applyTimeoutIfNeeded() {
     guard let tag = timeoutTag else { return }
     guard isCurrentExecution(timeoutGeneration), pendingTag == tag else { return }
+    // A listener on a replaced service has not seen this run's pushes, so the wait stays until that listener is current.
+    // A nil listener may still time out.
+    if let listeningService {
+      guard let current = advertisementService, listeningService === current else { return }
+    }
 
     timeoutTask?.cancel()
     timeoutTask = nil
@@ -1134,6 +1159,10 @@ final class TracePathViewModel {
         try await dataStore.appendTracePathRun(pathID: savedPath.id, run: failedRun)
         guard let self, generation == self.executionGeneration else { return }
         if let updated = try await dataStore.fetchSavedTracePath(id: savedPath.id) {
+          #if DEBUG
+            self.onFailedRunFetchedForTesting?()
+          #endif
+          guard generation == self.executionGeneration else { return }
           self.activeSavedPath = updated
         }
       } catch {
@@ -1323,9 +1352,19 @@ final class TracePathViewModel {
   #if DEBUG
     var sendTraceForTesting: (@MainActor (UInt32, UInt8, Data) async throws -> MessageSentInfo)?
     var matchingSavedPathForTesting: (@MainActor () async -> SavedTracePathDTO?)?
+    var onFailedRunFetchedForTesting: (@MainActor () -> Void)?
     var allowListeningWithoutServiceForTesting = false
     var startListeningCallCountForTesting = 0
     var subscribeCountForTesting = 0
+    var eventStreamEndedForTesting = false
+
+    var subscribedGenerationForTesting: Int {
+      listeningGeneration
+    }
+
+    var traceDeadlineForTesting: Date? {
+      traceDeadline
+    }
     var pendingTagForTesting: UInt32? {
       pendingTag
     }

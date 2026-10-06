@@ -513,7 +513,7 @@ struct ChatConversationView: View {
     guard slotWasReassigned, case let .channel(channel) = conversationType else { return }
     chatViewModel.composingText = ""
     if case let .channel(selected) = appState.navigation.chatsSelectedRoute, selected.id == channel.id {
-      appState.navigation.chatsSelectedRoute = nil
+      appState.navigation.setChatsRoute(nil)
     }
     dismiss()
   }

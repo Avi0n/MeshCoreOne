@@ -42,6 +42,10 @@ final class ChatViewModel {
   /// All contacts for mention autocomplete (includes contacts without messages)
   var allContacts: [ContactDTO] = []
 
+  /// Contact ids committed with `conversations`. Nil when contacts were not
+  /// fetched, so a messageless direct stays open until a successful fetch.
+  var retainingDirectContactIDs: Set<UUID>?
+
   /// `loweredName -> nickname` for channel sender matching, rebuilt whenever
   /// `allContacts` changes so per-message resolution stays O(1).
   var nicknamesByLoweredName: [String: String] = [:]

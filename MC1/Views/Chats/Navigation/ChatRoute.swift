@@ -83,20 +83,21 @@ enum ChatRoute: Hashable {
     }
   }
 
-  func refreshedPayload(from conversations: [Conversation]) -> ChatRoute? {
-    guard let match = conversations.first(where: { conversation in
+  func refreshedPayload(
+    from conversations: [Conversation],
+    retainingDirectContactIDs: Set<UUID>?
+  ) -> ChatRoute? {
+    if let match = conversations.first(where: { conversation in
       let route = ChatRoute(conversation: conversation)
       return route.kind == kind && route.conversationID == conversationID
-    }) else {
-      // Messageless directs are omitted from the conversation list until the
-      // first message, so keep the open route when no row matches.
-      if case .direct = self {
-        return self
-      }
-      return nil
+    }) {
+      return ChatRoute(conversation: match)
     }
-
-    return ChatRoute(conversation: match)
+    guard case let .direct(contact) = self else { return nil }
+    // A nil set means the contact fetch did not complete. An empty set means
+    // it completed with no contacts, which closes a messageless direct.
+    guard let retainingDirectContactIDs else { return self }
+    return retainingDirectContactIDs.contains(contact.id) ? self : nil
   }
 }
 

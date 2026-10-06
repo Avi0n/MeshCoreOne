@@ -5,7 +5,7 @@ import UIKit
 /// Tracks cursor position and supports cursor movement via callbacks.
 struct HiddenTextViewFocusable: UIViewRepresentable {
   @Binding var text: String
-  @Binding var isFocused: Bool
+  @Binding var keyboardFocus: CLIKeyboardFocus
   @Binding var cursorPosition: Int
   var onSubmit: () -> Void
   var onHistoryUp: () -> Void
@@ -50,15 +50,25 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
 
     // A become scheduled while focused must not run after the flag is cleared.
     // A failed become still clears the flag so the bar cannot strand with no keyboard.
-    if isFocused, !textView.isFirstResponder {
+    if keyboardFocus.isFocused, !textView.isFirstResponder {
       Task { @MainActor in
-        guard isFocused else { return }
-        guard textView.window != nil, textView.becomeFirstResponder() else {
-          isFocused = false
+        guard keyboardFocus.isFocused else { return }
+        guard textView.window != nil else {
+          keyboardFocus.clearFocus()
           return
         }
+        var focus = keyboardFocus
+        focus.beginProgrammaticEditing()
+        keyboardFocus = focus
+        let became = textView.becomeFirstResponder()
+        var after = keyboardFocus
+        after.endProgrammaticEditing()
+        if !became {
+          after.clearFocus()
+        }
+        keyboardFocus = after
       }
-    } else if !isFocused, textView.isFirstResponder {
+    } else if !keyboardFocus.isFocused, textView.isFirstResponder {
       textView.resignFirstResponder()
     }
   }
@@ -66,7 +76,7 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
   func makeCoordinator() -> Coordinator {
     Coordinator(
       text: $text,
-      isFocused: $isFocused,
+      keyboardFocus: $keyboardFocus,
       cursorPosition: $cursorPosition,
       onSubmit: onSubmit,
       onHistoryUp: onHistoryUp,
@@ -78,7 +88,7 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
 
   class Coordinator: NSObject, FocusableTextViewDelegate {
     @Binding var text: String
-    @Binding var isFocused: Bool
+    @Binding var keyboardFocus: CLIKeyboardFocus
     @Binding var cursorPosition: Int
     let onSubmit: () -> Void
     let onHistoryUp: () -> Void
@@ -88,7 +98,7 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
 
     init(
       text: Binding<String>,
-      isFocused: Binding<Bool>,
+      keyboardFocus: Binding<CLIKeyboardFocus>,
       cursorPosition: Binding<Int>,
       onSubmit: @escaping () -> Void,
       onHistoryUp: @escaping () -> Void,
@@ -97,7 +107,7 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
       onTabComplete: @escaping () -> Void
     ) {
       _text = text
-      _isFocused = isFocused
+      _keyboardFocus = keyboardFocus
       _cursorPosition = cursorPosition
       self.onSubmit = onSubmit
       self.onHistoryUp = onHistoryUp
@@ -137,9 +147,17 @@ struct HiddenTextViewFocusable: UIViewRepresentable {
       cursorPosition = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
     }
 
+    func textViewDidBeginEditing(_ textView: UITextView) {
+      var focus = keyboardFocus
+      focus.noteBeginEditing()
+      keyboardFocus = focus
+    }
+
     func textViewDidEndEditing(_ textView: UITextView) {
       Task { @MainActor in
-        self.isFocused = false
+        var focus = self.keyboardFocus
+        focus.clearFocus()
+        self.keyboardFocus = focus
       }
     }
 

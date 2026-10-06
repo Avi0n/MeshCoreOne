@@ -140,8 +140,8 @@ final class NodeDiscoveryViewModel {
 
     guard let radioID else { return }
 
+    let startedSession = session
     stopScan()
-    results.removeAll { $0.scanFilter == filter }
     errorMessage = nil
     isScanning = true
     scanStartHapticTrigger += 1
@@ -152,29 +152,35 @@ final class NodeDiscoveryViewModel {
       do {
         // Pre-load name resolution data and existing contact keys
         await loadNameResolutionData(radioID: radioID)
+        #if DEBUG
+          await onNameResolutionFinishedForTesting?()
+        #endif
 
-        // Send discovery request
-        let tag = try await session.sendNodeDiscoverRequest(
-          filter: filter.filterValue,
-          prefixOnly: false
-        )
-        let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
+        // Send and subscribe only on the session this scan started with.
+        if !Task.isCancelled, self.session === startedSession {
+          results.removeAll { $0.scanFilter == filter }
+          let tag = try await startedSession.sendNodeDiscoverRequest(
+            filter: filter.filterValue,
+            prefixOnly: false
+          )
+          if !Task.isCancelled, self.session === startedSession {
+            let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
 
-        // Start timeout that cancels the scan task
-        timeoutTask = Task { [weak self] in
-          try? await Task.sleep(for: Self.scanDuration)
-          self?.scanTask?.cancel()
-        }
-        scanDeadline = Date().addingTimeInterval(TimeInterval(Self.scanDuration.components.seconds))
+            timeoutTask = Task { [weak self] in
+              try? await Task.sleep(for: Self.scanDuration)
+              self?.scanTask?.cancel()
+            }
+            scanDeadline = Date().addingTimeInterval(TimeInterval(Self.scanDuration.components.seconds))
 
-        // Listen for responses
-        let events = await session.events()
-        for await event in events {
-          guard !Task.isCancelled else { break }
+            let events = await startedSession.events()
+            for await event in events {
+              guard !Task.isCancelled else { break }
 
-          if case let .discoverResponse(response) = event,
-             response.tag == tagData {
-            appendOrUpdateResult(from: response)
+              if case let .discoverResponse(response) = event,
+                 response.tag == tagData {
+                appendOrUpdateResult(from: response)
+              }
+            }
           }
         }
       } catch is CancellationError {
@@ -328,6 +334,8 @@ final class NodeDiscoveryViewModel {
   }
 
   #if DEBUG
+    var onNameResolutionFinishedForTesting: (@MainActor () async -> Void)?
+
     func beginScanForTesting(deadline: Date) {
       isScanning = true
       scanDeadline = deadline

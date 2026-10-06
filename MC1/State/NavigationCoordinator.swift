@@ -11,6 +11,10 @@ final class NavigationCoordinator {
   /// The currently selected route in the Chats split view detail pane
   var chatsSelectedRoute: ChatRoute?
 
+  /// Whether the selected room was connected when it was opened. A later
+  /// snapshot presents auth only when this is true and the room has dropped.
+  var lastSelectedRoomIsConnected: Bool?
+
   /// Room session a notification tap wants the user to authenticate into, set
   /// when the tapped room is not currently connected. ChatsView presents
   /// RoomAuthenticationSheet, mirroring a disconnected-room list tap.
@@ -91,8 +95,39 @@ final class NavigationCoordinator {
     if session.isConnected {
       selectChatsRoot(.room(session))
     } else {
-      pendingRoomAuthentication = session
+      presentDisconnectedRoom(session)
     }
+  }
+
+  /// Closes the open chat and asks Chats to present room auth. Does not change the selected tab.
+  func presentDisconnectedRoom(_ session: RemoteNodeSessionDTO) {
+    setChatsRoute(nil)
+    pendingRoomAuthentication = session
+  }
+
+  /// Applies one conversation snapshot. A room that was open while connected
+  /// and is now disconnected goes through ``presentDisconnectedRoom``.
+  func refreshChatsSelection(
+    from conversations: [Conversation],
+    retainingDirectContactIDs: Set<UUID>?
+  ) {
+    let refreshed = chatsSelectedRoute?.refreshedPayload(
+      from: conversations,
+      retainingDirectContactIDs: retainingDirectContactIDs
+    )
+    if lastSelectedRoomIsConnected == true,
+       case let .room(session) = refreshed,
+       !session.isConnected {
+      presentDisconnectedRoom(session)
+      return
+    }
+    setChatsRoute(refreshed)
+  }
+
+  /// Sets the open chat and the room-connection flag together.
+  func setChatsRoute(_ route: ChatRoute?) {
+    chatsSelectedRoute = route
+    lastSelectedRoomIsConnected = route?.roomIsConnected
   }
 
   func navigateToChannel(with channel: ChannelDTO, scrollToMessageID: UUID? = nil) {
@@ -195,7 +230,7 @@ final class NavigationCoordinator {
   func clearPerRadioSelection() {
     selectedContact = nil
     nodesShowingDiscovery = false
-    chatsSelectedRoute = nil
+    setChatsRoute(nil)
     replaceConversationIntents()
     clearPerDeviceSelection()
   }
@@ -208,7 +243,7 @@ final class NavigationCoordinator {
   }
 
   private func selectChatsRoot(_ route: ChatRoute) {
-    chatsSelectedRoute = route
+    setChatsRoute(route)
     chatsRootNavigationGeneration += 1
   }
 
