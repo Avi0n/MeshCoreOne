@@ -24,6 +24,7 @@ extension LinkPreviewService {
 
   private static let htmlScrapeTimeout: TimeInterval = 5
   private static let imageFetchTimeout: TimeInterval = 5
+  private static let httpPort = 80
 
   /// Defensive only: both known target hosts (imgur, pasteboard) serve
   /// their static `og:image` to a plain GET with no browser User-Agent.
@@ -107,6 +108,20 @@ extension LinkPreviewService {
     return Self.parseHTMLMetadata(html, baseURL: url)
   }
 
+  /// Drops port 80 so an upgraded URL is not fetched on the HTTP default port.
+  static func httpsScrapeURL(for url: URL) -> URL {
+    guard let scheme = url.scheme?.lowercased(),
+          scheme == "http" || scheme == "https",
+          var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+      return url
+    }
+    components.scheme = "https"
+    if components.port == Self.httpPort {
+      components.port = nil
+    }
+    return components.url ?? url
+  }
+
   /// Bounded GET shared by the HTML scrape and the scraped-image fetch:
   /// rejects on an over-cap `expectedContentLength` or unexpected mime,
   /// then enforces `byteCap` while streaming so the cap holds even when the
@@ -118,7 +133,7 @@ extension LinkPreviewService {
     byteCap: Int,
     acceptsMime: (String) -> Bool
   ) async -> Data? {
-    var request = URLRequest(url: url)
+    var request = URLRequest(url: Self.httpsScrapeURL(for: url))
     request.timeoutInterval = timeout
     request.setValue(Self.scrapeUserAgent, forHTTPHeaderField: Self.userAgentHTTPHeaderField)
 

@@ -12,13 +12,25 @@ final class RedirectSafetyDelegate: NSObject, URLSessionTaskDelegate {
     newRequest request: URLRequest,
     completionHandler: @escaping @Sendable (URLRequest?) -> Void
   ) {
-    guard let url = request.url else {
+    guard let hop = request.url else {
+      completionHandler(nil)
+      return
+    }
+    let upgraded = LinkPreviewService.httpsScrapeURL(for: hop)
+    // The upgraded hop is the URL that just responded, so following it repeats.
+    if let responded = response.url?.absoluteString, upgraded.absoluteString == responded {
       completionHandler(nil)
       return
     }
     Task {
-      let isSafe = await URLSafetyChecker.isSafe(url)
-      completionHandler(isSafe ? request : nil)
+      let isSafe = await URLSafetyChecker.isSafe(upgraded)
+      guard isSafe else {
+        completionHandler(nil)
+        return
+      }
+      var followed = request
+      followed.url = upgraded
+      completionHandler(followed)
     }
   }
 }
