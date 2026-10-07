@@ -233,6 +233,7 @@ final class TracePathViewModel {
     listeningService = nil
   }
 
+  /// Hiding the workspace cancels the error auto-clear and leaves the trace running.
   func noteWorkspaceVisible(_ visible: Bool) {
     isWorkspaceVisible = visible
     if !visible {

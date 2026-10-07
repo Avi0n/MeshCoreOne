@@ -157,6 +157,7 @@ final class NodeStatusViewModel {
     isBatteryCurveExpanded = false
     statusSectionError = nil
     telemetrySectionError = nil
+    previousStatusSnapshot = nil
   }
 
   func runVisitedSectionRequest<T>(
@@ -278,6 +279,21 @@ final class NodeStatusViewModel {
     }
   }
 
+  /// Drops a push for another node or a visit that no longer accepts a write.
+  func visitGatedHandler<Response: Sendable>(
+    prefix: @escaping @Sendable (Response) -> Data,
+    visit: @escaping @Sendable () async -> TelemetryVisitToken?,
+    body: @escaping @Sendable (Response, TelemetryVisitToken) async -> Void
+  ) -> @Sendable (Response) async -> Void {
+    { [weak self] response in
+      guard let self else { return }
+      guard await self.matchesSession(prefix(response)) else { return }
+      guard let visit = await visit() else { return }
+      guard await self.allowsTelemetryWrite(visit) else { return }
+      await body(response, visit)
+    }
+  }
+
   // MARK: - Status Response Handling
 
   /// Handle a status response, saving a snapshot with role-specific fields.
@@ -303,10 +319,12 @@ final class NodeStatusViewModel {
 
     guard let nodeSnapshotService, let session else { return }
 
-    previousStatusSnapshot = await nodeSnapshotService.previousStatusSnapshot(
+    let baseline = await nodeSnapshotService.previousStatusSnapshot(
       for: session.publicKey,
       before: .now
     )
+    guard allowsTelemetryWrite(visit) else { return }
+    previousStatusSnapshot = baseline
 
     let metrics = NodeStatusMetrics(
       status: response,

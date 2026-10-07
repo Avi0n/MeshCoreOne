@@ -39,11 +39,19 @@ public actor RepeaterAdminService {
 
   #if DEBUG
     /// Calls observed before transport. Tests set `failObservedCallsForTesting` so a send does not wait on a radio.
-    public private(set) var observedCallsForTesting: [String] = []
-    public var failObservedCallsForTesting = false
+    private let testingObservation = AdminCallObservation()
+
+    public var observedCallsForTesting: [String] {
+      testingObservation.calls
+    }
+
+    public var failObservedCallsForTesting: Bool {
+      get { testingObservation.shouldFail }
+      set { testingObservation.shouldFail = newValue }
+    }
 
     public func setFailObservedCallsForTesting(_ fail: Bool) {
-      failObservedCallsForTesting = fail
+      testingObservation.shouldFail = fail
     }
 
     /// When this returns a string, `sendCommand` uses it and does not touch transport.
@@ -53,11 +61,11 @@ public actor RepeaterAdminService {
       onSendCommandForTesting = hook
     }
 
-    private func noteObservedCallForTesting(_ name: String) throws {
-      observedCallsForTesting.append(name)
-      if failObservedCallsForTesting {
-        throw AdminTransportBlockedForTesting()
-      }
+    private func observeCallForTesting(
+      _ name: String,
+      stub: (@Sendable (String) async throws -> String?)? = nil
+    ) async throws -> String? {
+      try await testingObservation.observe(name, stub: stub)
     }
   #endif
 
@@ -170,7 +178,7 @@ public actor RepeaterAdminService {
     timeout: Duration? = nil
   ) async throws -> NeighboursResponse {
     #if DEBUG
-      try noteObservedCallForTesting("neighbors")
+      _ = try await observeCallForTesting("neighbors")
     #endif
     // Paginate over the per-page request so each round-trip keeps its audit log entry
     // and timeout ceiling; a single node response is capped to one radio frame.
@@ -199,7 +207,7 @@ public actor RepeaterAdminService {
   /// Request status from a repeater.
   public func requestStatus(sessionID: UUID, timeout: Duration? = nil) async throws -> StatusResponse {
     #if DEBUG
-      try noteObservedCallForTesting("status")
+      _ = try await observeCallForTesting("status")
     #endif
     return try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
   }
@@ -209,7 +217,7 @@ public actor RepeaterAdminService {
   /// Request telemetry from a repeater.
   public func requestTelemetry(sessionID: UUID, timeout: Duration? = nil) async throws -> TelemetryResponse {
     #if DEBUG
-      try noteObservedCallForTesting("telemetry")
+      _ = try await observeCallForTesting("telemetry")
     #endif
     return try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
   }
@@ -219,7 +227,7 @@ public actor RepeaterAdminService {
   /// Request owner info from a repeater using binary protocol.
   public func requestOwnerInfo(sessionID: UUID, timeout: Duration? = nil) async throws -> OwnerInfoResponse {
     #if DEBUG
-      try noteObservedCallForTesting("owner.info")
+      _ = try await observeCallForTesting("owner.info")
     #endif
     return try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, timeout: timeout)
   }
@@ -235,12 +243,8 @@ public actor RepeaterAdminService {
     timeout: Duration = .seconds(10)
   ) async throws -> String {
     #if DEBUG
-      observedCallsForTesting.append(command)
-      if let onSendCommandForTesting, let replacement = try await onSendCommandForTesting(command) {
+      if let replacement = try await observeCallForTesting(command, stub: onSendCommandForTesting) {
         return replacement
-      }
-      if failObservedCallsForTesting {
-        throw AdminTransportBlockedForTesting()
       }
     #endif
     return try await remoteNodeService.sendCLICommand(
@@ -258,7 +262,7 @@ public actor RepeaterAdminService {
     timeout: Duration = .seconds(10)
   ) async throws -> String {
     #if DEBUG
-      try noteObservedCallForTesting(command)
+      _ = try await observeCallForTesting(command)
     #endif
     return try await remoteNodeService.sendRawCLICommand(
       sessionID: sessionID,
@@ -386,8 +390,3 @@ public actor RepeaterAdminService {
     telemetryResponseHandler = nil
   }
 }
-
-#if DEBUG
-  /// Thrown before transport when `failObservedCallsForTesting` is set.
-  public struct AdminTransportBlockedForTesting: Error {}
-#endif

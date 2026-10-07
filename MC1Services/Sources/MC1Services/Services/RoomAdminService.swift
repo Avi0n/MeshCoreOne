@@ -19,18 +19,23 @@ public actor RoomAdminService {
 
   #if DEBUG
     /// Calls observed before transport. Tests set `failObservedCallsForTesting` so a send does not wait on a radio.
-    public private(set) var observedCallsForTesting: [String] = []
-    public var failObservedCallsForTesting = false
+    private let testingObservation = AdminCallObservation()
 
-    public func setFailObservedCallsForTesting(_ fail: Bool) {
-      failObservedCallsForTesting = fail
+    public var observedCallsForTesting: [String] {
+      testingObservation.calls
     }
 
-    private func noteObservedCallForTesting(_ name: String) throws {
-      observedCallsForTesting.append(name)
-      if failObservedCallsForTesting {
-        throw AdminTransportBlockedForTesting()
-      }
+    public var failObservedCallsForTesting: Bool {
+      get { testingObservation.shouldFail }
+      set { testingObservation.shouldFail = newValue }
+    }
+
+    public func setFailObservedCallsForTesting(_ fail: Bool) {
+      testingObservation.shouldFail = fail
+    }
+
+    private func observeCallForTesting(_ name: String) async throws -> String? {
+      try await testingObservation.observe(name)
     }
   #endif
 
@@ -49,7 +54,7 @@ public actor RoomAdminService {
   /// Request status from a room server.
   public func requestStatus(sessionID: UUID, timeout: Duration? = nil) async throws -> StatusResponse {
     #if DEBUG
-      try noteObservedCallForTesting("status")
+      _ = try await observeCallForTesting("status")
     #endif
     return try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
   }
@@ -59,7 +64,7 @@ public actor RoomAdminService {
   /// Request telemetry from a room server.
   public func requestTelemetry(sessionID: UUID, timeout: Duration? = nil) async throws -> TelemetryResponse {
     #if DEBUG
-      try noteObservedCallForTesting("telemetry")
+      _ = try await observeCallForTesting("telemetry")
     #endif
     return try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
   }
@@ -75,7 +80,9 @@ public actor RoomAdminService {
     timeout: Duration = .seconds(10)
   ) async throws -> String {
     #if DEBUG
-      try noteObservedCallForTesting(command)
+      if let replacement = try await observeCallForTesting(command) {
+        return replacement
+      }
     #endif
     return try await remoteNodeService.sendCLICommand(
       sessionID: sessionID,
@@ -91,7 +98,7 @@ public actor RoomAdminService {
     timeout: Duration = .seconds(10)
   ) async throws -> String {
     #if DEBUG
-      try noteObservedCallForTesting(command)
+      _ = try await observeCallForTesting(command)
     #endif
     return try await remoteNodeService.sendRawCLICommand(
       sessionID: sessionID,

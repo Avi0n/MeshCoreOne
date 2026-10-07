@@ -66,6 +66,7 @@ private struct NodeDiscoveryWorkspace: View {
     .sensoryFeedback(.success, trigger: viewModel.addSuccessHapticTrigger)
     .sensoryFeedback(.error, trigger: viewModel.addErrorHapticTrigger)
     .task(id: appState.servicesVersion) {
+      // Leaving the workspace does not stop the scan.
       guard isWorkspaceActive else { return }
       viewModel.configure(dependencies: NodeDiscoveryViewModel.Dependencies(
         session: { [appState] in appState.services?.session },
@@ -74,9 +75,6 @@ private struct NodeDiscoveryWorkspace: View {
         contactService: { [appState] in appState.services?.contactService },
         maxContacts: { [appState] in appState.connectedDevice?.maxContacts }
       ))
-    }
-    .onChange(of: isWorkspaceActive) { _, isActive in
-      viewModel.noteWorkspaceVisible(isActive)
     }
     .onChange(of: viewModel.filter) { _, _ in
       viewModel.stopScan()

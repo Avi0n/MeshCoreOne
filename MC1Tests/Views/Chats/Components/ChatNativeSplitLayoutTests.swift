@@ -889,7 +889,6 @@ private final class ChatNativeSplitHarnessModel {
     if horizontalSizeClass == .compact {
       preferredCompactColumn = .detail
     }
-    applyPresentationRecipe()
   }
 
   var tabBarVisibility: Visibility {
@@ -899,8 +898,6 @@ private final class ChatNativeSplitHarnessModel {
       hasSelection: selectedRoute != nil
     )
   }
-
-  func applyPresentationRecipe() {}
 
   func handlePreferredColumnChange() {
     switch SectionSplitPresentation.preferredColumnAction(
@@ -913,7 +910,6 @@ private final class ChatNativeSplitHarnessModel {
     case .none:
       break
     }
-    applyPresentationRecipe()
   }
 }
 
@@ -959,9 +955,6 @@ private struct ChatNativeSplitHarness: View {
     .navigationSplitViewStyle(.balanced)
     .onChange(of: model.preferredCompactColumn) { _, _ in
       model.handlePreferredColumnChange()
-    }
-    .onChange(of: model.selectedRoute) { _, _ in
-      model.applyPresentationRecipe()
     }
   }
 
@@ -1105,7 +1098,6 @@ private struct ChatNativeSplitHarness: View {
     if let column = presentation.preferredColumn {
       model.preferredCompactColumn = column
     }
-    model.applyPresentationRecipe()
   }
 }
 

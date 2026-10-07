@@ -172,7 +172,6 @@ final class RoomSettingsViewModel {
     // Room firmware comes from CLI `ver`, not a binary prefetch.
     helper.onPreFetchNodeInfo = nil
     registerBehaviorLateRecovery()
-    registerRoomAccessLateRecovery()
   }
 
   private func registerCLIHandler(on roomAdminService: RoomAdminService) async {
@@ -220,34 +219,19 @@ final class RoomSettingsViewModel {
     }
   }
 
-  private func registerRoomAccessLateRecovery() {
-    helper.registerLateRecovery(query: "get guest.password") { [weak self] value in
-      guard let self,
-            helper.isSettingsLoadCurrent(query: "get guest.password", field: .guestPassword)
-      else { return }
-      applyGuestPasswordResponse(value)
+  /// Stores a `get guest.password` body. The reply is free text, so it does not go through `CLIResponse.parse`.
+  private func storeGuestPasswordReply(_ response: String) {
+    var body = response.trimmingCharacters(in: .whitespacesAndNewlines)
+    if body.hasPrefix("> ") {
+      body = String(body.dropFirst(2))
+    } else if body == ">" {
+      body = ""
     }
-    helper.registerLateRecovery(query: "get allow.read.only") { [weak self] value in
-      guard let self,
-            helper.isSettingsLoadCurrent(query: "get allow.read.only", field: .allowReadOnly),
-            case let .raw(raw) = value else { return }
-      let isOn = raw.lowercased() == "on"
-      allowReadOnly = isOn
-      originalAllowReadOnly = isOn
+    if body.lowercased().hasPrefix("error") || body.hasPrefix("ERR:") {
+      return
     }
-  }
-
-  private func applyGuestPasswordResponse(_ value: CLIResponse) {
-    switch value {
-    case .ok, .error, .unknownCommand:
-      guestPassword = ""
-      originalGuestPassword = ""
-    case let .raw(raw):
-      guestPassword = raw
-      originalGuestPassword = raw
-    default:
-      break
-    }
+    guestPassword = body
+    originalGuestPassword = body
   }
 
   // MARK: - Room Access Fetch/Apply
@@ -264,7 +248,7 @@ final class RoomSettingsViewModel {
       field: .guestPassword,
       rawMatching: true
     ) { [weak self] response in
-      self?.applyGuestPasswordResponse(CLIResponse.parse(response, forQuery: "get guest.password"))
+      self?.storeGuestPasswordReply(response)
     }
     if guestTimedOut { hadTimeout = true }
 

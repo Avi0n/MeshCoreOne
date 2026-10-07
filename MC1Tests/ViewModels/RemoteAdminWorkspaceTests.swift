@@ -49,7 +49,6 @@ struct RemoteAdminWorkspaceTests {
     hasUnsavedChanges: Bool
   ) -> RegionExitActions {
     RegionExitActions(
-      hasUnsavedChanges: hasUnsavedChanges,
       save: {},
       errorMessage: { errorMessage },
       unsavedChanges: { hasUnsavedChanges },
@@ -446,6 +445,133 @@ struct RemoteAdminWorkspaceTests {
     let nextVisit = viewModel.helper.captureTelemetryVisit()
     await viewModel.helper.handleStatusResponse(response, visit: nextVisit)
     #expect(viewModel.helper.status?.batteryMillivolts == 3850)
+  }
+
+  @Test
+  func `status baseline skipped when the visit ends during the fetch`() async throws {
+    let harness = try await makeGatedStatusHarness(uptime: 100)
+    harness.viewModel.endTelemetryVisit()
+    await harness.store.resumeFetch()
+    await harness.handle.value
+
+    #expect(harness.viewModel.previousStatusSnapshot == nil)
+    #expect(harness.viewModel.status == nil)
+    #expect(await harness.store.recordedUptimes() == [GatedSnapshotPersister.seedUptime])
+  }
+
+  @Test
+  func `status baseline records while the visit is current and clears when it ends`() async throws {
+    let harness = try await makeGatedStatusHarness(uptime: 100)
+    await harness.store.resumeFetch()
+    await harness.handle.value
+
+    #expect(harness.viewModel.previousStatusSnapshot?.uptimeSeconds == GatedSnapshotPersister.seedUptime)
+    #expect(await harness.store.recordedUptimes() == [GatedSnapshotPersister.seedUptime, 100])
+
+    harness.viewModel.endTelemetryVisit()
+    #expect(harness.viewModel.previousStatusSnapshot == nil)
+  }
+
+  @Test
+  func `status baseline from an old visit does not publish over a newer visit`() async throws {
+    let harness = try await makeGatedStatusHarness(uptime: 100)
+    harness.viewModel.endTelemetryVisit()
+    harness.viewModel.beginTelemetryVisit()
+    await harness.store.resumeFetch()
+    await harness.handle.value
+
+    #expect(harness.viewModel.previousStatusSnapshot == nil)
+    #expect(harness.viewModel.status == nil)
+    #expect(await harness.store.recordedUptimes() == [GatedSnapshotPersister.seedUptime])
+
+    let session = harness.session
+    let nextVisit = harness.viewModel.captureTelemetryVisit()
+    await harness.viewModel.handleStatusResponse(
+      makeStatusResponse(session: session, uptime: 200),
+      visit: nextVisit
+    )
+
+    #expect(harness.viewModel.previousStatusSnapshot?.uptimeSeconds == GatedSnapshotPersister.seedUptime)
+    #expect(harness.viewModel.status?.uptimeSeconds == 200)
+    #expect(await harness.store.recordedUptimes() == [GatedSnapshotPersister.seedUptime, 200])
+  }
+
+  @Test
+  func `nil status baseline still records while the visit is current`() async throws {
+    let session = makeSession()
+    let store = GatedSnapshotPersister()
+    let service = NodeSnapshotService(dataStore: store)
+    let viewModel = NodeStatusViewModel()
+    viewModel.session = session
+    viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
+    let visit = viewModel.captureTelemetryVisit()
+    let handle = Task {
+      await viewModel.handleStatusResponse(makeStatusResponse(session: session, uptime: 100), visit: visit)
+    }
+    try await waitUntil(timeout: .seconds(1), "baseline fetch should suspend") {
+      await store.isFetchWaiting()
+    }
+    await store.resumeFetch()
+    await handle.value
+
+    #expect(viewModel.previousStatusSnapshot == nil)
+    #expect(viewModel.status?.uptimeSeconds == 100)
+    #expect(await store.recordedUptimes() == [100])
+  }
+
+  private struct GatedStatusHarness {
+    let viewModel: NodeStatusViewModel
+    let store: GatedSnapshotPersister
+    let session: RemoteNodeSessionDTO
+    let handle: Task<Void, Never>
+  }
+
+  private func makeGatedStatusHarness(uptime: UInt32) async throws -> GatedStatusHarness {
+    let session = makeSession()
+    let store = GatedSnapshotPersister()
+    let seed = NodeStatusSnapshotDTO(
+      timestamp: Date().addingTimeInterval(-120),
+      nodePublicKey: session.publicKey,
+      uptimeSeconds: GatedSnapshotPersister.seedUptime
+    )
+    await store.seed(seed)
+    let service = NodeSnapshotService(dataStore: store)
+    let viewModel = NodeStatusViewModel()
+    viewModel.session = session
+    viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
+    let visit = viewModel.captureTelemetryVisit()
+    let response = makeStatusResponse(session: session, uptime: uptime)
+    let handle = Task {
+      await viewModel.handleStatusResponse(response, visit: visit)
+    }
+    try await waitUntil(timeout: .seconds(1), "baseline fetch should suspend") {
+      await store.isFetchWaiting()
+    }
+    return GatedStatusHarness(viewModel: viewModel, store: store, session: session, handle: handle)
+  }
+
+  private func makeStatusResponse(session: RemoteNodeSessionDTO, uptime: UInt32) -> StatusResponse {
+    StatusResponse(
+      publicKeyPrefix: session.publicKey.prefix(6),
+      battery: 3850,
+      txQueueLength: 0,
+      noiseFloor: -120,
+      lastRSSI: -87,
+      packetsReceived: 1000,
+      packetsSent: 500,
+      airtime: 100,
+      uptime: uptime,
+      sentFlood: 0,
+      sentDirect: 0,
+      receivedFlood: 0,
+      receivedDirect: 0,
+      fullEvents: 0,
+      lastSNR: 8.5,
+      directDuplicates: 0,
+      floodDuplicates: 0,
+      rxAirtime: 100,
+      receiveErrors: 0
+    )
   }
 
   @Test
@@ -1646,6 +1772,136 @@ struct RemoteAdminWorkspaceTests {
   }
 
   @Test
+  func `guest password stores the body after one prompt`() async throws {
+    let viewModel = RoomSettingsViewModel()
+    let send = ControllableCLISend()
+    bindRoomSettings(viewModel, send: send)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "> visitor (temp)", allow: "ERR: no")
+
+    #expect(viewModel.guestPassword == "visitor (temp)")
+    #expect(viewModel.allowReadOnly == nil)
+    #expect(viewModel.roomAccessModified == false)
+    viewModel.guestPassword = "edited"
+    #expect(viewModel.roomAccessModified)
+    viewModel.revertUncommittedSettingsEdits()
+    #expect(viewModel.guestPassword == "visitor (temp)")
+  }
+
+  @Test
+  func `guest password stores an empty prompt`() async throws {
+    let viewModel = RoomSettingsViewModel()
+    let send = ControllableCLISend()
+    bindRoomSettings(viewModel, send: send)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "> ", allow: "ERR: no")
+    #expect(viewModel.guestPassword == "")
+    #expect(viewModel.roomAccessModified == false)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: ">", allow: "ERR: no")
+    #expect(viewModel.guestPassword == "")
+    #expect(viewModel.roomAccessModified == false)
+  }
+
+  @Test
+  func `guest password stores OK text`() async throws {
+    let viewModel = RoomSettingsViewModel()
+    let send = ControllableCLISend()
+    bindRoomSettings(viewModel, send: send)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "> OK", allow: "ERR: no")
+
+    #expect(viewModel.guestPassword == "OK")
+    #expect(viewModel.roomAccessModified == false)
+  }
+
+  @Test
+  func `guest password error replies are not stored`() async throws {
+    let viewModel = RoomSettingsViewModel()
+    let send = ControllableCLISend()
+    bindRoomSettings(viewModel, send: send)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "ERR: no", allow: "ERR: no")
+    #expect(viewModel.guestPassword == nil)
+    #expect(viewModel.allowReadOnly == nil)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "Error: unknown command", allow: "ERR: no")
+    #expect(viewModel.guestPassword == nil)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "> visitor (temp)", allow: "ERR: no")
+    try await fetchRoomAccess(viewModel, send: send, guest: "ERR: no", allow: "Error: unknown command")
+    #expect(viewModel.guestPassword == "visitor (temp)")
+    #expect(viewModel.allowReadOnly == nil)
+    #expect(viewModel.roomAccessModified == false)
+  }
+
+  @Test
+  func `allow read only stores on and off and ignores errors`() async throws {
+    let viewModel = RoomSettingsViewModel()
+    let send = ControllableCLISend()
+    bindRoomSettings(viewModel, send: send)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "ERR: no", allow: "Error: unknown command")
+    #expect(viewModel.allowReadOnly == nil)
+    #expect(viewModel.guestPassword == nil)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "ERR: no", allow: "> on")
+    #expect(viewModel.allowReadOnly == true)
+    #expect(viewModel.guestPassword == nil)
+    #expect(viewModel.roomAccessModified == false)
+    viewModel.allowReadOnly = false
+    #expect(viewModel.roomAccessModified)
+    viewModel.revertUncommittedSettingsEdits()
+    #expect(viewModel.allowReadOnly == true)
+
+    try await fetchRoomAccess(viewModel, send: send, guest: "ERR: no", allow: "> off")
+    #expect(viewModel.allowReadOnly == false)
+    #expect(viewModel.roomAccessModified == false)
+  }
+
+  @Test
+  func `late room access replies do not fill the fields`() async {
+    let viewModel = RoomSettingsViewModel()
+    await viewModel.configure(
+      roomAdminService: { nil },
+      session: RemoteNodeSessionDTO(
+        radioID: UUID(),
+        publicKey: Data(repeating: 0x33, count: 32),
+        name: "Room",
+        role: .roomServer,
+        isConnected: true,
+        permissionLevel: .admin
+      )
+    )
+
+    viewModel.helper.markUnansweredQueryForTesting("get guest.password")
+    viewModel.helper.handleCommonLateResponse("> visitor (temp)")
+    #expect(viewModel.guestPassword == nil)
+
+    viewModel.helper.markUnansweredQueryForTesting("get allow.read.only")
+    viewModel.helper.handleCommonLateResponse("> on")
+    #expect(viewModel.allowReadOnly == nil)
+  }
+
+  private func fetchRoomAccess(
+    _ viewModel: RoomSettingsViewModel,
+    send: ControllableCLISend,
+    guest: String,
+    allow: String
+  ) async throws {
+    let fetch = Task { await viewModel.fetchRoomAccess() }
+    try await waitUntil(timeout: .seconds(1), "get guest.password should start") {
+      send.pendingCount() >= 1 && send.commands.last == "get guest.password"
+    }
+    send.completeOldest(guest)
+    try await waitUntil(timeout: .seconds(1), "get allow.read.only should start") {
+      send.pendingCount() >= 1 && send.commands.last == "get allow.read.only"
+    }
+    send.completeOldest(allow)
+    await fetch.value
+  }
+
+  @Test
   func `late get lat after set lat does not overwrite`() async throws {
     let send = ControllableCLISend()
     let viewModel = RepeaterSettingsViewModel()
@@ -2095,4 +2351,93 @@ private actor CommandGate {
     guard !continuations.isEmpty else { return }
     continuations.removeFirst().resume(throwing: error)
   }
+}
+
+private actor GatedSnapshotPersister: NodeSnapshotPersisting {
+  static let seedUptime: UInt32 = 10
+
+  private var snapshots: [NodeStatusSnapshotDTO] = []
+  private var fetchContinuation: CheckedContinuation<Void, Never>?
+  private var gateArmed = true
+
+  func seed(_ snapshot: NodeStatusSnapshotDTO) {
+    snapshots.append(snapshot)
+  }
+
+  func isFetchWaiting() -> Bool {
+    fetchContinuation != nil
+  }
+
+  func resumeFetch() {
+    fetchContinuation?.resume()
+    fetchContinuation = nil
+  }
+
+  func recordedUptimes() -> [UInt32] {
+    snapshots.compactMap(\.uptimeSeconds)
+  }
+
+  func recordNodeStatusSnapshot(
+    nodePublicKey: Data,
+    status: NodeStatusMetrics?,
+    telemetry: [TelemetrySnapshotEntry]?,
+    neighbors: [NeighborSnapshotEntry]?,
+    location: NodeLocationFix?
+  ) async throws -> UUID {
+    let dto = NodeStatusSnapshotDTO(
+      nodePublicKey: nodePublicKey,
+      uptimeSeconds: status?.uptimeSeconds,
+      neighborSnapshots: neighbors,
+      telemetryEntries: telemetry,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      altitude: location?.altitude
+    )
+    snapshots.append(dto)
+    return dto.id
+  }
+
+  func fetchNodeStatusSnapshots(nodePublicKey: Data, since: Date?) async throws -> [NodeStatusSnapshotDTO] {
+    if gateArmed {
+      gateArmed = false
+      await withCheckedContinuation { fetchContinuation = $0 }
+    }
+    return snapshots
+      .filter { snapshot in
+        guard snapshot.nodePublicKey == nodePublicKey else { return false }
+        guard let since else { return true }
+        return snapshot.timestamp >= since
+      }
+      .sorted { $0.timestamp < $1.timestamp }
+  }
+
+  func fetchLatestNodeStatusSnapshot(nodePublicKey: Data) async throws -> NodeStatusSnapshotDTO? {
+    snapshots.filter { $0.nodePublicKey == nodePublicKey }.max { $0.timestamp < $1.timestamp }
+  }
+
+  // swiftlint:disable:next function_parameter_count
+  func saveNodeStatusSnapshot(
+    nodePublicKey: Data,
+    batteryMillivolts: UInt16?,
+    lastSNR: Double?,
+    lastRSSI: Int16?,
+    noiseFloor: Int16?,
+    uptimeSeconds: UInt32?,
+    rxAirtimeSeconds: UInt32?,
+    packetsSent: UInt32?,
+    packetsReceived: UInt32?,
+    receiveErrors: UInt32?,
+    postedCount: UInt16?,
+    postPushCount: UInt16?
+  ) async throws -> UUID {
+    UUID()
+  }
+
+  func saveTelemetryOnlySnapshot(nodePublicKey: Data, telemetryEntries: [TelemetrySnapshotEntry]) async throws -> UUID {
+    UUID()
+  }
+
+  func updateSnapshotNeighbors(id: UUID, neighbors: [NeighborSnapshotEntry]) async throws {}
+  func updateSnapshotTelemetry(id: UUID, telemetry: [TelemetrySnapshotEntry]) async throws {}
+  func deleteOldNodeStatusSnapshots(olderThan date: Date) async throws {}
 }

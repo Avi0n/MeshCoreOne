@@ -2255,6 +2255,88 @@ struct LineOfSightWorkspaceConfigurationTests {
   }
 
   @Test
+  func `fit after setCameraRegion leaves the region and version`() async {
+    let radioID = UUID()
+    let mockDataStore = MockPersistenceStore()
+    let repeater = createTestContact(
+      name: "Repeater 1",
+      latitude: sanFrancisco.latitude,
+      longitude: sanFrancisco.longitude,
+      type: .repeater,
+      radioID: radioID
+    )
+    await mockDataStore.addContact(repeater)
+
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+    let region = MKCoordinateRegion(
+      center: oakland,
+      span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+    )
+    viewModel.setCameraRegion(region)
+    let version = viewModel.cameraRegionVersion
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID }, deviceFrequencyKHz: nil)
+    await viewModel.loadRepeaters()
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+
+    #expect(viewModel.cameraRegion?.center.latitude == oakland.latitude)
+    #expect(viewModel.cameraRegion?.center.longitude == oakland.longitude)
+    #expect(viewModel.cameraRegionVersion == version)
+    #expect(viewModel.hasAppliedInitialCameraFit)
+  }
+
+  @Test
+  func `empty repeater list does not consume the initial fit`() async {
+    let radioID = UUID()
+    let mockDataStore = MockPersistenceStore()
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID }, deviceFrequencyKHz: nil)
+    await viewModel.loadRepeaters()
+    let version = viewModel.cameraRegionVersion
+
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+    #expect(viewModel.hasAppliedInitialCameraFit == false)
+    #expect(viewModel.cameraRegionVersion == version)
+
+    let repeater = createTestContact(
+      name: "Repeater 1",
+      latitude: sanFrancisco.latitude,
+      longitude: sanFrancisco.longitude,
+      type: .repeater,
+      radioID: radioID
+    )
+    await mockDataStore.addContact(repeater)
+    await viewModel.loadRepeaters()
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+
+    #expect(viewModel.cameraRegionVersion > version)
+    #expect(viewModel.hasAppliedInitialCameraFit)
+  }
+
+  @Test
+  func `restore with no camera region leaves the version`() async {
+    let radioID = UUID()
+    let mockDataStore = MockPersistenceStore()
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+    viewModel.restoreCameraAfterMapRecreation()
+    #expect(viewModel.cameraRegionVersion == 0)
+
+    let repeater = createTestContact(
+      name: "Repeater 1",
+      latitude: sanFrancisco.latitude,
+      longitude: sanFrancisco.longitude,
+      type: .repeater,
+      radioID: radioID
+    )
+    await mockDataStore.addContact(repeater)
+    viewModel.configure(dataStore: { mockDataStore }, radioID: { radioID }, deviceFrequencyKHz: nil)
+    await viewModel.loadRepeaters()
+    viewModel.applyInitialRepeaterCameraFitIfNeeded()
+
+    #expect(viewModel.cameraRegionVersion > 0)
+    #expect(viewModel.hasAppliedInitialCameraFit)
+  }
+
+  @Test
   func `reconfigure does not cancel in-flight analysis`() async throws {
     let mockService = MockElevationService()
     let viewModel = LineOfSightViewModel(elevationService: mockService)

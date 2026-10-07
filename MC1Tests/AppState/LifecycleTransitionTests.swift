@@ -211,6 +211,28 @@ struct LifecycleTransitionTests {
   }
 
   @Test
+  func `foreground return keeps a future or nil-deadline scan scanning`() async {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    appState.setBLELifecycleOverridesForTesting(
+      enterBackground: {},
+      becomeActive: {}
+    )
+
+    let future = NodeDiscoveryViewModel()
+    future.beginScanForTesting(deadline: Date().addingTimeInterval(15))
+    appState.nodeDiscoveryViewModel = future
+    await appState.handleReturnToForeground()
+    #expect(future.isScanning)
+
+    let openEnded = NodeDiscoveryViewModel()
+    openEnded.beginScanForTesting(deadline: nil)
+    appState.nodeDiscoveryViewModel = openEnded
+    await appState.handleReturnToForeground()
+    #expect(openEnded.isScanning)
+  }
+
+  @Test
   func `running trace subscribes when a new container is wired`() async throws {
     let appState = AppState()
     defer { appState.shutdown() }

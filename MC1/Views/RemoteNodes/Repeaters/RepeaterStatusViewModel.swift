@@ -135,29 +135,35 @@ final class RepeaterStatusViewModel {
   func registerHandlers() async {
     guard let repeaterAdminService else { return }
 
-    await repeaterAdminService.setStatusHandler { [weak self] status in
-      guard let self else { return }
-      guard await self.helper.matchesSession(status.publicKeyPrefix) else { return }
-      guard let visit = await self.statusVisit else { return }
-      guard await self.helper.allowsTelemetryWrite(visit) else { return }
-      await self.handleStatusResponse(status, visit: visit)
-    }
+    await repeaterAdminService.setStatusHandler(
+      helper.visitGatedHandler(
+        prefix: \.publicKeyPrefix,
+        visit: { [weak self] in await self?.statusVisit },
+        body: { [weak self] status, visit in
+          await self?.handleStatusResponse(status, visit: visit)
+        }
+      )
+    )
 
-    await repeaterAdminService.setNeighboursHandler { [weak self] response in
-      guard let self else { return }
-      guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
-      guard let visit = await self.neighborsVisit else { return }
-      guard await self.helper.allowsTelemetryWrite(visit) else { return }
-      await self.handleNeighboursResponse(response, visit: visit)
-    }
+    await repeaterAdminService.setNeighboursHandler(
+      helper.visitGatedHandler(
+        prefix: \.publicKeyPrefix,
+        visit: { [weak self] in await self?.neighborsVisit },
+        body: { [weak self] response, visit in
+          await self?.handleNeighboursResponse(response, visit: visit)
+        }
+      )
+    )
 
-    await repeaterAdminService.setTelemetryHandler { [weak self] response in
-      guard let self else { return }
-      guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
-      guard let visit = await self.telemetryVisit else { return }
-      guard await self.helper.allowsTelemetryWrite(visit) else { return }
-      await self.helper.handleTelemetryResponse(response, visit: visit)
-    }
+    await repeaterAdminService.setTelemetryHandler(
+      helper.visitGatedHandler(
+        prefix: \.publicKeyPrefix,
+        visit: { [weak self] in await self?.telemetryVisit },
+        body: { [weak self] response, visit in
+          await self?.helper.handleTelemetryResponse(response, visit: visit)
+        }
+      )
+    )
   }
 
   /// Clear every handler slot on the shared admin service. Only for true

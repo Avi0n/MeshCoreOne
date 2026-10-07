@@ -393,22 +393,22 @@ struct LineOfSightView: View {
   }
 }
 
-// MARK: - Layout probe
+extension LineOfSightView {
+  /// UIKit identifier probe. SwiftUI identifiers often do not copy onto `UIView`.
+  struct LineOfSightLayoutProbe: UIViewRepresentable {
+    var identifier: String
 
-/// UIKit identifier probe. SwiftUI identifiers often do not copy onto `UIView`.
-private struct LineOfSightLayoutProbe: UIViewRepresentable {
-  var identifier: String
+    func makeUIView(context: Context) -> UIView {
+      let view = UIView()
+      view.isUserInteractionEnabled = false
+      view.backgroundColor = .clear
+      view.accessibilityIdentifier = identifier
+      return view
+    }
 
-  func makeUIView(context: Context) -> UIView {
-    let view = UIView()
-    view.isUserInteractionEnabled = false
-    view.backgroundColor = .clear
-    view.accessibilityIdentifier = identifier
-    return view
-  }
-
-  func updateUIView(_ uiView: UIView, context: Context) {
-    uiView.accessibilityIdentifier = identifier
+    func updateUIView(_ uiView: UIView, context: Context) {
+      uiView.accessibilityIdentifier = identifier
+    }
   }
 }
 

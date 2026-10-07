@@ -25,7 +25,7 @@ final class SettingsExitGuardState {
     guard !isApplying else { return }
     if hasUncommittedSettingsEdits {
       showDiscardAlert = true
-    } else if regions?.hasUnsavedChanges == true {
+    } else if regions?.unsavedChanges() == true {
       presentRegionAlert()
     } else {
       dismissSheet()
@@ -39,7 +39,7 @@ final class SettingsExitGuardState {
   func discardChanges(regions: RegionExitActions?, revert: () -> Void) {
     showDiscardAlert = false
     revert()
-    if regions?.hasUnsavedChanges == true {
+    if regions?.unsavedChanges() == true {
       presentRegionAlert()
     } else {
       dismissSheet()

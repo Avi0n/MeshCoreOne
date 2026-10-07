@@ -86,15 +86,9 @@ struct ExpandableSettingsSection<Content: View>: View {
       }
     }
     .themedRowBackground(theme)
-    .onChange(of: isExpanded) { _, expanded in
-      if expanded, !isLoaded(), !isLoading {
-        Task { await onLoad() }
-      }
-    }
-    .task {
-      if isExpanded, !isLoaded(), !isLoading {
-        Task { await onLoad() }
-      }
+    .task(id: isExpanded) {
+      guard isExpanded, !isLoaded(), !isLoading else { return }
+      await onLoad()
     }
   }
 }

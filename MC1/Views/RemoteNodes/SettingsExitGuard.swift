@@ -11,7 +11,7 @@ struct SettingsExitGuard: ViewModifier {
   var regions: RegionExitActions?
 
   private var hasUnsavedRegionChanges: Bool {
-    regions?.hasUnsavedChanges ?? false
+    regions?.unsavedChanges() ?? false
   }
 
   private var regionActionsDisabled: Bool {
