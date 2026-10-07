@@ -172,6 +172,95 @@ struct LifecycleTransitionTests {
     #expect(appState.remoteAdminWorkspaces.repeaterSettings(for: session) !== settings)
   }
 
+  @Test
+  func `foreground return expires a passed trace and scan`() async throws {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    appState.setBLELifecycleOverridesForTesting(
+      enterBackground: {},
+      becomeActive: {}
+    )
+
+    let trace = TracePathViewModel()
+    trace.configure(dependencies: TracePathViewModel.Dependencies(
+      dataStore: { nil },
+      session: { nil },
+      advertisementService: { nil },
+      connectedDevice: { nil },
+      bestAvailableLocation: { nil }
+    ))
+    trace.sendTraceForTesting = { _, _, _ in
+      MessageSentInfo(route: 1, expectedAck: Data(), suggestedTimeoutMs: 60000)
+    }
+    trace.addNode(Self.makeContact(name: "Relay"))
+    trace.startTrace()
+    try await waitUntil(timeout: .seconds(1), "timeout wait should be armed") {
+      trace.hasActiveTimeoutTaskForTesting && trace.pendingTagForTesting != nil
+    }
+    trace.setTraceDeadlineForTesting(.distantPast)
+    appState.tracePathViewModel = trace
+
+    let discovery = NodeDiscoveryViewModel()
+    discovery.beginScanForTesting(deadline: .distantPast)
+    appState.nodeDiscoveryViewModel = discovery
+
+    await appState.handleReturnToForeground()
+
+    #expect(trace.isRunning == false)
+    #expect(discovery.isScanning == false)
+  }
+
+  @Test
+  func `running trace subscribes when a new container is wired`() async throws {
+    let appState = AppState()
+    defer { appState.shutdown() }
+    let device = Self.makeDevice(id: UUID())
+    let servicesA = try await ServiceContainer.forTesting(session: MeshCoreSession(transport: MockTransport()))
+    appState.connectionManager.setTestState(
+      connectionState: .ready,
+      services: servicesA,
+      connectedDevice: device
+    )
+    await appState.wireServicesIfConnected()
+
+    let trace = TracePathViewModel()
+    trace.configure(dependencies: TracePathViewModel.Dependencies(
+      dataStore: { [weak appState] in appState?.services?.dataStore },
+      session: { [weak appState] in appState?.services?.session },
+      advertisementService: { [weak appState] in appState?.services?.advertisementService },
+      connectedDevice: { [weak appState] in appState?.connectedDevice },
+      bestAvailableLocation: { nil }
+    ))
+    trace.isRunning = true
+    appState.tracePathViewModel = trace
+    let subscribed = trace.subscribeCountForTesting
+
+    let servicesB = try await ServiceContainer.forTesting(session: MeshCoreSession(transport: MockTransport()))
+    appState.connectionManager.setTestState(
+      connectionState: .ready,
+      services: servicesB,
+      connectedDevice: device
+    )
+    await appState.wireServicesIfConnected()
+
+    #expect(trace.isRunning)
+    #expect(trace.subscribeCountForTesting == subscribed + 1)
+
+    await appState.wireServicesIfConnected()
+    #expect(trace.subscribeCountForTesting == subscribed + 1)
+
+    trace.isRunning = false
+    let servicesC = try await ServiceContainer.forTesting(session: MeshCoreSession(transport: MockTransport()))
+    appState.connectionManager.setTestState(
+      connectionState: .ready,
+      services: servicesC,
+      connectedDevice: device
+    )
+    await appState.wireServicesIfConnected()
+
+    #expect(trace.subscribeCountForTesting == subscribed + 1)
+  }
+
   private static func makeRepeaterSession() -> RemoteNodeSessionDTO {
     RemoteNodeSessionDTO(
       radioID: UUID(),

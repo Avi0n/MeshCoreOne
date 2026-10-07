@@ -624,6 +624,12 @@ final class AppState {
       lastBumpedServicesID = servicesID
       servicesVersion += 1
 
+      // A running trace has no Trace Path view to resubscribe, so this container
+      // install follows the replacement advertisement service.
+      if tracePathViewModel?.isRunning == true {
+        tracePathViewModel?.startListening()
+      }
+
       // A real services change is the one moment the addressable contact/channel
       // set can differ from what saved shortcuts were resolved against, so re-resolve
       // the App Intents parameter queries here (debounced by this same guard, and past

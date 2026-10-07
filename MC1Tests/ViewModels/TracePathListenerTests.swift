@@ -127,6 +127,87 @@ struct TracePathListenerTests {
   }
 
   @Test
+  func `finished stream on a replacement service subscribes once and completes`() async throws {
+    let servicesA = try makeServices()
+    var current: ServiceContainer? = servicesA
+    let viewModel = try await makeRunningTrace(current: { current })
+    try await settleEndedFlag(on: viewModel)
+    let subscribed = viewModel.subscribeCountForTesting
+    let servicesB = try makeServices()
+    current = servicesB
+    servicesA.advertisementService.finishEvents()
+    try await waitUntil(timeout: .seconds(1), "replacement service should be subscribed") {
+      viewModel.subscribeCountForTesting == subscribed + 1
+    }
+
+    let tag = try #require(viewModel.pendingTagForTesting)
+    servicesB.advertisementService.eventBroadcaster.yield(
+      .traceResponse(traceInfo: makeTraceInfo(tag: tag), radioID: UUID())
+    )
+
+    #expect(await waitForResult(on: viewModel))
+    #expect(viewModel.result?.success == true)
+    #expect(viewModel.errorMessage == nil)
+    #expect(viewModel.subscribeCountForTesting == subscribed + 1)
+    viewModel.stopListening()
+  }
+
+  @Test
+  func `finished stream while disconnected records a passed deadline on the next listener`() async throws {
+    let servicesA = try makeServices()
+    var current: ServiceContainer? = servicesA
+    let viewModel = try await makeRunningTrace(current: { current })
+    try await settleEndedFlag(on: viewModel)
+    viewModel.setTraceDeadlineForTesting(.distantPast)
+    current = nil
+    servicesA.advertisementService.finishEvents()
+    try await waitUntil(timeout: .seconds(1), "finished stream should settle") {
+      viewModel.eventStreamEndedForTesting
+    }
+    #expect(viewModel.isRunning)
+    #expect(viewModel.pendingTagForTesting != nil)
+
+    let servicesB = try makeServices()
+    current = servicesB
+    viewModel.startListening()
+
+    #expect(viewModel.isRunning == false)
+    #expect(viewModel.errorMessage == L10n.Contacts.Contacts.Trace.Error.noResponse)
+    #expect(viewModel.pendingTagForTesting == nil)
+    viewModel.stopListening()
+  }
+
+  @Test
+  func `finished stream while disconnected keeps a future deadline for the next listener`() async throws {
+    let servicesA = try makeServices()
+    var current: ServiceContainer? = servicesA
+    let viewModel = try await makeRunningTrace(current: { current })
+    try await settleEndedFlag(on: viewModel)
+    viewModel.setTraceDeadlineForTesting(.distantFuture)
+    current = nil
+    servicesA.advertisementService.finishEvents()
+    try await waitUntil(timeout: .seconds(1), "finished stream should settle") {
+      viewModel.eventStreamEndedForTesting
+    }
+
+    let servicesB = try makeServices()
+    current = servicesB
+    viewModel.startListening()
+
+    #expect(viewModel.isRunning)
+    #expect(viewModel.errorMessage == nil)
+    let tag = try #require(viewModel.pendingTagForTesting)
+    servicesB.advertisementService.eventBroadcaster.yield(
+      .traceResponse(traceInfo: makeTraceInfo(tag: tag), radioID: UUID())
+    )
+
+    #expect(await waitForResult(on: viewModel))
+    #expect(viewModel.result?.success == true)
+    #expect(viewModel.errorMessage == nil)
+    viewModel.stopListening()
+  }
+
+  @Test
   func `hidden rebuild listens on the replacement service`() async throws {
     let servicesA = try makeServices()
     var current: ServiceContainer? = servicesA
@@ -193,6 +274,12 @@ struct TracePathListenerTests {
     #expect(viewModel.errorMessage == nil)
     #expect(viewModel.result?.success == true)
     viewModel.stopListening()
+  }
+
+  private func settleEndedFlag(on viewModel: TracePathViewModel) async throws {
+    viewModel.eventStreamEndedForTesting = false
+    try await Task.yield()
+    viewModel.eventStreamEndedForTesting = false
   }
 
   private func makeContact() -> ContactDTO {

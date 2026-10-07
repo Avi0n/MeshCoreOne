@@ -860,11 +860,6 @@ final class TracePathViewModel {
     }
   }
 
-  /// Execute the trace and wait for response
-  func runTrace() async {
-    await runTrace(generation: executionGeneration)
-  }
-
   private func runTrace(generation: Int) async {
     guard isCurrentExecution(generation), canSendTrace, !outboundPath.isEmpty else { return }
 
