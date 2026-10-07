@@ -215,4 +215,10 @@ final class RxLogViewModel {
 
     return map
   }
+
+  #if DEBUG
+    var streamTaskForTesting: Task<Void, Never>? {
+      streamTask
+    }
+  #endif
 }
