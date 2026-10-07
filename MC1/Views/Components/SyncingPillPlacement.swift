@@ -22,7 +22,8 @@ enum SyncingPillPlacement {
     return frame.maxY + contentGap
   }
 
-  /// Live top tab bar in `overlay` coordinates, or `nil` when tabs are at the bottom.
+  /// Live top tab bar in `overlay` coordinates. A tab bar in the bottom half
+  /// returns nil so a short wide view above it is not treated as a top bar.
   @MainActor
   static func topTabBarFrame(in overlay: UIView) -> CGRect? {
     guard let window = overlay.window else { return nil }
@@ -31,6 +32,7 @@ enum SyncingPillPlacement {
       if frame.minY < overlay.bounds.height / 2, inferredBarHeightRange.contains(frame.height) {
         return frame
       }
+      return nil
     }
     return inferredTopTabBarFrame(in: overlay, window: window)
   }
