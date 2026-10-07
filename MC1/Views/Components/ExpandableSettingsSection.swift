@@ -86,17 +86,9 @@ struct ExpandableSettingsSection<Content: View>: View {
       }
     }
     .themedRowBackground(theme)
-    .onChange(of: isExpanded) { _, expanded in
-      if expanded, !isLoaded(), !isLoading {
-        Task { await onLoad() }
-      }
-    }
-    .task {
-      // Trigger initial load if section starts expanded
-      // (onChange only fires when value changes, not on initial render)
-      if isExpanded, !isLoaded(), !isLoading {
-        await onLoad()
-      }
+    .task(id: isExpanded) {
+      guard isExpanded, !isLoaded(), !isLoading else { return }
+      await onLoad()
     }
   }
 }
