@@ -3,6 +3,7 @@ import SwiftUI
 
 struct NodeDiscoveryView: View {
   @Environment(\.appState) private var appState
+  @State private var viewModel = NodeDiscoveryViewModel()
 
   private var isConnected: Bool {
     appState.services?.session != nil
@@ -11,32 +12,6 @@ struct NodeDiscoveryView: View {
   private var isWorkspaceActive: Bool {
     appState.navigation.isToolWorkspaceActive(.nodeDiscovery)
   }
-
-  var body: some View {
-    Group {
-      if let viewModel = appState.nodeDiscoveryViewModel {
-        NodeDiscoveryWorkspace(
-          viewModel: viewModel,
-          isConnected: isConnected,
-          isWorkspaceActive: isWorkspaceActive
-        )
-      } else {
-        ProgressView()
-      }
-    }
-    .onAppear {
-      if appState.nodeDiscoveryViewModel == nil {
-        appState.nodeDiscoveryViewModel = NodeDiscoveryViewModel()
-      }
-    }
-  }
-}
-
-private struct NodeDiscoveryWorkspace: View {
-  @Environment(\.appState) private var appState
-  @Bindable var viewModel: NodeDiscoveryViewModel
-  let isConnected: Bool
-  let isWorkspaceActive: Bool
 
   var body: some View {
     Group {
@@ -66,7 +41,6 @@ private struct NodeDiscoveryWorkspace: View {
     .sensoryFeedback(.success, trigger: viewModel.addSuccessHapticTrigger)
     .sensoryFeedback(.error, trigger: viewModel.addErrorHapticTrigger)
     .task(id: appState.servicesVersion) {
-      // Leaving the workspace does not stop the scan.
       guard isWorkspaceActive else { return }
       viewModel.configure(dependencies: NodeDiscoveryViewModel.Dependencies(
         session: { [appState] in appState.services?.session },
@@ -76,6 +50,11 @@ private struct NodeDiscoveryWorkspace: View {
         maxContacts: { [appState] in appState.connectedDevice?.maxContacts }
       ))
     }
+    .onChange(of: isWorkspaceActive) { _, isActive in
+      if !isActive {
+        viewModel.stopScan()
+      }
+    }
     .onChange(of: viewModel.filter) { _, _ in
       viewModel.stopScan()
     }
@@ -84,7 +63,7 @@ private struct NodeDiscoveryWorkspace: View {
 
 // MARK: - States
 
-extension NodeDiscoveryWorkspace {
+extension NodeDiscoveryView {
   private var disconnectedState: some View {
     ContentUnavailableView {
       Label(L10n.Tools.Tools.RxLog.notConnected, systemImage: "antenna.radiowaves.left.and.right.slash")
@@ -112,7 +91,7 @@ extension NodeDiscoveryWorkspace {
 
 // MARK: - Results List
 
-extension NodeDiscoveryWorkspace {
+extension NodeDiscoveryView {
   private struct ResultsList: View {
     @Bindable var viewModel: NodeDiscoveryViewModel
     @Environment(\.appTheme) private var theme
@@ -155,7 +134,7 @@ extension NodeDiscoveryWorkspace {
 
 // MARK: - Scan Button
 
-extension NodeDiscoveryWorkspace {
+extension NodeDiscoveryView {
   private struct ScanButtonBar: View {
     let viewModel: NodeDiscoveryViewModel
 
@@ -186,7 +165,7 @@ extension NodeDiscoveryWorkspace {
 
 // MARK: - Sort Menu
 
-extension NodeDiscoveryWorkspace {
+extension NodeDiscoveryView {
   private struct SortMenu: View {
     let viewModel: NodeDiscoveryViewModel
 

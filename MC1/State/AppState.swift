@@ -315,15 +315,6 @@ final class AppState {
   /// Persistent CLI tool view model (survives tab switches, reset on device disconnect)
   var cliToolViewModel: CLIToolViewModel?
 
-  /// Persistent Trace Path workspace (survives tab switches and Back; reset on radio change)
-  var tracePathViewModel: TracePathViewModel?
-
-  /// Persistent Node Discovery workspace (survives tab switches and Back; reset on radio change)
-  var nodeDiscoveryViewModel: NodeDiscoveryViewModel?
-
-  /// Repeater and room settings/status/CLI models keyed by radio and public key.
-  let remoteAdminWorkspaces = RemoteAdminWorkspaces()
-
   /// Tracks the device ID for CLI state - reset CLI when device changes
   private var lastConnectedDeviceIDForCLI: UUID?
 
@@ -545,9 +536,6 @@ final class AppState {
 
   private func resetRadioScopedToolWorkspaces() {
     cliToolViewModel?.reset()
-    tracePathViewModel?.reset()
-    nodeDiscoveryViewModel?.reset()
-    remoteAdminWorkspaces.reset()
   }
 
   /// Wire services-dependent callbacks after a successful connection.
@@ -623,12 +611,6 @@ final class AppState {
     if lastBumpedServicesID != servicesID {
       lastBumpedServicesID = servicesID
       servicesVersion += 1
-
-      // A running trace has no Trace Path view to resubscribe, so this container
-      // install follows the replacement advertisement service.
-      if tracePathViewModel?.isRunning == true {
-        tracePathViewModel?.startListening()
-      }
 
       // A real services change is the one moment the addressable contact/channel
       // set can differ from what saved shortcuts were resolved against, so re-resolve

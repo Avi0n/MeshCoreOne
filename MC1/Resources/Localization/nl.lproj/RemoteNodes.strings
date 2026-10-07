@@ -87,23 +87,6 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Klaar";
 
-
-"remoteNodes.settings.discardTitle" = "Wijzigingen negeren?";
-
-"remoteNodes.settings.discardChanges" = "Wijzigingen negeren";
-
-"remoteNodes.settings.keepEditing" = "Blijven bewerken";
-
-"remoteNodes.settings.unsavedRegionsTitle" = "Niet-opgeslagen regio's";
-
-"remoteNodes.settings.unsavedRegionsMessage" = "Wijzigingen in de regio's zijn tijdelijk actief. Sla ze op als je ze na een herstart wilt behouden.";
-
-"remoteNodes.settings.dontSave" = "Niet opslaan";
-
-"remoteNodes.settings.savingRegions" = "Het opslaan is bezig.";
-
-"remoteNodes.settings.applyInProgress" = "Nog bezig";
-
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "Instellingen";
 

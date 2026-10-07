@@ -912,9 +912,9 @@ struct RepeaterSettingsDefaultScopeTests {
     #expect(recorder.commands == ["region remove duckburg", "region default <null>"])
     #expect(viewModel.regions.map(\.name) == ["*"])
     #expect(viewModel.defaultScopeName == nil)
-    #expect(viewModel.hasUnsavedRegionChanges == false)
+    #expect(viewModel.hasUnsavedRegionChanges)
     #expect(viewModel.helper.errorMessage == nil)
-    #expect(!viewModel.helper.isApplying.inFlight)
+    #expect(!viewModel.helper.isApplying)
   }
 
   @Test
@@ -939,7 +939,7 @@ struct RepeaterSettingsDefaultScopeTests {
     #expect(viewModel.defaultScopeLoaded)
     #expect(viewModel.hasUnsavedRegionChanges)
     #expect(viewModel.helper.errorMessage == L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion)
-    #expect(!viewModel.helper.isApplying.inFlight)
+    #expect(!viewModel.helper.isApplying)
   }
 
   @Test

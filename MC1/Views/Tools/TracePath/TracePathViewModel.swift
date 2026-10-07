@@ -43,16 +43,6 @@ final class TracePathViewModel {
   var errorAutoClearDelay: Duration = .seconds(4)
   private var errorAutoClearTask: Task<Void, Never>?
   var errorHapticTrigger = 0 // Incremented on each error for haptic feedback
-  /// Defaults true so an on-screen `setError` still auto-clears. Hide via `noteWorkspaceVisible`.
-  private var isWorkspaceVisible = true
-  private var hasUnpresentedCompletion = false
-  private var listeningService: AdvertisementService?
-  /// `executionGeneration` captured when `listeningService` was subscribed.
-  private var listeningGeneration = 0
-  private var traceDeadline: Date?
-  private var timeoutIsBatch = false
-  private var timeoutGeneration = 0
-  private var timeoutTag: UInt32?
 
   /// Buffer between consecutive batch traces to avoid network flooding.
   private static let interTraceBufferMs = 500
@@ -178,109 +168,35 @@ final class TracePathViewModel {
 
   private var traceEventsTask: Task<Void, Never>?
 
-  /// Subscribes at the current `executionGeneration`, replacing the subscription when the service instance or generation differs.
-  /// A finished stream resubscribes only for a different live instance, so the same ended stream is not subscribed again.
+  /// Start listening for trace responses on the current connection's
+  /// `AdvertisementService`. Requires `configure` first. The owning
+  /// `ServiceContainer` is rebuilt on every connection and finishes
+  /// its event stream on teardown, so the hosting view re-invokes this per
+  /// container (keyed on `AppState.servicesVersion`); while disconnected
+  /// there is no service yet and the call is a no-op until then.
   func startListening() {
-    #if DEBUG
-      startListeningCallCountForTesting += 1
-      if allowListeningWithoutServiceForTesting {
-        if let traceEventsTask, !traceEventsTask.isCancelled { return }
-        subscribeCountForTesting += 1
-        listeningGeneration = executionGeneration
-        traceEventsTask = Task {}
-        return
-      }
-    #endif
-    guard let advertisementService else { return }
-    if let listeningService, listeningService === advertisementService,
-       listeningGeneration == executionGeneration,
-       let traceEventsTask, !traceEventsTask.isCancelled {
-      return
-    }
-    subscribeToTraceEvents(advertisementService)
-  }
-
-  private func subscribeToTraceEvents(_ advertisementService: AdvertisementService) {
     traceEventsTask?.cancel()
-    listeningService = advertisementService
-    listeningGeneration = executionGeneration
-    #if DEBUG
-      subscribeCountForTesting += 1
-    #endif
+    guard let advertisementService else { return }
     let events = advertisementService.events()
-    let generation = executionGeneration
     traceEventsTask = Task { [weak self] in
       for await event in events {
         guard case let .traceResponse(traceInfo, radioID) = event else { continue }
         guard let self else { return }
         handleTraceResponse(traceInfo, radioID: radioID)
       }
-      guard let self else { return }
-      #if DEBUG
-        self.eventStreamEndedForTesting = true
-      #endif
-      guard generation == executionGeneration, isRunning else { return }
-      guard let current = self.advertisementService, current !== advertisementService else { return }
-      startListening()
     }
-    expireTraceIfDeadlinePassed()
   }
 
   /// Stop listening for trace responses
   func stopListening() {
     traceEventsTask?.cancel()
     traceEventsTask = nil
-    listeningService = nil
   }
 
-  /// Hiding the workspace cancels the error auto-clear and leaves the trace running.
-  func noteWorkspaceVisible(_ visible: Bool) {
-    isWorkspaceVisible = visible
-    if !visible {
-      errorAutoClearTask?.cancel()
-      errorAutoClearTask = nil
-    }
-  }
-
-  func handleResultSheetDismiss() {
-    guard isWorkspaceVisible, isBatchInProgress else { return }
-    cancelBatchTrace()
-  }
-
-  func takeUnpresentedResultIfNeeded() -> TraceResult? {
-    guard isWorkspaceVisible, !isBatchInProgress, hasUnpresentedCompletion,
-          let result, result.success else { return nil }
-    hasUnpresentedCompletion = false
-    return result
-  }
-
-  func expireTraceIfDeadlinePassed() {
-    guard let traceDeadline, Date() >= traceDeadline else { return }
-    applyTimeoutIfNeeded()
-  }
-
-  /// Stops the wait without a timeout record, then clears workspace state.
-  func reset() {
+  /// Cancels local wait/batch work, then detaches the response listener.
+  func deactivate() {
     cancelExecution()
     stopListening()
-    clearError()
-    outboundPath.removeAll()
-    result = nil
-    resultID = nil
-    completedResults = []
-    clearBatchState()
-    allContacts = []
-    availableRepeaters = []
-    availableRooms = []
-    discoveredRepeaters = []
-    activeSavedPath = nil
-    recentPublicKeys = []
-    currentRadioID = nil
-    pendingPathHash = nil
-    traceStartTime = nil
-    traceDeadline = nil
-    hasUnpresentedCompletion = false
-    traceHashMode = nil
   }
 
   // MARK: - Dependencies
@@ -465,7 +381,6 @@ final class TracePathViewModel {
     errorMessage = message
     errorHapticTrigger += 1
 
-    guard isWorkspaceVisible else { return }
     errorAutoClearTask = Task { @MainActor [weak self] in
       guard let self else { return }
       try? await Task.sleep(for: errorAutoClearDelay)
@@ -849,7 +764,6 @@ final class TracePathViewModel {
   /// one cancellable operation.
   func startTrace() {
     cancelExecution()
-    startListening()
     let generation = executionGeneration
     executionTask = Task { @MainActor [weak self] in
       guard let self else { return }
@@ -859,6 +773,11 @@ final class TracePathViewModel {
         await runTrace(generation: generation)
       }
     }
+  }
+
+  /// Execute the trace and wait for response
+  func runTrace() async {
+    await runTrace(generation: executionGeneration)
   }
 
   private func runTrace(generation: Int) async {
@@ -898,7 +817,6 @@ final class TracePathViewModel {
       )
       logger.info("Sent trace with tag \(tag), path: \(self.fullPathString), timeout: \(timeoutSeconds)s")
     } catch is CancellationError {
-      clearCancelledSendIfCurrent(generation)
       return
     } catch {
       guard isCurrentExecution(generation) else { return }
@@ -909,7 +827,6 @@ final class TracePathViewModel {
       isRunning = false
       pendingTag = nil
       pendingDeviceID = nil
-      stopListeningIfHiddenAfterRun()
       return
     }
 
@@ -958,9 +875,6 @@ final class TracePathViewModel {
         if successCount == 1 {
           result = latestResult
           resultID = UUID()
-          if !isWorkspaceVisible {
-            hasUnpresentedCompletion = true
-          }
         } else {
           result = latestResult
         }
@@ -980,18 +894,12 @@ final class TracePathViewModel {
 
     if isBatchComplete, successCount == 0 {
       setError(L10n.Contacts.Contacts.Trace.Error.allFailed(batchSize))
-    } else if successCount > 0, !isWorkspaceVisible {
-      hasUnpresentedCompletion = true
-    } else if successCount > 0, hasUnpresentedCompletion {
-      hasUnpresentedCompletion = false
-      resultID = UUID()
     }
-    stopListeningIfHiddenAfterRun()
   }
 
   /// Execute a single trace within a batch, storing result in completedResults
   private func executeSingleTrace(generation: Int) async {
-    guard isCurrentExecution(generation), canSendTrace else { return }
+    guard isCurrentExecution(generation) else { return }
 
     pendingPathHash = fullPathBytes
 
@@ -1012,8 +920,6 @@ final class TracePathViewModel {
         "Sent batch trace \(self.currentTraceIndex)/\(self.batchSize) with tag \(tag), timeout: \(timeoutSeconds)s"
       )
     } catch is CancellationError {
-      guard clearCancelledSendIfCurrent(generation) else { return }
-      batchCancelled = true
       return
     } catch {
       guard isCurrentExecution(generation) else { return }
@@ -1047,18 +953,6 @@ final class TracePathViewModel {
     generation == executionGeneration && !Task.isCancelled
   }
 
-  /// `performSendTrace` throws `CancellationError` when `session` is nil after the run is marked started.
-  /// Only a still-current generation drops that send.
-  @discardableResult
-  private func clearCancelledSendIfCurrent(_ generation: Int) -> Bool {
-    guard generation == executionGeneration else { return false }
-    pendingTag = nil
-    pendingDeviceID = nil
-    pendingPathHash = nil
-    isRunning = false
-    return true
-  }
-
   private func performSendTrace(tag: UInt32, flags: UInt8, path: Data) async throws -> MessageSentInfo {
     #if DEBUG
       if let sendTraceForTesting {
@@ -1073,61 +967,31 @@ final class TracePathViewModel {
 
   private func armTimeout(generation: Int, tag: UInt32, timeoutSeconds: Double, isBatch: Bool) {
     timeoutTask?.cancel()
-    timeoutGeneration = generation
-    timeoutTag = tag
-    timeoutIsBatch = isBatch
-    traceDeadline = Date().addingTimeInterval(timeoutSeconds)
     timeoutTask = Task { @MainActor in
       do {
         try await Task.sleep(for: .seconds(timeoutSeconds))
-        applyTimeoutIfNeeded()
+        guard isCurrentExecution(generation), pendingTag == tag else { return }
+
+        if isBatch {
+          logger.warning("Batch trace timeout for tag \(tag) after \(timeoutSeconds)s")
+          let timeoutResult = TraceResult.timeout(attemptedPath: pendingPathHash ?? [], hashSize: hashSize)
+          completedResults.append(timeoutResult)
+          recordFailedRun(generation: generation)
+          pendingPathHash = nil
+          pendingTag = nil
+          resumeContinuationOnce()
+        } else {
+          logger.warning("Trace timeout for tag \(tag) after \(timeoutSeconds)s")
+          setError(L10n.Contacts.Contacts.Trace.Error.noResponse)
+          pendingPathHash = nil
+          recordFailedRun(generation: generation)
+          isRunning = false
+          pendingTag = nil
+          pendingDeviceID = nil
+        }
       } catch {
-        // Cancelled because a response arrived, expiry ran, or the generation was replaced.
+        // Cancelled because a response arrived or the workspace deactivated.
       }
-    }
-  }
-
-  private func applyTimeoutIfNeeded() {
-    guard let tag = timeoutTag else { return }
-    guard isCurrentExecution(timeoutGeneration), pendingTag == tag else { return }
-    // A listener on a replaced service has not seen this run's pushes, so the wait stays until that listener is current.
-    // A nil listener may still time out.
-    if let listeningService {
-      guard let current = advertisementService, listeningService === current else { return }
-    }
-
-    timeoutTask?.cancel()
-    timeoutTask = nil
-    traceDeadline = nil
-
-    if timeoutIsBatch {
-      logger.warning("Batch trace timeout for tag \(tag)")
-      let timeoutResult = TraceResult.timeout(attemptedPath: pendingPathHash ?? [], hashSize: hashSize)
-      completedResults.append(timeoutResult)
-      recordFailedRun(generation: timeoutGeneration)
-      pendingPathHash = nil
-      pendingTag = nil
-      resumeContinuationOnce()
-    } else {
-      logger.warning("Trace timeout for tag \(tag)")
-      setError(L10n.Contacts.Contacts.Trace.Error.noResponse)
-      pendingPathHash = nil
-      recordFailedRun(generation: timeoutGeneration)
-      isRunning = false
-      pendingTag = nil
-      pendingDeviceID = nil
-      stopListeningIfHiddenAfterRun()
-    }
-  }
-
-  private func stopListeningIfHiddenAfterRun() {
-    guard !isWorkspaceVisible else { return }
-    stopListening()
-  }
-
-  private func rememberUnpresentedResultIfHidden() {
-    if !isWorkspaceVisible {
-      hasUnpresentedCompletion = true
     }
   }
 
@@ -1155,10 +1019,6 @@ final class TracePathViewModel {
         try await dataStore.appendTracePathRun(pathID: savedPath.id, run: failedRun)
         guard let self, generation == self.executionGeneration else { return }
         if let updated = try await dataStore.fetchSavedTracePath(id: savedPath.id) {
-          #if DEBUG
-            self.onFailedRunFetchedForTesting?()
-          #endif
-          guard generation == self.executionGeneration else { return }
           self.activeSavedPath = updated
         }
       } catch {
@@ -1186,8 +1046,6 @@ final class TracePathViewModel {
     executionTask = nil
     isRunning = false
     currentTraceIndex = 0
-    traceDeadline = nil
-    timeoutTag = nil
   }
 
   /// Handle trace response from event stream
@@ -1205,8 +1063,6 @@ final class TracePathViewModel {
 
     timeoutTask?.cancel()
     timeoutTask = nil
-    traceDeadline = nil
-    timeoutTag = nil
 
     // Calculate duration
     let durationMs = if let startTime = traceStartTime {
@@ -1298,8 +1154,6 @@ final class TracePathViewModel {
     } else {
       resultID = UUID()
       isRunning = false
-      rememberUnpresentedResultIfHidden()
-      stopListeningIfHiddenAfterRun()
     }
 
     resumeContinuationOnce()
@@ -1323,15 +1177,12 @@ final class TracePathViewModel {
         hopsSNR: hopsSNR
       )
 
-      let generation = executionGeneration
       Task { @MainActor [weak self] in
         do {
           try await dataStore.appendTracePathRun(pathID: savedPath.id, run: runDTO)
-          guard let self, generation == self.executionGeneration else { return }
           // Refresh saved path to get updated runs
           if let updated = try await dataStore.fetchSavedTracePath(id: savedPath.id) {
-            guard generation == self.executionGeneration else { return }
-            self.activeSavedPath = updated
+            self?.activeSavedPath = updated
           }
           logger.info("Appended run to saved path")
         } catch {
@@ -1348,42 +1199,13 @@ final class TracePathViewModel {
   #if DEBUG
     var sendTraceForTesting: (@MainActor (UInt32, UInt8, Data) async throws -> MessageSentInfo)?
     var matchingSavedPathForTesting: (@MainActor () async -> SavedTracePathDTO?)?
-    var onFailedRunFetchedForTesting: (@MainActor () -> Void)?
-    var allowListeningWithoutServiceForTesting = false
-    var startListeningCallCountForTesting = 0
-    var subscribeCountForTesting = 0
-    var eventStreamEndedForTesting = false
-
-    var subscribedGenerationForTesting: Int {
-      listeningGeneration
-    }
-
-    var traceDeadlineForTesting: Date? {
-      traceDeadline
-    }
-
     var pendingTagForTesting: UInt32? {
       pendingTag
-    }
-
-    var executionGenerationForTesting: Int {
-      executionGeneration
     }
 
     var hasActiveTimeoutTaskForTesting: Bool {
       guard let timeoutTask else { return false }
       return !timeoutTask.isCancelled
-    }
-
-    func setTraceDeadlineForTesting(_ date: Date?) {
-      traceDeadline = date
-    }
-
-    func simulateEventStreamFinishedForTesting() {
-      guard isRunning else { return }
-      listeningService = nil
-      traceEventsTask = nil
-      startListening()
     }
 
     /// Test helper to set pending tag without running a full trace

@@ -117,9 +117,6 @@ final class NodeDiscoveryViewModel {
 
   private var scanTask: Task<Void, Never>?
   private var timeoutTask: Task<Void, Never>?
-  private var scanDeadline: Date?
-  /// Bumped by `stopScan`. Post-await writes belong to the scan that captured the current value.
-  private var scanGeneration = 0
 
   // MARK: - Name resolution cache
 
@@ -142,9 +139,8 @@ final class NodeDiscoveryViewModel {
 
     guard let radioID else { return }
 
-    let startedSession = session
     stopScan()
-    let generation = scanGeneration
+    results.removeAll { $0.scanFilter == filter }
     errorMessage = nil
     isScanning = true
     scanStartHapticTrigger += 1
@@ -154,94 +150,50 @@ final class NodeDiscoveryViewModel {
 
       do {
         // Pre-load name resolution data and existing contact keys
-        await loadNameResolutionData(radioID: radioID, generation: generation)
-        #if DEBUG
-          await onNameResolutionFinishedForTesting?()
-        #endif
+        await loadNameResolutionData(radioID: radioID)
 
-        guard self.scanGeneration == generation else { return }
+        // Send discovery request
+        let tag = try await session.sendNodeDiscoverRequest(
+          filter: filter.filterValue,
+          prefixOnly: false
+        )
+        let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
 
-        // Send and subscribe only on the session this scan started with.
-        if !Task.isCancelled, self.session === startedSession {
-          results.removeAll { $0.scanFilter == filter }
-          let tag = try await startedSession.sendNodeDiscoverRequest(
-            filter: filter.filterValue,
-            prefixOnly: false
-          )
-          guard self.scanGeneration == generation else { return }
-          if !Task.isCancelled, self.session === startedSession {
-            let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
-            let duration = self.currentScanDuration()
+        // Start timeout that cancels the scan task
+        timeoutTask = Task { [weak self] in
+          try? await Task.sleep(for: Self.scanDuration)
+          self?.scanTask?.cancel()
+        }
 
-            timeoutTask = Task { [weak self] in
-              try? await Task.sleep(for: duration)
-              // A cancelled sleep still resumes. A stale timeout must not cancel the current scan.
-              guard let self, !Task.isCancelled, self.scanGeneration == generation else { return }
-              self.scanTask?.cancel()
-            }
-            scanDeadline = Date().addingTimeInterval(TimeInterval(duration.components.seconds))
+        // Listen for responses
+        let events = await session.events()
+        for await event in events {
+          guard !Task.isCancelled else { break }
 
-            let events = await startedSession.events()
-            guard self.scanGeneration == generation else { return }
-            #if DEBUG
-              isAwaitingDiscoverEventsForTesting = true
-            #endif
-            for await event in events {
-              guard !Task.isCancelled, self.scanGeneration == generation else { break }
-
-              if case let .discoverResponse(response) = event,
-                 response.tag == tagData {
-                appendOrUpdateResult(from: response)
-              }
-            }
+          if case let .discoverResponse(response) = event,
+             response.tag == tagData {
+            appendOrUpdateResult(from: response)
           }
         }
       } catch is CancellationError {
         // Normal timeout cancellation — not an error
       } catch {
         Self.logger.error("Node discovery failed: \(error.localizedDescription)")
-        if self.scanGeneration == generation {
-          errorMessage = error.userFacingMessage
-        }
+        errorMessage = error.userFacingMessage
       }
 
-      guard self.scanGeneration == generation else { return }
-      timeoutTask?.cancel()
-      timeoutTask = nil
-      #if DEBUG
-        isAwaitingDiscoverEventsForTesting = false
-      #endif
       finishScan()
     }
   }
 
   func stopScan() {
-    scanGeneration += 1
     timeoutTask?.cancel()
     timeoutTask = nil
     scanTask?.cancel()
     scanTask = nil
-    scanDeadline = nil
-    #if DEBUG
-      isAwaitingDiscoverEventsForTesting = false
-    #endif
     if isScanning {
       finishScan()
     }
-  }
-
-  func expireScanIfDeadlinePassed() {
-    guard isScanning, let scanDeadline, Date() >= scanDeadline else { return }
-    stopScan()
-  }
-
-  func reset() {
-    stopScan()
-    results = []
-    namesByKey = [:]
-    errorMessage = nil
-    addedPublicKeys = []
-    addingPublicKey = nil
   }
 
   // MARK: - Sorted results
@@ -258,26 +210,16 @@ final class NodeDiscoveryViewModel {
 
   // MARK: - Private
 
-  private func loadNameResolutionData(radioID: UUID, generation: Int) async {
-    #if DEBUG
-      if let supplier = nameResolutionSupplierForTesting {
-        let loaded = await supplier()
-        guard scanGeneration == generation else { return }
-        namesByKey = loaded.names
-        addedPublicKeys = loaded.added
-        return
-      }
-    #endif
+  private func loadNameResolutionData(radioID: UUID) async {
     guard let dataStore else { return }
     do {
       // Load discovered nodes first, then contacts — contacts take priority
       let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
-      let contacts = try await dataStore.fetchContacts(radioID: radioID)
-      guard scanGeneration == generation else { return }
       namesByKey = Dictionary(
         nodes.map { ($0.publicKey, $0.name) },
         uniquingKeysWith: { first, _ in first }
       )
+      let contacts = try await dataStore.fetchContacts(radioID: radioID)
       for contact in contacts {
         namesByKey[contact.publicKey] = contact.name
       }
@@ -285,14 +227,6 @@ final class NodeDiscoveryViewModel {
     } catch {
       Self.logger.error("Failed to load name resolution data: \(error.localizedDescription)")
     }
-  }
-
-  private func currentScanDuration() -> Duration {
-    #if DEBUG
-      scanDurationForTesting ?? Self.scanDuration
-    #else
-      Self.scanDuration
-    #endif
   }
 
   private func resolveName(for publicKey: Data) -> String {
@@ -371,16 +305,4 @@ final class NodeDiscoveryViewModel {
       self?.addingPublicKey = nil
     }
   }
-
-  #if DEBUG
-    var onNameResolutionFinishedForTesting: (@MainActor () async -> Void)?
-    var nameResolutionSupplierForTesting: (@MainActor () async -> (names: [Data: String], added: Set<Data>))?
-    var scanDurationForTesting: Duration?
-    var isAwaitingDiscoverEventsForTesting = false
-
-    func beginScanForTesting(deadline: Date?) {
-      isScanning = true
-      scanDeadline = deadline
-    }
-  #endif
 }

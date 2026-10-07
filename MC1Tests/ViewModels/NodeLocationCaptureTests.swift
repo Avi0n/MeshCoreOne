@@ -35,10 +35,7 @@ struct NodeLocationCaptureTests {
     viewModel.configureForDirectTelemetry(publicKey: publicKey)
     viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
 
-    await viewModel.handleTelemetryResponse(
-      gpsOnlyResponse(lat: 37.7749, lon: -122.4194),
-      visit: viewModel.captureTelemetryVisit()
-    )
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 37.7749, lon: -122.4194))
 
     #expect(viewModel.currentLocationFix?.latitude == 37.7749)
     let snapshots = await service.fetchSnapshots(for: publicKey)
@@ -54,10 +51,7 @@ struct NodeLocationCaptureTests {
     viewModel.configureForDirectTelemetry(publicKey: publicKey)
     viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
 
-    await viewModel.handleTelemetryResponse(
-      gpsOnlyResponse(lat: 0, lon: 0),
-      visit: viewModel.captureTelemetryVisit()
-    )
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 0, lon: 0))
 
     #expect(viewModel.currentLocationFix == nil)
     let snapshots = await service.fetchSnapshots(for: publicKey)
@@ -72,10 +66,7 @@ struct NodeLocationCaptureTests {
     viewModel.configureForDirectTelemetry(publicKey: publicKey)
     viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
 
-    await viewModel.handleTelemetryResponse(
-      gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 42),
-      visit: viewModel.captureTelemetryVisit()
-    )
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 42))
 
     #expect(viewModel.currentLocationFix?.altitude == 42)
     let snapshots = await service.fetchSnapshots(for: publicKey)
@@ -90,10 +81,7 @@ struct NodeLocationCaptureTests {
     viewModel.configureForDirectTelemetry(publicKey: publicKey)
     viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
 
-    await viewModel.handleTelemetryResponse(
-      gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 0),
-      visit: viewModel.captureTelemetryVisit()
-    )
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 0))
 
     #expect(viewModel.currentLocationFix?.altitude == 0)
   }
@@ -106,10 +94,7 @@ struct NodeLocationCaptureTests {
     viewModel.configureForDirectTelemetry(publicKey: publicKey)
     viewModel.configure(contactService: { nil }, nodeSnapshotService: { service })
 
-    await viewModel.handleTelemetryResponse(
-      gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 50000),
-      visit: viewModel.captureTelemetryVisit()
-    )
+    await viewModel.handleTelemetryResponse(gpsOnlyResponse(lat: 37.7749, lon: -122.4194, alt: 50000))
 
     #expect(viewModel.currentLocationFix?.latitude == 37.7749)
     #expect(viewModel.currentLocationFix?.altitude == nil, "Out-of-range altitude is dropped, not the fix")

@@ -17,26 +17,7 @@ enum TracePathViewMode: String, CaseIterable {
 /// View for building and executing network path traces
 struct TracePathView: View {
   @Environment(\.appState) private var appState
-
-  var body: some View {
-    Group {
-      if let viewModel = appState.tracePathViewModel {
-        TracePathWorkspace(viewModel: viewModel)
-      } else {
-        ProgressView()
-      }
-    }
-    .onAppear {
-      if appState.tracePathViewModel == nil {
-        appState.tracePathViewModel = TracePathViewModel()
-      }
-    }
-  }
-}
-
-private struct TracePathWorkspace: View {
-  @Environment(\.appState) private var appState
-  @Bindable var viewModel: TracePathViewModel
+  @State private var viewModel = TracePathViewModel()
 
   // Haptic feedback triggers
   @State private var dragHapticTrigger = 0
@@ -95,13 +76,17 @@ private struct TracePathWorkspace: View {
       }
     }
     .onChange(of: viewModel.resultID) { _, newID in
-      guard newID != nil, isWorkspaceActive else { return }
-      if let result = viewModel.result, result.success, viewMode == .list {
-        presentedResult = result
+      guard newID != nil else { return }
+      if let result = viewModel.result, result.success {
+        if viewMode == .list {
+          presentedResult = result
+        }
       }
     }
     .sheet(item: $presentedResult, onDismiss: {
-      viewModel.handleResultSheetDismiss()
+      if viewModel.isBatchInProgress {
+        viewModel.cancelBatchTrace()
+      }
     }) { result in
       TraceResultsSheet(result: result, viewModel: viewModel)
         .presentationDetents([.large])
@@ -131,7 +116,7 @@ private struct TracePathWorkspace: View {
       }
     }
     .task(id: appState.servicesVersion) {
-      guard isWorkspaceActive || viewModel.isRunning else { return }
+      guard isWorkspaceActive else { return }
       // Keyed on servicesVersion: a late connect or reconnect rebuilds the
       // ServiceContainer, so the listener must re-subscribe to the fresh
       // AdvertisementService or trace responses are silently dropped.
@@ -143,23 +128,15 @@ private struct TracePathWorkspace: View {
         bestAvailableLocation: { appState.bestAvailableLocation }
       ))
       viewModel.startListening()
-      guard isWorkspaceActive else { return }
-      viewModel.noteWorkspaceVisible(true)
-      if viewMode == .list, presentedResult == nil,
-         let result = viewModel.takeUnpresentedResultIfNeeded() {
-        presentedResult = result
-      }
       if let radioID = appState.connectedDevice?.radioID {
         await viewModel.loadContacts(radioID: radioID)
       }
     }
     .onChange(of: isWorkspaceActive) { _, isActive in
-      viewModel.noteWorkspaceVisible(isActive)
       if isActive {
         viewModel.startListening()
-        if viewMode == .list, let result = viewModel.takeUnpresentedResultIfNeeded() {
-          presentedResult = result
-        }
+      } else {
+        viewModel.deactivate()
       }
     }
   }

@@ -32,6 +32,8 @@ final class NavigationCoordinator {
   /// Tools stack path, kept across tab switches. Selections with `requiresRadio` clear on disconnect.
   var selectedTool: ToolSelection?
 
+  /// Listening and polling run only while Tools is selected and this workspace
+  /// is on the stack. Resize does not change either value.
   func isToolWorkspaceActive(_ tool: ToolSelection) -> Bool {
     selectedTab == AppTab.tools.rawValue && selectedTool == tool
   }

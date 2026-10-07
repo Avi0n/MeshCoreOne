@@ -360,6 +360,12 @@ final class TracePathMapViewModel {
     traceViewModel?.startTrace()
   }
 
+  func runTrace() async {
+    centerOnPath()
+    traceViewModel?.batchEnabled = false
+    await traceViewModel?.runTrace()
+  }
+
   func savePath(name: String) async -> Bool {
     await traceViewModel?.savePath(name: name) ?? false
   }

@@ -43,7 +43,6 @@ final class NodeTelemetryViewModel {
   func requestTelemetry() async {
     guard let binaryProtocolService, let publicKey else { return }
 
-    let visit = helper.captureTelemetryVisit()
     await helper.runRetryingSectionRequest(
       operationName: "telemetry",
       setLoading: { self.helper.isLoadingTelemetry = $0 },
@@ -57,7 +56,7 @@ final class NodeTelemetryViewModel {
           throw RemoteNodeError.timeout
         }
       },
-      onSuccess: { await self.helper.handleTelemetryResponse($0, visit: visit) }
+      onSuccess: { await self.helper.handleTelemetryResponse($0) }
     )
   }
 }

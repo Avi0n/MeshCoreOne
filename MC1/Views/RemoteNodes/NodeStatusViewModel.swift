@@ -61,12 +61,6 @@ final class NodeStatusViewModel {
   /// Whether the telemetry disclosure group is expanded
   var telemetryExpanded = false
 
-  typealias TelemetryVisitToken = LoadVisitGate.Token
-
-  /// Loads taken while the management sheet is open. Ending the visit bumps
-  /// the generation so a reply from the previous visit cannot refill the next one.
-  private var telemetryVisit = LoadVisitGate()
-
   /// Error text owned by the status counters section, scoped so a status
   /// failure surfaces only under the status section once sections load independently.
   var statusSectionError: String?
@@ -125,67 +119,6 @@ final class NodeStatusViewModel {
   /// Used for chat nodes that can be queried without authentication.
   func configureForDirectTelemetry(publicKey: Data) {
     directPublicKey = publicKey
-  }
-
-  func captureTelemetryVisit() -> TelemetryVisitToken {
-    telemetryVisit.capture()
-  }
-
-  func allowsTelemetryWrite(_ visit: TelemetryVisitToken) -> Bool {
-    telemetryVisit.allows(visit)
-  }
-
-  func beginTelemetryVisit() {
-    telemetryVisit.begin()
-  }
-
-  func endTelemetryVisit() {
-    telemetryVisit.end()
-    clearDisplayedTelemetry()
-  }
-
-  private func clearDisplayedTelemetry() {
-    status = nil
-    telemetry = nil
-    cachedDataPoints = []
-    isLoadingStatus = false
-    isLoadingTelemetry = false
-    statusLoaded = false
-    telemetryLoaded = false
-    statusExpanded = false
-    telemetryExpanded = false
-    isBatteryCurveExpanded = false
-    statusSectionError = nil
-    telemetrySectionError = nil
-    previousStatusSnapshot = nil
-  }
-
-  func runVisitedSectionRequest<T>(
-    visit: TelemetryVisitToken,
-    operationName: String,
-    setLoading: @escaping @MainActor (Bool) -> Void,
-    setError: @escaping @MainActor (String?) -> Void,
-    timeoutMessage: String = L10n.RemoteNodes.RemoteNodes.Status.requestTimedOut,
-    operation: @escaping @Sendable (Duration) async throws -> T,
-    onSuccess: @escaping @MainActor (T) async -> Void
-  ) async {
-    await runRetryingSectionRequest(
-      operationName: operationName,
-      setLoading: { loading in
-        guard self.allowsTelemetryWrite(visit) else { return }
-        setLoading(loading)
-      },
-      setError: { error in
-        guard self.allowsTelemetryWrite(visit) else { return }
-        setError(error)
-      },
-      timeoutMessage: timeoutMessage,
-      operation: operation,
-      onSuccess: { value in
-        guard self.allowsTelemetryWrite(visit) else { return }
-        await onSuccess(value)
-      }
-    )
   }
 
   // MARK: - Transient Retry Machinery
@@ -279,21 +212,6 @@ final class NodeStatusViewModel {
     }
   }
 
-  /// Drops a push for another node or a visit that no longer accepts a write.
-  func visitGatedHandler<Response: Sendable>(
-    prefix: @escaping @Sendable (Response) -> Data,
-    visit: @escaping @Sendable () async -> TelemetryVisitToken?,
-    body: @escaping @Sendable (Response, TelemetryVisitToken) async -> Void
-  ) -> @Sendable (Response) async -> Void {
-    { [weak self] response in
-      guard let self else { return }
-      guard await self.matchesSession(prefix(response)) else { return }
-      guard let visit = await visit() else { return }
-      guard await self.allowsTelemetryWrite(visit) else { return }
-      await body(response, visit)
-    }
-  }
-
   // MARK: - Status Response Handling
 
   /// Handle a status response, saving a snapshot with role-specific fields.
@@ -304,10 +222,8 @@ final class NodeStatusViewModel {
     rxAirtimeSeconds: UInt32? = nil,
     receiveErrors: UInt32? = nil,
     postedCount: UInt16? = nil,
-    postPushCount: UInt16? = nil,
-    visit: TelemetryVisitToken
+    postPushCount: UInt16? = nil
   ) async {
-    guard allowsTelemetryWrite(visit) else { return }
     guard let expectedPrefix = session?.publicKeyPrefix,
           response.publicKeyPrefix == expectedPrefix else {
       return
@@ -319,12 +235,10 @@ final class NodeStatusViewModel {
 
     guard let nodeSnapshotService, let session else { return }
 
-    let baseline = await nodeSnapshotService.previousStatusSnapshot(
+    previousStatusSnapshot = await nodeSnapshotService.previousStatusSnapshot(
       for: session.publicKey,
       before: .now
     )
-    guard allowsTelemetryWrite(visit) else { return }
-    previousStatusSnapshot = baseline
 
     let metrics = NodeStatusMetrics(
       status: response,
@@ -358,11 +272,7 @@ final class NodeStatusViewModel {
 
   // MARK: - Telemetry Response Handling
 
-  func handleTelemetryResponse(
-    _ response: TelemetryResponse,
-    visit: TelemetryVisitToken
-  ) async {
-    guard allowsTelemetryWrite(visit) else { return }
+  func handleTelemetryResponse(_ response: TelemetryResponse) async {
     guard let expectedPrefix = effectivePublicKeyPrefix,
           response.publicKeyPrefix == expectedPrefix else {
       return

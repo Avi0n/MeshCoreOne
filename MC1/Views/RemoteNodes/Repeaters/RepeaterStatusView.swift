@@ -4,22 +4,10 @@ import SwiftUI
 /// Guest standalone sheet for repeater stats, telemetry, and neighbors.
 struct RepeaterStatusView: View {
   @Environment(\.appState) private var appState
-  let session: RemoteNodeSessionDTO
-
-  var body: some View {
-    RepeaterStatusWorkspace(
-      session: session,
-      viewModel: appState.remoteAdminWorkspaces.repeaterStatus(for: session)
-    )
-  }
-}
-
-private struct RepeaterStatusWorkspace: View {
-  @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
 
   let session: RemoteNodeSessionDTO
-  @Bindable var viewModel: RepeaterStatusViewModel
+  @State private var viewModel = RepeaterStatusViewModel()
   @State private var contacts: [ContactDTO] = []
   @State private var discoveredNodes: [DiscoveredNodeDTO] = []
   /// The node's contact, kept live so the route section reflects the path the firmware learns after
@@ -57,12 +45,6 @@ private struct RepeaterStatusWorkspace: View {
           }
         }
       }
-      .onAppear {
-        viewModel.noteTelemetryVisitAppeared()
-      }
-      .onDisappear {
-        viewModel.noteTelemetryVisitDisappeared()
-      }
       .task {
         viewModel.configure(
           repeaterAdminService: { appState.services?.repeaterAdminService },
@@ -82,20 +64,13 @@ private struct RepeaterStatusWorkspace: View {
         }
         await refreshRouteContact()
       }
-      .task(id: RemoteAdminWorkspaces.RebindID(
-        servicesVersion: appState.servicesVersion,
-        generation: appState.remoteAdminWorkspaces.generation
-      )) {
-        await viewModel.rebind(
-          repeaterAdminService: { appState.services?.repeaterAdminService },
-          contactService: { appState.services?.contactService },
-          nodeSnapshotService: { appState.services?.nodeSnapshotService },
-          deviceHashSize: { appState.connectedDevice?.hashSize }
-        )
-      }
       .onChange(of: appState.contactsVersion) {
         Task { await refreshRouteContact() }
       }
+    }
+    .onDisappear {
+      viewModel.stopDiscovery()
+      Task { await viewModel.cleanup() }
     }
     .presentationDetents([.large])
   }

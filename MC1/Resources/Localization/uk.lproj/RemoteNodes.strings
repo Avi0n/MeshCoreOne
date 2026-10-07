@@ -87,23 +87,6 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Готово";
 
-
-"remoteNodes.settings.discardTitle" = "Відхилити зміни?";
-
-"remoteNodes.settings.discardChanges" = "Відхилити зміни";
-
-"remoteNodes.settings.keepEditing" = "Продовжити редагування";
-
-"remoteNodes.settings.unsavedRegionsTitle" = "Незбережені регіони";
-
-"remoteNodes.settings.unsavedRegionsMessage" = "Зміни регіонів діють тимчасово. Збережіть їх, якщо хочете, щоб вони залишилися після перезавантаження ретранслятора.";
-
-"remoteNodes.settings.dontSave" = "Не зберігати";
-
-"remoteNodes.settings.savingRegions" = "Збереження триває.";
-
-"remoteNodes.settings.applyInProgress" = "Робота ще триває";
-
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "Параметри";
 

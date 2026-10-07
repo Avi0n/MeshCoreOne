@@ -87,30 +87,6 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Done";
 
-/* Location: SettingsExitGuard.swift - Discard alert title */
-"remoteNodes.settings.discardTitle" = "Discard Changes?";
-
-/* Location: SettingsExitGuard.swift - Discard alert destructive action */
-"remoteNodes.settings.discardChanges" = "Discard Changes";
-
-/* Location: SettingsExitGuard.swift - Discard alert keep-editing action */
-"remoteNodes.settings.keepEditing" = "Keep Editing";
-
-/* Location: SettingsExitGuard.swift - Unsaved regions alert title */
-"remoteNodes.settings.unsavedRegionsTitle" = "Unsaved Regions";
-
-/* Location: SettingsExitGuard.swift - Unsaved regions alert message */
-"remoteNodes.settings.unsavedRegionsMessage" = "Region changes are temporarily active. Save them if you want them to stay after a restart.";
-
-/* Location: SettingsExitGuard.swift - Unsaved regions Don't Save action */
-"remoteNodes.settings.dontSave" = "Don't Save";
-
-/* Location: SettingsExitGuard.swift - Region save in progress alert message */
-"remoteNodes.settings.savingRegions" = "A save is in progress.";
-
-/* Location: SettingsExitGuard.swift - Done button accessibility value while Apply is in flight */
-"remoteNodes.settings.applyInProgress" = "Work still in progress";
-
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "Settings";
 

@@ -101,9 +101,6 @@ extension AppState {
     await liveActivityManager.validateActivityState()
     await restartLiveActivityIfMissing()
 
-    tracePathViewModel?.expireTraceIfDeadlinePassed()
-    nodeDiscoveryViewModel?.expireScanIfDeadlinePassed()
-
     // Check for expired ACKs
     if connectionState == .ready {
       try? await services?.messageService.checkExpiredAcks()

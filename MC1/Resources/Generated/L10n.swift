@@ -3479,8 +3479,6 @@ public enum L10n {
         public static let applyContactInfo = L10n.tr("RemoteNodes", "remoteNodes.settings.applyContactInfo", fallback: "Apply Contact Info")
         /// Location: RepeaterSettingsView.swift - Apply identity settings button
         public static let applyIdentitySettings = L10n.tr("RemoteNodes", "remoteNodes.settings.applyIdentitySettings", fallback: "Apply Identity Settings")
-        /// Location: SettingsExitGuard.swift - Done button accessibility value while Apply is in flight
-        public static let applyInProgress = L10n.tr("RemoteNodes", "remoteNodes.settings.applyInProgress", fallback: "Work still in progress")
         /// Location: RepeaterSettingsView.swift - Apply radio settings button
         public static let applyRadioSettings = L10n.tr("RemoteNodes", "remoteNodes.settings.applyRadioSettings", fallback: "Apply Radio Settings")
         /// Location: RepeaterSettingsView.swift - Bandwidth accessibility hint
@@ -3517,14 +3515,8 @@ public enum L10n {
         public static let deviceInfoFooter = L10n.tr("RemoteNodes", "remoteNodes.settings.deviceInfoFooter", fallback: "Firmware version and device clock.")
         /// Location: RepeaterSettingsView.swift - Device time label
         public static let deviceTime = L10n.tr("RemoteNodes", "remoteNodes.settings.deviceTime", fallback: "Device Time")
-        /// Location: SettingsExitGuard.swift - Discard alert destructive action
-        public static let discardChanges = L10n.tr("RemoteNodes", "remoteNodes.settings.discardChanges", fallback: "Discard Changes")
-        /// Location: SettingsExitGuard.swift - Discard alert title
-        public static let discardTitle = L10n.tr("RemoteNodes", "remoteNodes.settings.discardTitle", fallback: "Discard Changes?")
         /// Location: RepeaterSettingsView.swift - Done button (used in multiple places)
         public static let done = L10n.tr("RemoteNodes", "remoteNodes.settings.done", fallback: "Done")
-        /// Location: SettingsExitGuard.swift - Unsaved regions Don't Save action
-        public static let dontSave = L10n.tr("RemoteNodes", "remoteNodes.settings.dontSave", fallback: "Don't Save")
         /// Location: RepeaterSettingsView.swift - Failed to load placeholder
         public static let failedToLoad = L10n.tr("RemoteNodes", "remoteNodes.settings.failedToLoad", fallback: "Failed to load")
         /// Location: RepeaterSettingsView.swift - Firmware label
@@ -3543,8 +3535,6 @@ public enum L10n {
         public static let identityFooter = L10n.tr("RemoteNodes", "remoteNodes.settings.identityFooter", fallback: "Repeater name and GPS coordinates for map display.")
         /// Location: RepeaterSettingsView.swift - Identity & location section title
         public static let identityLocation = L10n.tr("RemoteNodes", "remoteNodes.settings.identityLocation", fallback: "Identity & Location")
-        /// Location: SettingsExitGuard.swift - Discard alert keep-editing action
-        public static let keepEditing = L10n.tr("RemoteNodes", "remoteNodes.settings.keepEditing", fallback: "Keep Editing")
         /// Location: RepeaterSettingsView.swift - Latitude label
         public static let latitude = L10n.tr("RemoteNodes", "remoteNodes.settings.latitude", fallback: "Latitude")
         /// Location: NodeSettingsViewModel.swift - Latitude range validation error
@@ -3607,8 +3597,6 @@ public enum L10n {
         public static let regionsFooter = L10n.tr("RemoteNodes", "remoteNodes.settings.regionsFooter", fallback: "Save to Repeater to keep changes across restarts.")
         /// Location: RepeaterSettingsView.swift - Repeater mode toggle
         public static let repeaterMode = L10n.tr("RemoteNodes", "remoteNodes.settings.repeaterMode", fallback: "Repeater Mode")
-        /// Location: SettingsExitGuard.swift - Region save in progress alert message
-        public static let savingRegions = L10n.tr("RemoteNodes", "remoteNodes.settings.savingRegions", fallback: "A save is in progress.")
         /// Location: RepeaterSettingsView.swift - Security section title
         public static let security = L10n.tr("RemoteNodes", "remoteNodes.settings.security", fallback: "Security")
         /// Location: RepeaterSettingsView.swift - Security footer text
@@ -3639,10 +3627,6 @@ public enum L10n {
         public static func unexpectedResponse(_ p1: Any) -> String {
           return L10n.tr("RemoteNodes", "remoteNodes.settings.unexpectedResponse", String(describing: p1), fallback: "Unexpected response: %@")
         }
-        /// Location: SettingsExitGuard.swift - Unsaved regions alert message
-        public static let unsavedRegionsMessage = L10n.tr("RemoteNodes", "remoteNodes.settings.unsavedRegionsMessage", fallback: "Region changes are temporarily active. Save them if you want them to stay after a restart.")
-        /// Location: SettingsExitGuard.swift - Unsaved regions alert title
-        public static let unsavedRegionsTitle = L10n.tr("RemoteNodes", "remoteNodes.settings.unsavedRegionsTitle", fallback: "Unsaved Regions")
         public enum Accessibility {
           /// Location: RepeaterSettingsView.swift - Accessibility label for bandwidth picker options - %@ is formatted bandwidth
           public static func bandwidthLabel(_ p1: Any) -> String {

@@ -128,6 +128,9 @@ struct NodeRadioSettingsSection: View {
             .multilineTextAlignment(.trailing)
             .frame(width: 100)
             .focused(focusedField, equals: .frequency)
+            .onChange(of: settings.frequency) { _, _ in
+              settings.radioSettingsModified = true
+            }
         } else {
           SettingsLoadPlaceholder(isLoading: settings.isLoadingRadio, hasError: settings.radioError)
             .frame(width: 100, alignment: .trailing)
@@ -148,6 +151,9 @@ struct NodeRadioSettingsSection: View {
         .pickerStyle(.menu)
         .tint(.primary)
         .accessibilityHint(L10n.RemoteNodes.RemoteNodes.Settings.bandwidthHint)
+        .onChange(of: settings.bandwidth) { _, _ in
+          settings.radioSettingsModified = true
+        }
       } else {
         HStack {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.bandwidthKHz)
@@ -170,6 +176,9 @@ struct NodeRadioSettingsSection: View {
         .pickerStyle(.menu)
         .tint(.primary)
         .accessibilityHint(L10n.RemoteNodes.RemoteNodes.Settings.spreadingFactorHint)
+        .onChange(of: settings.spreadingFactor) { _, _ in
+          settings.radioSettingsModified = true
+        }
       } else {
         HStack {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.spreadingFactor)
@@ -192,6 +201,9 @@ struct NodeRadioSettingsSection: View {
         .pickerStyle(.menu)
         .tint(.primary)
         .accessibilityHint(L10n.RemoteNodes.RemoteNodes.Settings.codingRateHint)
+        .onChange(of: settings.codingRate) { _, _ in
+          settings.radioSettingsModified = true
+        }
       } else {
         HStack {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.codingRate)
@@ -203,13 +215,13 @@ struct NodeRadioSettingsSection: View {
       Button {
         Task { await settings.applyRadioSettings() }
       } label: {
-        AsyncActionLabel(isLoading: settings.isApplying.inFlight, showSuccess: false) {
+        AsyncActionLabel(isLoading: settings.isApplying, showSuccess: false) {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.applyRadioSettings)
             .foregroundStyle(settings.radioSettingsModified ? Color.accentColor : .secondary)
             .transition(.opacity)
         }
       }
-      .disabled(!settings.radioSettingsModified || settings.isApplying.inFlight)
+      .disabled(!settings.radioSettingsModified || settings.isApplying)
     }
   }
 }
@@ -304,11 +316,11 @@ struct RemoteNodeIdentitySection: View {
       Button {
         Task { await settings.applyIdentitySettings() }
       } label: {
-        AsyncActionLabel(isLoading: settings.isApplying.inFlight, showSuccess: settings.identityApplySuccess) {
+        AsyncActionLabel(isLoading: settings.isApplying, showSuccess: settings.identityApplySuccess) {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.applyIdentitySettings)
         }
       }
-      .disabled(!settings.identitySettingsModified || settings.isApplying.inFlight)
+      .disabled(!settings.identitySettingsModified || settings.isApplying)
     }
   }
 }
@@ -375,11 +387,11 @@ struct NodeContactInfoSection: View {
       Button {
         Task { await settings.applyContactInfoSettings() }
       } label: {
-        AsyncActionLabel(isLoading: settings.isApplying.inFlight, showSuccess: settings.contactInfoApplySuccess) {
+        AsyncActionLabel(isLoading: settings.isApplying, showSuccess: settings.contactInfoApplySuccess) {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.applyContactInfo)
         }
       }
-      .disabled(!settings.contactInfoSettingsModified || settings.isApplying.inFlight || settings.isOwnerInfoTooLong)
+      .disabled(!settings.contactInfoSettingsModified || settings.isApplying || settings.isOwnerInfoTooLong)
     }
   }
 }
@@ -399,11 +411,11 @@ struct NodeSecuritySection: View {
         Button {
           Task { await settings.changePassword() }
         } label: {
-          AsyncActionLabel(isLoading: settings.isApplying.inFlight, showSuccess: settings.changePasswordSuccess) {
+          AsyncActionLabel(isLoading: settings.isApplying, showSuccess: settings.changePasswordSuccess) {
             Text(L10n.RemoteNodes.RemoteNodes.Settings.changePassword)
           }
         }
-        .disabled(settings.isApplying.inFlight || settings.changePasswordSuccess || settings.newPassword.isEmpty || settings.newPassword != settings.confirmPassword)
+        .disabled(settings.isApplying || settings.changePasswordSuccess || settings.newPassword.isEmpty || settings.newPassword != settings.confirmPassword)
       } label: {
         Label(L10n.RemoteNodes.RemoteNodes.Settings.security, systemImage: "lock")
       }
@@ -443,13 +455,13 @@ struct NodeActionsSection: View {
       } label: {
         HStack {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.syncTime)
-          if settings.isApplying.inFlight {
+          if settings.isApplying {
             Spacer()
             ProgressView()
           }
         }
       }
-      .disabled(settings.isApplying.inFlight)
+      .disabled(settings.isApplying)
 
       Button(L10n.RemoteNodes.RemoteNodes.Settings.rebootDevice, role: .destructive) {
         showRebootConfirmation = true

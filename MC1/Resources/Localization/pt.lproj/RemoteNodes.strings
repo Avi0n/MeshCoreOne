@@ -87,23 +87,6 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "Concluído";
 
-
-"remoteNodes.settings.discardTitle" = "Descartar as alterações?";
-
-"remoteNodes.settings.discardChanges" = "Descartar alterações";
-
-"remoteNodes.settings.keepEditing" = "Continuar a editar";
-
-"remoteNodes.settings.unsavedRegionsTitle" = "Regiões não guardadas";
-
-"remoteNodes.settings.unsavedRegionsMessage" = "As alterações às regiões estão temporariamente ativas. Guarde-as se quiser mantê-las após um reinício do repetidor.";
-
-"remoteNodes.settings.dontSave" = "Não guardar";
-
-"remoteNodes.settings.savingRegions" = "Uma operação de guardar está em curso.";
-
-"remoteNodes.settings.applyInProgress" = "Trabalho ainda em curso";
-
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "Definições";
 

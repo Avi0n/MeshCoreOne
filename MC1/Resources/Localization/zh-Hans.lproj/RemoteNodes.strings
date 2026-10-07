@@ -87,23 +87,6 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "完成";
 
-
-"remoteNodes.settings.discardTitle" = "放弃更改？";
-
-"remoteNodes.settings.discardChanges" = "放弃更改";
-
-"remoteNodes.settings.keepEditing" = "继续编辑";
-
-"remoteNodes.settings.unsavedRegionsTitle" = "未保存的区域";
-
-"remoteNodes.settings.unsavedRegionsMessage" = "区域更改已暂时生效。如果要在重启后保留更改，请保存到转发节点。";
-
-"remoteNodes.settings.dontSave" = "不保存";
-
-"remoteNodes.settings.savingRegions" = "保存正在进行中。";
-
-"remoteNodes.settings.applyInProgress" = "仍在进行中";
-
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "设置";
 

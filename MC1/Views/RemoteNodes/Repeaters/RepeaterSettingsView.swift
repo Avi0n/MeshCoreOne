@@ -1,17 +1,534 @@
+import CoreLocation
 import MC1Services
 import SwiftUI
 
 struct RepeaterSettingsView: View {
   @Environment(\.appState) private var appState
+  @Environment(\.appTheme) private var theme
+  @Environment(\.dismiss) private var dismiss
+  @FocusState private var focusedField: NodeSettingsField?
+
   let session: RemoteNodeSessionDTO
+  @State private var viewModel = RepeaterSettingsViewModel()
+  @State private var statusViewModel = RepeaterStatusViewModel()
+  @State private var managementTab: NodeManagementTab = .settings
+  @State private var cliViewModel = NodeCLIViewModel()
+  @State private var showRebootConfirmation = false
+  @State private var showingLocationPicker = false
+  @State private var addRegionParent: RepeaterRegionEntry.Parent?
+  @State private var telemetryConfigured = false
+  @State private var contacts: [ContactDTO] = []
+  @State private var discoveredNodes: [DiscoveredNodeDTO] = []
+  /// The node's contact, kept live so the route section reflects the path the firmware learns after
+  /// a flood login (delivered asynchronously as a contact update).
+  @State private var routeContact: ContactDTO?
 
   var body: some View {
-    RepeaterSettingsWorkspace(
-      session: session,
-      viewModel: appState.remoteAdminWorkspaces.repeaterSettings(for: session),
-      statusViewModel: appState.remoteAdminWorkspaces.repeaterStatus(for: session),
-      cliViewModel: appState.remoteAdminWorkspaces.nodeCLI(for: session)
+    // ZStack, not Group: a stable container keeps the navigation title hosted on one
+    // view across segment switches. Group would re-host it on each branch, animating
+    // a nav-bar item transition.
+    ZStack {
+      switch managementTab {
+      case .settings: settingsForm
+      case .cli: NodeCLIView(viewModel: cliViewModel)
+      case .telemetry:
+        RepeaterStatusContent(
+          viewModel: statusViewModel,
+          session: session,
+          connectionState: appState.connectionState,
+          contacts: contacts,
+          discoveredNodes: discoveredNodes,
+          userLocation: appState.bestAvailableLocation,
+          connectedDeviceID: appState.connectedDevice?.radioID,
+          routePathContact: routeContact
+        )
+      }
+    }
+    .animation(nil, value: managementTab)
+    .navigationTitle(L10n.RemoteNodes.RemoteNodes.Settings.title)
+    .navigationBarTitleDisplayMode(.inline)
+    .safeAreaInset(edge: .top, spacing: 0) {
+      if session.isAdmin {
+        NodeManagementTabPicker(selection: $managementTab)
+          .frame(maxWidth: .infinity)
+          .pinnedFilterHeaderBackground(theme)
+      }
+    }
+    .task {
+      await viewModel.configure(
+        repeaterAdminService: { appState.services?.repeaterAdminService },
+        session: session
+      )
+      if let send = viewModel.makeNodeCLISendClosure(session: session) {
+        cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
+      }
+      // Loaded up front (not just on Telemetry reveal) so the Settings-tab route section can
+      // resolve hop hashes to repeater names.
+      if let radioID = appState.connectedDevice?.radioID,
+         let dataStore = appState.services?.dataStore {
+        contacts = await (try? dataStore.fetchContacts(radioID: radioID)) ?? []
+        discoveredNodes = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
+      }
+      await refreshRouteContact()
+    }
+    .onChange(of: appState.contactsVersion) {
+      Task { await refreshRouteContact() }
+    }
+    .onChange(of: managementTab) { _, newTab in
+      guard newTab == .telemetry, !telemetryConfigured else { return }
+      telemetryConfigured = true
+      // Configure the status VM on first Telemetry reveal rather than on open:
+      // its handlers populate only the status/telemetry/neighbours slots, leaving the
+      // settings VM's CLI handler intact for the Settings/CLI surface. Guarded by
+      // telemetryConfigured because a segment switch recreates only the content subtree,
+      // so this must not re-run or duplicate handler registration.
+      statusViewModel.configure(
+        repeaterAdminService: { appState.services?.repeaterAdminService },
+        contactService: { appState.services?.contactService },
+        nodeSnapshotService: { appState.services?.nodeSnapshotService },
+        deviceHashSize: { appState.connectedDevice?.hashSize }
+      )
+      Task {
+        await statusViewModel.registerHandlers()
+        if let radioID = appState.connectedDevice?.radioID {
+          await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
+        }
+      }
+    }
+    .onDisappear {
+      statusViewModel.stopDiscovery()
+      Task {
+        await statusViewModel.clearStatusHandlers()
+        await viewModel.cleanup()
+      }
+    }
+    .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
+      Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) {}
+    } message: {
+      Text(viewModel.helper.successMessage ?? L10n.RemoteNodes.RemoteNodes.Settings.settingsApplied)
+    }
+    .sheet(isPresented: $showingLocationPicker) {
+      LocationPickerView(
+        initialCoordinate: CLLocationCoordinate2D(
+          latitude: viewModel.helper.latitude ?? 0,
+          longitude: viewModel.helper.longitude ?? 0
+        )
+      ) { coordinate in
+        viewModel.helper.setLocationFromPicker(
+          latitude: coordinate.latitude,
+          longitude: coordinate.longitude
+        )
+      }
+    }
+    // Present from this view, not ExpandableSettingsSection: a nested sheet from
+    // the disclosure dismisses the parent page sheet on iPad.
+    .sheet(item: $addRegionParent) { parent in
+      RepeaterAddRegionSheet(
+        parent: parent,
+        existingRegions: viewModel.regions
+      ) { name, parent in
+        try await viewModel.addRegion(name: name, parent: parent)
+      }
+    }
+  }
+
+  private var settingsForm: some View {
+    Form {
+      NodeSettingsHeaderSection(publicKey: session.publicKey, name: session.name, role: session.role)
+      makeRadioSettingsSection()
+      makeBehaviorSection()
+      makeRegionsSection()
+      makeIdentitySection()
+      makeContactInfoSection()
+      makeSecuritySection()
+      makeDeviceInfoSection()
+      makeActionsSection()
+      if let routeContact {
+        NodeRoutePathSection(
+          contact: routeContact,
+          contacts: contacts,
+          discoveredNodes: discoveredNodes,
+          userLocation: appState.bestAvailableLocation
+        )
+      }
+    }
+    .themedCanvas(theme)
+    .nodeManagementHeaderTopMargin()
+    .toolbar {
+      ToolbarItemGroup(placement: .keyboard) {
+        Spacer()
+        Button(L10n.RemoteNodes.RemoteNodes.Settings.done) {
+          focusedField = nil
+        }
+      }
+    }
+  }
+
+  // MARK: - Subviews
+
+  private func makeDeviceInfoSection() -> some View {
+    NodeDeviceInfoSection(settings: viewModel.helper)
+  }
+
+  private func makeRadioSettingsSection() -> some View {
+    NodeRadioSettingsSection(
+      settings: viewModel.helper,
+      focusedField: $focusedField
     )
+  }
+
+  private func makeIdentitySection() -> some View {
+    RemoteNodeIdentitySection(
+      settings: viewModel.helper,
+      focusedField: $focusedField,
+      onPickLocation: { showingLocationPicker = true }
+    )
+  }
+
+  private func makeContactInfoSection() -> some View {
+    NodeContactInfoSection(settings: viewModel.helper, focusedField: $focusedField)
+  }
+
+  private func makeBehaviorSection() -> some View {
+    BehaviorSection(viewModel: viewModel, focusedField: $focusedField)
+  }
+
+  private func makeRegionsSection() -> some View {
+    RegionsSection(viewModel: viewModel, addRegionParent: $addRegionParent)
+  }
+
+  private func makeSecuritySection() -> some View {
+    NodeSecuritySection(settings: viewModel.helper)
+  }
+
+  private func makeActionsSection() -> some View {
+    NodeActionsSection(
+      settings: viewModel.helper,
+      showRebootConfirmation: $showRebootConfirmation
+    )
+  }
+
+  private func refreshRouteContact() async {
+    guard let dataStore = appState.services?.dataStore else { return }
+    if let updated = await (try? dataStore.fetchContact(
+      radioID: session.radioID,
+      publicKey: session.publicKey
+    )).flatMap(\.self) {
+      routeContact = updated
+    }
+  }
+}
+
+// MARK: - Behavior Section
+
+private struct BehaviorSection: View {
+  @Bindable var viewModel: RepeaterSettingsViewModel
+  var focusedField: FocusState<NodeSettingsField?>.Binding
+
+  var body: some View {
+    ExpandableSettingsSection(
+      title: L10n.RemoteNodes.RemoteNodes.Settings.behavior,
+      icon: "slider.horizontal.3",
+      isExpanded: $viewModel.isBehaviorExpanded,
+      isLoaded: { viewModel.behaviorLoaded },
+      isLoading: $viewModel.isLoadingBehavior,
+      hasError: $viewModel.behaviorError,
+      onLoad: { await viewModel.fetchBehaviorSettings() },
+      footer: L10n.RemoteNodes.RemoteNodes.Settings.behaviorFooter
+    ) {
+      Toggle(L10n.RemoteNodes.RemoteNodes.Settings.repeaterMode, isOn: Binding(
+        get: { viewModel.repeaterEnabled ?? false },
+        set: { viewModel.repeaterEnabled = $0 }
+      ))
+      .disabled(viewModel.repeaterEnabled == nil)
+      .accessibilityValue(
+        viewModel.repeaterEnabled == nil
+          ? (viewModel.isLoadingBehavior ? L10n.RemoteNodes.RemoteNodes.Settings.loading : L10n.RemoteNodes.RemoteNodes.Settings.failedToLoad)
+          : (viewModel.repeaterEnabled == true ? L10n.Localizable.Accessibility.on : L10n.Localizable.Accessibility.off)
+      )
+      .overlay(alignment: .trailing) {
+        if viewModel.repeaterEnabled == nil {
+          SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
+            .padding(.trailing, 60)
+            .accessibilityHidden(true)
+        }
+      }
+
+      HStack {
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.advertInterval0Hop)
+        Spacer()
+        if let interval = viewModel.advertIntervalMinutes {
+          TextField(L10n.RemoteNodes.RemoteNodes.Settings.min, value: Binding(
+            get: { interval },
+            set: { viewModel.advertIntervalMinutes = $0 }
+          ), format: .number)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+            .frame(width: 60)
+            .focused(focusedField, equals: .advertInterval)
+          Text(L10n.RemoteNodes.RemoteNodes.Settings.min)
+            .foregroundStyle(.secondary)
+        } else {
+          SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
+        }
+      }
+
+      if let error = viewModel.advertIntervalError {
+        Text(error)
+          .font(.caption)
+          .foregroundStyle(.red)
+      }
+
+      HStack {
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.advertIntervalFlood)
+        Spacer()
+        if let interval = viewModel.floodAdvertIntervalHours {
+          TextField(L10n.RemoteNodes.RemoteNodes.Settings.hrs, value: Binding(
+            get: { interval },
+            set: { viewModel.floodAdvertIntervalHours = $0 }
+          ), format: .number)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+            .frame(width: 60)
+            .focused(focusedField, equals: .floodAdvertInterval)
+          Text(L10n.RemoteNodes.RemoteNodes.Settings.hrs)
+            .foregroundStyle(.secondary)
+        } else {
+          SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
+        }
+      }
+
+      if let error = viewModel.floodAdvertIntervalError {
+        Text(error)
+          .font(.caption)
+          .foregroundStyle(.red)
+      }
+
+      HStack {
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.maxFloodHops)
+        Spacer()
+        if let hops = viewModel.floodMaxHops {
+          TextField(L10n.RemoteNodes.RemoteNodes.Settings.hops, value: Binding(
+            get: { hops },
+            set: { viewModel.floodMaxHops = $0 }
+          ), format: .number)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+            .frame(width: 60)
+            .focused(focusedField, equals: .floodMaxHops)
+          Text(L10n.RemoteNodes.RemoteNodes.Settings.hops)
+            .foregroundStyle(.secondary)
+        } else {
+          SettingsLoadPlaceholder(isLoading: viewModel.isLoadingBehavior, hasError: viewModel.behaviorError)
+        }
+      }
+
+      if let error = viewModel.floodMaxHopsError {
+        Text(error)
+          .font(.caption)
+          .foregroundStyle(.red)
+      }
+
+      Button {
+        Task { await viewModel.applyBehaviorSettings() }
+      } label: {
+        AsyncActionLabel(isLoading: viewModel.helper.isApplying, showSuccess: viewModel.behaviorApplySuccess) {
+          Text(L10n.RemoteNodes.RemoteNodes.Settings.applyBehaviorSettings)
+            .foregroundStyle(viewModel.behaviorSettingsModified ? Color.accentColor : .secondary)
+            .transition(.opacity)
+        }
+      }
+      .disabled(viewModel.helper.isApplying || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified)
+    }
+  }
+}
+
+// MARK: - Regions Section
+
+private struct RegionsSection: View {
+  @Bindable var viewModel: RepeaterSettingsViewModel
+  @Binding var addRegionParent: RepeaterRegionEntry.Parent?
+  @State private var blockedDeleteName: String?
+  @ScaledMetric(relativeTo: .body) private var indentPerLevel = RegionFloodToggleRow.Layout.indentPerLevel
+
+  private var defaultScopePickerNames: [String] {
+    var names = viewModel.regions.filter { !$0.isUnscoped }.map(\.name)
+    if let current = viewModel.defaultScopeName,
+       current != RepeaterRegionEntry.unscopedName,
+       !current.isEmpty,
+       !names.contains(current) {
+      names.append(current)
+    }
+    return names
+  }
+
+  private func hasChildRegions(_ name: String) -> Bool {
+    viewModel.regions.contains { $0.parentName == name }
+  }
+
+  private func canRequestDelete(_ region: RepeaterRegionEntry) -> Bool {
+    !regionMutationsDisabled && !region.isUnscoped
+  }
+
+  private func requestDelete(_ region: RepeaterRegionEntry) {
+    guard canRequestDelete(region) else { return }
+    if hasChildRegions(region.name) {
+      blockedDeleteName = region.name
+      return
+    }
+    Task { await viewModel.removeRegion(name: region.name) }
+  }
+
+  private var regionMutationsDisabled: Bool {
+    !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying
+  }
+
+  var body: some View {
+    ExpandableSettingsSection(
+      title: L10n.RemoteNodes.RemoteNodes.Settings.regions,
+      icon: "globe",
+      isExpanded: $viewModel.isRegionsExpanded,
+      isLoaded: { viewModel.regionsLoaded },
+      isLoading: $viewModel.isLoadingRegions,
+      hasError: $viewModel.regionsError,
+      onLoad: { await viewModel.fetchRegions() },
+      footer: L10n.RemoteNodes.RemoteNodes.Settings.regionsFooter
+    ) {
+      if viewModel.regionsLoaded, viewModel.regions.isEmpty {
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.empty)
+          .foregroundStyle(.secondary)
+      }
+
+      if !viewModel.regions.isEmpty {
+        if viewModel.supportsRegionDefaultScope {
+          Group {
+            if viewModel.defaultScopeLoaded {
+              Picker(
+                L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope,
+                selection: Binding(
+                  get: { viewModel.defaultScopeName },
+                  set: { newValue in
+                    Task { await viewModel.setDefaultScope(name: newValue) }
+                  }
+                )
+              ) {
+                Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.noDefault)
+                  .tag(String?.none)
+                ForEach(defaultScopePickerNames, id: \.self) { name in
+                  Text(name)
+                    .tag(Optional(name))
+                }
+              }
+              .pickerStyle(.menu)
+              .tint(.primary)
+              .disabled(regionMutationsDisabled)
+            } else {
+              HStack {
+                Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScope)
+                Spacer()
+                if viewModel.isLoadingDefaultScope {
+                  ProgressView()
+                } else {
+                  Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.loadDefaultScope) {
+                    Task { await viewModel.fetchDefaultScope() }
+                  }
+                  .disabled(regionMutationsDisabled)
+                }
+              }
+            }
+          }
+          .listRowSeparator(.hidden, edges: .bottom)
+
+          Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.defaultScopeCaption)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+      }
+
+      ForEach(viewModel.regions) { region in
+        RegionFloodToggleRow(
+          region: region,
+          isOn: Binding(
+            get: { region.floodAllowed },
+            set: { _ in
+              Task { await viewModel.toggleRegionFlood(name: region.name) }
+            }
+          ),
+          hasChildren: hasChildRegions(region.name),
+          indentPerLevel: indentPerLevel
+        )
+        .disabled(regionMutationsDisabled)
+        .deleteDisabled(!canRequestDelete(region))
+        .contextMenu {
+          if !regionMutationsDisabled {
+            Button {
+              addRegionParent = region.isUnscoped ? .unscoped : .named(region.name)
+            } label: {
+              Label(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addChild, systemImage: "plus")
+            }
+          }
+
+          if canRequestDelete(region) {
+            Button(role: .destructive) {
+              requestDelete(region)
+            } label: {
+              Label(L10n.Localizable.Common.delete, systemImage: "trash")
+            }
+          }
+        }
+      }
+      .onDelete { offsets in
+        let regions = offsets.compactMap { offset -> RepeaterRegionEntry? in
+          guard viewModel.regions.indices.contains(offset) else { return nil }
+          let region = viewModel.regions[offset]
+          return canRequestDelete(region) ? region : nil
+        }
+        for region in regions {
+          requestDelete(region)
+        }
+      }
+
+      if !viewModel.regions.isEmpty {
+        Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.floodToggleCaption)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+
+      Button(L10n.RemoteNodes.RemoteNodes.Settings.Regions.addRegion, systemImage: "plus") {
+        addRegionParent = .unscoped
+      }
+      .disabled(regionMutationsDisabled)
+
+      if viewModel.regionsLoaded || viewModel.hasUnsavedRegionChanges {
+        Button {
+          Task { await viewModel.saveRegions() }
+        } label: {
+          AsyncActionLabel(isLoading: viewModel.helper.isApplying, showSuccess: viewModel.regionsSaveSuccess) {
+            Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveToDevice)
+              .foregroundStyle(viewModel.hasUnsavedRegionChanges ? Color.accentColor : .secondary)
+              .transition(.opacity)
+          }
+        }
+        .disabled(viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
+      }
+
+      if let error = viewModel.helper.errorMessage {
+        Text(error)
+          .foregroundStyle(.orange)
+          .font(.caption)
+      }
+    }
+    .alert(
+      L10n.RemoteNodes.RemoteNodes.Settings.Regions.cannotDelete(blockedDeleteName ?? ""),
+      isPresented: Binding(
+        get: { blockedDeleteName != nil },
+        set: { if !$0 { blockedDeleteName = nil } }
+      )
+    ) {
+      Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) {}
+    } message: {
+      Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.notEmpty)
+    }
   }
 }
 
@@ -31,5 +548,35 @@ struct RepeaterSettingsView: View {
       )
     )
     .environment(\.appState, AppState())
+  }
+}
+
+#Preview("Region hierarchy") {
+  @Previewable @State var viewModel = {
+    let vm = RepeaterSettingsViewModel()
+    vm.regions = [
+      RepeaterRegionEntry(name: "*", parentName: nil, depth: 0, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "on", parentName: "*", depth: 1, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "gta", parentName: "on", depth: 2, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "downtown", parentName: "gta", depth: 3, floodAllowed: false, isHome: false),
+      RepeaterRegionEntry(name: "midtown", parentName: "gta", depth: 3, floodAllowed: true, isHome: false),
+      RepeaterRegionEntry(name: "can", parentName: "*", depth: 1, floodAllowed: true, isHome: false)
+    ]
+    vm.helper.setNodeInfo(firmwareVersion: "v1.15.0", name: nil, ownerInfo: nil)
+    vm.defaultScopeName = "on"
+    vm.defaultScopeLoaded = true
+    vm.isRegionsExpanded = true
+    return vm
+  }()
+  @Previewable @State var addRegionParent: RepeaterRegionEntry.Parent?
+
+  Form {
+    RegionsSection(viewModel: viewModel, addRegionParent: $addRegionParent)
+  }
+  .sheet(item: $addRegionParent) { parent in
+    RepeaterAddRegionSheet(
+      parent: parent,
+      existingRegions: viewModel.regions
+    ) { _, _ in }
   }
 }

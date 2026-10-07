@@ -87,30 +87,6 @@
 /* Location: RepeaterSettingsView.swift - Done button (used in multiple places) */
 "remoteNodes.settings.done" = "완료";
 
-/* Location: SettingsExitGuard.swift - Discard alert title */
-"remoteNodes.settings.discardTitle" = "변경 사항을 폐기하겠습니까?";
-
-/* Location: SettingsExitGuard.swift - Discard alert destructive action */
-"remoteNodes.settings.discardChanges" = "변경 사항 폐기";
-
-/* Location: SettingsExitGuard.swift - Discard alert keep-editing action */
-"remoteNodes.settings.keepEditing" = "계속 편집";
-
-/* Location: SettingsExitGuard.swift - Unsaved regions alert title */
-"remoteNodes.settings.unsavedRegionsTitle" = "저장되지 않은 지역";
-
-/* Location: SettingsExitGuard.swift - Unsaved regions alert message */
-"remoteNodes.settings.unsavedRegionsMessage" = "지역 변경 사항이 일시적으로 적용되어 있습니다. 재시작 후에도 유지하려면 리피터에 저장하십시오.";
-
-/* Location: SettingsExitGuard.swift - Unsaved regions Don't Save action */
-"remoteNodes.settings.dontSave" = "저장 안 함";
-
-/* Location: SettingsExitGuard.swift - Region save in progress alert message */
-"remoteNodes.settings.savingRegions" = "저장이 진행 중입니다.";
-
-/* Location: SettingsExitGuard.swift - Done button accessibility value while Apply is in flight */
-"remoteNodes.settings.applyInProgress" = "작업이 아직 진행 중";
-
 /* Location: NodeSettingsView.swift - Settings tab label */
 "remoteNodes.settings.tab.settings" = "설정";
 

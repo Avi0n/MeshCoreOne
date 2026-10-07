@@ -4,22 +4,10 @@ import SwiftUI
 /// Guest standalone sheet for room server stats, telemetry, and battery curve.
 struct RoomStatusView: View {
   @Environment(\.appState) private var appState
-  let session: RemoteNodeSessionDTO
-
-  var body: some View {
-    RoomStatusWorkspace(
-      session: session,
-      viewModel: appState.remoteAdminWorkspaces.roomStatus(for: session)
-    )
-  }
-}
-
-private struct RoomStatusWorkspace: View {
-  @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
 
   let session: RemoteNodeSessionDTO
-  @Bindable var viewModel: RoomStatusViewModel
+  @State private var viewModel = RoomStatusViewModel()
 
   var body: some View {
     NavigationStack {
@@ -48,12 +36,6 @@ private struct RoomStatusWorkspace: View {
           }
         }
       }
-      .onAppear {
-        viewModel.noteTelemetryVisitAppeared()
-      }
-      .onDisappear {
-        viewModel.noteTelemetryVisitDisappeared()
-      }
       .task {
         viewModel.configure(
           roomAdminService: { appState.services?.roomAdminService },
@@ -67,16 +49,9 @@ private struct RoomStatusWorkspace: View {
           await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
       }
-      .task(id: RemoteAdminWorkspaces.RebindID(
-        servicesVersion: appState.servicesVersion,
-        generation: appState.remoteAdminWorkspaces.generation
-      )) {
-        await viewModel.rebind(
-          roomAdminService: { appState.services?.roomAdminService },
-          contactService: { appState.services?.contactService },
-          nodeSnapshotService: { appState.services?.nodeSnapshotService }
-        )
-      }
+    }
+    .onDisappear {
+      Task { await viewModel.cleanup() }
     }
     .presentationDetents([.large])
   }

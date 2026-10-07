@@ -37,38 +37,6 @@ public actor RepeaterAdminService {
   /// Handler for CLI text responses
   public var cliResponseHandler: (@Sendable (ContactMessage, ContactDTO) async -> Void)?
 
-  #if DEBUG
-    /// Calls observed before transport. Tests set `failObservedCallsForTesting` so a send does not wait on a radio.
-    private let testingObservation = AdminCallObservation()
-
-    public var observedCallsForTesting: [String] {
-      testingObservation.calls
-    }
-
-    public var failObservedCallsForTesting: Bool {
-      get { testingObservation.shouldFail }
-      set { testingObservation.shouldFail = newValue }
-    }
-
-    public func setFailObservedCallsForTesting(_ fail: Bool) {
-      testingObservation.shouldFail = fail
-    }
-
-    /// When this returns a string, `sendCommand` uses it and does not touch transport.
-    public var onSendCommandForTesting: (@Sendable (String) async throws -> String?)?
-
-    public func setOnSendCommandForTesting(_ hook: (@Sendable (String) async throws -> String?)?) {
-      onSendCommandForTesting = hook
-    }
-
-    private func observeCallForTesting(
-      _ name: String,
-      stub: (@Sendable (String) async throws -> String?)? = nil
-    ) async throws -> String? {
-      try await testingObservation.observe(name, stub: stub)
-    }
-  #endif
-
   /// Default pubkey prefix length for neighbor queries.
   public static let defaultPubkeyPrefixLength: UInt8 = 6
 
@@ -177,9 +145,6 @@ public actor RepeaterAdminService {
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
     timeout: Duration? = nil
   ) async throws -> NeighboursResponse {
-    #if DEBUG
-      _ = try await observeCallForTesting("neighbors")
-    #endif
     // Paginate over the per-page request so each round-trip keeps its audit log entry
     // and timeout ceiling; a single node response is capped to one radio frame.
     let response = try await NeighboursResponse.collectingAllPages { offset in
@@ -206,30 +171,21 @@ public actor RepeaterAdminService {
 
   /// Request status from a repeater.
   public func requestStatus(sessionID: UUID, timeout: Duration? = nil) async throws -> StatusResponse {
-    #if DEBUG
-      _ = try await observeCallForTesting("status")
-    #endif
-    return try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
+    try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
   }
 
   // MARK: - Telemetry
 
   /// Request telemetry from a repeater.
   public func requestTelemetry(sessionID: UUID, timeout: Duration? = nil) async throws -> TelemetryResponse {
-    #if DEBUG
-      _ = try await observeCallForTesting("telemetry")
-    #endif
-    return try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
+    try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
   }
 
   // MARK: - Owner Info
 
   /// Request owner info from a repeater using binary protocol.
   public func requestOwnerInfo(sessionID: UUID, timeout: Duration? = nil) async throws -> OwnerInfoResponse {
-    #if DEBUG
-      _ = try await observeCallForTesting("owner.info")
-    #endif
-    return try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, timeout: timeout)
+    try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, timeout: timeout)
   }
 
   // MARK: - CLI Commands
@@ -242,12 +198,7 @@ public actor RepeaterAdminService {
     command: String,
     timeout: Duration = .seconds(10)
   ) async throws -> String {
-    #if DEBUG
-      if let replacement = try await observeCallForTesting(command, stub: onSendCommandForTesting) {
-        return replacement
-      }
-    #endif
-    return try await remoteNodeService.sendCLICommand(
+    try await remoteNodeService.sendCLICommand(
       sessionID: sessionID,
       command: command,
       timeout: timeout
@@ -261,10 +212,7 @@ public actor RepeaterAdminService {
     command: String,
     timeout: Duration = .seconds(10)
   ) async throws -> String {
-    #if DEBUG
-      _ = try await observeCallForTesting(command)
-    #endif
-    return try await remoteNodeService.sendRawCLICommand(
+    try await remoteNodeService.sendRawCLICommand(
       sessionID: sessionID,
       command: command,
       timeout: timeout
