@@ -37,6 +37,30 @@ public actor RepeaterAdminService {
   /// Handler for CLI text responses
   public var cliResponseHandler: (@Sendable (ContactMessage, ContactDTO) async -> Void)?
 
+  #if DEBUG
+    /// Calls observed before transport. Tests set `failObservedCallsForTesting` so a send does not wait on a radio.
+    public private(set) var observedCallsForTesting: [String] = []
+    public var failObservedCallsForTesting = false
+
+    public func setFailObservedCallsForTesting(_ fail: Bool) {
+      failObservedCallsForTesting = fail
+    }
+
+    /// When this returns a string, `sendCommand` uses it and does not touch transport.
+    public var onSendCommandForTesting: (@Sendable (String) async throws -> String?)?
+
+    public func setOnSendCommandForTesting(_ hook: (@Sendable (String) async throws -> String?)?) {
+      onSendCommandForTesting = hook
+    }
+
+    private func noteObservedCallForTesting(_ name: String) throws {
+      observedCallsForTesting.append(name)
+      if failObservedCallsForTesting {
+        throw AdminTransportBlockedForTesting()
+      }
+    }
+  #endif
+
   /// Default pubkey prefix length for neighbor queries.
   public static let defaultPubkeyPrefixLength: UInt8 = 6
 
@@ -145,6 +169,9 @@ public actor RepeaterAdminService {
     pubkeyPrefixLength: UInt8 = defaultPubkeyPrefixLength,
     timeout: Duration? = nil
   ) async throws -> NeighboursResponse {
+    #if DEBUG
+      try noteObservedCallForTesting("neighbors")
+    #endif
     // Paginate over the per-page request so each round-trip keeps its audit log entry
     // and timeout ceiling; a single node response is capped to one radio frame.
     let response = try await NeighboursResponse.collectingAllPages { offset in
@@ -171,21 +198,30 @@ public actor RepeaterAdminService {
 
   /// Request status from a repeater.
   public func requestStatus(sessionID: UUID, timeout: Duration? = nil) async throws -> StatusResponse {
-    try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
+    #if DEBUG
+      try noteObservedCallForTesting("status")
+    #endif
+    return try await remoteNodeService.requestStatus(sessionID: sessionID, timeout: timeout)
   }
 
   // MARK: - Telemetry
 
   /// Request telemetry from a repeater.
   public func requestTelemetry(sessionID: UUID, timeout: Duration? = nil) async throws -> TelemetryResponse {
-    try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
+    #if DEBUG
+      try noteObservedCallForTesting("telemetry")
+    #endif
+    return try await remoteNodeService.requestTelemetry(sessionID: sessionID, timeout: timeout)
   }
 
   // MARK: - Owner Info
 
   /// Request owner info from a repeater using binary protocol.
   public func requestOwnerInfo(sessionID: UUID, timeout: Duration? = nil) async throws -> OwnerInfoResponse {
-    try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, timeout: timeout)
+    #if DEBUG
+      try noteObservedCallForTesting("owner.info")
+    #endif
+    return try await remoteNodeService.requestOwnerInfo(sessionID: sessionID, timeout: timeout)
   }
 
   // MARK: - CLI Commands
@@ -198,7 +234,16 @@ public actor RepeaterAdminService {
     command: String,
     timeout: Duration = .seconds(10)
   ) async throws -> String {
-    try await remoteNodeService.sendCLICommand(
+    #if DEBUG
+      observedCallsForTesting.append(command)
+      if let onSendCommandForTesting, let replacement = try await onSendCommandForTesting(command) {
+        return replacement
+      }
+      if failObservedCallsForTesting {
+        throw AdminTransportBlockedForTesting()
+      }
+    #endif
+    return try await remoteNodeService.sendCLICommand(
       sessionID: sessionID,
       command: command,
       timeout: timeout
@@ -212,7 +257,10 @@ public actor RepeaterAdminService {
     command: String,
     timeout: Duration = .seconds(10)
   ) async throws -> String {
-    try await remoteNodeService.sendRawCLICommand(
+    #if DEBUG
+      try noteObservedCallForTesting(command)
+    #endif
+    return try await remoteNodeService.sendRawCLICommand(
       sessionID: sessionID,
       command: command,
       timeout: timeout
@@ -338,3 +386,8 @@ public actor RepeaterAdminService {
     telemetryResponseHandler = nil
   }
 }
+
+#if DEBUG
+  /// Thrown before transport when `failObservedCallsForTesting` is set.
+  public struct AdminTransportBlockedForTesting: Error {}
+#endif

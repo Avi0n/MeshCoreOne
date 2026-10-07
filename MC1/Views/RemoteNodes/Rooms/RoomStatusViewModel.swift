@@ -36,6 +36,20 @@ final class RoomStatusViewModel {
     )
   }
 
+  /// Does not request status or telemetry. A container change is not a new visit.
+  func rebind(
+    roomAdminService: @escaping @MainActor () -> RoomAdminService?,
+    contactService: @escaping @MainActor () -> ContactService?,
+    nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?
+  ) async {
+    configure(
+      roomAdminService: roomAdminService,
+      contactService: contactService,
+      nodeSnapshotService: nodeSnapshotService
+    )
+    await registerHandlers()
+  }
+
   /// Reads the live service from the provider so a reconnect-minted instance
   /// is used at call time. Sets only the slots this view model owns; the admin
   /// service is shared with the settings/CLI view model, so clearing here would
@@ -46,7 +60,7 @@ final class RoomStatusViewModel {
     await roomAdminService.setStatusHandler { [weak self] status in
       guard let self else { return }
       guard await self.helper.matchesSession(status.publicKeyPrefix) else { return }
-      let visit = await self.statusVisit
+      guard let visit = await self.statusVisit else { return }
       guard await self.helper.allowsTelemetryWrite(visit) else { return }
       await self.handleStatusResponse(status, visit: visit)
     }
@@ -54,7 +68,7 @@ final class RoomStatusViewModel {
     await roomAdminService.setTelemetryHandler { [weak self] response in
       guard let self else { return }
       guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
-      let visit = await self.telemetryVisit
+      guard let visit = await self.telemetryVisit else { return }
       guard await self.helper.allowsTelemetryWrite(visit) else { return }
       await self.helper.handleTelemetryResponse(response, visit: visit)
     }
@@ -105,7 +119,7 @@ final class RoomStatusViewModel {
 
   private func handleStatusResponse(
     _ response: RemoteNodeStatus,
-    visit: NodeStatusViewModel.TelemetryVisitToken?
+    visit: NodeStatusViewModel.TelemetryVisitToken
   ) async {
     await helper.handleStatusResponse(
       response,

@@ -61,16 +61,11 @@ final class NodeStatusViewModel {
   /// Whether the telemetry disclosure group is expanded
   var telemetryExpanded = false
 
-  /// Captured when a telemetry load starts. A later visit does not match.
-  struct TelemetryVisitToken: Equatable {
-    fileprivate let generation: UInt
-    fileprivate let acceptsLoads: Bool
-  }
+  typealias TelemetryVisitToken = LoadVisitGate.Token
 
   /// Loads taken while the management sheet is open. Ending the visit bumps
   /// the generation so a reply from the previous visit cannot refill the next one.
-  private var telemetryVisitGeneration: UInt = 0
-  private var telemetryVisitAcceptsLoads = true
+  private var telemetryVisit = LoadVisitGate()
 
   /// Error text owned by the status counters section, scoped so a status
   /// failure surfaces only under the status section once sections load independently.
@@ -133,27 +128,19 @@ final class NodeStatusViewModel {
   }
 
   func captureTelemetryVisit() -> TelemetryVisitToken {
-    TelemetryVisitToken(generation: telemetryVisitGeneration, acceptsLoads: telemetryVisitAcceptsLoads)
+    telemetryVisit.capture()
   }
 
-  func allowsTelemetryWrite(_ visit: TelemetryVisitToken?) -> Bool {
-    if let visit {
-      return visit.acceptsLoads && visit.generation == telemetryVisitGeneration
-    }
-    return telemetryVisitAcceptsLoads
+  func allowsTelemetryWrite(_ visit: TelemetryVisitToken) -> Bool {
+    telemetryVisit.allows(visit)
   }
 
   func beginTelemetryVisit() {
-    guard !telemetryVisitAcceptsLoads else { return }
-    telemetryVisitGeneration &+= 1
-    telemetryVisitAcceptsLoads = true
+    telemetryVisit.begin()
   }
 
   func endTelemetryVisit() {
-    if telemetryVisitAcceptsLoads {
-      telemetryVisitAcceptsLoads = false
-      telemetryVisitGeneration &+= 1
-    }
+    telemetryVisit.end()
     clearDisplayedTelemetry()
   }
 
@@ -302,7 +289,7 @@ final class NodeStatusViewModel {
     receiveErrors: UInt32? = nil,
     postedCount: UInt16? = nil,
     postPushCount: UInt16? = nil,
-    visit: TelemetryVisitToken? = nil
+    visit: TelemetryVisitToken
   ) async {
     guard allowsTelemetryWrite(visit) else { return }
     guard let expectedPrefix = session?.publicKeyPrefix,
@@ -355,7 +342,7 @@ final class NodeStatusViewModel {
 
   func handleTelemetryResponse(
     _ response: TelemetryResponse,
-    visit: TelemetryVisitToken? = nil
+    visit: TelemetryVisitToken
   ) async {
     guard allowsTelemetryWrite(visit) else { return }
     guard let expectedPrefix = effectivePublicKeyPrefix,

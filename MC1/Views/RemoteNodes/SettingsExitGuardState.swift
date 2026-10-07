@@ -20,12 +20,12 @@ final class SettingsExitGuardState {
   func tapDone(
     isApplying: Bool,
     hasUncommittedSettingsEdits: Bool,
-    hasUnsavedRegionChanges: Bool
+    regions: RegionExitActions?
   ) {
     guard !isApplying else { return }
     if hasUncommittedSettingsEdits {
       showDiscardAlert = true
-    } else if hasUnsavedRegionChanges {
+    } else if regions?.hasUnsavedChanges == true {
       presentRegionAlert()
     } else {
       dismissSheet()
@@ -36,10 +36,10 @@ final class SettingsExitGuardState {
     showDiscardAlert = false
   }
 
-  func discardChanges(hasUnsavedRegionChanges: Bool, revert: () -> Void) {
+  func discardChanges(regions: RegionExitActions?, revert: () -> Void) {
     showDiscardAlert = false
     revert()
-    if hasUnsavedRegionChanges {
+    if regions?.hasUnsavedChanges == true {
       presentRegionAlert()
     } else {
       dismissSheet()
@@ -77,12 +77,12 @@ final class SettingsExitGuardState {
 
   /// True when the sheet should close because Save finished with the alert still up.
   @discardableResult
-  func finishRegionSave(errorMessage: String?, hasUnsavedRegionChanges: Bool) -> Bool {
-    if errorMessage != nil {
+  func finishRegionSave(_ regions: RegionExitActions) -> Bool {
+    if regions.errorMessage() != nil {
       regionAlertPhase = .failed
       return false
     }
-    if hasUnsavedRegionChanges {
+    if regions.unsavedChanges() {
       if regionAlertPhase == .saving {
         regionAlertPhase = .unsaved
       }

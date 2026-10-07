@@ -914,7 +914,7 @@ struct RepeaterSettingsDefaultScopeTests {
     #expect(viewModel.defaultScopeName == nil)
     #expect(viewModel.hasUnsavedRegionChanges == false)
     #expect(viewModel.helper.errorMessage == nil)
-    #expect(!viewModel.helper.isApplying)
+    #expect(!viewModel.helper.isApplying.inFlight)
   }
 
   @Test
@@ -939,7 +939,7 @@ struct RepeaterSettingsDefaultScopeTests {
     #expect(viewModel.defaultScopeLoaded)
     #expect(viewModel.hasUnsavedRegionChanges)
     #expect(viewModel.helper.errorMessage == L10n.RemoteNodes.RemoteNodes.Settings.Regions.unknownRegion)
-    #expect(!viewModel.helper.isApplying)
+    #expect(!viewModel.helper.isApplying.inFlight)
   }
 
   @Test

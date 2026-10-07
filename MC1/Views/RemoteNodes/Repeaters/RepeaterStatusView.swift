@@ -82,6 +82,17 @@ private struct RepeaterStatusWorkspace: View {
         }
         await refreshRouteContact()
       }
+      .task(id: RemoteAdminWorkspaces.RebindID(
+        servicesVersion: appState.servicesVersion,
+        generation: appState.remoteAdminWorkspaces.generation
+      )) {
+        await viewModel.rebind(
+          repeaterAdminService: { appState.services?.repeaterAdminService },
+          contactService: { appState.services?.contactService },
+          nodeSnapshotService: { appState.services?.nodeSnapshotService },
+          deviceHashSize: { appState.connectedDevice?.hashSize }
+        )
+      }
       .onChange(of: appState.contactsVersion) {
         Task { await refreshRouteContact() }
       }

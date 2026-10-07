@@ -9,10 +9,12 @@ private final class ControllableCLISend {
   private var continuations: [CheckedContinuation<String, Error>] = []
   private(set) var sendCount = 0
   private(set) var commands: [String] = []
+  private var pendingCommands: [String] = []
 
   func send(sessionID: UUID, command: String, timeout: Duration) async throws -> String {
     sendCount += 1
     commands.append(command)
+    pendingCommands.append(command)
     return try await withCheckedThrowingContinuation { continuations.append($0) }
   }
 
@@ -22,13 +24,39 @@ private final class ControllableCLISend {
 
   func completeOldest(_ value: String) {
     guard !continuations.isEmpty else { return }
+    pendingCommands.removeFirst()
     continuations.removeFirst().resume(returning: value)
+  }
+
+  func failOldest(_ error: Error) {
+    guard !continuations.isEmpty else { return }
+    pendingCommands.removeFirst()
+    continuations.removeFirst().resume(throwing: error)
+  }
+
+  func completeFirst(matching prefix: String, _ value: String) {
+    guard let index = pendingCommands.firstIndex(where: { $0.hasPrefix(prefix) }) else { return }
+    pendingCommands.remove(at: index)
+    continuations.remove(at: index).resume(returning: value)
   }
 }
 
 @Suite("Remote admin workspaces")
 @MainActor
 struct RemoteAdminWorkspaceTests {
+  private func regionActions(
+    errorMessage: String? = nil,
+    hasUnsavedChanges: Bool
+  ) -> RegionExitActions {
+    RegionExitActions(
+      hasUnsavedChanges: hasUnsavedChanges,
+      save: {},
+      errorMessage: { errorMessage },
+      unsavedChanges: { hasUnsavedChanges },
+      discard: {}
+    )
+  }
+
   private func makeSession(publicKeyByte: UInt8 = 0x42, radioID: UUID = UUID()) -> RemoteNodeSessionDTO {
     RemoteNodeSessionDTO(
       radioID: radioID,
@@ -78,9 +106,60 @@ struct RemoteAdminWorkspaceTests {
     }
     viewModel.helper.otherSettingsApplyInFlight = { [weak viewModel] in
       guard let viewModel else { return false }
-      return viewModel.isApplyingRoomAccess || viewModel.isApplyingBehavior
+      return viewModel.isApplyingRoomAccess.inFlight || viewModel.isApplyingBehavior.inFlight
     }
     viewModel.bindSettingsVisitReset()
+  }
+
+  @MainActor
+  private final class AdminSlot<Service: AnyObject> {
+    var service: Service
+
+    init(_ service: Service) {
+      self.service = service
+    }
+  }
+
+  private func makeBlockedRepeaterAdmin() async throws -> RepeaterAdminService {
+    try await makeRepeaterAdmin(blockTransport: true)
+  }
+
+  private func makeRepeaterAdmin(blockTransport: Bool) async throws -> RepeaterAdminService {
+    let session = MeshCoreSession(transport: MockTransport())
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let remote = RemoteNodeService(session: session, dataStore: store, keychainService: KeychainService())
+    let service = RepeaterAdminService(session: session, remoteNodeService: remote, dataStore: store)
+    if blockTransport {
+      await service.setFailObservedCallsForTesting(true)
+    }
+    return service
+  }
+
+  private func makeDiscoveryHarness() async throws -> DiscoveryHarness {
+    let service = try await makeRepeaterAdmin(blockTransport: false)
+    let gate = CommandGate()
+    await service.setOnSendCommandForTesting { _ in
+      try await gate.enter()
+      return nil
+    }
+    let viewModel = RepeaterStatusViewModel()
+    viewModel.configure(
+      repeaterAdminService: { service },
+      contactService: { nil },
+      nodeSnapshotService: { nil },
+      deviceHashSize: { nil }
+    )
+    viewModel.noteTelemetryVisitAppeared()
+    return DiscoveryHarness(viewModel: viewModel, session: makeSession(), gate: gate)
+  }
+
+  private func makeBlockedRoomAdmin() async throws -> RoomAdminService {
+    let session = MeshCoreSession(transport: MockTransport())
+    let store = try PersistenceStore(modelContainer: PersistenceStore.createContainer(inMemory: true))
+    let remote = RemoteNodeService(session: session, dataStore: store, keychainService: KeychainService())
+    let service = RoomAdminService(remoteNodeService: remote, dataStore: store)
+    await service.setFailObservedCallsForTesting(true)
+    return service
   }
 
   @Test
@@ -200,8 +279,10 @@ struct RemoteAdminWorkspaceTests {
     first.advertIntervalMinutes = 20
     first.helper.errorMessage = "timeout"
 
+    let generation = workspaces.generation
     workspaces.reset()
     let next = workspaces.repeaterSettings(for: session)
+    #expect(workspaces.generation == generation + 1)
     #expect(next !== first)
     #expect(next.advertIntervalMinutes == nil)
     #expect(next.helper.errorMessage == nil)
@@ -230,6 +311,99 @@ struct RemoteAdminWorkspaceTests {
     #expect(cli.isWaitingForResponse == false)
     #expect(workspaces.repeaterSettings(for: session) !== settings)
     send.completeOldest("")
+  }
+
+  @Test
+  func `room rebind sends the next command on the new service and does not read`() async throws {
+    let serviceA = try await makeBlockedRoomAdmin()
+    let serviceB = try await makeBlockedRoomAdmin()
+    let current = AdminSlot(serviceA)
+    let session = RemoteNodeSessionDTO(
+      radioID: UUID(),
+      publicKey: Data(repeating: 0x33, count: 32),
+      name: "Room",
+      role: .roomServer,
+      isConnected: true,
+      permissionLevel: .admin
+    )
+    let viewModel = RoomSettingsViewModel()
+    await viewModel.configure(roomAdminService: { current.service }, session: session)
+    try await waitUntil(timeout: .seconds(1), "clock should be sent on the first service") {
+      await serviceA.observedCallsForTesting.contains("clock")
+    }
+
+    current.service = serviceB
+    await viewModel.rebind(roomAdminService: { current.service }, session: session)
+    await Task.yield()
+
+    let callsB = await serviceB.observedCallsForTesting
+    #expect(callsB.contains("clock") == false)
+    #expect(callsB.contains("ver") == false)
+    #expect(await serviceA.observedCallsForTesting.filter { $0 == "clock" }.count == 1)
+
+    _ = try? await viewModel.helper.sendAndWait("get name")
+    #expect(await serviceB.observedCallsForTesting == ["get name"])
+    #expect(await serviceA.observedCallsForTesting.contains("get name") == false)
+
+    let send = try #require(viewModel.makeNodeCLISendClosure(session: session))
+    _ = try? await send("neighbors", .seconds(1))
+    #expect(await serviceB.observedCallsForTesting.contains("neighbors"))
+    #expect(await serviceA.observedCallsForTesting.contains("neighbors") == false)
+  }
+
+  @Test
+  func `repeater rebind does not request node info and sends on the new service`() async throws {
+    let serviceA = try await makeBlockedRepeaterAdmin()
+    let serviceB = try await makeBlockedRepeaterAdmin()
+    let current = AdminSlot(serviceA)
+    let session = makeSession()
+    let viewModel = RepeaterSettingsViewModel()
+    await viewModel.configure(repeaterAdminService: { current.service }, session: session)
+    try await waitUntil(timeout: .seconds(1), "owner info should be requested on the first service") {
+      await serviceA.observedCallsForTesting.contains("owner.info")
+    }
+    let name = viewModel.helper.name
+
+    current.service = serviceB
+    await viewModel.rebind(repeaterAdminService: { current.service }, session: session)
+    await Task.yield()
+
+    #expect(viewModel.helper.name == name)
+    #expect(await serviceB.observedCallsForTesting.isEmpty)
+    #expect(await serviceA.observedCallsForTesting.filter { $0 == "owner.info" }.count == 1)
+
+    _ = try? await viewModel.helper.sendAndWait("get radio")
+    #expect(await serviceB.observedCallsForTesting == ["get radio"])
+    #expect(await serviceA.observedCallsForTesting.contains("get radio") == false)
+  }
+
+  @Test
+  func `status rebind registers handlers and does not request`() async throws {
+    let serviceA = try await makeBlockedRepeaterAdmin()
+    let serviceB = try await makeBlockedRepeaterAdmin()
+    let current = AdminSlot(serviceA)
+    let viewModel = RepeaterStatusViewModel()
+    let provider: @MainActor () -> RepeaterAdminService? = { current.service }
+    await viewModel.rebind(
+      repeaterAdminService: provider,
+      contactService: { nil },
+      nodeSnapshotService: { nil },
+      deviceHashSize: { nil }
+    )
+    current.service = serviceB
+    await viewModel.rebind(
+      repeaterAdminService: provider,
+      contactService: { nil },
+      nodeSnapshotService: { nil },
+      deviceHashSize: { nil }
+    )
+
+    #expect(await serviceB.statusResponseHandler != nil)
+    #expect(await serviceB.neighboursResponseHandler != nil)
+    #expect(await serviceB.telemetryResponseHandler != nil)
+    #expect(await serviceB.observedCallsForTesting.isEmpty)
+    #expect(await serviceA.observedCallsForTesting.isEmpty)
+    #expect(viewModel.isDiscovering == false)
   }
 
   @Test
@@ -307,6 +481,92 @@ struct RemoteAdminWorkspaceTests {
     #expect(viewModel.neighbors.count == 1)
     #expect(viewModel.neighborsLoaded)
     viewModel.stopDiscovery()
+  }
+
+  @Test
+  func `discovery failure from a previous visit does not set the neighbors error`() async throws {
+    let harness = try await makeDiscoveryHarness()
+    harness.viewModel.startDiscovery(for: harness.session)
+    try await waitUntil(timeout: .seconds(1), "discover command should wait") {
+      await harness.gate.waitingCount == 1
+    }
+
+    harness.viewModel.noteTelemetryVisitDisappeared()
+    harness.viewModel.noteTelemetryVisitAppeared()
+    await harness.gate.failOldest(RemoteNodeError.timeout)
+    try await waitUntil(timeout: .seconds(1), "old discover command should finish") {
+      await harness.gate.waitingCount == 0
+    }
+
+    #expect(harness.viewModel.neighborsSectionError == nil)
+  }
+
+  @Test
+  func `discovery failure during the current visit sets the neighbors error`() async throws {
+    let harness = try await makeDiscoveryHarness()
+    harness.viewModel.startDiscovery(for: harness.session)
+    try await waitUntil(timeout: .seconds(1), "discover command should wait") {
+      await harness.gate.waitingCount == 1
+    }
+
+    await harness.gate.failOldest(RemoteNodeError.timeout)
+    try await waitUntil(timeout: .seconds(1), "neighbors error should be set") {
+      harness.viewModel.neighborsSectionError != nil
+    }
+
+    #expect(harness.viewModel.neighborsSectionError == RemoteNodeError.timeout.userFacingMessage)
+    #expect(harness.viewModel.isDiscovering == false)
+    #expect(harness.viewModel.discoverySecondsRemaining == 0)
+  }
+
+  @Test
+  func `a replaced discovery keeps its task and countdown when the old command fails`() async throws {
+    let harness = try await makeDiscoveryHarness()
+    harness.viewModel.startDiscovery(for: harness.session)
+    try await waitUntil(timeout: .seconds(1), "discover command should wait") {
+      await harness.gate.waitingCount == 1
+    }
+
+    harness.viewModel.stopDiscovery()
+    harness.viewModel.startDiscovery(for: harness.session)
+    try await waitUntil(timeout: .seconds(1), "replacement discover command should wait") {
+      await harness.gate.waitingCount == 2
+    }
+    let countdown = harness.viewModel.discoverySecondsRemaining
+
+    await harness.gate.failOldest(RemoteNodeError.timeout)
+    try await waitUntil(timeout: .seconds(1), "old discover command should finish") {
+      await harness.gate.waitingCount == 1
+    }
+    await Task.yield()
+
+    #expect(harness.viewModel.isDiscovering)
+    #expect(harness.viewModel.discoverySecondsRemaining == countdown)
+    #expect(harness.viewModel.neighborsSectionError == nil)
+    harness.viewModel.stopDiscovery()
+    await harness.gate.failOldest(RemoteNodeError.timeout)
+  }
+
+  @Test
+  func `discovery completion clears the current task`() async throws {
+    let service = try await makeRepeaterAdmin(blockTransport: false)
+    await service.setOnSendCommandForTesting { _ in "" }
+    let viewModel = RepeaterStatusViewModel()
+    viewModel.configure(
+      repeaterAdminService: { service },
+      contactService: { nil },
+      nodeSnapshotService: { nil },
+      deviceHashSize: { nil }
+    )
+    viewModel.discoveryDurationForTesting = 0
+    viewModel.noteTelemetryVisitAppeared()
+    viewModel.startDiscovery(for: makeSession())
+
+    try await waitUntil(timeout: .seconds(1), "discovery should finish") {
+      viewModel.isDiscovering == false
+    }
+    #expect(viewModel.discoverySecondsRemaining == 0)
+    #expect(viewModel.neighborsSectionError == nil)
   }
 
   @Test
@@ -925,9 +1185,9 @@ struct RemoteAdminWorkspaceTests {
     let send = ControllableCLISend()
     let viewModel = RoomSettingsViewModel()
     bindRoomSettings(viewModel, send: send)
-    viewModel.helper.otherSettingsApplyInFlight = { viewModel.isApplyingBehavior }
+    viewModel.helper.otherSettingsApplyInFlight = { viewModel.isApplyingBehavior.inFlight }
     viewModel.helper.newPassword = "secret"
-    viewModel.isApplyingBehavior = true
+    let behaviorLease = viewModel.isApplyingBehavior.begin()
     viewModel.helper.noteSettingsDisappeared()
     #expect(viewModel.helper.newPassword == "secret")
 
@@ -941,9 +1201,275 @@ struct RemoteAdminWorkspaceTests {
     await apply.value
     #expect(viewModel.helper.newPassword == "secret")
 
-    viewModel.isApplyingBehavior = false
+    viewModel.isApplyingBehavior.clearIfCurrent(behaviorLease)
     viewModel.helper.revertAbandonedDraftIfIdle()
     #expect(viewModel.helper.newPassword.isEmpty)
+  }
+
+  @Test
+  func `identity flash overlapped with radio keeps the radio draft`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RepeaterSettingsViewModel()
+    bindSettings(viewModel, send: send)
+    viewModel.helper.setNodeInfo(firmwareVersion: "1.2", name: "Alpha", ownerInfo: nil)
+    viewModel.helper.name = "Beta"
+    viewModel.helper.adoptRadioValues(frequency: 910, bandwidth: 250, spreadingFactor: 10, codingRate: 5)
+    viewModel.helper.frequency = 915
+
+    let identity = Task { await viewModel.helper.applyIdentitySettings() }
+    try await waitUntil(timeout: .seconds(1), "set name should start") {
+      send.pendingCount() >= 1
+    }
+    send.completeOldest("OK")
+    try await waitUntil(timeout: .seconds(1), "identity flash should clear the flag") {
+      viewModel.helper.isApplying.inFlight == false
+    }
+
+    let radio = Task { await viewModel.helper.applyRadioSettings() }
+    try await waitUntil(timeout: .seconds(1), "set radio should wait") {
+      send.commands.contains { $0.hasPrefix("set radio 915") }
+    }
+    await identity.value
+
+    #expect(viewModel.helper.isApplying.inFlight)
+    #expect(viewModel.helper.frequency == 915)
+    viewModel.helper.noteSettingsDisappeared()
+    #expect(viewModel.helper.frequency == 915)
+
+    send.completeOldest("OK - reboot to apply")
+    await radio.value
+    #expect(viewModel.helper.frequency == nil)
+    #expect(viewModel.helper.originalFrequency == nil)
+  }
+
+  @Test
+  func `second identity apply during the first flash keeps name ownership`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RepeaterSettingsViewModel()
+    bindSettings(viewModel, send: send)
+    viewModel.seedUnloadedName("Tower")
+    viewModel.helper.name = "Beta"
+
+    let fetch = Task { await viewModel.helper.fetchIdentity() }
+    try await waitUntil(timeout: .seconds(1), "get name should start") {
+      send.commands.contains("get name")
+    }
+    let first = Task { await viewModel.helper.applyIdentitySettings() }
+    try await waitUntil(timeout: .seconds(1), "first set name should start") {
+      send.commands.contains("set name Beta")
+    }
+    send.completeFirst(matching: "set name", "OK")
+    try await waitUntil(timeout: .seconds(1), "identity flash should clear the flag") {
+      viewModel.helper.isApplying.inFlight == false
+    }
+
+    viewModel.helper.name = "Gamma"
+    let second = Task { await viewModel.helper.applyIdentitySettings() }
+    try await waitUntil(timeout: .seconds(1), "second set name should start") {
+      send.commands.contains("set name Gamma")
+    }
+    await first.value
+
+    #expect(viewModel.helper.isApplying.inFlight)
+    send.completeFirst(matching: "get name", "Alpha")
+    for query in ["get lat", "get lon"] {
+      try await waitUntil(timeout: .seconds(1), "\(query) should wait") {
+        send.commands.contains(query)
+      }
+      send.completeFirst(matching: query, "> 0")
+    }
+    await fetch.value
+    viewModel.helper.setNodeInfo(firmwareVersion: "1.9", name: "Delta", ownerInfo: nil)
+
+    #expect(viewModel.helper.name == "Gamma")
+    send.completeFirst(matching: "set name", "OK")
+    await second.value
+    #expect(viewModel.helper.name == "Gamma")
+    #expect(viewModel.helper.originalName == "Gamma")
+    #expect(viewModel.helper.isApplying.inFlight == false)
+  }
+
+  @Test
+  func `second room behavior apply keeps the flag until it ends`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RoomSettingsViewModel()
+    bindRoomSettings(viewModel, send: send)
+    viewModel.advertIntervalMinutes = 60
+
+    let first = Task { await viewModel.applyBehaviorSettings() }
+    try await waitUntil(timeout: .seconds(1), "first behavior set should start") {
+      send.commands.contains("set advert.interval 60")
+    }
+    send.completeOldest("OK")
+    try await waitUntil(timeout: .seconds(1), "behavior flash should clear the flag") {
+      viewModel.isApplyingBehavior.inFlight == false
+    }
+
+    viewModel.advertIntervalMinutes = 120
+    let second = Task { await viewModel.applyBehaviorSettings() }
+    try await waitUntil(timeout: .seconds(1), "second behavior set should start") {
+      send.commands.contains("set advert.interval 120")
+    }
+    await first.value
+
+    #expect(viewModel.isApplyingBehavior.inFlight)
+    send.completeOldest("OK")
+    await second.value
+    #expect(viewModel.isApplyingBehavior.inFlight == false)
+  }
+
+  @Test
+  func `visit gate begin and end`() {
+    var gate = LoadVisitGate()
+    let open = gate.capture()
+    #expect(gate.allows(open))
+
+    gate.end()
+    #expect(!gate.allows(open))
+    let closed = gate.capture()
+    #expect(!gate.allows(closed))
+    gate.end()
+    #expect(gate.capture() == closed)
+
+    gate.begin()
+    #expect(!gate.allows(closed))
+    let reopened = gate.capture()
+    #expect(gate.allows(reopened))
+    gate.begin()
+    #expect(gate.allows(reopened))
+  }
+
+  @Test
+  func `timed out get lat sets the section error and a current get lat applies`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RepeaterSettingsViewModel()
+    bindSettings(viewModel, send: send)
+    viewModel.helper.setNodeInfo(firmwareVersion: "1.2", name: "Alpha", ownerInfo: nil)
+
+    let timedOut = Task { await viewModel.helper.fetchIdentity() }
+    try await waitUntil(timeout: .seconds(1), "get lat should start") {
+      send.commands.contains("get lat")
+    }
+    send.failOldest(RemoteNodeError.timeout)
+    try await waitUntil(timeout: .seconds(1), "get lon should start") {
+      send.commands.contains("get lon")
+    }
+    send.completeOldest("10")
+    await timedOut.value
+    #expect(viewModel.helper.latitude == nil)
+    #expect(viewModel.helper.identityError)
+
+    let applied = Task { await viewModel.helper.fetchIdentity() }
+    try await waitUntil(timeout: .seconds(1), "second get lat should start") {
+      send.commands.filter { $0 == "get lat" }.count == 2
+    }
+    send.completeOldest("45")
+    try await waitUntil(timeout: .seconds(1), "second get lon should start") {
+      send.pendingCount() >= 1
+    }
+    send.completeOldest("11")
+    await applied.value
+    #expect(viewModel.helper.latitude == 45)
+    #expect(viewModel.helper.identityError == false)
+  }
+
+  @Test
+  func `repeater behavior fetch sends repeat and the shared gets once`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RepeaterSettingsViewModel()
+    bindSettings(viewModel, send: send)
+
+    let fetch = Task { await viewModel.fetchBehaviorSettings() }
+    for query in ["get repeat", "get advert.interval", "get flood.advert.interval", "get flood.max"] {
+      try await waitUntil(timeout: .seconds(1), "\(query) should start") {
+        send.commands.contains(query)
+      }
+      send.completeOldest(query == "get repeat" ? "on" : "60")
+    }
+    await fetch.value
+
+    #expect(send.commands == [
+      "get repeat", "get advert.interval", "get flood.advert.interval", "get flood.max"
+    ])
+    #expect(viewModel.repeaterEnabled == true)
+    #expect(viewModel.advertIntervalMinutes == 60)
+  }
+
+  @Test
+  func `room behavior fetch does not send get repeat`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RoomSettingsViewModel()
+    bindRoomSettings(viewModel, send: send)
+
+    let fetch = Task { await viewModel.fetchBehaviorSettings() }
+    for query in ["get advert.interval", "get flood.advert.interval", "get flood.max"] {
+      try await waitUntil(timeout: .seconds(1), "\(query) should start") {
+        send.commands.contains(query)
+      }
+      send.completeOldest("60")
+    }
+    await fetch.value
+
+    #expect(send.commands == ["get advert.interval", "get flood.advert.interval", "get flood.max"])
+    #expect(viewModel.advertIntervalMinutes == 60)
+  }
+
+  @Test
+  func `late shared behavior reply after the visit ends does not write`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RoomSettingsViewModel()
+    bindRoomSettings(viewModel, send: send)
+
+    let fetch = Task { await viewModel.fetchBehaviorSettings() }
+    try await waitUntil(timeout: .seconds(1), "get advert.interval should start") {
+      send.commands.contains("get advert.interval")
+    }
+    viewModel.helper.noteSettingsDisappeared()
+    for _ in 0..<3 {
+      try await waitUntil(timeout: .seconds(1), "behavior get should wait") {
+        send.pendingCount() >= 1
+      }
+      send.completeOldest("60")
+    }
+    await fetch.value
+    #expect(viewModel.advertIntervalMinutes == nil)
+    #expect(viewModel.floodAdvertIntervalHours == nil)
+    #expect(viewModel.floodMaxHops == nil)
+  }
+
+  @Test
+  func `repeater behavior apply sends set repeat only when it changed`() async throws {
+    let send = ControllableCLISend()
+    let viewModel = RepeaterSettingsViewModel()
+    bindSettings(viewModel, send: send)
+
+    let fetch = Task { await viewModel.fetchBehaviorSettings() }
+    for query in ["get repeat", "get advert.interval", "get flood.advert.interval", "get flood.max"] {
+      try await waitUntil(timeout: .seconds(1), "\(query) should start") {
+        send.commands.contains(query)
+      }
+      send.completeOldest(query == "get repeat" ? "on" : "60")
+    }
+    await fetch.value
+
+    viewModel.repeaterEnabled = false
+    viewModel.floodMaxHops = 4
+    let apply = Task { await viewModel.applyBehaviorSettings() }
+    try await waitUntil(timeout: .seconds(1), "set repeat should start") {
+      send.commands.contains("set repeat off")
+    }
+    #expect(viewModel.helper.isApplying.inFlight)
+    #expect(send.commands.contains { $0.hasPrefix("set advert.interval") } == false)
+    send.completeOldest("OK")
+    try await waitUntil(timeout: .seconds(1), "set flood.max should start") {
+      send.commands.contains("set flood.max 4")
+    }
+    #expect(viewModel.helper.isApplying.inFlight)
+    send.completeOldest("OK")
+    await apply.value
+
+    #expect(send.commands.contains { $0.hasPrefix("set flood.advert.interval") } == false)
+    #expect(viewModel.helper.isApplying.inFlight == false)
   }
 
   @Test
@@ -1213,7 +1739,7 @@ struct RemoteAdminWorkspaceTests {
     state.tapCancelRegion()
     #expect(state.showRegionAlert)
     #expect(state.didDismissSheet == false)
-    let dismissed = state.finishRegionSave(errorMessage: nil, hasUnsavedRegionChanges: false)
+    let dismissed = state.finishRegionSave(regionActions(hasUnsavedChanges: false))
     #expect(dismissed)
     #expect(state.didDismissSheet)
   }
@@ -1238,7 +1764,7 @@ struct RemoteAdminWorkspaceTests {
     state.presentRegionAlert()
     state.beginRegionSave()
     state.noteRegionsPersisted()
-    let dismissed = state.finishRegionSave(errorMessage: nil, hasUnsavedRegionChanges: false)
+    let dismissed = state.finishRegionSave(regionActions(hasUnsavedChanges: false))
     #expect(dismissed)
     #expect(state.showRegionAlert == false)
     #expect(state.didDismissSheet)
@@ -1249,7 +1775,7 @@ struct RemoteAdminWorkspaceTests {
     let state = SettingsExitGuardState()
     state.presentRegionAlert()
     state.beginRegionSave()
-    let dismissed = state.finishRegionSave(errorMessage: "failed", hasUnsavedRegionChanges: true)
+    let dismissed = state.finishRegionSave(regionActions(errorMessage: "failed", hasUnsavedChanges: true))
     #expect(dismissed == false)
     #expect(state.regionAlertPhase == .failed)
     #expect(state.showRegionAlert)
@@ -1262,7 +1788,7 @@ struct RemoteAdminWorkspaceTests {
     state.presentRegionAlert()
     state.beginRegionSave()
     state.noteRegionsPersisted()
-    let dismissed = state.finishRegionSave(errorMessage: "failed", hasUnsavedRegionChanges: false)
+    let dismissed = state.finishRegionSave(regionActions(errorMessage: "failed", hasUnsavedChanges: false))
     #expect(dismissed == false)
     #expect(state.regionAlertPhase == .failed)
     #expect(state.showRegionAlert)
@@ -1274,7 +1800,7 @@ struct RemoteAdminWorkspaceTests {
     let state = SettingsExitGuardState()
     state.presentRegionAlert()
     state.beginRegionSave()
-    let dismissed = state.finishRegionSave(errorMessage: nil, hasUnsavedRegionChanges: false)
+    let dismissed = state.finishRegionSave(regionActions(hasUnsavedChanges: false))
     #expect(dismissed)
     #expect(state.regionAlertPhase == .succeeded)
     #expect(state.showRegionAlert == false)
@@ -1286,7 +1812,7 @@ struct RemoteAdminWorkspaceTests {
     let state = SettingsExitGuardState()
     state.presentRegionAlert()
     state.beginRegionSave()
-    let dismissed = state.finishRegionSave(errorMessage: nil, hasUnsavedRegionChanges: true)
+    let dismissed = state.finishRegionSave(regionActions(hasUnsavedChanges: true))
     #expect(dismissed == false)
     #expect(state.regionAlertPhase == .unsaved)
     #expect(state.showRegionAlert)
@@ -1298,7 +1824,7 @@ struct RemoteAdminWorkspaceTests {
     let state = SettingsExitGuardState()
     state.presentRegionAlert()
     state.beginRegionSave()
-    _ = state.finishRegionSave(errorMessage: "failed", hasUnsavedRegionChanges: true)
+    _ = state.finishRegionSave(regionActions(errorMessage: "failed", hasUnsavedChanges: true))
     state.tapDontSave()
     #expect(state.didDismissSheet)
     #expect(state.showRegionAlert == false)
@@ -1404,6 +1930,97 @@ struct RemoteAdminWorkspaceTests {
   }
 
   @Test
+  func `tapDone while applying does not alert or dismiss`() {
+    let state = SettingsExitGuardState()
+    state.tapDone(
+      isApplying: true,
+      hasUncommittedSettingsEdits: true,
+      regions: regionActions(hasUnsavedChanges: true)
+    )
+    #expect(state.showDiscardAlert == false)
+    #expect(state.showRegionAlert == false)
+    #expect(state.didDismissSheet == false)
+  }
+
+  @Test
+  func `dirty fields show the discard alert and do not dismiss`() {
+    let state = SettingsExitGuardState()
+    state.tapDone(
+      isApplying: false,
+      hasUncommittedSettingsEdits: true,
+      regions: regionActions(hasUnsavedChanges: false)
+    )
+    #expect(state.showDiscardAlert)
+    #expect(state.showRegionAlert == false)
+    #expect(state.didDismissSheet == false)
+  }
+
+  @Test
+  func `unsaved regions and no dirty fields show the region alert`() {
+    let state = SettingsExitGuardState()
+    state.tapDone(
+      isApplying: false,
+      hasUncommittedSettingsEdits: false,
+      regions: regionActions(hasUnsavedChanges: true)
+    )
+    #expect(state.showDiscardAlert == false)
+    #expect(state.showRegionAlert)
+    #expect(state.didDismissSheet == false)
+  }
+
+  @Test
+  func `a clean sheet dismisses`() {
+    let state = SettingsExitGuardState()
+    state.tapDone(
+      isApplying: false,
+      hasUncommittedSettingsEdits: false,
+      regions: regionActions(hasUnsavedChanges: false)
+    )
+    #expect(state.showDiscardAlert == false)
+    #expect(state.showRegionAlert == false)
+    #expect(state.didDismissSheet)
+  }
+
+  @Test
+  func `discardChanges reverts then shows the region alert when regions are unsaved`() {
+    let state = SettingsExitGuardState()
+    var reverted = false
+    state.discardChanges(regions: regionActions(hasUnsavedChanges: true)) {
+      reverted = true
+    }
+    #expect(reverted)
+    #expect(state.showRegionAlert)
+    #expect(state.didDismissSheet == false)
+  }
+
+  @Test
+  func `discardChanges reverts and dismisses when regions are saved`() {
+    let state = SettingsExitGuardState()
+    var reverted = false
+    state.discardChanges(regions: regionActions(hasUnsavedChanges: false)) {
+      reverted = true
+    }
+    #expect(reverted)
+    #expect(state.showRegionAlert == false)
+    #expect(state.didDismissSheet)
+  }
+
+  @Test
+  func `nil region actions do not present the region alert`() {
+    let state = SettingsExitGuardState()
+    state.tapDone(isApplying: false, hasUncommittedSettingsEdits: false, regions: nil)
+    #expect(state.showRegionAlert == false)
+    #expect(state.didDismissSheet)
+
+    _ = state.consumeDismiss()
+    state.tapDone(isApplying: false, hasUncommittedSettingsEdits: true, regions: nil)
+    #expect(state.showDiscardAlert)
+    state.discardChanges(regions: nil, revert: {})
+    #expect(state.showRegionAlert == false)
+    #expect(state.didDismissSheet)
+  }
+
+  @Test
   func `region alert dont save clears the flag and does not send region save`() {
     let send = ControllableCLISend()
     let viewModel = RepeaterSettingsViewModel()
@@ -1454,5 +2071,28 @@ struct RemoteAdminWorkspaceTests {
     settings.helper.noteSettingsDisappeared()
     #expect(workspaces.nodeCLI(for: session) === cli)
     #expect(cli.currentInput == "get radio")
+  }
+}
+
+private struct DiscoveryHarness {
+  let viewModel: RepeaterStatusViewModel
+  let session: RemoteNodeSessionDTO
+  let gate: CommandGate
+}
+
+private actor CommandGate {
+  private var continuations: [CheckedContinuation<Void, Error>] = []
+
+  var waitingCount: Int {
+    continuations.count
+  }
+
+  func enter() async throws {
+    try await withCheckedThrowingContinuation { continuations.append($0) }
+  }
+
+  func failOldest(_ error: RemoteNodeError) {
+    guard !continuations.isEmpty else { return }
+    continuations.removeFirst().resume(throwing: error)
   }
 }

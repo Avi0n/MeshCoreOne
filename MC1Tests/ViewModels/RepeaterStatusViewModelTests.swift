@@ -88,7 +88,8 @@ struct RepeaterStatusViewModelTests {
     await viewModel.helper.handleStatusResponse(
       status,
       rxAirtimeSeconds: status.repeaterRxAirtimeSeconds,
-      receiveErrors: status.receiveErrors
+      receiveErrors: status.receiveErrors,
+      visit: viewModel.helper.captureTelemetryVisit()
     )
     let snapshots1 = await viewModel.helper.fetchHistory()
     #expect(snapshots1.count == 1, "First visit should save a snapshot")
@@ -97,13 +98,14 @@ struct RepeaterStatusViewModelTests {
     await viewModel.helper.handleStatusResponse(
       status,
       rxAirtimeSeconds: status.repeaterRxAirtimeSeconds,
-      receiveErrors: status.receiveErrors
+      receiveErrors: status.receiveErrors,
+      visit: viewModel.helper.captureTelemetryVisit()
     )
     let snapshots2 = await viewModel.helper.fetchHistory()
     #expect(snapshots2.count == 1, "Throttled save should not create a new snapshot")
 
     // User expands neighbors section — enrichment data arrives
-    await viewModel.handleNeighboursResponse(createNeighboursResponse())
+    await viewModel.handleNeighboursResponse(createNeighboursResponse(), visit: viewModel.helper.captureTelemetryVisit())
 
     let snapshots = await viewModel.helper.fetchHistory()
     #expect(snapshots.first?.neighborSnapshots?.isEmpty == false,
@@ -128,7 +130,8 @@ struct RepeaterStatusViewModelTests {
     await viewModel.helper.handleStatusResponse(
       status,
       rxAirtimeSeconds: status.repeaterRxAirtimeSeconds,
-      receiveErrors: status.receiveErrors
+      receiveErrors: status.receiveErrors,
+      visit: viewModel.helper.captureTelemetryVisit()
     )
 
     #expect(viewModel.helper.statusLoaded == true, "Status should load after a response is applied")
@@ -150,7 +153,7 @@ struct RepeaterStatusViewModelTests {
     #expect(before.isEmpty, "No snapshot should exist before any response")
 
     // Telemetry expanded without status: handler must persist immediately.
-    await viewModel.helper.handleTelemetryResponse(createTelemetryResponse())
+    await viewModel.helper.handleTelemetryResponse(createTelemetryResponse(), visit: viewModel.helper.captureTelemetryVisit())
 
     let snapshots = await viewModel.helper.fetchHistory()
     let persisted = snapshots.first
@@ -174,7 +177,7 @@ struct RepeaterStatusViewModelTests {
 
     // Neighbors expanded before status: enrichment must still persist
     // rather than being stranded in a buffer waiting for a status response.
-    await viewModel.handleNeighboursResponse(createNeighboursResponse())
+    await viewModel.handleNeighboursResponse(createNeighboursResponse(), visit: viewModel.helper.captureTelemetryVisit())
 
     let snapshots = await viewModel.helper.fetchHistory()
     let persisted = snapshots.first
@@ -194,7 +197,7 @@ struct RepeaterStatusViewModelTests {
 
     // Telemetry expanded before status: a telemetry-only snapshot is created
     // (no status fields yet) and becomes the current enrichment target.
-    await viewModel.helper.handleTelemetryResponse(createTelemetryResponse())
+    await viewModel.helper.handleTelemetryResponse(createTelemetryResponse(), visit: viewModel.helper.captureTelemetryVisit())
 
     let telemetryOnly = await viewModel.helper.fetchHistory().first
     #expect(telemetryOnly != nil, "Telemetry-first should persist a telemetry-only snapshot")
@@ -206,7 +209,8 @@ struct RepeaterStatusViewModelTests {
     await viewModel.helper.handleStatusResponse(
       status,
       rxAirtimeSeconds: status.repeaterRxAirtimeSeconds,
-      receiveErrors: status.receiveErrors
+      receiveErrors: status.receiveErrors,
+      visit: viewModel.helper.captureTelemetryVisit()
     )
 
     let snapshots = await viewModel.helper.fetchHistory()
@@ -258,7 +262,7 @@ struct RepeaterStatusViewModelTests {
     #expect(viewModel.neighborKeyDisplayByteCount == NeighborNameResolver.minimumKeyDisplayByteCount,
             "Width should start at the floor before any neighbours response")
 
-    await viewModel.handleNeighboursResponse(createNeighboursResponse())
+    await viewModel.handleNeighboursResponse(createNeighboursResponse(), visit: viewModel.helper.captureTelemetryVisit())
 
     #expect(viewModel.neighborKeyDisplayByteCount == 3, "Width should be captured from the device hash size at fetch")
   }
@@ -274,7 +278,7 @@ struct RepeaterStatusViewModelTests {
       deviceHashSize: { device.value }
     )
 
-    await viewModel.handleNeighboursResponse(createNeighboursResponse())
+    await viewModel.handleNeighboursResponse(createNeighboursResponse(), visit: viewModel.helper.captureTelemetryVisit())
     device.value = nil
 
     #expect(viewModel.neighborKeyDisplayByteCount == 3,

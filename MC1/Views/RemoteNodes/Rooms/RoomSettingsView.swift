@@ -67,16 +67,11 @@ private struct RoomSettingsWorkspace: View {
     }
     .settingsExitGuard(
       hasUncommittedSettingsEdits: viewModel.hasUncommittedSettingsEdits,
-      hasUnsavedRegionChanges: false,
-      isApplying: viewModel.helper.isApplying
-        || viewModel.isApplyingRoomAccess
-        || viewModel.isApplyingBehavior,
+      isApplying: viewModel.helper.isApplying.inFlight
+        || viewModel.isApplyingRoomAccess.inFlight
+        || viewModel.isApplyingBehavior.inFlight,
       errorMessage: viewModel.helper.errorMessage,
-      revertUncommittedSettingsEdits: { viewModel.revertUncommittedSettingsEdits() },
-      saveRegions: nil,
-      regionSaveErrorMessage: { nil },
-      regionSaveHasUnsavedChanges: { false },
-      discardUnsavedRegionChanges: {}
+      revertUncommittedSettingsEdits: { viewModel.revertUncommittedSettingsEdits() }
     )
     .task {
       await viewModel.configure(
@@ -86,6 +81,24 @@ private struct RoomSettingsWorkspace: View {
       if let send = viewModel.makeNodeCLISendClosure(session: session) {
         cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
       }
+    }
+    .task(id: RemoteAdminWorkspaces.RebindID(
+      servicesVersion: appState.servicesVersion,
+      generation: appState.remoteAdminWorkspaces.generation
+    )) {
+      await viewModel.rebind(
+        roomAdminService: { appState.services?.roomAdminService },
+        session: session
+      )
+      if let send = viewModel.makeNodeCLISendClosure(session: session) {
+        cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
+      }
+      guard telemetryConfigured else { return }
+      await statusViewModel.rebind(
+        roomAdminService: { appState.services?.roomAdminService },
+        contactService: { appState.services?.contactService },
+        nodeSnapshotService: { appState.services?.nodeSnapshotService }
+      )
     }
     .onChange(of: managementTab) { _, newTab in
       guard newTab == .telemetry, !telemetryConfigured else { return }
@@ -220,13 +233,13 @@ private struct RoomAccessSection: View {
       Button {
         Task { await viewModel.applyRoomAccess() }
       } label: {
-        AsyncActionLabel(isLoading: viewModel.isApplyingRoomAccess, showSuccess: viewModel.roomAccessApplySuccess) {
+        AsyncActionLabel(isLoading: viewModel.isApplyingRoomAccess.inFlight, showSuccess: viewModel.roomAccessApplySuccess) {
           Text(L10n.RemoteNodes.RemoteNodes.RoomSettings.applyRoomSettings)
             .foregroundStyle(viewModel.roomAccessModified ? Color.accentColor : .secondary)
             .transition(.opacity)
         }
       }
-      .disabled(viewModel.isApplyingRoomAccess || viewModel.roomAccessApplySuccess || !viewModel.roomAccessModified)
+      .disabled(viewModel.isApplyingRoomAccess.inFlight || viewModel.roomAccessApplySuccess || !viewModel.roomAccessModified)
     }
   }
 }
@@ -326,13 +339,13 @@ private struct RoomBehaviorSection: View {
       Button {
         Task { await viewModel.applyBehaviorSettings() }
       } label: {
-        AsyncActionLabel(isLoading: viewModel.isApplyingBehavior, showSuccess: viewModel.behaviorApplySuccess) {
+        AsyncActionLabel(isLoading: viewModel.isApplyingBehavior.inFlight, showSuccess: viewModel.behaviorApplySuccess) {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.applyBehaviorSettings)
             .foregroundStyle(viewModel.behaviorModified ? Color.accentColor : .secondary)
             .transition(.opacity)
         }
       }
-      .disabled(viewModel.isApplyingBehavior || viewModel.behaviorApplySuccess || !viewModel.behaviorModified)
+      .disabled(viewModel.isApplyingBehavior.inFlight || viewModel.behaviorApplySuccess || !viewModel.behaviorModified)
     }
   }
 }

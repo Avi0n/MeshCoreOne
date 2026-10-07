@@ -67,6 +67,16 @@ private struct RoomStatusWorkspace: View {
           await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
       }
+      .task(id: RemoteAdminWorkspaces.RebindID(
+        servicesVersion: appState.servicesVersion,
+        generation: appState.remoteAdminWorkspaces.generation
+      )) {
+        await viewModel.rebind(
+          roomAdminService: { appState.services?.roomAdminService },
+          contactService: { appState.services?.contactService },
+          nodeSnapshotService: { appState.services?.nodeSnapshotService }
+        )
+      }
     }
     .presentationDetents([.large])
   }

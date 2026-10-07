@@ -5,15 +5,14 @@ struct SettingsExitGuard: ViewModifier {
   @State private var exitState = SettingsExitGuardState()
 
   var hasUncommittedSettingsEdits: Bool
-  var hasUnsavedRegionChanges: Bool
   var isApplying: Bool
   var errorMessage: String?
   var revertUncommittedSettingsEdits: () -> Void
-  var saveRegions: (() async -> Void)?
-  /// Live post-save reads; stored `errorMessage` / `hasUnsavedRegionChanges` can be stale.
-  var regionSaveErrorMessage: () -> String?
-  var regionSaveHasUnsavedChanges: () -> Bool
-  var discardUnsavedRegionChanges: () -> Void
+  var regions: RegionExitActions?
+
+  private var hasUnsavedRegionChanges: Bool {
+    regions?.hasUnsavedChanges ?? false
+  }
 
   private var regionActionsDisabled: Bool {
     exitState.regionAlertPhase == .saving || exitState.regionAlertPhase == .succeeded
@@ -30,7 +29,7 @@ struct SettingsExitGuard: ViewModifier {
             exitState.tapDone(
               isApplying: isApplying,
               hasUncommittedSettingsEdits: hasUncommittedSettingsEdits,
-              hasUnsavedRegionChanges: hasUnsavedRegionChanges
+              regions: regions
             )
             consumeDismissIfNeeded()
           }
@@ -44,7 +43,7 @@ struct SettingsExitGuard: ViewModifier {
       ) {
         Button(L10n.RemoteNodes.RemoteNodes.Settings.discardChanges, role: .destructive) {
           exitState.discardChanges(
-            hasUnsavedRegionChanges: hasUnsavedRegionChanges,
+            regions: regions,
             revert: revertUncommittedSettingsEdits
           )
           consumeDismissIfNeeded()
@@ -64,7 +63,7 @@ struct SettingsExitGuard: ViewModifier {
         }
         .disabled(regionActionsDisabled)
         Button(L10n.RemoteNodes.RemoteNodes.Settings.dontSave) {
-          exitState.tapDontSave(discardUnsavedRegions: discardUnsavedRegionChanges)
+          exitState.tapDontSave(discardUnsavedRegions: { regions?.discard() })
           consumeDismissIfNeeded()
         }
         .disabled(regionActionsDisabled)
@@ -113,12 +112,9 @@ struct SettingsExitGuard: ViewModifier {
   }
 
   private func runRegionSave() async {
-    guard let saveRegions else { return }
-    await saveRegions()
-    exitState.finishRegionSave(
-      errorMessage: regionSaveErrorMessage(),
-      hasUnsavedRegionChanges: regionSaveHasUnsavedChanges()
-    )
+    guard let regions else { return }
+    await regions.save()
+    exitState.finishRegionSave(regions)
     consumeDismissIfNeeded()
   }
 
@@ -132,26 +128,18 @@ struct SettingsExitGuard: ViewModifier {
 extension View {
   func settingsExitGuard(
     hasUncommittedSettingsEdits: Bool,
-    hasUnsavedRegionChanges: Bool,
     isApplying: Bool,
     errorMessage: String?,
     revertUncommittedSettingsEdits: @escaping () -> Void,
-    saveRegions: (() async -> Void)?,
-    regionSaveErrorMessage: @escaping () -> String?,
-    regionSaveHasUnsavedChanges: @escaping () -> Bool,
-    discardUnsavedRegionChanges: @escaping () -> Void
+    regions: RegionExitActions? = nil
   ) -> some View {
     modifier(
       SettingsExitGuard(
         hasUncommittedSettingsEdits: hasUncommittedSettingsEdits,
-        hasUnsavedRegionChanges: hasUnsavedRegionChanges,
         isApplying: isApplying,
         errorMessage: errorMessage,
         revertUncommittedSettingsEdits: revertUncommittedSettingsEdits,
-        saveRegions: saveRegions,
-        regionSaveErrorMessage: regionSaveErrorMessage,
-        regionSaveHasUnsavedChanges: regionSaveHasUnsavedChanges,
-        discardUnsavedRegionChanges: discardUnsavedRegionChanges
+        regions: regions
       )
     )
   }

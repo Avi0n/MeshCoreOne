@@ -80,14 +80,16 @@ private struct RepeaterSettingsWorkspace: View {
     }
     .settingsExitGuard(
       hasUncommittedSettingsEdits: viewModel.hasUncommittedSettingsEdits,
-      hasUnsavedRegionChanges: viewModel.hasUnsavedRegionChanges,
-      isApplying: viewModel.helper.isApplying,
+      isApplying: viewModel.helper.isApplying.inFlight,
       errorMessage: viewModel.helper.errorMessage,
       revertUncommittedSettingsEdits: { viewModel.revertUncommittedSettingsEdits() },
-      saveRegions: { await viewModel.saveRegions() },
-      regionSaveErrorMessage: { viewModel.helper.errorMessage },
-      regionSaveHasUnsavedChanges: { viewModel.hasUnsavedRegionChanges },
-      discardUnsavedRegionChanges: { viewModel.hasUnsavedRegionChanges = false }
+      regions: RegionExitActions(
+        hasUnsavedChanges: viewModel.hasUnsavedRegionChanges,
+        save: { await viewModel.saveRegions() },
+        errorMessage: { viewModel.helper.errorMessage },
+        unsavedChanges: { viewModel.hasUnsavedRegionChanges },
+        discard: { viewModel.hasUnsavedRegionChanges = false }
+      )
     )
     .task {
       await viewModel.configure(
@@ -105,6 +107,25 @@ private struct RepeaterSettingsWorkspace: View {
         discoveredNodes = await (try? dataStore.fetchDiscoveredNodes(radioID: radioID)) ?? []
       }
       await refreshRouteContact()
+    }
+    .task(id: RemoteAdminWorkspaces.RebindID(
+      servicesVersion: appState.servicesVersion,
+      generation: appState.remoteAdminWorkspaces.generation
+    )) {
+      await viewModel.rebind(
+        repeaterAdminService: { appState.services?.repeaterAdminService },
+        session: session
+      )
+      if let send = viewModel.makeNodeCLISendClosure(session: session) {
+        cliViewModel.configure(sessionName: session.name, sendRawCommand: send)
+      }
+      guard telemetryConfigured else { return }
+      await statusViewModel.rebind(
+        repeaterAdminService: { appState.services?.repeaterAdminService },
+        contactService: { appState.services?.contactService },
+        nodeSnapshotService: { appState.services?.nodeSnapshotService },
+        deviceHashSize: { appState.connectedDevice?.hashSize }
+      )
     }
     .onChange(of: appState.contactsVersion) {
       Task { await refreshRouteContact() }
@@ -360,13 +381,13 @@ private struct BehaviorSection: View {
       Button {
         Task { await viewModel.applyBehaviorSettings() }
       } label: {
-        AsyncActionLabel(isLoading: viewModel.helper.isApplying, showSuccess: viewModel.behaviorApplySuccess) {
+        AsyncActionLabel(isLoading: viewModel.helper.isApplying.inFlight, showSuccess: viewModel.behaviorApplySuccess) {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.applyBehaviorSettings)
             .foregroundStyle(viewModel.behaviorSettingsModified ? Color.accentColor : .secondary)
             .transition(.opacity)
         }
       }
-      .disabled(viewModel.helper.isApplying || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified)
+      .disabled(viewModel.helper.isApplying.inFlight || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified)
     }
   }
 }
@@ -408,7 +429,7 @@ private struct RegionsSection: View {
   }
 
   private var regionMutationsDisabled: Bool {
-    !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying
+    !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying.inFlight
   }
 
   var body: some View {
@@ -531,13 +552,13 @@ private struct RegionsSection: View {
         Button {
           Task { await viewModel.saveRegions() }
         } label: {
-          AsyncActionLabel(isLoading: viewModel.helper.isApplying, showSuccess: viewModel.regionsSaveSuccess) {
+          AsyncActionLabel(isLoading: viewModel.helper.isApplying.inFlight, showSuccess: viewModel.regionsSaveSuccess) {
             Text(L10n.RemoteNodes.RemoteNodes.Settings.Regions.saveToDevice)
               .foregroundStyle(viewModel.hasUnsavedRegionChanges ? Color.accentColor : .secondary)
               .transition(.opacity)
           }
         }
-        .disabled(viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
+        .disabled(viewModel.helper.isApplying.inFlight || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
       }
 
       if let error = viewModel.helper.errorMessage {

@@ -154,17 +154,14 @@ extension RepeaterSettingsViewModel {
   }
 
   func toggleRegionFlood(name: String) async {
-    guard regionsLoaded, !helper.isApplying else { return }
+    guard regionsLoaded, !helper.isApplying.inFlight else { return }
     guard let index = regions.firstIndex(where: { $0.name == name }) else { return }
     let currentlyAllowed = regions[index].floodAllowed
     let command = currentlyAllowed ? "region denyf \(name)" : "region allowf \(name)"
 
-    helper.isApplying = true
+    let leaseID = helper.isApplying.begin()
     helper.errorMessage = nil
-    defer {
-      helper.isApplying = false
-      helper.revertAbandonedDraftIfIdle()
-    }
+    defer { helper.finishApply(helper.isApplying, id: leaseID) }
 
     do {
       let response = try await helper.sendAndWait(command)
@@ -182,19 +179,16 @@ extension RepeaterSettingsViewModel {
   }
 
   func setDefaultScope(name: String?) async {
-    guard supportsRegionDefaultScope, regionsLoaded, !helper.isApplying else { return }
+    guard supportsRegionDefaultScope, regionsLoaded, !helper.isApplying.inFlight else { return }
     if name == RepeaterRegionEntry.unscopedName { return }
     if name == defaultScopeName { return }
 
     let argument = name ?? Self.firmwareNullToken
     let command = "region default \(argument)"
 
-    helper.isApplying = true
+    let leaseID = helper.isApplying.begin()
     helper.errorMessage = nil
-    defer {
-      helper.isApplying = false
-      helper.revertAbandonedDraftIfIdle()
-    }
+    defer { helper.finishApply(helper.isApplying, id: leaseID) }
 
     do {
       let response = try await helper.sendAndWait(command, rawMatching: true)
@@ -218,7 +212,7 @@ extension RepeaterSettingsViewModel {
   }
 
   func addRegion(name: String, parent: RepeaterRegionEntry.Parent) async throws {
-    guard regionsLoaded, !helper.isApplying else { throw AddRegionError.rejected }
+    guard regionsLoaded, !helper.isApplying.inFlight else { throw AddRegionError.rejected }
 
     let trimmed = name.trimmingCharacters(in: .whitespaces)
     if let validationError = RegionNameValidator.validate(trimmed, existingRegions: regions.map(\.name)) {
@@ -247,12 +241,9 @@ extension RepeaterSettingsViewModel {
       parentName = namedParent
     }
 
-    helper.isApplying = true
+    let leaseID = helper.isApplying.begin()
     helper.errorMessage = nil
-    defer {
-      helper.isApplying = false
-      helper.revertAbandonedDraftIfIdle()
-    }
+    defer { helper.finishApply(helper.isApplying, id: leaseID) }
 
     do {
       let response = try await helper.sendAndWait(command)
@@ -290,14 +281,11 @@ extension RepeaterSettingsViewModel {
   }
 
   func removeRegion(name: String) async {
-    guard regionsLoaded, !helper.isApplying else { return }
-    helper.isApplying = true
+    guard regionsLoaded, !helper.isApplying.inFlight else { return }
+    let leaseID = helper.isApplying.begin()
     helper.errorMessage = nil
     let wasDefault = defaultScopeName == name
-    defer {
-      helper.isApplying = false
-      helper.revertAbandonedDraftIfIdle()
-    }
+    defer { helper.finishApply(helper.isApplying, id: leaseID) }
 
     do {
       let response = try await helper.sendAndWait("region remove \(name)")
@@ -327,20 +315,18 @@ extension RepeaterSettingsViewModel {
   }
 
   func saveRegions() async {
-    guard !helper.isApplying else { return }
-    helper.isApplying = true
+    guard !helper.isApplying.inFlight else { return }
+    let leaseID = helper.isApplying.begin()
     helper.errorMessage = nil
-    defer {
-      helper.isApplying = false
-      helper.revertAbandonedDraftIfIdle()
-    }
+    defer { helper.finishApply(helper.isApplying, id: leaseID) }
 
     do {
       let response = try await helper.sendAndWait("region save")
       if case .ok = CLIResponse.parse(response) {
         hasUnsavedRegionChanges = false
         await helper.flashSuccess(
-          setApplying: { helper.isApplying = $0 },
+          lease: helper.isApplying,
+          id: leaseID,
           setSuccess: { regionsSaveSuccess = $0 }
         )
       } else {

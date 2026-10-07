@@ -20,6 +20,15 @@ final class RemoteAdminWorkspaces {
 
   private var entries: [NodeKey: Entry] = [:]
 
+  /// Bumped after `reset()` removes the models. A sheet that stayed up rebinds
+  /// the replacements without treating that as a fresh open.
+  private(set) var generation = 0
+
+  struct RebindID: Equatable {
+    var servicesVersion: Int
+    var generation: Int
+  }
+
   func repeaterSettings(for session: RemoteNodeSessionDTO) -> RepeaterSettingsViewModel {
     mutate(session) { entry in
       let model = entry.repeaterSettings ?? RepeaterSettingsViewModel()
@@ -66,6 +75,7 @@ final class RemoteAdminWorkspaces {
       entry.nodeCLI?.cancelCurrentCommand()
     }
     entries.removeAll()
+    generation += 1
   }
 
   private func mutate<T>(

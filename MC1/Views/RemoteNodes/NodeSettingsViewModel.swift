@@ -141,7 +141,7 @@ final class NodeSettingsViewModel {
 
   // MARK: - Global State
 
-  var isApplying = false
+  var isApplying = ApplyLease()
   var isRebooting = false
   var errorMessage: String?
   var successMessage: String?
@@ -182,11 +182,7 @@ final class NodeSettingsViewModel {
     case guestPassword, allowReadOnly
   }
 
-  /// Captured when a settings load starts. A later visit does not match.
-  struct SettingsVisitToken: Equatable {
-    fileprivate let generation: UInt
-    fileprivate let acceptsLoads: Bool
-  }
+  typealias SettingsVisitToken = LoadVisitGate.Token
 
   /// Snapshot of field revisions captured when a load starts.
   struct SettingsLoadTicket {
@@ -196,19 +192,18 @@ final class NodeSettingsViewModel {
 
   /// Loads taken while the sheet is open. Ending the visit bumps the generation
   /// so a reply from the previous visit cannot refill the next one.
-  private var settingsVisitGeneration: UInt = 0
-  private var settingsVisitAcceptsLoads = true
+  private var settingsVisit = LoadVisitGate()
 
   private var fieldRevision: [OwnedSettingsField: Int] = [:]
   private var applyOwnedFields: Set<OwnedSettingsField> = []
   private var loadTicketByQuery: [String: SettingsLoadTicket] = [:]
 
   func captureSettingsVisit() -> SettingsVisitToken {
-    SettingsVisitToken(generation: settingsVisitGeneration, acceptsLoads: settingsVisitAcceptsLoads)
+    settingsVisit.capture()
   }
 
   func isSettingsVisitCurrent(_ visit: SettingsVisitToken) -> Bool {
-    visit.acceptsLoads && visit.generation == settingsVisitGeneration
+    settingsVisit.allows(visit)
   }
 
   func isSettingsVisitCurrent(query: String) -> Bool {
@@ -252,15 +247,35 @@ final class NodeSettingsViewModel {
     return isSettingsLoadCurrent(ticket, field: field)
   }
 
-  func takeApplyOwnership(of fields: [OwnedSettingsField]) {
-    for field in fields {
-      fieldRevision[field, default: 0] += 1
+  struct OwnedFieldClaim: Equatable {
+    let field: OwnedSettingsField
+    let revision: Int
+  }
+
+  func takeApplyOwnership(of fields: [OwnedSettingsField]) -> [OwnedFieldClaim] {
+    fields.map { field in
+      let revision = fieldRevision[field, default: 0] + 1
+      fieldRevision[field] = revision
       applyOwnedFields.insert(field)
+      return OwnedFieldClaim(field: field, revision: revision)
     }
   }
 
-  func releaseApplyOwnership(of fields: [OwnedSettingsField]) {
-    applyOwnedFields.subtract(fields)
+  /// Drops a field only while this Apply still holds the revision it stored.
+  func releaseApplyOwnership(of claims: [OwnedFieldClaim]) {
+    for claim in claims where fieldRevision[claim.field] == claim.revision {
+      applyOwnedFields.remove(claim.field)
+    }
+  }
+
+  /// Ends this Apply. A newer `begin` keeps the flag, its field claims, and the draft.
+  func finishApply(_ lease: ApplyLease, id: ApplyLease.ID, claims: [OwnedFieldClaim] = []) {
+    let stillCurrent = lease.isCurrent(id)
+    lease.clearIfCurrent(id)
+    releaseApplyOwnership(of: claims)
+    if stillCurrent {
+      revertAbandonedDraftIfIdle()
+    }
   }
 
   /// Unticketed writers (placeholder seed, direct `setNodeInfo`) skip fields Apply owns.
@@ -269,7 +284,7 @@ final class NodeSettingsViewModel {
     if let ticket {
       return isSettingsLoadCurrent(ticket, field: field)
     }
-    guard settingsVisitAcceptsLoads else { return false }
+    guard settingsVisit.isOpen else { return false }
     return !applyOwnedFields.contains(field)
   }
 
@@ -310,12 +325,9 @@ final class NodeSettingsViewModel {
   }
 
   func noteSettingsDisappeared() {
-    if settingsVisitAcceptsLoads {
-      settingsVisitAcceptsLoads = false
-      settingsVisitGeneration &+= 1
-    }
+    settingsVisit.end()
     collapseSettingsSections()
-    if isApplying || otherSettingsApplyInFlight() {
+    if isApplying.inFlight || otherSettingsApplyInFlight() {
       discardDraftWhenIdle = true
       clearCachedSettingsWhenIdle = true
     } else {
@@ -327,14 +339,12 @@ final class NodeSettingsViewModel {
   func noteSettingsAppeared() {
     discardDraftWhenIdle = false
     clearCachedSettingsWhenIdle = false
-    guard !settingsVisitAcceptsLoads else { return }
-    settingsVisitGeneration &+= 1
-    settingsVisitAcceptsLoads = true
+    settingsVisit.begin()
   }
 
   func revertAbandonedDraftIfIdle() {
     guard discardDraftWhenIdle || clearCachedSettingsWhenIdle else { return }
-    guard !isApplying, !otherSettingsApplyInFlight() else { return }
+    guard !isApplying.inFlight, !otherSettingsApplyInFlight() else { return }
     let shouldRevert = discardDraftWhenIdle
     let shouldClear = clearCachedSettingsWhenIdle
     discardDraftWhenIdle = false
@@ -420,7 +430,7 @@ final class NodeSettingsViewModel {
   ) {
     if let loadTicket {
       guard isSettingsVisitCurrent(loadTicket.visit) else { return }
-    } else if !settingsVisitAcceptsLoads {
+    } else if !settingsVisit.isOpen {
       return
     }
     if let firmwareVersion { self.firmwareVersion = firmwareVersion }
@@ -450,8 +460,8 @@ final class NodeSettingsViewModel {
     onCollapseExtraSettingsSections = {}
     onClearCachedExtraSettings = {}
     otherSettingsApplyInFlight = { false }
-    settingsVisitGeneration &+= 1
-    settingsVisitAcceptsLoads = true
+    settingsVisit.end()
+    settingsVisit.begin()
     clearCachedSettingsWhenIdle = false
     unansweredQueries.removeAll()
     recentResponses.removeAll()
@@ -463,6 +473,30 @@ final class NodeSettingsViewModel {
   }
 
   // MARK: - CLI Transport
+
+  /// Returns whether the command timed out.
+  /// `parse` runs only while this load's ticket is still current for `field`.
+  func loadCLIField(
+    query: String,
+    field: OwnedSettingsField,
+    rawMatching: Bool = false,
+    parse: @escaping @MainActor (String) -> Void
+  ) async -> Bool {
+    let ticket = beginSettingsLoad(query: query, fields: [field])
+    do {
+      let response = try await sendAndWait(query, rawMatching: rawMatching)
+      if isSettingsLoadCurrent(ticket, field: field) {
+        parse(response)
+      }
+      return false
+    } catch {
+      if case RemoteNodeError.timeout = error {
+        return true
+      }
+      logger.warning("Failed to run \(query): \(error)")
+      return false
+    }
+  }
 
   func sendAndWait(
     _ command: String,
@@ -545,46 +579,28 @@ final class NodeSettingsViewModel {
     }
 
     if originalName == nil {
-      let nameTicket = beginSettingsLoad(query: "get name", fields: [.name])
-      do {
-        let response = try await sendAndWait("get name")
-        if isSettingsLoadCurrent(nameTicket, field: .name),
-           case let .name(n) = CLIResponse.parse(response, forQuery: "get name") {
-          name = n
-          nameBaseline = n
-          originalName = n
-        }
-      } catch {
-        if case RemoteNodeError.timeout = error { hadTimeout = true }
-        logger.warning("Failed to get name: \(error)")
+      let timedOut = await loadCLIField(query: "get name", field: .name) { response in
+        guard case let .name(n) = CLIResponse.parse(response, forQuery: "get name") else { return }
+        self.name = n
+        self.nameBaseline = n
+        self.originalName = n
       }
+      if timedOut { hadTimeout = true }
     }
 
-    let latTicket = beginSettingsLoad(query: "get lat", fields: [.latitude])
-    do {
-      let response = try await sendAndWait("get lat")
-      if isSettingsLoadCurrent(latTicket, field: .latitude),
-         case let .latitude(lat) = CLIResponse.parse(response, forQuery: "get lat") {
-        latitude = lat
-        originalLatitude = lat
-      }
-    } catch {
-      if case RemoteNodeError.timeout = error { hadTimeout = true }
-      logger.warning("Failed to get latitude: \(error)")
+    let latTimedOut = await loadCLIField(query: "get lat", field: .latitude) { response in
+      guard case let .latitude(lat) = CLIResponse.parse(response, forQuery: "get lat") else { return }
+      self.latitude = lat
+      self.originalLatitude = lat
     }
+    if latTimedOut { hadTimeout = true }
 
-    let lonTicket = beginSettingsLoad(query: "get lon", fields: [.longitude])
-    do {
-      let response = try await sendAndWait("get lon")
-      if isSettingsLoadCurrent(lonTicket, field: .longitude),
-         case let .longitude(lon) = CLIResponse.parse(response, forQuery: "get lon") {
-        longitude = lon
-        originalLongitude = lon
-      }
-    } catch {
-      if case RemoteNodeError.timeout = error { hadTimeout = true }
-      logger.warning("Failed to get longitude: \(error)")
+    let lonTimedOut = await loadCLIField(query: "get lon", field: .longitude) { response in
+      guard case let .longitude(lon) = CLIResponse.parse(response, forQuery: "get lon") else { return }
+      self.longitude = lon
+      self.originalLongitude = lon
     }
+    if lonTimedOut { hadTimeout = true }
 
     finishSettingsLoad(
       visit,
@@ -601,17 +617,11 @@ final class NodeSettingsViewModel {
     radioError = false
     var hadTimeout = false
 
-    let radioTicket = beginSettingsLoad(query: "get radio", fields: [.radio])
-    do {
-      let response = try await sendAndWait("get radio")
-      if isSettingsLoadCurrent(radioTicket, field: .radio),
-         case let .radio(freq, bw, sf, cr) = CLIResponse.parse(response, forQuery: "get radio") {
-        adoptRadioValues(frequency: freq, bandwidth: bw, spreadingFactor: sf, codingRate: cr)
-      }
-    } catch {
-      if case RemoteNodeError.timeout = error { hadTimeout = true }
-      logger.warning("Failed to get radio settings: \(error)")
+    let timedOut = await loadCLIField(query: "get radio", field: .radio) { response in
+      guard case let .radio(freq, bw, sf, cr) = CLIResponse.parse(response, forQuery: "get radio") else { return }
+      self.adoptRadioValues(frequency: freq, bandwidth: bw, spreadingFactor: sf, codingRate: cr)
     }
+    if timedOut { hadTimeout = true }
 
     finishSettingsLoad(
       visit,
@@ -673,12 +683,11 @@ final class NodeSettingsViewModel {
   /// How long an Apply button shows its success state before returning to idle.
   static let successFlashDuration: Duration = .seconds(1.5)
 
-  /// Drop the section's applying flag and flash its success indicator for
-  /// `successFlashDuration`. The closures target the section's own state, which
-  /// may live on this shared view model or on the owning view model.
-  func flashSuccess(setApplying: (Bool) -> Void, setSuccess: (Bool) -> Void) async {
+  /// Clears this Apply's flag when it still owns the lease, then flashes success.
+  /// A newer `begin` during the sleep keeps its own flag.
+  func flashSuccess(lease: ApplyLease, id: ApplyLease.ID, setSuccess: (Bool) -> Void) async {
     withAnimation {
-      setApplying(false)
+      lease.clearIfCurrent(id)
       setSuccess(true)
     }
     try? await Task.sleep(for: Self.successFlashDuration)
@@ -698,15 +707,10 @@ final class NodeSettingsViewModel {
     let snapshotBandwidth = bandwidth
     let snapshotSpreadingFactor = spreadingFactor
     let snapshotCodingRate = codingRate
-    let owned: [OwnedSettingsField] = [.radio]
-    takeApplyOwnership(of: owned)
-    isApplying = true
+    let claims = takeApplyOwnership(of: [.radio])
+    let leaseID = isApplying.begin()
     errorMessage = nil
-    defer {
-      isApplying = false
-      releaseApplyOwnership(of: owned)
-      revertAbandonedDraftIfIdle()
-    }
+    defer { finishApply(isApplying, id: leaseID, claims: claims) }
 
     do {
       let radioCommand =
@@ -737,15 +741,10 @@ final class NodeSettingsViewModel {
     let snapshotName = name
     let snapshotLatitude = latitude
     let snapshotLongitude = longitude
-    let owned: [OwnedSettingsField] = [.name, .latitude, .longitude]
-    takeApplyOwnership(of: owned)
-    isApplying = true
+    let claims = takeApplyOwnership(of: [.name, .latitude, .longitude])
+    let leaseID = isApplying.begin()
     errorMessage = nil
-    defer {
-      isApplying = false
-      releaseApplyOwnership(of: owned)
-      revertAbandonedDraftIfIdle()
-    }
+    defer { finishApply(isApplying, id: leaseID, claims: claims) }
 
     do {
       var allSucceeded = true
@@ -779,10 +778,7 @@ final class NodeSettingsViewModel {
       }
 
       if allSucceeded {
-        await flashSuccess(
-          setApplying: { isApplying = $0 },
-          setSuccess: { identityApplySuccess = $0 }
-        )
+        await flashSuccess(lease: isApplying, id: leaseID, setSuccess: { identityApplySuccess = $0 })
       } else {
         errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
       }
@@ -793,25 +789,17 @@ final class NodeSettingsViewModel {
 
   func applyContactInfoSettings() async {
     let snapshotOwnerInfo = ownerInfo
-    let owned: [OwnedSettingsField] = [.ownerInfo]
-    takeApplyOwnership(of: owned)
-    isApplying = true
+    let claims = takeApplyOwnership(of: [.ownerInfo])
+    let leaseID = isApplying.begin()
     errorMessage = nil
-    defer {
-      isApplying = false
-      releaseApplyOwnership(of: owned)
-      revertAbandonedDraftIfIdle()
-    }
+    defer { finishApply(isApplying, id: leaseID, claims: claims) }
 
     do {
       let pipeText = NodeSettingsResponseParser.wireOwnerInfo(fromDisplay: snapshotOwnerInfo ?? "")
       let response = try await sendAndWait("set owner.info \(pipeText)")
       if case .ok = CLIResponse.parse(response) {
         originalOwnerInfo = snapshotOwnerInfo
-        await flashSuccess(
-          setApplying: { isApplying = $0 },
-          setSuccess: { contactInfoApplySuccess = $0 }
-        )
+        await flashSuccess(lease: isApplying, id: leaseID, setSuccess: { contactInfoApplySuccess = $0 })
       } else {
         errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
       }
@@ -839,22 +827,16 @@ final class NodeSettingsViewModel {
       return
     }
 
-    isApplying = true
+    let leaseID = isApplying.begin()
     errorMessage = nil
-    defer {
-      isApplying = false
-      revertAbandonedDraftIfIdle()
-    }
+    defer { finishApply(isApplying, id: leaseID) }
 
     do {
       let response = try await sendAndWait("password \(newPassword)", rawMatching: true)
       if NodeSettingsResponseParser.isPasswordChangeSuccessful(response) {
         newPassword = ""
         confirmPassword = ""
-        await flashSuccess(
-          setApplying: { isApplying = $0 },
-          setSuccess: { changePasswordSuccess = $0 }
-        )
+        await flashSuccess(lease: isApplying, id: leaseID, setSuccess: { changePasswordSuccess = $0 })
       } else {
         errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.passwordChangeFailed
       }
@@ -899,12 +881,9 @@ final class NodeSettingsViewModel {
   }
 
   func syncTime() async {
-    isApplying = true
+    let leaseID = isApplying.begin()
     errorMessage = nil
-    defer {
-      isApplying = false
-      revertAbandonedDraftIfIdle()
-    }
+    defer { finishApply(isApplying, id: leaseID) }
 
     do {
       let response = try await sendAndWait(

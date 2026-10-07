@@ -49,6 +49,22 @@ final class RepeaterStatusViewModel {
   private static let pollIntervalTicks = 5
   private static let discoverCommand = "discover.neighbors"
 
+  #if DEBUG
+    var discoveryDurationForTesting: Int?
+  #endif
+
+  private final class DiscoveryRun {}
+
+  private var discoveryRun: DiscoveryRun?
+
+  private var discoveryLength: Int {
+    #if DEBUG
+      discoveryDurationForTesting ?? Self.discoveryDuration
+    #else
+      Self.discoveryDuration
+    #endif
+  }
+
   /// Owner info text
   var ownerInfo: String?
 
@@ -96,6 +112,22 @@ final class RepeaterStatusViewModel {
     )
   }
 
+  /// Does not request status, neighbors, or telemetry. A container change is not a new visit.
+  func rebind(
+    repeaterAdminService: @escaping @MainActor () -> RepeaterAdminService?,
+    contactService: @escaping @MainActor () -> ContactService?,
+    nodeSnapshotService: @escaping @MainActor () -> NodeSnapshotService?,
+    deviceHashSize: @escaping @MainActor () -> Int?
+  ) async {
+    configure(
+      repeaterAdminService: repeaterAdminService,
+      contactService: contactService,
+      nodeSnapshotService: nodeSnapshotService,
+      deviceHashSize: deviceHashSize
+    )
+    await registerHandlers()
+  }
+
   /// Reads the live service from the provider so a reconnect-minted instance
   /// is used at call time. Sets only the slots this view model owns; the admin
   /// service is shared with the settings/CLI view model, so clearing here would
@@ -106,7 +138,7 @@ final class RepeaterStatusViewModel {
     await repeaterAdminService.setStatusHandler { [weak self] status in
       guard let self else { return }
       guard await self.helper.matchesSession(status.publicKeyPrefix) else { return }
-      let visit = await self.statusVisit
+      guard let visit = await self.statusVisit else { return }
       guard await self.helper.allowsTelemetryWrite(visit) else { return }
       await self.handleStatusResponse(status, visit: visit)
     }
@@ -114,7 +146,7 @@ final class RepeaterStatusViewModel {
     await repeaterAdminService.setNeighboursHandler { [weak self] response in
       guard let self else { return }
       guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
-      let visit = await self.neighborsVisit
+      guard let visit = await self.neighborsVisit else { return }
       guard await self.helper.allowsTelemetryWrite(visit) else { return }
       await self.handleNeighboursResponse(response, visit: visit)
     }
@@ -122,7 +154,7 @@ final class RepeaterStatusViewModel {
     await repeaterAdminService.setTelemetryHandler { [weak self] response in
       guard let self else { return }
       guard await self.helper.matchesSession(response.publicKeyPrefix) else { return }
-      let visit = await self.telemetryVisit
+      guard let visit = await self.telemetryVisit else { return }
       guard await self.helper.allowsTelemetryWrite(visit) else { return }
       await self.helper.handleTelemetryResponse(response, visit: visit)
     }
@@ -188,7 +220,7 @@ final class RepeaterStatusViewModel {
 
   private func handleStatusResponse(
     _ response: RemoteNodeStatus,
-    visit: NodeStatusViewModel.TelemetryVisitToken?
+    visit: NodeStatusViewModel.TelemetryVisitToken
   ) async {
     await helper.handleStatusResponse(
       response,
@@ -221,7 +253,7 @@ final class RepeaterStatusViewModel {
 
   func handleNeighboursResponse(
     _ response: NeighboursResponse,
-    visit: NodeStatusViewModel.TelemetryVisitToken? = nil
+    visit: NodeStatusViewModel.TelemetryVisitToken
   ) async {
     guard helper.allowsTelemetryWrite(visit) else { return }
     neighbors = response.neighbours
@@ -239,8 +271,8 @@ final class RepeaterStatusViewModel {
 
   func startDiscovery(for session: RemoteNodeSessionDTO) {
     guard let repeaterAdminService, !isDiscovering else { return }
-
-    discoverySecondsRemaining = Self.discoveryDuration
+    let visit = helper.captureTelemetryVisit()
+    let run = beginDiscoveryRun()
 
     discoverTask = Task {
       do {
@@ -249,45 +281,38 @@ final class RepeaterStatusViewModel {
           command: Self.discoverCommand
         )
       } catch {
-        if helper.allowsTelemetryWrite(nil) {
+        if helper.allowsTelemetryWrite(visit), discoveryRun === run {
           neighborsSectionError = error.userFacingMessage
         }
-        discoverySecondsRemaining = 0
-        discoverTask = nil
+        endDiscovery(run)
         return
       }
 
       let startTime = Date.now
       var tickCount = 0
-
       while !Task.isCancelled {
+        let elapsed = Int(Date.now.timeIntervalSince(startTime))
+        let remaining = max(0, discoveryLength - elapsed)
+        discoverySecondsRemaining = remaining
+        if remaining <= 0 { break }
         try? await Task.sleep(for: .seconds(1))
         guard !Task.isCancelled else { break }
-
-        let elapsed = Int(Date.now.timeIntervalSince(startTime))
-        let remaining = max(0, Self.discoveryDuration - elapsed)
-        discoverySecondsRemaining = remaining
 
         tickCount += 1
         if tickCount.isMultiple(of: Self.pollIntervalTicks) {
           await requestNeighbors(for: session)
         }
-
-        if remaining <= 0 { break }
       }
-
-      discoverySecondsRemaining = 0
-      discoverTask = nil
+      endDiscovery(run)
     }
   }
 
   #if DEBUG
     func startDiscoveryForTesting() {
-      discoverySecondsRemaining = Self.discoveryDuration
+      let run = beginDiscoveryRun()
       discoverTask = Task {
-        try? await Task.sleep(for: .seconds(Self.discoveryDuration))
-        discoverySecondsRemaining = 0
-        discoverTask = nil
+        try? await Task.sleep(for: .seconds(discoveryLength))
+        endDiscovery(run)
       }
     }
   #endif
@@ -295,6 +320,22 @@ final class RepeaterStatusViewModel {
   func stopDiscovery() {
     discoverTask?.cancel()
     discoverTask = nil
+    discoveryRun = nil
+    discoverySecondsRemaining = 0
+  }
+
+  private func beginDiscoveryRun() -> DiscoveryRun {
+    let run = DiscoveryRun()
+    discoveryRun = run
+    discoverySecondsRemaining = discoveryLength
+    return run
+  }
+
+  /// A replacement discovery and `stopDiscovery` keep the countdown they installed.
+  private func endDiscovery(_ run: DiscoveryRun) {
+    guard discoveryRun === run, !Task.isCancelled else { return }
+    discoverTask = nil
+    discoveryRun = nil
     discoverySecondsRemaining = 0
   }
 
