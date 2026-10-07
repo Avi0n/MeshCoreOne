@@ -14,7 +14,7 @@ struct SettingsView: View {
   private var demoModeManager = DemoModeManager.shared
 
   private var tabBarVisibility: Visibility {
-    ChatsSplitPresentation.tabBarVisibility(
+    SectionSplitPresentation.tabBarVisibility(
       sizeClass: sizeClass,
       preferredColumn: preferredCompactColumn,
       hasSelection: appState.navigation.selectedSetting != nil
@@ -54,15 +54,8 @@ struct SettingsView: View {
       hasSelection: appState.navigation.selectedSetting != nil,
       onClearRootSelection: { appState.navigation.selectedSetting = nil }
     )
-    .onChange(of: appState.navigation.selectedSetting) { _, newSetting in
+    .onChange(of: appState.navigation.selectedSetting) { _, _ in
       nestedPath = NavigationPath()
-      if newSetting != nil {
-        if sizeClass == .compact {
-          preferredCompactColumn = .detail
-        }
-      } else if sizeClass == .compact {
-        preferredCompactColumn = .sidebar
-      }
     }
     .onChange(of: appState.navigation.settingsRootNavigationGeneration) { _, _ in
       nestedPath = NavigationPath()

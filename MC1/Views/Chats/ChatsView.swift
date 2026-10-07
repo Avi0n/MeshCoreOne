@@ -11,7 +11,7 @@ struct ChatsView: View {
   @State private var nestedPath = NavigationPath()
 
   private var tabBarVisibility: Visibility {
-    ChatsSplitPresentation.tabBarVisibility(
+    SectionSplitPresentation.tabBarVisibility(
       sizeClass: sizeClass,
       preferredColumn: preferredCompactColumn,
       hasSelection: appState.navigation.chatsSelectedRoute != nil
@@ -38,23 +38,12 @@ struct ChatsView: View {
       onClearRootSelection: { appState.navigation.setChatsRoute(nil) }
     )
     .onChange(of: appState.navigation.chatsSelectedRoute) { oldRoute, newRoute in
-      handleSelectedRouteChange(from: oldRoute, to: newRoute)
+      if oldRoute != newRoute {
+        nestedPath = NavigationPath()
+      }
     }
     .onChange(of: appState.navigation.chatsRootNavigationGeneration) { _, _ in
       nestedPath = NavigationPath()
-    }
-  }
-
-  private func handleSelectedRouteChange(from oldRoute: ChatRoute?, to newRoute: ChatRoute?) {
-    if oldRoute != newRoute {
-      nestedPath = NavigationPath()
-    }
-    if newRoute != nil {
-      if sizeClass == .compact {
-        preferredCompactColumn = .detail
-      }
-    } else if sizeClass == .compact {
-      preferredCompactColumn = .sidebar
     }
   }
 }

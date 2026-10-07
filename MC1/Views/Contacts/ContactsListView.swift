@@ -17,7 +17,7 @@ struct ContactsListView: View {
   }
 
   private var tabBarVisibility: Visibility {
-    ChatsSplitPresentation.tabBarVisibility(
+    SectionSplitPresentation.tabBarVisibility(
       sizeClass: sizeClass,
       preferredColumn: preferredCompactColumn,
       hasSelection: hasSelection
@@ -61,24 +61,12 @@ struct ContactsListView: View {
     )
     .onChange(of: appState.navigation.selectedContact?.id) { _, _ in
       nestedPath = NavigationPath()
-      updatePreferredColumnForSelection()
     }
     .onChange(of: appState.navigation.nodesShowingDiscovery) { _, _ in
       nestedPath = NavigationPath()
-      updatePreferredColumnForSelection()
     }
     .onChange(of: appState.navigation.nodesRootNavigationGeneration) { _, _ in
       nestedPath = NavigationPath()
-    }
-  }
-
-  private func updatePreferredColumnForSelection() {
-    if hasSelection {
-      if sizeClass == .compact {
-        preferredCompactColumn = .detail
-      }
-    } else if sizeClass == .compact {
-      preferredCompactColumn = .sidebar
     }
   }
 }

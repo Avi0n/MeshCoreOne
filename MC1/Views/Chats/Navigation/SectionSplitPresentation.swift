@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Compact Back, expand-to-regular tiling, and tab-bar rules for a section
 /// `NavigationSplitView`. Chats, Nodes, and Settings use the same recipe.
-enum ChatsSplitPresentation {
+enum SectionSplitPresentation {
   enum PreferredColumnAction: Equatable {
     case none
     case clearRootSelection
@@ -35,6 +35,14 @@ enum ChatsSplitPresentation {
       return .clearRootSelection
     }
     return .none
+  }
+
+  static func preferredColumn(
+    sizeClass: UserInterfaceSizeClass?,
+    hasSelection: Bool
+  ) -> NavigationSplitViewColumn? {
+    guard sizeClass == .compact else { return nil }
+    return hasSelection ? .detail : .sidebar
   }
 
   static func presentationForSizeClassChange(
@@ -108,6 +116,9 @@ private struct SectionSplitStateModifier: ViewModifier {
       .onChange(of: sizeClass) { old, new in
         applySizeClassChange(from: old, to: new)
       }
+      .onChange(of: hasSelection) { _, _ in
+        applySelectionColumn()
+      }
       .onChange(of: preferredCompactColumn) { _, _ in
         applyPreferredColumnRecipe()
       }
@@ -125,7 +136,7 @@ private struct SectionSplitStateModifier: ViewModifier {
     from old: UserInterfaceSizeClass?,
     to new: UserInterfaceSizeClass?
   ) {
-    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
+    let presentation = SectionSplitPresentation.presentationForSizeClassChange(
       from: old,
       to: new,
       hasSelection: hasSelection
@@ -138,8 +149,17 @@ private struct SectionSplitStateModifier: ViewModifier {
     }
   }
 
+  private func applySelectionColumn() {
+    if let column = SectionSplitPresentation.preferredColumn(
+      sizeClass: sizeClass,
+      hasSelection: hasSelection
+    ) {
+      preferredCompactColumn = column
+    }
+  }
+
   private func applyPreferredColumnRecipe() {
-    switch ChatsSplitPresentation.preferredColumnAction(
+    switch SectionSplitPresentation.preferredColumnAction(
       preferredColumn: preferredCompactColumn,
       sizeClass: sizeClass,
       nestedPathIsEmpty: nestedPathIsEmpty

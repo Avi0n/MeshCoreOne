@@ -19,7 +19,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `collapsed compact detail hides tabs`() {
-    let visibility = ChatsSplitPresentation.tabBarVisibility(
+    let visibility = SectionSplitPresentation.tabBarVisibility(
       sizeClass: .compact,
       preferredColumn: .detail,
       hasSelection: true
@@ -29,7 +29,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `compact sidebar leaves the tab bar automatic`() {
-    let visibility = ChatsSplitPresentation.tabBarVisibility(
+    let visibility = SectionSplitPresentation.tabBarVisibility(
       sizeClass: .compact,
       preferredColumn: .sidebar,
       hasSelection: false
@@ -39,7 +39,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `regular width leaves the tab bar automatic with a selection`() {
-    let visibility = ChatsSplitPresentation.tabBarVisibility(
+    let visibility = SectionSplitPresentation.tabBarVisibility(
       sizeClass: .regular,
       preferredColumn: .detail,
       hasSelection: true
@@ -49,7 +49,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `compact sidebar preferred column clears the root`() {
-    let action = ChatsSplitPresentation.preferredColumnAction(
+    let action = SectionSplitPresentation.preferredColumnAction(
       preferredColumn: .sidebar,
       sizeClass: .compact,
       nestedPathIsEmpty: true
@@ -59,7 +59,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `nested path keeps the root when compact preferred column is sidebar`() {
-    let action = ChatsSplitPresentation.preferredColumnAction(
+    let action = SectionSplitPresentation.preferredColumnAction(
       preferredColumn: .sidebar,
       sizeClass: .compact,
       nestedPathIsEmpty: false
@@ -69,7 +69,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `regular preferred sidebar does not overlay the selected detail`() {
-    let action = ChatsSplitPresentation.preferredColumnAction(
+    let action = SectionSplitPresentation.preferredColumnAction(
       preferredColumn: .sidebar,
       sizeClass: .regular,
       nestedPathIsEmpty: true
@@ -79,7 +79,7 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `expanding compact to regular tiles list and detail`() {
-    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
+    let presentation = SectionSplitPresentation.presentationForSizeClassChange(
       from: .compact,
       to: .regular,
       hasSelection: true
@@ -90,12 +90,32 @@ struct AdaptiveNavigationTests {
 
   @Test
   func `collapsing regular to compact with a selection shows the detail`() {
-    let presentation = ChatsSplitPresentation.presentationForSizeClassChange(
+    let presentation = SectionSplitPresentation.presentationForSizeClassChange(
       from: .regular,
       to: .compact,
       hasSelection: true
     )
+    #expect(presentation.columnVisibility == nil)
     #expect(presentation.preferredColumn == .detail)
+  }
+
+  @Test
+  func `collapsing regular to compact without a selection leaves the columns alone`() {
+    let presentation = SectionSplitPresentation.presentationForSizeClassChange(
+      from: .regular,
+      to: .compact,
+      hasSelection: false
+    )
+    #expect(presentation.columnVisibility == nil)
+    #expect(presentation.preferredColumn == nil)
+  }
+
+  @Test
+  func `compact selection prefers detail and a regular width leaves the column alone`() {
+    #expect(SectionSplitPresentation.preferredColumn(sizeClass: .compact, hasSelection: true) == .detail)
+    #expect(SectionSplitPresentation.preferredColumn(sizeClass: .compact, hasSelection: false) == .sidebar)
+    #expect(SectionSplitPresentation.preferredColumn(sizeClass: .regular, hasSelection: true) == nil)
+    #expect(SectionSplitPresentation.preferredColumn(sizeClass: .regular, hasSelection: false) == nil)
   }
 
   // MARK: - Radio-scoped auth
