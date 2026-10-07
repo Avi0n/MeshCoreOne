@@ -265,10 +265,9 @@ extension ChatViewModel {
   private func fetchRetainingDirectContactIDs(radioID: UUID) async -> Set<UUID>? {
     guard let dataStore else { return nil }
     do {
-      let contacts = try await dataStore.fetchContacts(radioID: radioID)
-      return Set(contacts.map(\.id))
+      return try await dataStore.fetchContactIDs(radioID: radioID)
     } catch {
-      logger.error("fetchContacts failed: \(error.localizedDescription)")
+      logger.error("fetchContactIDs failed: \(error.localizedDescription)")
       return nil
     }
   }

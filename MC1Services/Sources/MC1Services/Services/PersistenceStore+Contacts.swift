@@ -4,6 +4,25 @@ import SwiftData
 public extension PersistenceStore {
   // MARK: - Contact Operations
 
+  /// Contact ids for one radio. Callers that only need membership skip name sorting and DTO construction.
+  func fetchContactIDs(radioID: UUID) throws -> Set<UUID> {
+    #if DEBUG
+      try fetchContactIDsFaultInjection?()
+    #endif
+    let targetRadioID = radioID
+    let predicate = #Predicate<Contact> { contact in
+      contact.radioID == targetRadioID
+    }
+    let contacts = try modelContext.fetch(FetchDescriptor(predicate: predicate))
+    return Set(contacts.map(\.id))
+  }
+
+  #if DEBUG
+    func setFetchContactIDsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
+      fetchContactIDsFaultInjection = hook
+    }
+  #endif
+
   /// Fetch all contacts for a device
   func fetchContacts(radioID: UUID) throws -> [ContactDTO] {
     let targetRadioID = radioID

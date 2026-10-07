@@ -128,6 +128,92 @@ struct ChatViewModelDeleteSequencingTests {
     #expect(viewModel.snapshotGeneration == generationAfterRemove + 1)
   }
 
+  // MARK: - Messageless direct ids
+
+  @Test func `reload publishes every contact id including messageless rows`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let quiet = makeContact(radioID: radioID, name: "Quiet", lastMessageDate: nil)
+    let talker = makeContact(radioID: radioID, name: "Talker", lastMessageDate: Date())
+    let otherRadio = makeContact(name: "Elsewhere", lastMessageDate: nil)
+    try await store.saveContact(quiet)
+    try await store.saveContact(talker)
+    try await store.saveContact(otherRadio)
+
+    let viewModel = configuredViewModel(store: store, radioID: radioID)
+    await viewModel.requestConversationReload()?.value
+
+    #expect(viewModel.retainingDirectContactIDs == Set([quiet.id, talker.id]))
+  }
+
+  @Test func `empty contact fetch publishes an empty id set`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let viewModel = configuredViewModel(store: store, radioID: UUID())
+
+    await viewModel.requestConversationReload()?.value
+
+    #expect(viewModel.retainingDirectContactIDs == Set())
+  }
+
+  @Test func `contact id fetch failure publishes nil`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let quiet = makeContact(radioID: radioID, name: "Quiet", lastMessageDate: nil)
+    try await store.saveContact(quiet)
+    let viewModel = configuredViewModel(store: store, radioID: radioID)
+    await viewModel.requestConversationReload()?.value
+    #expect(viewModel.retainingDirectContactIDs == Set([quiet.id]))
+
+    await store.setFetchContactIDsFaultInjection { throw ContactIDFetchFailure() }
+    await viewModel.requestConversationReload()?.value
+
+    #expect(viewModel.retainingDirectContactIDs == nil)
+  }
+
+  @Test func `clearConversations publishes nil contact ids`() {
+    let viewModel = ChatViewModel()
+    viewModel.retainingDirectContactIDs = [UUID()]
+
+    viewModel.clearConversations()
+
+    #expect(viewModel.retainingDirectContactIDs == nil)
+  }
+
+  @Test func `deleting a messageless direct leaves the snapshot and omits the id`() async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let store = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let quiet = makeContact(radioID: radioID, name: "Quiet", lastMessageDate: nil)
+    let talker = makeContact(radioID: radioID, name: "Talker", lastMessageDate: Date())
+    try await store.saveContact(quiet)
+    try await store.saveContact(talker)
+    let viewModel = configuredViewModel(store: store, radioID: radioID)
+    await viewModel.requestConversationReload()?.value
+    let generation = viewModel.snapshotGeneration
+    #expect(viewModel.retainingDirectContactIDs?.contains(quiet.id) == true)
+
+    try await store.deleteContact(id: quiet.id)
+    await viewModel.requestConversationReload()?.value
+
+    #expect(viewModel.snapshotGeneration == generation)
+    #expect(viewModel.retainingDirectContactIDs?.contains(quiet.id) == false)
+    #expect(viewModel.retainingDirectContactIDs?.contains(talker.id) == true)
+  }
+
+  private func configuredViewModel(store: PersistenceStore, radioID: UUID) -> ChatViewModel {
+    let viewModel = ChatViewModel()
+    viewModel.configureForTesting(
+      dependencies: .testDefaults(
+        dataStore: { store },
+        currentRadioID: { radioID }
+      )
+    )
+    return viewModel
+  }
+
   // MARK: - Typed failure edge
 
   /// The direct-message delete throws `.notConnected` instead of returning silently, so the
@@ -168,3 +254,5 @@ struct ChatViewModelDeleteSequencingTests {
     }
   }
 }
+
+private struct ContactIDFetchFailure: Error {}

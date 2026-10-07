@@ -92,10 +92,10 @@ struct ChatsContentColumn: View {
       }
     }
     .onChange(of: viewModel.snapshotGeneration) { _, _ in
-      appState.navigation.refreshChatsSelection(
-        from: viewModel.allConversations,
-        retainingDirectContactIDs: viewModel.retainingDirectContactIDs
-      )
+      refreshOpenChat()
+    }
+    .onChange(of: viewModel.retainingDirectContactIDs) { _, _ in
+      refreshOpenChat()
     }
     .onChange(of: appState.connectedDevice?.radioID) { _, _ in
       dismissStaleRoomAuthentication()
@@ -118,6 +118,13 @@ struct ChatsContentColumn: View {
       deleteChannelConversation: actions.deleteChannelConversation,
       deleteRoom: actions.deleteRoom
     ))
+  }
+
+  private func refreshOpenChat() {
+    appState.navigation.refreshChatsSelection(
+      from: viewModel.allConversations,
+      retainingDirectContactIDs: viewModel.retainingDirectContactIDs
+    )
   }
 
   private func navigate(to route: ChatRoute) {
