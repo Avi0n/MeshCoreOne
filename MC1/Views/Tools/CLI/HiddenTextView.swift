@@ -202,6 +202,23 @@ protocol FocusableTextViewDelegate: UITextViewDelegate {
 }
 
 class FocusableTextView: UITextView {
+  #if DEBUG
+    static var failBecomeFirstResponderForTesting = false
+    static var removeFromWindowForTesting = false
+
+    override func didMoveToWindow() {
+      super.didMoveToWindow()
+      if Self.removeFromWindowForTesting, window != nil {
+        removeFromSuperview()
+      }
+    }
+
+    override func becomeFirstResponder() -> Bool {
+      if Self.failBecomeFirstResponderForTesting { return false }
+      return super.becomeFirstResponder()
+    }
+  #endif
+
   weak var customDelegate: FocusableTextViewDelegate? {
     didSet { delegate = customDelegate }
   }
