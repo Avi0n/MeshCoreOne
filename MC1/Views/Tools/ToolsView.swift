@@ -1,13 +1,20 @@
 import SwiftUI
 
-/// The compact (iPhone / compact-width) Tools tab: a stack that pushes each tool. The iPad
-/// regular-width layout routes Tools through `MainSidebarView`'s split (`ToolsContentColumn` +
-/// `ToolsDetailColumn`) instead, so this view is only reached in compact width.
+/// Tools tab: a stack bound to `NavigationCoordinator.selectedTool` so the
+/// selected workspace survives tab switches. Back writes an empty path.
 struct ToolsView: View {
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
 
+  private var toolPath: Binding<[ToolSelection]> {
+    Binding(
+      get: { appState.navigation.selectedTool.map { [$0] } ?? [] },
+      set: { appState.navigation.selectedTool = $0.last }
+    )
+  }
+
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: toolPath) {
       List {
         ForEach(ToolSelection.allCases, id: \.self) { tool in
           NavigationLink(value: tool) {
@@ -17,7 +24,7 @@ struct ToolsView: View {
         .themedRowBackground(theme)
       }
       .navigationDestination(for: ToolSelection.self) { tool in
-        ToolDestinationView(tool: tool) { LineOfSightView() }
+        ToolDestinationView(tool: tool)
       }
       .themedCanvas(theme)
       .navigationTitle(L10n.Tools.Tools.title)

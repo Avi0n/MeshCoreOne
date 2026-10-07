@@ -143,7 +143,6 @@ extension AppState {
     }
     parts.append(contentsOf: [
       "tab=\(tab)",
-      "tabBar=\(navigation.tabBarVisibility)",
       "chatRoute=\(chatRoute)",
       "nodesDetail=\(nodesDetail)",
       "tool=\(navigation.selectedTool.map { String(describing: $0) } ?? "none")",

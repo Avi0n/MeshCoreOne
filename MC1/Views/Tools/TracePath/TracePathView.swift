@@ -32,6 +32,10 @@ struct TracePathView: View {
   @State private var pathLoadedFromSheet = false
   @AppStorage(AppStorageKey.tracePathViewMode.rawValue) private var viewMode: TracePathViewMode = .list
 
+  private var isWorkspaceActive: Bool {
+    appState.navigation.isToolWorkspaceActive(.tracePath)
+  }
+
   var body: some View {
     ZStack {
       switch viewMode {
@@ -112,6 +116,7 @@ struct TracePathView: View {
       }
     }
     .task(id: appState.servicesVersion) {
+      guard isWorkspaceActive else { return }
       // Keyed on servicesVersion: a late connect or reconnect rebuilds the
       // ServiceContainer, so the listener must re-subscribe to the fresh
       // AdvertisementService or trace responses are silently dropped.
@@ -127,8 +132,12 @@ struct TracePathView: View {
         await viewModel.loadContacts(radioID: radioID)
       }
     }
-    .onDisappear {
-      viewModel.stopListening()
+    .onChange(of: isWorkspaceActive) { _, isActive in
+      if isActive {
+        viewModel.startListening()
+      } else {
+        viewModel.deactivate()
+      }
     }
   }
 

@@ -9,6 +9,10 @@ struct NodeDiscoveryView: View {
     appState.services?.session != nil
   }
 
+  private var isWorkspaceActive: Bool {
+    appState.navigation.isToolWorkspaceActive(.nodeDiscovery)
+  }
+
   var body: some View {
     Group {
       if !isConnected {
@@ -24,6 +28,7 @@ struct NodeDiscoveryView: View {
         ScanButtonBar(viewModel: viewModel)
       }
     }
+    .navigationTitle(L10n.Tools.Tools.nodeDiscovery)
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
         SortMenu(viewModel: viewModel)
@@ -36,6 +41,7 @@ struct NodeDiscoveryView: View {
     .sensoryFeedback(.success, trigger: viewModel.addSuccessHapticTrigger)
     .sensoryFeedback(.error, trigger: viewModel.addErrorHapticTrigger)
     .task(id: appState.servicesVersion) {
+      guard isWorkspaceActive else { return }
       viewModel.configure(dependencies: NodeDiscoveryViewModel.Dependencies(
         session: { [appState] in appState.services?.session },
         dataStore: { [appState] in appState.offlineDataStore },
@@ -44,8 +50,10 @@ struct NodeDiscoveryView: View {
         maxContacts: { [appState] in appState.connectedDevice?.maxContacts }
       ))
     }
-    .onDisappear {
-      viewModel.stopScan()
+    .onChange(of: isWorkspaceActive) { _, isActive in
+      if !isActive {
+        viewModel.stopScan()
+      }
     }
     .onChange(of: viewModel.filter) { _, _ in
       viewModel.stopScan()

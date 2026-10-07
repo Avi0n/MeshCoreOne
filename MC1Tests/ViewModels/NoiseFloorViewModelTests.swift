@@ -1,5 +1,6 @@
 import Foundation
 @testable import MC1
+import MeshCore
 import Testing
 
 @Suite("NoiseFloorReading")
@@ -192,5 +193,97 @@ struct NoiseFloorViewModelTests {
     viewModel.stopPolling()
 
     #expect(viewModel.isPolling == false)
+  }
+
+  @Test
+  func `startPolling is idempotent and keeps the chart origin across a gap`() throws {
+    let viewModel = NoiseFloorViewModel()
+    viewModel.startPolling { nil }
+    let origin = try #require(viewModel.chartStartTime)
+    #expect(viewModel.isPolling)
+
+    viewModel.startPolling { nil }
+    #expect(viewModel.chartStartTime == origin)
+
+    viewModel.appendReading(NoiseFloorReading(
+      id: UUID(),
+      timestamp: origin,
+      noiseFloor: -100,
+      lastRSSI: -80,
+      lastSNR: 5
+    ))
+    viewModel.appendReading(NoiseFloorReading(
+      id: UUID(),
+      timestamp: origin.addingTimeInterval(10),
+      noiseFloor: -95,
+      lastRSSI: -80,
+      lastSNR: 5
+    ))
+
+    viewModel.stopPolling()
+    #expect(viewModel.isPolling == false)
+
+    viewModel.startPolling { nil }
+    #expect(viewModel.chartStartTime == origin)
+    viewModel.stopPolling()
+
+    let afterGap = origin.addingTimeInterval(20)
+    viewModel.appendReading(NoiseFloorReading(
+      id: UUID(),
+      timestamp: afterGap,
+      noiseFloor: -90,
+      lastRSSI: -80,
+      lastSNR: 5
+    ))
+
+    #expect(viewModel.readings.count == 3)
+    #expect(afterGap.timeIntervalSince(origin) == 20)
+    #expect(viewModel.readings.allSatisfy { $0.timestamp.timeIntervalSince(origin) >= 0 })
+    #expect(viewModel.chartDomain == 0...NoiseFloorViewModel.chartWindowSeconds)
+  }
+
+  @Test
+  func `chart domain rolls after the visible window`() throws {
+    let viewModel = NoiseFloorViewModel()
+    viewModel.startPolling { nil }
+    let origin = try #require(viewModel.chartStartTime)
+    viewModel.stopPolling()
+
+    viewModel.appendReading(NoiseFloorReading(
+      id: UUID(),
+      timestamp: origin.addingTimeInterval(400),
+      noiseFloor: -92,
+      lastRSSI: -80,
+      lastSNR: 5
+    ))
+
+    #expect(viewModel.chartDomain == 100...400)
+  }
+
+  @Test
+  func `leaving the workspace stops polling and keeps the chart origin`() async throws {
+    let viewModel = NoiseFloorViewModel()
+    let session = MeshCoreSession(transport: MockTransport())
+    viewModel.setWorkspaceActive(true) { session }
+    let origin = try #require(viewModel.chartStartTime)
+    #expect(viewModel.isPolling)
+    try await waitUntil(timeout: .seconds(1), "stats read should start") {
+      viewModel.radioStatsReadCountForTesting >= 1
+    }
+
+    viewModel.setWorkspaceActive(false) { session }
+    let reads = viewModel.radioStatsReadCountForTesting
+    #expect(viewModel.isPolling == false)
+    #expect(viewModel.chartStartTime == origin)
+
+    try await Task.sleep(for: .milliseconds(1600))
+    #expect(viewModel.radioStatsReadCountForTesting == reads)
+
+    viewModel.setWorkspaceActive(true) { session }
+    #expect(viewModel.chartStartTime == origin)
+    try await waitUntil(timeout: .seconds(1), "stats read should resume") {
+      viewModel.radioStatsReadCountForTesting > reads
+    }
+    viewModel.stopPolling()
   }
 }

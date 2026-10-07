@@ -65,4 +65,17 @@ struct ChannelSlotOccupantChangedTests {
 
     #expect(appState.navigation.chatsSelectedRoute == .channel(channel))
   }
+
+  @Test
+  func `retires the open channel and its scroll target for the changed slot`() {
+    let appState = AppState()
+    let radioID = UUID()
+    let channel = makeChannel(radioID: radioID, index: 5)
+    appState.navigation.navigateToChannel(with: channel, scrollToMessageID: UUID())
+
+    appState.handleChannelSlotOccupantChanged(radioID: radioID, indices: [5])
+
+    #expect(appState.navigation.chatsSelectedRoute == nil)
+    #expect(appState.navigation.pendingScrollTarget == nil)
+  }
 }

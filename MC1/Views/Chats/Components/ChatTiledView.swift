@@ -136,6 +136,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     }
     .softTopScrollEdgeEffect()
     .background(contentBackground ?? .clear)
+    .legacyTimelineClip()
     .id(appearanceIdentity)
     .overlay(alignment: .bottomTrailing) {
       ScrollToBottomButton(
@@ -183,6 +184,22 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       dynamicTypeSize: dynamicTypeSize
     )
     return "\(appTheme.id)|\(appearance)"
+  }
+}
+
+private struct LegacyTimelineClip: ViewModifier {
+  func body(content: Content) -> some View {
+    if #available(iOS 26, *) {
+      content
+    } else {
+      content.clipped()
+    }
+  }
+}
+
+private extension View {
+  func legacyTimelineClip() -> some View {
+    modifier(LegacyTimelineClip())
   }
 }
 

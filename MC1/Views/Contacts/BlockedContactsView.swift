@@ -46,7 +46,10 @@ struct BlockedContactsView: View {
     ScrollView {
       LazyVStack(spacing: 0) {
         ForEach(Array(contacts.enumerated()), id: \.element.id) { index, contact in
-          NavigationLink(value: ContactRoute.detail(contact)) {
+          let isSelected = appState.navigation.selectedContact?.id == contact.id
+          Button {
+            appState.navigation.navigateToContactDetail(contact)
+          } label: {
             ContactRowView(contact: contact)
               .padding(.horizontal, Self.rowHorizontalPadding)
               .padding(.vertical, Self.rowVerticalPadding)
@@ -54,6 +57,8 @@ struct BlockedContactsView: View {
               .contentShape(.rect)
           }
           .buttonStyle(.plain)
+          .selectedRowHighlight(isSelected: isSelected)
+          .accessibilityAddTraits(isSelected ? .isSelected : [])
           .transition(.opacity)
           if index < contacts.count - 1 {
             Divider().padding(.leading, Self.rowSeparatorLeadingInset)

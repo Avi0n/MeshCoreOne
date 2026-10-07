@@ -6,11 +6,6 @@ import SwiftUI
 /// is violated when the selected row is deleted; a `LazyVStack` has no collection view, so
 /// that crash cannot occur.
 struct ConversationListContent: View {
-  enum ListMode {
-    case selection(Binding<ChatRoute?>)
-    case navigation(onNavigate: (ChatRoute) -> Void, onRequestRoomAuth: (RemoteNodeSessionDTO) -> Void)
-  }
-
   @Environment(\.appTheme) private var theme
   @Environment(\.appState) private var appState
   @Environment(\.colorScheme) private var colorScheme
@@ -20,7 +15,8 @@ struct ConversationListContent: View {
   private let viewModel: ChatViewModel
   private let favoriteConversations: [Conversation]
   private let otherConversations: [Conversation]
-  private let mode: ListMode
+  private let selectedRoute: ChatRoute?
+  private let onSelect: (ChatRoute) -> Void
   private let hasLoadedOnce: Bool
   private let emptyStateMessage: (title: String, description: String, systemImage: String)
   private let onDeleteConversation: (Conversation) -> Void
@@ -37,37 +33,18 @@ struct ConversationListContent: View {
     selectedFilter: Binding<ChatFilter>,
     hasLoadedOnce: Bool,
     emptyStateMessage: (title: String, description: String, systemImage: String),
-    selection: Binding<ChatRoute?>,
+    selectedRoute: ChatRoute?,
+    onSelect: @escaping (ChatRoute) -> Void,
     onDeleteConversation: @escaping (Conversation) -> Void
   ) {
     self.viewModel = viewModel
     self.favoriteConversations = favoriteConversations
     self.otherConversations = otherConversations
+    self.selectedRoute = selectedRoute
+    self.onSelect = onSelect
     _selectedFilter = selectedFilter
     self.hasLoadedOnce = hasLoadedOnce
     self.emptyStateMessage = emptyStateMessage
-    mode = .selection(selection)
-    self.onDeleteConversation = onDeleteConversation
-  }
-
-  init(
-    viewModel: ChatViewModel,
-    favoriteConversations: [Conversation],
-    otherConversations: [Conversation],
-    selectedFilter: Binding<ChatFilter>,
-    hasLoadedOnce: Bool,
-    emptyStateMessage: (title: String, description: String, systemImage: String),
-    onNavigate: @escaping (ChatRoute) -> Void,
-    onRequestRoomAuth: @escaping (RemoteNodeSessionDTO) -> Void,
-    onDeleteConversation: @escaping (Conversation) -> Void
-  ) {
-    self.viewModel = viewModel
-    self.favoriteConversations = favoriteConversations
-    self.otherConversations = otherConversations
-    _selectedFilter = selectedFilter
-    self.hasLoadedOnce = hasLoadedOnce
-    self.emptyStateMessage = emptyStateMessage
-    mode = .navigation(onNavigate: onNavigate, onRequestRoomAuth: onRequestRoomAuth)
     self.onDeleteConversation = onDeleteConversation
   }
 
@@ -183,26 +160,15 @@ struct ConversationListContent: View {
 
   @ViewBuilder
   private func rowView(_ conversation: Conversation, referenceDate: Date) -> some View {
-    switch mode {
-    case let .selection(selection):
-      ConversationSelectionRow(
-        conversation: conversation,
-        viewModel: viewModel,
-        referenceDate: referenceDate,
-        isSelected: selection.wrappedValue == ChatRoute(conversation: conversation),
-        onSelect: { selection.wrappedValue = ChatRoute(conversation: conversation) },
-        onDelete: { onDeleteConversation(conversation) }
-      )
-    case let .navigation(onNavigate, onRequestRoomAuth):
-      ConversationNavigationRow(
-        conversation: conversation,
-        viewModel: viewModel,
-        referenceDate: referenceDate,
-        onNavigate: onNavigate,
-        onRequestRoomAuth: onRequestRoomAuth,
-        onDelete: { onDeleteConversation(conversation) }
-      )
-    }
+    let route = ChatRoute(conversation: conversation)
+    ConversationSelectionRow(
+      conversation: conversation,
+      viewModel: viewModel,
+      referenceDate: referenceDate,
+      isSelected: selectedRoute == route,
+      onSelect: { onSelect(route) },
+      onDelete: { onDeleteConversation(conversation) }
+    )
   }
 }
 
@@ -261,37 +227,5 @@ private struct ConversationSelectionRow: View {
     .deletingRowOverlay(isDeleting: isDeleting)
     .conversationContextMenu(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
     .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
-  }
-}
-
-private struct ConversationNavigationRow: View {
-  let conversation: Conversation
-  let viewModel: ChatViewModel
-  let referenceDate: Date
-  let onNavigate: (ChatRoute) -> Void
-  let onRequestRoomAuth: (RemoteNodeSessionDTO) -> Void
-  let onDelete: () -> Void
-
-  private var isDeleting: Bool {
-    viewModel.deletingIDs.contains(conversation.id)
-  }
-
-  var body: some View {
-    Button(action: tap) {
-      ConversationRowLabel(conversation: conversation, viewModel: viewModel, referenceDate: referenceDate)
-    }
-    .buttonStyle(.plain)
-    .deletingRowOverlay(isDeleting: isDeleting)
-    .conversationContextMenu(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
-    .conversationSwipeActions(conversation: conversation, viewModel: viewModel, onDelete: onDelete)
-  }
-
-  private func tap() {
-    let route = ChatRoute(conversation: conversation)
-    if case let .room(session) = conversation, !session.isConnected {
-      onRequestRoomAuth(session)
-    } else {
-      onNavigate(route)
-    }
   }
 }

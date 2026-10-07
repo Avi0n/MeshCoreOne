@@ -67,6 +67,15 @@ enum ChatConversationType {
     }
   }
 
+  var chatRouteKind: ChatRoute.Kind {
+    switch self {
+    case .dm:
+      .direct
+    case .channel:
+      .channel
+    }
+  }
+
   /// Stable key for the per-radio draft store. The channel case keys on the slot
   /// `index`, not `conversationID` (a UUID), to align with the slot-based draft
   /// cleanup on channel delete, sync prune, and backup-import relocation.

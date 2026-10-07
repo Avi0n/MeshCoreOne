@@ -354,6 +354,12 @@ final class TracePathMapViewModel {
 
   // MARK: - Trace Execution
 
+  func startTrace() {
+    centerOnPath()
+    traceViewModel?.batchEnabled = false
+    traceViewModel?.startTrace()
+  }
+
   func runTrace() async {
     centerOnPath()
     traceViewModel?.batchEnabled = false

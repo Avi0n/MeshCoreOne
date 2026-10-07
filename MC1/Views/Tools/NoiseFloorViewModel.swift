@@ -70,9 +70,28 @@ final class NoiseFloorViewModel {
   var readings: [NoiseFloorReading] = []
   var isPolling = false
   var errorMessage: String?
+  /// Chart x-axis origin for this workspace. Kept across stop/start so a gap
+  /// in polling does not shift retained samples.
+  private(set) var chartStartTime: Date?
+
+  static let chartWindowSeconds: Double = 300
+
+  var chartDomain: ClosedRange<Double> {
+    guard let startTime = chartStartTime, let lastReading = readings.last else {
+      return 0...Self.chartWindowSeconds
+    }
+    let latestElapsed = max(0, lastReading.timestamp.timeIntervalSince(startTime))
+    if latestElapsed <= Self.chartWindowSeconds {
+      return 0...Self.chartWindowSeconds
+    }
+    return (latestElapsed - Self.chartWindowSeconds)...latestElapsed
+  }
 
   private let maxReadings = 200
   private let pollingInterval: Duration = .seconds(1.5)
+  #if DEBUG
+    private(set) var radioStatsReadCountForTesting = 0
+  #endif
 
   // Re-evaluated each poll tick so a disconnect mid-poll surfaces immediately.
   private var sessionProvider: @MainActor () -> MeshCoreSession? = { nil }
@@ -109,8 +128,19 @@ final class NoiseFloorViewModel {
     errorMessage = nil
   }
 
+  func setWorkspaceActive(_ active: Bool, sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
+    if active {
+      startPolling(sessionProvider: sessionProvider)
+    } else {
+      stopPolling()
+    }
+  }
+
   func startPolling(sessionProvider: @escaping @MainActor () -> MeshCoreSession?) {
     self.sessionProvider = sessionProvider
+    if chartStartTime == nil {
+      chartStartTime = Date()
+    }
     guard pollingTask == nil else { return }
     isPolling = true
 
@@ -140,6 +170,9 @@ final class NoiseFloorViewModel {
     }
 
     do {
+      #if DEBUG
+        radioStatsReadCountForTesting += 1
+      #endif
       let stats = try await session.getStatsRadio()
       let reading = NoiseFloorReading(
         id: UUID(),

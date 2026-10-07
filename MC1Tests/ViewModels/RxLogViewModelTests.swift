@@ -222,7 +222,65 @@ struct RxLogViewModelTests {
     #expect(map[Data([0xAA])] == "AJ")
   }
 
+  @Test
+  func `subscribe stores stream entries and unsubscribe drops later ones`() async throws {
+    let services = try await ServiceContainer.forTesting(
+      session: MeshCoreSession(transport: MockTransport())
+    )
+    let service = services.rxLogService
+    await service.startEventMonitoring(radioID: UUID())
+    defer { Task { await service.stopEventMonitoring() } }
+
+    let viewModel = RxLogViewModel()
+    viewModel.configure(
+      rxLogService: { service },
+      dataStore: { nil },
+      radioID: { nil }
+    )
+
+    await viewModel.subscribe()
+    #expect(viewModel.streamTaskForTesting != nil)
+
+    let first = parsedPacket(raw: 0x11)
+    await service.process(first)
+    try await waitUntil(timeout: .seconds(1), "first stream entry should append") {
+      viewModel.entries.contains { $0.rawPayload == first.rawPayload }
+    }
+
+    viewModel.unsubscribe()
+    #expect(viewModel.streamTaskForTesting == nil)
+
+    let dropped = parsedPacket(raw: 0x22)
+    await service.process(dropped)
+    try await Task.sleep(for: .milliseconds(100))
+    #expect(viewModel.entries.contains { $0.rawPayload == dropped.rawPayload } == false)
+
+    await viewModel.subscribe()
+    let later = parsedPacket(raw: 0x33)
+    await service.process(later)
+    try await waitUntil(timeout: .seconds(1), "later stream entry should append") {
+      viewModel.entries.contains { $0.rawPayload == later.rawPayload }
+    }
+    viewModel.unsubscribe()
+  }
+
   // MARK: - Helpers
+
+  private func parsedPacket(raw: UInt8) -> ParsedRxLogData {
+    ParsedRxLogData(
+      snr: nil,
+      rssi: nil,
+      rawPayload: Data([raw]),
+      routeType: .flood,
+      payloadType: .unknown,
+      payloadVersion: 0,
+      payloadTypeBits: 0,
+      transportCode: nil,
+      pathLength: 0,
+      pathNodes: [],
+      packetPayload: Data([raw])
+    )
+  }
 
   private func makeDTO(
     routeType: RouteType = .flood,

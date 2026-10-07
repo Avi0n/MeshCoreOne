@@ -1,19 +1,13 @@
 import MC1Services
 import SwiftUI
 
-/// The iPad sidebar's Nodes content column. It mirrors the regular-width (split) path of
-/// `ContactsListView`, hosting `ContactsSidebarContent` with the same toolbar, searchable,
-/// sheets, and handlers. The compact (stack) path stays solely in `ContactsListView`.
-///
-/// Selection is driven through `appState.navigation.selectedContact` rather than view-local
-/// state so the detail column can read it. `ContactsSidebarContent`'s
-/// `pendingContactDetail` bridge writes through that binding; its `initial: true` resolves a
-/// deep link (e.g. a notification tap) the first time Nodes is entered, and this view is
-/// instantiated whenever Nodes is selected.
+/// Nodes list column. Search, filter, and sheet state live here so they survive
+/// column collapse. Selection is `selectedContact` / `nodesShowingDiscovery`.
 struct ContactsContentColumn: View {
   @Environment(\.appState) private var appState
 
-  @State private var viewModel = ContactsViewModel()
+  let viewModel: ContactsViewModel
+
   @State private var searchText = ""
   @State private var selectedSegment: NodeSegment = .contacts
   @AppStorage(AppStorageKey.nodesSortOrder.rawValue) private var sortOrder: NodeSortOrder = .lastHeard
@@ -28,26 +22,21 @@ struct ContactsContentColumn: View {
   }
 
   var body: some View {
-    @Bindable var navigation = appState.navigation
-
     ContactsSidebarContent(
       viewModel: viewModel,
       filteredContacts: actions.filteredContacts(searchText: searchText, segment: selectedSegment, sortOrder: sortOrder),
       isSearching: !searchText.isEmpty,
       searchPrompt: actions.searchPrompt,
-      shouldUseSplitView: true,
       selectedSegment: $selectedSegment,
-      selectedContact: $navigation.selectedContact,
+      selectedContact: appState.navigation.selectedContact,
       searchText: $searchText,
       sortOrder: $sortOrder,
-      showDiscovery: $navigation.nodesShowingDiscovery,
       syncSuccessTrigger: $syncSuccessTrigger,
       showShareMyContact: $showShareMyContact,
       showAddContact: $showAddContact,
       showLocationDeniedAlert: $showLocationDeniedAlert,
       showOfflineRefreshAlert: $showOfflineRefreshAlert,
-      // Compact-only navigation, unused on the split path which drives selection via selectedContact.
-      navigationPath: .constant(NavigationPath()),
+      onSelect: selectContact,
       onLoadContacts: actions.loadContacts,
       onSyncContacts: actions.syncContacts,
       onAnnounceOfflineStateIfNeeded: actions.announceOfflineStateIfNeeded
@@ -57,12 +46,22 @@ struct ContactsContentColumn: View {
         appState.navigation.nodesShowingDiscovery = false
       }
     }
+    .onChange(of: viewModel.pendingRemovalIDs) { _, ids in
+      if let selected = appState.navigation.selectedContact, ids.contains(selected.id) {
+        appState.navigation.clearSelectedContact(matching: selected.id)
+      }
+    }
+  }
+
+  private func selectContact(_ contact: ContactDTO) {
+    appState.navigation.selectedContact = contact
+    appState.navigation.nodesShowingDiscovery = false
   }
 }
 
 #Preview {
   NavigationStack {
-    ContactsContentColumn()
+    ContactsContentColumn(viewModel: ContactsViewModel())
   }
   .environment(\.appState, AppState())
 }

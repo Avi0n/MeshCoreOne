@@ -16,27 +16,26 @@ struct ContactsSidebarContent: View {
   let filteredContacts: [ContactDTO]
   let isSearching: Bool
   let searchPrompt: String
-  let shouldUseSplitView: Bool
 
   @Binding var selectedSegment: NodeSegment
-  @Binding var selectedContact: ContactDTO?
+  let selectedContact: ContactDTO?
   @Binding var searchText: String
   @Binding var sortOrder: NodeSortOrder
-  @Binding var showDiscovery: Bool
   @Binding var syncSuccessTrigger: Bool
   @Binding var showShareMyContact: Bool
   @Binding var showAddContact: Bool
   @Binding var showLocationDeniedAlert: Bool
   @Binding var showOfflineRefreshAlert: Bool
-  @Binding var navigationPath: NavigationPath
 
+  let onSelect: (ContactDTO) -> Void
   let onLoadContacts: () async -> Void
   let onSyncContacts: () async -> Void
   let onAnnounceOfflineStateIfNeeded: () -> Void
 
   var body: some View {
     ContactsListContent(
-      mode: shouldUseSplitView ? .selection($selectedContact) : .navigation,
+      selectedContact: selectedContact,
+      onSelect: onSelect,
       selectedSegment: $selectedSegment,
       isSearching: isSearching,
       searchText: searchText,
@@ -48,11 +47,6 @@ struct ContactsSidebarContent: View {
     .navigationTitle(L10n.Contacts.Contacts.List.title)
     .navigationDestination(for: ContactRoute.self) { route in
       switch route {
-      case let .detail(contact):
-        // Prefer the freshest row from the loaded list; fall back to the carried
-        // payload for pushes that precede a load (e.g. a notification deep link).
-        ContactDetailView(contact: viewModel.contacts.first { $0.id == contact.id } ?? contact)
-          .id(contact.id)
       case .blockedContacts:
         BlockedContactsView()
       }
@@ -108,10 +102,7 @@ struct ContactsSidebarContent: View {
           Divider()
 
           Button {
-            if shouldUseSplitView {
-              selectedContact = nil
-            }
-            showDiscovery = true
+            appState.navigation.navigateToDiscovery()
           } label: {
             Label(L10n.Contacts.Contacts.List.discover, systemImage: "antenna.radiowaves.left.and.right")
           }
@@ -181,25 +172,11 @@ struct ContactsSidebarContent: View {
         selectedSegment = .favorites
       }
     }
-    .onChange(of: appState.navigation.pendingDiscoveryNavigation, initial: true) { _, shouldNavigate in
-      if shouldNavigate {
-        showDiscovery = true
-        appState.navigation.clearPendingDiscoveryNavigation()
-      }
-    }
-    .onChange(of: appState.navigation.pendingContactDetail, initial: true) { _, contact in
+    .onChange(of: appState.navigation.selectedContact, initial: true) { _, contact in
       guard let contact else { return }
-
-      viewModel.upsert(contact)
-
-      if shouldUseSplitView {
-        selectedContact = contact
-      } else {
-        navigationPath.removeLast(navigationPath.count)
-        navigationPath.append(ContactRoute.detail(contact))
-      }
-
-      appState.navigation.clearPendingContactDetailNavigation()
+      // Admit a just-added contact before the next reload, or the list drops the row
+      // the detail pane is already showing.
+      viewModel.admitIfAbsent(contact)
     }
     .onChange(of: appState.locationService.authorizationStatus) { _, status in
       if sortOrder == .distance {

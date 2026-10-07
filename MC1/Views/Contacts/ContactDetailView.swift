@@ -484,6 +484,7 @@ struct ContactDetailView: View {
         radioID: currentContact.radioID,
         publicKey: currentContact.publicKey
       )
+      appState.navigation.clearSelectedContact(matching: currentContact.id)
       dismiss()
     } catch {
       errorMessage = error.userFacingMessage

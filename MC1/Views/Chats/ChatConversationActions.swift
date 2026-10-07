@@ -1,9 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// Layout-independent conversation actions shared by the compact `ChatsView` (stack) and the iPad
-/// `ChatsContentColumn` (split). Both list layouts run these service sequences identically; only the
-/// navigation glue around them (which stack/selection to update) differs, so that stays in each view.
+/// Service sequences for deleting channels and leaving rooms. Navigation updates
+/// stay in the caller so both the split host and list column share one route.
 enum ChatConversationActions {
   /// A channel deletion that failed, surfaced in a retry alert.
   struct Failure {

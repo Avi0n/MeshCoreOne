@@ -15,11 +15,8 @@ enum SettingsSubpage: Hashable {
 }
 
 extension View {
-  /// Registers the `SettingsSubpage` destinations on the enclosing navigation stack. Each
-  /// hosting page applies this to its own `List` so the pushes resolve in every stack that
-  /// hosts the page (the compact Settings stack and the iPad detail column).
-  /// Destination content is a stack sibling of the host, so it does not inherit the host's
-  /// environment.
+  /// Registers `SettingsSubpage` pushes on each host list. Destinations are stack siblings,
+  /// so they do not inherit the host's environment.
   @MainActor
   func settingsSubpageDestinations(
     presetLocationSession: PresetLocationSession? = nil

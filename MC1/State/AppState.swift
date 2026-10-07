@@ -503,6 +503,7 @@ final class AppState {
     rxLogEventsTask = nil
     messageEventDispatcher.cancelAll()
     navigation.clearPendingLinks()
+    resetRadioScopedToolWorkspaces()
   }
 
   /// Presents the guided pairing-failure recovery for an invalidated bond, only
@@ -525,9 +526,16 @@ final class AppState {
     if case let .channel(selected) = navigation.chatsSelectedRoute,
        selected.radioID == radioID,
        indices.contains(selected.index) {
-      navigation.chatsSelectedRoute = nil
+      if navigation.pendingScrollTarget?.conversationID == selected.id {
+        navigation.clearPendingScrollToMessage()
+      }
+      navigation.setChatsRoute(nil)
     }
     refreshConversations()
+  }
+
+  private func resetRadioScopedToolWorkspaces() {
+    cliToolViewModel?.reset()
   }
 
   /// Wire services-dependent callbacks after a successful connection.
@@ -540,7 +548,6 @@ final class AppState {
         lastConnectedDeviceID: connectionManager.lastConnectedDeviceID,
         shouldSuppressDisconnectedPill: connectionManager.shouldSuppressDisconnectedPill
       )
-      cliToolViewModel?.reset()
       batteryMonitor.stop()
       batteryMonitor.clearThresholds()
       await liveActivityManager.handleConnectionLost()
@@ -567,7 +574,7 @@ final class AppState {
     if let newDeviceID = connectedDevice?.id,
        let oldDeviceID = lastConnectedDeviceIDForCLI,
        newDeviceID != oldDeviceID {
-      cliToolViewModel?.reset()
+      resetRadioScopedToolWorkspaces()
       navigation.clearPerRadioSelection()
     }
     lastConnectedDeviceIDForCLI = connectedDevice?.id
@@ -692,13 +699,6 @@ final class AppState {
     } else {
       navigation.pendingDeviceMenuTipDonation = true
     }
-  }
-
-  /// Donates the tip unconditionally. Used on iPad where the radio is always
-  /// visible in the sidebar regardless of which section is selected.
-  func donateDeviceMenuTip() async {
-    navigation.pendingDeviceMenuTipDonation = false
-    await DeviceMenuTip.hasCompletedOnboarding.donate()
   }
 
   #if DEBUG

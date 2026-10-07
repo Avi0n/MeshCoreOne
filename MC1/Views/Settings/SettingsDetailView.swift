@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// Renders the destination for a `SettingsDetail`. Single source of truth for the settings detail
-/// pages, used by the compact `SettingsView` (`navigationDestination`) and the iPad split's detail
-/// column (`MainSidebarView`).
+/// Renders the destination for a `SettingsDetail`. Used as the split detail
+/// root by `SettingsView`.
 struct SettingsDetailView: View {
   @Environment(\.appState) private var appState
   let detail: SettingsDetail

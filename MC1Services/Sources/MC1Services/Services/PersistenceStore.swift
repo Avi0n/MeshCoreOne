@@ -119,6 +119,9 @@ public actor PersistenceStore: ModelActor, PersistenceStoreProtocol {
     /// Test-only hook at the top of `fetchDevice(id:)`. The pairing query skips that id on throw.
     var fetchDeviceByIDFaultInjection: (@Sendable () throws -> Void)?
 
+    /// Test-only hook at the top of `fetchContactIDs`. A throw leaves that fetch unfinished.
+    var fetchContactIDsFaultInjection: (@Sendable () throws -> Void)?
+
     func setDeleteContactsFaultInjection(_ hook: (@Sendable () throws -> Void)?) {
       deleteContactsFaultInjection = hook
     }

@@ -1,9 +1,7 @@
 import SwiftUI
 
-/// The set of Settings detail pages reached from the settings list. Shared by the compact
-/// `SettingsView` (which pushes each via `NavigationLink(value:)`) and the iPad split columns
-/// (`SettingsListContent` list selection + `SettingsDetailView` detail), and persisted as the
-/// active selection on `NavigationCoordinator`.
+/// Settings pages reached from the settings list. `SettingsListContent` writes
+/// the selection; `SettingsDetailView` renders it in the split detail.
 enum SettingsDetail: Hashable {
   case deviceInfo
   case radio

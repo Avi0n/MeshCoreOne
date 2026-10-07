@@ -17,9 +17,10 @@ struct CLITerminalView: View {
   let showSessionsButton: Bool
 
   @Binding var currentInput: String
-  @Binding var isKeyboardFocused: Bool
   @Binding var scrollPosition: ScrollPosition
   @Binding var cursorPosition: Int
+
+  @State private var keyboardFocus = CLIKeyboardFocus()
 
   let onSubmit: () -> Void
   let onHistoryUp: () -> Void
@@ -31,7 +32,6 @@ struct CLITerminalView: View {
   let onPaste: () -> Void
   let onSessions: () -> Void
   let onCancel: () -> Void
-  let onDismiss: () -> Void
   let onClear: () -> Void
   let onUpdateGhostText: (_ cursorAtEnd: Bool) -> Void
   let onClearTabState: () -> Void
@@ -92,7 +92,7 @@ struct CLITerminalView: View {
       .onChange(of: outputLines.count) { _, _ in
         scrollPosition.scrollTo(edge: .bottom)
       }
-      .onChange(of: isKeyboardFocused) { _, focused in
+      .onChange(of: keyboardFocus.isFocused) { _, focused in
         if focused {
           Task {
             try? await Task.sleep(for: .milliseconds(100))
@@ -115,7 +115,7 @@ struct CLITerminalView: View {
 
       HiddenTextViewFocusable(
         text: $currentInput,
-        isFocused: $isKeyboardFocused,
+        keyboardFocus: $keyboardFocus,
         cursorPosition: $cursorPosition,
         onSubmit: onSubmit,
         onHistoryUp: onHistoryUp,
@@ -134,14 +134,12 @@ struct CLITerminalView: View {
     }
     .background(Color(.secondarySystemBackground))
     .contentShape(.rect)
-    // onTapGesture is intentional: a Button in .background can't receive
-    // taps through the ScrollView, and this is a non-semantic "tap anywhere
-    // to focus keyboard" gesture, not a discrete button action.
+    // A Button behind the ScrollView cannot receive the tap. Tap anywhere to focus.
     .onTapGesture {
-      isKeyboardFocused = true
+      keyboardFocus.onTap()
     }
     .safeAreaInset(edge: .bottom) {
-      if isKeyboardFocused {
+      if keyboardFocus.isFocused {
         CLIInputAccessoryView(
           isWaiting: isWaitingForResponse,
           showSessionsButton: showSessionsButton,
@@ -153,7 +151,7 @@ struct CLITerminalView: View {
           onPaste: onPaste,
           onSessions: onSessions,
           onCancel: onCancel,
-          onDismiss: onDismiss
+          onDismiss: resignKeyboard
         )
         .padding(.bottom, {
           if #available(iOS 26.0, *) {
@@ -184,7 +182,7 @@ struct CLITerminalView: View {
       if isWaitingForResponse {
         onCancel()
       } else {
-        isKeyboardFocused = false
+        keyboardFocus.clearFocus()
       }
       return .handled
     }
@@ -196,13 +194,23 @@ struct CLITerminalView: View {
       return .ignored
     }
     .onAppear {
-      isKeyboardFocused = true
+      keyboardFocus.onAppear()
     }
     .onDisappear {
       // Clear the focus request when leaving so the gated accessory bar
       // can't persist across navigation and re-mount on return.
-      isKeyboardFocused = false
+      keyboardFocus.clearFocus()
     }
+  }
+
+  private func resignKeyboard() {
+    // UIKit resign only. A focus write from this button relayouts the bar while the keyboard is dismissing.
+    UIApplication.shared.sendAction(
+      #selector(UIResponder.resignFirstResponder),
+      to: nil,
+      from: nil,
+      for: nil
+    )
   }
 
   private var inlinePrompt: some View {
@@ -218,7 +226,7 @@ struct CLITerminalView: View {
           .font(terminalFont)
           .accessibilityLabel(L10n.Tools.Tools.Cli.commandInput)
 
-        if isKeyboardFocused {
+        if keyboardFocus.isFocused {
           Rectangle()
             .fill(Color.primary)
             .frame(width: 2, height: 14)
