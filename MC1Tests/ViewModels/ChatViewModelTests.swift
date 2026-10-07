@@ -94,6 +94,39 @@ private func makeTimestamp(_ year: Int, _ month: Int, _ day: Int, _ hour: Int, _
   UInt32(makeDate(year, month, day, hour, minute).timeIntervalSince1970)
 }
 
+private func envInputs(isDark: Bool, mapBasemapIsDark: Bool) -> EnvInputs {
+  let base = EnvInputs.default
+  return EnvInputs(
+    autoPlayGIFs: base.autoPlayGIFs,
+    showIncomingPath: base.showIncomingPath,
+    showIncomingHopCount: base.showIncomingHopCount,
+    showIncomingRegion: base.showIncomingRegion,
+    showIncomingHeardCount: base.showIncomingHeardCount,
+    showIncomingSendTime: base.showIncomingSendTime,
+    previewsEnabled: base.previewsEnabled,
+    isHighContrast: base.isHighContrast,
+    isDark: isDark,
+    mapBasemapIsDark: mapBasemapIsDark,
+    showMapPreviews: base.showMapPreviews,
+    isOffline: base.isOffline,
+    currentUserName: base.currentUserName,
+    themeID: base.themeID,
+    contentSizeCategory: base.contentSizeCategory,
+    preferredLanguageCode: base.preferredLanguageCode
+  )
+}
+
+@MainActor
+private func formattedBody(of viewModel: ChatViewModel) -> AttributedString? {
+  guard let item = viewModel.items.first else { return nil }
+  for fragment in item.content {
+    if case let .text(payload) = fragment {
+      return payload.formatted
+    }
+  }
+  return nil
+}
+
 // MARK: - ChatViewModel Tests
 
 @Suite("ChatViewModel Tests")
@@ -313,42 +346,37 @@ struct ChatViewModelTests {
   }
 
   @Test
-  func `buildItems clears stale mapPreviewRequestIndex so theme-toggle keys do not leak`() async {
+  func `buildItems clears stale mapPreviewRequestIndex so theme-toggle keys do not leak`() async throws {
     let viewModel = ChatViewModel()
     let coordinator = ChatCoordinator.makeForTesting()
     viewModel.bindCoordinatorForTesting(coordinator)
 
-    // Outgoing message so coordinate-text path runs without sender-name resolution.
-    let message = createTestMessage(timestamp: 1000, text: "see 37.7749, -122.4194")
+    // Incoming so the mention run bakes identity color from chrome darkness.
+    let message = createChannelMessage(
+      timestamp: 1000,
+      text: "see 37.7749, -122.4194 @[Ada]"
+    )
     viewModel.appendMessageIfNew(message)
 
     let lightOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: false, isOffline: false)
     #expect(viewModel.bake.mapPreviewRequestIndex[lightOnline]?.contains(message.id) == true)
+    let lightMention = try #require(formattedBody(of: viewModel))
 
-    let darkEnv = EnvInputs(
-      autoPlayGIFs: EnvInputs.default.autoPlayGIFs,
-      showIncomingPath: EnvInputs.default.showIncomingPath,
-      showIncomingHopCount: EnvInputs.default.showIncomingHopCount,
-      showIncomingRegion: EnvInputs.default.showIncomingRegion,
-      showIncomingHeardCount: EnvInputs.default.showIncomingHeardCount,
-      showIncomingSendTime: EnvInputs.default.showIncomingSendTime,
-      previewsEnabled: EnvInputs.default.previewsEnabled,
-      isHighContrast: EnvInputs.default.isHighContrast,
-      isDark: true,
-      showMapPreviews: EnvInputs.default.showMapPreviews,
-      isOffline: EnvInputs.default.isOffline,
-      currentUserName: EnvInputs.default.currentUserName,
-      themeID: EnvInputs.default.themeID,
-      contentSizeCategory: EnvInputs.default.contentSizeCategory,
-      preferredLanguageCode: EnvInputs.default.preferredLanguageCode
-    )
-    viewModel.applyEnvInputs(darkEnv)
+    viewModel.applyEnvInputs(envInputs(isDark: false, mapBasemapIsDark: true))
     await coordinator.buildItemsTask?.value
 
-    // Stale light-mode key must be gone after the rebuild.
-    #expect(viewModel.bake.mapPreviewRequestIndex[lightOnline] == nil)
     let darkOnline = MapSnapshotRequest(latitude: 37.7749, longitude: -122.4194, isDark: true, isOffline: false)
+    #expect(viewModel.bake.mapPreviewRequestIndex[lightOnline] == nil)
     #expect(viewModel.bake.mapPreviewRequestIndex[darkOnline]?.contains(message.id) == true)
+    #expect(formattedBody(of: viewModel) == lightMention)
+
+    viewModel.applyEnvInputs(envInputs(isDark: true, mapBasemapIsDark: false))
+    await coordinator.buildItemsTask?.value
+
+    #expect(viewModel.bake.mapPreviewRequestIndex[darkOnline] == nil)
+    #expect(viewModel.bake.mapPreviewRequestIndex[lightOnline]?.contains(message.id) == true)
+    let darkMention = try #require(formattedBody(of: viewModel))
+    #expect(darkMention != lightMention)
   }
 
   @Test
@@ -375,6 +403,7 @@ struct ChatViewModelTests {
       previewsEnabled: EnvInputs.default.previewsEnabled,
       isHighContrast: EnvInputs.default.isHighContrast,
       isDark: EnvInputs.default.isDark,
+      mapBasemapIsDark: EnvInputs.default.mapBasemapIsDark,
       showMapPreviews: EnvInputs.default.showMapPreviews,
       isOffline: EnvInputs.default.isOffline,
       currentUserName: EnvInputs.default.currentUserName,
@@ -935,6 +964,7 @@ struct ChatViewModelImageGatingTests {
       previewsEnabled: previewsEnabled,
       isHighContrast: false,
       isDark: false,
+      mapBasemapIsDark: false,
       showMapPreviews: false,
       isOffline: false,
       currentUserName: "Me",
@@ -1106,6 +1136,7 @@ struct ChatViewModelOrphanRecoveryTests {
       previewsEnabled: true,
       isHighContrast: false,
       isDark: false,
+      mapBasemapIsDark: false,
       showMapPreviews: false,
       isOffline: false,
       currentUserName: "Me",

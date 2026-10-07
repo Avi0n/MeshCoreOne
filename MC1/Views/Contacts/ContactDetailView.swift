@@ -1044,7 +1044,6 @@ private struct ContactInfoSection: View {
 
 private struct ContactLocationSection: View {
   @Environment(\.appState) private var appState
-  @Environment(\.colorScheme) private var colorScheme
   @Environment(\.appTheme) private var theme
 
   let currentContact: ContactDTO
@@ -1067,7 +1066,6 @@ private struct ContactLocationSection: View {
           )],
           lines: [],
           mapStyle: .standard,
-          isDarkMode: colorScheme == .dark,
           isOffline: !appState.offlineMapService.isNetworkAvailable,
           showLabels: false,
           showsUserLocation: false,
@@ -1134,7 +1132,6 @@ private struct ContactLocationSection: View {
 private struct ContactFullMapView: View {
   @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.colorScheme) private var colorScheme
 
   let contact: ContactDTO
 
@@ -1155,7 +1152,6 @@ private struct ContactFullMapView: View {
         )],
         lines: [],
         mapStyle: .standard,
-        isDarkMode: colorScheme == .dark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: true,
         showsUserLocation: true,

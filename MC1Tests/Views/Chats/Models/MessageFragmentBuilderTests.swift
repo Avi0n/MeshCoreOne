@@ -700,6 +700,7 @@ struct MessageFragmentBuilderTests {
     previewsEnabled: Bool = false,
     isHighContrast: Bool = false,
     isDark: Bool = false,
+    mapBasemapIsDark: Bool = false,
     showMapPreviews: Bool = true,
     isOffline: Bool = false,
     currentUserName: String = "Me"
@@ -714,6 +715,7 @@ struct MessageFragmentBuilderTests {
       previewsEnabled: previewsEnabled,
       isHighContrast: isHighContrast,
       isDark: isDark,
+      mapBasemapIsDark: mapBasemapIsDark,
       showMapPreviews: showMapPreviews,
       isOffline: isOffline,
       currentUserName: currentUserName,
@@ -732,16 +734,27 @@ struct MessageFragmentBuilderTests {
       mapPreviewLongitude: -122.4194,
       isMapPreviewReady: true
     )
-    let item = MessageFragmentBuilder.makeItem(for: message, inputs: inputs, envInputs: makeEnvInputs(isDark: true))
+    let chromeOnly = MessageFragmentBuilder.makeItem(
+      for: message,
+      inputs: inputs,
+      envInputs: makeEnvInputs(isDark: true, mapBasemapIsDark: false)
+    )
+    let basemapDark = MessageFragmentBuilder.makeItem(
+      for: message,
+      inputs: inputs,
+      envInputs: makeEnvInputs(isDark: true, mapBasemapIsDark: true)
+    )
 
-    guard case let .mapPreview(state) = item.content.last else {
+    guard case let .mapPreview(chromeState) = chromeOnly.content.last,
+          case let .mapPreview(basemapState) = basemapDark.content.last else {
       Issue.record("expected a trailing mapPreview fragment")
       return
     }
-    #expect(state.latitude == 37.7749)
-    #expect(state.longitude == -122.4194)
-    #expect(state.isDark == true)
-    #expect(state.isReady == true)
+    #expect(chromeState.latitude == 37.7749)
+    #expect(chromeState.longitude == -122.4194)
+    #expect(chromeState.isDark == false)
+    #expect(chromeState.isReady == true)
+    #expect(basemapState.isDark == true)
   }
 
   @Test

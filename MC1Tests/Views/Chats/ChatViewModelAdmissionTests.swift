@@ -296,6 +296,7 @@ struct ChatViewModelAdmissionTests {
       previewsEnabled: previewsEnabled,
       isHighContrast: false,
       isDark: false,
+      mapBasemapIsDark: false,
       showMapPreviews: false,
       isOffline: false,
       currentUserName: "Me",

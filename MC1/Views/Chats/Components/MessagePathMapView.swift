@@ -20,7 +20,6 @@ struct MessagePathMapView: View {
 
   @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.colorScheme) private var colorScheme
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
   let message: MessageDTO
@@ -139,7 +138,7 @@ struct MessagePathMapView: View {
         points: canvas.points,
         lines: canvas.lines,
         mapStyle: mapStyle,
-        isDarkMode: colorScheme == .dark,
+        isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
         clusteringEnabled: false,
         showsUserLocation: false,

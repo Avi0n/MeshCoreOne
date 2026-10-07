@@ -14,7 +14,6 @@ import SwiftUI
 /// likewise a push, not a sheet, for the same reason.
 struct NeighborSNRMapView: View {
   @Environment(\.appState) private var appState
-  @Environment(\.colorScheme) private var colorScheme
 
   let session: RemoteNodeSessionDTO
   let neighbors: [NeighbourInfo]
@@ -30,17 +29,10 @@ struct NeighborSNRMapView: View {
   @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
   private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
-  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
-  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
   @AppStorage(AppStorageKey.mapFilterNeighborSNR.rawValue)
   private var mapFilterRaw: String = ""
 
   @State private var cameraRegion: MKCoordinateRegion?
-
-  private var mapIsDark: Bool {
-    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
-    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
-  }
 
   private var mapFilter: MapFilterState {
     MapFilterPreferences.state(fromRaw: mapFilterRaw, host: .neighborSNR)
@@ -62,7 +54,6 @@ struct NeighborSNRMapView: View {
         points: plotted?.points ?? [],
         lines: plotted?.lines ?? [],
         mapStyle: mapStyleSelection,
-        isDarkMode: mapIsDark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
         clusteringEnabled: clusteringEnabled,

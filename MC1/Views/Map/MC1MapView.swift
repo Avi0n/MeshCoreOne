@@ -6,12 +6,18 @@ import SwiftUI
 private let logger = Logger(subsystem: "com.mc1", category: "MapPins")
 
 struct MC1MapView: UIViewRepresentable {
+  @Environment(\.mapColorSchemePreference) private var mapColorSchemePreference
+  @Environment(\.colorScheme) private var colorScheme
+
   // Data
   let points: [MapPoint]
   let lines: [MapLine]
   let mapStyle: MapStyleSelection
-  let isDarkMode: Bool
   var isOffline: Bool = false
+
+  private var basemapIsDark: Bool {
+    resolvedMapIsDark(preference: mapColorSchemePreference, colorScheme: colorScheme)
+  }
 
   // Configuration
   let showLabels: Bool
@@ -120,12 +126,12 @@ struct MC1MapView: UIViewRepresentable {
     coordinator.currentLines = lines
     // Set before the styleURL below: a theme switch changes the styleURL and triggers
     // a reload, so didFinishLoading -> renderAll must already see the new theme.
-    coordinator.currentIsDarkMode = isDarkMode
+    coordinator.currentIsDarkMode = basemapIsDark
     coordinator.currentClusteringEnabled = clusteringEnabled
 
     // Style URL change — compare against our tracked value, not mapView.styleURL
     // which MapLibre may transiently nil during layout/rotation.
-    let newStyleURL = mapStyle.styleURL(isDarkMode: isDarkMode, isOffline: isOffline)
+    let newStyleURL = mapStyle.styleURL(isDarkMode: basemapIsDark, isOffline: isOffline)
     if coordinator.lastAppliedStyleURL != newStyleURL {
       coordinator.lastAppliedStyleURL = newStyleURL
       coordinator.isStyleLoaded = false

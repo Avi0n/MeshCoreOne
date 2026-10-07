@@ -160,10 +160,6 @@ private struct OfflinePackRow: View {
 private struct RegionPickerSheet: View {
   @Environment(\.appState) private var appState
   @Environment(\.dismiss) private var dismiss
-  @Environment(\.colorScheme) private var colorScheme
-
-  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
-  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
 
   @State private var regionName = ""
   @State private var cameraRegion: MKCoordinateRegion?
@@ -178,11 +174,6 @@ private struct RegionPickerSheet: View {
 
   private static let selectionPadding: CGFloat = 40
 
-  private var mapIsDark: Bool {
-    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
-    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
-  }
-
   var body: some View {
     NavigationStack {
       ZStack {
@@ -190,7 +181,7 @@ private struct RegionPickerSheet: View {
           points: [],
           lines: [],
           mapStyle: .standard,
-          isDarkMode: mapIsDark,
+          isOffline: !appState.offlineMapService.isNetworkAvailable,
           showLabels: false,
           showsUserLocation: true,
           isInteractive: true,

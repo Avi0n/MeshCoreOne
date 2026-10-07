@@ -8,7 +8,6 @@ import SwiftUI
 struct LineOfSightMapView: View {
   @Bindable var viewModel: LineOfSightViewModel
   @Environment(\.appState) private var appState
-  @Environment(\.colorScheme) private var colorScheme
 
   var mapOverlayBottomPadding: CGFloat
   var cameraBottomSheetFraction: CGFloat
@@ -21,15 +20,8 @@ struct LineOfSightMapView: View {
   @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
   private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
-  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
-  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
 
   @State private var isCenteredOnUser = false
-
-  private var mapIsDark: Bool {
-    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
-    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
-  }
 
   var body: some View {
     ZStack {
@@ -37,7 +29,6 @@ struct LineOfSightMapView: View {
         points: viewModel.mapPoints,
         lines: viewModel.mapLines,
         mapStyle: mapStyleSelection,
-        isDarkMode: mapIsDark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
         clusteringEnabled: clusteringEnabled,

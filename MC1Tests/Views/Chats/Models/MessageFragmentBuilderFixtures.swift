@@ -139,6 +139,7 @@ enum MessageFragmentBuilderFixtures {
       previewsEnabled: false,
       isHighContrast: false,
       isDark: false,
+      mapBasemapIsDark: false,
       showMapPreviews: true,
       isOffline: false,
       currentUserName: isOutgoing ? "Me" : "Sender",

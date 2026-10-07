@@ -23,7 +23,6 @@ struct NodeLocationMapView: View {
   private static let pathBoundingPaddingMultiplier: Double = 1.3
 
   @Environment(\.appState) private var appState
-  @Environment(\.colorScheme) private var colorScheme
 
   let points: [MapPoint]
   let lines: [MapLine]
@@ -39,16 +38,8 @@ struct NodeLocationMapView: View {
   @AppStorage(AppStorageKey.mapClusteringEnabled.rawValue)
   private var clusteringEnabled = AppStorageKey.defaultMapClusteringEnabled
   @AppStorage(AppStorageKey.mapNorthLocked.rawValue) private var isNorthLocked = AppStorageKey.defaultMapNorthLocked
-  @AppStorage(AppStorageKey.mapColorSchemePreference.rawValue)
-  private var mapColorSchemeRaw = AppStorageKey.defaultMapColorSchemePreference
 
   @State private var cameraRegion: MKCoordinateRegion?
-
-  private var mapIsDark: Bool {
-    let preference = AppColorSchemePreference(rawValue: mapColorSchemeRaw) ?? .system
-    return resolvedMapIsDark(preference: preference, colorScheme: colorScheme)
-  }
-
   @State private var cameraRegionVersion = 0
   @State private var isCenteredOnUser = false
   @State private var isStyleLoaded = false
@@ -74,7 +65,6 @@ struct NodeLocationMapView: View {
         points: displayPoints,
         lines: displayLines,
         mapStyle: mapStyleSelection,
-        isDarkMode: mapIsDark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: showLabels,
         clusteringEnabled: clusteringEnabled,

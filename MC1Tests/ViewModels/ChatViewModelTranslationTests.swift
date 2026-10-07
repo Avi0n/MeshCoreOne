@@ -356,6 +356,7 @@ struct ChatViewModelTranslationTests {
       previewsEnabled: base.previewsEnabled,
       isHighContrast: base.isHighContrast,
       isDark: base.isDark,
+      mapBasemapIsDark: base.mapBasemapIsDark,
       showMapPreviews: base.showMapPreviews,
       isOffline: base.isOffline,
       currentUserName: base.currentUserName,

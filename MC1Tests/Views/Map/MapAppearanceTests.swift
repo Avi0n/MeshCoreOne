@@ -21,4 +21,12 @@ struct MapAppearanceTests {
     #expect(resolvedMapIsDark(preference: .dark, colorScheme: .light) == true)
     #expect(resolvedMapIsDark(preference: .dark, colorScheme: .dark) == true)
   }
+
+  @Test
+  func `stored preference falls back to system`() {
+    #expect(mapColorSchemePreference(from: nil) == .system)
+    #expect(mapColorSchemePreference(from: "") == .system)
+    #expect(mapColorSchemePreference(from: "nope") == .system)
+    #expect(mapColorSchemePreference(from: "light") == .light)
+  }
 }

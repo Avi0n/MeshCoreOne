@@ -87,6 +87,7 @@ struct ChatConversationView: View {
 
   @Environment(\.colorSchemeContrast) private var colorSchemeContrast
   @Environment(\.colorScheme) private var colorScheme
+  @Environment(\.mapColorSchemePreference) private var mapColorSchemePreference
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @Environment(\.appTheme) private var theme
   @Environment(\.locale) private var locale
@@ -109,6 +110,10 @@ struct ChatConversationView: View {
       previewsEnabled: previewsEnabled,
       isHighContrast: colorSchemeContrast == .increased,
       isDark: colorScheme == .dark,
+      mapBasemapIsDark: resolvedMapIsDark(
+        preference: mapColorSchemePreference,
+        colorScheme: colorScheme
+      ),
       showMapPreviews: showMapPreviewThumbnails && !conversationType.suppressesMapPreviews,
       isOffline: !appState.offlineMapService.isNetworkAvailable,
       currentUserName: appState.localNodeName,

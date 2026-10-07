@@ -24,7 +24,6 @@ struct LocationHistorySection: View {
 
   @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
-  @Environment(\.colorScheme) private var colorScheme
 
   let snapshots: [NodeStatusSnapshotDTO]
   let showsFullPath: Bool
@@ -120,7 +119,6 @@ struct LocationHistorySection: View {
         points: path?.points ?? [],
         lines: path?.lines ?? [],
         mapStyle: .standard,
-        isDarkMode: colorScheme == .dark,
         isOffline: !appState.offlineMapService.isNetworkAvailable,
         showLabels: false,
         showsUserLocation: false,

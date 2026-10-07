@@ -12,3 +12,11 @@ func resolvedMapIsDark(
   case .dark: true
   }
 }
+
+/// Missing, empty, or unknown stored values are System.
+func mapColorSchemePreference(from raw: String?) -> AppColorSchemePreference {
+  guard let raw, let preference = AppColorSchemePreference(rawValue: raw) else {
+    return .system
+  }
+  return preference
+}

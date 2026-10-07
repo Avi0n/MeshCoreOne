@@ -80,6 +80,13 @@ extension AppState {
 
     let showMapPreviews = bool(.showMapPreviewThumbnails, AppStorageKey.defaultShowMapPreviewThumbnails)
       && !(conversation?.suppressesMapPreviews ?? false)
+    let mapPreference = mapColorSchemePreference(
+      from: defaults.string(forKey: AppStorageKey.mapColorSchemePreference.rawValue)
+    )
+    let mapBasemapIsDark = resolvedMapIsDark(
+      preference: mapPreference,
+      colorScheme: isDark ? .dark : .light
+    )
     let translationTarget = defaults.string(forKey: AppStorageKey.translationTargetLanguage.rawValue)
       ?? AppStorageKey.defaultTranslationTargetLanguage
 
@@ -93,6 +100,7 @@ extension AppState {
       previewsEnabled: bool(.linkPreviewsEnabled, AppStorageKey.defaultLinkPreviewsEnabled),
       isHighContrast: isHighContrast,
       isDark: isDark,
+      mapBasemapIsDark: mapBasemapIsDark,
       showMapPreviews: showMapPreviews,
       isOffline: !offlineMapService.isNetworkAvailable,
       currentUserName: localNodeName,
