@@ -17,7 +17,7 @@ actor LinkPreviewCache: LinkPreviewCaching {
   private let logger = Logger(subsystem: "com.mc1", category: "LinkPreviewCache")
   private let memoryCache = NSCache<NSString, CachedPreview>()
   private let service: any LinkMetadataFetching
-  private nonisolated let preferences = LinkPreviewPreferences()
+  private nonisolated let preferences: LinkPreviewPreferences
 
   /// Shared fetch task per in-flight URL. Concurrent requests for the same
   /// URL await the same task and receive the resolved result, instead of a
@@ -33,8 +33,12 @@ actor LinkPreviewCache: LinkPreviewCaching {
   /// image GET that run as a fallback when LinkPresentation finds no image.
   private let fetchSemaphore = AsyncSemaphore(value: CacheConfig.maxConcurrentFetches)
 
-  init(service: any LinkMetadataFetching = LinkPreviewService()) {
+  init(
+    service: any LinkMetadataFetching = LinkPreviewService(),
+    preferences: LinkPreviewPreferences = LinkPreviewPreferences()
+  ) {
     self.service = service
+    self.preferences = preferences
     memoryCache.countLimit = CacheConfig.maxEntryCount
     memoryCache.totalCostLimit = CacheConfig.maxTotalCostBytes
   }

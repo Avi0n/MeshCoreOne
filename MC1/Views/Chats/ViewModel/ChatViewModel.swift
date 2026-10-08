@@ -386,10 +386,8 @@ final class ChatViewModel {
   /// (the always-present text link remains the baseline).
   @ObservationIgnored var onNavigateToMap: ((CLLocationCoordinate2D) -> Void)?
 
-  /// Drives receive-time prefetch of inline image dimensions and link
-  /// preview metadata so message bubbles render at final size on first
-  /// paint. Constructed in `configure(...)` when services are available;
-  /// nil while disconnected (offline browse never receives new messages).
+  /// Resolves image dimensions and preview metadata after message insertion.
+  /// Constructed in `configure(...)` when services are available; nil while disconnected.
   @ObservationIgnored var prefetcher: InlineImagePrefetcher?
 
   /// Long-running subscription to `InlineImageDimensionsStore.resolutionUpdates()`.
@@ -403,11 +401,6 @@ final class ChatViewModel {
   /// Started once (the store is a process-lifetime singleton). Interactive only;
   /// `ChatTimelinePrimer` does not subscribe.
   @ObservationIgnored var snapshotResolutionTask: Task<Void, Never>?
-
-  /// Per-instance override of the receive-time prefetch timeout. Production
-  /// callers leave this at `defaultPrefetchTimeout` (3s); tests can shorten
-  /// it to bound their wall-clock budget.
-  @ObservationIgnored var prefetchTimeout: Duration = ChatViewModel.defaultPrefetchTimeout
 
   /// Write capability for the bound coordinator, minted when `timeline`
   /// binds. Every timeline mutation goes through this; when a newer owner

@@ -195,7 +195,7 @@ extension ChatViewModel {
     do {
       message = try await messageService.createPendingMessage(text: text, to: contact)
       appendMessageIfNew(message)
-      schedulePrefetchForOutgoingMessage(message, isChannelMessage: false)
+      schedulePrefetchForMessage(message, isChannelMessage: false)
       syncCoordinator?.notifyConversationsChanged()
     } catch {
       errorMessage = error.userFacingMessage

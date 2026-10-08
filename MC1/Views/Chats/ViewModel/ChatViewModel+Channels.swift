@@ -154,7 +154,7 @@ extension ChatViewModel {
         radioID: channel.radioID
       )
       appendMessageIfNew(message)
-      schedulePrefetchForOutgoingMessage(message, isChannelMessage: true)
+      schedulePrefetchForMessage(message, isChannelMessage: true)
     } catch {
       errorMessage = error.userFacingMessage
       return
