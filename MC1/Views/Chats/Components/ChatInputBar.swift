@@ -299,7 +299,10 @@ private extension View {
   @ViewBuilder
   func textFieldBackground() -> some View {
     if #available(iOS 26.0, *) {
-      glassEffect(.regular.interactive(), in: .rect(cornerRadius: ChatInputMetrics.fieldCornerRadius))
+      glassEffect(
+        .regular.interactive(!ProcessInfo.processInfo.isiOSAppOnMac),
+        in: .rect(cornerRadius: ChatInputMetrics.fieldCornerRadius)
+      )
     } else {
       // Without the glass capsule the field would read as one fill on the bar's fill, so its edge
       // carries the affordance. A clear centre keeps it legible against any theme canvas.

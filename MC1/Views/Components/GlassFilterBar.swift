@@ -131,7 +131,9 @@ struct GlassFilterBar<Filter: Hashable & CaseIterable & Sendable>: View
     }
     .buttonStyle(.plain)
     .glassEffect(
-      isSelected ? .regular.tint(selectedSegmentTint).interactive() : .regular.interactive(),
+      isSelected
+        ? .regular.tint(selectedSegmentTint).interactive(!ProcessInfo.processInfo.isiOSAppOnMac)
+        : .regular.interactive(!ProcessInfo.processInfo.isiOSAppOnMac),
       in: .capsule
     )
     .glassEffectID(filter, in: glassNamespace)

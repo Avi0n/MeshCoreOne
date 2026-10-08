@@ -147,7 +147,7 @@ private extension View {
   @ViewBuilder
   func plusButtonBackground() -> some View {
     if #available(iOS 26.0, *) {
-      glassEffect(.regular.interactive(), in: .circle)
+      glassEffect(.regular.interactive(!ProcessInfo.processInfo.isiOSAppOnMac), in: .circle)
     } else {
       background(Color(.systemGray5), in: Circle())
     }
