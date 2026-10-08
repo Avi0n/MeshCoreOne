@@ -228,7 +228,7 @@ actor InlineImageCache {
     let data: Data
     let response: URLResponse
     do {
-      (data, response) = try await session.data(for: request)
+      (data, response) = try await session.data(for: request, delegate: RedirectSafetyDelegate(upgradeToHTTPS: false))
     } catch {
       logger.info("Image probe network failure: \(error.localizedDescription)")
       await fetchSemaphore.signal()
@@ -276,7 +276,7 @@ actor InlineImageCache {
     }
 
     do {
-      let (data, response) = try await session.data(from: url)
+      let (data, response) = try await session.data(from: url, delegate: RedirectSafetyDelegate(upgradeToHTTPS: false))
 
       guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode) else {
