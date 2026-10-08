@@ -78,8 +78,14 @@ struct NotificationQuickReplyWiringTests {
     let callback = try #require(harness.services.notificationService.onChannelQuickReply)
 
     let replyTask = Task { await callback(radioID, Self.channelIndex, Self.replyText) }
-    try await waitUntil(timeout: .seconds(2), "channel reply should send") {
+    try await waitUntil(timeout: .seconds(2), "channel flood scope should send") {
       await harness.transport.sentData.count == 2
+    }
+    let scopeCommand = await harness.transport.sentData.last
+    #expect(scopeCommand == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
+    await harness.transport.simulateOK()
+    try await waitUntil(timeout: .seconds(2), "channel reply should send") {
+      await harness.transport.sentData.count == 3
     }
     await harness.transport.simulateOK()
     await replyTask.value

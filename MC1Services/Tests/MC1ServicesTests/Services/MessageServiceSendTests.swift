@@ -424,9 +424,16 @@ struct MessageServiceSendTests {
 
     let resendTask = Task { try await service.resendChannelMessage(messageID: messageID) }
 
-    try await waitUntil("resend should send CMD_SEND_CHANNEL_MSG") {
+    try await waitUntil("resend should set the channel flood scope") {
       await transport.sentData.count == 2
     }
+    let scopeCommand = await transport.sentData.last
+    #expect(scopeCommand == PacketBuilder.setFloodScope(FloodScope.disabled.scopeKey()))
+    await transport.simulateOK()
+    try await waitUntil("resend should send CMD_SEND_CHANNEL_MSG") {
+      await transport.sentData.count == 3
+    }
+    #expect(await transport.sentData.last?.first == CommandCode.sendChannelMessage.rawValue)
     await transport.simulateOK()
 
     _ = try await resendTask.value

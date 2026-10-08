@@ -109,6 +109,10 @@ struct NotificationQuickReplyTests {
         continuation.yield(selfInfoPacket())
         return
       }
+      if data.first == CommandCode.setFloodScope.rawValue {
+        continuation.yield(Data([ResponseCode.ok.rawValue]))
+        return
+      }
       messageCommands.append(data)
       // Fail after dispatch so these tests never call the OS notification center.
       throw MeshTransportError.sendFailed("Test transport send failure")

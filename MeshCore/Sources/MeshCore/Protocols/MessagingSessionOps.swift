@@ -35,6 +35,15 @@ public protocol MessagingSessionOps: Actor {
     text: String,
     timestamp: Date
   ) async throws
+
+  /// Applies the channel's flood scope and sends without another command
+  /// changing the scope between the two exchanges.
+  func sendChannelMessage(
+    channel: UInt8,
+    text: String,
+    timestamp: Date,
+    floodScope: ResolvedFloodScope
+  ) async throws
 }
 
 // MARK: - Default Implementations

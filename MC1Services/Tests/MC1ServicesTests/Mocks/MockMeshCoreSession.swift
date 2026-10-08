@@ -388,6 +388,15 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
     }
   }
 
+  public func sendChannelMessage(
+    channel: UInt8,
+    text: String,
+    timestamp: Date,
+    floodScope: ResolvedFloodScope
+  ) async throws {
+    try await sendChannelMessage(channel: channel, text: text, timestamp: timestamp)
+  }
+
   public func getContacts(since lastModified: Date?) async throws -> [MeshContact] {
     try await getContactsReportingTotal(since: lastModified).contacts
   }
