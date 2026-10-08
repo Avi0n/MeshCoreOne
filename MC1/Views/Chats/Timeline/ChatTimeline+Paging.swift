@@ -278,7 +278,9 @@ extension ChatTimeline {
     let nextNext = index + 2 < messages.count ? messages[index + 2] : nil
     writer.remove(messageID: messageID)
     writer.updateRenderState { state in
-      var next = state.removingItem(id: messageID)
+      var next = state.removingItem(id: messageID).with(
+        totalFetchedCount: max(0, state.totalFetchedCount - 1)
+      )
       if let previous, previous.isChannelMessage {
         next = next.updatingItem(id: previous.id) { _ in
           makeItem(for: previous, previous: prevPrev, next: nextDTO)

@@ -149,6 +149,78 @@ private func envInputsChangingAppearance() -> EnvInputs {
 @Suite("ChatViewModel Pagination Tests")
 @MainActor
 struct ChatViewModelPaginationTests {
+  @Test(arguments: [false, true], [false, true])
+  func `deleting a loaded message keeps every older message reachable`(
+    isChannel: Bool,
+    includesHiddenReaction: Bool
+  ) async throws {
+    let container = try PersistenceStore.createContainer(inMemory: true)
+    let dataStore = PersistenceStore(modelContainer: container)
+    let radioID = UUID()
+    let contact = createTestContact(radioID: radioID)
+    let channel = createTestChannel(radioID: radioID)
+    try await dataStore.saveContact(contact)
+    try await dataStore.saveChannel(channel)
+    let olderCount = 10
+    let total = ChatCoordinator.pageSize + olderCount
+    var messages: [MessageDTO] = []
+
+    for index in 0..<total {
+      let timestamp = UInt32(1_700_000_000 + index)
+      var message = isChannel
+        ? createChannelMessage(radioID: radioID, channelIndex: channel.index, timestamp: timestamp)
+        : createTestMessage(contactID: contact.id, radioID: radioID, timestamp: timestamp)
+      message.createdAt = Date(timeIntervalSince1970: TimeInterval(timestamp))
+      message.text = "Message \(index + 1)"
+      message.isRead = true
+      if includesHiddenReaction, index == total - 2 {
+        message.direction = .outgoing
+        message.status = .sent
+        let reactions = ReactionService()
+        message.text = isChannel
+          ? reactions.buildReactionText(emoji: "👍", targetSender: "Sender", targetText: "Message 1", targetTimestamp: 1)
+          : reactions.buildDMReactionText(emoji: "👍", targetText: "Message 1", targetTimestamp: 1)
+      }
+      try await dataStore.saveMessage(message)
+      messages.append(message)
+    }
+    let hiddenReactionID = includesHiddenReaction ? messages[total - 2].id : nil
+    let initialVisibleIDs = messages.suffix(ChatCoordinator.pageSize).filter { $0.id != hiddenReactionID }.map(\.id)
+    let remainingVisibleIDs = messages.dropLast().filter { $0.id != hiddenReactionID }.map(\.id)
+
+    let viewModel = ChatViewModel()
+    viewModel.configureForTesting(dependencies: .testDefaults(
+      dataStore: { dataStore },
+      connectionState: { .ready }
+    ))
+    let coordinator = ChatCoordinator.makeForTesting()
+    viewModel.bindCoordinatorForTesting(coordinator)
+
+    let loaded = if isChannel {
+      await viewModel.primeInitialChannelMessages(for: channel, populateMode: .replace)
+    } else {
+      await viewModel.primeInitialMessages(for: contact, populateMode: .replace)
+    }
+    try #require(loaded)
+    await coordinator.buildItemsTask?.value
+    try #require(viewModel.messages.map(\.id) == initialVisibleIDs)
+
+    let deleted = try #require(messages.last)
+    await viewModel.deleteMessage(deleted)
+    try #require(viewModel.errorMessage == nil)
+    try #require(viewModel.messages.count == initialVisibleIDs.count - 1)
+
+    await viewModel.loadOlderMessages()
+    await coordinator.buildItemsTask?.value
+
+    #expect(viewModel.messages.contains { $0.id == messages[olderCount - 1].id })
+    #expect(viewModel.messages.map(\.id) == remainingVisibleIDs)
+    #expect(viewModel.items.map(\.id) == remainingVisibleIDs)
+    #expect(viewModel.totalFetchedCount == total - 1)
+    #expect(viewModel.hasMoreMessages == false)
+    #expect(viewModel.errorMessage == nil)
+  }
+
   @Test
   func `loadOlderMessages returns early without dataStore`() async {
     let viewModel = ChatViewModel()

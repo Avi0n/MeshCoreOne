@@ -153,6 +153,33 @@ struct ChatTimelineTests {
   // MARK: - Paging
 
   @Test
+  func `removing an unbaked message adjusts the raw offset only once`() throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    let message = makeDirectMessage(radioID: radioID, contactID: contact.id, timestamp: 1000, text: "Loaded")
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    let writer = try #require(timeline.writer)
+    let rawRowCount = 3
+    writer.replaceAll([message])
+    writer.updateRenderState { $0.with(totalFetchedCount: rawRowCount) }
+    try #require(timeline.items.isEmpty)
+
+    timeline.removeMessage(message.id)
+
+    #expect(timeline.messages.isEmpty)
+    #expect(timeline.renderState.totalFetchedCount == rawRowCount - 1)
+
+    timeline.removeMessage(message.id)
+    timeline.removeMessage(UUID())
+
+    #expect(timeline.renderState.totalFetchedCount == rawRowCount - 1)
+  }
+
+  @Test
   func `loadOlder prepends the older page in order and ends history on a short page`() async throws {
     let dataStore = try makeStore()
     let radioID = UUID()
