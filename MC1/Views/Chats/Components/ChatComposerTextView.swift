@@ -146,6 +146,18 @@ final class ChatComposerUITextView: UITextView {
 
   var onSend: (() -> Bool)?
 
+  /// UITextView reports its text as `accessibilityValue` when that property is left unset.
+  /// Leave it unset so encryption status stays on the label.
+  private var accessibilityValueIsUnset = true
+
+  override var accessibilityValue: String? {
+    get { accessibilityValueIsUnset ? nil : super.accessibilityValue }
+    set {
+      accessibilityValueIsUnset = newValue == nil
+      super.accessibilityValue = newValue
+    }
+  }
+
   func applyComposerAccessibility(isEncrypted: Bool) {
     let status = isEncrypted
       ? L10n.Chats.Chats.Input.encrypted
