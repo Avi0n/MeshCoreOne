@@ -168,7 +168,8 @@ extension MeshCoreSession {
       let (subscriptionID, events) = await dispatcher.subscribeTracked()
 
       do {
-        // Send after subscribing
+        // A stopped session must not put another frame on the transport.
+        guard await sessionIsRunning else { throw CancellationError() }
         try await transport.send(data)
 
         return try await withThrowingTaskGroup(of: T?.self) { group in
@@ -199,6 +200,10 @@ extension MeshCoreSession {
             }
             group.cancelAll()
             await dispatcher.finishSubscription(id: subscriptionID)
+            // stop() finishes the subscription. That is not a radio timeout.
+            if await !sessionIsRunning {
+              throw CancellationError()
+            }
             throw MeshCoreError.timeout
           } catch {
             group.cancelAll()

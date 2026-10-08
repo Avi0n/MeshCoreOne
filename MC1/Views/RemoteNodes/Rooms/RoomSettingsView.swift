@@ -43,7 +43,11 @@ struct RoomSettingsView: View {
           .pinnedFilterHeaderBackground(theme)
       }
     }
-    .task {
+    .task(id: appState.servicesVersion) {
+      let models = appState.remoteAdminWorkspaces.room(for: session)
+      viewModel = models.settings
+      statusViewModel = models.status
+      cliViewModel = models.cli
       await viewModel.configure(
         roomAdminService: { appState.services?.roomAdminService },
         session: session
@@ -70,12 +74,6 @@ struct RoomSettingsView: View {
         if let radioID = appState.connectedDevice?.radioID {
           await statusViewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
-      }
-    }
-    .onDisappear {
-      Task {
-        await statusViewModel.clearStatusHandlers()
-        await viewModel.cleanup()
       }
     }
     .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
@@ -139,6 +137,7 @@ struct RoomSettingsView: View {
 // MARK: - Room Access Section
 
 private struct RoomAccessSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var viewModel: RoomSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
 
@@ -197,7 +196,10 @@ private struct RoomAccessSection: View {
             .transition(.opacity)
         }
       }
-      .disabled(viewModel.isApplyingRoomAccess || viewModel.roomAccessApplySuccess || !viewModel.roomAccessModified)
+      .radioDisabled(
+        for: appState.connectionState,
+        or: viewModel.isApplyingRoomAccess || viewModel.roomAccessApplySuccess || !viewModel.roomAccessModified
+      )
     }
   }
 }
@@ -205,6 +207,7 @@ private struct RoomAccessSection: View {
 // MARK: - Room Behavior Section
 
 private struct RoomBehaviorSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var viewModel: RoomSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
 
@@ -303,7 +306,10 @@ private struct RoomBehaviorSection: View {
             .transition(.opacity)
         }
       }
-      .disabled(viewModel.isApplyingBehavior || viewModel.behaviorApplySuccess || !viewModel.behaviorModified)
+      .radioDisabled(
+        for: appState.connectionState,
+        or: viewModel.isApplyingBehavior || viewModel.behaviorApplySuccess || !viewModel.behaviorModified
+      )
     }
   }
 }

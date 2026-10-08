@@ -96,6 +96,8 @@ extension AppState {
     if let advertisementService = services?.advertisementService {
       await advertisementService.handleReturnToForeground()
     }
+    tracePathViewModel?.expireWaitingRunIfDeadlinePassed()
+    nodeDiscoveryViewModel?.expireScanIfDeadlinePassed()
 
     liveActivityManager.handleReturnToForeground()
     await liveActivityManager.validateActivityState()

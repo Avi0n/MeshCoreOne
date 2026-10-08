@@ -54,7 +54,11 @@ struct RepeaterSettingsView: View {
           .pinnedFilterHeaderBackground(theme)
       }
     }
-    .task {
+    .task(id: appState.servicesVersion) {
+      let models = appState.remoteAdminWorkspaces.repeater(for: session)
+      viewModel = models.settings
+      statusViewModel = models.status
+      cliViewModel = models.cli
       await viewModel.configure(
         repeaterAdminService: { appState.services?.repeaterAdminService },
         session: session
@@ -96,11 +100,7 @@ struct RepeaterSettingsView: View {
       }
     }
     .onDisappear {
-      statusViewModel.stopDiscovery()
-      Task {
-        await statusViewModel.clearStatusHandlers()
-        await viewModel.cleanup()
-      }
+      statusViewModel.pauseDiscoveryPolls()
     }
     .alert(L10n.RemoteNodes.RemoteNodes.Settings.success, isPresented: $viewModel.helper.showSuccessAlert) {
       Button(L10n.RemoteNodes.RemoteNodes.Settings.ok, role: .cancel) {}
@@ -222,6 +222,7 @@ struct RepeaterSettingsView: View {
 // MARK: - Behavior Section
 
 private struct BehaviorSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var viewModel: RepeaterSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
 
@@ -338,7 +339,10 @@ private struct BehaviorSection: View {
             .transition(.opacity)
         }
       }
-      .disabled(viewModel.helper.isApplying || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified)
+      .radioDisabled(
+        for: appState.connectionState,
+        or: viewModel.helper.isApplying || viewModel.behaviorApplySuccess || !viewModel.behaviorSettingsModified
+      )
     }
   }
 }
@@ -346,6 +350,7 @@ private struct BehaviorSection: View {
 // MARK: - Regions Section
 
 private struct RegionsSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var viewModel: RepeaterSettingsViewModel
   @Binding var addRegionParent: RepeaterRegionEntry.Parent?
   @State private var blockedDeleteName: String?
@@ -380,7 +385,7 @@ private struct RegionsSection: View {
   }
 
   private var regionMutationsDisabled: Bool {
-    !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying
+    appState.connectionState != .ready || !viewModel.regionsLoaded || viewModel.isLoadingRegions || viewModel.helper.isApplying
   }
 
   var body: some View {
@@ -509,7 +514,10 @@ private struct RegionsSection: View {
               .transition(.opacity)
           }
         }
-        .disabled(viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges)
+        .radioDisabled(
+          for: appState.connectionState,
+          or: viewModel.helper.isApplying || viewModel.regionsSaveSuccess || !viewModel.hasUnsavedRegionChanges
+        )
       }
 
       if let error = viewModel.helper.errorMessage {

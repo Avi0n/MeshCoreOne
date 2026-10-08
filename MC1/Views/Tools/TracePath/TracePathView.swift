@@ -17,7 +17,26 @@ enum TracePathViewMode: String, CaseIterable {
 /// View for building and executing network path traces
 struct TracePathView: View {
   @Environment(\.appState) private var appState
-  @State private var viewModel = TracePathViewModel()
+
+  var body: some View {
+    Group {
+      if let viewModel = appState.tracePathViewModel {
+        TracePathWorkspace(viewModel: viewModel)
+      } else {
+        Color.clear
+          .onAppear {
+            if appState.tracePathViewModel == nil {
+              appState.tracePathViewModel = TracePathViewModel()
+            }
+          }
+      }
+    }
+  }
+}
+
+private struct TracePathWorkspace: View {
+  @Bindable var viewModel: TracePathViewModel
+  @Environment(\.appState) private var appState
 
   // Haptic feedback triggers
   @State private var dragHapticTrigger = 0
@@ -75,18 +94,15 @@ struct TracePathView: View {
         viewModel.handleSavedPathDeleted(id: deletedPathId)
       }
     }
-    .onChange(of: viewModel.resultID) { _, newID in
-      guard newID != nil else { return }
-      if let result = viewModel.result, result.success {
-        if viewMode == .list {
-          presentedResult = result
-        }
-      }
+    .onChange(of: viewModel.resultID) { _, _ in
+      presentStoredResultIfNeeded()
+    }
+    .onChange(of: viewModel.isRunning) { _, _ in
+      presentStoredResultIfNeeded()
     }
     .sheet(item: $presentedResult, onDismiss: {
-      if viewModel.isBatchInProgress {
-        viewModel.cancelBatchTrace()
-      }
+      viewModel.setWorkspaceVisible(isWorkspaceActive)
+      viewModel.noteResultSheetDismissed()
     }) { result in
       TraceResultsSheet(result: result, viewModel: viewModel)
         .presentationDetents([.large])
@@ -116,10 +132,6 @@ struct TracePathView: View {
       }
     }
     .task(id: appState.servicesVersion) {
-      guard isWorkspaceActive else { return }
-      // Keyed on servicesVersion: a late connect or reconnect rebuilds the
-      // ServiceContainer, so the listener must re-subscribe to the fresh
-      // AdvertisementService or trace responses are silently dropped.
       viewModel.configure(dependencies: TracePathViewModel.Dependencies(
         dataStore: { appState.services?.dataStore },
         session: { appState.services?.session },
@@ -127,17 +139,27 @@ struct TracePathView: View {
         connectedDevice: { appState.connectedDevice },
         bestAvailableLocation: { appState.bestAvailableLocation }
       ))
-      viewModel.startListening()
+      guard isWorkspaceActive else { return }
+      viewModel.setWorkspaceVisible(true)
       if let radioID = appState.connectedDevice?.radioID {
         await viewModel.loadContacts(radioID: radioID)
       }
     }
     .onChange(of: isWorkspaceActive) { _, isActive in
+      viewModel.setWorkspaceVisible(isActive)
       if isActive {
-        viewModel.startListening()
-      } else {
-        viewModel.deactivate()
+        presentStoredResultIfNeeded()
       }
+    }
+    .onDisappear {
+      viewModel.setWorkspaceVisible(false)
+    }
+  }
+
+  private func presentStoredResultIfNeeded() {
+    guard viewMode == .list, presentedResult == nil else { return }
+    if let result = viewModel.consumeStoredResultForPresentation() {
+      presentedResult = result
     }
   }
 

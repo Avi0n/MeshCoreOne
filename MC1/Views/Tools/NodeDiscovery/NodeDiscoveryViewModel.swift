@@ -117,6 +117,28 @@ final class NodeDiscoveryViewModel {
 
   private var scanTask: Task<Void, Never>?
   private var timeoutTask: Task<Void, Never>?
+  private var scanEpoch = Epoch()
+  private var scanTicket: Epoch.Ticket?
+  private var scanDeadline: Date?
+  private var acceptResponses = false
+  private var listenGeneration: UInt = 0
+  private var listenWake: CheckedContinuation<Void, Never>?
+  private var addEpochs: [Data: Epoch] = [:]
+  private var addTickets: [Data: Epoch.Ticket] = [:]
+
+  #if DEBUG
+    var loadNamesForTesting: (@MainActor () async -> Void)?
+    var sendDiscoverForTesting: (@MainActor (UInt8) async throws -> UInt32)?
+    var addContactForTesting: (@MainActor (ContactFrame) async throws -> Void)?
+    var scanDurationForTesting: TimeInterval?
+    var listenLoopIterationsForTesting = 0
+    var isListeningForTesting = false
+    var isWaitingForSessionForTesting = false
+
+    func setScanDeadlineForTesting(_ date: Date) {
+      scanDeadline = date
+    }
+  #endif
 
   // MARK: - Name resolution cache
 
@@ -132,61 +154,71 @@ final class NodeDiscoveryViewModel {
   // MARK: - Scan
 
   func scan() {
-    guard let session else {
+    guard canStartScan else {
       errorMessage = L10n.Tools.Tools.NodeDiscovery.notConnectedDescription(filter.localizedTitle)
       return
     }
-
-    guard let radioID else { return }
+    guard radioID != nil || hasScanTestHook else { return }
 
     stopScan()
-    results.removeAll { $0.scanFilter == filter }
+    let ticket = scanEpoch.ticket()
+    scanTicket = ticket
+    let activeFilter = filter
+    results.removeAll { $0.scanFilter == activeFilter }
     errorMessage = nil
     isScanning = true
+    acceptResponses = true
     scanStartHapticTrigger += 1
 
     scanTask = Task { [weak self] in
       guard let self else { return }
-
       do {
-        // Pre-load name resolution data and existing contact keys
-        await loadNameResolutionData(radioID: radioID)
+        if let radioID = self.radioID {
+          await self.loadNameResolutionData(radioID: radioID, ticket: ticket)
+        }
+        guard ticket.isCurrent(in: self.scanEpoch), !Task.isCancelled else { return }
 
-        // Send discovery request
-        let tag = try await session.sendNodeDiscoverRequest(
-          filter: filter.filterValue,
-          prefixOnly: false
-        )
+        let tag = try await self.sendDiscover(filter: activeFilter.filterValue)
+        guard ticket.isCurrent(in: self.scanEpoch), !Task.isCancelled else { return }
         let tagData = withUnsafeBytes(of: tag.littleEndian) { Data($0) }
-
-        // Start timeout that cancels the scan task
-        timeoutTask = Task { [weak self] in
-          try? await Task.sleep(for: Self.scanDuration)
-          self?.scanTask?.cancel()
-        }
-
-        // Listen for responses
-        let events = await session.events()
-        for await event in events {
-          guard !Task.isCancelled else { break }
-
-          if case let .discoverResponse(response) = event,
-             response.tag == tagData {
-            appendOrUpdateResult(from: response)
-          }
-        }
+        self.armScanDeadline(ticket: ticket)
+        await self.listen(ticket: ticket, tag: tagData)
       } catch is CancellationError {
-        // Normal timeout cancellation — not an error
+        return
       } catch {
+        guard ticket.isCurrent(in: self.scanEpoch) else { return }
         Self.logger.error("Node discovery failed: \(error.localizedDescription)")
-        errorMessage = error.userFacingMessage
+        self.errorMessage = error.userFacingMessage
+        self.finishScan()
       }
-
-      finishScan()
     }
   }
 
+  /// Hiding the tool does not stop a scan.
+  func setWorkspaceVisible(_ visible: Bool) {
+    _ = visible
+  }
+
+  /// Same-device ready. Wakes a scan that is waiting for a session.
+  func reattachIfWaiting() {
+    guard isScanning, acceptResponses else { return }
+    wakeListener()
+  }
+
+  /// Foreground return. A deadline that passed while suspended finishes the scan.
+  func expireScanIfDeadlinePassed() {
+    guard isScanning, let deadline = scanDeadline, Date() >= deadline else { return }
+    guard let scanTicket, scanTicket.isCurrent(in: scanEpoch) else { return }
+    finishScan()
+  }
+
   func stopScan() {
+    scanEpoch.bump()
+    listenGeneration &+= 1
+    scanTicket = nil
+    scanDeadline = nil
+    acceptResponses = false
+    wakeListener()
     timeoutTask?.cancel()
     timeoutTask = nil
     scanTask?.cancel()
@@ -194,6 +226,18 @@ final class NodeDiscoveryViewModel {
     if isScanning {
       finishScan()
     }
+  }
+
+  /// Drops scan results. Does not publish a timeout into `errorMessage`.
+  func reset() {
+    for key in Array(addEpochs.keys) {
+      addEpochs[key]?.bump()
+    }
+    stopScan()
+    results.removeAll()
+    addedPublicKeys.removeAll()
+    addingPublicKey = nil
+    errorMessage = nil
   }
 
   // MARK: - Sorted results
@@ -210,20 +254,131 @@ final class NodeDiscoveryViewModel {
 
   // MARK: - Private
 
-  private func loadNameResolutionData(radioID: UUID) async {
+  private var canStartScan: Bool {
+    session != nil || hasScanTestHook
+  }
+
+  private var hasScanTestHook: Bool {
+    #if DEBUG
+      sendDiscoverForTesting != nil
+    #else
+      false
+    #endif
+  }
+
+  private var scanSeconds: TimeInterval {
+    #if DEBUG
+      if let scanDurationForTesting {
+        return scanDurationForTesting
+      }
+    #endif
+    return 15
+  }
+
+  private func sendDiscover(filter: UInt8) async throws -> UInt32 {
+    #if DEBUG
+      if let sendDiscoverForTesting {
+        return try await sendDiscoverForTesting(filter)
+      }
+    #endif
+    guard let session else { throw CancellationError() }
+    return try await session.sendNodeDiscoverRequest(filter: filter, prefixOnly: false)
+  }
+
+  private func armScanDeadline(ticket: Epoch.Ticket) {
+    let seconds = scanSeconds
+    scanDeadline = Date().addingTimeInterval(seconds)
+    timeoutTask?.cancel()
+    timeoutTask = Task { [weak self] in
+      if seconds > 0 {
+        try? await Task.sleep(for: .seconds(seconds))
+      }
+      guard let self, ticket.isCurrent(in: self.scanEpoch) else { return }
+      self.finishScan()
+    }
+  }
+
+  private func listen(ticket: Epoch.Ticket, tag: Data) async {
+    let discoverFilter = EventFilter.eventType { event in
+      if case .discoverResponse = event { return true }
+      return false
+    }
+    while ticket.isCurrent(in: scanEpoch), acceptResponses, !Task.isCancelled {
+      guard let session else {
+        await waitForSession()
+        continue
+      }
+      let generation = listenGeneration
+      let subscribed = session
+      #if DEBUG
+        isListeningForTesting = true
+      #endif
+      let events = await session.events(filter: discoverFilter)
+      for await event in events {
+        #if DEBUG
+          listenLoopIterationsForTesting += 1
+        #endif
+        guard generation == listenGeneration, ticket.isCurrent(in: scanEpoch), acceptResponses else { break }
+        if case let .discoverResponse(response) = event, response.tag == tag {
+          appendOrUpdateResult(from: response)
+        }
+      }
+      #if DEBUG
+        if generation == listenGeneration {
+          isListeningForTesting = false
+        }
+      #endif
+      guard ticket.isCurrent(in: scanEpoch), acceptResponses else { return }
+      let next = self.session
+      if next == nil || next === subscribed {
+        await waitForSession()
+      }
+    }
+  }
+
+  private func waitForSession() async {
+    #if DEBUG
+      isWaitingForSessionForTesting = true
+    #endif
+    await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+      listenWake = continuation
+    }
+    #if DEBUG
+      isWaitingForSessionForTesting = false
+    #endif
+  }
+
+  private func wakeListener() {
+    listenWake?.resume()
+    listenWake = nil
+  }
+
+  private func loadNameResolutionData(radioID: UUID, ticket: Epoch.Ticket) async {
+    #if DEBUG
+      if let loadNamesForTesting {
+        await loadNamesForTesting()
+      }
+    #endif
+    guard ticket.isCurrent(in: scanEpoch) else { return }
     guard let dataStore else { return }
     do {
-      // Load discovered nodes first, then contacts — contacts take priority
       let nodes = try await dataStore.fetchDiscoveredNodes(radioID: radioID)
+      guard ticket.isCurrent(in: scanEpoch) else { return }
       namesByKey = Dictionary(
         nodes.map { ($0.publicKey, $0.name) },
         uniquingKeysWith: { first, _ in first }
       )
       let contacts = try await dataStore.fetchContacts(radioID: radioID)
+      guard ticket.isCurrent(in: scanEpoch) else { return }
       for contact in contacts {
         namesByKey[contact.publicKey] = contact.name
       }
-      addedPublicKeys = Set(contacts.map(\.publicKey))
+      let storeKeys = Set(contacts.map(\.publicKey))
+      let inFlight = Set(addTickets.compactMap { key, addTicket -> Data? in
+        guard let epoch = addEpochs[key], addTicket.isCurrent(in: epoch) else { return nil }
+        return key
+      })
+      addedPublicKeys = storeKeys.union(inFlight)
     } catch {
       Self.logger.error("Failed to load name resolution data: \(error.localizedDescription)")
     }
@@ -271,10 +426,18 @@ final class NodeDiscoveryViewModel {
   }
 
   func addNode(_ result: NodeDiscoveryResult) {
-    guard let contactService, let radioID else { return }
+    guard (contactService != nil && radioID != nil) || hasAddTestHook else { return }
+
+    var epoch = addEpochs[result.publicKey] ?? Epoch()
+    epoch.bump()
+    addEpochs[result.publicKey] = epoch
+    let ticket = epoch.ticket()
+    addTickets[result.publicKey] = ticket
+    let capturedRadioID = radioID
 
     addingPublicKey = result.publicKey
     Task { [weak self] in
+      guard let self else { return }
       do {
         let contact = ContactFrame(
           publicKey: result.publicKey,
@@ -288,21 +451,51 @@ final class NodeDiscoveryViewModel {
           longitude: 0,
           lastModified: 0
         )
-        try await contactService.addOrUpdateContact(radioID: radioID, contact: contact)
-        self?.addedPublicKeys.insert(result.publicKey)
-        self?.addSuccessHapticTrigger += 1
+        try await self.performAdd(contact: contact, capturedRadioID: capturedRadioID)
+        guard self.addTicketIsCurrent(result.publicKey) else { return }
+        self.addedPublicKeys.insert(result.publicKey)
+        self.addSuccessHapticTrigger += 1
       } catch ContactServiceError.contactTableFull {
-        if let maxContacts = self?.maxContacts {
-          self?.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
+        guard self.addTicketIsCurrent(result.publicKey) else { return }
+        if let maxContacts = self.maxContacts {
+          self.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFull(Int(maxContacts))
         } else {
-          self?.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFullSimple
+          self.errorMessage = L10n.Contacts.Contacts.Add.Error.nodeListFullSimple
         }
-        self?.addErrorHapticTrigger += 1
+        self.addErrorHapticTrigger += 1
       } catch {
-        self?.errorMessage = error.userFacingMessage
-        self?.addErrorHapticTrigger += 1
+        guard self.addTicketIsCurrent(result.publicKey) else { return }
+        self.errorMessage = error.userFacingMessage
+        self.addErrorHapticTrigger += 1
       }
-      self?.addingPublicKey = nil
+      guard self.addTicketIsCurrent(result.publicKey) else { return }
+      self.addingPublicKey = nil
     }
+  }
+
+  private var hasAddTestHook: Bool {
+    #if DEBUG
+      addContactForTesting != nil
+    #else
+      false
+    #endif
+  }
+
+  private func performAdd(contact: ContactFrame, capturedRadioID: UUID?) async throws {
+    #if DEBUG
+      if let addContactForTesting {
+        try await addContactForTesting(contact)
+        return
+      }
+    #endif
+    guard let contactService, let capturedRadioID else { throw CancellationError() }
+    try await contactService.addOrUpdateContact(radioID: capturedRadioID, contact: contact) {
+      self.radioID
+    }
+  }
+
+  private func addTicketIsCurrent(_ publicKey: Data) -> Bool {
+    guard let ticket = addTickets[publicKey], let epoch = addEpochs[publicKey] else { return false }
+    return ticket.isCurrent(in: epoch)
   }
 }

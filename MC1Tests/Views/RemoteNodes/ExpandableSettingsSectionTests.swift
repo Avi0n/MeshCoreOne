@@ -3,7 +3,7 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// Hosts `ExpandableSettingsSection` so leaving the window cancels the view task's `onLoad`.
+/// Hosts `ExpandableSettingsSection`. The load is not a child of the view task.
 @Suite("Expandable settings section load", .serialized)
 @MainActor
 struct ExpandableSettingsSectionTests {
@@ -11,13 +11,64 @@ struct ExpandableSettingsSectionTests {
   private static let collapsedSettle = Duration.milliseconds(200)
 
   @Test
-  func `expanded section load cancels when the host goes away`() async throws {
+  func `host removal does not cancel a model-owned load`() async throws {
     let probe = SectionLoadProbe(isExpanded: true)
     let host = mount(probe)
-    try await waitUntil("expanded section never started onLoad") { probe.started }
+    try await waitUntil("expanded section never started onLoad") { probe.started == 1 }
     host.tearDown()
-    try await waitUntil("expanded onLoad did not resume cancelled") { probe.cancelled }
-    #expect(probe.finishedWithoutCancellation == false)
+    probe.finish(ticket: 1, value: "kept")
+    try await waitUntil("reply should apply after the host is gone") { probe.applied == "kept" }
+  }
+
+  @Test
+  func `collapse does not cancel a model-owned load`() async throws {
+    let probe = SectionLoadProbe(isExpanded: true)
+    let host = mount(probe)
+    try await waitUntil("expanded section never started onLoad") { probe.started == 1 }
+    probe.isExpanded = false
+    try await Task.sleep(for: Self.collapsedSettle)
+    probe.finish(ticket: 1, value: "kept")
+    try await waitUntil("reply should apply after collapse") { probe.applied == "kept" }
+    host.tearDown()
+  }
+
+  @Test
+  func `a second expand while loading or loaded does not send again`() async throws {
+    let probe = SectionLoadProbe(isExpanded: true)
+    let host = mount(probe)
+    try await waitUntil("first expand should load") { probe.started == 1 }
+
+    probe.isExpanded = false
+    try await Task.sleep(for: Self.collapsedSettle)
+    probe.isExpanded = true
+    try await Task.sleep(for: Self.collapsedSettle)
+    #expect(probe.started == 1)
+
+    probe.finish(ticket: 1, value: "kept")
+    probe.loaded = true
+    try await waitUntil("first reply should apply") { probe.applied == "kept" }
+    probe.isExpanded = false
+    try await Task.sleep(for: Self.collapsedSettle)
+    probe.isExpanded = true
+    try await Task.sleep(for: Self.collapsedSettle)
+    #expect(probe.started == 1)
+    host.tearDown()
+  }
+
+  @Test
+  func `try again bumps and the old reply does not apply`() async throws {
+    let probe = SectionLoadProbe(isExpanded: true, hasError: true)
+    let host = mount(probe)
+    try await waitUntil("first load should start") { probe.started == 1 }
+    let retry = Task { await probe.load() }
+    try await waitUntil("try again should bump") { probe.started == 2 }
+    probe.finish(ticket: 1, value: "stale")
+    try await Task.sleep(for: .milliseconds(40))
+    #expect(probe.applied == nil)
+    probe.finish(ticket: 2, value: "fresh")
+    await retry.value
+    #expect(probe.applied == "fresh")
+    host.tearDown()
   }
 
   @Test
@@ -26,20 +77,7 @@ struct ExpandableSettingsSectionTests {
     let host = mount(probe)
     defer { host.tearDown() }
     try await Task.sleep(for: Self.collapsedSettle)
-    #expect(probe.started == false)
-  }
-
-  @Test
-  func `expanding starts the load`() async throws {
-    let probe = SectionLoadProbe(isExpanded: false)
-    let host = mount(probe)
-    try await Task.sleep(for: Self.collapsedSettle)
-    #expect(probe.started == false)
-
-    probe.isExpanded = true
-    try await waitUntil("expanding the section never started onLoad") { probe.started }
-    host.tearDown()
-    try await waitUntil("expanded onLoad did not resume cancelled") { probe.cancelled }
+    #expect(probe.started == 0)
   }
 
   private struct SectionHarness: View {
@@ -51,7 +89,7 @@ struct ExpandableSettingsSectionTests {
           title: "Section",
           icon: "info.circle",
           isExpanded: $probe.isExpanded,
-          isLoaded: { false },
+          isLoaded: { probe.loaded },
           isLoading: $probe.isLoading,
           hasError: $probe.hasError,
           onLoad: { await probe.load() }
@@ -94,24 +132,33 @@ struct ExpandableSettingsSectionTests {
 private final class SectionLoadProbe {
   var isExpanded: Bool
   var isLoading = false
-  var hasError = false
-  private(set) var started = false
-  private(set) var cancelled = false
-  private(set) var finishedWithoutCancellation = false
+  var hasError: Bool
+  var loaded = false
+  private(set) var started = 0
+  private(set) var applied: String?
+  private var generation = 0
+  private var waiters: [Int: CheckedContinuation<String, Never>] = [:]
 
-  init(isExpanded: Bool) {
+  init(isExpanded: Bool, hasError: Bool = false) {
     self.isExpanded = isExpanded
+    self.hasError = hasError
   }
 
   func load() async {
-    started = true
-    do {
-      try await Task.sleep(for: .seconds(30))
-      finishedWithoutCancellation = true
-    } catch is CancellationError {
-      cancelled = true
-    } catch {
-      cancelled = false
+    generation += 1
+    let ticket = generation
+    started += 1
+    isLoading = true
+    let value = await withCheckedContinuation { (continuation: CheckedContinuation<String, Never>) in
+      waiters[ticket] = continuation
     }
+    isLoading = false
+    guard ticket == generation else { return }
+    applied = value
+  }
+
+  func finish(ticket: Int, value: String) {
+    waiters[ticket]?.resume(returning: value)
+    waiters[ticket] = nil
   }
 }

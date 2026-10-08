@@ -36,7 +36,8 @@ struct RoomStatusView: View {
           }
         }
       }
-      .task {
+      .task(id: appState.servicesVersion) {
+        viewModel = appState.remoteAdminWorkspaces.room(for: session).status
         viewModel.configure(
           roomAdminService: { appState.services?.roomAdminService },
           contactService: { appState.services?.contactService },
@@ -49,9 +50,6 @@ struct RoomStatusView: View {
           await viewModel.helper.loadOCVSettings(publicKey: session.publicKey, radioID: radioID)
         }
       }
-    }
-    .onDisappear {
-      Task { await viewModel.cleanup() }
     }
     .presentationDetents([.large])
   }

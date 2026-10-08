@@ -187,6 +187,7 @@ public extension MeshCoreSession {
       }
 
       let data = PacketBuilder.getMessage()
+      guard await sessionIsRunning else { throw CancellationError() }
       try await transport.send(data)
 
       return try await withThrowingTaskGroup(of: MessageResult.self) { group in
@@ -212,11 +213,17 @@ public extension MeshCoreSession {
             }
           }
 
+          if await !self.sessionIsRunning {
+            throw CancellationError()
+          }
           throw MeshCoreError.timeout
         }
 
         group.addTask { [clock = self.clock] in
           try await clock.sleep(for: .seconds(timeoutSeconds))
+          if await !self.sessionIsRunning {
+            throw CancellationError()
+          }
           throw MeshCoreError.timeout
         }
 

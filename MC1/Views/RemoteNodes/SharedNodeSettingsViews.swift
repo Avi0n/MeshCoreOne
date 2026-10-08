@@ -88,6 +88,7 @@ struct NodeDeviceInfoSection: View {
 // MARK: - Radio Settings Section
 
 struct NodeRadioSettingsSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var settings: NodeSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
   var radioRestartWarning: String = L10n.RemoteNodes.RemoteNodes.Settings.radioRestartWarning
@@ -221,7 +222,7 @@ struct NodeRadioSettingsSection: View {
             .transition(.opacity)
         }
       }
-      .disabled(!settings.radioSettingsModified || settings.isApplying)
+      .radioDisabled(for: appState.connectionState, or: !settings.radioSettingsModified || settings.isApplying)
     }
   }
 }
@@ -229,6 +230,7 @@ struct NodeRadioSettingsSection: View {
 // MARK: - Identity Section
 
 struct RemoteNodeIdentitySection: View {
+  @Environment(\.appState) private var appState
   @Bindable var settings: NodeSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
   var onPickLocation: () -> Void
@@ -320,7 +322,7 @@ struct RemoteNodeIdentitySection: View {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.applyIdentitySettings)
         }
       }
-      .disabled(!settings.identitySettingsModified || settings.isApplying)
+      .radioDisabled(for: appState.connectionState, or: !settings.identitySettingsModified || settings.isApplying)
     }
   }
 }
@@ -328,6 +330,7 @@ struct RemoteNodeIdentitySection: View {
 // MARK: - Contact Info Section
 
 struct NodeContactInfoSection: View {
+  @Environment(\.appState) private var appState
   @Bindable var settings: NodeSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
 
@@ -391,7 +394,10 @@ struct NodeContactInfoSection: View {
           Text(L10n.RemoteNodes.RemoteNodes.Settings.applyContactInfo)
         }
       }
-      .disabled(!settings.contactInfoSettingsModified || settings.isApplying || settings.isOwnerInfoTooLong)
+      .radioDisabled(
+        for: appState.connectionState,
+        or: !settings.contactInfoSettingsModified || settings.isApplying || settings.isOwnerInfoTooLong
+      )
     }
   }
 }
@@ -399,6 +405,7 @@ struct NodeContactInfoSection: View {
 // MARK: - Security Section
 
 struct NodeSecuritySection: View {
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   @Bindable var settings: NodeSettingsViewModel
 
@@ -415,7 +422,10 @@ struct NodeSecuritySection: View {
             Text(L10n.RemoteNodes.RemoteNodes.Settings.changePassword)
           }
         }
-        .disabled(settings.isApplying || settings.changePasswordSuccess || settings.newPassword.isEmpty || settings.newPassword != settings.confirmPassword)
+        .radioDisabled(
+          for: appState.connectionState,
+          or: settings.isApplying || settings.changePasswordSuccess || settings.newPassword.isEmpty || settings.newPassword != settings.confirmPassword
+        )
       } label: {
         Label(L10n.RemoteNodes.RemoteNodes.Settings.security, systemImage: "lock")
       }
@@ -429,6 +439,7 @@ struct NodeSecuritySection: View {
 // MARK: - Actions Section
 
 struct NodeActionsSection: View {
+  @Environment(\.appState) private var appState
   @Environment(\.appTheme) private var theme
   let settings: NodeSettingsViewModel
   @Binding var showRebootConfirmation: Bool
@@ -448,7 +459,7 @@ struct NodeActionsSection: View {
           }
         }
       }
-      .disabled(settings.isSendingAdvert)
+      .radioDisabled(for: appState.connectionState, or: settings.isSendingAdvert)
 
       Button {
         Task { await settings.syncTime() }
@@ -461,12 +472,12 @@ struct NodeActionsSection: View {
           }
         }
       }
-      .disabled(settings.isApplying)
+      .radioDisabled(for: appState.connectionState, or: settings.isApplying)
 
       Button(L10n.RemoteNodes.RemoteNodes.Settings.rebootDevice, role: .destructive) {
         showRebootConfirmation = true
       }
-      .disabled(settings.isRebooting)
+      .radioDisabled(for: appState.connectionState, or: settings.isRebooting)
       .confirmationDialog(rebootConfirmTitle, isPresented: $showRebootConfirmation) {
         Button(L10n.RemoteNodes.RemoteNodes.Settings.reboot, role: .destructive) {
           Task { await settings.reboot() }

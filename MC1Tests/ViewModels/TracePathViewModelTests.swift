@@ -509,6 +509,7 @@ struct ErrorHandlingTests {
   @Test
   func `error auto-clears after delay`() async throws {
     let viewModel = TracePathViewModel()
+    viewModel.setWorkspaceVisible(true)
     viewModel.errorAutoClearDelay = .milliseconds(100)
 
     viewModel.setError("Test error")
@@ -541,6 +542,7 @@ struct ErrorHandlingTests {
   @Test
   func `new setError cancels previous auto-clear timer`() async throws {
     let viewModel = TracePathViewModel()
+    viewModel.setWorkspaceVisible(true)
     viewModel.errorAutoClearDelay = .milliseconds(200)
 
     // Set first error

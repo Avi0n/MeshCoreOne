@@ -137,6 +137,11 @@ extension RemoteNodeService {
           let sentInfo: MessageSentInfo
           do {
             sentInfo = try await session.sendCommand(to: publicKey, command: wirePrefix + command)
+          } catch is CancellationError {
+            if let failed = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {
+              failed.continuation.resume(throwing: CancellationError())
+            }
+            return
           } catch {
             if let failed = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {
               let meshError = error as? MeshCoreError ?? MeshCoreError.connectionLost(underlying: error)
@@ -154,7 +159,16 @@ extension RemoteNodeService {
 
             let remaining = deadline - .now
             let pollDuration = min(RemoteOperationTimeoutPolicy.pollInterval, remaining)
-            _ = try? await session.getMessage(timeout: max(0.1, timeInterval(for: pollDuration)))
+            do {
+              _ = try await session.getMessage(timeout: max(0.1, timeInterval(for: pollDuration)))
+            } catch is CancellationError {
+              if let stopped = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {
+                stopped.continuation.resume(throwing: CancellationError())
+              }
+              return
+            } catch {
+              // A single poll can miss the reply. The deadline is the timeout.
+            }
           }
 
           if let timedOut = takePendingCLIRequest(for: destinationPrefix, requestID: requestID) {

@@ -40,10 +40,39 @@ final class RepeaterStatusViewModel {
 
   var discoverySecondsRemaining = 0
   private var discoverTask: Task<Void, Never>?
+  private var statusEpoch = Epoch()
+  private var neighborsEpoch = Epoch()
+  private var telemetryEpoch = Epoch()
+  private var ownerInfoEpoch = Epoch()
+  private var discoveryEpoch = Epoch()
+  private var pollsEnabled = false
 
   private static let discoveryDuration = 60
   private static let pollIntervalTicks = 5
   private static let discoverCommand = "discover.neighbors"
+
+  #if DEBUG
+    var discoveryTickForTesting: Duration?
+    var pollIntervalTicksForTesting: Int?
+    var requestNeighborsEntryCountForTesting = 0
+    var fetchAllNeighborsForTesting: (@MainActor () async -> Void)?
+  #endif
+
+  private var discoveryTick: Duration {
+    #if DEBUG
+      discoveryTickForTesting ?? .seconds(1)
+    #else
+      .seconds(1)
+    #endif
+  }
+
+  private var activePollIntervalTicks: Int {
+    #if DEBUG
+      pollIntervalTicksForTesting ?? Self.pollIntervalTicks
+    #else
+      Self.pollIntervalTicks
+    #endif
+  }
 
   /// Owner info text
   var ownerInfo: String?
@@ -136,6 +165,8 @@ final class RepeaterStatusViewModel {
     guard let repeaterAdminService else { return }
     if helper.session == nil { helper.session = session }
 
+    statusEpoch.bump()
+    let ticket = statusEpoch.ticket()
     await helper.runRetryingSectionRequest(
       operationName: "status",
       setLoading: { self.helper.isLoadingStatus = $0 },
@@ -143,7 +174,10 @@ final class RepeaterStatusViewModel {
       operation: { [repeaterAdminService] timeout in
         try await repeaterAdminService.requestStatus(sessionID: session.id, timeout: timeout)
       },
-      onSuccess: { await self.handleStatusResponse($0) }
+      onSuccess: { [ticket] response in
+        guard ticket.isCurrent(in: self.statusEpoch) else { return }
+        await self.handleStatusResponse(response)
+      }
     )
   }
 
@@ -156,6 +190,17 @@ final class RepeaterStatusViewModel {
   }
 
   // MARK: - Neighbors
+
+  private func pollNeighbors(for session: RemoteNodeSessionDTO, ticket: Epoch.Ticket) async {
+    #if DEBUG
+      requestNeighborsEntryCountForTesting += 1
+      if let fetchAllNeighborsForTesting {
+        await fetchAllNeighborsForTesting()
+      }
+    #endif
+    guard ticket.isCurrent(in: discoveryEpoch) else { return }
+    await requestNeighbors(for: session)
+  }
 
   func requestNeighbors(for session: RemoteNodeSessionDTO) async {
     guard let repeaterAdminService else { return }
@@ -189,15 +234,30 @@ final class RepeaterStatusViewModel {
   func startDiscovery(for session: RemoteNodeSessionDTO) {
     guard let repeaterAdminService, !isDiscovering else { return }
 
+    discoveryEpoch.bump()
+    let ticket = discoveryEpoch.ticket()
+    pollsEnabled = true
     discoverySecondsRemaining = Self.discoveryDuration
 
     discoverTask = Task {
       do {
-        _ = try await repeaterAdminService.sendCommand(
-          sessionID: session.id,
-          command: Self.discoverCommand
-        )
+        #if DEBUG
+          if fetchAllNeighborsForTesting == nil {
+            _ = try await repeaterAdminService.sendCommand(
+              sessionID: session.id,
+              command: Self.discoverCommand
+            )
+          }
+        #else
+          _ = try await repeaterAdminService.sendCommand(
+            sessionID: session.id,
+            command: Self.discoverCommand
+          )
+        #endif
+      } catch is CancellationError {
+        return
       } catch {
+        guard ticket.isCurrent(in: self.discoveryEpoch) else { return }
         neighborsSectionError = error.userFacingMessage
         discoverySecondsRemaining = 0
         discoverTask = nil
@@ -207,31 +267,51 @@ final class RepeaterStatusViewModel {
       let startTime = Date.now
       var tickCount = 0
 
-      while !Task.isCancelled {
-        try? await Task.sleep(for: .seconds(1))
-        guard !Task.isCancelled else { break }
+      while !Task.isCancelled, ticket.isCurrent(in: self.discoveryEpoch) {
+        try? await Task.sleep(for: self.discoveryTick)
+        guard !Task.isCancelled, ticket.isCurrent(in: self.discoveryEpoch) else { break }
 
         let elapsed = Int(Date.now.timeIntervalSince(startTime))
         let remaining = max(0, Self.discoveryDuration - elapsed)
         discoverySecondsRemaining = remaining
 
         tickCount += 1
-        if tickCount.isMultiple(of: Self.pollIntervalTicks) {
-          await requestNeighbors(for: session)
+        if pollsEnabled, tickCount.isMultiple(of: self.activePollIntervalTicks) {
+          await pollNeighbors(for: session, ticket: ticket)
         }
 
         if remaining <= 0 { break }
       }
 
+      guard ticket.isCurrent(in: self.discoveryEpoch) else { return }
       discoverySecondsRemaining = 0
       discoverTask = nil
     }
   }
 
+  /// Dismiss keeps the countdown and neighbors already stored, and sends no further poll.
+  func pauseDiscoveryPolls() {
+    pollsEnabled = false
+  }
+
   func stopDiscovery() {
+    discoveryEpoch.bump()
+    pollsEnabled = false
     discoverTask?.cancel()
     discoverTask = nil
     discoverySecondsRemaining = 0
+  }
+
+  func reset() {
+    statusEpoch.bump()
+    neighborsEpoch.bump()
+    telemetryEpoch.bump()
+    ownerInfoEpoch.bump()
+    stopDiscovery()
+    helper.status = nil
+    helper.statusSectionError = nil
+    helper.isLoadingStatus = false
+    neighborsSectionError = nil
   }
 
   // MARK: - Telemetry

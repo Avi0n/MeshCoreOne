@@ -113,6 +113,13 @@ public actor MeshCoreSession: MeshCoreSessionProtocol {
   }
 
   private var isRunning = false
+
+  /// False after `stop()`. `performBinaryExchange`, `sendAndMatch`, and `performGetMessage`
+  /// read this so a stopped session does not send or report a radio timeout.
+  var sessionIsRunning: Bool {
+    isRunning
+  }
+
   private var receiveTask: Task<Void, Never>?
   private var autoMessageFetchTask: Task<Void, Never>?
   private var autoMessageDrainTask: Task<Void, Never>?

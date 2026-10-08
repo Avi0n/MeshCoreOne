@@ -31,6 +31,18 @@ final class NodeCLIViewModel {
   private var sendRawCommand: (@MainActor (_ command: String, _ timeout: Duration) async throws -> String)?
   private var currentCommandTask: Task<Void, Never>?
   private var hasConfigured = false
+  private var commandEpoch = Epoch()
+
+  func reset() {
+    commandEpoch.bump()
+    currentCommandTask?.cancel()
+    currentCommandTask = nil
+    outputLines.removeAll()
+    commandHistory.removeAll()
+    currentInput = ""
+    isWaitingForResponse = false
+    hasConfigured = false
+  }
 
   // MARK: - Prompt
 
@@ -99,6 +111,7 @@ final class NodeCLIViewModel {
 
   private func sendCommand(_ command: String) async {
     guard let sendRawCommand else { return }
+    let ticket = commandEpoch.ticket()
 
     // Reboot does not reply; treat both success and timeout as success.
     let normalized = command.lowercased()
@@ -107,11 +120,14 @@ final class NodeCLIViewModel {
       defer { isWaitingForResponse = false }
       do {
         _ = try await sendRawCommand(command, Self.rebootTimeout)
+        guard ticket.isCurrent(in: commandEpoch) else { return }
         appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.rebootSent, type: .success)
       } catch RemoteNodeError.timeout {
+        guard ticket.isCurrent(in: commandEpoch) else { return }
         appendOutput(L10n.RemoteNodes.RemoteNodes.NodeCli.rebootSent, type: .success)
       } catch is CancellationError {
       } catch {
+        guard ticket.isCurrent(in: commandEpoch) else { return }
         appendOutput(error.localizedDescription, type: .error)
       }
       return
@@ -121,10 +137,11 @@ final class NodeCLIViewModel {
     defer { isWaitingForResponse = false }
     do {
       let response = try await sendRawCommand(command, Self.defaultCommandTimeout)
-      guard !Task.isCancelled else { return }
+      guard ticket.isCurrent(in: commandEpoch), !Task.isCancelled else { return }
       appendOutput(response, type: .response)
     } catch is CancellationError {
     } catch {
+      guard ticket.isCurrent(in: commandEpoch) else { return }
       appendOutput(error.localizedDescription, type: .error)
     }
   }

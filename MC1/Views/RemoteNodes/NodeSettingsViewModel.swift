@@ -163,16 +163,44 @@ final class NodeSettingsViewModel {
   }
 
   /// Set name and owner info from an external source (e.g., binary protocol pre-fetch)
+  private var nodeInfoEpoch = Epoch()
+  var applyEpoch = Epoch()
+
   func setNodeInfo(firmwareVersion: String?, name: String?, ownerInfo: String?) {
+    applyNodeInfo(
+      firmwareVersion: firmwareVersion,
+      name: name,
+      ownerInfo: ownerInfo,
+      ticket: nodeInfoEpoch.ticket()
+    )
+  }
+
+  func applyNodeInfo(
+    firmwareVersion: String?,
+    name: String?,
+    ownerInfo: String?,
+    ticket: Epoch.Ticket
+  ) {
+    guard ticket.isCurrent(in: nodeInfoEpoch) else { return }
     if let firmwareVersion { self.firmwareVersion = firmwareVersion }
     if let name {
-      self.name = name
-      originalName = name
+      _ = ticket.publish(name, current: &self.name, baseline: &originalName, in: nodeInfoEpoch)
     }
     if let ownerInfo {
-      self.ownerInfo = ownerInfo
-      originalOwnerInfo = ownerInfo
+      _ = ticket.publish(ownerInfo, current: &self.ownerInfo, baseline: &originalOwnerInfo, in: nodeInfoEpoch)
     }
+  }
+
+  func reset() {
+    nodeInfoEpoch.bump()
+    applyEpoch.bump()
+    errorMessage = nil
+    showSuccessAlert = false
+    name = nil
+    originalName = nil
+    ownerInfo = nil
+    originalOwnerInfo = nil
+    firmwareVersion = nil
   }
 
   func cleanup() {
@@ -201,6 +229,11 @@ final class NodeSettingsViewModel {
       rememberSeenResponse(response)
       unansweredQueries.remove(command)
       return response
+    } catch is CancellationError {
+      if CLIResponse.isStructuredQuery(command) {
+        unansweredQueries.insert(command)
+      }
+      throw CancellationError()
     } catch RemoteNodeError.timeout {
       if CLIResponse.isStructuredQuery(command) {
         unansweredQueries.insert(command)
@@ -375,23 +408,33 @@ final class NodeSettingsViewModel {
       return
     }
 
+    applyEpoch.bump()
+    let ticket = applyEpoch.ticket()
+    let sentFrequency = frequency
     isApplying = true
     errorMessage = nil
 
     do {
       let radioCommand = "set radio \(frequency),\(bandwidth),\(spreadingFactor),\(codingRate)"
       let radioResponse = try await sendAndWait(radioCommand)
+      guard ticket.isCurrent(in: applyEpoch) else { return }
       if case .ok = CLIResponse.parse(radioResponse) {
-        radioSettingsModified = false
+        if self.frequency == sentFrequency {
+          radioSettingsModified = false
+        }
         successMessage = L10n.RemoteNodes.RemoteNodes.Settings.radioAppliedSuccess
         showSuccessAlert = true
       } else {
         errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.radioApplyFailed
       }
+    } catch is CancellationError {
+      guard ticket.isCurrent(in: applyEpoch) else { return }
     } catch {
+      guard ticket.isCurrent(in: applyEpoch) else { return }
       errorMessage = error.userFacingMessage
     }
 
+    guard ticket.isCurrent(in: applyEpoch) else { return }
     isApplying = false
   }
 

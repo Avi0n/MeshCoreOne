@@ -3,7 +3,26 @@ import SwiftUI
 
 struct NodeDiscoveryView: View {
   @Environment(\.appState) private var appState
-  @State private var viewModel = NodeDiscoveryViewModel()
+
+  var body: some View {
+    Group {
+      if let viewModel = appState.nodeDiscoveryViewModel {
+        NodeDiscoveryWorkspace(viewModel: viewModel)
+      } else {
+        Color.clear
+          .onAppear {
+            if appState.nodeDiscoveryViewModel == nil {
+              appState.nodeDiscoveryViewModel = NodeDiscoveryViewModel()
+            }
+          }
+      }
+    }
+  }
+}
+
+private struct NodeDiscoveryWorkspace: View {
+  @Bindable var viewModel: NodeDiscoveryViewModel
+  @Environment(\.appState) private var appState
 
   private var isConnected: Bool {
     appState.services?.session != nil
@@ -41,7 +60,6 @@ struct NodeDiscoveryView: View {
     .sensoryFeedback(.success, trigger: viewModel.addSuccessHapticTrigger)
     .sensoryFeedback(.error, trigger: viewModel.addErrorHapticTrigger)
     .task(id: appState.servicesVersion) {
-      guard isWorkspaceActive else { return }
       viewModel.configure(dependencies: NodeDiscoveryViewModel.Dependencies(
         session: { [appState] in appState.services?.session },
         dataStore: { [appState] in appState.offlineDataStore },
@@ -49,11 +67,10 @@ struct NodeDiscoveryView: View {
         contactService: { [appState] in appState.services?.contactService },
         maxContacts: { [appState] in appState.connectedDevice?.maxContacts }
       ))
+      viewModel.setWorkspaceVisible(isWorkspaceActive)
     }
     .onChange(of: isWorkspaceActive) { _, isActive in
-      if !isActive {
-        viewModel.stopScan()
-      }
+      viewModel.setWorkspaceVisible(isActive)
     }
     .onChange(of: viewModel.filter) { _, _ in
       viewModel.stopScan()
@@ -63,7 +80,7 @@ struct NodeDiscoveryView: View {
 
 // MARK: - States
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private var disconnectedState: some View {
     ContentUnavailableView {
       Label(L10n.Tools.Tools.RxLog.notConnected, systemImage: "antenna.radiowaves.left.and.right.slash")
@@ -91,7 +108,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Results List
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct ResultsList: View {
     @Bindable var viewModel: NodeDiscoveryViewModel
     @Environment(\.appTheme) private var theme
@@ -134,7 +151,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Scan Button
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct ScanButtonBar: View {
     let viewModel: NodeDiscoveryViewModel
 
@@ -165,7 +182,7 @@ extension NodeDiscoveryView {
 
 // MARK: - Sort Menu
 
-extension NodeDiscoveryView {
+extension NodeDiscoveryWorkspace {
   private struct SortMenu: View {
     let viewModel: NodeDiscoveryViewModel
 

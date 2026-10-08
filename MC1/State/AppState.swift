@@ -315,6 +315,15 @@ final class AppState {
   /// Persistent CLI tool view model (survives tab switches, reset on device disconnect)
   var cliToolViewModel: CLIToolViewModel?
 
+  /// Trace Path model. Created on first open. `reset()` runs only with the CLI reset.
+  var tracePathViewModel: TracePathViewModel?
+
+  /// Node Discovery model. Created on first open. `reset()` runs only with the CLI reset.
+  var nodeDiscoveryViewModel: NodeDiscoveryViewModel?
+
+  /// Repeater and room admin models. `reset()` drops them with the other radio-scoped tools.
+  let remoteAdminWorkspaces = RemoteAdminWorkspaces()
+
   /// Tracks the device ID for CLI state - reset CLI when device changes
   private var lastConnectedDeviceIDForCLI: UUID?
 
@@ -536,6 +545,9 @@ final class AppState {
 
   private func resetRadioScopedToolWorkspaces() {
     cliToolViewModel?.reset()
+    tracePathViewModel?.reset()
+    nodeDiscoveryViewModel?.reset()
+    remoteAdminWorkspaces.reset()
   }
 
   /// Wire services-dependent callbacks after a successful connection.
@@ -578,6 +590,15 @@ final class AppState {
       navigation.clearPerRadioSelection()
     }
     lastConnectedDeviceIDForCLI = connectedDevice?.id
+    tracePathViewModel?.reattachIfWaiting()
+    nodeDiscoveryViewModel?.reattachIfWaiting()
+    await remoteAdminWorkspaces.rebind(
+      repeaterAdminService: { services.repeaterAdminService },
+      roomAdminService: { services.roomAdminService },
+      contactService: { services.contactService },
+      nodeSnapshotService: { services.nodeSnapshotService },
+      deviceHashSize: { [weak self] in self?.connectedDevice?.hashSize }
+    )
 
     // Store syncCoordinator reference
     syncCoordinator = services.syncCoordinator

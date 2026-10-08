@@ -107,8 +107,6 @@ final class RepeaterSettingsViewModel {
       }
     )
 
-    helper.name = session.name
-
     helper.onPreFetchNodeInfo = { [weak self] in
       await self?.fetchNodeInfo()
     }
@@ -116,16 +114,44 @@ final class RepeaterSettingsViewModel {
     registerBehaviorLateRecovery()
 
     // Register CLI handler for late responses
-    await repeaterAdminService.setCLIHandler { [weak self] message, _ in
+    await repeaterAdminService.setCLIHandler { [weak self] message, contact in
       await MainActor.run {
-        self?.helper.handleCommonLateResponse(message.text)
+        guard let self, self.matches(contact) else { return }
+        self.helper.handleCommonLateResponse(message.text)
       }
     }
 
     // Detached so configure returns immediately and the node CLI send
     // closure wires without waiting on the owner-info round-trip (matches
     // RoomSettingsViewModel's detached device-info fetch).
-    Task { await fetchNodeInfo() }
+    if !didScheduleNodeInfo, helper.firmwareVersion == nil, helper.ownerInfo == nil {
+      didScheduleNodeInfo = true
+      Task { await fetchNodeInfo() }
+    }
+  }
+
+  private func matches(_ contact: ContactDTO) -> Bool {
+    guard let session = helper.session else { return false }
+    return session.publicKey.prefix(6) == contact.publicKey.prefix(6)
+  }
+
+  func reset() {
+    behaviorEpoch.bump()
+    behaviorTicket = nil
+    regionsEpoch.bump()
+    helper.reset()
+    repeaterEnabled = nil
+    originalRepeaterEnabled = nil
+    advertIntervalMinutes = nil
+    originalAdvertIntervalMinutes = nil
+    floodAdvertIntervalHours = nil
+    originalFloodAdvertIntervalHours = nil
+    floodMaxHops = nil
+    originalFloodMaxHops = nil
+    behaviorError = false
+    isLoadingBehavior = false
+    isLoadingNodeInfo = false
+    didScheduleNodeInfo = false
   }
 
   /// Builds the node-CLI send closure, pre-binding this session's id and
@@ -143,6 +169,10 @@ final class RepeaterSettingsViewModel {
   }
 
   private var isLoadingNodeInfo = false
+  private var didScheduleNodeInfo = false
+  private var behaviorEpoch = Epoch()
+  private var behaviorTicket: Epoch.Ticket?
+  private var regionsEpoch = Epoch()
 
   private func fetchNodeInfo() async {
     guard !isLoadingNodeInfo, let session = helper.session, let repeaterAdminService else { return }
@@ -169,82 +199,119 @@ final class RepeaterSettingsViewModel {
 
   private func registerBehaviorLateRecovery() {
     helper.registerLateRecovery(query: "get repeat") { [weak self] value in
-      guard let self, case let .repeatMode(enabled) = value else { return }
-      repeaterEnabled = enabled
-      originalRepeaterEnabled = enabled
-      behaviorError = !behaviorSectionComplete
+      guard let self, let behaviorTicket, behaviorTicket.isCurrent(in: behaviorEpoch) else { return }
+      guard case let .repeatMode(enabled) = value else { return }
+      _ = behaviorTicket.publish(enabled, current: &repeaterEnabled, baseline: &originalRepeaterEnabled, in: behaviorEpoch)
+      behaviorError = false
+      if behaviorSectionComplete { isLoadingBehavior = false }
     }
     helper.registerLateRecovery(query: "get advert.interval") { [weak self] value in
-      guard let self, case let .advertInterval(minutes) = value else { return }
-      advertIntervalMinutes = minutes
-      originalAdvertIntervalMinutes = minutes
-      behaviorError = !behaviorSectionComplete
+      guard let self, let behaviorTicket, behaviorTicket.isCurrent(in: behaviorEpoch) else { return }
+      guard case let .advertInterval(minutes) = value else { return }
+      _ = behaviorTicket.publish(
+        minutes,
+        current: &advertIntervalMinutes,
+        baseline: &originalAdvertIntervalMinutes,
+        in: behaviorEpoch
+      )
+      if behaviorSectionComplete { isLoadingBehavior = false }
     }
     helper.registerLateRecovery(query: "get flood.advert.interval") { [weak self] value in
-      guard let self, case let .floodAdvertInterval(hours) = value else { return }
-      floodAdvertIntervalHours = hours
-      originalFloodAdvertIntervalHours = hours
-      behaviorError = !behaviorSectionComplete
+      guard let self, let behaviorTicket, behaviorTicket.isCurrent(in: behaviorEpoch) else { return }
+      guard case let .floodAdvertInterval(hours) = value else { return }
+      _ = behaviorTicket.publish(
+        hours,
+        current: &floodAdvertIntervalHours,
+        baseline: &originalFloodAdvertIntervalHours,
+        in: behaviorEpoch
+      )
+      if behaviorSectionComplete { isLoadingBehavior = false }
     }
     helper.registerLateRecovery(query: "get flood.max") { [weak self] value in
-      guard let self, case let .floodMax(hops) = value else { return }
-      floodMaxHops = hops
-      originalFloodMaxHops = hops
-      behaviorError = !behaviorSectionComplete
+      guard let self, let behaviorTicket, behaviorTicket.isCurrent(in: behaviorEpoch) else { return }
+      guard case let .floodMax(hops) = value else { return }
+      _ = behaviorTicket.publish(hops, current: &floodMaxHops, baseline: &originalFloodMaxHops, in: behaviorEpoch)
+      if behaviorSectionComplete { isLoadingBehavior = false }
     }
   }
 
   // MARK: - Behavior Fetch/Apply
 
   func fetchBehaviorSettings() async {
+    behaviorEpoch.bump()
+    let ticket = behaviorEpoch.ticket()
+    behaviorTicket = ticket
     isLoadingBehavior = true
     behaviorError = false
     var hadTimeout = false
 
     do {
       let response = try await helper.sendAndWait("get repeat")
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case let .repeatMode(enabled) = CLIResponse.parse(response, forQuery: "get repeat") {
-        repeaterEnabled = enabled
-        originalRepeaterEnabled = enabled
+        _ = ticket.publish(enabled, current: &repeaterEnabled, baseline: &originalRepeaterEnabled, in: behaviorEpoch)
       }
+    } catch is CancellationError {
+      return
     } catch {
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get repeat mode: \(error)")
     }
 
     do {
       let response = try await helper.sendAndWait("get advert.interval")
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case let .advertInterval(minutes) = CLIResponse.parse(response, forQuery: "get advert.interval") {
-        advertIntervalMinutes = minutes
-        originalAdvertIntervalMinutes = minutes
+        _ = ticket.publish(
+          minutes,
+          current: &advertIntervalMinutes,
+          baseline: &originalAdvertIntervalMinutes,
+          in: behaviorEpoch
+        )
       }
+    } catch is CancellationError {
+      return
     } catch {
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get advert interval: \(error)")
     }
 
     do {
       let response = try await helper.sendAndWait("get flood.advert.interval")
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case let .floodAdvertInterval(hours) = CLIResponse.parse(response, forQuery: "get flood.advert.interval") {
-        floodAdvertIntervalHours = hours
-        originalFloodAdvertIntervalHours = hours
+        _ = ticket.publish(
+          hours,
+          current: &floodAdvertIntervalHours,
+          baseline: &originalFloodAdvertIntervalHours,
+          in: behaviorEpoch
+        )
       }
+    } catch is CancellationError {
+      return
     } catch {
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get flood advert interval: \(error)")
     }
 
     do {
       let response = try await helper.sendAndWait("get flood.max")
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case let .floodMax(hops) = CLIResponse.parse(response, forQuery: "get flood.max") {
-        floodMaxHops = hops
-        originalFloodMaxHops = hops
+        _ = ticket.publish(hops, current: &floodMaxHops, baseline: &originalFloodMaxHops, in: behaviorEpoch)
       }
+    } catch is CancellationError {
+      return
     } catch {
+      guard ticket.isCurrent(in: behaviorEpoch) else { return }
       if case RemoteNodeError.timeout = error { hadTimeout = true }
       logger.warning("Failed to get flood max: \(error)")
     }
 
+    guard ticket.isCurrent(in: behaviorEpoch) else { return }
     if hadTimeout {
       behaviorError = true
     }
@@ -264,6 +331,12 @@ final class RepeaterSettingsViewModel {
 
     if validation.hasErrors { return }
 
+    helper.applyEpoch.bump()
+    let ticket = helper.applyEpoch.ticket()
+    let sentRepeaterEnabled = repeaterEnabled
+    let sentAdvert = advertIntervalMinutes
+    let sentFloodAdvert = floodAdvertIntervalHours
+    let sentFloodMax = floodMaxHops
     helper.isApplying = true
     helper.errorMessage = nil
 
@@ -272,8 +345,14 @@ final class RepeaterSettingsViewModel {
 
       if let repeaterEnabled, repeaterEnabled != originalRepeaterEnabled {
         let response = try await helper.sendAndWait("set repeat \(repeaterEnabled ? "on" : "off")")
+        guard ticket.isCurrent(in: helper.applyEpoch) else { return }
         if case .ok = CLIResponse.parse(response) {
-          originalRepeaterEnabled = repeaterEnabled
+          _ = ticket.adoptApplied(
+            sentRepeaterEnabled,
+            current: repeaterEnabled,
+            baseline: &originalRepeaterEnabled,
+            in: helper.applyEpoch
+          )
         } else {
           allSucceeded = false
         }
@@ -281,8 +360,14 @@ final class RepeaterSettingsViewModel {
 
       if let advertIntervalMinutes, advertIntervalMinutes != originalAdvertIntervalMinutes {
         let response = try await helper.sendAndWait("set advert.interval \(advertIntervalMinutes)")
+        guard ticket.isCurrent(in: helper.applyEpoch) else { return }
         if case .ok = CLIResponse.parse(response) {
-          originalAdvertIntervalMinutes = advertIntervalMinutes
+          _ = ticket.adoptApplied(
+            sentAdvert,
+            current: advertIntervalMinutes,
+            baseline: &originalAdvertIntervalMinutes,
+            in: helper.applyEpoch
+          )
         } else {
           allSucceeded = false
         }
@@ -290,8 +375,14 @@ final class RepeaterSettingsViewModel {
 
       if let floodAdvertIntervalHours, floodAdvertIntervalHours != originalFloodAdvertIntervalHours {
         let response = try await helper.sendAndWait("set flood.advert.interval \(floodAdvertIntervalHours)")
+        guard ticket.isCurrent(in: helper.applyEpoch) else { return }
         if case .ok = CLIResponse.parse(response) {
-          originalFloodAdvertIntervalHours = floodAdvertIntervalHours
+          _ = ticket.adoptApplied(
+            sentFloodAdvert,
+            current: floodAdvertIntervalHours,
+            baseline: &originalFloodAdvertIntervalHours,
+            in: helper.applyEpoch
+          )
         } else {
           allSucceeded = false
         }
@@ -299,13 +390,15 @@ final class RepeaterSettingsViewModel {
 
       if let floodMaxHops, floodMaxHops != originalFloodMaxHops {
         let response = try await helper.sendAndWait("set flood.max \(floodMaxHops)")
+        guard ticket.isCurrent(in: helper.applyEpoch) else { return }
         if case .ok = CLIResponse.parse(response) {
-          originalFloodMaxHops = floodMaxHops
+          _ = ticket.adoptApplied(sentFloodMax, current: floodMaxHops, baseline: &originalFloodMaxHops, in: helper.applyEpoch)
         } else {
           allSucceeded = false
         }
       }
 
+      guard ticket.isCurrent(in: helper.applyEpoch) else { return }
       if allSucceeded {
         await helper.flashSuccess(
           setApplying: { helper.isApplying = $0 },
@@ -315,10 +408,14 @@ final class RepeaterSettingsViewModel {
       } else {
         helper.errorMessage = L10n.RemoteNodes.RemoteNodes.Settings.someSettingsFailedToApply
       }
+    } catch is CancellationError {
+      guard ticket.isCurrent(in: helper.applyEpoch) else { return }
     } catch {
+      guard ticket.isCurrent(in: helper.applyEpoch) else { return }
       helper.errorMessage = error.userFacingMessage
     }
 
+    guard ticket.isCurrent(in: helper.applyEpoch) else { return }
     helper.isApplying = false
   }
 }

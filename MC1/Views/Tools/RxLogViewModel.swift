@@ -42,6 +42,9 @@ final class RxLogViewModel {
   private(set) var nodeNames: [Data: String] = [:]
 
   private var streamTask: Task<Void, Never>?
+  /// Bumped by every subscribe and unsubscribe so a load that resumes after
+  /// hide cannot install a stream for a subscription that already ended.
+  private var subscribeGeneration: UInt = 0
 
   // MARK: - Dependencies
 
@@ -114,36 +117,64 @@ final class RxLogViewModel {
     }
   }
 
-  /// Subscribe to the live RxLogService for updates while view is visible.
+  /// Listens while the view is visible. The task is stored before `loadEntries`
+  /// returns, so a hide during that load cannot install a stream afterward.
   func subscribe() async {
-    // Cancel any existing stream task so a re-subscribe (a `.task(id:)` re-fire
-    // against the same service) can't leave two streams appending each packet twice.
     unsubscribe()
 
     guard let service = rxLogService else { return }
 
-    // If service changed, reset state
     if subscribedService !== service {
       entries.removeAll()
       groupCounts.removeAll()
     }
     subscribedService = service
 
-    entries = await service.loadExistingEntries()
-    rebuildGroupCounts()
-
-    streamTask = Task {
-      for await entry in service.entryStream() {
-        guard !Task.isCancelled else { break }
-        appendEntry(entry)
+    let generation = subscribeGeneration
+    await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+      var resumed = false
+      let resumeOnce = {
+        guard !resumed else { return }
+        resumed = true
+        continuation.resume()
       }
+      let task = Task { @MainActor [weak self] in
+        guard let self else {
+          resumeOnce()
+          return
+        }
+        let loaded = await self.loadEntries(from: service)
+        guard !Task.isCancelled, generation == self.subscribeGeneration else {
+          resumeOnce()
+          return
+        }
+        self.entries = loaded
+        self.rebuildGroupCounts()
+        let stream = service.entryStream()
+        resumeOnce()
+        for await entry in stream {
+          guard !Task.isCancelled, generation == self.subscribeGeneration else { break }
+          self.appendEntry(entry)
+        }
+      }
+      streamTask = task
     }
   }
 
   /// Stop listening to updates.
   func unsubscribe() {
+    subscribeGeneration &+= 1
     streamTask?.cancel()
     streamTask = nil
+  }
+
+  private func loadEntries(from service: RxLogService) async -> [RxLogEntryDTO] {
+    #if DEBUG
+      if let loadExistingEntriesForTesting {
+        return await loadExistingEntriesForTesting()
+      }
+    #endif
+    return await service.loadExistingEntries()
   }
 
   /// Clear all log entries.
@@ -220,5 +251,7 @@ final class RxLogViewModel {
     var streamTaskForTesting: Task<Void, Never>? {
       streamTask
     }
+
+    var loadExistingEntriesForTesting: (() async -> [RxLogEntryDTO])?
   #endif
 }

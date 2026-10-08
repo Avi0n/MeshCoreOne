@@ -183,10 +183,11 @@ public extension MeshCoreSession {
     // Subscribe before sending to avoid the race where the response arrives
     // before the consumer is listening.
     let events = await dispatcher.subscribe()
+    guard sessionIsRunning else { throw CancellationError() }
     try await transport.send(request)
 
     return try await withThrowingTaskGroup(of: BinaryExchangeSignal<Response>.self) { group in
-      group.addTask { [logger] in
+      group.addTask { [self, logger] in
         // Firmware replaces the single pending tag on each send; track only latest.
         var expectedTag: Data?
         var acceptedMessageSent = false
@@ -242,18 +243,24 @@ public extension MeshCoreSession {
             continue
           }
         }
+        if await !self.sessionIsRunning {
+          return .stopped
+        }
         return .idle
       }
 
-      group.addTask { [logger, clock = self.clock] in
+      group.addTask { [self, logger, clock = self.clock] in
         try await clock.sleep(for: .seconds(overallTimeout))
+        if await !self.sessionIsRunning {
+          return .stopped
+        }
         let elapsed = ContinuousClock.now - startTime
         logger.warning("\(operation) request to \(prefixHex): timed out after \(elapsed)")
         return .timedOut
       }
 
       if retransmitFloor != nil {
-        group.addTask { [logger, clock = self.clock, transport] in
+        group.addTask { [self, logger, clock = self.clock, transport] in
           var attempt = 1
           while !Task.isCancelled {
             let delay = await cadence.waitForInterval()
@@ -263,6 +270,7 @@ public extension MeshCoreSession {
               return .idle
             }
             guard !Task.isCancelled else { break }
+            guard await self.sessionIsRunning else { return .stopped }
             attempt += 1
             let interval = await cadence.currentSeconds()
             logger.info(
@@ -293,6 +301,9 @@ public extension MeshCoreSession {
           case .timedOut:
             group.cancelAll()
             throw MeshCoreError.timeout
+          case .stopped:
+            group.cancelAll()
+            throw CancellationError()
           case .idle:
             continue
           }
@@ -300,6 +311,9 @@ public extension MeshCoreSession {
       } catch {
         group.cancelAll()
         throw error
+      }
+      if await !sessionIsRunning {
+        throw CancellationError()
       }
       throw MeshCoreError.timeout
     }
@@ -532,6 +546,8 @@ public extension MeshCoreSession {
 private enum BinaryExchangeSignal<Response: Sendable>: Sendable {
   case response(Response)
   case timedOut
+  /// `session.stop` ended the exchange. Callers must not publish a timeout.
+  case stopped
   /// Cancelled retransmit loop or ended event stream; not a terminal result.
   case idle
 }

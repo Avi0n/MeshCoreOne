@@ -88,7 +88,9 @@ struct ExpandableSettingsSection<Content: View>: View {
     .themedRowBackground(theme)
     .task(id: isExpanded) {
       guard isExpanded, !isLoaded(), !isLoading else { return }
-      await onLoad()
+      // The view task returns immediately. Collapse and host removal do not
+      // cancel the load, and they do not bump its epoch.
+      Task { await onLoad() }
     }
   }
 }

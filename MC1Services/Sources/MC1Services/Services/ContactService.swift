@@ -267,15 +267,28 @@ public actor ContactService {
 
   /// Add or update a contact on the device
   /// - Parameters:
-  ///   - radioID: The device ID
+  ///   - radioID: The device ID captured when the command was sent
   ///   - contact: The contact to add/update
-  public func addOrUpdateContact(radioID: UUID, contact: ContactFrame) async throws {
+  ///   - radioIDAtInsert: Read after the radio command returns. The local row uses that id.
+  public func addOrUpdateContact(
+    radioID: UUID,
+    contact: ContactFrame,
+    radioIDAtInsert: (@MainActor () -> UUID?)? = nil
+  ) async throws {
     do {
       let meshContact = contact.toMeshContact()
       try await session.addContact(meshContact)
 
+      let partition: UUID
+      if let radioIDAtInsert {
+        guard let live = await radioIDAtInsert() else { return }
+        partition = live
+      } else {
+        partition = radioID
+      }
+
       // Save to local database
-      _ = try await dataStore.saveContact(radioID: radioID, from: contact)
+      _ = try await dataStore.saveContact(radioID: partition, from: contact)
 
       // Notify UI to refresh contacts list
       await syncCoordinator?.notifyContactsChanged()

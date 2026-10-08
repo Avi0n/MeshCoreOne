@@ -264,7 +264,85 @@ struct RxLogViewModelTests {
     viewModel.unsubscribe()
   }
 
+  @Test
+  func `unsubscribe during loadExistingEntries does not install a stream`() async throws {
+    let services = try await ServiceContainer.forTesting(
+      session: MeshCoreSession(transport: MockTransport())
+    )
+    let service = services.rxLogService
+    await service.startEventMonitoring(radioID: UUID())
+    defer { Task { await service.stopEventMonitoring() } }
+
+    let hang = HangingEntryLoad()
+    let viewModel = RxLogViewModel()
+    viewModel.configure(
+      rxLogService: { service },
+      dataStore: { nil },
+      radioID: { nil }
+    )
+    viewModel.loadExistingEntriesForTesting = { await hang.load() }
+
+    let subscribeTask = Task { await viewModel.subscribe() }
+    try await waitUntil(timeout: .seconds(1), "load should start") { hang.started }
+
+    viewModel.unsubscribe()
+    #expect(viewModel.streamTaskForTesting == nil)
+
+    hang.complete()
+    await subscribeTask.value
+    #expect(viewModel.streamTaskForTesting == nil)
+
+    let dropped = parsedPacket(raw: 0x44)
+    await service.process(dropped)
+    try await Task.sleep(for: .milliseconds(100))
+    #expect(viewModel.entries.contains { $0.rawPayload == dropped.rawPayload } == false)
+  }
+
+  @Test
+  func `a second subscribe does not append twice`() async throws {
+    let services = try await ServiceContainer.forTesting(
+      session: MeshCoreSession(transport: MockTransport())
+    )
+    let service = services.rxLogService
+    await service.startEventMonitoring(radioID: UUID())
+    defer { Task { await service.stopEventMonitoring() } }
+
+    let viewModel = RxLogViewModel()
+    viewModel.configure(
+      rxLogService: { service },
+      dataStore: { nil },
+      radioID: { nil }
+    )
+
+    await viewModel.subscribe()
+    await viewModel.subscribe()
+
+    let packet = parsedPacket(raw: 0x66)
+    await service.process(packet)
+    try await waitUntil(timeout: .seconds(1), "one subscriber should append") {
+      viewModel.entries.contains { $0.rawPayload == packet.rawPayload }
+    }
+    #expect(viewModel.entries.filter { $0.rawPayload == packet.rawPayload }.count == 1)
+    viewModel.unsubscribe()
+  }
+
   // MARK: - Helpers
+
+  @MainActor
+  private final class HangingEntryLoad {
+    private(set) var started = false
+    private var continuation: CheckedContinuation<[RxLogEntryDTO], Never>?
+
+    func load() async -> [RxLogEntryDTO] {
+      started = true
+      return await withCheckedContinuation { continuation = $0 }
+    }
+
+    func complete() {
+      continuation?.resume(returning: [])
+      continuation = nil
+    }
+  }
 
   private func parsedPacket(raw: UInt8) -> ParsedRxLogData {
     ParsedRxLogData(
