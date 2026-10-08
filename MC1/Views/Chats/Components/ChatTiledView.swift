@@ -43,7 +43,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   var onLoadOlder: (@MainActor @Sendable () async -> Void)?
 
   /// Invoked once, on the first post-positioning geometry report, when an
-  /// `initialScrollTargetID` was in effect — the point at which the library has
+  /// opening target was in effect — the point at which the library has
   /// consumed the one-shot target. Lets the owner retire a divider target so a
   /// later `.id` rebuild does not re-jump to it.
   var onInitialTargetConsumed: (() -> Void)?
@@ -61,6 +61,11 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
   @State private var host = CellContentHost<Item, Content>()
   @State private var newestID: Item.ID?
   @State private var hasConsumedInitialGeometry = false
+
+  private var openingScrollTargetID: Item.ID? {
+    guard !hasConsumedInitialGeometry else { return nil }
+    return scrollTargetID ?? initialScrollTargetID
+  }
 
   init(
     items: [Item],
@@ -96,7 +101,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
     // append-follow until the geometry callback re-derives it from the resting
     // position, so an append during open does not fight the target.
     _scrollPosition = State(initialValue: TiledScrollPosition(
-      autoScrollsToBottomOnAppend: initialScrollTargetID == nil,
+      autoScrollsToBottomOnAppend: scrollTargetID == nil && initialScrollTargetID == nil,
       scrollsToBottomOnReplace: true
     ))
   }
@@ -115,7 +120,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
         ProgressView().padding(.vertical, 8)
       }
     })
-    .initialScrollTarget(id: initialScrollTargetID.map { AnyHashable($0) }, anchor: .top)
+    .initialScrollTarget(id: openingScrollTargetID.map { AnyHashable($0) }, anchor: .top)
     .onTiledScrollGeometryChange { geometry in
       let atBottom = geometry.pointsFromBottom < ChatScrollConstants.bottomDetectionThreshold
       if atBottom != isAtBottom { isAtBottom = atBottom }
@@ -124,7 +129,7 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       // accumulate as unread (counted in the onChange below). The first report
       // after a target open reflects the resting position, not a user scroll, so
       // it consumes the one-shot target instead of arming follow.
-      if hasConsumedInitialGeometry || initialScrollTargetID == nil {
+      if hasConsumedInitialGeometry || openingScrollTargetID == nil {
         scrollPosition.autoScrollsToBottomOnAppend = atBottom
       } else {
         onInitialTargetConsumed?()

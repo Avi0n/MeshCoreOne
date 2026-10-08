@@ -149,26 +149,38 @@ struct AdaptiveNavigationTests {
   // MARK: - Scroll request delivery
 
   @Test
-  func `scroll target is preserved until the conversation can honor it`() {
+  func `scroll target is preserved until the conversation can honor it`() async {
     let appState = AppState()
     let contact = makeContact()
     let messageID = UUID()
+    let timeline = ChatTimeline(role: .interactive)
+    timeline.bind(
+      ChatCoordinator.makeForTesting(),
+      dataStore: { nil }, senderTables: { .empty }, postApply: nil
+    )
+    timeline.admit(MessageDTO(from: Message(
+      id: messageID, radioID: contact.radioID, contactID: contact.id, text: "Target"
+    )))
     appState.navigation.navigateToChat(with: contact, scrollToMessageID: messageID)
 
-    let skipped = ChatScrollRequestDelivery.takeIfHonorable(
+    let skipped = await ChatScrollRequestDelivery.takeIfHonorable(
       from: appState.navigation,
       kind: .direct,
       conversationID: contact.id,
-      canHonor: false
+      canHonor: false,
+      timeline: timeline,
+      loadOlder: { Issue.record("An unready conversation must not page") }
     )
     #expect(skipped == nil)
     #expect(appState.navigation.pendingScrollToMessageID == messageID)
 
-    let taken = ChatScrollRequestDelivery.takeIfHonorable(
+    let taken = await ChatScrollRequestDelivery.takeIfHonorable(
       from: appState.navigation,
       kind: .direct,
       conversationID: contact.id,
-      canHonor: true
+      canHonor: true,
+      timeline: timeline,
+      loadOlder: { Issue.record("An already loaded target must not page") }
     )
     #expect(taken == messageID)
     #expect(appState.navigation.pendingScrollTarget == nil)

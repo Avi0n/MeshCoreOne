@@ -307,8 +307,8 @@ struct ChatConversationView: View {
     .task(id: appState.servicesVersion) {
       await performInitialLoad()
     }
-    .onChange(of: appState.navigation.pendingScrollTarget?.requestID) { _, _ in
-      deliverPendingScrollIfNeeded()
+    .task(id: didCompleteInitialLoad ? appState.navigation.pendingScrollTarget?.requestID : nil) {
+      await deliverPendingScrollIfNeeded()
     }
     .conversationTranslationSession(
       configuration: $translationConfiguration,
@@ -406,6 +406,7 @@ struct ChatConversationView: View {
 
   private func performInitialLoad() async {
     didCompleteInitialLoad = false
+    scrollToTargetID = nil
 
     chatViewModel.configure(
       dependencies: appState.makeChatViewModelDependencies(),
@@ -436,7 +437,6 @@ struct ChatConversationView: View {
     await markConversationMentionsSeen()
 
     didCompleteInitialLoad = true
-    deliverPendingScrollIfNeeded()
 
     // Clear any notifications for this conversation still sitting in the tray
     // (delivered while the app was backgrounded). The load above already
@@ -444,12 +444,14 @@ struct ChatConversationView: View {
     await clearDeliveredNotifications()
   }
 
-  private func deliverPendingScrollIfNeeded() {
-    if let targetID = ChatScrollRequestDelivery.takeIfHonorable(
+  private func deliverPendingScrollIfNeeded() async {
+    if let targetID = await ChatScrollRequestDelivery.takeIfHonorable(
       from: appState.navigation,
       kind: conversationType.chatRouteKind,
       conversationID: conversationType.conversationID,
-      canHonor: didCompleteInitialLoad
+      canHonor: didCompleteInitialLoad,
+      timeline: chatViewModel.timeline,
+      loadOlder: { await chatViewModel.loadOlderMessages() }
     ) {
       scrollToTargetID = targetID
       scrollToTargetRequest += 1
