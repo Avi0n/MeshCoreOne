@@ -1003,13 +1003,13 @@ public enum PacketBuilder: Sendable {
   /// - Offset 1–32 (32 bytes): Destination public key
   /// - Offset 33 (1 byte): Anonymous request type
   /// - Offset 34 (1 byte): Encoded path length (bits 7-6 = hash_size-1, bits 5-0 = hop count)
-  /// - Offset 35+ (variable): Out-path bytes, reversed to form the return route
+  /// - Offset 35+ (variable): Out-path hops in reverse order, preserving each hop's bytes
   ///
   /// - Parameters:
   ///   - publicKey: The 32-byte public key of the destination node.
   ///   - type: The anonymous request type.
   ///   - pathLength: The encoded path length byte.
-  ///   - path: The raw out-path bytes for the destination. Reversed to form the return route.
+  ///   - path: The raw out-path bytes. Hop order is reversed to form the return route.
   /// - Returns: The command data to send to the companion radio.
   public static func sendAnonReq(
     to publicKey: Data,
@@ -1021,7 +1021,13 @@ public enum PacketBuilder: Sendable {
     data.append(publicKey.prefix(publicKeySize))
     data.append(type.rawValue)
     data.append(pathLength)
-    data.append(Data(path.reversed()))
+    if let pathInfo = decodePathLen(pathLength), pathInfo.byteLength == path.count {
+      for offset in stride(from: 0, to: path.count, by: pathInfo.hashSize).reversed() {
+        data.append(path.dropFirst(offset).prefix(pathInfo.hashSize))
+      }
+    } else {
+      data.append(Data(path.reversed()))
+    }
     return data
   }
 

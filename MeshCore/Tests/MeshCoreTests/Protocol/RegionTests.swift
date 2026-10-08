@@ -44,25 +44,34 @@ struct FloodScopeRegionTests {
 
 @Suite("PacketBuilder.sendAnonReq wire format")
 struct SendAnonReqTests {
-  @Test
-  func `regions request with path`() {
+  private static let replyPaths: [(pathLength: UInt8, path: [UInt8], replyPath: [UInt8])] = [
+    (0x02, [0x11, 0x22], [0x22, 0x11]),
+    (0x41, [0x11, 0x22], [0x11, 0x22]),
+    (0x42, [0x11, 0x22, 0x33, 0x44], [0x33, 0x44, 0x11, 0x22]),
+    (0x81, [0x11, 0x22, 0x33], [0x11, 0x22, 0x33]),
+    (0x82, [0x11, 0x22, 0x33, 0x44, 0x55, 0x66], [0x44, 0x55, 0x66, 0x11, 0x22, 0x33])
+  ]
+
+  @Test(arguments: replyPaths)
+  func `regions request reverses hop order while preserving each hash`(
+    testCase: (pathLength: UInt8, path: [UInt8], replyPath: [UInt8])
+  ) {
+    let (pathLength, path, replyPath) = testCase
     let pubkey = Data(repeating: 0xAA, count: 32)
-    let path = Data([0x11, 0x22])
-    let pathLength: UInt8 = 0x41 // 2-byte hashes, 1 hop
 
     let packet = PacketBuilder.sendAnonReq(
       to: pubkey,
       type: .regions,
       pathLength: pathLength,
-      path: path
+      path: Data(path)
     )
 
     #expect(packet[0] == 0x39, "Command code")
     #expect(Data(packet[1..<33]) == pubkey, "Public key")
     #expect(packet[33] == 0x01, "Request type (regions)")
-    #expect(packet[34] == 0x41, "Path length byte")
-    #expect(Data(packet[35..<37]) == Data([0x22, 0x11]), "Reversed path")
-    #expect(packet.count == 37, "Total packet size")
+    #expect(packet[34] == pathLength, "Path length byte")
+    #expect(Data(packet.dropFirst(35)) == Data(replyPath), "Reply path preserves each hop hash")
+    #expect(packet.count == 35 + path.count, "Total packet size")
   }
 
   @Test
