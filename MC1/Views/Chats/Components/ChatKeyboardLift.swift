@@ -17,9 +17,8 @@ enum ChatKeyboardLift {
   /// - Parameters:
   ///   - keyboardFrameInWindow: Keyboard end frame in the same space as `windowBounds`.
   ///   - windowBounds: Key window bounds.
-  ///   - bottomSafeArea: Window bottom safe area (home indicator). The compose
-  ///     bar already sits above it via container safe area, so that height is
-  ///     subtracted to avoid a double-count gap on iPhone and iPad.
+  ///   - bottomSafeArea: Home-indicator height already reserved under the bar
+  ///     (container safe area on regular width, `ChatWindowBottomInset` on compact).
   static func ownedBottomPadding(
     keyboardFrameInWindow: CGRect,
     windowBounds: CGRect,

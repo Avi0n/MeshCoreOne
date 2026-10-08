@@ -1121,3 +1121,219 @@ struct AdaptiveNavigationTests {
     return view.subviews.contains { containsText(text, in: $0) }
   }
 }
+
+@Suite("Compact chat composer inset", .serialized)
+@MainActor
+struct CompactChatComposerInsetTests {
+  @Test
+  func `opening a compact chat does not drop the composer after it appears`() throws {
+    let appState = AppState()
+    appState.navigation.selectedTab = AppTab.chats.rawValue
+    let host = mountCompactHost(HostRoot(appState: appState))
+    defer { dismountCompactHost(host) }
+
+    let contact = ContactDTO(
+      id: UUID(),
+      radioID: UUID(),
+      publicKey: Data(repeating: 0xAB, count: ProtocolLimits.publicKeySize),
+      name: "Alex",
+      typeRawValue: ContactType.chat.rawValue,
+      flags: 0,
+      outPathLength: 0,
+      outPath: Data(),
+      lastAdvertTimestamp: 0,
+      latitude: 0,
+      longitude: 0,
+      lastModified: 0,
+      lastHeardTimestamp: nil,
+      nickname: nil,
+      isBlocked: false,
+      isMuted: false,
+      isFavorite: false,
+      lastMessageDate: nil,
+      unreadCount: 0
+    )
+
+    UIView.setAnimationsEnabled(true)
+    let start = Date()
+    appState.navigation.setChatsRoute(.direct(contact))
+
+    var samples: [(time: TimeInterval, gap: CGFloat)] = []
+    while Date().timeIntervalSince(start) < 1.6 {
+      if let gap = visibleComposerGap(in: host.window) {
+        samples.append((Date().timeIntervalSince(start), gap))
+      }
+      RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+    }
+    if let gap = visibleComposerGap(in: host.window) {
+      samples.append((Date().timeIntervalSince(start), gap))
+    }
+
+    let trace = samples
+      .map { String(format: "t=%.2f gap=%.1f", $0.time, $0.gap) }
+      .joined(separator: "\n")
+    let first = try #require(samples.first, "composer never appeared\n\(trace)")
+    let last = try #require(samples.last, "composer never appeared\n\(trace)")
+    // Settled gap is about 42 (34pt home indicator plus 8pt of bar padding).
+    // A bar still above the tab bar is about 91.
+    #expect(first.time < 0.5, "chat waited \(first.time)s to draw\n\(trace)")
+    #expect(
+      first.gap < 60 && last.gap < 60,
+      "composer gap \(first.gap) -> \(last.gap) still includes the tab bar\n\(trace)"
+    )
+    #expect(
+      abs(first.gap - last.gap) < 16,
+      "composer gap moved from \(first.gap) to \(last.gap)\n\(trace)"
+    )
+  }
+
+  private func visibleComposerGap(in window: UIWindow) -> CGFloat? {
+    window.layoutIfNeeded()
+    guard let composer = composerTextView(in: window) else { return nil }
+    let frame = composer.convert(composer.bounds, to: window)
+    let onScreen = frame.intersects(window.bounds)
+      && frame.midX >= 0
+      && frame.midX <= window.bounds.width
+      && frame.maxY > window.bounds.height * 0.45
+    guard onScreen else { return nil }
+    return window.bounds.maxY - frame.maxY
+  }
+
+  private func composerTextView(in view: UIView) -> UIView? {
+    if view is ChatComposerUITextView { return view }
+    for subview in view.subviews {
+      if let found = composerTextView(in: subview) { return found }
+    }
+    return nil
+  }
+
+  private struct HostRoot: View {
+    let appState: AppState
+
+    var body: some View {
+      @Bindable var navigation = appState.navigation
+      TabView(selection: $navigation.selectedTab) {
+        Tab("Chats", systemImage: "message.fill", value: AppTab.chats.rawValue) {
+          ChatsView()
+        }
+        Tab("Nodes", systemImage: "flipphone", value: AppTab.nodes.rawValue) {
+          Text("Nodes")
+        }
+      }
+      .environment(\.appState, appState)
+    }
+  }
+}
+
+@Suite("Compact composer keyboard gap", .serialized)
+@MainActor
+struct CompactComposerKeyboardGapTests {
+  private struct Probe: View {
+    var body: some View {
+      Color.clear
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+          ChatBottomChrome(canvas: Color(.systemBackground)) {
+            Field().frame(height: 38)
+          }
+        }
+        .chatIgnoresLaggingTabBarInset()
+        .chatKeyboardOwnedLift()
+    }
+  }
+
+  private struct Field: UIViewRepresentable {
+    func makeUIView(context: Context) -> UITextView {
+      let view = UITextView()
+      view.accessibilityIdentifier = "keyboard-gap-field"
+      view.backgroundColor = .gray
+      view.textContainerInset = .zero
+      return view
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {}
+  }
+
+  @Test
+  func `docked keyboard leaves the field on the keyboard`() {
+    let host = mountCompactHost(Probe())
+    defer { dismountCompactHost(host) }
+
+    let resting = gap(in: host.window)
+    let keyboardHeight: CGFloat = 336
+    postKeyboard(height: keyboardHeight, in: host.window)
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.4))
+    host.window.layoutIfNeeded()
+    let lifted = gap(in: host.window)
+    let safe = host.controller.view.safeAreaInsets.bottom
+
+    // This field has no bar padding, so the resting gap is the home indicator.
+    // A docked keyboard puts that same edge on the keyboard top.
+    #expect(
+      abs((resting ?? -1) - 34) < 16,
+      "resting gap \(resting ?? -1), safe \(safe)"
+    )
+    #expect(
+      abs((lifted ?? -1) - keyboardHeight) < 16,
+      "lifted gap \(lifted ?? -1) for keyboard \(keyboardHeight), resting \(resting ?? -1), safe \(safe)"
+    )
+  }
+
+  private func postKeyboard(height: CGFloat, in window: UIWindow) {
+    let local = CGRect(
+      x: 0,
+      y: window.bounds.height - height,
+      width: window.bounds.width,
+      height: height
+    )
+    let screen = window.convert(local, to: nil)
+    NotificationCenter.default.post(
+      name: UIResponder.keyboardWillChangeFrameNotification,
+      object: nil,
+      userInfo: [
+        UIResponder.keyboardFrameEndUserInfoKey: NSValue(cgRect: screen),
+        UIResponder.keyboardAnimationDurationUserInfoKey: 0.0,
+      ]
+    )
+  }
+
+  private func gap(in window: UIWindow) -> CGFloat? {
+    guard let field = findField(in: window) else { return nil }
+    let frame = field.convert(field.bounds, to: window)
+    return window.bounds.maxY - frame.maxY
+  }
+
+  private func findField(in view: UIView) -> UIView? {
+    if view.accessibilityIdentifier == "keyboard-gap-field" { return view }
+    for subview in view.subviews {
+      if let found = findField(in: subview) { return found }
+    }
+    return nil
+  }
+}
+
+@MainActor
+private func mountCompactHost(_ root: some View) -> (window: UIWindow, controller: UIViewController) {
+  let controller = UIHostingController(rootView: root)
+  let size = CGSize(width: 390, height: 844)
+  let window = if let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first {
+    UIWindow(windowScene: scene)
+  } else {
+    UIWindow(frame: CGRect(origin: .zero, size: size))
+  }
+  window.rootViewController = controller
+  controller.traitOverrides.horizontalSizeClass = .compact
+  controller.traitOverrides.verticalSizeClass = .regular
+  window.frame = CGRect(origin: .zero, size: size)
+  controller.view.frame = window.bounds
+  window.makeKeyAndVisible()
+  window.layoutIfNeeded()
+  RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.35))
+  return (window, controller)
+}
+
+@MainActor
+private func dismountCompactHost(_ host: (window: UIWindow, controller: UIViewController)) {
+  host.window.rootViewController = nil
+  host.window.isHidden = true
+  host.window.windowScene = nil
+}

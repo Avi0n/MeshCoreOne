@@ -192,24 +192,24 @@ struct ChatConversationView: View {
     // the input bar (and lifting it with the keyboard).
     .chatErrorBanner(chatViewModel: chatViewModel)
     .safeAreaInset(edge: .bottom, spacing: 0) {
-      ChatConversationInputBar(
-        conversationType: conversationType,
-        composingText: $chatViewModel.composingText,
-        focusRequest: $inputFocusRequest,
-        nodeNameByteCount: appState.connectedDevice?.nodeName.utf8.count ?? 0,
-        onSend: { text in
-          switch conversationType {
-          case .dm:
-            await chatViewModel.sendMessage(text: text)
-          case .channel:
-            await chatViewModel.sendChannelMessage(text: text)
-          }
-        },
-        onWillSend: { scrollToBottomRequest += 1 },
-        onFocus: { scrollToBottomRequest += 1 }
-      )
-      .chatKeyboardLiftPadding()
-      .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
+      ChatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
+        ChatConversationInputBar(
+          conversationType: conversationType,
+          composingText: $chatViewModel.composingText,
+          focusRequest: $inputFocusRequest,
+          nodeNameByteCount: appState.connectedDevice?.nodeName.utf8.count ?? 0,
+          onSend: { text in
+            switch conversationType {
+            case .dm:
+              await chatViewModel.sendMessage(text: text)
+            case .channel:
+              await chatViewModel.sendChannelMessage(text: text)
+            }
+          },
+          onWillSend: { scrollToBottomRequest += 1 },
+          onFocus: { scrollToBottomRequest += 1 }
+        )
+      }
     }
     // Overlay before `chatKeyboardOwnedLift`: environment does not reach overlays
     // applied after the modifier that publishes `chatKeyboardLift`.
@@ -219,6 +219,7 @@ struct ChatConversationView: View {
         onSelectMention: { insertMention(for: $0) }
       )
     }
+    .chatIgnoresLaggingTabBarInset()
     // Owned lift: residual system keyboard safe area can park the compose bar
     // mid-screen after an interrupted hide (app switch, notification activation).
     .chatKeyboardOwnedLift()

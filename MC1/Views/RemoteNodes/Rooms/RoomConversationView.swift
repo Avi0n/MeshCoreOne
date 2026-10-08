@@ -46,7 +46,7 @@ struct RoomConversationView: View {
         shouldSuppressOpen: { selectedRoomMessage != nil }
       )
       .safeAreaInset(edge: .bottom, spacing: 0) {
-        Group {
+        ChatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
           if !session.isConnected {
             makeDisconnectedBanner()
           } else if session.canPost {
@@ -55,9 +55,8 @@ struct RoomConversationView: View {
             makeReadOnlyBanner()
           }
         }
-        .chatKeyboardLiftPadding()
-        .chatComposeBarFade(canvas: theme.surfaces?.canvas ?? Color(.systemBackground))
       }
+      .chatIgnoresLaggingTabBarInset()
       // Owned lift: residual system keyboard safe area can park the compose bar
       // mid-screen after an interrupted hide (app switch, notification activation).
       .chatKeyboardOwnedLift()
