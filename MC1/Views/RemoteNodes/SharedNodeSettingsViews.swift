@@ -330,7 +330,6 @@ struct RemoteNodeIdentitySection: View {
 // MARK: - Contact Info Section
 
 struct NodeContactInfoSection: View {
-  @Environment(\.appState) private var appState
   @Bindable var settings: NodeSettingsViewModel
   var focusedField: FocusState<NodeSettingsField?>.Binding
 
@@ -352,6 +351,7 @@ struct NodeContactInfoSection: View {
   /// Separate view so `errorMessage` invalidates these rows, not only the
   /// stored ExpandableSettingsSection content closure.
   private struct Fields: View {
+    @Environment(\.appState) private var appState
     @Bindable var settings: NodeSettingsViewModel
     var focusedField: FocusState<NodeSettingsField?>.Binding
 
