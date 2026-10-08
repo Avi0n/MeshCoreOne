@@ -19,7 +19,12 @@ extension AppState {
 
     let handler = services.notificationActionHandler
     handler.configure(
-      isConnectionReady: { [weak self] in self?.connectionState == .ready },
+      isConnectionReady: { [weak self, weak services] radioID in
+        guard let self, let services else { return false }
+        return self.services === services
+          && connectionState == .ready
+          && connectedDevice?.radioID == radioID
+      },
       localNodeName: { [weak self] in self?.connectedDevice?.nodeName }
     )
 

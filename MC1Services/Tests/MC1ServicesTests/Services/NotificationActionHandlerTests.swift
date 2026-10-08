@@ -76,7 +76,7 @@ struct NotificationActionHandlerTests {
   @MainActor
   func `Handler is configured after configure() is called`() async throws {
     let handler = try await makeHandler()
-    handler.configure(isConnectionReady: { true }, localNodeName: { nil })
+    handler.configure(isConnectionReady: { _ in true }, localNodeName: { nil })
     #expect(handler.isConfigured == true)
   }
 

@@ -32,9 +32,9 @@ public final class NotificationActionHandler {
   private let roomServerService: RoomServerService
   private let syncCoordinator: SyncCoordinator
 
-  /// Whether the connection is ready for sends. Injected as a closure so
-  /// every call reads the live app-facing connection state.
-  private var isConnectionReady: @MainActor () -> Bool = { false }
+  /// Whether this handler's connection is ready to send for the requested
+  /// radio. Reads live state because notifications can outlive a connection.
+  private var isConnectionReady: @MainActor (UUID) -> Bool = { _ in false }
 
   /// The connected device's node name, used to suppress self-reaction
   /// notifications. Nil means `configure` has not yet been called; a
@@ -60,7 +60,7 @@ public final class NotificationActionHandler {
   /// Injects the app-layer inputs. Idempotent; re-run per connection when
   /// notification handling is configured.
   public func configure(
-    isConnectionReady: @escaping @MainActor () -> Bool,
+    isConnectionReady: @escaping @MainActor (UUID) -> Bool,
     localNodeName: @escaping @MainActor () -> String?
   ) {
     self.isConnectionReady = isConnectionReady
@@ -78,7 +78,7 @@ public final class NotificationActionHandler {
   public func handleQuickReply(contactID: UUID, text: String) async {
     guard let contact = try? await dataStore.fetchContact(id: contactID) else { return }
 
-    if isConnectionReady() {
+    if isConnectionReady(contact.radioID) {
       do {
         _ = try await messageService.sendDirectMessage(text: text, to: contact)
 
@@ -105,7 +105,7 @@ public final class NotificationActionHandler {
     let channel = try? await dataStore.fetchChannel(radioID: radioID, index: channelIndex)
     let channelName = channelDisplayName(name: channel?.name, index: channelIndex)
 
-    guard isConnectionReady() else {
+    guard isConnectionReady(radioID) else {
       await notificationService.postChannelQuickReplyFailedNotification(
         channelName: channelName,
         radioID: radioID,
