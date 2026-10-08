@@ -831,6 +831,8 @@ private struct ContactActionsSection: View {
   let showShareSuccess: Bool
 
   var body: some View {
+    let isRadioReady = appState.connectionState == .ready
+
     Section {
       // Role-specific actions based on contact type
       switch currentContact.type {
@@ -908,7 +910,13 @@ private struct ContactActionsSection: View {
 
       Toggle(isOn: $isFavorite) {
         Label(L10n.Contacts.Contacts.Detail.favorite, systemImage: "star")
+          .foregroundStyle(isRadioReady ? .primary : .secondary)
       }
+      .disabled(!isRadioReady)
+      .accessibilityHint(
+        L10n.Localizable.Accessibility.requiresRadioConnection,
+        isEnabled: !isRadioReady
+      )
     }
   }
 }
