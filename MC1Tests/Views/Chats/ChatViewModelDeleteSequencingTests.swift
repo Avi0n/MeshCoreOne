@@ -56,7 +56,7 @@ struct ChatViewModelDeleteSequencingTests {
       name: name,
       role: .roomServer,
       isConnected: true,
-      isFavorite: false,
+      isPinned: false,
       lastMessageDate: lastMessageDate
     )
   }

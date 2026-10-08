@@ -1793,7 +1793,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "远程节点会话";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "只添加新数据，不会覆盖已有记录。在创建此备份之后删除的联系人会重新出现，备份中设置的屏蔽、静音或收藏标记会再次应用。";
+"settings.backup.import.preview.info" = "只添加新数据，不会覆盖已有记录。在创建此备份之后删除的联系人会重新出现，备份中设置的屏蔽、静音或收藏标记会再次应用。若该聊天尚未置顶，备份中的置顶会开启。备份中关闭的置顶不会取消该聊天的置顶。";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "导入数据";

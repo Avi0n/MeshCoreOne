@@ -39,7 +39,7 @@ struct ConversationFilteringTests {
     name: String,
     unreadCount: Int = 0,
     notificationLevel: NotificationLevel = .all,
-    isFavorite: Bool = false
+    isPinned: Bool = false
   ) -> ChannelDTO {
     ChannelDTO(
       id: UUID(),
@@ -51,7 +51,7 @@ struct ConversationFilteringTests {
       lastMessageDate: Date(),
       unreadCount: unreadCount,
       notificationLevel: notificationLevel,
-      isFavorite: isFavorite
+      isPinned: isPinned
     )
   }
 
@@ -59,7 +59,7 @@ struct ConversationFilteringTests {
     name: String,
     unreadCount: Int = 0,
     notificationLevel: NotificationLevel = .all,
-    isFavorite: Bool = false
+    isPinned: Bool = false
   ) -> RemoteNodeSessionDTO {
     RemoteNodeSessionDTO(
       id: UUID(),
@@ -71,7 +71,7 @@ struct ConversationFilteringTests {
       lastConnectedDate: Date(),
       unreadCount: unreadCount,
       notificationLevel: notificationLevel,
-      isFavorite: isFavorite
+      isPinned: isPinned
     )
   }
 

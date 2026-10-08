@@ -21,14 +21,14 @@ public enum L10n {
       public enum Action {
         /// Location: ConversationContextMenuModifier.swift - Context-menu action to delete
         public static let delete = L10n.tr("Chats", "chats.action.delete", fallback: "Delete")
-        /// Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites
-        public static let favorite = L10n.tr("Chats", "chats.action.favorite", fallback: "Favorite")
         /// Location: ConversationContextMenuModifier.swift - Context-menu action to mute
         public static let mute = L10n.tr("Chats", "chats.action.mute", fallback: "Mute")
-        /// Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites
-        public static let unfavorite = L10n.tr("Chats", "chats.action.unfavorite", fallback: "Unfavorite")
+        /// Location: ConversationRowActions.swift - Context-menu action to pin a chat
+        public static let pin = L10n.tr("Chats", "chats.action.pin", fallback: "Pin")
         /// Location: ConversationContextMenuModifier.swift - Context-menu action to unmute
         public static let unmute = L10n.tr("Chats", "chats.action.unmute", fallback: "Unmute")
+        /// Location: ConversationRowActions.swift - Context-menu action to unpin a chat
+        public static let unpin = L10n.tr("Chats", "chats.action.unpin", fallback: "Unpin")
       }
       public enum Alert {
         public enum LeaveRoom {
@@ -355,6 +355,8 @@ public enum L10n {
         public static let noDeviceConnected = L10n.tr("Chats", "chats.error.noDeviceConnected", fallback: "No device connected")
         /// Location: ConversationActionError.swift - Error when the radio is disconnected and a conversation delete is attempted
         public static let notConnectedToDelete = L10n.tr("Chats", "chats.error.notConnectedToDelete", fallback: "Connect to your radio to delete this conversation.")
+        /// Location: ChatViewModel - Error when saving a chat pin fails
+        public static let pinSaveFailed = L10n.tr("Chats", "chats.error.pinSaveFailed", fallback: "Couldn't save the pin. Try again.")
         /// Location: ChatViewModel - Error when persisting a queued send fails (SwiftData write error)
         public static let sendQueuePersistFailed = L10n.tr("Chats", "chats.error.sendQueuePersistFailed", fallback: "Couldn't queue your message. Try again.")
         /// Location: ChannelInfoSheet.swift - Error when services unavailable
@@ -995,14 +997,14 @@ public enum L10n {
       public enum Row {
         /// Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for failed-send indicator
         public static let failedSend = L10n.tr("Chats", "chats.row.failedSend", fallback: "Failed to send")
-        /// Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator
-        public static let favorite = L10n.tr("Chats", "chats.row.favorite", fallback: "Favorite")
         /// Location: MutedIndicator.swift - Accessibility label for mentions-only indicator
         public static let mentionsOnly = L10n.tr("Chats", "chats.row.mentionsOnly", fallback: "Mentions only")
         /// Location: MutedIndicator.swift - Accessibility label for muted indicator
         public static let muted = L10n.tr("Chats", "chats.row.muted", fallback: "Muted")
         /// Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist
         public static let noMessages = L10n.tr("Chats", "chats.row.noMessages", fallback: "No messages yet")
+        /// Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator
+        public static let pin = L10n.tr("Chats", "chats.row.pin", fallback: "Pinned")
       }
       public enum ScanQR {
         /// Location: ScanChannelQRView.swift - Instruction to point camera
@@ -5726,7 +5728,7 @@ public enum L10n {
             /// Import preview label: export date
             public static let exported = L10n.tr("Settings", "settings.backup.import.preview.exported", fallback: "Export Date")
             /// Import preview info text
-            public static let info = L10n.tr("Settings", "settings.backup.import.preview.info", fallback: "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied.")
+            public static let info = L10n.tr("Settings", "settings.backup.import.preview.info", fallback: "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied. A pin in the backup is turned on if that chat is not pinned. A pin that is off in the backup does not unpin a chat.")
             /// Import preview manifest label: message repeats
             public static let messageRepeats = L10n.tr("Settings", "settings.backup.import.preview.message_repeats", fallback: "Message Repeats")
             /// Import preview manifest label: messages

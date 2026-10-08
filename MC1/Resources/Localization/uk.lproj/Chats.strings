@@ -242,6 +242,10 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Не вдалося завантажити розмови.";
 
+/* TODO: translate */
+/* Location: ChatViewModel - Error when saving a chat pin fails */
+"chats.error.pinSaveFailed" = "Couldn't save the pin. Try again.";
+
 // MARK: - Channel Options Sheet
 
 /* Location: ChannelOptionsSheet.swift - Loading indicator text */
@@ -315,8 +319,9 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for favorite indicator */
-"chats.row.favorite" = "Обране";
+/* TODO: translate */
+/* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
+"chats.row.pin" = "Pinned";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Поки що немає повідомлень";
@@ -338,11 +343,13 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Вимкнути звук";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to remove from favorites */
-"chats.action.unfavorite" = "Прибрати з обраного";
+/* TODO: translate */
+/* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
+"chats.action.pin" = "Pin";
 
-/* Location: ConversationContextMenuModifier.swift - Context-menu action to add to favorites */
-"chats.action.favorite" = "До обраного";
+/* TODO: translate */
+/* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
+"chats.action.unpin" = "Unpin";
 
 // MARK: - Room Conversation Row
 

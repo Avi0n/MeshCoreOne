@@ -1793,7 +1793,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Sessions de nœud distant";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Seules les nouvelles données sont ajoutées ; les enregistrements existants ne sont pas écrasés. Les contacts supprimés après la création de cette sauvegarde réapparaîtront, et les marquages de blocage, silence ou favori présents dans la sauvegarde seront de nouveau appliqués.";
+"settings.backup.import.preview.info" = "Seules les nouvelles données sont ajoutées ; les enregistrements existants ne sont pas écrasés. Les contacts supprimés après la création de cette sauvegarde réapparaîtront, et les marquages de blocage, silence ou favori présents dans la sauvegarde seront de nouveau appliqués. Une épingle dans la sauvegarde est activée si cette conversation n'est pas épinglée. Une épingle désactivée dans la sauvegarde ne désépingle pas une conversation.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Importer les données";

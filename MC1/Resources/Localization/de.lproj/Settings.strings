@@ -1793,7 +1793,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Remote-Knoten-Sitzungen";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Nur neue Daten werden hinzugefügt; vorhandene Einträge werden nicht überschrieben. Nach dem Erstellen dieser Sicherung gelöschte Kontakte erscheinen wieder, und Sperr-, Stumm- oder Favoritenmarkierungen aus der Sicherung werden erneut angewendet.";
+"settings.backup.import.preview.info" = "Nur neue Daten werden hinzugefügt; vorhandene Einträge werden nicht überschrieben. Nach dem Erstellen dieser Sicherung gelöschte Kontakte erscheinen wieder, und Sperr-, Stumm- oder Favoritenmarkierungen aus der Sicherung werden erneut angewendet. Eine Anheftung in der Sicherung wird eingeschaltet, wenn dieser Chat nicht angeheftet ist. Eine Anheftung, die in der Sicherung ausgeschaltet ist, hebt die Anheftung eines Chats nicht auf.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Daten importieren";

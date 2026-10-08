@@ -155,6 +155,9 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// Event to return from waitForEvent (nil simulates a timeout)
   public var stubbedWaitForEventResult: MeshEvent?
 
+  /// When set, `changeContactFlags` awaits this before returning. A throw fails the call.
+  public var changeContactFlagsHold: (@Sendable () async throws -> Void)?
+
   /// Result to return from getMessage
   public var stubbedGetMessageResult: Result<MessageResult, Error> = .success(.noMoreMessages)
 
@@ -256,6 +259,11 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   /// stub property directly from a test, so configuration goes through this isolated setter.
   public func setStubbedContacts(_ contacts: [MeshContact]) {
     stubbedContacts = contacts
+  }
+
+  /// Actor isolation forbids writing `changeContactFlagsHold` from a test.
+  public func setChangeContactFlagsHold(_ hold: (@Sendable () async throws -> Void)?) {
+    changeContactFlagsHold = hold
   }
 
   /// Sets the reported total for `getContactsReportingTotal` (isolated setter).
@@ -512,7 +520,7 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
   }
 
   public func changeContactFlags(_ contact: MeshContact, flags: ContactFlags) async throws {
-    // Stub - not used in current tests
+    try await changeContactFlagsHold?()
   }
 
   public func waitForEvent(filter: EventFilter, timeout: TimeInterval?) async -> MeshEvent? {

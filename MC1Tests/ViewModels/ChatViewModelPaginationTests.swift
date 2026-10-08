@@ -51,7 +51,7 @@ private func createTestChannel(
     unreadCount: 0,
     unreadMentionCount: 0,
     notificationLevel: .all,
-    isFavorite: false
+    isPinned: false
   )
 }
 
@@ -313,7 +313,7 @@ struct ChatViewModelChannelPaginationTests {
       unreadCount: unread,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
     try await dataStore.saveChannel(channel)
 
@@ -375,7 +375,7 @@ struct ChatViewModelChannelPaginationTests {
       unreadCount: unread,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
     try await dataStore.saveChannel(channel)
 

@@ -1791,7 +1791,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Sessioni di nodi remoti";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Vengono aggiunti solo i dati nuovi; i record esistenti non vengono sovrascritti. I contatti eliminati dopo la creazione di questo backup riappariranno e gli indicatori di blocco, silenzio o preferito del backup verranno riapplicati.";
+"settings.backup.import.preview.info" = "Vengono aggiunti solo i dati nuovi; i record esistenti non vengono sovrascritti. I contatti eliminati dopo la creazione di questo backup riappariranno e gli indicatori di blocco, silenzio o preferito del backup verranno riapplicati. Una chat che non è fissata viene fissata se nel backup lo è. Una chat già fissata resta fissata anche se nel backup non lo è.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Importa dati";

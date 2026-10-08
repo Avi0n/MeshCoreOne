@@ -150,6 +150,13 @@ public extension ConnectionManager {
       logger.error("repeater unread-count migration failed: \(error)")
     }
 
+    // Copy existing contact favorites into the local chat pin once.
+    do {
+      try await persistenceStore.performChatPinMigration()
+    } catch {
+      logger.error("chat pin migration failed: \(error)")
+    }
+
     // Backfill sortDate from createdAt on pre-existing messages so date-header
     // grouping keeps their current display order.
     do {

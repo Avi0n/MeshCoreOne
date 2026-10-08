@@ -412,9 +412,6 @@ final class ChatViewModel {
     timeline.writer
   }
 
-  /// Contact ID currently having its favorite status toggled (for loading UI)
-  var togglingFavoriteID: UUID?
-
   // MARK: - Initialization
 
   init() {}

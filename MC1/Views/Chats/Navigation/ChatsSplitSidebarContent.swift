@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ChatsSplitSidebarContent: View {
   let viewModel: ChatViewModel
-  let filteredFavorites: [Conversation]
+  let filteredPinned: [Conversation]
   let filteredOthers: [Conversation]
   let emptyStateMessage: (title: String, description: String, systemImage: String)
   let hasLoadedOnce: Bool
@@ -21,7 +21,7 @@ struct ChatsSplitSidebarContent: View {
   var body: some View {
     ConversationListContent(
       viewModel: viewModel,
-      favoriteConversations: filteredFavorites,
+      pinnedConversations: filteredPinned,
       otherConversations: filteredOthers,
       selectedFilter: $selectedFilter,
       hasLoadedOnce: hasLoadedOnce,

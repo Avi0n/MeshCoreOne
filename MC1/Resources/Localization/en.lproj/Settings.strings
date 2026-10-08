@@ -1796,7 +1796,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Remote Node Sessions";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied.";
+"settings.backup.import.preview.info" = "Only new data is added; existing records aren't overwritten. Contacts you deleted after this backup was made will reappear, and any block, mute, or favorite flags from the backup will be re-applied. A pin in the backup is turned on if that chat is not pinned. A pin that is off in the backup does not unpin a chat.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Import Data";

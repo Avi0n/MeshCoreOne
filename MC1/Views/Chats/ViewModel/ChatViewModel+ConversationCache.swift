@@ -4,18 +4,18 @@ import MC1Services
 extension ChatViewModel {
   // MARK: - Combined Conversations
 
-  /// Combined conversations (contacts + channels + rooms) - favorites first
+  /// Combined conversations (contacts + channels + rooms), pins first.
   var allConversations: [Conversation] {
-    conversationSnapshot.favorites + conversationSnapshot.others
+    conversationSnapshot.pinned + conversationSnapshot.others
   }
 
-  /// Favorite conversations sorted by last message date
-  var favoriteConversations: [Conversation] {
-    conversationSnapshot.favorites
+  /// Pinned conversations sorted by last message date.
+  var pinnedConversations: [Conversation] {
+    conversationSnapshot.pinned
   }
 
-  /// Non-favorite conversations sorted by last message date
-  var nonFavoriteConversations: [Conversation] {
+  /// Unpinned conversations sorted by last message date.
+  var unpinnedConversations: [Conversation] {
     conversationSnapshot.others
   }
 
@@ -41,8 +41,8 @@ extension ChatViewModel {
     let all = contactConversations + channelConversations + roomConversations
 
     let newSnapshot = ConversationSnapshot(
-      favorites: sortedByLastMessage(all.filter(\.isFavorite)),
-      others: sortedByLastMessage(all.filter { !$0.isFavorite })
+      pinned: sortedByLastMessage(all.filter(\.isPinned)),
+      others: sortedByLastMessage(all.filter { !$0.isPinned })
     )
 
     // Skip republishing an identical snapshot to avoid a needless re-diff. Safe because

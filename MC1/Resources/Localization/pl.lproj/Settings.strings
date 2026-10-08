@@ -1793,7 +1793,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Sesje zdalnych węzłów";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Dodawane są tylko nowe dane; istniejące rekordy nie będą nadpisane. Kontakty usunięte po utworzeniu tej kopii zapasowej pojawią się ponownie, a flagi blokady, wyciszenia lub ulubionych z kopii zapasowej zostaną ponownie zastosowane.";
+"settings.backup.import.preview.info" = "Dodawane są tylko nowe dane; istniejące rekordy nie będą nadpisane. Kontakty usunięte po utworzeniu tej kopii zapasowej pojawią się ponownie, a flagi blokady, wyciszenia lub ulubionych z kopii zapasowej zostaną ponownie zastosowane. Przypięcie z kopii zapasowej zostanie włączone, jeśli ten czat nie jest przypięty. Przypięcie wyłączone w kopii zapasowej nie odepnie czatu.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Importuj dane";

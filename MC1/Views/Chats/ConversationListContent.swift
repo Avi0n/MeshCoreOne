@@ -13,7 +13,7 @@ struct ConversationListContent: View {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
   private let viewModel: ChatViewModel
-  private let favoriteConversations: [Conversation]
+  private let pinnedConversations: [Conversation]
   private let otherConversations: [Conversation]
   private let selectedRoute: ChatRoute?
   private let onSelect: (ChatRoute) -> Void
@@ -28,7 +28,7 @@ struct ConversationListContent: View {
 
   init(
     viewModel: ChatViewModel,
-    favoriteConversations: [Conversation],
+    pinnedConversations: [Conversation],
     otherConversations: [Conversation],
     selectedFilter: Binding<ChatFilter>,
     hasLoadedOnce: Bool,
@@ -38,7 +38,7 @@ struct ConversationListContent: View {
     onDeleteConversation: @escaping (Conversation) -> Void
   ) {
     self.viewModel = viewModel
-    self.favoriteConversations = favoriteConversations
+    self.pinnedConversations = pinnedConversations
     self.otherConversations = otherConversations
     self.selectedRoute = selectedRoute
     self.onSelect = onSelect
@@ -99,7 +99,7 @@ struct ConversationListContent: View {
   }
 
   private var hasNoConversations: Bool {
-    favoriteConversations.isEmpty && otherConversations.isEmpty
+    pinnedConversations.isEmpty && otherConversations.isEmpty
   }
 
   private var emptyState: some View {
@@ -117,9 +117,9 @@ struct ConversationListContent: View {
     .containerRelativeFrame([.horizontal, .vertical])
   }
 
-  /// One unified section, favorites first by concatenation, with an inset divider between rows.
+  /// One unified section, pins first by concatenation, with an inset divider between rows.
   private func rows(referenceDate: Date) -> some View {
-    let ordered = favoriteConversations + otherConversations
+    let ordered = pinnedConversations + otherConversations
     return ForEach(Array(ordered.enumerated()), id: \.element.id) { index, conversation in
       rowView(conversation, referenceDate: referenceDate)
         .transition(.opacity)
@@ -134,7 +134,7 @@ struct ConversationListContent: View {
   /// on the main actor in one burst; `prefetchConversation` no-ops for any that
   /// are already warm.
   private func prewarmTopConversations() async {
-    let ordered = favoriteConversations + otherConversations
+    let ordered = pinnedConversations + otherConversations
     for conversation in ordered.prefix(ChatCoordinatorRegistry.defaultCapacity) {
       guard !Task.isCancelled else { return }
       warm(conversation)

@@ -25,12 +25,12 @@ struct ChatsContentColumn: View {
   @State private var newChatContact: ContactDTO?
   @State private var newChannel: ChannelDTO?
 
-  private var filteredFavorites: [Conversation] {
-    viewModel.favoriteConversations.filtered(by: selectedFilter, searchText: searchText)
+  private var filteredPinned: [Conversation] {
+    viewModel.pinnedConversations.filtered(by: selectedFilter, searchText: searchText)
   }
 
   private var filteredOthers: [Conversation] {
-    viewModel.nonFavoriteConversations.filtered(by: selectedFilter, searchText: searchText)
+    viewModel.unpinnedConversations.filtered(by: selectedFilter, searchText: searchText)
   }
 
   private var emptyStateMessage: (title: String, description: String, systemImage: String) {
@@ -64,7 +64,7 @@ struct ChatsContentColumn: View {
   var body: some View {
     ChatsSplitSidebarContent(
       viewModel: viewModel,
-      filteredFavorites: filteredFavorites,
+      filteredPinned: filteredPinned,
       filteredOthers: filteredOthers,
       emptyStateMessage: emptyStateMessage,
       hasLoadedOnce: viewModel.hasLoadedOnce,

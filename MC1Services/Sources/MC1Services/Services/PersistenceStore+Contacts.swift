@@ -37,8 +37,14 @@ public extension PersistenceStore {
     return contacts.map { ContactDTO(from: $0) }
   }
 
-  /// Fetch contacts with recent messages (for chat list)
+  /// Fetch contacts with recent messages (for chat list).
+  /// Runs the favorite-to-pin copy first. Chats can load before `activate()`.
   func fetchConversations(radioID: UUID) throws -> [ContactDTO] {
+    try fetchConversations(radioID: radioID, defaults: .standard)
+  }
+
+  func fetchConversations(radioID: UUID, defaults: UserDefaults) throws -> [ContactDTO] {
+    try performChatPinMigration(defaults: defaults)
     let targetRadioID = radioID
     let predicate = #Predicate<Contact> { contact in
       contact.radioID == targetRadioID && contact.lastMessageDate != nil
@@ -174,6 +180,21 @@ public extension PersistenceStore {
       modelContext.insert(Contact(dto: dto))
     }
 
+    try modelContext.save()
+  }
+
+  /// Sets the local chat pin. Does not change the radio favorite flag.
+  func setContactPinned(_ contactID: UUID, isPinned: Bool) throws {
+    let targetID = contactID
+    let predicate = #Predicate<Contact> { $0.id == targetID }
+    var descriptor = FetchDescriptor<Contact>(predicate: predicate)
+    descriptor.fetchLimit = 1
+
+    guard let contact = try modelContext.fetch(descriptor).first else {
+      throw PersistenceStoreError.contactNotFound
+    }
+
+    contact.isPinned = isPinned
     try modelContext.save()
   }
 

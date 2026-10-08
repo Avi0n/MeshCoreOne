@@ -19,18 +19,13 @@ struct ConversationRowActions: View {
     appState.connectionState == .ready
   }
 
-  private var isTogglingFavorite: Bool {
-    guard case let .direct(contact) = conversation else { return false }
-    return viewModel.togglingFavoriteID == contact.id
-  }
-
   var body: some View {
     if edge != .leading {
       deleteButton
       muteButton
     }
     if edge != .trailing {
-      favoriteButton
+      pinButton
     }
   }
 
@@ -57,18 +52,17 @@ struct ConversationRowActions: View {
     .disabled(!isConnected)
   }
 
-  private var favoriteButton: some View {
+  private var pinButton: some View {
     Button {
       Task {
-        await viewModel.toggleFavorite(conversation, disableAnimation: true)
+        await viewModel.togglePinned(conversation, disableAnimation: true)
       }
     } label: {
       Label(
-        conversation.isFavorite ? L10n.Chats.Chats.Action.unfavorite : L10n.Chats.Chats.Action.favorite,
-        systemImage: conversation.isFavorite ? "star.slash" : "star.fill"
+        conversation.isPinned ? L10n.Chats.Chats.Action.unpin : L10n.Chats.Chats.Action.pin,
+        systemImage: conversation.isPinned ? "pin.slash" : "pin"
       )
     }
-    .disabled(!isConnected || isTogglingFavorite)
   }
 }
 

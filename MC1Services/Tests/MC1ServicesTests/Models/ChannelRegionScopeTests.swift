@@ -61,21 +61,21 @@ struct ChannelRegionScopeTests {
     #expect(updated.floodScope == .inherit)
   }
 
-  // MARK: - with(isFavorite:)
+  // MARK: - with(isPinned:)
 
   @Test
-  func `with(isFavorite:) preserves .region(name)`() {
+  func `with(isPinned:) preserves .region(name)`() {
     let dto = makeDTO(floodScope: .region("France"))
-    let updated = dto.with(isFavorite: true)
+    let updated = dto.with(isPinned: true)
 
     #expect(updated.floodScope == .region("France"))
-    #expect(updated.isFavorite == true)
+    #expect(updated.isPinned == true)
   }
 
   @Test
-  func `with(isFavorite:) preserves .inherit`() {
+  func `with(isPinned:) preserves .inherit`() {
     let dto = makeDTO()
-    let updated = dto.with(isFavorite: true)
+    let updated = dto.with(isPinned: true)
 
     #expect(updated.floodScope == .inherit)
   }
@@ -122,6 +122,6 @@ struct ChannelRegionScopeTests {
     #expect(updated.unreadCount == dto.unreadCount)
     #expect(updated.unreadMentionCount == dto.unreadMentionCount)
     #expect(updated.notificationLevel == dto.notificationLevel)
-    #expect(updated.isFavorite == dto.isFavorite)
+    #expect(updated.isPinned == dto.isPinned)
   }
 }

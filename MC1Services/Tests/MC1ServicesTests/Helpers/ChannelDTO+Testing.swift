@@ -20,7 +20,7 @@ extension ChannelDTO {
     unreadCount: Int = 0,
     unreadMentionCount: Int = 0,
     notificationLevel: NotificationLevel = .all,
-    isFavorite: Bool = false,
+    isPinned: Bool = false,
     floodScope: ChannelFloodScope = .inherit
   ) -> ChannelDTO {
     ChannelDTO(
@@ -34,7 +34,7 @@ extension ChannelDTO {
       unreadCount: unreadCount,
       unreadMentionCount: unreadMentionCount,
       notificationLevel: notificationLevel,
-      isFavorite: isFavorite,
+      isPinned: isPinned,
       floodScope: floodScope
     )
   }

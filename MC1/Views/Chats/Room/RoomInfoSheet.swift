@@ -11,9 +11,12 @@ struct RoomInfoSheet: View {
   let session: RemoteNodeSessionDTO
 
   @State private var notificationLevel: NotificationLevel
-  @State private var isFavorite: Bool
+  @State private var isPinned: Bool
   @State private var notificationTask: Task<Void, Never>?
-  @State private var favoriteTask: Task<Void, Never>?
+  @State private var pinTask: Task<Void, Never>?
+  @State private var pinErrorMessage: String?
+  @State private var ignorePinChange = false
+  @State private var pinGeneration = 0
   @State private var showTelemetry = false
   @State private var showSettings = false
   @State private var headerHeight: CGFloat = 150
@@ -21,7 +24,7 @@ struct RoomInfoSheet: View {
   init(session: RemoteNodeSessionDTO) {
     self.session = session
     _notificationLevel = State(initialValue: session.notificationLevel)
-    _isFavorite = State(initialValue: session.isFavorite)
+    _isPinned = State(initialValue: session.isPinned)
   }
 
   var body: some View {
@@ -47,7 +50,7 @@ struct RoomInfoSheet: View {
         }
 
         ConversationQuickActionsSection(
-          isFavorite: $isFavorite,
+          isPinned: $isPinned,
           notificationLevel: $notificationLevel,
           availableLevels: NotificationLevel.roomLevels
         )
@@ -57,15 +60,29 @@ struct RoomInfoSheet: View {
             await viewModel?.setNotificationLevel(.room(session), level: newValue)
           }
         }
-        .onChange(of: isFavorite) { _, newValue in
-          favoriteTask?.cancel()
-          favoriteTask = Task {
-            await viewModel?.setFavorite(.room(session), isFavorite: newValue)
+        .onChange(of: isPinned) { oldValue, newValue in
+          if ignorePinChange {
+            ignorePinChange = false
+            return
+          }
+          pinGeneration += 1
+          let generation = pinGeneration
+          pinTask?.cancel()
+          pinTask = Task {
+            await savePin(newValue, revertingTo: oldValue, generation: generation)
           }
         }
         .onDisappear {
           notificationTask?.cancel()
-          favoriteTask?.cancel()
+          pinTask?.cancel()
+        }
+
+        if let pinErrorMessage {
+          Section {
+            Text(pinErrorMessage)
+              .foregroundStyle(.red)
+          }
+          .themedRowBackground(theme)
         }
 
         if session.isConnected {
@@ -130,5 +147,27 @@ struct RoomInfoSheet: View {
         RoomSettingsView(session: session)
       }
     }
+  }
+
+  private func savePin(_ newValue: Bool, revertingTo previous: Bool, generation: Int) async {
+    guard let viewModel else {
+      revertPin(to: previous, message: L10n.Chats.Chats.Error.pinSaveFailed, generation: generation)
+      return
+    }
+    do {
+      try await viewModel.setPinned(.room(session), isPinned: newValue)
+      guard generation == pinGeneration else { return }
+      pinErrorMessage = nil
+    } catch {
+      revertPin(to: previous, message: error.userFacingMessage, generation: generation)
+    }
+  }
+
+  private func revertPin(to previous: Bool, message: String, generation: Int) {
+    guard generation == pinGeneration else { return }
+    pinErrorMessage = message
+    guard isPinned != previous else { return }
+    ignorePinChange = true
+    isPinned = previous
   }
 }

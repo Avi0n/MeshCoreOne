@@ -21,11 +21,11 @@ struct ChannelConversationRow: View {
 
           NotificationLevelIndicator(level: channel.notificationLevel)
 
-          if channel.isFavorite {
-            Image(systemName: "star.fill")
-              .foregroundStyle(.yellow)
+          if channel.isPinned {
+            Image(systemName: "pin.fill")
+              .foregroundStyle(.secondary)
               .font(.caption)
-              .accessibilityLabel(Strings.favorite)
+              .accessibilityLabel(Strings.pin)
           }
 
           if let date = channel.lastMessageDate {

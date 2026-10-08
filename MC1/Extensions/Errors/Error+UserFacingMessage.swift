@@ -27,6 +27,7 @@ extension Error {
     case let error as RoomServerError: error.userFacingMessage
     case let error as BinaryProtocolError: error.userFacingMessage
     case let error as PersistenceStoreError: error.userFacingMessage
+    case let error as ChatPinError: error.userFacingMessage
     case let error as SyncCoordinatorError: error.userFacingMessage
     case let error as DeviceServiceError: error.userFacingMessage
     case let error as SettingsServiceError: error.userFacingMessage

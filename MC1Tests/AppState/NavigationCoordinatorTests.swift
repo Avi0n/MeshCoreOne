@@ -57,7 +57,7 @@ struct NavigationCoordinatorNotificationTests {
       unreadCount: 0,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
   }
 
@@ -285,7 +285,7 @@ struct NavigationCoordinatorNotificationTests {
       lastNoiseFloor: nil,
       unreadCount: 0,
       notificationLevel: .all,
-      isFavorite: false,
+      isPinned: false,
       lastRxAirtimeSeconds: nil,
       neighborCount: 0,
       lastSyncTimestamp: 0,

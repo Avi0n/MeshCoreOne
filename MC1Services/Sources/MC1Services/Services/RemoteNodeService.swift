@@ -286,6 +286,7 @@ public actor RemoteNodeService {
       lastNoiseFloor: existing?.lastNoiseFloor,
       unreadCount: existing?.unreadCount ?? 0,
       notificationLevel: existing?.notificationLevel ?? .all,
+      isPinned: existing?.isPinned ?? false,
       lastRxAirtimeSeconds: existing?.lastRxAirtimeSeconds,
       neighborCount: existing?.neighborCount ?? 0,
       lastSyncTimestamp: existing?.lastSyncTimestamp ?? 0,

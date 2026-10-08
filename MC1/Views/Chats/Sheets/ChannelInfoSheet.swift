@@ -16,7 +16,7 @@ struct ChannelInfoSheet: View {
   let onDelete: () -> Void
 
   @State private var notificationLevel: NotificationLevel
-  @State private var isFavorite: Bool
+  @State private var isPinned: Bool
   @State private var isDeleting = false
   @State private var isClearingMessages = false
   @State private var showingDeleteConfirmation = false
@@ -24,7 +24,10 @@ struct ChannelInfoSheet: View {
   @State private var errorMessage: String?
   @State private var copyHapticTrigger = 0
   @State private var notificationTask: Task<Void, Never>?
-  @State private var favoriteTask: Task<Void, Never>?
+  @State private var pinTask: Task<Void, Never>?
+  @State private var pinErrorMessage: String?
+  @State private var ignorePinChange = false
+  @State private var pinGeneration = 0
   @State private var isRegionExpanded = false
   @State private var isDiscoveringRegions = false
   @State private var discoveryMessage: String?
@@ -40,7 +43,7 @@ struct ChannelInfoSheet: View {
     self.onClearMessages = onClearMessages
     self.onDelete = onDelete
     _notificationLevel = State(initialValue: channel.notificationLevel)
-    _isFavorite = State(initialValue: channel.isFavorite)
+    _isPinned = State(initialValue: channel.isPinned)
     _selectedFloodScope = State(initialValue: channel.floodScope)
   }
 
@@ -52,7 +55,7 @@ struct ChannelInfoSheet: View {
 
         // Quick Actions Section
         ConversationQuickActionsSection(
-          isFavorite: $isFavorite,
+          isPinned: $isPinned,
           notificationLevel: $notificationLevel,
           availableLevels: NotificationLevel.channelLevels
         )
@@ -62,16 +65,30 @@ struct ChannelInfoSheet: View {
             await viewModel?.setNotificationLevel(.channel(channel), level: newValue)
           }
         }
-        .onChange(of: isFavorite) { _, newValue in
-          favoriteTask?.cancel()
-          favoriteTask = Task {
-            await viewModel?.setFavorite(.channel(channel), isFavorite: newValue)
+        .onChange(of: isPinned) { oldValue, newValue in
+          if ignorePinChange {
+            ignorePinChange = false
+            return
+          }
+          pinGeneration += 1
+          let generation = pinGeneration
+          pinTask?.cancel()
+          pinTask = Task {
+            await savePin(newValue, revertingTo: oldValue, generation: generation)
           }
         }
         .onDisappear {
           notificationTask?.cancel()
-          favoriteTask?.cancel()
+          pinTask?.cancel()
           discoveryTask?.cancel()
+        }
+
+        if let pinErrorMessage {
+          Section {
+            Text(pinErrorMessage)
+              .foregroundStyle(.red)
+          }
+          .themedRowBackground(theme)
         }
 
         // Region Scope Section
@@ -192,6 +209,28 @@ struct ChannelInfoSheet: View {
   }
 
   // MARK: - Private Methods
+
+  private func savePin(_ newValue: Bool, revertingTo previous: Bool, generation: Int) async {
+    guard let viewModel else {
+      revertPin(to: previous, message: L10n.Chats.Chats.Error.pinSaveFailed, generation: generation)
+      return
+    }
+    do {
+      try await viewModel.setPinned(.channel(channel), isPinned: newValue)
+      guard generation == pinGeneration else { return }
+      pinErrorMessage = nil
+    } catch {
+      revertPin(to: previous, message: error.userFacingMessage, generation: generation)
+    }
+  }
+
+  private func revertPin(to previous: Bool, message: String, generation: Int) {
+    guard generation == pinGeneration else { return }
+    pinErrorMessage = message
+    guard isPinned != previous else { return }
+    ignorePinChange = true
+    isPinned = previous
+  }
 
   private func clearNotificationsForChannel(radioID: UUID) async {
     await appState.services?.notificationService.removeDeliveredNotifications(

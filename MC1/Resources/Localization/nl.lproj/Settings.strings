@@ -1793,7 +1793,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Externe knoopsessies";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Alleen nieuwe gegevens worden toegevoegd; bestaande records worden niet overschreven. Contacten die je na het maken van deze back-up hebt verwijderd, verschijnen opnieuw, en blokkeer-, demp- of favorietmarkeringen uit de back-up worden opnieuw toegepast.";
+"settings.backup.import.preview.info" = "Alleen nieuwe gegevens worden toegevoegd; bestaande records worden niet overschreven. Contacten die je na het maken van deze back-up hebt verwijderd, verschijnen opnieuw, en blokkeer-, demp- of favorietmarkeringen uit de back-up worden opnieuw toegepast. Het vastzetten in de back-up wordt aangezet als die chat niet is vastgezet. Het vastzetten dat in de back-up uitstaat, haalt een chat niet los.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Gegevens importeren";

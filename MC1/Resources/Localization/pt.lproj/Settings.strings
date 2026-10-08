@@ -1791,7 +1791,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Sessões de nós remotos";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Apenas os dados novos são adicionados; os registos existentes não são substituídos. Os contactos eliminados depois de este backup ter sido criado voltam a aparecer, e quaisquer estados de bloqueio, silenciado ou favorito do backup são reaplicados.";
+"settings.backup.import.preview.info" = "Apenas os dados novos são adicionados; os registos existentes não são substituídos. Os contactos eliminados depois de este backup ter sido criado voltam a aparecer, e quaisquer estados de bloqueio, silenciado ou favorito do backup são reaplicados. Se essa conversa não estiver fixada, o backup fixa-a. Se o backup não a tiver fixada, a conversa não é desafixada.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Importar dados";

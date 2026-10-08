@@ -1793,7 +1793,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "Sesiones de nodo remoto";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "Solo se añaden datos nuevos; los registros existentes no se sobrescriben. Los contactos que eliminaste después de crear esta copia de seguridad volverán a aparecer, y las marcas de bloqueo, silencio o favorito del respaldo se aplicarán de nuevo.";
+"settings.backup.import.preview.info" = "Solo se añaden datos nuevos; los registros existentes no se sobrescriben. Los contactos que eliminaste después de crear esta copia de seguridad volverán a aparecer, y las marcas de bloqueo, silencio o favorito del respaldo se aplicarán de nuevo. Si ese chat no está fijado, el respaldo lo fija. Si en el respaldo no está fijado, el chat no se desfija.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "Importar datos";

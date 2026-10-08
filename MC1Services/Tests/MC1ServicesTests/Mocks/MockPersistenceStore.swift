@@ -1107,7 +1107,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: channel.unreadCount,
         unreadMentionCount: channel.unreadMentionCount + 1,
         notificationLevel: channel.notificationLevel,
-        isFavorite: channel.isFavorite
+        isPinned: channel.isPinned
       )
     }
   }
@@ -1125,7 +1125,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: channel.unreadCount,
         unreadMentionCount: max(0, channel.unreadMentionCount - 1),
         notificationLevel: channel.notificationLevel,
-        isFavorite: channel.isFavorite
+        isPinned: channel.isPinned
       )
     }
   }
@@ -1143,7 +1143,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: channel.unreadCount,
         unreadMentionCount: 0,
         notificationLevel: channel.notificationLevel,
-        isFavorite: channel.isFavorite
+        isPinned: channel.isPinned
       )
     }
   }
@@ -1236,7 +1236,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: existing.unreadCount,
         unreadMentionCount: existing.unreadMentionCount,
         notificationLevel: existing.notificationLevel,
-        isFavorite: existing.isFavorite
+        isPinned: existing.isPinned
       )
       return existing.id
     }
@@ -1252,7 +1252,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
       unreadCount: 0,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
     channels[id] = dto
     savedChannels.append(dto)
@@ -1300,7 +1300,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: channel.unreadCount,
         unreadMentionCount: channel.unreadMentionCount,
         notificationLevel: channel.notificationLevel,
-        isFavorite: channel.isFavorite
+        isPinned: channel.isPinned
       )
     }
   }
@@ -1318,7 +1318,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: channel.unreadCount + 1,
         unreadMentionCount: channel.unreadMentionCount,
         notificationLevel: channel.notificationLevel,
-        isFavorite: channel.isFavorite
+        isPinned: channel.isPinned
       )
     }
   }
@@ -1342,7 +1342,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: 0,
         unreadMentionCount: channel.unreadMentionCount,
         notificationLevel: channel.notificationLevel,
-        isFavorite: channel.isFavorite
+        isPinned: channel.isPinned
       )
     }
   }
@@ -1360,7 +1360,7 @@ public actor MockPersistenceStore: PersistenceStoreProtocol {
         unreadCount: channel.unreadCount,
         unreadMentionCount: channel.unreadMentionCount,
         notificationLevel: level,
-        isFavorite: channel.isFavorite
+        isPinned: channel.isPinned
       )
     }
   }

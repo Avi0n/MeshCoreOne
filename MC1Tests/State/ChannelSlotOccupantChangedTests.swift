@@ -18,7 +18,7 @@ struct ChannelSlotOccupantChangedTests {
       unreadCount: 0,
       unreadMentionCount: 0,
       notificationLevel: .all,
-      isFavorite: false
+      isPinned: false
     )
   }
 

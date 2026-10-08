@@ -1796,7 +1796,7 @@
 "settings.backup.import.preview.remote_node_sessions" = "원격 노드 세션";
 
 /* Import preview info text */
-"settings.backup.import.preview.info" = "새 데이터만 추가되며 기존 기록은 덮어쓰지 않습니다. 이 백업 이후에 삭제한 연락처는 다시 나타나고, 백업에 있는 차단, 알림 끔 또는 즐겨찾기 표시가 다시 적용됩니다.";
+"settings.backup.import.preview.info" = "새 데이터만 추가되며 기존 기록은 덮어쓰지 않습니다. 이 백업 이후에 삭제한 연락처는 다시 나타나고, 백업에 있는 차단, 알림 끔 또는 즐겨찾기 표시가 다시 적용됩니다. 백업에 있는 고정은 해당 대화가 고정되어 있지 않으면 켜집니다. 백업에서 꺼져 있는 고정은 대화를 고정 해제하지 않습니다.";
 
 /* Import preview import button */
 "settings.backup.import.preview.button" = "데이터 가져오기";

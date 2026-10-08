@@ -65,94 +65,77 @@ extension ChatViewModel {
     )
   }
 
-  // MARK: - Favorite
+  // MARK: - Pin
 
-  /// Sets favorite state for a conversation with optimistic UI update
-  func setFavorite(_ conversation: Conversation, isFavorite: Bool) async {
-    guard connectionStateProvider() == .ready else { return }
-    guard let current = liveConversation(id: conversation.id) else { return }
-    guard current.isFavorite != isFavorite else { return }
-
-    // Reuse existing toggle logic
-    await toggleFavorite(current)
+  /// Writes the local pin. Does not check the connection and does not change the radio favorite flag.
+  /// Moves a listed row first, then saves. A missing store throws before that move.
+  func setPinned(_ conversation: Conversation, isPinned: Bool) async throws {
+    try await writePin(conversation, isPinned: isPinned, disableAnimation: false)
   }
 
-  /// Toggles favorite state for a conversation.
-  ///
-  /// For direct messages (contacts), this pushes the change to the device and waits
-  /// for confirmation before updating the UI. For channels and rooms (app-only),
-  /// this uses optimistic updates.
-  ///
-  /// - Parameters:
-  ///   - conversation: The conversation to toggle
-  ///   - disableAnimation: When true, disables SwiftUI List animations to prevent
-  ///     conflicts with swipe action dismissal animations
-  func toggleFavorite(_ conversation: Conversation, disableAnimation: Bool = false) async {
-    guard connectionStateProvider() == .ready else { return }
+  /// Flips the live row's pin. Swipe passes `disableAnimation` so the row move does not
+  /// fight the swipe dismissal.
+  func togglePinned(_ conversation: Conversation, disableAnimation: Bool = false) async {
     guard let current = liveConversation(id: conversation.id) else { return }
-    let originalState = current.isFavorite
-    let newState = !originalState
-
-    switch current {
-    case let .direct(contact):
-      // Contacts sync with device - wait for confirmation
-      togglingFavoriteID = contact.id
-      defer { togglingFavoriteID = nil }
-
-      do {
-        try await contactService?.setContactFavorite(contact.id, isFavorite: newState)
-        // Device confirmed - update local UI
-        applyFavoriteUpdate(current, isFavorite: newState, disableAnimation: disableAnimation)
-      } catch {
-        logger.error("Failed to toggle contact favorite: \(error)")
-      }
-
-    case let .channel(channel):
-      // Channels are app-only - optimistic update
-      applyFavoriteUpdate(current, isFavorite: newState, disableAnimation: disableAnimation)
-
-      do {
-        try await dataStore?.setChannelFavorite(channel.id, isFavorite: newState)
-      } catch {
-        // Rollback on failure
-        applyFavoriteUpdate(current, isFavorite: originalState, disableAnimation: disableAnimation)
-        logger.error("Failed to toggle channel favorite: \(error)")
-      }
-
-    case let .room(session):
-      // Rooms are app-only - optimistic update
-      applyFavoriteUpdate(current, isFavorite: newState, disableAnimation: disableAnimation)
-
-      do {
-        try await dataStore?.setSessionFavorite(session.id, isFavorite: newState)
-      } catch {
-        // Rollback on failure
-        applyFavoriteUpdate(current, isFavorite: originalState, disableAnimation: disableAnimation)
-        logger.error("Failed to toggle room favorite: \(error)")
-      }
+    do {
+      try await writePin(current, isPinned: !current.isPinned, disableAnimation: disableAnimation)
+    } catch {
+      errorMessage = error.userFacingMessage
     }
   }
 
-  private func applyFavoriteUpdate(_ conversation: Conversation, isFavorite: Bool, disableAnimation: Bool) {
+  private func writePin(_ conversation: Conversation, isPinned: Bool, disableAnimation: Bool) async throws {
+    let current = liveConversation(id: conversation.id) ?? conversation
+    let original = current.isPinned
+    guard original != isPinned else { return }
+    guard let dataStore else { throw ChatPinError.storeUnavailable }
+
+    let isListed = liveConversation(id: conversation.id) != nil
+    if isListed {
+      applyPinUpdate(current, isPinned: isPinned, disableAnimation: disableAnimation)
+    }
+
+    do {
+      switch current {
+      case let .direct(contact):
+        try await dataStore.setContactPinned(contact.id, isPinned: isPinned)
+      case let .channel(channel):
+        try await dataStore.setChannelPinned(channel.id, isPinned: isPinned)
+      case let .room(session):
+        try await dataStore.setSessionPinned(session.id, isPinned: isPinned)
+      }
+    } catch {
+      if isListed {
+        applyPinUpdate(current, isPinned: original, disableAnimation: disableAnimation)
+      }
+      logger.error("Failed to save chat pin: \(error)")
+      throw error
+    }
+  }
+
+  private func applyPinUpdate(_ conversation: Conversation, isPinned: Bool, disableAnimation: Bool) {
+    let update = {
+      self.updateConversationPinState(conversation, isPinned: isPinned)
+    }
     if disableAnimation {
       var transaction = Transaction()
       transaction.disablesAnimations = true
       withTransaction(transaction) {
-        updateConversationFavoriteState(conversation, isFavorite: isFavorite)
+        update()
       }
     } else {
-      updateConversationFavoriteState(conversation, isFavorite: isFavorite)
+      update()
     }
   }
 
-  /// Updates the favorite state in the local buffers. `recomputeSnapshot()` runs synchronously
+  /// Updates the pin in the local buffers. `recomputeSnapshot()` runs synchronously
   /// after the mutation so it stays inside any `disablesAnimations` transaction the caller opens.
-  private func updateConversationFavoriteState(_ conversation: Conversation, isFavorite: Bool) {
+  private func updateConversationPinState(_ conversation: Conversation, isPinned: Bool) {
     updateConversation(
       conversation,
-      direct: { $0.with(isFavorite: isFavorite) },
-      channel: { $0.with(isFavorite: isFavorite) },
-      room: { $0.with(isFavorite: isFavorite) }
+      direct: { $0.with(isPinned: isPinned) },
+      channel: { $0.with(isPinned: isPinned) },
+      room: { $0.with(isPinned: isPinned) }
     )
   }
 

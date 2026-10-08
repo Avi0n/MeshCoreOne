@@ -66,14 +66,14 @@ enum Conversation: Identifiable, Hashable {
     notificationLevel == .muted
   }
 
-  var isFavorite: Bool {
+  var isPinned: Bool {
     switch self {
     case let .direct(contact):
-      contact.isFavorite
+      contact.isPinned
     case let .channel(channel):
-      channel.isFavorite
+      channel.isPinned
     case let .room(session):
-      session.isFavorite
+      session.isPinned
     }
   }
 }

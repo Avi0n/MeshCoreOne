@@ -22,7 +22,7 @@ extension RemoteNodeSessionDTO {
     lastConnectedDate: Date? = nil,
     unreadCount: Int = 0,
     notificationLevel: NotificationLevel = .all,
-    isFavorite: Bool = false,
+    isPinned: Bool = false,
     neighborCount: Int = 0,
     lastSyncTimestamp: UInt32 = 0,
     lastMessageDate: Date? = nil
@@ -40,7 +40,7 @@ extension RemoteNodeSessionDTO {
       lastConnectedDate: lastConnectedDate,
       unreadCount: unreadCount,
       notificationLevel: notificationLevel,
-      isFavorite: isFavorite,
+      isPinned: isPinned,
       neighborCount: neighborCount,
       lastSyncTimestamp: lastSyncTimestamp,
       lastMessageDate: lastMessageDate

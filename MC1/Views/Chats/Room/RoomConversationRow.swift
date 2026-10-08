@@ -21,11 +21,11 @@ struct RoomConversationRow: View {
 
           NotificationLevelIndicator(level: session.notificationLevel)
 
-          if session.isFavorite {
-            Image(systemName: "star.fill")
-              .foregroundStyle(.yellow)
+          if session.isPinned {
+            Image(systemName: "pin.fill")
+              .foregroundStyle(.secondary)
               .font(.caption)
-              .accessibilityLabel(L10n.Chats.Chats.Row.favorite)
+              .accessibilityLabel(L10n.Chats.Chats.Row.pin)
           }
 
           if let date = session.lastMessageDate {
