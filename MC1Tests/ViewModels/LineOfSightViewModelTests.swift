@@ -1953,6 +1953,32 @@ struct AnalysisStatusRelayTests {
 @MainActor
 struct FrequencyParsingTests {
   @Test
+  func `Editing a committed large frequency preserves its value without crashing`() throws {
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+    let frequency = try #require(viewModel.parseFrequency("99999999999999999999"))
+    viewModel.frequencyMHz = frequency
+    viewModel.commitFrequencyChange()
+
+    let formatted = viewModel.formatFrequencyForEditing(viewModel.frequencyMHz)
+
+    #expect(viewModel.parseFrequency(formatted) == frequency)
+  }
+
+  @Test(arguments: [
+    Double(Int.max).nextDown,
+    Double(Int.max),
+    Double(Int.max).nextUp,
+    Double.greatestFiniteMagnitude
+  ])
+  func `Editing format round-trips frequencies at and beyond the integer boundary`(frequency: Double) {
+    let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
+
+    let formatted = viewModel.formatFrequencyForEditing(frequency)
+
+    #expect(viewModel.parseFrequency(formatted) == frequency)
+  }
+
+  @Test
   func `Parses a plain dot-decimal value`() {
     let viewModel = LineOfSightViewModel(elevationService: MockElevationService())
 

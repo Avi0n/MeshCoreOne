@@ -191,8 +191,8 @@ final class LineOfSightViewModel {
   /// Renders a frequency value for editing using a locale-stable format,
   /// so the displayed text always round-trips back through `parseFrequency`.
   func formatFrequencyForEditing(_ value: Double) -> String {
-    if value.truncatingRemainder(dividingBy: 1) == 0 {
-      return String(Int(value))
+    if let integer = Int(exactly: value) {
+      return String(integer)
     }
     return String(format: "%.1f", value)
   }
