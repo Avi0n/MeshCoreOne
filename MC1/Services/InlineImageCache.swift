@@ -228,7 +228,7 @@ actor InlineImageCache {
     let data: Data
     let response: URLResponse
     do {
-      (data, response) = try await session.data(for: request, delegate: RedirectSafetyDelegate(upgradeToHTTPS: false))
+      (data, response) = try await InlineImageDownload.data(for: request, using: session, byteLimit: Self.probeMaxBufferBytes)
     } catch {
       logger.info("Image probe network failure: \(error.localizedDescription)")
       await fetchSemaphore.signal()
@@ -240,12 +240,6 @@ actor InlineImageCache {
           || httpResponse.statusCode == Self.httpStatusPartialContent else {
       let code = (response as? HTTPURLResponse)?.statusCode ?? -1
       logger.info("Image probe non-success status \(code): \(url.absoluteString)")
-      await fetchSemaphore.signal()
-      return nil
-    }
-
-    guard data.count <= Self.probeMaxBufferBytes else {
-      logger.info("Image probe body exceeds cap: \(url.absoluteString)")
       await fetchSemaphore.signal()
       return nil
     }
@@ -276,7 +270,7 @@ actor InlineImageCache {
     }
 
     do {
-      let (data, response) = try await session.data(from: url, delegate: RedirectSafetyDelegate(upgradeToHTTPS: false))
+      let (data, response) = try await InlineImageDownload.data(for: URLRequest(url: url), using: session, byteLimit: Self.maxDownloadBytes)
 
       guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode) else {
@@ -285,21 +279,11 @@ actor InlineImageCache {
         return .failed
       }
 
-      // An image-extension URL that serves an HTML landing page (imgur,
-      // pasteboard, prnt.sc) is a page, not a decode failure. Return before
-      // the size guard so an oversized page still reroutes instead of
-      // dead-ending in the negative cache, and do not insert into failedURLs:
-      // this is a reclassification, so the URL must stay retryable.
+      // HTML at an image URL reroutes to a preview and stays retryable.
       if httpResponse.mimeType == Self.htmlMimeType {
         logger.debug("Image URL served HTML, rerouting to preview: \(url.absoluteString)")
         markServesHTMLPage(url)
         return .notImage
-      }
-
-      guard data.count <= Self.maxDownloadBytes else {
-        logger.debug("Image too large (\(data.count) bytes): \(url.absoluteString)")
-        failedURLs.insert(key)
-        return .failed
       }
 
       // Lightweight validation: check that ImageIO recognizes the data as an image
