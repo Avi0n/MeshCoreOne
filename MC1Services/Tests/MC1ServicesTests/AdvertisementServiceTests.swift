@@ -47,14 +47,16 @@ private func makeContactFrame(
   latitude: Double = 0,
   longitude: Double = 0,
   lastAdvertTimestamp: UInt32 = 1_700_000_000,
-  lastModified: UInt32 = 1_700_000_100
+  lastModified: UInt32 = 1_700_000_100,
+  outPathLength: UInt8 = 0,
+  outPath: Data = Data()
 ) -> ContactFrame {
   ContactFrame(
     publicKey: publicKey,
     type: type,
     flags: 0,
-    outPathLength: 0,
-    outPath: Data(),
+    outPathLength: outPathLength,
+    outPath: outPath,
     name: name,
     lastAdvertTimestamp: lastAdvertTimestamp,
     latitude: latitude,
@@ -76,6 +78,33 @@ private func waitUntil(
     try? await Task.sleep(for: poll)
   }
   return await predicate()
+}
+
+/// First path-discovery advertisement event, or nil when `timeout` elapses.
+private func firstPathDiscoveryEvent(
+  _ events: AsyncStream<AdvertisementEvent>,
+  timeout: Duration = .seconds(2)
+) async -> AdvertisementEvent? {
+  await withTaskGroup(of: AdvertisementEvent?.self) { group in
+    group.addTask {
+      for await event in events {
+        switch event {
+        case .pathDiscoveryResponse, .pathDiscoveryWriteFailed:
+          return event
+        default:
+          break
+        }
+      }
+      return nil
+    }
+    group.addTask {
+      try? await Task.sleep(for: timeout)
+      return nil
+    }
+    let first = await group.next() ?? nil
+    group.cancelAll()
+    return first
+  }
 }
 
 private actor HandlerRecorder {
@@ -204,9 +233,16 @@ struct AdvertisementServiceTests {
     advertSyncBusyBackoff: Duration = .zero,
     appStateProvider: AppStateProvider? = nil
   ) -> AdvertisementService {
-    AdvertisementService(
+    let contactService = ContactService(
       session: session,
       dataStore: store,
+      syncCoordinator: nil,
+      cleanupCoordinator: nil
+    )
+    return AdvertisementService(
+      session: session,
+      dataStore: store,
+      contactService: contactService,
       advertSyncDebounce: advertSyncDebounce,
       advertSyncMinInterval: advertSyncMinInterval,
       advertSyncBusyBackoff: advertSyncBusyBackoff,
@@ -2354,48 +2390,189 @@ struct AdvertisementServiceTests {
     #expect(!favorite.matchesStaleNodePrune(cutoff: cutoff))
   }
 
-  // MARK: - Path discovery response lastHeard
+  // MARK: - Path discovery response
 
   @Test
-  func `pathResponse stamps lastHeard and preserves radio lastModified`() async throws {
+  func `pathResponse writes a routed out path to the radio and stamps lastHeard`() async throws {
     let store = try await makeStore()
     let session = MockMeshCoreSession()
     let service = makeService(session: session, store: store)
 
     let key = makePublicKey(seed: 0xA5)
-    let radioLastMod: UInt32 = 1_700_000_100
+    let storedPath = Data([0xAB, 0xCD])
     _ = try await store.saveContact(
       radioID: radioID,
       from: makeContactFrame(
         publicKey: key,
         name: "PathPeer",
-        lastModified: radioLastMod
+        type: .repeater,
+        lastModified: 1_700_000_100,
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: storedPath
       )
     )
 
     await startMonitoring(service, session: session)
+    let events = service.events()
+    let discovered = Data([0x11, 0x22])
+    let pathLength = encodePathLen(hashSize: 1, hopCount: 2)
+    await session.yieldEvent(.pathResponse(PathInfo(
+      publicKeyPrefix: Data(key.prefix(6)),
+      outPathLength: pathLength,
+      outPath: discovered,
+      inPathLength: 0,
+      inPath: Data()
+    )))
 
-    let pathInfo = PathInfo(
+    let event = await firstPathDiscoveryEvent(events)
+    guard case .pathDiscoveryResponse = event else {
+      Issue.record("expected a path discovery response after the radio accepted the path")
+      return
+    }
+
+    let writes = await session.addContactInvocations
+    #expect(writes.count == 1)
+    #expect(writes.first?.contact.outPathLength == pathLength)
+    #expect(writes.first?.contact.outPath == discovered)
+    #expect(writes.first?.contact.type == .repeater)
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == pathLength)
+    #expect(updated.outPath == discovered)
+    #expect(updated.type == .repeater)
+    #expect(updated.isFloodRouted == false)
+    #expect((updated.lastHeardTimestamp ?? 0) > 0)
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `pathResponse writes a zero-hop path as direct`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let key = makePublicKey(seed: 0xA7)
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "DirectPeer",
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: Data([0xAB])
+      )
+    )
+
+    await startMonitoring(service, session: session)
+    let events = service.events()
+    await session.yieldEvent(.pathResponse(PathInfo(
       publicKeyPrefix: Data(key.prefix(6)),
       outPathLength: 0,
       outPath: Data(),
       inPathLength: 0,
       inPath: Data()
-    )
-    await session.yieldEvent(.pathResponse(pathInfo))
+    )))
 
-    let stamped = await waitUntil {
-      guard let contact = try? await store.fetchContact(radioID: radioID, publicKey: key) else {
-        return false
-      }
-      return (contact.lastHeardTimestamp ?? 0) > 0
+    let event = await firstPathDiscoveryEvent(events)
+    guard case .pathDiscoveryResponse = event else {
+      Issue.record("expected a path discovery response for a direct path")
+      return
     }
-    #expect(stamped)
 
-    let updated = try #require(
-      await store.fetchContact(radioID: radioID, publicKey: key)
+    let writes = await session.addContactInvocations
+    #expect(writes.count == 1)
+    #expect(writes.first?.contact.outPathLength == 0)
+    #expect(writes.first?.contact.outPath.isEmpty == true)
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == 0)
+    #expect(updated.outPath.isEmpty == true)
+    #expect(updated.isFloodRouted == false)
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `pathResponse does not write a reserved length byte`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let key = makePublicKey(seed: 0xA8)
+    let storedPath = Data([0xAB, 0xCD])
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "ReservedPeer",
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: storedPath
+      )
     )
-    #expect(updated.lastModified == radioLastMod)
+
+    await startMonitoring(service, session: session)
+    let events = service.events()
+    await session.yieldEvent(.pathResponse(PathInfo(
+      publicKeyPrefix: Data(key.prefix(6)),
+      outPathLength: 0xC0,
+      outPath: Data(),
+      inPathLength: 0,
+      inPath: Data()
+    )))
+
+    let event = await firstPathDiscoveryEvent(events)
+    guard case .pathDiscoveryResponse = event else {
+      Issue.record("expected the response without a radio write")
+      return
+    }
+    #expect(await session.addContactInvocations.isEmpty)
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == PacketBuilder.floodPathSentinel)
+    #expect(updated.outPath == storedPath)
+
+    await service.stopEventMonitoring()
+  }
+
+  @Test
+  func `pathResponse leaves the stored path when the radio rejects the write`() async throws {
+    let store = try await makeStore()
+    let session = MockMeshCoreSession()
+    let service = makeService(session: session, store: store)
+    let key = makePublicKey(seed: 0xA9)
+    let storedPath = Data([0xAB, 0xCD])
+    _ = try await store.saveContact(
+      radioID: radioID,
+      from: makeContactFrame(
+        publicKey: key,
+        name: "RejectedPeer",
+        outPathLength: PacketBuilder.floodPathSentinel,
+        outPath: storedPath
+      )
+    )
+    await session.failNextAddContact(MeshCoreError.timeout)
+
+    await startMonitoring(service, session: session)
+    let events = service.events()
+    await session.yieldEvent(.pathResponse(PathInfo(
+      publicKeyPrefix: Data(key.prefix(6)),
+      outPathLength: encodePathLen(hashSize: 1, hopCount: 2),
+      outPath: Data([0x11, 0x22]),
+      inPathLength: 0,
+      inPath: Data()
+    )))
+
+    let event = await firstPathDiscoveryEvent(events)
+    guard case let .pathDiscoveryWriteFailed(_, error) = event else {
+      Issue.record("expected a radio-write failure instead of a success response")
+      return
+    }
+    guard case .sessionError = error else {
+      Issue.record("expected the radio failure to surface as a session error")
+      return
+    }
+
+    let updated = try #require(await store.fetchContact(radioID: radioID, publicKey: key))
+    #expect(updated.outPathLength == PacketBuilder.floodPathSentinel)
+    #expect(updated.outPath == storedPath)
     #expect((updated.lastHeardTimestamp ?? 0) > 0)
 
     await service.stopEventMonitoring()

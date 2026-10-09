@@ -453,6 +453,10 @@ public actor MockMeshCoreSession: MeshCoreSessionProtocol, AdvertisingSessionOps
 
   public func setCoordinates(latitude: Double, longitude: Double) async throws {}
 
+  public func failNextAddContact(_ error: Error) {
+    stubbedAddContactError = error
+  }
+
   public func addContact(_ contact: MeshContact) async throws {
     addContactInvocations.append(AddContactInvocation(contact: contact))
     if let error = stubbedAddContactError {

@@ -627,6 +627,18 @@ final class PathManagementViewModel {
     onContactNeedsRefresh?()
   }
 
+  /// A failure after timeout or cancel leaves the alert already on screen unchanged.
+  func handleDiscoveryWriteFailure(_ error: ContactServiceError) {
+    guard isDiscovering else { return }
+
+    discoveryTask?.cancel()
+    isDiscovering = false
+    cleanupCountdownState()
+
+    discoveryResult = .failed(error.userFacingMessage)
+    showDiscoveryResult = true
+  }
+
   /// Reset the path for a contact (force flood routing)
   func resetPath(for contact: ContactDTO) async {
     guard let contactService = contactServiceProvider() else { return }

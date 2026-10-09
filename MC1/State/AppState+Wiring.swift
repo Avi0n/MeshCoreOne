@@ -105,8 +105,8 @@ extension AppState {
             await notificationService.updateBadgeCount()
           }
         case .newContactDiscovered, .nodeStorageFullChanged,
-             .pathDiscoveryResponse, .traceResponse, .traceSnrObserved,
-             .orphanDirectMessagesAdopted:
+             .pathDiscoveryResponse, .pathDiscoveryWriteFailed, .traceResponse,
+             .traceSnrObserved, .orphanDirectMessagesAdopted:
           // The paired .conversationsChanged already refreshes the list; the
           // banner and badge are handled by the SyncCoordinator consumer.
           break

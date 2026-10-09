@@ -324,6 +324,10 @@ struct ContactDetailView: View {
            response.matches(publicKey: currentContact.publicKey) {
           pathViewModel.handleDiscoveryResponse(hopCount: response.outHopCount)
         }
+        if case let .pathDiscoveryWriteFailed(response, error) = event,
+           response.matches(publicKey: currentContact.publicKey) {
+          pathViewModel.handleDiscoveryWriteFailure(error)
+        }
       }
     }
     .onDisappear {

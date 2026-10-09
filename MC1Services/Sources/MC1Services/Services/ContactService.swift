@@ -432,10 +432,11 @@ public actor ContactService {
       throw ContactServiceError.contactNotFound
     }
 
-    // Create updated contact frame with new path
+    // `type` alone coerces an unmodeled byte to chat. Length 0 stays direct.
     let updatedFrame = ContactFrame(
       publicKey: existingContact.publicKey,
       type: existingContact.type,
+      typeRawValue: existingContact.typeRawValue,
       flags: existingContact.flags,
       outPathLength: pathLength,
       outPath: path,

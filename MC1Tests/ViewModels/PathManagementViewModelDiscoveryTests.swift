@@ -80,6 +80,23 @@ struct PathManagementViewModelDiscoveryTests {
     #expect(!refreshed)
   }
 
+  @Test
+  @MainActor
+  func `Radio write failure presents the discovery alert and leaves errorMessage nil`() {
+    let vm = PathManagementViewModel(defaults: makeSuiteDefaults())
+    vm.isDiscovering = true
+    var refreshed = false
+    vm.onContactNeedsRefresh = { refreshed = true }
+
+    vm.handleDiscoveryWriteFailure(.contactNotFound)
+
+    #expect(vm.discoveryResult == .failed(ContactServiceError.contactNotFound.userFacingMessage))
+    #expect(vm.showDiscoveryResult == true)
+    #expect(vm.isDiscovering == false)
+    #expect(vm.errorMessage == nil)
+    #expect(!refreshed)
+  }
+
   // MARK: - Test helpers
 
   private func makeSuiteDefaults() -> UserDefaults {
