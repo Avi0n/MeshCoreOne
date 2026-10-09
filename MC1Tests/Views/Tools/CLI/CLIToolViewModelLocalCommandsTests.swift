@@ -607,8 +607,9 @@ struct CLIToolViewModelLocalCommandsTests {
 
   private func run(_ viewModel: CLIToolViewModel, _ line: String) async {
     viewModel.executeCommand(line)
-    for _ in 0..<200 where viewModel.isWaitingForResponse {
-      await Task.yield()
+    let deadline = ContinuousClock.now + .seconds(1)
+    while viewModel.isWaitingForResponse, ContinuousClock.now < deadline {
+      try? await Task.sleep(for: .milliseconds(1))
     }
   }
 

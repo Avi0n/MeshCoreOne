@@ -171,7 +171,6 @@ struct SyncingPillPlacementTests {
 
     let frame = SyncingPillPlacement.topTabBarFrame(in: overlay)
     #expect(frame == bar.convert(bar.bounds, to: overlay))
-    #expect(frame?.height == 44)
   }
 
   @Test

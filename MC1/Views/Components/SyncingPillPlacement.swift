@@ -27,7 +27,9 @@ enum SyncingPillPlacement {
   @MainActor
   static func topTabBarFrame(in overlay: UIView) -> CGRect? {
     guard let window = overlay.window else { return nil }
-    if let bar = firstMatchingSubview(in: window, where: looksLikeTabBar(_:)) {
+    let bar = firstMatchingSubview(in: window) { $0 is UITabBar }
+      ?? firstMatchingSubview(in: window, where: looksLikeTabBar(_:))
+    if let bar {
       let frame = bar.convert(bar.bounds, to: overlay)
       if frame.minY < overlay.bounds.height / 2, inferredBarHeightRange.contains(frame.height) {
         return frame
@@ -56,7 +58,6 @@ enum SyncingPillPlacement {
 
   @MainActor
   private static func looksLikeTabBar(_ view: UIView) -> Bool {
-    if view is UITabBar { return true }
     let name = String(describing: type(of: view))
     return name.contains("TabBar")
       && !name.contains("Button")

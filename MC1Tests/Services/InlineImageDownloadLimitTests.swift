@@ -121,7 +121,7 @@ struct InlineImageDownloadLimitTests {
 
   private final class StreamingImageURLProtocol: URLProtocol {
     private static let fixtures = OSAllocatedUnfairLock(initialState: [URL: Fixture]())
-    private static let chunkBytes = 256 * 1024
+    private static let chunkBytes = 64 * 1024
     private static let chunkSpacing = Duration.milliseconds(5)
     private static let image = Data(base64Encoded:
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1XkAAAAASUVORK5CYII=")!
