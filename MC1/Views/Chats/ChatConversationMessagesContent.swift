@@ -125,7 +125,10 @@ struct ChatConversationMessagesContent: View {
       resolver: BubbleResolver(viewModel: viewModel),
       actions: BubbleActions(
         onRetryMessage: onRetryMessage,
-        onLongPress: { message in selectedMessageForActions = message },
+        onLongPress: { message in
+          ChatKeyboardLift.resignFirstResponder()
+          selectedMessageForActions = message
+        },
         onImageTap: { message in
           if let data = viewModel.imageData(for: message.id) {
             imageViewerData = ImageViewerData(

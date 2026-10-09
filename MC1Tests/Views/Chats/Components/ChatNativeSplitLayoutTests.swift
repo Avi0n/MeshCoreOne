@@ -190,7 +190,7 @@ struct ChatNativeSplitLayoutTests {
     let host = try mountSelected(fixture)
     defer { host.window.isHidden = true }
 
-    let middle = try #require(fixture.model.chatViewModel.items[Layout.middleIndex].id)
+    let middle = fixture.model.chatViewModel.items[Layout.middleIndex].id
     fixture.model.scrollToTargetID = middle
     fixture.model.scrollToTargetRequest += 1
     settle(host.window)
@@ -252,7 +252,7 @@ struct ChatNativeSplitLayoutTests {
   @Test
   func `consumed unread anchor does not replay after resize`() async throws {
     let fixture = try await makeChatFixture()
-    let middle = try #require(fixture.model.chatViewModel.items[Layout.middleIndex].id)
+    let middle = fixture.model.chatViewModel.items[Layout.middleIndex].id
     fixture.model.firstSnapshotDecision = .present(target: middle)
 
     let host = try mountSelected(fixture)
@@ -1023,22 +1023,19 @@ private struct ChatNativeSplitHarness: View {
         model.firstSnapshotDecision = .present(target: nil)
       }
     )
-    .safeAreaInset(edge: .bottom, spacing: 0) {
+    .chatBottomChrome(canvas: Color(.systemBackground)) {
       ChatConversationInputBar(
         conversationType: .dm(model.contact),
         composingText: $model.composingText,
         focusRequest: $model.inputFocusRequest,
         nodeNameByteCount: 0,
         onSend: { _ in },
-        onWillSend: { model.scrollToBottomRequest += 1 },
-        onFocus: { model.scrollToBottomRequest += 1 }
+        onWillSend: { model.scrollToBottomRequest += 1 }
       )
-      .chatKeyboardLiftPadding()
       .background {
         GateAIdentifierView(identifier: "gateA.composer")
       }
     }
-    .chatKeyboardOwnedLift()
   }
 
   private var initialScrollTargetID: UUID? {

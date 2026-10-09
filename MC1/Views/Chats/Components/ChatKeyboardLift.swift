@@ -1,24 +1,14 @@
 import SwiftUI
 import UIKit
 
-/// Pure geometry and timing for owned chat keyboard lift.
-///
-/// SwiftUI's automatic keyboard safe area can retain residual height after an
-/// interrupted hide (app switch, notification activation). Chat owns the lift
-/// instead: ignore the system keyboard safe area and pad bottom chrome from
-/// the keyboard frame. When the keyboard is gone, padding is zero — residual
-/// system insets cannot float the compose bar mid-screen.
+/// Chat reserves keyboard space explicitly because interrupted system avoidance can retain stale insets.
+/// The keyboard layout guide supplies the current position to every bottom-chrome consumer.
 enum ChatKeyboardLift {
-  /// Ignore sub-point lift churn from successive keyboard frame notifications.
+  /// Ignore sub-point lift churn from successive layout samples.
   static let liftChangeThreshold: CGFloat = 0.5
 
-  /// Bottom padding to place the compose bar flush above a docked keyboard.
-  ///
-  /// - Parameters:
-  ///   - keyboardFrameInWindow: Keyboard end frame in the same space as `windowBounds`.
-  ///   - windowBounds: Key window bounds.
-  ///   - bottomSafeArea: Home-indicator height already reserved under the bar
-  ///     (container safe area on regular width, `ChatWindowBottomInset` on compact).
+  /// Subtract the home-indicator space already reserved below the composer.
+  /// Both frames use window coordinates so partial keyboard overlap stays bounded.
   static func ownedBottomPadding(
     keyboardFrameInWindow: CGRect,
     windowBounds: CGRect,
@@ -29,25 +19,6 @@ enum ChatKeyboardLift {
     return max(0, intersection.height - bottomSafeArea)
   }
 
-  /// SwiftUI animation matching a keyboard notification, or `nil` for an
-  /// immediate update. Interactive dismiss reports duration 0; non-interactive
-  /// show/hide report a positive duration that should be mirrored.
-  static func animation(
-    forKeyboardNotificationUserInfo userInfo: [AnyHashable: Any]?,
-    reduceMotion: Bool
-  ) -> Animation? {
-    guard !reduceMotion else { return nil }
-    guard
-      let duration = userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double,
-      duration > 0
-    else {
-      return nil
-    }
-    // System keyboard curve raw values are private; match duration with easeInOut.
-    return .easeInOut(duration: duration)
-  }
-
-  /// Resolves the key window used for keyboard geometry (foreground-active scene).
   @MainActor
   static func keyWindow() -> UIWindow? {
     UIApplication.shared.connectedScenes
@@ -87,182 +58,15 @@ extension EnvironmentValues {
 
 // MARK: - View modifiers
 
-private struct ChatKeyboardOwnedLiftModifier: ViewModifier {
-  @Environment(\.scenePhase) private var scenePhase
-  @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @State private var lift: CGFloat = 0
-  @State private var interactivePop = InteractivePopProbe()
-
-  func body(content: Content) -> some View {
-    content
-      .environment(\.chatKeyboardLift, lift)
-      .ignoresSafeArea(.keyboard, edges: .bottom)
-      .background {
-        InteractiveNavigationPopObserver(probe: interactivePop)
-          .frame(width: 0, height: 0)
-          .accessibilityHidden(true)
-          .allowsHitTesting(false)
-      }
-      .onReceive(
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)
-      ) { notification in
-        applyKeyboardFrame(from: notification)
-      }
-      .onReceive(
-        NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
-      ) { notification in
-        applyProposedLift(0, userInfo: notification.userInfo)
-      }
-      .onChange(of: scenePhase) { _, phase in
-        switch phase {
-        case .background, .inactive:
-          // Hide notifications can be skipped on deactivate; collapse immediately.
-          ChatKeyboardLift.resignFirstResponder()
-          setLift(0, userInfo: nil)
-        case .active:
-          break
-        @unknown default:
-          break
-        }
-      }
-  }
-
-  private func applyKeyboardFrame(from notification: Notification) {
-    guard
-      let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-      let window = ChatKeyboardLift.keyWindow()
-    else {
-      applyProposedLift(0, userInfo: notification.userInfo)
-      return
-    }
-    let keyboardInWindow = window.convert(frame, from: nil)
-    let next = ChatKeyboardLift.ownedBottomPadding(
-      keyboardFrameInWindow: keyboardInWindow,
-      windowBounds: window.bounds,
-      bottomSafeArea: window.safeAreaInsets.bottom
-    )
-    applyProposedLift(next, userInfo: notification.userInfo)
-  }
-
-  private func applyProposedLift(_ proposed: CGFloat, userInfo: [AnyHashable: Any]?) {
-    let next = ChatKeyboardLift.resolvedLift(
-      current: lift,
-      proposed: proposed,
-      isInteractivePopActive: interactivePop.isInteractivePopActive
-    )
-    setLift(next, userInfo: userInfo)
-  }
-
-  private func setLift(_ value: CGFloat, userInfo: [AnyHashable: Any]?) {
-    guard abs(value - lift) > ChatKeyboardLift.liftChangeThreshold else { return }
-    let animation = ChatKeyboardLift.animation(
-      forKeyboardNotificationUserInfo: userInfo,
-      reduceMotion: reduceMotion
-    )
-    if let animation {
-      withAnimation(animation) { lift = value }
-    } else {
-      var transaction = Transaction()
-      transaction.disablesAnimations = true
-      withTransaction(transaction) { lift = value }
-    }
-  }
-}
-
 private struct ChatKeyboardLiftPaddingModifier: ViewModifier {
   @Environment(\.chatKeyboardLift) private var lift
 
   func body(content: Content) -> some View {
-    // Animate at the lift source so duration-0 interactive frames stay immediate.
     content.padding(.bottom, lift)
   }
 }
 
-/// Live pop signal: `initiallyInteractive` covers swipe through cancel/commit;
-/// gesture `.began`/`.changed` covers willHide before a coordinator exists.
-@MainActor
-private final class InteractivePopProbe {
-  weak var navigationController: UINavigationController?
-
-  var isInteractivePopActive: Bool {
-    guard let navigationController else { return false }
-    if navigationController.transitionCoordinator?.initiallyInteractive == true {
-      return true
-    }
-    if isPopGestureActive(navigationController.interactivePopGestureRecognizer) {
-      return true
-    }
-    if #available(iOS 26, *) {
-      if isPopGestureActive(navigationController.interactiveContentPopGestureRecognizer) {
-        return true
-      }
-    }
-    return false
-  }
-
-  private func isPopGestureActive(_ gesture: UIGestureRecognizer?) -> Bool {
-    switch gesture?.state {
-    case .began, .changed:
-      true
-    default:
-      false
-    }
-  }
-}
-
-private struct InteractiveNavigationPopObserver: UIViewControllerRepresentable {
-  let probe: InteractivePopProbe
-
-  func makeUIViewController(context: Context) -> Controller {
-    Controller(probe: probe)
-  }
-
-  func updateUIViewController(_ uiViewController: Controller, context: Context) {
-    uiViewController.probe = probe
-  }
-
-  static func dismantleUIViewController(_ uiViewController: Controller, coordinator: Void) {
-    uiViewController.clearNavigationController()
-  }
-
-  final class Controller: UIViewController {
-    var probe: InteractivePopProbe
-
-    init(probe: InteractivePopProbe) {
-      self.probe = probe
-      super.init(nibName: nil, bundle: nil)
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-      nil
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-      super.viewDidAppear(animated)
-      probe.navigationController = navigationController
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-      super.viewDidDisappear(animated)
-      clearNavigationController()
-    }
-
-    func clearNavigationController() {
-      if probe.navigationController === navigationController {
-        probe.navigationController = nil
-      }
-    }
-  }
-}
-
 extension View {
-  /// Owns keyboard avoidance for chat conversation hosts: ignores system
-  /// keyboard safe area and publishes `chatKeyboardLift` for bottom chrome.
-  func chatKeyboardOwnedLift() -> some View {
-    modifier(ChatKeyboardOwnedLiftModifier())
-  }
-
   /// Pads the bottom of compose / bottom-chrome content by `chatKeyboardLift`.
   func chatKeyboardLiftPadding() -> some View {
     modifier(ChatKeyboardLiftPaddingModifier())

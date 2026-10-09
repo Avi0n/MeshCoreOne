@@ -45,21 +45,15 @@ struct RoomConversationView: View {
         radioID: session.radioID,
         shouldSuppressOpen: { selectedRoomMessage != nil }
       )
-      .safeAreaInset(edge: .bottom, spacing: 0) {
-        ChatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
-          if !session.isConnected {
-            makeDisconnectedBanner()
-          } else if session.canPost {
-            makeInputBar()
-          } else {
-            makeReadOnlyBanner()
-          }
+      .chatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
+        if !session.isConnected {
+          makeDisconnectedBanner()
+        } else if session.canPost {
+          makeInputBar()
+        } else {
+          makeReadOnlyBanner()
         }
       }
-      .chatIgnoresLaggingTabBarInset()
-      // Owned lift: residual system keyboard safe area can park the compose bar
-      // mid-screen after an interrupted hide (app switch, notification activation).
-      .chatKeyboardOwnedLift()
       .animation(.default, value: session.isConnected)
       .navigationHeader(
         title: session.name,
@@ -180,9 +174,7 @@ struct RoomConversationView: View {
         Task { await chatViewModel.loadAllContacts(radioID: session.radioID) }
       }
       .task(id: appState.servicesVersion) {
-        // Track the active room so foreground banners for it are suppressed.
-        // Keyed on servicesVersion so a reconnect, which mints a fresh
-        // NotificationService, re-asserts this on the new instance.
+        // Reassert the active room when servicesVersion changes because reconnect replaces NotificationService.
         appState.services?.notificationService.setActiveConversation(roomSessionID: session.id)
       }
       .task {
@@ -271,7 +263,10 @@ struct RoomConversationView: View {
       onRetry: { id in
         Task { await viewModel.retryMessage(id: id) }
       },
-      onLongPress: { selectedRoomMessage = $0 },
+      onLongPress: { message in
+        ChatKeyboardLift.resignFirstResponder()
+        selectedRoomMessage = message
+      },
       onTranslationAction: { handleInBubbleTranslation(for: $0) }
     )
   }

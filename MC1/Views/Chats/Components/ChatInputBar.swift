@@ -33,7 +33,6 @@ struct ChatInputBar<Leading: View>: View {
   let maxBytes: Int
   let isEncrypted: Bool
   @ViewBuilder let leading: () -> Leading
-  var onFocus: () -> Void = {}
   let onSend: (String) -> Void
 
   @State private var isCoolingDown = false
@@ -65,7 +64,6 @@ struct ChatInputBar<Leading: View>: View {
             isEncrypted: isEncrypted,
             proxy: composerProxy,
             onSend: handleHardwareSend,
-            onFocus: onFocus,
             glassNamespace: glassNamespace
           )
           if canSend || shouldShowCharacterCount {
@@ -172,7 +170,6 @@ private struct ChatInputTextField: View {
   let isEncrypted: Bool
   let proxy: ChatComposerProxy
   let onSend: () -> Bool
-  let onFocus: () -> Void
   let glassNamespace: Namespace.ID
 
   var body: some View {
@@ -181,8 +178,7 @@ private struct ChatInputTextField: View {
       focusRequest: focusRequest,
       isEncrypted: isEncrypted,
       proxy: proxy,
-      onSend: onSend,
-      onFocus: onFocus
+      onSend: onSend
     )
     .frame(maxWidth: .infinity, minHeight: ChatInputMetrics.controlHeight)
     .overlay(alignment: .topLeading) {

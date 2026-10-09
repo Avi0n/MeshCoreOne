@@ -28,9 +28,7 @@ struct ChatConversationView: View {
   @State private var isAtBottom = true
   @State private var unreadCount = 0
   @State private var scrollToBottomRequest = 0
-  /// Bumped to jump the list to `scrollToTargetID` (deeplink target or the
-  /// new-messages divider). The library scrolls by item id; no on-screen bubble
-  /// tracking is involved.
+  /// Request an item-ID scroll to scrollToTargetID for a deeplink or new-messages divider.
   @State private var scrollToTargetRequest = 0
   @State private var scrollToTargetID: UUID?
 
@@ -92,13 +90,8 @@ struct ChatConversationView: View {
   @Environment(\.appTheme) private var theme
   @Environment(\.locale) private var locale
 
-  /// Snapshot of env-derived inputs the view model needs to construct
-  /// MessageItems at write time. Recomputed on every render — Equatable
-  /// drives `.onChange(of: envInputs)` in ChatConversationMessagesContent.
-  /// Constructed from the observed `@AppStorage` toggles and `@Environment`
-  /// values so a settings change while the chat is open re-renders the view and
-  /// drives `ChatConversationMessagesContent.onChange(of: envInputs)`. The
-  /// navigation-time prefetch reads the same toggles once via `AppState.chatEnvInputs(...)`.
+  /// Capture observed settings and environment values for constructing MessageItems.
+  /// Equatable changes trigger ChatConversationMessagesContent to rebuild items while the chat is open.
   private var currentEnvInputs: EnvInputs {
     EnvInputs(
       autoPlayGIFs: autoPlayGIFs,
@@ -135,18 +128,13 @@ struct ChatConversationView: View {
     _conversationType = State(initialValue: conversationType)
     self.parentViewModel = parentViewModel
 
-    // Seed the view model with the shared coordinator up front so a warm
-    // (prefetched or previously opened) conversation renders its messages on the
-    // first frame, with no empty flash before the load task binds it. Only the
-    // reference is attached here; the load task's `configure` installs the
-    // rebuild hooks on this persistent instance.
+    // Attach the shared coordinator before the first render so warm opens immediately show their messages.
+    // configure installs the rebuild hooks when the load task binds the coordinator.
     let viewModel = ChatViewModel()
     if let coordinatorRegistry {
       viewModel.attachCoordinator(coordinatorRegistry.coordinator(for: conversationType.coordinatorID))
     }
-    // Stage before the first body evaluation: the anchor decision keys on
-    // this open's unread count, and a warm coordinator's items are already
-    // on screen in that first frame.
+    // Stage the anchor before rendering because warm coordinator items can appear in the first frame.
     viewModel.timeline.stageOpen(conversationType)
     _chatViewModel = State(initialValue: viewModel)
   }
@@ -187,42 +175,31 @@ struct ChatConversationView: View {
       radioID: conversationType.radioID,
       shouldSuppressOpen: { selectedMessageForActions != nil }
     )
-    // Banner is applied innermost so its safe-area inset stacks above the
-    // input bar inset that follows, placing the strip between content and
-    // the input bar (and lifting it with the keyboard).
+    // The banner stays above the input bar inside the shared native viewport.
     .chatErrorBanner(chatViewModel: chatViewModel)
-    .safeAreaInset(edge: .bottom, spacing: 0) {
-      ChatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
-        ChatConversationInputBar(
-          conversationType: conversationType,
-          composingText: $chatViewModel.composingText,
-          focusRequest: $inputFocusRequest,
-          nodeNameByteCount: appState.connectedDevice?.nodeName.utf8.count ?? 0,
-          onSend: { text in
-            switch conversationType {
-            case .dm:
-              await chatViewModel.sendMessage(text: text)
-            case .channel:
-              await chatViewModel.sendChannelMessage(text: text)
-            }
-          },
-          onWillSend: { scrollToBottomRequest += 1 },
-          onFocus: { scrollToBottomRequest += 1 }
-        )
-      }
-    }
-    // Overlay before `chatKeyboardOwnedLift`: environment does not reach overlays
-    // applied after the modifier that publishes `chatKeyboardLift`.
     .overlay(alignment: .bottom) {
       ChatConversationMentionOverlay(
         suggestions: mentionSuggestions,
         onSelectMention: { insertMention(for: $0) }
       )
     }
-    .chatIgnoresLaggingTabBarInset()
-    // Owned lift: residual system keyboard safe area can park the compose bar
-    // mid-screen after an interrupted hide (app switch, notification activation).
-    .chatKeyboardOwnedLift()
+    .chatBottomChrome(canvas: theme.surfaces?.canvas ?? Color(.systemBackground)) {
+      ChatConversationInputBar(
+        conversationType: conversationType,
+        composingText: $chatViewModel.composingText,
+        focusRequest: $inputFocusRequest,
+        nodeNameByteCount: appState.connectedDevice?.nodeName.utf8.count ?? 0,
+        onSend: { text in
+          switch conversationType {
+          case .dm:
+            await chatViewModel.sendMessage(text: text)
+          case .channel:
+            await chatViewModel.sendChannelMessage(text: text)
+          }
+        },
+        onWillSend: { scrollToBottomRequest += 1 }
+      )
+    }
     .navigationHeader(
       title: conversationType.navigationTitle,
       subtitle: conversationType.navigationSubtitle(
@@ -351,9 +328,7 @@ struct ChatConversationView: View {
       leaveIfSlotReassigned()
     }
     .onChange(of: scenePhase) { _, newPhase in
-      // Notifications usually arrive while the app is backgrounded with this
-      // chat already on screen, so re-clear the tray when we return to the
-      // foreground — the open hook alone never re-fires in that case.
+      // Clear delivered notifications on foreground return because the open hook does not run again.
       switch newPhase {
       case .active:
         Task { await clearDeliveredNotifications() }
@@ -390,13 +365,8 @@ struct ChatConversationView: View {
       Task { await chatViewModel.loadAllContacts(radioID: conversationType.radioID) }
     }
     .chatErrorAlerts(chatViewModel: chatViewModel)
-    // Chrome theming comes from the stack-level themedChrome on the TabView. Re-declaring it
-    // on this pushed destination makes the nav bar appearance re-install after the push, which
-    // reflows the message list's top rows.
-    // Always paint an opaque surface — the default theme has no `canvas`, so
-    // without the `.systemBackground` fallback the empty loading area is
-    // transparent and the white window shows through on a cold first open
-    // before messages land. Matches the `chatComposeBarFade` canvas fallback.
+    // Inherit themedChrome from the stack to avoid navigation appearance changes reflowing the timeline.
+    // Paint the canvas fallback so loading content remains opaque before messages arrive.
     .background {
       (theme.surfaces?.canvas ?? Color(.systemBackground)).ignoresSafeArea()
     }
@@ -438,9 +408,7 @@ struct ChatConversationView: View {
 
     didCompleteInitialLoad = true
 
-    // Clear any notifications for this conversation still sitting in the tray
-    // (delivered while the app was backgrounded). The load above already
-    // cleared the unread count, so the recomputed badge stays correct.
+    // Clear delivered notifications after loading resets the unread count, keeping the badge current.
     await clearDeliveredNotifications()
   }
 
@@ -476,10 +444,7 @@ struct ChatConversationView: View {
 
   // MARK: - Draft Persistence
 
-  /// Restarts the debounced draft persist. The post-sleep cancellation guard is
-  /// required: `Task.cancel()` only sets a flag and `try?` swallows
-  /// `Task.sleep`'s `CancellationError`, so without it a synchronous flush that
-  /// already saved could be overwritten by the resuming task re-saving stale text.
+  /// Cancelled sleeps must exit before persisting so a resumed task cannot overwrite a synchronous draft flush.
   private func scheduleDraftSave() {
     draftSaveTask?.cancel()
     let id = conversationType.draftConversationID
@@ -529,9 +494,7 @@ struct ChatConversationView: View {
   // MARK: - Cleanup (.onDisappear)
 
   private func performCleanup() {
-    // Clear notification suppression only if this conversation still owns the
-    // active slot; a newer conversation's open may have already claimed it
-    // before this view tears down.
+    // Clear suppression only while this conversation owns it; another open may have claimed it during teardown.
     let service = appState.services?.notificationService
     switch conversationType {
     case let .dm(contact):
@@ -555,10 +518,7 @@ struct ChatConversationView: View {
   }
 
   private func handleIncomingMentionIfNeeded(_ messageID: UUID) {
-    // Self-mention gating happens upstream in
-    // `ChatViewModel.recordIncomingMentionIfNeeded`, which only assigns
-    // `lastIncomingMention` when `containsSelfMention` is true. The conversation
-    // is open, so the mention counts as seen regardless of scroll position.
+    // ChatViewModel.recordIncomingMentionIfNeeded gates self-mentions; an open conversation counts them as seen.
     Task { await markNewArrivalMentionSeen(messageID: messageID) }
   }
 
@@ -584,9 +544,7 @@ struct ChatConversationView: View {
 
   // MARK: - Mention Tracking
 
-  /// Marks every unseen mention in this conversation seen and clears its unread
-  /// mention count. Called on open: without on-screen bubble tracking, opening
-  /// the conversation is what marks mentions seen, keeping chat-list badges correct.
+  /// Mark unseen mentions as seen on open because chat-list badges track conversation reads, not visible bubbles.
   private func markConversationMentionsSeen() async {
     guard let dataStore = appState.services?.dataStore else { return }
     do {
@@ -667,10 +625,7 @@ struct ChatConversationView: View {
 
   // MARK: - Message Actions Sheet
 
-  /// Builds the drift-proof message actions sheet for a captured message value.
-  /// Presented via `.sheet(item:)`, which binds to the value rather than a cell,
-  /// so incoming messages reorder the table behind the modal without re-anchoring
-  /// it to a different bubble.
+  /// Present actions for a captured message value so incoming messages cannot retarget the sheet.
   private func messageActionsSheet(for message: MessageDTO) -> MessageActionsSheet {
     let resolution = senderResolution(for: message)
     return MessageActionsSheet(
@@ -701,11 +656,6 @@ struct ChatConversationView: View {
 
   // MARK: - Message Action Handling
 
-  /// Dispatches a MessageAction by routing to the appropriate handler. The
-  /// `switch action` body preserves compile-time exhaustiveness — adding a new
-  /// MessageAction case forces this method to handle it. Each case calls an
-  /// extracted private method that captures the view-local context it needs
-  /// (focus state, AppStorage flags, sheet-presentation contexts).
   private func dispatch(_ action: MessageAction, for message: MessageDTO) {
     switch action {
     case let .react(emoji):
@@ -869,22 +819,15 @@ struct ChatConversationView: View {
 // MARK: - Error Alerts
 
 private extension View {
-  /// Applies the chat modal-alert surfaces in one modifier so the conversation
-  /// view body stays within the type-checker's expression budget. Two modal
-  /// alerts: generic "Error" for open-conversation load failures (so a
-  /// re-open failure cannot be missed), and "Unable to Send" for queue drain
-  /// failures. The passive banner for pagination failures is mounted
-  /// separately via `chatErrorBanner` so it can sit above the input bar.
+  /// Group modal chat errors to keep the view body within the type-checker expression budget.
+  /// Pagination failures use chatErrorBanner so they remain passive.
   func chatErrorAlerts(chatViewModel: ChatViewModel) -> some View {
     @Bindable var vm = chatViewModel
     return errorAlert($vm.errorMessage)
       .errorAlert($vm.sendErrorMessage, title: L10n.Chats.Chats.Alert.UnableToSend.title)
   }
 
-  /// Mounts the passive error banner used for background failures (e.g.
-  /// older-message pagination). Applied before the input-bar safe-area inset
-  /// so the banner appears between the message list and the input bar, and
-  /// rises with the keyboard alongside the input bar.
+  /// Keep background failure banners above the input bar in the shared native viewport.
   func chatErrorBanner(chatViewModel: ChatViewModel) -> some View {
     @Bindable var vm = chatViewModel
     return errorBanner($vm.errorBannerMessage)

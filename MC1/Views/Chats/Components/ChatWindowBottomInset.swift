@@ -1,9 +1,8 @@
 import SwiftUI
 import UIKit
 
-/// Window home-indicator height, empty on regular width. The view's own
-/// bottom inset still includes the tab bar for a frame after hide, and
-/// reading that inset drops the compose bar once the chat is on screen.
+/// Use the window home-indicator inset on compact layouts.
+/// Descendant insets can briefly include the tab bar while it hides.
 struct ChatWindowBottomInset: View {
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -54,27 +53,6 @@ struct ChatWindowBottomInset: View {
         appliedHeight = height
         invalidateIntrinsicContentSize()
       }
-    }
-  }
-}
-
-extension View {
-  /// On compact, ignore the bottom container and keyboard insets together.
-  /// A container-only ignore turns keyboard avoidance back on under the owned
-  /// lift. Apply outside the safe-area inset; inside it, the inset does not move.
-  func chatIgnoresLaggingTabBarInset() -> some View {
-    modifier(ChatLaggingTabBarInsetModifier())
-  }
-}
-
-private struct ChatLaggingTabBarInsetModifier: ViewModifier {
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
-  func body(content: Content) -> some View {
-    if horizontalSizeClass == .compact {
-      content.ignoresSafeArea([.container, .keyboard], edges: .bottom)
-    } else {
-      content
     }
   }
 }

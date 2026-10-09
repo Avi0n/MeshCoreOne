@@ -1243,13 +1243,10 @@ struct CompactComposerKeyboardGapTests {
   private struct Probe: View {
     var body: some View {
       Color.clear
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-          ChatBottomChrome(canvas: Color(.systemBackground)) {
-            Field().frame(height: 38)
-          }
+        .chatBottomChrome(canvas: Color(.systemBackground)) {
+          Field().frame(height: 38)
         }
-        .chatIgnoresLaggingTabBarInset()
-        .chatKeyboardOwnedLift()
+        .environment(\.scenePhase, .active)
     }
   }
 
@@ -1266,7 +1263,7 @@ struct CompactComposerKeyboardGapTests {
   }
 
   @Test
-  func `docked keyboard leaves the field on the keyboard`() {
+  func `a keyboard notification without layout movement leaves the composer at rest`() {
     let host = mountCompactHost(Probe())
     defer { dismountCompactHost(host) }
 
@@ -1279,14 +1276,13 @@ struct CompactComposerKeyboardGapTests {
     let safe = host.controller.view.safeAreaInsets.bottom
 
     // This field has no bar padding, so the resting gap is the home indicator.
-    // A docked keyboard puts that same edge on the keyboard top.
     #expect(
       abs((resting ?? -1) - 34) < 16,
       "resting gap \(resting ?? -1), safe \(safe)"
     )
     #expect(
-      abs((lifted ?? -1) - keyboardHeight) < 16,
-      "lifted gap \(lifted ?? -1) for keyboard \(keyboardHeight), resting \(resting ?? -1), safe \(safe)"
+      abs((lifted ?? -1) - (resting ?? -1)) < 1,
+      "notification changed resting gap from \(resting ?? -1) to \(lifted ?? -1)"
     )
   }
 
