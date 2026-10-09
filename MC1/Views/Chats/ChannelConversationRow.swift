@@ -21,13 +21,6 @@ struct ChannelConversationRow: View {
 
           NotificationLevelIndicator(level: channel.notificationLevel)
 
-          if channel.isPinned {
-            Image(systemName: "pin.fill")
-              .foregroundStyle(.secondary)
-              .font(.caption)
-              .accessibilityLabel(Strings.pin)
-          }
-
           if let date = channel.lastMessageDate {
             ConversationTimestamp(date: date, referenceDate: referenceDate)
           }

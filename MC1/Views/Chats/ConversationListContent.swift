@@ -1,10 +1,8 @@
 import MC1Services
 import SwiftUI
 
-/// The conversation list rendered as a `ScrollView` + `LazyVStack` rather than a `List`.
-/// `List` is backed by `UpdateCoalescingCollectionView`, whose batch-consistency assertion
-/// is violated when the selected row is deleted; a `LazyVStack` has no collection view, so
-/// that crash cannot occur.
+/// Uses a `LazyVStack` because `List` can fail its batch-consistency assertion
+/// when the selected conversation is deleted.
 struct ConversationListContent: View {
   @Environment(\.appTheme) private var theme
   @Environment(\.appState) private var appState
@@ -25,6 +23,8 @@ struct ConversationListContent: View {
   /// Leading inset for the inter-row divider, aligning it under the row text past the avatar
   /// (row horizontal padding 16 + avatar 44 + avatar-to-text spacing 12).
   private static let rowSeparatorLeadingInset: CGFloat = 72
+  private static let sectionHeaderHorizontalPadding: CGFloat = 16
+  private static let sectionHeaderVerticalPadding: CGFloat = 12
 
   init(
     viewModel: ChatViewModel,
@@ -78,14 +78,22 @@ struct ConversationListContent: View {
   private func loadedBody(referenceDate: Date) -> some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        Section {
-          if hasNoConversations {
-            emptyState
-          } else {
-            rows(referenceDate: referenceDate)
-          }
-        } header: {
-          filterHeader
+        filterHeader
+        if hasNoConversations {
+          emptyState
+        } else if pinnedConversations.isEmpty {
+          rows(otherConversations, referenceDate: referenceDate)
+        } else {
+          conversationSection(
+            pinnedConversations,
+            title: L10n.Chats.Chats.Row.pin,
+            referenceDate: referenceDate
+          )
+          conversationSection(
+            otherConversations,
+            title: L10n.Chats.Chats.title,
+            referenceDate: referenceDate
+          )
         }
       }
     }
@@ -117,22 +125,39 @@ struct ConversationListContent: View {
     .containerRelativeFrame([.horizontal, .vertical])
   }
 
-  /// One unified section, pins first by concatenation, with an inset divider between rows.
-  private func rows(referenceDate: Date) -> some View {
-    let ordered = pinnedConversations + otherConversations
-    return ForEach(Array(ordered.enumerated()), id: \.element.id) { index, conversation in
+  @ViewBuilder
+  private func conversationSection(
+    _ conversations: [Conversation],
+    title: String,
+    referenceDate: Date
+  ) -> some View {
+    if !conversations.isEmpty {
+      Section {
+        rows(conversations, referenceDate: referenceDate)
+      } header: {
+        Text(title)
+          .font(.headline)
+          .foregroundStyle(.secondary)
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .padding(.horizontal, Self.sectionHeaderHorizontalPadding)
+          .padding(.vertical, Self.sectionHeaderVerticalPadding)
+          .accessibilityAddTraits(.isHeader)
+      }
+    }
+  }
+
+  private func rows(_ conversations: [Conversation], referenceDate: Date) -> some View {
+    ForEach(Array(conversations.enumerated()), id: \.element.id) { index, conversation in
       rowView(conversation, referenceDate: referenceDate)
         .transition(.opacity)
-      if index < ordered.count - 1 {
+      if index < conversations.count - 1 {
         Divider().padding(.leading, Self.rowSeparatorLeadingInset)
       }
     }
   }
 
-  /// Warms the top conversations on first load, up to the registry's LRU
-  /// capacity. Staggered so the per-conversation fetch and item build don't land
-  /// on the main actor in one burst; `prefetchConversation` no-ops for any that
-  /// are already warm.
+  /// Primes the top conversations up to the registry's capacity, staggering
+  /// fetches so populate and bake work does not land on the main actor in one burst.
   private func prewarmTopConversations() async {
     let ordered = pinnedConversations + otherConversations
     for conversation in ordered.prefix(ChatCoordinatorRegistry.defaultCapacity) {
@@ -179,7 +204,6 @@ private enum ConversationRowLayout {
   static let verticalPadding: CGFloat = 6
 }
 
-/// Renders a conversation's row body, shared by the selection and navigation rows.
 private struct ConversationRowLabel: View {
   let conversation: Conversation
   let viewModel: ChatViewModel

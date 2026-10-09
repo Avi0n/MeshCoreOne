@@ -21,13 +21,6 @@ struct RoomConversationRow: View {
 
           NotificationLevelIndicator(level: session.notificationLevel)
 
-          if session.isPinned {
-            Image(systemName: "pin.fill")
-              .foregroundStyle(.secondary)
-              .font(.caption)
-              .accessibilityLabel(L10n.Chats.Chats.Row.pin)
-          }
-
           if let date = session.lastMessageDate {
             ConversationTimestamp(date: date, referenceDate: referenceDate)
           }
