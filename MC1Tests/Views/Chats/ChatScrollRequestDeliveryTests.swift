@@ -60,6 +60,9 @@ struct ChatScrollRequestDeliveryTests {
     #expect(delivered == nil)
     #expect(navigation.pendingScrollTarget == request)
     #expect(fixture.timeline.renderState.totalFetchedCount == ChatCoordinator.pageSize)
+
+    #expect(await deliver(fixture, from: navigation) == targetID)
+    #expect(navigation.pendingScrollTarget == nil)
   }
 
   @Test(arguments: [100, 103])
@@ -74,24 +77,173 @@ struct ChatScrollRequestDeliveryTests {
     #expect(navigation.pendingScrollTarget == nil)
   }
 
-  @Test(arguments: [false, true])
-  func `paging error or unavailable store keeps the request for a later attempt`(
-    storeUnavailable: Bool
-  ) async throws {
+  @Test
+  func `an unavailable store waits and does not fetch again when cancelled`() async throws {
     let fixture = try await makeFixture(isChannel: false)
     let targetID = try #require(fixture.messages.first?.id)
     let navigation = NavigationCoordinator()
     navigate(navigation, to: fixture.conversation, messageID: targetID)
     let request = navigation.pendingScrollTarget
-    if storeUnavailable {
-      fixture.timeline.dataStoreProvider = { nil }
-    } else {
-      fixture.timeline.loadOlderTestError = FixtureError.failedToPopulate
-    }
+    let coordinator = try #require(fixture.timeline.coordinator)
+    fixture.timeline.dataStoreProvider = { nil }
+    var installed = false
+    coordinator.scrollRenderWaitInstalledHook = { installed = true }
 
-    #expect(await deliver(fixture, from: navigation) == nil)
+    var calls = 0
+    let task = Task {
+      await ChatScrollRequestDelivery.takeIfHonorable(
+        from: navigation,
+        kind: fixture.conversation.chatRouteKind,
+        conversationID: fixture.conversation.conversationID,
+        canHonor: true,
+        timeline: fixture.timeline,
+        loadOlder: {
+          calls += 1
+          _ = try? await fixture.timeline.loadOlder()
+        }
+      )
+    }
+    defer {
+      coordinator.scrollRenderWaitInstalledHook = nil
+      task.cancel()
+    }
+    try await waitUntil("an unavailable store did not install a scroll waiter") { installed }
+
+    #expect(calls == 1)
     #expect(navigation.pendingScrollTarget == request)
     #expect(fixture.timeline.renderState.totalFetchedCount == ChatCoordinator.pageSize)
+    task.cancel()
+    #expect(await task.value == nil)
+    #expect(calls == 1)
+    #expect(navigation.pendingScrollTarget == request)
+  }
+
+  @Test
+  func `a thrown page then a later loadOlder delivers the original request`() async throws {
+    let fixture = try await makeFixture(isChannel: false)
+    let targetID = try #require(fixture.messages.first?.id)
+    let navigation = NavigationCoordinator()
+    navigate(navigation, to: fixture.conversation, messageID: targetID)
+    let coordinator = try #require(fixture.timeline.coordinator)
+    fixture.timeline.loadOlderTestError = FixtureError.failedToPopulate
+    var installed = false
+    coordinator.scrollRenderWaitInstalledHook = { installed = true }
+    let task = Task { await deliver(fixture, from: navigation) }
+    defer {
+      fixture.timeline.loadOlderTestError = nil
+      coordinator.scrollRenderWaitInstalledHook = nil
+      task.cancel()
+    }
+    try await waitUntil("the thrown page did not install a scroll waiter") { installed }
+    fixture.timeline.loadOlderTestError = nil
+    _ = try await fixture.timeline.loadOlder()
+
+    #expect(await task.value == targetID)
+    #expect(navigation.pendingScrollTarget == nil)
+    #expect(fixture.timeline.messages.contains { $0.id == targetID })
+  }
+
+  @Test
+  func `replacing the request during the scroll wait keeps the replacement pending`() async throws {
+    let fixture = try await makeFixture(isChannel: false)
+    let targetID = try #require(fixture.messages.first?.id)
+    let navigation = NavigationCoordinator()
+    navigate(navigation, to: fixture.conversation, messageID: targetID)
+    let originalRequestID = try #require(navigation.pendingScrollTarget?.requestID)
+    let coordinator = try #require(fixture.timeline.coordinator)
+    fixture.timeline.loadOlderTestError = FixtureError.failedToPopulate
+    let waiting = Signal()
+    coordinator.scrollRenderWaitInstalledHook = { waiting.open() }
+    defer { coordinator.scrollRenderWaitInstalledHook = nil }
+
+    var calls = 0
+    let task = Task {
+      await ChatScrollRequestDelivery.takeIfHonorable(
+        from: navigation,
+        kind: fixture.conversation.chatRouteKind,
+        conversationID: fixture.conversation.conversationID,
+        canHonor: true,
+        timeline: fixture.timeline,
+        loadOlder: {
+          calls += 1
+          _ = try? await fixture.timeline.loadOlder()
+        }
+      )
+    }
+    await waiting.wait()
+    let replacementID = UUID()
+    navigate(navigation, to: fixture.conversation, messageID: replacementID)
+    fixture.timeline.loadOlderTestError = nil
+    _ = try await fixture.timeline.loadOlder()
+
+    #expect(await task.value == nil)
+    #expect(calls == 1)
+    let pending = navigation.pendingScrollTarget
+    #expect(pending?.messageID == replacementID)
+    #expect(pending?.requestID != originalRequestID)
+  }
+
+  @Test
+  func `a replacement bake that indexes the target delivers the original request`() async throws {
+    let fixture = try await makeFixture(isChannel: false)
+    let coordinator = try #require(fixture.timeline.coordinator)
+    let writer = try #require(fixture.timeline.writer)
+    let target = try #require(fixture.timeline.items.last)
+    writer.updateRenderState { $0.removingItem(id: target.id) }
+    #expect(fixture.timeline.messagesByID[target.id] != nil)
+    #expect(fixture.timeline.itemIndexByID[target.id] == nil)
+
+    let started = Gate()
+    let release = Gate()
+    coordinator.buildItemsTask = Task {
+      await started.open()
+      await release.wait()
+    }
+    let navigation = NavigationCoordinator()
+    navigate(navigation, to: fixture.conversation, messageID: target.id)
+    let task = Task { await deliver(fixture, from: navigation) }
+    await started.wait()
+    await Task.yield()
+
+    coordinator.renderStateID &+= 1
+    let indexed = Signal()
+    coordinator.buildItemsTask = Task {
+      writer.updateRenderState { $0.appendingItem(target) }
+      indexed.open()
+    }
+    await indexed.wait()
+    await release.open()
+
+    #expect(await task.value == target.id)
+    #expect(navigation.pendingScrollTarget == nil)
+  }
+
+  @Test
+  func `a bake that misses the target without a generation change leaves the request pending`() async throws {
+    let fixture = try await makeFixture(isChannel: false)
+    let coordinator = try #require(fixture.timeline.coordinator)
+    let writer = try #require(fixture.timeline.writer)
+    let target = try #require(fixture.timeline.items.last)
+    writer.updateRenderState { $0.removingItem(id: target.id) }
+    let generation = coordinator.renderStateID
+
+    let started = Gate()
+    let release = Gate()
+    coordinator.buildItemsTask = Task {
+      await started.open()
+      await release.wait()
+    }
+    let navigation = NavigationCoordinator()
+    navigate(navigation, to: fixture.conversation, messageID: target.id)
+    let request = navigation.pendingScrollTarget
+    let task = Task { await deliver(fixture, from: navigation) }
+    await started.wait()
+    await release.open()
+
+    #expect(await task.value == nil)
+    #expect(navigation.pendingScrollTarget == request)
+    #expect(coordinator.renderStateID == generation)
+    #expect(fixture.timeline.itemIndexByID[target.id] == nil)
   }
 
   @Test(arguments: [false, true])

@@ -100,6 +100,23 @@ extension ChatScrollRequestDeliveryTests {
     )
   }
 
+  @MainActor
+  final class Signal {
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var opened = false
+
+    func open() {
+      opened = true
+      continuation?.resume()
+      continuation = nil
+    }
+
+    func wait() async {
+      if opened { return }
+      await withCheckedContinuation { continuation = $0 }
+    }
+  }
+
   actor Gate {
     private var waiter: CheckedContinuation<Void, Never>?
     private var opened = false

@@ -125,11 +125,9 @@ struct ChatTiledView<Item: Identifiable & Hashable & Sendable, Content: View>: V
       let atBottom = geometry.pointsFromBottom < ChatScrollConstants.bottomDetectionThreshold
       if atBottom != isAtBottom { isAtBottom = atBottom }
       if atBottom, unreadCount != 0 { unreadCount = 0 }
-      // Only follow appends while near the bottom; otherwise new messages
-      // accumulate as unread (counted in the onChange below). The first report
-      // after a target open reflects the resting position, not a user scroll, so
-      // it consumes the one-shot target instead of arming follow.
-      if hasConsumedInitialGeometry || openingScrollTargetID == nil {
+      // Follow appends only while near the bottom. A one-shot target's first
+      // report is the resting position, so consume it instead of arming follow.
+      if openingScrollTargetID == nil {
         scrollPosition.autoScrollsToBottomOnAppend = atBottom
       } else {
         onInitialTargetConsumed?()

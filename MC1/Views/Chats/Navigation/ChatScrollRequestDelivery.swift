@@ -57,7 +57,18 @@ enum ChatScrollRequestDelivery {
       let fetchedCount = timeline.renderState.totalFetchedCount
       await loadOlder()
       guard isCurrent() else { return nil }
-      guard timeline.renderState.totalFetchedCount > fetchedCount || !timeline.renderState.hasMoreMessages else { return nil }
+      let targetPresent = timeline.itemIndexByID[request.messageID] != nil
+        || timeline.messagesByID[request.messageID] != nil
+      if timeline.renderState.totalFetchedCount > fetchedCount
+        || !timeline.renderState.hasMoreMessages
+        || targetPresent {
+        continue
+      }
+
+      // This page made no progress, the target is still absent, and history
+      // remains. Wait for a later page or for that id to be indexed.
+      await coordinator.waitForHonorableScrollRender(messageID: request.messageID)
+      guard isCurrent() else { return nil }
     }
     return nil
   }

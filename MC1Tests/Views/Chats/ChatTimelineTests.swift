@@ -235,6 +235,96 @@ struct ChatTimelineTests {
     #expect(timeline.items.first?.id == timeline.messages.first?.id)
   }
 
+  private enum HeadSaveTiming: Sendable, CaseIterable {
+    case beforeFetch
+    case afterFetchReturns
+  }
+
+  private enum HeadAdmitTiming: Sendable, CaseIterable {
+    case beforeApply
+    case afterLoadOlderReturns
+  }
+
+  @Test(arguments: HeadSaveTiming.allCases, HeadAdmitTiming.allCases)
+  private func `a head saved around an older page is loaded when history ends`(
+    saveTiming: HeadSaveTiming,
+    admitTiming: HeadAdmitTiming
+  ) async throws {
+    let dataStore = try makeStore()
+    let radioID = UUID()
+    let contact = makeContact(radioID: radioID)
+    let seededCount = ChatCoordinator.pageSize * 2
+    var seeded: [MessageDTO] = []
+    for offset in 0..<seededCount {
+      let message = makeDirectMessage(
+        radioID: radioID, contactID: contact.id,
+        timestamp: UInt32(1000 + offset), text: "m\(offset)"
+      )
+      seeded.append(message)
+      try await dataStore.saveMessage(message)
+    }
+
+    let timeline = makeBoundTimeline(
+      dataStore: dataStore,
+      conversationID: .dm(radioID: radioID, contactID: contact.id)
+    )
+    let outcome = await timeline.open(.dm(contact), reactions: nil, populateMode: .replace)
+    guard case .loaded = outcome else {
+      Issue.record("expected .loaded, got \(outcome)")
+      return
+    }
+    #expect(timeline.messages.count == ChatCoordinator.pageSize)
+    #expect(timeline.renderState.hasMoreMessages)
+
+    let head = makeDirectMessage(
+      radioID: radioID, contactID: contact.id,
+      timestamp: UInt32(1000 + seededCount), text: "head"
+    )
+    if saveTiming == .beforeFetch {
+      try await dataStore.saveMessage(head)
+    }
+
+    var didInterleave = false
+    timeline.loadOlderInterleaveHook = {
+      guard !didInterleave else { return }
+      didInterleave = true
+      if saveTiming == .afterFetchReturns {
+        do {
+          try await dataStore.saveMessage(head)
+        } catch {
+          Issue.record("Failed to save the head: \(error)")
+        }
+      }
+      if admitTiming == .beforeApply {
+        self.admitHeadWithoutMovingOffset(timeline, head)
+      }
+    }
+    defer { timeline.loadOlderInterleaveHook = nil }
+
+    var admittedAfterReturn = false
+    while timeline.renderState.hasMoreMessages {
+      _ = try await timeline.loadOlder()
+      if admitTiming == .afterLoadOlderReturns, !admittedAfterReturn {
+        admitHeadWithoutMovingOffset(timeline, head)
+        admittedAfterReturn = true
+      }
+    }
+
+    let tail = try await timeline.loadOlder()
+    let expectedIDs = Set(seeded.map(\.id)).union([head.id])
+    #expect(tail.isEmpty)
+    #expect(!timeline.renderState.hasMoreMessages)
+    #expect(timeline.messages.count == expectedIDs.count)
+    #expect(Set(timeline.messages.map(\.id)) == expectedIDs)
+  }
+
+  private func admitHeadWithoutMovingOffset(_ timeline: ChatTimeline, _ head: MessageDTO) {
+    let count = timeline.renderState.totalFetchedCount
+    #expect(timeline.admit(head).inserted)
+    #expect(timeline.admit(head).inserted == false)
+    #expect(timeline.renderState.totalFetchedCount == count)
+  }
+
   @Test
   func `loadOlder drops rows an in-flight admission already landed`() async throws {
     let dataStore = try makeStore()

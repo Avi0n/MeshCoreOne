@@ -100,7 +100,9 @@ extension ChatCoordinator {
   @discardableResult
   func setRenderState(_ new: ChatRenderState, capturedID: UInt64) -> Bool {
     guard capturedID == renderStateID else { return false }
+    let previous = renderState
     renderState = new
+    resumeScrollRenderWaiterIfHonorable(from: previous, to: new)
     return true
   }
 
@@ -109,8 +111,73 @@ extension ChatCoordinator {
   /// that reset pagination fields. Bumps `renderStateID` because the
   /// new render state may displace an in-flight off-main build.
   func updateRenderState(_ transform: (ChatRenderState) -> ChatRenderState) {
-    renderState = transform(renderState)
+    let previous = renderState
+    renderState = transform(previous)
     renderStateID &+= 1
+    resumeScrollRenderWaiterIfHonorable(from: previous, to: renderState)
+  }
+
+  /// Suspends until a render write can honor or retire a scroll to `messageID`.
+  /// An indexed id, or history that has ended, returns without replacing the installed waiter.
+  public func waitForHonorableScrollRender(messageID: UUID) async {
+    if renderState.itemIndexByID[messageID] != nil || !renderState.hasMoreMessages {
+      return
+    }
+    let token = UUID()
+    await withTaskCancellationHandler {
+      await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+        let replaced = scrollRenderWaiter
+        let once = OnceResume(continuation)
+        scrollRenderWaiter = ScrollRenderWaiter(
+          messageID: messageID,
+          token: token,
+          resume: { once.resume() }
+        )
+        if let replaced {
+          scheduleScrollRenderResume(replaced)
+        }
+        #if DEBUG
+          if let hook = scrollRenderWaitInstalledHook {
+            Task { @MainActor in hook() }
+          }
+        #endif
+        if Task.isCancelled {
+          finishScrollRenderWait(token: token)
+        }
+      }
+    } onCancel: { [weak self] in
+      Task { @MainActor in
+        self?.finishScrollRenderWait(token: token)
+      }
+    }
+  }
+
+  private func resumeScrollRenderWaiterIfHonorable(
+    from previous: ChatRenderState,
+    to updated: ChatRenderState
+  ) {
+    guard let waiter = scrollRenderWaiter else { return }
+    let countGrew = updated.totalFetchedCount > previous.totalFetchedCount
+    let historyEnded = previous.hasMoreMessages && !updated.hasMoreMessages
+    let targetIndexed = previous.itemIndexByID[waiter.messageID] == nil
+      && updated.itemIndexByID[waiter.messageID] != nil
+    guard countGrew || historyEnded || targetIndexed else { return }
+    scrollRenderWaiter = nil
+    scheduleScrollRenderResume(waiter)
+  }
+
+  private func finishScrollRenderWait(token: UUID) {
+    guard let waiter = scrollRenderWaiter, waiter.token == token else { return }
+    scrollRenderWaiter = nil
+    scheduleScrollRenderResume(waiter)
+  }
+
+  /// Resumes on a later turn. `loadOlder` publishes the count before the
+  /// prepend, and an inline resume would continue before those rows exist.
+  private func scheduleScrollRenderResume(_ waiter: ScrollRenderWaiter) {
+    Task { @MainActor in
+      waiter.resume()
+    }
   }
 
   /// Append a fully built `MessageItem` to the render state. Used by the
@@ -184,6 +251,22 @@ extension ChatCoordinator {
         envelope: item.envelope.with(status: status),
         footer: item.footer.with(status: status)
       )
+    }
+  }
+
+  /// Resumes its continuation at most once.
+  @MainActor
+  private final class OnceResume {
+    private var continuation: CheckedContinuation<Void, Never>?
+
+    init(_ continuation: CheckedContinuation<Void, Never>) {
+      self.continuation = continuation
+    }
+
+    func resume() {
+      let pending = continuation
+      continuation = nil
+      pending?.resume()
     }
   }
 }
