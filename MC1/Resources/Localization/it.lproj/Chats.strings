@@ -243,9 +243,8 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Impossibile caricare le conversazioni.";
 
-/* TODO: translate */
 /* Location: ChatViewModel - Error when saving a chat pin fails */
-"chats.error.pinSaveFailed" = "Couldn't save the pin. Try again.";
+"chats.error.pinSaveFailed" = "Impossibile salvare il fissaggio. Riprova.";
 
 // MARK: - Channel Options Sheet
 
@@ -320,9 +319,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* TODO: translate */
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
-"chats.row.pin" = "Pinned";
+"chats.row.pin" = "Fissato";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Ancora nessun messaggio";
@@ -373,13 +371,11 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Silenzia";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
-"chats.action.pin" = "Pin";
+"chats.action.pin" = "Fissa";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
-"chats.action.unpin" = "Unpin";
+"chats.action.unpin" = "Rimuovi fissaggio";
 
 // MARK: - Room Conversation Row
 
@@ -552,7 +548,7 @@
 "chats.joinFromMessage.regionScope" = "Region: %@";
 
 /* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
-"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+"chats.joinFromMessage.hashtagSecretMismatch" = "Questa chiave segreta non corrisponde alla chiave di cifratura del canale hashtag. Ti unirai a un canale privato con questo nome.";
 
 // MARK: - Scan Channel QR View
 

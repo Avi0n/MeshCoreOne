@@ -465,10 +465,10 @@
 "contacts.add.add" = "Ajouter";
 
 /* Location: ContactAddConfirmationContent.swift - Purpose: Primary button when the scanned contact already exists */
-"contacts.add.view" = "View";
+"contacts.add.view" = "Voir";
 
 /* Location: ContactAddConfirmationContent.swift - Purpose: VoiceOver label for View; %@ is the saved contact name */
-"contacts.add.viewAccessibility" = "View %@";
+"contacts.add.viewAccessibility" = "Voir %@";
 
 /* Location: AddContactSheet.swift - Purpose: Scan QR button label */
 "contacts.add.scanQR" = "Scanner le code QR";
@@ -498,10 +498,10 @@
 "contacts.add.publicKeyFooter" = "Entrez la clé publique hexadécimale de %d caractères du contact";
 
 /* Location: ContactAddConfirmationContent.swift - Purpose: Footer when the scanned public key already matches a contact */
-"contacts.add.alreadyAdded" = "Already added";
+"contacts.add.alreadyAdded" = "Déjà ajouté";
 
 /* Location: ContactAddConfirmationContent.swift - Purpose: Caption when the QR name differs from the saved contact; %@ is the QR name */
-"contacts.add.scannedAs" = "Scanned as %@";
+"contacts.add.scannedAs" = "Scanné comme %@";
 
 /* Location: AddContactSheet.swift - Purpose: Not connected error */
 "contacts.add.error.notConnected" = "Non connecté à l'appareil";
@@ -582,10 +582,10 @@
 "contacts.scan.error.importFailed" = "Échec de l'importation du contact : %@";
 
 /* Location: ScanContactQRView.swift - Purpose: Scan a different QR code */
-"contacts.scan.scanAgain" = "Scan Again";
+"contacts.scan.scanAgain" = "Scanner à nouveau";
 
 /* Location: ScanContactQRView.swift - Purpose: VoiceOver announcement after a node is added, %@ is the node name */
-"contacts.scan.accessibility.added" = "Added %@";
+"contacts.scan.accessibility.added" = "Ajouté %@";
 
 // MARK: - Discovery View
 

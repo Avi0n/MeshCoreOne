@@ -243,9 +243,8 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "대화를 불러올 수 없습니다.";
 
-/* TODO: translate */
 /* Location: ChatViewModel - Error when saving a chat pin fails */
-"chats.error.pinSaveFailed" = "Couldn't save the pin. Try again.";
+"chats.error.pinSaveFailed" = "고정을 저장할 수 없습니다. 다시 시도하십시오.";
 
 // MARK: - Channel Options Sheet
 
@@ -320,9 +319,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* TODO: translate */
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
-"chats.row.pin" = "Pinned";
+"chats.row.pin" = "고정됨";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "아직 메시지 없음";
@@ -373,13 +371,11 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "알림 끄기";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
-"chats.action.pin" = "Pin";
+"chats.action.pin" = "고정";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
-"chats.action.unpin" = "Unpin";
+"chats.action.unpin" = "고정 해제";
 
 // MARK: - Room Conversation Row
 

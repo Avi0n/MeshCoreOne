@@ -319,10 +319,10 @@
 "advancedRadio.bandwidth" = "Larghezza di banda (kHz)";
 
 /* Label for spreading factor picker */
-"advancedRadio.spreadingFactor" = "Spreading Factor";
+"advancedRadio.spreadingFactor" = "Fattore di diffusione (SF)";
 
 /* Label for coding rate picker */
-"advancedRadio.codingRate" = "Coding Rate";
+"advancedRadio.codingRate" = "Tasso di codifica (CR)";
 
 /* Label for TX power input */
 "advancedRadio.txPower" = "Potenza TX (dBm)";
@@ -334,10 +334,10 @@
 "advancedRadio.accessibility.bandwidthLabel" = "%@ kilohertz";
 
 /* Accessibility label for spreading factor picker options - %d is the factor value */
-"advancedRadio.accessibility.spreadingFactorLabel" = "Spreading factor %d";
+"advancedRadio.accessibility.spreadingFactorLabel" = "Fattore di diffusione %d";
 
 /* Accessibility label for coding rate picker options - %d is the rate value */
-"advancedRadio.accessibility.codingRateLabel" = "Coding rate %d";
+"advancedRadio.accessibility.codingRateLabel" = "Tasso di codifica %d";
 
 /* Accessibility hint for bandwidth picker */
 "advancedRadio.accessibility.bandwidthHint" = "Valori più bassi aumentano la portata ma riducono la velocità";
@@ -1222,10 +1222,10 @@
 "configImport.field.bandwidth" = "Larghezza di banda";
 
 /* Validation field label: spreading factor */
-"configImport.field.spreadingFactor" = "Spreading factor";
+"configImport.field.spreadingFactor" = "Fattore di diffusione";
 
 /* Validation field label: coding rate */
-"configImport.field.codingRate" = "Coding rate";
+"configImport.field.codingRate" = "Tasso di codifica";
 
 /* Validation field label: TX power */
 "configImport.field.txPower" = "Potenza TX";

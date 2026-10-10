@@ -243,9 +243,8 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Unterhaltungen konnten nicht geladen werden.";
 
-/* TODO: translate */
 /* Location: ChatViewModel - Error when saving a chat pin fails */
-"chats.error.pinSaveFailed" = "Couldn't save the pin. Try again.";
+"chats.error.pinSaveFailed" = "Die Anheftung konnte nicht gespeichert werden. Versuche es erneut.";
 
 // MARK: - Channel Options Sheet
 
@@ -320,9 +319,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* TODO: translate */
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
-"chats.row.pin" = "Pinned";
+"chats.row.pin" = "Angeheftet";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Noch keine Nachrichten";
@@ -344,13 +342,11 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Stumm schalten";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
-"chats.action.pin" = "Pin";
+"chats.action.pin" = "Anheften";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
-"chats.action.unpin" = "Unpin";
+"chats.action.unpin" = "Loslösen";
 
 // MARK: - Room Conversation Row
 
@@ -523,7 +519,7 @@
 "chats.joinFromMessage.regionScope" = "Region: %@";
 
 /* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
-"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+"chats.joinFromMessage.hashtagSecretMismatch" = "Dieser geheime Schlüssel entspricht nicht dem öffentlichen Schlüssel für Hashtag-Kanäle. Du wirst einem privaten Kanal mit diesem Namen beitreten.";
 
 // MARK: - Scan Channel QR View
 

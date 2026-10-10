@@ -243,9 +243,8 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Impossible de charger les conversations.";
 
-/* TODO: translate */
 /* Location: ChatViewModel - Error when saving a chat pin fails */
-"chats.error.pinSaveFailed" = "Couldn't save the pin. Try again.";
+"chats.error.pinSaveFailed" = "Impossible d'enregistrer l'épinglage. Réessayez.";
 
 // MARK: - Channel Options Sheet
 
@@ -320,9 +319,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* TODO: translate */
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
-"chats.row.pin" = "Pinned";
+"chats.row.pin" = "Épinglé";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Aucun message pour l'instant";
@@ -344,13 +342,11 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Sourdine";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
-"chats.action.pin" = "Pin";
+"chats.action.pin" = "Épingler";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
-"chats.action.unpin" = "Unpin";
+"chats.action.unpin" = "Désépingler";
 
 // MARK: - Room Conversation Row
 
@@ -520,10 +516,10 @@
 "chats.joinFromMessage.error.loadFailed" = "Le canal a été créé mais n'a pas pu être chargé.";
 
 /* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
-"chats.joinFromMessage.regionScope" = "Region: %@";
+"chats.joinFromMessage.regionScope" = "Région : %@";
 
 /* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
-"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+"chats.joinFromMessage.hashtagSecretMismatch" = "Cette clé secrète ne correspond pas à la clé dérivée du nom pour les canaux hashtag. Vous allez rejoindre un canal privé qui utilise ce nom.";
 
 // MARK: - Scan Channel QR View
 

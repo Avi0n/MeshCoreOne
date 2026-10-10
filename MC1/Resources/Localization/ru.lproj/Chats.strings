@@ -242,9 +242,8 @@
 /* Location: ChatViewModel+Messages.swift - Error banner when fetching the conversation list fails */
 "chats.error.loadConversationsFailed" = "Не удалось загрузить разговоры.";
 
-/* TODO: translate */
 /* Location: ChatViewModel - Error when saving a chat pin fails */
-"chats.error.pinSaveFailed" = "Couldn't save the pin. Try again.";
+"chats.error.pinSaveFailed" = "Не удалось сохранить закрепление. Повторите попытку.";
 
 // MARK: - Channel Options Sheet
 
@@ -319,9 +318,8 @@
 /* Location: NewChatView.swift - Contact type label for rooms */
 // MARK: - Conversation Row
 
-/* TODO: translate */
 /* Location: ConversationRow.swift, ChannelConversationRow.swift, RoomConversationRow.swift - Accessibility label for the pin indicator */
-"chats.row.pin" = "Pinned";
+"chats.row.pin" = "Закреплено";
 
 /* Location: ConversationRow.swift, ChannelConversationRow.swift - Default text when no messages exist */
 "chats.row.noMessages" = "Пока нет сообщений";
@@ -343,13 +341,11 @@
 /* Location: ConversationContextMenuModifier.swift - Context-menu action to mute */
 "chats.action.mute" = "Без звука";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to pin a chat */
-"chats.action.pin" = "Pin";
+"chats.action.pin" = "Закрепить";
 
-/* TODO: translate */
 /* Location: ConversationRowActions.swift - Context-menu action to unpin a chat */
-"chats.action.unpin" = "Unpin";
+"chats.action.unpin" = "Открепить";
 
 // MARK: - Room Conversation Row
 
@@ -514,10 +510,10 @@
 "chats.joinFromMessage.error.loadFailed" = "Канал создан, но не удалось загрузить.";
 
 /* Location: JoinChannelConfirmationSheet.swift - Region scope shown before join - %@ is region name */
-"chats.joinFromMessage.regionScope" = "Region: %@";
+"chats.joinFromMessage.regionScope" = "Регион: %@";
 
 /* Location: JoinChannelConfirmationSheet.swift - Soft warning when hashtag-shaped name uses a non-public secret */
-"chats.joinFromMessage.hashtagSecretMismatch" = "This secret does not match the public hashtag key. You will join a private channel that uses this name.";
+"chats.joinFromMessage.hashtagSecretMismatch" = "Секретный ключ ссылки не совпадает с известным ключом, полученным из названия хэштега. Ты присоединишься к приватному каналу с этим названием.";
 
 // MARK: - Scan Channel QR View
 
