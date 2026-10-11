@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-212",
+  "issue": 168,
+  "session_id": "bcb17a74-5fa6-47d0-a4be-b6b595e20559",
+  "base_sha": "c68f414098df1253bfccade171ae0f256790de8b",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "reservation": {
+    "revision": 1,
+    "capability": "wp-owned",
+    "operation": "modify",
+    "release_recreate": false,
+    "paths": [
+      "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceReprocessTest.kt",
+      "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceTestSupport.kt",
+      "docs/android/deviations/WP-212.md",
+      "docs/android/evidence/WP-212/rxlog-restart-readiness-repair.json"
+    ]
+  },
+  "origin": {
+    "pr": 165,
+    "head_sha": "99039051fdcd41fb765ea7b3b013c3299dce5724",
+    "run_id": 38169351736,
+    "suite": "core:services",
+    "discovered": 2639,
+    "failed": 1,
+    "failure": "RxLogServiceReprocessTest.cases()[8]: timed out waiting for exactly one persisted entry",
+    "scope": "Observed failure of an invalid test readiness condition; not a proven production restart defect"
+  },
+  "repair": {
+    "production_changed": false,
+    "deadline_ms": 5000,
+    "readiness": "second actual eager registration and exactly one active subscription",
+    "deterministic_witness": "count one still describes canceled first monitor before replacement is scheduled",
+    "unchanged_assertions": [
+      "original one-byte advertisement payload",
+      "exactly one persisted entry",
+      "second radio attribution",
+      "subscription removed on stop"
+    ]
+  },
+  "verification": {
+    "readiness": "passed: declared JDK21.0.12.1, SDK37.2/build-tools37.0.0, isolated environment and private caches",
+    "native": {
+      "command": "& .\\android\\scaffold\\invoke-gradle.ps1 -ConstrainedMemory -BuildHeap 1024m -BuildMetaspace 768m -TestHeap 384m -TestMetaspace 384m -GradleArguments @(':core:services:test','--tests','com.meshcoreone.android.core.services.diagnostics.RxLogServiceReprocessTest','--tests','com.meshcoreone.android.core.services.diagnostics.RxLogServiceRegionReprocessTest','--tests','com.meshcoreone.android.core.services.diagnostics.RxLogServiceDirectMessageTest','--tests','com.meshcoreone.android.core.services.diagnostics.RxLogServiceAdvertHopTest','--dependency-verification','strict','--quiet')",
+      "result": "passed",
+      "discovered": 44,
+      "run": 44,
+      "passed": 44,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class_counts": {
+        "RxLogServiceReprocessTest": 18,
+        "RxLogServiceRegionReprocessTest": 13,
+        "RxLogServiceDirectMessageTest": 5,
+        "RxLogServiceAdvertHopTest": 8
+      },
+      "required_actual_junit_identities": [
+        "Restart readiness distinguishes the canceled subscriber from its replacement()",
+        "WP-212::restarting monitoring replaces the previous subscription instead of duplicating it"
+      ],
+      "evidence_reader": "controller.ci_evidence.suite_counts and read_xml; exact four classes and emitted display identities",
+      "execution": "credential-stripped launcher, private caches, supported native-execution and gradle-execution hard locks; both released",
+      "scope": "Local JVM diagnostics tests; not hosted current-head or full WP-501 acceptance"
+    },
+    "validators": [
+      "python tools\\android-port\\controller\\verification_config.py --check: passed",
+      "python tools\\android-port\\controller\\workflows.py: passed",
+      "python tools\\android-port\\portmap.py: passed",
+      "git diff --check: passed"
+    ],
+    "full_wp501_acceptance": "not claimed",
+    "ios_hardware_signing": "not executed"
+  }
+}

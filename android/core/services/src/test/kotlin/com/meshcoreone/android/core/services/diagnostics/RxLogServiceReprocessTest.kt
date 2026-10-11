@@ -11,18 +11,49 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
+import org.junit.jupiter.api.Test
 
 class RxLogServiceReprocessTest {
     private fun case(name: String, body: suspend () -> Unit): DynamicTest =
         DynamicTest.dynamicTest(if (name.startsWith("WP-212::")) name else "RxLogServiceReprocessTests::$name()") {
             runBlocking { body() }
         }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `Restart readiness distinguishes the canceled subscriber from its replacement`() = runTest {
+        RxLogSvcHarness(scope = backgroundScope).use { h ->
+            h.service.startEventMonitoring(rxLogSvcRadio())
+            runCurrent()
+            assertEquals(1, h.session.subscriberCount)
+            assertEquals(1L, h.session.registrationCount)
+
+            val second = rxLogSvcRadio()
+            h.service.startEventMonitoring(second)
+            assertEquals(1, h.session.subscriberCount, "the old readiness condition still sees the canceled first monitor")
+            assertEquals(1L, h.session.registrationCount, "the replacement has not registered yet")
+
+            runCurrent()
+            assertEquals(2L, h.session.registrationCount)
+            assertEquals(1, h.session.subscriberCount)
+            h.session.emit(MeshEvent.RxLogData(rxLogSvcParsed(PayloadType.ADVERT, Bytes.of(0x01))))
+            runCurrent()
+            assertEquals(listOf(second), h.store.allEntries().map { it.radioId })
+
+            h.service.stopEventMonitoring()
+            runCurrent()
+            assertEquals(0, h.session.subscriberCount)
+        }
+    }
 
     @TestFactory
     fun cases(): List<DynamicTest> = listOf(
@@ -144,7 +175,9 @@ class RxLogServiceReprocessTest {
                 rxLogSvcWaitUntil("first monitor subscribes") { h.session.subscriberCount == 1 }
                 val second = rxLogSvcRadio()
                 h.service.startEventMonitoring(second)
-                rxLogSvcWaitUntil("only the second monitor remains subscribed") { h.session.subscriberCount == 1 }
+                rxLogSvcWaitUntil("only the registered second monitor remains subscribed") {
+                    h.session.registrationCount == 2L && h.session.subscriberCount == 1
+                }
                 h.session.emit(MeshEvent.RxLogData(rxLogSvcParsed(PayloadType.ADVERT, Bytes.of(0x01))))
                 rxLogSvcWaitUntil("exactly one entry is persisted") { h.store.allEntries().isNotEmpty() }
                 assertEquals(listOf(second), h.store.allEntries().map { it.radioId })
