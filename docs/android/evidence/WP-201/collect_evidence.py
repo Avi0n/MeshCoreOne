@@ -47,6 +47,8 @@ CONTROL_INPUTS = {
     HISTORY, SCHEMA, "docs/android/test-cases.json", "docs/android/port-manifest.json",
     "docs/android/automation-policy.json", "docs/android/evidence/WP-201/collect_evidence.py",
     "tools/android-port/controller/verification_config.py",
+    "tools/android-port/controller/scope_amendment.py",
+    "docs/android/scope-amendments/translation-removal.json",
 }
 TEXT_SUFFIXES = {".swift", ".kt", ".java", ".kts", ".py", ".json", ".xml", ".md", ".txt", ".properties", ".lockfile"}
 

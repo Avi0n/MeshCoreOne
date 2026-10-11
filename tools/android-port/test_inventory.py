@@ -399,6 +399,15 @@ def validate_outputs(catalog, details, originals):
 
 def generate(reference: FrozenReference):
     originals = reference.test_entries()
+    from controller.scope_amendment import is_translation_scope, project_translation_scope
+
+    if is_translation_scope(reference.manifest):
+        historical = {
+            entry["path"]: entry
+            for entry in project_translation_scope(reference.manifest, reference.repo)["inventory"]
+        }
+        # Retain WP-004 declaration evidence; current scope lives in manifest/not-ported, not old results.
+        originals = [historical[entry["path"]] for entry in originals]
     sources = reference.read_many([entry["path"] for entry in originals] + list(DYNAMIC_TYPES.values()))
     dependencies = {}
     assertion_helpers = {}

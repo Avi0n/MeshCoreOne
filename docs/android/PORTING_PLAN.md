@@ -13,11 +13,11 @@ The approach is a **behavior-faithful port with file-level accountability**. Eve
 mapped to tested Android behavior or a reviewed platform adaptation. Many-to-many mappings are allowed:
 Swift extensions may become one Kotlin class, and a Swift platform service may need multiple Android adapters.
 File counts and headers are traceability, not proof of parity. The Swift tree stays as the read-only specification.
-The work is split into **65 work packages (WPs)**, and each WP is owned by one of **17 agents**. WPs are dispatched
+The active work is split into **64 work packages (WPs)**, and each WP is owned by one of **17 agents**. WPs are dispatched
 to the GitHub Copilot cloud agent or local sessions once their dependencies are verified and merged. They
 auto-merge when CI and an independent parity review pass, except for human-gated WPs and protected paths.
 
-**Planning complete:** 65 WPs and 185 dependency edges form an acyclic graph; the 17 agent profiles
+**Current scope:** 64 WPs and 178 dependency edges form an acyclic graph; the 17 agent profiles
 and three skill drafts have been checked against the roster and documented configuration format.
 The user authorized programming once the review was complete. Begin WP-000 in one dedicated worktree
 session; the drafts are not yet installed. This approval is not activation of the full fleet,
@@ -36,7 +36,7 @@ authorization to change repository settings or evidence for signing/hardware gat
 | Distribution | Sideloaded APK via **GitHub Releases only**. No Play Store and no billing; **all themes unlocked**. |
 | applicationId | `com.meshcoreone.android` (debug: `com.meshcoreone.android.debug`). Kotlin root package `com.meshcoreone.android` |
 | Google services | Allowed for **optional features**; BLE/WiFi mesh messaging, persistence and core navigation must not require Google Play services. |
-| Translation | Required for the first feature-complete release. Optional engine/provider, explicit download consent, offline use after model download where supported. |
+| Message translation | Removed from active scope by explicit user decision; not deferred, implemented, or required for any future build/release. Re-admission requires a new user feature request and scope/admission decision. App localization remains in scope. |
 | Backup compatibility | **Bidirectional iOS/Android compatibility**, verified against the existing iOS backup codec and restore behavior. |
 | Licensing | Preserve the GPLv3 app license and MIT MeshCore notices. Every linked dependency, model and distributed asset must be license-compatible. Optional Google SDKs are not automatically approved. |
 
@@ -44,8 +44,6 @@ Implementation candidates (recorded as ADRs in WP-001; the human reviews them at
 - Manual DI with a process-lifetime `AppContainer` and a per-radio-connection `RadioSessionContainer`,
   instead of Hilt. The latter mirrors the actual `ServiceContainer` lifetime, construction and teardown.
 - Nordic Android-BLE-Library (BSD-3) behind a facade that mirrors `BLEStateMachine`. A spike in WP-205 confirms this.
-- A translation SPI whose implementation is selected only after license, privacy, language coverage and
-  GMS-less behavior checks. ML Kit is a candidate, not a permitted dependency merely because it runs on-device.
 - No new accounts, backend, telemetry collection, automatic APK installation or billing system.
 
 ## 2.1 WP-000 policy amendment: capability reservations are not permissions
@@ -77,6 +75,30 @@ automated checks; the repository does not persist or revalidate duplicate CI
 result bundles. Non-reproducible hardware/device, signing, release, human and
 legal evidence remains retained.
 
+## 2.2 WP-000 scope amendment: remove message translation
+
+User decision (verbatim): "Change the scope, translation is uneeded for now unless someone requests the feature. Remove it from the current plan. Do not make it a requirement for future builds."
+
+WP-406 is retired from the active DAG, not completed or deferred. Its five prerequisites and its
+two incoming dependency edges (WP-407 and WP-505) are removed; the remaining seven human gates and
+all protected-path, hardware, signing, license and positive-discovery requirements are unchanged.
+The original 65-WP/185-edge/eight-gate catalog and historical evidence remain audit history.
+The deterministic [scope amendment](scope-amendments/translation-removal.json) preserves the entire
+predecessor catalog, source pin and original blob identities through exact reversible changes.
+
+The 26 translation-only sources, tests and helper are explicitly `removed-translation` in
+`not-ported.json`, accountable to WP-000 for this user-approved scope exclusion, never fake ports or
+Apple-only glue. Their original test cases/parameter families remain inventoried in the historical
+WP-004 catalog; exclusion is not a passing test or feature acceptance. Mixed chat/room/settings,
+localization, backup, message-text and rendering inputs stay owned. Preserve stored/original text,
+clipboard/reply/resend/reaction/preview behavior and all non-translation messaging.
+
+No translation engine/model/provider is implemented, downloaded or linked. Existing inert scaffold
+module/contract/rendering helpers may remain for compatibility; they provide no translation success,
+entry point or release requirement. WP-407 must not register a translation placeholder or treat the
+absent feature/provider as a completion blocker. Adding translation again requires a new user request
+and scope/admission decision, including then-applicable license/privacy/runtime review.
+
 ## 3. Target architecture
 
 ### 3.1 Tech stack
@@ -95,7 +117,6 @@ The candidate JDK 21 / Kotlin 2.x / AGP 9.x / Gradle 9.x combination must compil
 | Crypto | JCA (SHA-256, HMAC, AES/ECB/NoPadding) + BouncyCastle lightweight API (X25519, Ed25519) |
 | Maps/charts/media | MapLibre Native Android (16 KB-page compatible), Vico charts, Coil 3, CameraX + ZXing, androidx emoji2 picker |
 | System | Glance widgets, TileService, ShortcutManagerCompat, share targets, SplashScreen, per-app language. AppFunctions is an optional future extension while its Jetpack integration remains alpha. |
-| Translation | Provider SPI; on-device engine preferred, model availability/download/delete states, platform language-ID fallback; license-approved adapter selected at the WP-406 human gate. |
 | Quality | JUnit 5 (JVM modules), Robolectric, Turbine, Compose UI test, Roborazzi screenshots, Kover, ktlint, detekt, Android Lint, AboutLibraries |
 
 ### 3.2 Module layout (`android/`)
@@ -120,7 +141,7 @@ android/
 │  ├─ l10n/                generated strings/plurals for 12 languages
 │  └─ testing/             fakes, fixtures, golden vectors, AppContainer.forTesting()
 ├─ feature/  onboarding · chats · nodes · remotenodes · map · tools · settings
-├─ platform/ notifications · widgets · shortcuts · translation
+├─ platform/ notifications · widgets · shortcuts
 ├─ tools/meshcli/          JVM CLI harness for talking to a real radio over TCP (dev only)
 └─ benchmark/              baseline profiles + macrobenchmarks
 ```
@@ -170,7 +191,7 @@ belong to WPs 208-218. WP-303 assembles the complete graph only after those serv
 | UserNotifications | channels, MessagingStyle, RemoteInput direct reply, conversation shortcuts | 401 |
 | `meshcore://` URL scheme | intent-filter deep links | 405 |
 | TipKit | `:core:ui` show-once tips (DataStore) | 304 |
-| Translation / NaturalLanguage | Optional translation provider with download and unsupported-language states; language-ID provider with platform fallback | 406 |
+| Translation / NaturalLanguage | User-approved message-translation scope exclusion; app localization and original message text are preserved | removed |
 | VisionKit QR / CoreImage QR | CameraX + ZXing | 311 |
 | LinkPresentation + scraping + urlhaus filter | OkHttp + Jsoup port + bundled host list | 218 |
 | StoreKit (theme IAP, tips) | **removed**. Themes unlocked; support screen has links only. | 318 |
@@ -208,8 +229,8 @@ belong to WPs 208-218. WP-303 assembles the complete graph only after those serv
 - **Backup facts:** envelope v1 uses **seconds since 1970**, Codable binary data encoding and zlib.
   Existing limits are 50 MiB compressed and 512 MiB expanded. Preserve them with bounded/streamed reads,
   canonical UUID/byte handling and both-direction codec tests; do not assume Swift's default 2001 date epoch.
-- **Translation:** restored to required scope. Optional Google services are allowed, but proprietary SDK/model
-  terms still require a compatibility decision; no claim that a GPL-compatible option cannot exist.
+- **Message translation:** the earlier restoration to required scope is superseded by section 2.2.
+  No translation engine/model or absent-feature gate is part of active build/release acceptance.
 - **Live Activity:** persistent radio status is not automatically eligible for a promoted Live Update.
 - **Automation:** bootstrap is paused, all required checks run for PR and merge-group SHAs, and closed
   issues or model-written PASS text are never sufficient evidence to merge or unlock dependencies.
@@ -366,7 +387,6 @@ All three modes share the same rendered prompt and limits:
   - WP-002 (toolchain/build scaffold)
   - WP-003 (CI/gates)
   - WP-006 (upstream sync)
-  - WP-406 (translation engine/license/privacy decision)
   - WP-505 (hardware-in-the-loop)
   - WP-506 (signing/release)
   - Any PR that touches a protected policy/build/signing/oracle path
@@ -392,7 +412,7 @@ The tables show main sources only; related errors, extensions, helpers and tests
 | ID | Work package | Agent | Depends on | Gate |
 |---|---|---|---|---|
 | WP-000 | Install 17 agent/3 skill drafts, instructions, source ownership manifest, trusted controller and dry-run tests; automation stays paused | port-orchestrator | none | Human |
-| WP-001 | Approve compatible toolchain, acyclic module map, lifetimes, typed factory/repository/UI contracts, translation/license candidates and platform adaptations | android-architect | 000 | Human |
+| WP-001 | Approve compatible toolchain, acyclic module map, lifetimes, typed factory/repository/UI contracts, license candidates and platform adaptations | android-architect | 000 | Human |
 | WP-002 | Buildable Gradle scaffold: catalog, convention plugins, contracts/module shells, stable feature entry points and Android ignores | android-build-engineer | 001 | Human |
 | WP-003 | Prove required PR/merge checks, conditional human approval, isolated CI, cloud readiness and debug APK artifact; enable dispatch only by separate user action | android-build-engineer | 002 | Human |
 | WP-004 | JVM/Android test stack, fakes, source test inventory, pinned golden vectors and Swift/macOS codec-oracle harness | test-parity-engineer | 003 | |
@@ -464,8 +484,7 @@ The tables show main sources only; related errors, extensions, helpers and tests
 | WP-403 | Glance status widget + Quick Settings connect tile, cold-start-safe connection requests and bounded RemoteViews bitmaps | platform-integrations-engineer | 206, 303 | |
 | WP-404 | Send/status/advert App Shortcuts and share target; preserve explicit user authorization and radio selection | platform-integrations-engineer | 208, 209, 303 | |
 | WP-405 | MeshCore/hashtag/contact URI parsing, cold-start staging and app-level deep-link routing, with validation and confirmation | platform-integrations-engineer | 209, 302, 303 | |
-| WP-406 | License-approved translation SPI/engine, language detection, download/delete/unsupported/error states and in-chat/settings UI; prove mesh works without GMS | platform-integrations-engineer | 307, 308, 213, 218, 317 | Human |
-| WP-407 | Finish feature registration, remove reachable scaffold placeholders and audit icon/splash/locales, backup rules, adaptive UI and API 31-37 behavior | platform-integrations-engineer | 305, 308, 309, 310, 311, 313, 314, 315, 316, 318, 401, 402, 403, 404, 405, 406 | |
+| WP-407 | Finish feature registration, remove reachable scaffold placeholders and audit icon/splash/locales, backup rules, adaptive UI and API 31-37 behavior | platform-integrations-engineer | 305, 308, 309, 310, 311, 313, 314, 315, 316, 318, 401, 402, 403, 404, 405 | |
 
 ### Phase 5: Quality and release
 | ID | Work package | Agent | Depends on | Gate |
@@ -474,7 +493,7 @@ The tables show main sources only; related errors, extensions, helpers and tests
 | WP-502 | Compose flows and deterministic screenshots for themes/scheme/font/window states; API 31/37 device flows plus targeted 33/34/36 behavior checks | test-parity-engineer | 407 | |
 | WP-503 | Accessibility audit: TalkBack, 48dp targets, contrast for all themes, 200% font | design-system-engineer | 407 | |
 | WP-504 | Baseline profiles, macrobenchmarks (startup, timeline), R8 full mode, StrictMode/ANR/battery review | android-build-engineer | 407 | |
-| WP-505 | Real-radio/OEM/offline/background/upgrade matrix with firmware/build evidence; agents prepare scripts, a human verifies outcomes | test-parity-engineer | 109, 203, 401, 402, 403, 404, 405, 406, 407, 501, 502, 503, 504 | Human |
+| WP-505 | Real-radio/OEM/offline/background/upgrade matrix with firmware/build evidence; agents prepare scripts, a human verifies outcomes | test-parity-engineer | 109, 203, 401, 402, 403, 404, 405, 407, 501, 502, 503, 504 | Human |
 | WP-506 | Protected signed APK release, upgrade test, checksums/provenance/SBOM, GPL corresponding source and install/user documentation | android-build-engineer | 503, 504, 505 | Human |
 
 **Milestones**
@@ -487,7 +506,7 @@ The tables show main sources only; related errors, extensions, helpers and tests
 
 **Dependency spine (other prerequisites join at integration gates):**
 000 → 001 → 002 → 003 → 004 → 101 → 105 → 106 → 103 → 107 → 207 → 208 →
-213 → 217 → 303 → 306 → 307 → 308 → 406 → 407 → 501 → 505 → 506.
+213 → 217 → 303 → 306 → 307 → 308 → 407 → 501 → 505 → 506.
 
 **Parallel lanes after the CI activation gate:** protocol, localization/test tooling, data once protocol
 value types exist, BLE once the transport contract exists, and design-system work once strings/preferences exist.
@@ -512,7 +531,7 @@ typed capability reservations, semantic reconciliation, and user limits.
   No SwiftData-store copying or destructive Room migration is allowed.
 - **Offline service integration:** run the real graph with fake transport and real in-memory Room,
   including send/retry/dedup, reconnect, radio switching, cold-start queue recovery and monitoring teardown.
-  Test with no Google services and no internet; previews/maps/uninstalled translation packs explain their
+  Test with no Google services and no internet; previews/maps explain their
   own limitations without preventing mesh messaging.
 - **UI and accessibility:** deterministic screens for every feature, all ten themes/effective schemes,
   compact/medium/expanded windows, fold/resize, keyboard and 200% font. Include long/CJK strings,
@@ -531,9 +550,9 @@ typed capability reservations, semantic reconciliation, and user limits.
   reporting separate from worker branches and never feed a model-written progress report back as merge authority.
 
 **Completion criterion:** all feature acceptance is verified, every source/test/resource is accounted for,
-all non-billing parity gaps are resolved or explicitly approved as platform adaptations, required checks
-pass, and the real-radio and signed-upgrade gates have human evidence. A license/engine blocker cannot
-silently turn required translation into a deferred feature.
+all in-scope parity gaps are resolved or explicitly approved as platform adaptations, required checks
+pass, and the real-radio and signed-upgrade gates have human evidence. User-approved billing and
+message-translation exclusions are accounted for, not ported/completed features or future requirements.
 
 ## 7. One-time human setup (documented in `docs/android/AUTOMATION.md`)
 1. Review/merge WP-000, approve WP-001, and supervise the build/CI bootstrap through WP-003.
@@ -574,12 +593,12 @@ silently turn required translation into a deferred feature.
 | Upstream iOS keeps changing | `PortedFrom` SHAs plus weekly `resync` issues routed to the owning agents |
 | Preview APIs (custom-agent assignment, CLI auth in Actions) change | Validated in WP-000; local dispatch as the fallback |
 | Toolchain/API support mismatch | Prove the compatible stable tuple, test discovery and API 37 instrumentation; dependency changes use a reviewed build WP |
-| Translation SDK/model incompatibility | Early candidate/license review and a provider boundary; no unauthorized GPL exception or silent scope reduction |
 | Map provider download/license limits | Audit attribution, offline terms and zoom/size controls per provider; do not bulk-download satellite tiles by assumption |
 | Losing the signing key | Human-held offline backup, verified same-certificate upgrades and documented recovery; do not rely on ad hoc key regeneration |
 | GitHub capability/authentication gap | Validate before launch; local execution and serialized merge fallback; absent credentials/checks block rather than fake success |
 
 ## 9. Out of scope / deferred
+- Message translation is **removed**, not deferred or required for future builds; see section 2.2.
 - Changes to the iOS app.
 - Play Store distribution and billing.
 - Wear OS, Android Auto and TV.
@@ -610,7 +629,7 @@ silently turn required translation into a deferred feature.
 - `../../.github/skills/swift-to-kotlin/SKILL.md`: byte/type/identity/concurrency/codec mappings and pitfalls.
 - `../../.github/skills/compose-from-swiftui/SKILL.md`: incumbent product identity, native Material behavior,
   route/content separation, states, accessibility, localization and adaptive layout.
-- SQL `todos`/`todo_deps`: all 65 macro WPs, still pending implementation. Agent drafts are configuration
+- Historical SQL `todos`/`todo_deps`: the original 65 macro WPs, not completion authority. Agent drafts are configuration
   artifacts, not spawned agents; source ownership expansion and executable dispatcher come in WP-000.
 
 First-party references used in this review (reverify during bootstrap):
@@ -625,8 +644,6 @@ First-party references used in this review (reverify during bootstrap):
   [cloud assignment API](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/use-cloud-agent-via-the-api),
   [CLI automation](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-programmatic-reference)
   and [merge-group checks](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue).
-- [ML Kit translation behavior](https://developers.google.com/ml-kit/language/translation/android)
-  and [SDK/model terms](https://developers.google.com/ml-kit/terms); candidates still need license approval.
 - Repository code: `ServiceContainer.swift` proves per-connection lifetimes; `AppBackupEnvelope.swift`
   and `AppBackupService.swift` define the real backup codec/limits; current map/theme/onboarding files
   take precedence over outdated architecture prose.

@@ -89,7 +89,8 @@ Keep these distinctions where relevant:
 - No messages versus existing cached data with no active transport.
 - Pending, delivered and failed sends; source retry and draft recovery.
 - Permission not yet requested, denied, permanently denied or revoked.
-- Loading, empty, partial, cancelled, unsupported and failed map/terrain/preview/translation content.
+- Loading, empty, partial, cancelled, unsupported and failed map/terrain/preview content.
+  Message translation is removed from active scope; preserve app localization and original message text.
 - Room guest/participant/admin permissions and expired authentication.
 - Backup validation/restore outcomes, dropped/merged counts and post-commit completion.
 

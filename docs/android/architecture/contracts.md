@@ -209,27 +209,15 @@ Notification policy/actions are per-session WP-215; the process Android delivery
 adapter is WP-401. A notification command carries stable destination/message IDs
 and a guarded radio context. Posting returns explicit posted/permission-denied/
 unsupported outcomes; quick reply/mark-read resolves the current graph rather than
-retaining old service callbacks. Translation is WP-406's gated adapter, not a GMS
-dependency of services or navigation.
+retaining old service callbacks. Message translation is removed from active scope and future build
+requirements. Any already-declared translation types are inert compatibility contracts, not a required
+adapter, registration, success claim or WP-407 blocker; re-admission needs a new user request and
+scope/admission decision.
 
 ```kotlin
 interface NotificationPort {
     suspend fun post(command: NotificationCommand): NotificationPostResult
     suspend fun cancel(id: NotificationId)
-}
-interface TranslationPort {
-    fun availability(pair: LanguagePair): kotlinx.coroutines.flow.StateFlow<ModelAvailability>
-    suspend fun download(pair: LanguagePair, consent: DownloadConsent)
-    suspend fun deleteModel(pair: LanguagePair)
-    suspend fun translate(text: String, pair: LanguagePair): String
-}
-sealed interface ModelAvailability {
-    data object Unavailable : ModelAvailability
-    data class UnsupportedLanguage(val pair: LanguagePair) : ModelAvailability
-    data object DownloadRequired : ModelAvailability
-    data class Downloading(val receivedBytes: Long, val totalBytes: Long?) : ModelAvailability
-    data object Ready : ModelAvailability
-    data class Failed(val issue: TranslationIssue) : ModelAvailability
 }
 enum class AppTab(val sourceIndex: Int) {
     CHATS(0), NODES(1), MAP(2), TOOLS(3), SETTINGS(4),
@@ -275,4 +263,5 @@ WP-002 may compile neutral IDs/registrations and interface shells only with avai
 types. Domain fragments wait for WP-101/106/201 instead of invented DTOs or duplicate
 future implementations. A reachable shell displays localized **not yet ported**,
 disabled unavailable actions and capability failures; it does not return empty
-data or fake send/translate success. WP-002 compile evidence is never feature parity.
+data or fake send success. WP-002 compile evidence is never feature parity. Removed translation must
+not gain a reachable placeholder/entry or become a registration requirement.

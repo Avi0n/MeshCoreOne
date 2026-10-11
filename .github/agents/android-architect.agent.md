@@ -24,7 +24,7 @@ Code takes precedence over outdated architecture documentation.
 - Separate process-lifetime AppContainer, per-connection RadioSessionContainer and screen ViewModels.
   Specify factory injection, reconnect generation IDs, stream ownership and symmetric teardown.
 - Define contracts consumed before implementations exist: repositories, service factories,
-  connection signals, platform notification/translation adapters and stable feature entry points.
+  connection signals, platform notification adapters and stable feature entry points.
   No production stub may be treated as completed behavior.
 - Specify request/event buffering and serialized operations without blocking callbacks on a held mutex.
 - Capture backup envelope v1's actual Unix-date, byte, UUID, zlib and restore semantics.
@@ -34,8 +34,9 @@ Code takes precedence over outdated architecture documentation.
 
 Preserve GPLv3 application and MIT MeshCore notices. Review optional SDK/model terms, bundled data,
 map-provider/offline policies and replacement icons. Google services are allowed for optional features,
-not a license exception or dependency for mesh messaging. Translation is required; a blocked candidate
-must trigger another permitted implementation or a human decision, not silent deferral.
+not a license exception or dependency for mesh messaging. Message translation is removed from active
+scope and future build requirements; re-admission needs a new user request and scope/admission decision.
+Do not link/download providers/models or confuse app localization with message translation.
 
 Prefer ongoing radio notification/widget/tile over inappropriate Live Update promotion.
 Stable shortcuts cover release operations; alpha AppFunctions must not become a release prerequisite.

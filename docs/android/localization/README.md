@@ -5,7 +5,8 @@
 `AppShortcuts.xcstrings`. It uses Python's standard library only. The application
 translation copy remains GPLv3; the existing app GPLv3 and MeshCore MIT notices
 are unchanged. This is resource/format infrastructure, not messaging translation
-(WP-406), widget/shortcut execution (WP-403/404) or the WP-407 system UX audit.
+(removed from active scope, not a future build requirement), widget/shortcut execution (WP-403/404)
+or the WP-407 system UX audit.
 
 ## Coverage and locale policy
 

@@ -131,6 +131,70 @@
       "android_adaptation": "Do not copy Apple-specific glue. Extract its applicable behavior/permissions/notices and verify the native Android counterpart at the adaptation WP."
     },
     {
+      "path": "MC1/Services/MessageTranslating.swift",
+      "blob_sha": "6caf0e0831c6a362a6d99a777cca181ef76f870c",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/MessageTranslationNeedsDownloadError.swift",
+      "blob_sha": "a1d3dd0e150483740a7dc84b0c7916752b966fdb",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationLanguageAvailability.swift",
+      "blob_sha": "ae4d0cd6a75905d5a89fe71c568e55b439c58fb6",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationLanguageResolver.swift",
+      "blob_sha": "bd6734d72dbdfb859eb2a7d51af8811145673059",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationPerformResult.swift",
+      "blob_sha": "75756c40bf046b979199901a3eb77e90e1c2ec69",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationSession+Configuration.swift",
+      "blob_sha": "4113c8ce8a81afca40d42a4e89c974d1ff8de5f2",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationSessionLauncher.swift",
+      "blob_sha": "57e7f519842a503271f72058b604b5f46c7021d3",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationSessionRequest.swift",
+      "blob_sha": "ed3b8cb512bd690aa20d1ef31a9e80bd58f55de2",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
       "path": "MC1/State/PendingPurchase.swift",
       "blob_sha": "e446084d49d5263e6d380198e4054b46f4d48709",
       "reason_code": "removed-billing",
@@ -145,6 +209,46 @@
       "adaptation_wp": "WP-318",
       "review_basis": "Approved plan sections 2, 3.3 and 9 remove StoreKit, purchases, refunds and entitlements.",
       "android_adaptation": "No billing implementation; all ten themes unlocked. Retain non-purchase support links and license notices."
+    },
+    {
+      "path": "MC1/Views/Chats/Components/BubbleTranslationControl.swift",
+      "blob_sha": "631b8d1b88214fa7f27b750d084e0fe9f91b0dcf",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift",
+      "blob_sha": "939726ace425f8a5dfc650523a8b0b98408be772",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift",
+      "blob_sha": "989a1cd1641f389c30887f0e1115cf7fed21a2bd",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift",
+      "blob_sha": "d83143660593e9b1614c141d30bed74154ecb1cf",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/Settings/TranslateIntoLanguageView.swift",
+      "blob_sha": "85bd81d36502f6303fc89eec1b15b8b6f32ad602",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
     },
     {
       "path": "MC1/Views/Sidebar/SidebarBackgroundExtension.swift",
@@ -227,6 +331,38 @@
       "android_adaptation": "No billing implementation; all ten themes unlocked. Retain non-purchase support links and license notices."
     },
     {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift",
+      "blob_sha": "a7b874956ec3e46626f897df9adff8716027481f",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift",
+      "blob_sha": "fda5ac96d7216fc264adb3b0f63c578d00c9439a",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift",
+      "blob_sha": "c3354f58ffdbbb1625adb9bf897bfb2296dabff1",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift",
+      "blob_sha": "4672107431f585313fefbbff02951a8c284cbdc0",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
       "path": "MC1Services/Sources/MC1Services/Services/StoreCatalog.swift",
       "blob_sha": "db08a506d241bf491286414ca78d314ed5f07e42",
       "reason_code": "removed-billing",
@@ -259,6 +395,22 @@
       "android_adaptation": "No billing implementation; all ten themes unlocked. Retain non-purchase support links and license notices."
     },
     {
+      "path": "MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift",
+      "blob_sha": "1f2331d99c0dc878fd49898573bc7dfb07980812",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift",
+      "blob_sha": "e0f6b111c1ba8a66c14331b79b8acf49a22aade8",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
       "path": "MC1Services/Tests/MC1ServicesTests/StoreCatalogTests.swift",
       "blob_sha": "fba6e701511a54c9f4bc6b20e2baca331bf8bb6c",
       "reason_code": "removed-billing",
@@ -273,6 +425,14 @@
       "adaptation_wp": "WP-318",
       "review_basis": "Approved plan sections 2, 3.3 and 9 remove StoreKit, purchases, refunds and entitlements.",
       "android_adaptation": "No billing implementation; all ten themes unlocked. Retain non-purchase support links and license notices."
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift",
+      "blob_sha": "9449782fe8b7eb8e68d67d05da70884d71546762",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
     },
     {
       "path": "MC1Tests/AppState/MacOSPairingRecoveryTests.swift",
@@ -315,6 +475,30 @@
       "android_adaptation": "No billing implementation; all ten themes unlocked. Retain non-purchase support links and license notices."
     },
     {
+      "path": "MC1Tests/Services/TranslationLanguageResolverTests.swift",
+      "blob_sha": "dda4d61d6cff36ea9317e22e9fd6527cbac5da8b",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/Services/TranslationSessionConfigurationTests.swift",
+      "blob_sha": "fab5b90cd09f4f230bac3e8734f58dbd2d37aaba",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/Services/TranslationSessionLauncherTests.swift",
+      "blob_sha": "4d56a1fa8bdae6bf492414375554bc649a4b0d79",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
       "path": "MC1Tests/StoreEntitlementFoldTests.swift",
       "blob_sha": "8061b906f0fc3474730ee70f151684b210d02626",
       "reason_code": "removed-billing",
@@ -345,6 +529,30 @@
       "adaptation_wp": "WP-318",
       "review_basis": "Approved plan sections 2, 3.3 and 9 remove StoreKit, purchases, refunds and entitlements.",
       "android_adaptation": "No billing implementation; all ten themes unlocked. Retain non-purchase support links and license notices."
+    },
+    {
+      "path": "MC1Tests/ViewModels/ChatViewModelTranslationTests.swift",
+      "blob_sha": "ebeb8e5c4d229e92f94369285cace8f92e9a73b4",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/ViewModels/GatedMessageTranslator.swift",
+      "blob_sha": "cfb385e4234a0e3eb6c21a27754fc38eb429c862",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift",
+      "blob_sha": "a887e97d2bb2d6e431089e98ba4ac509ee8f9b59",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
     },
     {
       "path": "MC1Widgets/Info.plist",

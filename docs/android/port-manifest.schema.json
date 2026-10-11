@@ -35,7 +35,7 @@
     },
     "work_packages": {
       "type": "array",
-      "minItems": 65,
+      "minItems": 64,
       "items": {
         "type": "object",
         "additionalProperties": false,

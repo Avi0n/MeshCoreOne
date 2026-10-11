@@ -117,7 +117,8 @@ Use vetted JCA/BouncyCastle lightweight operations; do not replace Android's glo
 new curve code. Invalid authentication/key/packet inputs have typed failure and negative tests.
 
 Apple frameworks map behind Android adapters: persistence, BLE/network, notifications, maps/location,
-media, language/translation and secure storage. Preserve availability/permission/error state rather
+media, app language/localization and secure storage. Message translation is removed from active scope.
+Preserve availability/permission/error state rather
 than substituting unsupported framework calls or fake success.
 
 ## Tests and acceptance

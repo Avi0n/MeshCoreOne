@@ -8,6 +8,35 @@ from pathlib import PurePosixPath
 
 from controller.errors import PortError
 
+TRANSLATION_PATHS = frozenset("""
+MC1/Services/MessageTranslating.swift
+MC1/Services/MessageTranslationNeedsDownloadError.swift
+MC1/Services/TranslationLanguageAvailability.swift
+MC1/Services/TranslationLanguageResolver.swift
+MC1/Services/TranslationPerformResult.swift
+MC1/Services/TranslationSession+Configuration.swift
+MC1/Services/TranslationSessionLauncher.swift
+MC1/Services/TranslationSessionRequest.swift
+MC1/Views/Chats/Components/BubbleTranslationControl.swift
+MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift
+MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift
+MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift
+MC1/Views/Settings/TranslateIntoLanguageView.swift
+MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift
+MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift
+MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift
+MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift
+MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift
+MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift
+MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift
+MC1Tests/Services/TranslationLanguageResolverTests.swift
+MC1Tests/Services/TranslationSessionConfigurationTests.swift
+MC1Tests/Services/TranslationSessionLauncherTests.swift
+MC1Tests/ViewModels/ChatViewModelTranslationTests.swift
+MC1Tests/ViewModels/GatedMessageTranslator.swift
+MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift
+""".split())
+
 
 def groups(entries: dict[str, str]) -> dict[str, str]:
     result = {}
@@ -71,7 +100,6 @@ SERVICE_STEMS = groups({
         MessageDTO+ReactionVisibility ReactionParser ReactionService
     """,
     "WP-218": "InlineImageDimensionsStore",
-    "WP-406": "MessageLanguageDetector",
 })
 
 APP_SERVICE_STEMS = groups({
@@ -85,11 +113,6 @@ APP_SERVICE_STEMS = groups({
     "WP-303": "AppStateProviderImpl",
     "WP-312": "MapSnapshotStore OfflineMapService",
     "WP-401": "NotificationStringProviderImpl",
-    "WP-406": """
-        MessageTranslating MessageTranslationNeedsDownloadError TranslationLanguageAvailability
-        TranslationLanguageResolver TranslationPerformResult TranslationSession+Configuration
-        TranslationSessionLauncher TranslationSessionRequest
-    """,
 })
 
 UTILITY_STEMS = groups({
@@ -298,11 +321,6 @@ TEST_STEMS = groups({
         OpenRadioStatusIntentTests SendAdvertIntentTests SendMessageIntentTests StatusQueryIntentTests
     """,
     "WP-405": "HashtagChannelNavigationTests MentionDeeplinkSupportTests MeshCoreURLParserTests PendingExternalURLTests",
-    "WP-406": """
-        ChatViewModelTranslationTests MessageLanguageDetectorTests MessageTranslationChromeTests
-        RoomConversationViewModelTranslationTests TranslationLanguageResolverTests
-        TranslationSessionConfigurationTests TranslationSessionLauncherTests TranslationTargetPreferenceTests
-    """,
     "WP-005": "AirtimePercentLabelTests RegionalSubdivisionLocalizationTests",
 })
 
@@ -313,7 +331,6 @@ TEST_HELPERS = {
     "MessageService+Testing": "WP-208",
     "PersistenceStore+TestFetch": "WP-202",
     "PersistenceStore+Testing": "WP-202",
-    "GatedMessageTranslator": "WP-406",
     "ChatViewModelDependencies+Testing": "WP-307",
     "MessageBubbleTestData": "WP-307",
     "IsolatedIncomingAvatarJPEGStoreTrait": "WP-307",
@@ -356,6 +373,12 @@ BILLING_STEMS = {
 def exclusion(path: str):
     name = PurePosixPath(path).name
     stem = PurePosixPath(path).stem
+    if path in TRANSLATION_PATHS:
+        return (
+            "removed-translation", "WP-000",
+            "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+            "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision.",
+        )
     if stem in BILLING_STEMS or name.endswith(".storekit"):
         return (
             "removed-billing", "WP-318",
@@ -416,6 +439,8 @@ def kind(path: str) -> str:
 
 
 def production_owner(path: str) -> str:
+    if path in TRANSLATION_PATHS:
+        raise PortError(f"User-excluded translation source has no active producer: {path}")
     stem = PurePosixPath(path).stem
     if path.startswith("MeshCore/Sources/"):
         if "/LPP/" in path:
@@ -458,9 +483,7 @@ def production_owner(path: str) -> str:
         if "/RF/" in path:
             return "WP-212"
         if "/Models/Rendering/" in path:
-            return "WP-406" if stem in (
-                "DetectedLanguage", "MessageTranslationChrome", "TranslationTargetPreference"
-            ) else "WP-213"
+            return "WP-213"
         if "/Models/" in path or "/DTOs/" in path:
             return "WP-201"
         if "/Protocols/Persistence/" in path or stem == "PersistenceStoreProtocol":
@@ -551,8 +574,6 @@ def production_owner(path: str) -> str:
         if "/Views/Map/" in path:
             return "WP-312"
         if "/Views/RemoteNodes/" in path:
-            if "Translation" in stem:
-                return "WP-406"
             if stem.startswith(("RoomConversation", "RoomMessage", "RoomTiled")):
                 return "WP-310"
             if stem.startswith("NodeCLI"):
@@ -563,8 +584,6 @@ def production_owner(path: str) -> str:
                 return "WP-316"
             return "WP-315" if "/LineOfSight/" in path else "WP-314"
         if "/Views/Settings/" in path:
-            if stem in ("TranslateIntoLanguageView",):
-                return "WP-406"
             if stem in ("MapsSettingsView", "OfflineMapSettingsView"):
                 return "WP-312"
             if any(word in stem for word in ("Backup", "Import", "Export", "About", "Appearance", "Feedback", "ActivityView")):
@@ -573,8 +592,6 @@ def production_owner(path: str) -> str:
         if "/Views/Components/" in path:
             return "WP-304"
         if "/Views/Chats/" in path:
-            if "Translation" in stem:
-                return "WP-406"
             if stem in ("HashtagDeeplinkSupport", "MentionDeeplinkSupport"):
                 return "WP-405"
             if "/Room/" in path or stem in ("CreatePrivateChannelView", "ScanChannelQRView"):
@@ -615,10 +632,8 @@ def ownership(path: str, source_index: dict[str, set[str]]) -> tuple[str, list[s
         owner = production_owner(path)
         if owner == "WP-303":
             references.add("WP-207")
-        if owner == "WP-406":
-            references.update(("WP-213", "WP-308", "WP-310"))
         if owner == "WP-307" and stem.startswith("ChatViewModel"):
-            references.update(("WP-306", "WP-308", "WP-309", "WP-310", "WP-406"))
+            references.update(("WP-306", "WP-308", "WP-309", "WP-310"))
         if "/Models/" in path:
             references.update(("WP-202", "WP-203"))
         if "/Errors/" in path:
@@ -675,9 +690,9 @@ def ownership(path: str, source_index: dict[str, set[str]]) -> tuple[str, list[s
                 references.add("WP-404")
             table = PurePosixPath(path).stem
             references.update({
-                "Chats": ("WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406"),
+                "Chats": ("WP-306", "WP-307", "WP-308", "WP-309", "WP-310"),
                 "Contacts": ("WP-311",), "Map": ("WP-312",), "Onboarding": ("WP-305",),
-                "RemoteNodes": ("WP-313", "WP-310"), "Settings": ("WP-317", "WP-318", "WP-406"),
+                "RemoteNodes": ("WP-313", "WP-310"), "Settings": ("WP-317", "WP-318"),
                 "Tools": ("WP-314", "WP-315", "WP-316"), "WhatsNew": ("WP-318",),
                 "Localizable": ("WP-301", "WP-302", "WP-304", "WP-401"),
             }.get(table, ()))

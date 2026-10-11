@@ -26,7 +26,7 @@ proprietary terms as MIT or assume optionality eliminates GPL obligations.
 | Nordic BLE facade candidate | Verify exact artifact's BSD-3-Clause notices/terms and platform spike; WP-205, not approval by name |
 | Crypto/network/media/chart libraries | Exact linked artifact/transitive/native obligations and wire/platform proof; owning WPs, WP-503 audit |
 | MapLibre Native | Engine license is separate from styles/fonts/sprites/tiles/provider terms; WP-312, actual 16 KB proof later |
-| Translation engine/model/provider, including ML Kit | Human license/privacy/runtime gate WP-406; no linked adapter/model before permission |
+| Message-translation engine/model/provider | Removed from active scope; no linking/download or current/future release prerequisite; re-admission needs a new user request and scope/admission decision |
 | Material/custom replacement icons | Permission and notices for exact artwork; WP-301; do not extract/repackage restricted SF Symbol artwork |
 | Bundled filter/terrain/localization/other data | Provenance, update/distribution terms and attribution for actual input; owning WP and WP-503 |
 
@@ -36,31 +36,18 @@ redistribution. Engine permission does not grant tile/offline rights. A provider
 may be network-only or unavailable; expose that capability instead of scraping a
 different provider or presenting a blank map as success.
 
-## Optional-engine SPI, required feature
+## User-approved message-translation removal
 
-Translation is **required for the feature-complete release**. Its implementation
-is optional/selectable behind the [TranslationPort](../architecture/contracts.md),
-not translation itself. Google services are allowed only for optional capabilities;
-BLE/WiFi messaging, local data and navigation must work without them or internet.
-Being on-device does not establish SDK/model GPL compatibility, privacy or GMS-less
-support. ML Kit remains a candidate, neither automatically linked nor categorically
-waived/rejected without examining its actual terms.
+The WP-000 [scope amendment](../PORTING_PLAN.md#22-wp-000-scope-amendment-remove-message-translation)
+supersedes the earlier required-feature/optional-engine decision. WP-406 is retired, not implemented
+or deferred. Translation is not a feature-complete, build, audit, hardware or future release requirement.
+No provider/model is admitted by this amendment. Re-admission requires a new user feature request and
+scope/admission decision, including then-applicable SDK/model license, privacy and runtime review.
 
-WP-406 must decide engine/provider and model rights, language coverage/detection,
-device/runtime prerequisites, retention/deletion, payload transmission, model
-download consent and offline behavior after download where supported. Do not add
-accounts/backends, analytics or undeclared network fallback to obtain translation.
-If no candidate passes, try another permitted implementation or return the
-unresolved decision to the human gate; do not silently remove required scope.
-
-Model availability has distinct `Unavailable`, `UnsupportedLanguage`,
-`DownloadRequired`, `Downloading(progress)`, `Ready` and `Failed(typedIssue)` states.
-Download/delete/translate cancellation propagates and clears in-progress UI.
-No-engine scaffold behavior is explicitly unavailable and blocks feature-complete
-acceptance; returning original text is not translation success. Follow the source
-[MessageTranslating](https://github.com/Avi0n/MeshCoreOne/blob/db14559b39d32322b06477c6ae676112f583db50/MC1/Services/MessageTranslating.swift)
-and [installed-first launcher](https://github.com/Avi0n/MeshCoreOne/blob/db14559b39d32322b06477c6ae676112f583db50/MC1/Services/TranslationSessionLauncher.swift)
-for the installed/download distinction, with a native consent/error adaptation.
+App localization, original/stored message text and non-translation messaging remain in scope.
+Existing inert contracts/helpers do not imply translation success or create an absent-engine gate.
+Google services remain optional; BLE/WiFi messaging, local data and navigation work without them
+or internet. All other dependency/data/asset admission and legal gates above remain unchanged.
 
 ## Product exclusions and stable system integration
 

@@ -74,7 +74,7 @@ class CliTests(unittest.TestCase):
             if command == "status":
                 self.assertTrue(value["paused"])
                 self.assertEqual(value["dispatch_mode"], "off")
-                self.assertEqual(len(value["work_packages"]), 65)
+                self.assertEqual(len(value["work_packages"]), 64)
                 self.assertTrue(all(not w["completion_reconciled"] for w in value["work_packages"]))
             else:
                 self.assertTrue(value["traceability_only"])
@@ -199,7 +199,7 @@ class CliTests(unittest.TestCase):
             with self.assertRaisesRegex(PortError, "reference advanced/changed"):
                 validate_manifest(original.data, original.exclusions, REPO, amendments=amendments)
 
-    def test_all_65_handoffs_fit_with_inherited_models_and_full_pinned_acceptance(self):
+    def test_all_64_active_handoffs_fit_with_inherited_models_and_full_pinned_acceptance(self):
         manifest, rules = base_manifest(), policy()
         for wp_id in manifest.work_packages:
             with self.subTest(wp=wp_id):
@@ -303,7 +303,32 @@ class CliTests(unittest.TestCase):
 
 class ProvenanceTests(unittest.TestCase):
     def temporary_manifest(self, directory):
+        from controller.scope_amendment import AMENDMENT_PATH
+
+        amendment = Path(directory) / AMENDMENT_PATH
+        amendment.parent.mkdir(parents=True, exist_ok=True)
+        amendment.write_bytes((REPO / AMENDMENT_PATH).read_bytes())
         return replace(base_manifest(), repo=Path(directory))
+
+    def test_navigation_scope_requires_the_actual_immutable_translation_amendment(self):
+        from controller.scope_amendment import AMENDMENT_PATH
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest = self.temporary_manifest(directory)
+            proof = root / WP_302_SCOPE_PROOF
+            proof.parent.mkdir(parents=True, exist_ok=True)
+            proof.write_text(json.dumps(WP_302_SCOPE_APPROVAL), encoding="utf-8")
+            source = root / WP_302_SCOPE_APPROVAL["write_paths"][0]
+            source.parent.mkdir(parents=True)
+            source.write_text("// AndroidOnly: WP-302 approved native shell support\n", encoding="utf-8")
+            amendment = root / AMENDMENT_PATH
+            amendment.write_text("{}", encoding="utf-8")
+            with self.assertRaisesRegex(PortError, "identity drift"):
+                port_map(manifest)
+            amendment.unlink()
+            with self.assertRaisesRegex(PortError, "Missing JSON"):
+                port_map(manifest)
 
     def test_absent_android_tree_is_unported_not_feature_success(self):
         with tempfile.TemporaryDirectory() as directory:

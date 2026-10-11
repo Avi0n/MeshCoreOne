@@ -1,0 +1,3184 @@
+{
+  "schema_version": 1,
+  "amendment_id": "WP-000-remove-message-translation-v1",
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "base_sha": "4000cdcf8d57eb4696883f8793e09ea4a6219d46",
+  "reference_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "authorization": "Change the scope, translation is uneeded for now unless someone requests the feature. Remove it from the current plan. Do not make it a requirement for future builds.",
+  "disposition": "Removed from active scope, not deferred, implemented, completed, or a future build/release requirement. Re-admission requires a new user feature request and scope/admission decision.",
+  "reference": {
+    "previous": {
+      "repository": "Avi0n/MeshCoreOne",
+      "commit": "db14559b39d32322b06477c6ae676112f583db50",
+      "tree_sha": "8918fdc604341e6996a68c88f6bb1c02b9c2f87e",
+      "source_inventory_sha256": "f03406900d3cd976f1557cb6f10cc52ab3b976f5194a0aa6e9bb97da4095c8b3",
+      "approved_plan_sha256": "b4e78619f84583221cbf38a48212c89669c91aa26cdcbcd60d4e04cd6b6dc888",
+      "installed_plan_sha256": "403119e8de21d53d9ca844dcf99c1ac580ad44f3891d2b533d282ae29e2ceef4"
+    },
+    "current": {
+      "repository": "Avi0n/MeshCoreOne",
+      "commit": "db14559b39d32322b06477c6ae676112f583db50",
+      "tree_sha": "8918fdc604341e6996a68c88f6bb1c02b9c2f87e",
+      "source_inventory_sha256": "f03406900d3cd976f1557cb6f10cc52ab3b976f5194a0aa6e9bb97da4095c8b3",
+      "approved_plan_sha256": "e5c838d2566d0466175e2be4036d50e44be548319c9fcd8b83bccd4fc03930cd",
+      "installed_plan_sha256": "2940d9be6686555d8c10a5e80fda6e9eab7bd6641049a87bc5e2469651fa6120"
+    }
+  },
+  "agents": [
+    {
+      "name": "android-architect",
+      "index": 0,
+      "previous": {
+        "name": "android-architect",
+        "sha256": "70f8c0cc336e0d852000c4b8bd0db6b29a43d9afbdc670b6aea25009e1673596"
+      },
+      "current": {
+        "name": "android-architect",
+        "sha256": "ff924e1ca40d5e9d88966a57903665fdf96d7f250c6d702fda935f12bfbef042"
+      }
+    },
+    {
+      "name": "chats-ui-engineer",
+      "index": 2,
+      "previous": {
+        "name": "chats-ui-engineer",
+        "sha256": "2f1d619087ca6a886b87e4bcafc9ce333e8a297124ff84dac44c3cb083fa173b"
+      },
+      "current": {
+        "name": "chats-ui-engineer",
+        "sha256": "633ae4ade708e407fba4c0d020a0fa4d8f4106a4138d9692283ed69dd1836e46"
+      }
+    },
+    {
+      "name": "platform-integrations-engineer",
+      "index": 9,
+      "previous": {
+        "name": "platform-integrations-engineer",
+        "sha256": "0ded216d2e2295b9bd3b20febebd9214a8fefc090e5dd24545b8b566e5705a5f"
+      },
+      "current": {
+        "name": "platform-integrations-engineer",
+        "sha256": "8ee2db45b085822075434d852ee7b327d3d066116724f0482761dd3166f1a410"
+      }
+    },
+    {
+      "name": "settings-onboarding-ui-engineer",
+      "index": 13,
+      "previous": {
+        "name": "settings-onboarding-ui-engineer",
+        "sha256": "2534deae6d118d0c391a0bb812dbb2103df3ae09f892652d1896e7b6d8b45016"
+      },
+      "current": {
+        "name": "settings-onboarding-ui-engineer",
+        "sha256": "1882aca997158afb22e7323c637f9d47df86be85ab5122fb44292cee410c4cfd"
+      }
+    }
+  ],
+  "work_packages": [
+    {
+      "id": "WP-000",
+      "index": 0,
+      "previous": {
+        "id": "WP-000",
+        "title": "Install 17 agent/3 skill drafts, instructions, source ownership manifest, trusted controller and dry-run tests; automation stays paused",
+        "owner": "port-orchestrator",
+        "depends_on": [],
+        "human_gate": true,
+        "supervised": true,
+        "planned_state": "pending",
+        "write_paths": [
+          ".github/agents/",
+          ".github/skills/",
+          ".github/instructions/",
+          ".github/copilot-instructions.md",
+          ".github/CODEOWNERS",
+          ".github/ISSUE_TEMPLATE/android-port-wp.yml",
+          ".github/PULL_REQUEST_TEMPLATE.md",
+          ".github/workflows/android-port-dispatch.yml",
+          ".github/workflows/android-parity-review.yml",
+          ".github/workflows/android-pr-shepherd.yml",
+          ".github/workflows/android-gate-integrity.yml",
+          ".github/workflows/android-bootstrap.yml",
+          "docs/android/",
+          "tools/android-port/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-000-behavior",
+            "description": "Install exactly 17 inherited-model profiles and 3 skills; freeze complete pinned file ownership, 65 WPs, 185 edges and the eight human gates."
+          },
+          {
+            "id": "WP-000-boundaries",
+            "description": "Prove paused/dry-run dispatch, all-write leases, recovery, strict evidence, protected-path review and isolated cloud/native-host payloads with deterministic nonzero tests."
+          },
+          {
+            "id": "WP-000-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": true,
+          "commands": [
+            [
+              "python",
+              "tools/android-port/controller/validate.py"
+            ],
+            [
+              "python",
+              "tools/android-port/controller/test_runner.py"
+            ]
+          ],
+          "blocker": ""
+        }
+      },
+      "current": {
+        "id": "WP-000",
+        "title": "Install 17 agent/3 skill drafts, instructions, source ownership manifest, trusted controller and dry-run tests; automation stays paused",
+        "owner": "port-orchestrator",
+        "depends_on": [],
+        "human_gate": true,
+        "supervised": true,
+        "planned_state": "pending",
+        "write_paths": [
+          ".github/agents/",
+          ".github/skills/",
+          ".github/instructions/",
+          ".github/copilot-instructions.md",
+          ".github/CODEOWNERS",
+          ".github/ISSUE_TEMPLATE/android-port-wp.yml",
+          ".github/PULL_REQUEST_TEMPLATE.md",
+          ".github/workflows/android-port-dispatch.yml",
+          ".github/workflows/android-parity-review.yml",
+          ".github/workflows/android-pr-shepherd.yml",
+          ".github/workflows/android-gate-integrity.yml",
+          ".github/workflows/android-bootstrap.yml",
+          "docs/android/",
+          "tools/android-port/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-000-behavior",
+            "description": "Maintain exactly 17 inherited-model profiles and 3 skills; freeze complete pinned file accountability, 64 active WPs, 178 edges and seven human gates; preserve historical catalogs and user-approved exclusions."
+          },
+          {
+            "id": "WP-000-boundaries",
+            "description": "Prove paused/dry-run dispatch, all-write leases, recovery, strict evidence, protected-path review and isolated cloud/native-host payloads with deterministic nonzero tests."
+          },
+          {
+            "id": "WP-000-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": true,
+          "commands": [
+            [
+              "python",
+              "tools/android-port/controller/validate.py"
+            ],
+            [
+              "python",
+              "tools/android-port/controller/test_runner.py"
+            ]
+          ],
+          "blocker": ""
+        }
+      }
+    },
+    {
+      "id": "WP-001",
+      "index": 1,
+      "previous": {
+        "id": "WP-001",
+        "title": "Approve compatible toolchain, acyclic module map, lifetimes, typed factory/repository/UI contracts, translation/license candidates and platform adaptations",
+        "owner": "android-architect",
+        "depends_on": [
+          "WP-000"
+        ],
+        "human_gate": true,
+        "supervised": true,
+        "planned_state": "pending",
+        "write_paths": [
+          "docs/android/adr/",
+          "docs/android/architecture/",
+          "docs/android/deviations/WP-001.md",
+          "docs/android/evidence/WP-001/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-001-behavior",
+            "description": "Human-review ADRs for a proven stable Windows/Linux toolchain, acyclic modules, typed contracts and process/connection/screen lifetimes."
+          },
+          {
+            "id": "WP-001-boundaries",
+            "description": "Explicitly resolve optional SDK/model and map licenses, factory construction/teardown, codec facts and capability fallbacks without silently changing product scope."
+          },
+          {
+            "id": "WP-001-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      },
+      "current": {
+        "id": "WP-001",
+        "title": "Approve compatible toolchain, acyclic module map, lifetimes, typed factory/repository/UI contracts, license candidates and platform adaptations",
+        "owner": "android-architect",
+        "depends_on": [
+          "WP-000"
+        ],
+        "human_gate": true,
+        "supervised": true,
+        "planned_state": "pending",
+        "write_paths": [
+          "docs/android/adr/",
+          "docs/android/architecture/",
+          "docs/android/deviations/WP-001.md",
+          "docs/android/evidence/WP-001/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-001-behavior",
+            "description": "Human-review ADRs for a proven stable Windows/Linux toolchain, acyclic modules, typed contracts and process/connection/screen lifetimes."
+          },
+          {
+            "id": "WP-001-boundaries",
+            "description": "Explicitly resolve optional SDK/model and map licenses, factory construction/teardown, codec facts and capability fallbacks without silently changing product scope."
+          },
+          {
+            "id": "WP-001-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      }
+    },
+    {
+      "id": "WP-310",
+      "index": 43,
+      "previous": {
+        "id": "WP-310",
+        "title": "Rooms (login/sync), channel create/join/share sheets",
+        "owner": "chats-ui-engineer",
+        "depends_on": [
+          "WP-307",
+          "WP-210"
+        ],
+        "human_gate": false,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/",
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/",
+          "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/",
+          "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/channels/",
+          "docs/android/deviations/WP-310.md",
+          "docs/android/evidence/WP-310/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-310-behavior",
+            "description": "Preserve room guest/participant/login/sync conversations and channel create/join/share/QR sheets."
+          },
+          {
+            "id": "WP-310-boundaries",
+            "description": "Port auth/order/channel-region/confirm/cancel/role cases; translation integration is separately owned by WP406."
+          },
+          {
+            "id": "WP-310-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      },
+      "current": {
+        "id": "WP-310",
+        "title": "Rooms (login/sync), channel create/join/share sheets",
+        "owner": "chats-ui-engineer",
+        "depends_on": [
+          "WP-307",
+          "WP-210"
+        ],
+        "human_gate": false,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/rooms/",
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/channels/",
+          "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/rooms/",
+          "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/channels/",
+          "docs/android/deviations/WP-310.md",
+          "docs/android/evidence/WP-310/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-310-behavior",
+            "description": "Preserve room guest/participant/login/sync conversations and channel create/join/share/QR sheets."
+          },
+          {
+            "id": "WP-310-boundaries",
+            "description": "Port auth/order/channel-region/confirm/cancel/role cases and preserve original message text; message translation is user-excluded, not a future build requirement."
+          },
+          {
+            "id": "WP-310-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      }
+    },
+    {
+      "id": "WP-406",
+      "index": 57,
+      "previous": {
+        "id": "WP-406",
+        "title": "License-approved translation SPI/engine, language detection, download/delete/unsupported/error states and in-chat/settings UI; prove mesh works without GMS",
+        "owner": "platform-integrations-engineer",
+        "depends_on": [
+          "WP-307",
+          "WP-308",
+          "WP-213",
+          "WP-218",
+          "WP-317"
+        ],
+        "human_gate": true,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "android/platform/translation/",
+          "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/translation/",
+          "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/translation/",
+          "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/translation/",
+          "docs/android/deviations/WP-406.md",
+          "docs/android/evidence/WP-406/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-406-behavior",
+            "description": "Human-approve and implement a licensed/private runtime translation provider, language detection, model download/delete and in-chat/settings states."
+          },
+          {
+            "id": "WP-406-boundaries",
+            "description": "Prove actual translation, consent, unsupported/error/stale-result cleanup and mesh without GMS; required translation cannot be silently deferred."
+          },
+          {
+            "id": "WP-406-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      },
+      "current": null
+    },
+    {
+      "id": "WP-407",
+      "index": 58,
+      "previous": {
+        "id": "WP-407",
+        "title": "Finish feature registration, remove reachable scaffold placeholders and audit icon/splash/locales, backup rules, adaptive UI and API 31-37 behavior",
+        "owner": "platform-integrations-engineer",
+        "depends_on": [
+          "WP-305",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-311",
+          "WP-313",
+          "WP-314",
+          "WP-315",
+          "WP-316",
+          "WP-318",
+          "WP-401",
+          "WP-402",
+          "WP-403",
+          "WP-404",
+          "WP-405",
+          "WP-406"
+        ],
+        "human_gate": false,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "android/app/src/main/AndroidManifest.xml",
+          "android/app/src/main/res/",
+          "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/platform/",
+          "docs/android/deviations/WP-407.md",
+          "docs/android/evidence/WP-407/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-407-behavior",
+            "description": "Complete registration and remove reachable placeholders; audit splash/icon/locales/backup exclusions/adaptive UI/API31-37 integration."
+          },
+          {
+            "id": "WP-407-boundaries",
+            "description": "Instrument actual required API levels, denied/revoked capabilities and GMS absence; no lower-API simulator proxy for API37 assertions."
+          },
+          {
+            "id": "WP-407-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      },
+      "current": {
+        "id": "WP-407",
+        "title": "Finish feature registration, remove reachable scaffold placeholders and audit icon/splash/locales, backup rules, adaptive UI and API 31-37 behavior",
+        "owner": "platform-integrations-engineer",
+        "depends_on": [
+          "WP-305",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-311",
+          "WP-313",
+          "WP-314",
+          "WP-315",
+          "WP-316",
+          "WP-318",
+          "WP-401",
+          "WP-402",
+          "WP-403",
+          "WP-404",
+          "WP-405"
+        ],
+        "human_gate": false,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "android/app/src/main/AndroidManifest.xml",
+          "android/app/src/main/res/",
+          "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/platform/",
+          "docs/android/deviations/WP-407.md",
+          "docs/android/evidence/WP-407/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-407-behavior",
+            "description": "Complete registration and remove reachable placeholders; audit splash/icon/locales/backup exclusions/adaptive UI/API31-37 integration."
+          },
+          {
+            "id": "WP-407-boundaries",
+            "description": "Instrument actual required API levels, denied/revoked capabilities and GMS absence; no lower-API simulator proxy for API37 assertions."
+          },
+          {
+            "id": "WP-407-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      }
+    },
+    {
+      "id": "WP-501",
+      "index": 59,
+      "previous": {
+        "id": "WP-501",
+        "title": "Full source/test/feature acceptance audit, gap fill and approved coverage policy; no unaccounted or silently skipped tests",
+        "owner": "test-parity-engineer",
+        "depends_on": [
+          "WP-109",
+          "WP-203",
+          "WP-407"
+        ],
+        "human_gate": false,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "android/parity-tests/",
+          "docs/android/parity/",
+          "docs/android/deviations/WP-501.md",
+          "docs/android/evidence/WP-501/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-501-behavior",
+            "description": "Audit every original source/test/resource, case family and observable feature with approved coverage policy and owner-routed gap fixes."
+          },
+          {
+            "id": "WP-501-boundaries",
+            "description": "No silently skipped tests, filename/header-only parity or non-billing feature exclusions; missing independent evidence blocks."
+          },
+          {
+            "id": "WP-501-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      },
+      "current": {
+        "id": "WP-501",
+        "title": "Full source/test/feature acceptance audit, gap fill and approved coverage policy; no unaccounted or silently skipped tests",
+        "owner": "test-parity-engineer",
+        "depends_on": [
+          "WP-109",
+          "WP-203",
+          "WP-407"
+        ],
+        "human_gate": false,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "android/parity-tests/",
+          "docs/android/parity/",
+          "docs/android/deviations/WP-501.md",
+          "docs/android/evidence/WP-501/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-501-behavior",
+            "description": "Audit every original source/test/resource, case family and observable feature with approved coverage policy and owner-routed gap fixes."
+          },
+          {
+            "id": "WP-501-boundaries",
+            "description": "No silently skipped tests, filename/header-only parity or unapproved feature exclusions; account for user-approved billing/message-translation removal without claiming ported tests/features; missing independent in-scope evidence blocks."
+          },
+          {
+            "id": "WP-501-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      }
+    },
+    {
+      "id": "WP-505",
+      "index": 63,
+      "previous": {
+        "id": "WP-505",
+        "title": "Real-radio/OEM/offline/background/upgrade matrix with firmware/build evidence; agents prepare scripts, a human verifies outcomes",
+        "owner": "test-parity-engineer",
+        "depends_on": [
+          "WP-109",
+          "WP-203",
+          "WP-401",
+          "WP-402",
+          "WP-403",
+          "WP-404",
+          "WP-405",
+          "WP-406",
+          "WP-407",
+          "WP-501",
+          "WP-502",
+          "WP-503",
+          "WP-504"
+        ],
+        "human_gate": true,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "tools/android-port/hil/",
+          "docs/android/hardware/",
+          "docs/android/deviations/WP-505.md",
+          "docs/android/evidence/WP-505/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-505-behavior",
+            "description": "Human-verify real BLE/WiFi firmware and Pixel/Samsung/API12/API17/OEM/offline/background/upgrade scenarios with APK/device/firmware hashes."
+          },
+          {
+            "id": "WP-505-boundaries",
+            "description": "Cover bonding/MTU/power/process-death/denial/manual-stop/admin/upgrade; missing physical outcomes cannot pass from emulator evidence."
+          },
+          {
+            "id": "WP-505-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      },
+      "current": {
+        "id": "WP-505",
+        "title": "Real-radio/OEM/offline/background/upgrade matrix with firmware/build evidence; agents prepare scripts, a human verifies outcomes",
+        "owner": "test-parity-engineer",
+        "depends_on": [
+          "WP-109",
+          "WP-203",
+          "WP-401",
+          "WP-402",
+          "WP-403",
+          "WP-404",
+          "WP-405",
+          "WP-407",
+          "WP-501",
+          "WP-502",
+          "WP-503",
+          "WP-504"
+        ],
+        "human_gate": true,
+        "supervised": false,
+        "planned_state": "pending",
+        "write_paths": [
+          "tools/android-port/hil/",
+          "docs/android/hardware/",
+          "docs/android/deviations/WP-505.md",
+          "docs/android/evidence/WP-505/"
+        ],
+        "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
+        "acceptance": [
+          {
+            "id": "WP-505-behavior",
+            "description": "Human-verify real BLE/WiFi firmware and Pixel/Samsung/API12/API17/OEM/offline/background/upgrade scenarios with APK/device/firmware hashes."
+          },
+          {
+            "id": "WP-505-boundaries",
+            "description": "Cover bonding/MTU/power/process-death/denial/manual-stop/admin/upgrade; missing physical outcomes cannot pass from emulator evidence."
+          },
+          {
+            "id": "WP-505-source-test-parity",
+            "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
+          }
+        ],
+        "verification": {
+          "configured": false,
+          "commands": [],
+          "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
+        }
+      }
+    }
+  ],
+  "inventory": [
+    {
+      "path": "MC1/Resources/Localization/de.lproj/Chats.strings",
+      "index": 155,
+      "previous": {
+        "path": "MC1/Resources/Localization/de.lproj/Chats.strings",
+        "blob_sha": "3e71e1458a06af55d0fdd0330e93601f668f2038",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/de.lproj/Chats.strings",
+        "blob_sha": "3e71e1458a06af55d0fdd0330e93601f668f2038",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/de.lproj/Settings.strings",
+      "index": 163,
+      "previous": {
+        "path": "MC1/Resources/Localization/de.lproj/Settings.strings",
+        "blob_sha": "9f7ae7562b40a528885c4ad891f62a0e1de7a464",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/de.lproj/Settings.strings",
+        "blob_sha": "9f7ae7562b40a528885c4ad891f62a0e1de7a464",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/de.lproj/Settings.stringsdict",
+      "index": 164,
+      "previous": {
+        "path": "MC1/Resources/Localization/de.lproj/Settings.stringsdict",
+        "blob_sha": "a2076d077497a226b015e908a5dc1ca2c7d61cd7",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/de.lproj/Settings.stringsdict",
+        "blob_sha": "a2076d077497a226b015e908a5dc1ca2c7d61cd7",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/en.lproj/Chats.strings",
+      "index": 168,
+      "previous": {
+        "path": "MC1/Resources/Localization/en.lproj/Chats.strings",
+        "blob_sha": "b234401936a60c71dc3bf1069d7cf785b621ab3c",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/en.lproj/Chats.strings",
+        "blob_sha": "b234401936a60c71dc3bf1069d7cf785b621ab3c",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/en.lproj/Settings.strings",
+      "index": 176,
+      "previous": {
+        "path": "MC1/Resources/Localization/en.lproj/Settings.strings",
+        "blob_sha": "cd3ab48cc6bfa9785491ea8c9627abb32a3c6dcc",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/en.lproj/Settings.strings",
+        "blob_sha": "cd3ab48cc6bfa9785491ea8c9627abb32a3c6dcc",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/en.lproj/Settings.stringsdict",
+      "index": 177,
+      "previous": {
+        "path": "MC1/Resources/Localization/en.lproj/Settings.stringsdict",
+        "blob_sha": "28250adbbf78257e7267de916b73a217dbb0a984",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/en.lproj/Settings.stringsdict",
+        "blob_sha": "28250adbbf78257e7267de916b73a217dbb0a984",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/es.lproj/Chats.strings",
+      "index": 180,
+      "previous": {
+        "path": "MC1/Resources/Localization/es.lproj/Chats.strings",
+        "blob_sha": "f6fcac5a8d2aab82385f38ff0362476beaeb1ee5",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/es.lproj/Chats.strings",
+        "blob_sha": "f6fcac5a8d2aab82385f38ff0362476beaeb1ee5",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/es.lproj/Settings.strings",
+      "index": 188,
+      "previous": {
+        "path": "MC1/Resources/Localization/es.lproj/Settings.strings",
+        "blob_sha": "68b480269c1226bc26404850910635dda3c4e17a",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/es.lproj/Settings.strings",
+        "blob_sha": "68b480269c1226bc26404850910635dda3c4e17a",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/es.lproj/Settings.stringsdict",
+      "index": 189,
+      "previous": {
+        "path": "MC1/Resources/Localization/es.lproj/Settings.stringsdict",
+        "blob_sha": "c4c02912f44859170ed3e97288532bcc1eca58e2",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/es.lproj/Settings.stringsdict",
+        "blob_sha": "c4c02912f44859170ed3e97288532bcc1eca58e2",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/fr.lproj/Chats.strings",
+      "index": 192,
+      "previous": {
+        "path": "MC1/Resources/Localization/fr.lproj/Chats.strings",
+        "blob_sha": "c28bddbe959e324ba6115feb66c81d9d71278502",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/fr.lproj/Chats.strings",
+        "blob_sha": "c28bddbe959e324ba6115feb66c81d9d71278502",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/fr.lproj/Settings.strings",
+      "index": 200,
+      "previous": {
+        "path": "MC1/Resources/Localization/fr.lproj/Settings.strings",
+        "blob_sha": "b95ef917bae4ecd0bdbd9ad556499d45a847eaf6",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/fr.lproj/Settings.strings",
+        "blob_sha": "b95ef917bae4ecd0bdbd9ad556499d45a847eaf6",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/fr.lproj/Settings.stringsdict",
+      "index": 201,
+      "previous": {
+        "path": "MC1/Resources/Localization/fr.lproj/Settings.stringsdict",
+        "blob_sha": "6785d3acbee26a264a769848597ee14599ecec07",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/fr.lproj/Settings.stringsdict",
+        "blob_sha": "6785d3acbee26a264a769848597ee14599ecec07",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/it.lproj/Chats.strings",
+      "index": 204,
+      "previous": {
+        "path": "MC1/Resources/Localization/it.lproj/Chats.strings",
+        "blob_sha": "0a6a67b8f4ab01c024a267c65f31e651c2452923",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/it.lproj/Chats.strings",
+        "blob_sha": "0a6a67b8f4ab01c024a267c65f31e651c2452923",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/it.lproj/Settings.strings",
+      "index": 212,
+      "previous": {
+        "path": "MC1/Resources/Localization/it.lproj/Settings.strings",
+        "blob_sha": "715c1e100ee6b22d2753b7ec8acaf4e381b34f23",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/it.lproj/Settings.strings",
+        "blob_sha": "715c1e100ee6b22d2753b7ec8acaf4e381b34f23",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/it.lproj/Settings.stringsdict",
+      "index": 213,
+      "previous": {
+        "path": "MC1/Resources/Localization/it.lproj/Settings.stringsdict",
+        "blob_sha": "c7b3536d3aec2352698d562baee4d6ac3b8efcfd",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/it.lproj/Settings.stringsdict",
+        "blob_sha": "c7b3536d3aec2352698d562baee4d6ac3b8efcfd",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/ko.lproj/Chats.strings",
+      "index": 216,
+      "previous": {
+        "path": "MC1/Resources/Localization/ko.lproj/Chats.strings",
+        "blob_sha": "c6a6b0496b50a337986c6a3af176851d20a5c2dc",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/ko.lproj/Chats.strings",
+        "blob_sha": "c6a6b0496b50a337986c6a3af176851d20a5c2dc",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/ko.lproj/Settings.strings",
+      "index": 224,
+      "previous": {
+        "path": "MC1/Resources/Localization/ko.lproj/Settings.strings",
+        "blob_sha": "9ed3e62ddbca2de41bd1a1ddc403ea7c09f1d07c",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/ko.lproj/Settings.strings",
+        "blob_sha": "9ed3e62ddbca2de41bd1a1ddc403ea7c09f1d07c",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/ko.lproj/Settings.stringsdict",
+      "index": 225,
+      "previous": {
+        "path": "MC1/Resources/Localization/ko.lproj/Settings.stringsdict",
+        "blob_sha": "f3a8499e5929913f571066ada55e233682e44f6f",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/ko.lproj/Settings.stringsdict",
+        "blob_sha": "f3a8499e5929913f571066ada55e233682e44f6f",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/nl.lproj/Chats.strings",
+      "index": 229,
+      "previous": {
+        "path": "MC1/Resources/Localization/nl.lproj/Chats.strings",
+        "blob_sha": "768b0b735a44b6ffe20560110ac8800d3c1942cf",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/nl.lproj/Chats.strings",
+        "blob_sha": "768b0b735a44b6ffe20560110ac8800d3c1942cf",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/nl.lproj/Settings.strings",
+      "index": 237,
+      "previous": {
+        "path": "MC1/Resources/Localization/nl.lproj/Settings.strings",
+        "blob_sha": "586d0b1f3a37b1361e3ca9d9933df36a6e2b3d9b",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/nl.lproj/Settings.strings",
+        "blob_sha": "586d0b1f3a37b1361e3ca9d9933df36a6e2b3d9b",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/nl.lproj/Settings.stringsdict",
+      "index": 238,
+      "previous": {
+        "path": "MC1/Resources/Localization/nl.lproj/Settings.stringsdict",
+        "blob_sha": "1e9065a8ebe5e028a6e5bb626a0761f16cd9d77c",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/nl.lproj/Settings.stringsdict",
+        "blob_sha": "1e9065a8ebe5e028a6e5bb626a0761f16cd9d77c",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/pl.lproj/Chats.strings",
+      "index": 241,
+      "previous": {
+        "path": "MC1/Resources/Localization/pl.lproj/Chats.strings",
+        "blob_sha": "2fe9d4535c905fd956f5a92f4504fd5df648ddff",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/pl.lproj/Chats.strings",
+        "blob_sha": "2fe9d4535c905fd956f5a92f4504fd5df648ddff",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/pl.lproj/Settings.strings",
+      "index": 249,
+      "previous": {
+        "path": "MC1/Resources/Localization/pl.lproj/Settings.strings",
+        "blob_sha": "910c63e20117674bb4f172452044054a66e0c36a",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/pl.lproj/Settings.strings",
+        "blob_sha": "910c63e20117674bb4f172452044054a66e0c36a",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/pl.lproj/Settings.stringsdict",
+      "index": 250,
+      "previous": {
+        "path": "MC1/Resources/Localization/pl.lproj/Settings.stringsdict",
+        "blob_sha": "72debf0ad2586fa8d8cfccf1f05a609c547bc7f2",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/pl.lproj/Settings.stringsdict",
+        "blob_sha": "72debf0ad2586fa8d8cfccf1f05a609c547bc7f2",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/pt.lproj/Chats.strings",
+      "index": 253,
+      "previous": {
+        "path": "MC1/Resources/Localization/pt.lproj/Chats.strings",
+        "blob_sha": "a8766d993fc6b19dbebed14c424fecbe5a466979",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/pt.lproj/Chats.strings",
+        "blob_sha": "a8766d993fc6b19dbebed14c424fecbe5a466979",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/pt.lproj/Settings.strings",
+      "index": 261,
+      "previous": {
+        "path": "MC1/Resources/Localization/pt.lproj/Settings.strings",
+        "blob_sha": "9236a45870755f99c05390df02555aced6849c96",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/pt.lproj/Settings.strings",
+        "blob_sha": "9236a45870755f99c05390df02555aced6849c96",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/pt.lproj/Settings.stringsdict",
+      "index": 262,
+      "previous": {
+        "path": "MC1/Resources/Localization/pt.lproj/Settings.stringsdict",
+        "blob_sha": "ac447a569c809cca7bea1e54ba2fd906101e9ad4",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/pt.lproj/Settings.stringsdict",
+        "blob_sha": "ac447a569c809cca7bea1e54ba2fd906101e9ad4",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/ru.lproj/Chats.strings",
+      "index": 265,
+      "previous": {
+        "path": "MC1/Resources/Localization/ru.lproj/Chats.strings",
+        "blob_sha": "87827e7af0bc96794bf6ba3282d3336b24ffc0c9",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/ru.lproj/Chats.strings",
+        "blob_sha": "87827e7af0bc96794bf6ba3282d3336b24ffc0c9",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/ru.lproj/Settings.strings",
+      "index": 273,
+      "previous": {
+        "path": "MC1/Resources/Localization/ru.lproj/Settings.strings",
+        "blob_sha": "65160a98297bf6b20fba65073945699711107fda",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/ru.lproj/Settings.strings",
+        "blob_sha": "65160a98297bf6b20fba65073945699711107fda",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/ru.lproj/Settings.stringsdict",
+      "index": 274,
+      "previous": {
+        "path": "MC1/Resources/Localization/ru.lproj/Settings.stringsdict",
+        "blob_sha": "32c4fc39774cf01b361a0b24420f18767a9b3e23",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/ru.lproj/Settings.stringsdict",
+        "blob_sha": "32c4fc39774cf01b361a0b24420f18767a9b3e23",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/uk.lproj/Chats.strings",
+      "index": 277,
+      "previous": {
+        "path": "MC1/Resources/Localization/uk.lproj/Chats.strings",
+        "blob_sha": "538f29604acd346c1c4d191d23fe0ead1c334347",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/uk.lproj/Chats.strings",
+        "blob_sha": "538f29604acd346c1c4d191d23fe0ead1c334347",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/uk.lproj/Settings.strings",
+      "index": 285,
+      "previous": {
+        "path": "MC1/Resources/Localization/uk.lproj/Settings.strings",
+        "blob_sha": "a5e417a8e42ce33426a33f27252a0b7b03a06e14",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/uk.lproj/Settings.strings",
+        "blob_sha": "a5e417a8e42ce33426a33f27252a0b7b03a06e14",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/uk.lproj/Settings.stringsdict",
+      "index": 286,
+      "previous": {
+        "path": "MC1/Resources/Localization/uk.lproj/Settings.stringsdict",
+        "blob_sha": "cb759d9ee8ae696fc2e5af89cd9e591511eaa562",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/uk.lproj/Settings.stringsdict",
+        "blob_sha": "cb759d9ee8ae696fc2e5af89cd9e591511eaa562",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/zh-Hans.lproj/Chats.strings",
+      "index": 289,
+      "previous": {
+        "path": "MC1/Resources/Localization/zh-Hans.lproj/Chats.strings",
+        "blob_sha": "b8a013f4027c81d6618e7a22784ed5bf756826e9",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/zh-Hans.lproj/Chats.strings",
+        "blob_sha": "b8a013f4027c81d6618e7a22784ed5bf756826e9",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-306",
+          "WP-307",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.strings",
+      "index": 297,
+      "previous": {
+        "path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.strings",
+        "blob_sha": "dad01490cfa3f00f7a144f3c0aa10c8dbebbe42e",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.strings",
+        "blob_sha": "dad01490cfa3f00f7a144f3c0aa10c8dbebbe42e",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.stringsdict",
+      "index": 298,
+      "previous": {
+        "path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.stringsdict",
+        "blob_sha": "921b551a5af6b075414ad43e9d92e0967604bf17",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-406",
+          "WP-407"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.stringsdict",
+        "blob_sha": "921b551a5af6b075414ad43e9d92e0967604bf17",
+        "kind": "resource",
+        "primary_owner": "WP-005",
+        "cross_references": [
+          "WP-317",
+          "WP-318",
+          "WP-407"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Services/MessageTranslating.swift",
+      "index": 320,
+      "previous": {
+        "path": "MC1/Services/MessageTranslating.swift",
+        "blob_sha": "6caf0e0831c6a362a6d99a777cca181ef76f870c",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/MessageTranslating.swift",
+        "blob_sha": "6caf0e0831c6a362a6d99a777cca181ef76f870c",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Services/MessageTranslationNeedsDownloadError.swift",
+      "index": 321,
+      "previous": {
+        "path": "MC1/Services/MessageTranslationNeedsDownloadError.swift",
+        "blob_sha": "a1d3dd0e150483740a7dc84b0c7916752b966fdb",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/MessageTranslationNeedsDownloadError.swift",
+        "blob_sha": "a1d3dd0e150483740a7dc84b0c7916752b966fdb",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Services/TranslationLanguageAvailability.swift",
+      "index": 326,
+      "previous": {
+        "path": "MC1/Services/TranslationLanguageAvailability.swift",
+        "blob_sha": "ae4d0cd6a75905d5a89fe71c568e55b439c58fb6",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/TranslationLanguageAvailability.swift",
+        "blob_sha": "ae4d0cd6a75905d5a89fe71c568e55b439c58fb6",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Services/TranslationLanguageResolver.swift",
+      "index": 327,
+      "previous": {
+        "path": "MC1/Services/TranslationLanguageResolver.swift",
+        "blob_sha": "bd6734d72dbdfb859eb2a7d51af8811145673059",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/TranslationLanguageResolver.swift",
+        "blob_sha": "bd6734d72dbdfb859eb2a7d51af8811145673059",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Services/TranslationPerformResult.swift",
+      "index": 328,
+      "previous": {
+        "path": "MC1/Services/TranslationPerformResult.swift",
+        "blob_sha": "75756c40bf046b979199901a3eb77e90e1c2ec69",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/TranslationPerformResult.swift",
+        "blob_sha": "75756c40bf046b979199901a3eb77e90e1c2ec69",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Services/TranslationSession+Configuration.swift",
+      "index": 329,
+      "previous": {
+        "path": "MC1/Services/TranslationSession+Configuration.swift",
+        "blob_sha": "4113c8ce8a81afca40d42a4e89c974d1ff8de5f2",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/TranslationSession+Configuration.swift",
+        "blob_sha": "4113c8ce8a81afca40d42a4e89c974d1ff8de5f2",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Services/TranslationSessionLauncher.swift",
+      "index": 330,
+      "previous": {
+        "path": "MC1/Services/TranslationSessionLauncher.swift",
+        "blob_sha": "57e7f519842a503271f72058b604b5f46c7021d3",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/TranslationSessionLauncher.swift",
+        "blob_sha": "57e7f519842a503271f72058b604b5f46c7021d3",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Services/TranslationSessionRequest.swift",
+      "index": 331,
+      "previous": {
+        "path": "MC1/Services/TranslationSessionRequest.swift",
+        "blob_sha": "ed3b8cb512bd690aa20d1ef31a9e80bd58f55de2",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Services/TranslationSessionRequest.swift",
+        "blob_sha": "ed3b8cb512bd690aa20d1ef31a9e80bd58f55de2",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/Components/BubbleTranslationControl.swift",
+      "index": 453,
+      "previous": {
+        "path": "MC1/Views/Chats/Components/BubbleTranslationControl.swift",
+        "blob_sha": "631b8d1b88214fa7f27b750d084e0fe9f91b0dcf",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/Components/BubbleTranslationControl.swift",
+        "blob_sha": "631b8d1b88214fa7f27b750d084e0fe9f91b0dcf",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift",
+      "index": 465,
+      "previous": {
+        "path": "MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift",
+        "blob_sha": "939726ace425f8a5dfc650523a8b0b98408be772",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift",
+        "blob_sha": "939726ace425f8a5dfc650523a8b0b98408be772",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Channels.swift",
+      "index": 592,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Channels.swift",
+        "blob_sha": "b5f12b4788008044d049c286083491c0af7f8924",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Channels.swift",
+        "blob_sha": "b5f12b4788008044d049c286083491c0af7f8924",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationCache.swift",
+      "index": 593,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationCache.swift",
+        "blob_sha": "30bde11d92c297c753852ae004695165f28617b4",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationCache.swift",
+        "blob_sha": "30bde11d92c297c753852ae004695165f28617b4",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationList.swift",
+      "index": 594,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationList.swift",
+        "blob_sha": "65022e65071163aa9b4de5bddeaa9c78bee35085",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationList.swift",
+        "blob_sha": "65022e65071163aa9b4de5bddeaa9c78bee35085",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+DisplayItems.swift",
+      "index": 595,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+DisplayItems.swift",
+        "blob_sha": "a11d0d9df2216d2d087411920aa21c759a0719f6",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+DisplayItems.swift",
+        "blob_sha": "a11d0d9df2216d2d087411920aa21c759a0719f6",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift",
+      "index": 596,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift",
+        "blob_sha": "46db94afdf50058d886311fe18b50376c3a82546",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift",
+        "blob_sha": "46db94afdf50058d886311fe18b50376c3a82546",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ItemBuild.swift",
+      "index": 597,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ItemBuild.swift",
+        "blob_sha": "b7032551e18918f99a58ee11851aeb25860da78d",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ItemBuild.swift",
+        "blob_sha": "b7032551e18918f99a58ee11851aeb25860da78d",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
+      "index": 598,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
+        "blob_sha": "9d0da471cb9e87587321f47a7a13c70420b5ed28",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift",
+        "blob_sha": "9d0da471cb9e87587321f47a7a13c70420b5ed28",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
+      "index": 599,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
+        "blob_sha": "fa228d01ac49998ba8674408977aaea4f33d2dd3",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift",
+        "blob_sha": "fa228d01ac49998ba8674408977aaea4f33d2dd3",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
+      "index": 600,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
+        "blob_sha": "8f9f79327aebbe61d96b0c9e935ed90bb33935ba",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift",
+        "blob_sha": "8f9f79327aebbe61d96b0c9e935ed90bb33935ba",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Prefetch.swift",
+      "index": 601,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Prefetch.swift",
+        "blob_sha": "c3eb75cb44c609336b76bdf8f0a6b253e3438305",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Prefetch.swift",
+        "blob_sha": "c3eb75cb44c609336b76bdf8f0a6b253e3438305",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ReactionIndexing.swift",
+      "index": 602,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ReactionIndexing.swift",
+        "blob_sha": "c77db8c2e82d22fcc1f9b35f17e7d27af43981a5",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+ReactionIndexing.swift",
+        "blob_sha": "c77db8c2e82d22fcc1f9b35f17e7d27af43981a5",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Reactions.swift",
+      "index": 603,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Reactions.swift",
+        "blob_sha": "76255b9bb505b64f3802fb0a97c8c60de7d87b93",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Reactions.swift",
+        "blob_sha": "76255b9bb505b64f3802fb0a97c8c60de7d87b93",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift",
+      "index": 604,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift",
+        "blob_sha": "afb96ae930eb11e8d2ba7a9013eaabfe7d376fb1",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift",
+        "blob_sha": "afb96ae930eb11e8d2ba7a9013eaabfe7d376fb1",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift",
+      "index": 605,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift",
+        "blob_sha": "989a1cd1641f389c30887f0e1115cf7fed21a2bd",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift",
+        "blob_sha": "989a1cd1641f389c30887f0e1115cf7fed21a2bd",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel.swift",
+      "index": 606,
+      "previous": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel.swift",
+        "blob_sha": "971c435730b57300f5c0fa0e2f17fe7ba9db3659",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-406",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Chats/ViewModel/ChatViewModel.swift",
+        "blob_sha": "971c435730b57300f5c0fa0e2f17fe7ba9db3659",
+        "kind": "production",
+        "primary_owner": "WP-307",
+        "cross_references": [
+          "WP-306",
+          "WP-308",
+          "WP-309",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      }
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift",
+      "index": 764,
+      "previous": {
+        "path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift",
+        "blob_sha": "d83143660593e9b1614c141d30bed74154ecb1cf",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift",
+        "blob_sha": "d83143660593e9b1614c141d30bed74154ecb1cf",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1/Views/Settings/TranslateIntoLanguageView.swift",
+      "index": 857,
+      "previous": {
+        "path": "MC1/Views/Settings/TranslateIntoLanguageView.swift",
+        "blob_sha": "85bd81d36502f6303fc89eec1b15b8b6f32ad602",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1/Views/Settings/TranslateIntoLanguageView.swift",
+        "blob_sha": "85bd81d36502f6303fc89eec1b15b8b6f32ad602",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift",
+      "index": 1022,
+      "previous": {
+        "path": "MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift",
+        "blob_sha": "a7b874956ec3e46626f897df9adff8716027481f",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-202",
+          "WP-203",
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift",
+        "blob_sha": "a7b874956ec3e46626f897df9adff8716027481f",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift",
+      "index": 1035,
+      "previous": {
+        "path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift",
+        "blob_sha": "fda5ac96d7216fc264adb3b0f63c578d00c9439a",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-202",
+          "WP-203",
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift",
+        "blob_sha": "fda5ac96d7216fc264adb3b0f63c578d00c9439a",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift",
+      "index": 1039,
+      "previous": {
+        "path": "MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift",
+        "blob_sha": "c3354f58ffdbbb1625adb9bf897bfb2296dabff1",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-202",
+          "WP-203",
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift",
+        "blob_sha": "c3354f58ffdbbb1625adb9bf897bfb2296dabff1",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift",
+      "index": 1126,
+      "previous": {
+        "path": "MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift",
+        "blob_sha": "4672107431f585313fefbbff02951a8c284cbdc0",
+        "kind": "production",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-213",
+          "WP-308",
+          "WP-310",
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift",
+        "blob_sha": "4672107431f585313fefbbff02951a8c284cbdc0",
+        "kind": "production",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift",
+      "index": 1311,
+      "previous": {
+        "path": "MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift",
+        "blob_sha": "1f2331d99c0dc878fd49898573bc7dfb07980812",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift",
+        "blob_sha": "1f2331d99c0dc878fd49898573bc7dfb07980812",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift",
+      "index": 1312,
+      "previous": {
+        "path": "MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift",
+        "blob_sha": "e0f6b111c1ba8a66c14331b79b8acf49a22aade8",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift",
+        "blob_sha": "e0f6b111c1ba8a66c14331b79b8acf49a22aade8",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift",
+      "index": 1413,
+      "previous": {
+        "path": "MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift",
+        "blob_sha": "9449782fe8b7eb8e68d67d05da70884d71546762",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift",
+        "blob_sha": "9449782fe8b7eb8e68d67d05da70884d71546762",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Tests/Services/TranslationLanguageResolverTests.swift",
+      "index": 1498,
+      "previous": {
+        "path": "MC1Tests/Services/TranslationLanguageResolverTests.swift",
+        "blob_sha": "dda4d61d6cff36ea9317e22e9fd6527cbac5da8b",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Tests/Services/TranslationLanguageResolverTests.swift",
+        "blob_sha": "dda4d61d6cff36ea9317e22e9fd6527cbac5da8b",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Tests/Services/TranslationSessionConfigurationTests.swift",
+      "index": 1499,
+      "previous": {
+        "path": "MC1Tests/Services/TranslationSessionConfigurationTests.swift",
+        "blob_sha": "fab5b90cd09f4f230bac3e8734f58dbd2d37aaba",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Tests/Services/TranslationSessionConfigurationTests.swift",
+        "blob_sha": "fab5b90cd09f4f230bac3e8734f58dbd2d37aaba",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Tests/Services/TranslationSessionLauncherTests.swift",
+      "index": 1500,
+      "previous": {
+        "path": "MC1Tests/Services/TranslationSessionLauncherTests.swift",
+        "blob_sha": "4d56a1fa8bdae6bf492414375554bc649a4b0d79",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Tests/Services/TranslationSessionLauncherTests.swift",
+        "blob_sha": "4d56a1fa8bdae6bf492414375554bc649a4b0d79",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Tests/ViewModels/ChatViewModelTranslationTests.swift",
+      "index": 1538,
+      "previous": {
+        "path": "MC1Tests/ViewModels/ChatViewModelTranslationTests.swift",
+        "blob_sha": "ebeb8e5c4d229e92f94369285cace8f92e9a73b4",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501",
+          "WP-502"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Tests/ViewModels/ChatViewModelTranslationTests.swift",
+        "blob_sha": "ebeb8e5c4d229e92f94369285cace8f92e9a73b4",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Tests/ViewModels/GatedMessageTranslator.swift",
+      "index": 1541,
+      "previous": {
+        "path": "MC1Tests/ViewModels/GatedMessageTranslator.swift",
+        "blob_sha": "cfb385e4234a0e3eb6c21a27754fc38eb429c862",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501",
+          "WP-502"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Tests/ViewModels/GatedMessageTranslator.swift",
+        "blob_sha": "cfb385e4234a0e3eb6c21a27754fc38eb429c862",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    },
+    {
+      "path": "MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift",
+      "index": 1558,
+      "previous": {
+        "path": "MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift",
+        "blob_sha": "a887e97d2bb2d6e431089e98ba4ac509ee8f9b59",
+        "kind": "test",
+        "primary_owner": "WP-406",
+        "cross_references": [
+          "WP-501",
+          "WP-502"
+        ],
+        "exclusion": null
+      },
+      "current": {
+        "path": "MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift",
+        "blob_sha": "a887e97d2bb2d6e431089e98ba4ac509ee8f9b59",
+        "kind": "test",
+        "primary_owner": null,
+        "cross_references": [
+          "WP-000"
+        ],
+        "exclusion": "removed-translation"
+      }
+    }
+  ],
+  "added_exclusions": [
+    {
+      "path": "MC1/Services/MessageTranslating.swift",
+      "blob_sha": "6caf0e0831c6a362a6d99a777cca181ef76f870c",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/MessageTranslationNeedsDownloadError.swift",
+      "blob_sha": "a1d3dd0e150483740a7dc84b0c7916752b966fdb",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationLanguageAvailability.swift",
+      "blob_sha": "ae4d0cd6a75905d5a89fe71c568e55b439c58fb6",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationLanguageResolver.swift",
+      "blob_sha": "bd6734d72dbdfb859eb2a7d51af8811145673059",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationPerformResult.swift",
+      "blob_sha": "75756c40bf046b979199901a3eb77e90e1c2ec69",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationSession+Configuration.swift",
+      "blob_sha": "4113c8ce8a81afca40d42a4e89c974d1ff8de5f2",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationSessionLauncher.swift",
+      "blob_sha": "57e7f519842a503271f72058b604b5f46c7021d3",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Services/TranslationSessionRequest.swift",
+      "blob_sha": "ed3b8cb512bd690aa20d1ef31a9e80bd58f55de2",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/Chats/Components/BubbleTranslationControl.swift",
+      "blob_sha": "631b8d1b88214fa7f27b750d084e0fe9f91b0dcf",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift",
+      "blob_sha": "939726ace425f8a5dfc650523a8b0b98408be772",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift",
+      "blob_sha": "989a1cd1641f389c30887f0e1115cf7fed21a2bd",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift",
+      "blob_sha": "d83143660593e9b1614c141d30bed74154ecb1cf",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1/Views/Settings/TranslateIntoLanguageView.swift",
+      "blob_sha": "85bd81d36502f6303fc89eec1b15b8b6f32ad602",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift",
+      "blob_sha": "a7b874956ec3e46626f897df9adff8716027481f",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift",
+      "blob_sha": "fda5ac96d7216fc264adb3b0f63c578d00c9439a",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift",
+      "blob_sha": "c3354f58ffdbbb1625adb9bf897bfb2296dabff1",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift",
+      "blob_sha": "4672107431f585313fefbbff02951a8c284cbdc0",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift",
+      "blob_sha": "1f2331d99c0dc878fd49898573bc7dfb07980812",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift",
+      "blob_sha": "e0f6b111c1ba8a66c14331b79b8acf49a22aade8",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift",
+      "blob_sha": "9449782fe8b7eb8e68d67d05da70884d71546762",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/Services/TranslationLanguageResolverTests.swift",
+      "blob_sha": "dda4d61d6cff36ea9317e22e9fd6527cbac5da8b",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/Services/TranslationSessionConfigurationTests.swift",
+      "blob_sha": "fab5b90cd09f4f230bac3e8734f58dbd2d37aaba",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/Services/TranslationSessionLauncherTests.swift",
+      "blob_sha": "4d56a1fa8bdae6bf492414375554bc649a4b0d79",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/ViewModels/ChatViewModelTranslationTests.swift",
+      "blob_sha": "ebeb8e5c4d229e92f94369285cace8f92e9a73b4",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/ViewModels/GatedMessageTranslator.swift",
+      "blob_sha": "cfb385e4234a0e3eb6c21a27754fc38eb429c862",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    },
+    {
+      "path": "MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift",
+      "blob_sha": "a887e97d2bb2d6e431089e98ba4ac509ee8f9b59",
+      "reason_code": "removed-translation",
+      "adaptation_wp": "WP-000",
+      "review_basis": "USER-APPROVED scope removal: PORTING_PLAN.md section 2.2; exact original translation-only source/test/helper, not Apple glue or a port.",
+      "android_adaptation": "No message translation/provider/model/UI implementation or future build/release requirement. Retain original inventory/cases/blobs; preserve original message text and mixed messaging/localization/backup/rendering behavior. Re-admission requires a new user request and scope/admission decision."
+    }
+  ],
+  "previous_exclusions_sha256": "196072ed6ea442e76bae0cace73d0d12bbc9b890811ce6972007d30ef6ae4ad4",
+  "current_exclusions_sha256": "f3bd075e1dc8043c1ad5dc872c34b0821bacdaacc12515d88ae896f8f0b669e1",
+  "revisions": {
+    "generated": {
+      "previous": "c8d7f2baba33c0cf4bfea24c9a7105654adebbcbc39226ea3f8ae397e8c2a061",
+      "current": "5bdbebea7ab80bf7519c979fd6f8bd019eaf744a45d29b916ccbc00a6b8fe68c"
+    },
+    "overlay": {
+      "previous": "1dd7bc4f74f10e566b66fc8bc3822bb2bd66068053e1aa866e520326aab4dde6",
+      "current": "fe305e2ef980ed349b9b2c03d29e618873f996d8422ea1b3867e7577c7aa9720"
+    },
+    "final": {
+      "previous": "58f7ebd7f46bbe0636c71005f20776efe139a287279e4f4708b25ce6bfa3f892",
+      "current": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda"
+    }
+  },
+  "current_policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"
+}

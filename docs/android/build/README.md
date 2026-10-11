@@ -88,6 +88,9 @@ reference pin into native adaptive/themed-icon resources. Only shared English
 scaffold resources exist: twelve-language conversion, ten unlocked themes and
 full typography/identity/accessibility parity remain WP-005/301 and later work.
 There is no billing, account/backend, analytics, updater, GMS or translation SDK.
+The historical empty `platform:translation` shell has no provider, models, runtime or navigation entry.
+Message translation is user-excluded, not deferred or required for any future build/release. Retained
+inert contracts/helpers are not WP-407 completion blockers and must not become registered placeholders.
 Automatic cloud/device data extraction is explicitly excluded; this is **not**
 the bidirectional backup codec/restore implementation.
 

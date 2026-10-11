@@ -2,7 +2,7 @@
 
 DETAILS = {
     "000": (
-        "Install exactly 17 inherited-model profiles and 3 skills; freeze complete pinned file ownership, 65 WPs, 185 edges and the eight human gates.",
+        "Maintain exactly 17 inherited-model profiles and 3 skills; freeze complete pinned file accountability, 64 active WPs, 178 edges and seven human gates; preserve historical catalogs and user-approved exclusions.",
         "Prove paused/dry-run dispatch, all-write leases, recovery, strict evidence, protected-path review and isolated cloud/native-host payloads with deterministic nonzero tests.",
     ),
     "001": (
@@ -175,7 +175,7 @@ DETAILS = {
     ),
     "310": (
         "Preserve room guest/participant/login/sync conversations and channel create/join/share/QR sheets.",
-        "Port auth/order/channel-region/confirm/cancel/role cases; translation integration is separately owned by WP406.",
+        "Port auth/order/channel-region/confirm/cancel/role cases and preserve original message text; message translation is user-excluded, not a future build requirement.",
     ),
     "311": (
         "Preserve discovered/contact/node list/detail/favorites, QR/adverts/share/add and editable out paths using shared maps.",
@@ -229,17 +229,13 @@ DETAILS = {
         "Preserve MeshCore/hashtag/contact URI parsing, validation/confirmation, cold-start staging and once-only routing.",
         "Port malformed/encoding/identity/pending-route cases; external URIs cannot execute arbitrary administrative commands.",
     ),
-    "406": (
-        "Human-approve and implement a licensed/private runtime translation provider, language detection, model download/delete and in-chat/settings states.",
-        "Prove actual translation, consent, unsupported/error/stale-result cleanup and mesh without GMS; required translation cannot be silently deferred.",
-    ),
     "407": (
         "Complete registration and remove reachable placeholders; audit splash/icon/locales/backup exclusions/adaptive UI/API31-37 integration.",
         "Instrument actual required API levels, denied/revoked capabilities and GMS absence; no lower-API simulator proxy for API37 assertions.",
     ),
     "501": (
         "Audit every original source/test/resource, case family and observable feature with approved coverage policy and owner-routed gap fixes.",
-        "No silently skipped tests, filename/header-only parity or non-billing feature exclusions; missing independent evidence blocks.",
+        "No silently skipped tests, filename/header-only parity or unapproved feature exclusions; account for user-approved billing/message-translation removal without claiming ported tests/features; missing independent in-scope evidence blocks.",
     ),
     "502": (
         "Prove real Compose flows and deterministic screenshots across themes/schemes/fonts/window states.",
@@ -395,10 +391,6 @@ DESTINATIONS = {
     "404": ["android/platform/shortcuts/"],
     "405": ["android/app/src/main/kotlin/com/meshcoreone/android/app/deeplinks/",
             "android/app/src/test/kotlin/com/meshcoreone/android/app/deeplinks/"],
-    "406": ["android/platform/translation/",
-            "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/translation/",
-            "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/translation/",
-            "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/translation/"],
     "407": ["android/app/src/main/AndroidManifest.xml", "android/app/src/main/res/",
             "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/platform/"],
     "501": ["android/parity-tests/", "docs/android/parity/"],

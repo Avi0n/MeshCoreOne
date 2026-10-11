@@ -191,8 +191,15 @@ def compare(manifest, policy, candidate, source_changes, mappings, existing=()):
         if entry["exclusion"] is not None:
             exclusions.append({
                 "change": change, "original_exclusion": entry["exclusion"],
-                "disposition": "review_changed_exclusion; never automatically discard incoming behavior",
+                "disposition": (
+                    "retain_user_removed_translation; not a re-port or future requirement; re-admission requires a new user request and scope/admission decision"
+                    if entry["exclusion"] == "removed-translation"
+                    else "review_changed_exclusion; never automatically discard incoming behavior"
+                ),
             })
+            if entry["exclusion"] == "removed-translation":
+                accounted.add(identity)
+                continue
         if not affected and entry["exclusion"] is None:
             blockers.append({"reason": "source_has_no_owner_or_consumers", "change": change})
             continue
@@ -226,6 +233,8 @@ def compare(manifest, policy, candidate, source_changes, mappings, existing=()):
             "including renamed/deleted inputs. Preserve current task/PR identities. "
             "After approval, re-port affected behavior and all source cases using independent "
             "wire/backup/Room evidence as appropriate; headers alone are not acceptance.\n\n"
+            "Message translation remains user-excluded, not a future build requirement; upstream "
+            "changes or source headers do not re-admit it without a new user request and scope/admission decision.\n\n"
             "Complete changed inputs (including original tests/resources):\n"
             + "\n".join(changed_paths)
             + "\n\nCurrent affected Android implementations:\n"

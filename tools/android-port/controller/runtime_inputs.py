@@ -15,7 +15,7 @@ from controller.model import SHA, git, tree
 CONTROLLER_MODULES = (
     "__init__", "apk_alignment", "authority", "backends", "capabilities", "ci", "ci_environment", "ci_evidence",
     "dispatch", "engine", "errors", "gate_runtime", "gates", "historical", "ledger", "model", "module_junit",
-    "paths", "publication", "provision", "render", "runtime_inputs", "schema", "settings",
+    "paths", "publication", "provision", "render", "runtime_inputs", "schema", "scope_amendment", "settings",
     "staging", "test_runner", "validate", "verification_config", "workflows",
 )
 FIXED_INPUTS = (
@@ -33,6 +33,7 @@ FIXED_INPUTS = (
     "docs/android/PORTING_PLAN.md", "docs/android/port-manifest.json",
     "docs/android/port-manifest.schema.json", "docs/android/not-ported.json",
     "docs/android/not-ported.schema.json", "docs/android/automation-policy.json",
+    "docs/android/scope-amendments/translation-removal.json",
     "android/scaffold/environment-allowlist.json", "android/scaffold/check_environment.py",
     "android/scaffold/inspect_apk.py", "android/scaffold/sync_notices.py",
     "android/gradlew", "android/gradlew.bat", "android/settings.gradle.kts",

@@ -11,7 +11,8 @@ user-invocable: true
 Own the assigned WP among 305, 317 and 318.
 Read common WP/Compose skills, current Onboarding/Settings/Appearance/Support/WhatsNew sources/tests,
 preference and device contracts, real backup codec/restore outcomes and shared offline-map interfaces.
-Translation-specific settings belong to WP-406; keep its contract/paths separate.
+Message translation and its settings are removed from active scope, not deferred or required for
+future builds. App language/localization, backup preferences and other settings remain in scope.
 
 ## Onboarding
 

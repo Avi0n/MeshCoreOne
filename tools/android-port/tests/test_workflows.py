@@ -192,7 +192,8 @@ class WorkflowTests(unittest.TestCase):
     def test_verification_overlay_is_reproducible_and_only_changes_two_real_configs(self):
         original, _ = build_inventory(REPO)
         amended = apply_overlay(original)
-        self.assertEqual(amended, project_content_scope(base_manifest().data))
+        from controller.scope_amendment import apply_translation_scope, project_translation_scope
+        self.assertEqual(amended, apply_translation_scope(project_content_scope(base_manifest().data)))
         for before, after in zip(original["work_packages"], amended["work_packages"], strict=True):
             if before["id"] in AMENDMENTS:
                 self.assertEqual({k: v for k, v in before.items() if k != "verification"},
@@ -202,7 +203,8 @@ class WorkflowTests(unittest.TestCase):
         result = check_configuration(REPO)
         self.assertEqual(result["verification_amendments"], ["WP-002", "WP-003"])
         from controller.verification_config import WP_003_BOOTSTRAP_MANIFEST_SHA256, WP_003_MANIFEST_REVISION
-        self.assertEqual(result["bootstrap_manifest_sha256"], WP_003_BOOTSTRAP_MANIFEST_SHA256)
+        self.assertEqual(digest(project_translation_scope(original)), WP_003_BOOTSTRAP_MANIFEST_SHA256)
+        self.assertEqual(result["bootstrap_manifest_sha256"], digest(original))
         self.assertEqual(digest(project_content_scope(base_manifest().data)),
                          WP_003_MANIFEST_REVISION)
         self.assertEqual(result["manifest_sha256"], base_manifest().sha256)
@@ -240,7 +242,7 @@ class WorkflowTests(unittest.TestCase):
         ), patch(
             "controller.verification_config.WP_003_MANIFEST_REVISION",
             candidate["final_manifest_sha256"],
-        ), self.assertRaisesRegex(PortError, "policy amendment evidence drift"):
+        ), self.assertRaisesRegex(PortError, "complete exact catalog preimage"):
             check_configuration(REPO)
 
     def test_verification_configuration_check_is_read_only(self):

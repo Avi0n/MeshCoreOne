@@ -36,8 +36,8 @@ Compose, Room, Bluetooth or concrete runtime/service types in their public API.
 | `platform:notifications` | `core:model`, `core:contracts`, `core:l10n` |
 | `platform:widgets` | `core:model`, `core:contracts`, `core:designsystem`, `core:l10n` |
 | `platform:shortcuts` | `core:model`, `core:contracts`, `core:l10n` |
-| `platform:translation` | `core:model`, `core:contracts` |
-| `app` | Production core modules, the seven features and four platform adapters |
+| `platform:translation` (inert historical scaffold only) | `core:model`, `core:contracts`; no provider/model/entry or acceptance requirement |
+| `app` | Production core modules, the seven features and three active platform adapters; inert historical translation shell is not a feature |
 
 The seven features are onboarding, chats, nodes, remotenodes, map, tools and settings.
 No feature-to-feature or feature-to-platform edge is allowed. Shared map code is
@@ -62,7 +62,7 @@ process-owned `PreferenceStore`. Eligibility and the durable show-once claim use
 one atomic DataStore update; UI collectors neither create nor close storage.
 This single edge does not permit datastore-to-UI, UI-to-concrete-radio/data
 dependencies, or concrete preference dependencies in features. The frozen
-65-WP/185-edge/eight-gate dependency plan is unchanged.
+active 64-WP/178-edge/seven-gate dependency plan is unaffected by this adapter.
 
 `core:testing` may depend on production libraries and is consumed only through
 test configurations. An app test factory belongs to the app's test source set,
@@ -80,7 +80,7 @@ dependency or supplies a production success-shaped fake.
 | Lifecycle/factory/signals specification: WP-001; typed domain seam WP-201 | Runtime WP-207 against injected factories | WP-208 through WP-218 services; WP-303 assembles concrete factories |
 | Notification/string-provider seam: WP-001/201, business policy WP-215 | Delivery WP-401; connection status WP-402 | Process adapter called by current-session policy; never the reverse module edge |
 | Feature/navigation IDs: WP-001, compile shells WP-002 | Native shell WP-302 and owning feature WPs | App, notifications, deep links WP-405, shortcuts WP-404 |
-| Translation seam: WP-001; domain declarations WP-201 | Human-approved engine/privacy/runtime WP-406 | Chat/room/settings through injected port |
+| Historical translation seam/helpers | No active producer; user-approved scope removal | No chat/room/settings registration or WP-407 completion blocker |
 | Shared maps, l10n and visual tokens | WP-312, WP-005, WP-301 respectively | Core UI and features, never protocol/contracts |
 
 WP-002's neutral compile shells reserve these boundaries, not behavioral
@@ -98,4 +98,10 @@ modules and any production dependency on testing/meshcli/benchmark. Check plugin
 and generated-source configurations as well as handwritten declarations. Add
 negative graph fixtures and positive test discovery; record the real verification
 task only after it exists. This document does not invent a Gradle task or amend
-the approved **65-WP / 185-edge / 8-human-gate** graph.
+the approved active **64-WP / 178-edge / 7-human-gate** graph.
+
+The existing empty `platform:translation` scaffold, its build edge and already-ported shared
+contracts/rendering helpers are retained inert to avoid unrelated build-graph or wire/persistence
+changes. They have no translation provider, model dependency, executable feature or navigation entry.
+WP-407 completes only active features and must not require or register translation. Any later addition
+requires a new user feature request and scope/admission decision, not merely filling an old shell.

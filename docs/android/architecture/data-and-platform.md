@@ -92,7 +92,7 @@ LPP/TC/ACL/DM meanings and OCV preset raw names, not localized wire values.
 | SwiftData/UserDefaults/Keychain | Process Room/DataStore and explicit locked/lost-key/migration errors; no destructive recreation; WP-201 through WP-204 |
 | Notification/ActivityKit | Optional delivery plus ongoing connection notification/widget/tile; ambient status is not automatically a qualifying promoted Live Update; WP-401/402 |
 | AppIntents/deep links | Stable shortcuts/share targets and typed confirmed routes; cold-start/readiness/current-radio guards, consume once; WP-404/405 |
-| Translation/NaturalLanguage | Required translation through license-approved engine SPI, consent/download/unsupported/cancel/error states and language-ID fallback; WP-406 |
+| Translation/NaturalLanguage | User-approved message-translation exclusion, not a deferred or future requirement; retain original text, mixed messaging/rendering and app localization |
 | Maps/assets/themes | Shared licensed maps/provider attribution/offline rights; ten unlocked themes with forced-scheme rules and approved icons; WP-301/312 |
 
 Core mesh messaging, persistence and navigation remain usable without GMS or

@@ -13,7 +13,9 @@ Swift/Kotlin and Compose skills as applicable. Installation is not fleet activat
   and debug suffix `.debug`. WP-000 creates no Android/Gradle product code.
 - Preserve GPLv3 app and MIT MeshCore notices and dependency/model/data/asset obligations.
   Google services are optional, not a license exception or prerequisite for mesh messaging,
-  persistence or core navigation. Required translation needs the WP-406 license/privacy/runtime gate.
+  persistence or core navigation. Message translation is removed from active scope, not deferred or
+  required for future builds/releases; adding it needs a new user request and scope/admission decision.
+  Preserve original message text and app localization; never add translation providers/models implicitly.
 - All themes are unlocked. No billing, new account/backend, analytics, updater or APK-installation
   behavior. Distribution is sideload APKs through GitHub Releases only at WP-506.
 - Backups require real bidirectional iOS/Android codec/restore evidence: envelope v1, Unix seconds,

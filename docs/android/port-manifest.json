@@ -5,13 +5,13 @@
     "commit": "db14559b39d32322b06477c6ae676112f583db50",
     "tree_sha": "8918fdc604341e6996a68c88f6bb1c02b9c2f87e",
     "source_inventory_sha256": "f03406900d3cd976f1557cb6f10cc52ab3b976f5194a0aa6e9bb97da4095c8b3",
-    "approved_plan_sha256": "b4e78619f84583221cbf38a48212c89669c91aa26cdcbcd60d4e04cd6b6dc888",
-    "installed_plan_sha256": "403119e8de21d53d9ca844dcf99c1ac580ad44f3891d2b533d282ae29e2ceef4"
+    "approved_plan_sha256": "e5c838d2566d0466175e2be4036d50e44be548319c9fcd8b83bccd4fc03930cd",
+    "installed_plan_sha256": "2940d9be6686555d8c10a5e80fda6e9eab7bd6641049a87bc5e2469651fa6120"
   },
   "agents": [
     {
       "name": "android-architect",
-      "sha256": "70f8c0cc336e0d852000c4b8bd0db6b29a43d9afbdc670b6aea25009e1673596"
+      "sha256": "ff924e1ca40d5e9d88966a57903665fdf96d7f250c6d702fda935f12bfbef042"
     },
     {
       "name": "android-build-engineer",
@@ -19,7 +19,7 @@
     },
     {
       "name": "chats-ui-engineer",
-      "sha256": "2f1d619087ca6a886b87e4bcafc9ce333e8a297124ff84dac44c3cb083fa173b"
+      "sha256": "633ae4ade708e407fba4c0d020a0fa4d8f4106a4138d9692283ed69dd1836e46"
     },
     {
       "name": "connectivity-engineer",
@@ -47,7 +47,7 @@
     },
     {
       "name": "platform-integrations-engineer",
-      "sha256": "0ded216d2e2295b9bd3b20febebd9214a8fefc090e5dd24545b8b566e5705a5f"
+      "sha256": "8ee2db45b085822075434d852ee7b327d3d066116724f0482761dd3166f1a410"
     },
     {
       "name": "port-orchestrator",
@@ -63,7 +63,7 @@
     },
     {
       "name": "settings-onboarding-ui-engineer",
-      "sha256": "2534deae6d118d0c391a0bb812dbb2103df3ae09f892652d1896e7b6d8b45016"
+      "sha256": "1882aca997158afb22e7323c637f9d47df86be85ab5122fb44292cee410c4cfd"
     },
     {
       "name": "test-parity-engineer",
@@ -107,7 +107,7 @@
       "acceptance": [
         {
           "id": "WP-000-behavior",
-          "description": "Install exactly 17 inherited-model profiles and 3 skills; freeze complete pinned file ownership, 65 WPs, 185 edges and the eight human gates."
+          "description": "Maintain exactly 17 inherited-model profiles and 3 skills; freeze complete pinned file accountability, 64 active WPs, 178 edges and seven human gates; preserve historical catalogs and user-approved exclusions."
         },
         {
           "id": "WP-000-boundaries",
@@ -135,7 +135,7 @@
     },
     {
       "id": "WP-001",
-      "title": "Approve compatible toolchain, acyclic module map, lifetimes, typed factory/repository/UI contracts, translation/license candidates and platform adaptations",
+      "title": "Approve compatible toolchain, acyclic module map, lifetimes, typed factory/repository/UI contracts, license candidates and platform adaptations",
       "owner": "android-architect",
       "depends_on": [
         "WP-000"
@@ -241,9 +241,23 @@
       "verification": {
         "configured": true,
         "commands": [
-          ["python", "tools/android-port/controller/ci.py", "preflight"],
-          ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
-          ["python", "tools/android-port/controller/ci.py", "inspect"]
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "preflight"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "run",
+            "--stage",
+            "scaffold"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "inspect"
+          ]
         ],
         "blocker": ""
       }
@@ -291,13 +305,41 @@
       "verification": {
         "configured": true,
         "commands": [
-          ["python", "tools/android-port/controller/verification_config.py", "--check"],
-          ["python", "tools/android-port/controller/workflows.py"],
-          ["python", "tools/android-port/controller/test_runner.py"],
-          ["python", "tools/android-port/controller/ci.py", "python"],
-          ["python", "tools/android-port/controller/ci.py", "preflight"],
-          ["python", "tools/android-port/controller/ci.py", "run", "--stage", "scaffold"],
-          ["python", "tools/android-port/controller/ci.py", "inspect"]
+          [
+            "python",
+            "tools/android-port/controller/verification_config.py",
+            "--check"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/workflows.py"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/test_runner.py"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "python"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "preflight"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "run",
+            "--stage",
+            "scaffold"
+          ],
+          [
+            "python",
+            "tools/android-port/controller/ci.py",
+            "inspect"
+          ]
         ],
         "blocker": ""
       }
@@ -1841,7 +1883,7 @@
         },
         {
           "id": "WP-310-boundaries",
-          "description": "Port auth/order/channel-region/confirm/cancel/role cases; translation integration is separately owned by WP406."
+          "description": "Port auth/order/channel-region/confirm/cancel/role cases and preserve original message text; message translation is user-excluded, not a future build requirement."
         },
         {
           "id": "WP-310-source-test-parity",
@@ -2365,49 +2407,6 @@
       }
     },
     {
-      "id": "WP-406",
-      "title": "License-approved translation SPI/engine, language detection, download/delete/unsupported/error states and in-chat/settings UI; prove mesh works without GMS",
-      "owner": "platform-integrations-engineer",
-      "depends_on": [
-        "WP-307",
-        "WP-308",
-        "WP-213",
-        "WP-218",
-        "WP-317"
-      ],
-      "human_gate": true,
-      "supervised": false,
-      "planned_state": "pending",
-      "write_paths": [
-        "android/platform/translation/",
-        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/translation/",
-        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/translation/",
-        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/translation/",
-        "docs/android/deviations/WP-406.md",
-        "docs/android/evidence/WP-406/"
-      ],
-      "android_only_reason": "Approved macro WP creates Android-only infrastructure/integration/quality rather than copying a Swift file.",
-      "acceptance": [
-        {
-          "id": "WP-406-behavior",
-          "description": "Human-approve and implement a licensed/private runtime translation provider, language detection, model download/delete and in-chat/settings states."
-        },
-        {
-          "id": "WP-406-boundaries",
-          "description": "Prove actual translation, consent, unsupported/error/stale-result cleanup and mesh without GMS; required translation cannot be silently deferred."
-        },
-        {
-          "id": "WP-406-source-test-parity",
-          "description": "Account for every owned original behavior, test case/parameter family and resource; approved equivalent/adaptation evidence, not file/header coverage, controls completion."
-        }
-      ],
-      "verification": {
-        "configured": false,
-        "commands": [],
-        "blocker": "Exact module commands, trusted check identities and original-case inventory must be approved by supervised CI/test WPs; Gradle/Android CI do not exist in WP-000."
-      }
-    },
-    {
       "id": "WP-407",
       "title": "Finish feature registration, remove reachable scaffold placeholders and audit icon/splash/locales, backup rules, adaptive UI and API 31-37 behavior",
       "owner": "platform-integrations-engineer",
@@ -2426,8 +2425,7 @@
         "WP-402",
         "WP-403",
         "WP-404",
-        "WP-405",
-        "WP-406"
+        "WP-405"
       ],
       "human_gate": false,
       "supervised": false,
@@ -2486,7 +2484,7 @@
         },
         {
           "id": "WP-501-boundaries",
-          "description": "No silently skipped tests, filename/header-only parity or non-billing feature exclusions; missing independent evidence blocks."
+          "description": "No silently skipped tests, filename/header-only parity or unapproved feature exclusions; account for user-approved billing/message-translation removal without claiming ported tests/features; missing independent in-scope evidence blocks."
         },
         {
           "id": "WP-501-source-test-parity",
@@ -2623,7 +2621,6 @@
         "WP-403",
         "WP-404",
         "WP-405",
-        "WP-406",
         "WP-407",
         "WP-501",
         "WP-502",
@@ -2857,7 +2854,7 @@
     {"path": "MC1/Resources/Assets.xcassets/Theme/Solarized/OutgoingText.colorset/Contents.json", "blob_sha": "f7cd53e3b053abcecb65a5c18a7ce101e97017f8", "kind": "resource", "primary_owner": "WP-301", "cross_references": ["WP-407", "WP-503"], "exclusion": null},
     {"path": "MC1/Resources/Generated/.gitkeep", "blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391", "kind": "resource", "primary_owner": null, "cross_references": ["WP-005"], "exclusion": "generated-swift"},
     {"path": "MC1/Resources/Generated/L10n.swift", "blob_sha": "ad801edfb33a5df11ec971ead4fb54bf5715e5c9", "kind": "generated", "primary_owner": null, "cross_references": ["WP-005"], "exclusion": "generated-swift"},
-    {"path": "MC1/Resources/Localization/de.lproj/Chats.strings", "blob_sha": "3e71e1458a06af55d0fdd0330e93601f668f2038", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/de.lproj/Chats.strings", "blob_sha": "3e71e1458a06af55d0fdd0330e93601f668f2038", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/de.lproj/Contacts.strings", "blob_sha": "e8237dbb15ee70b226d81b70ea337ee24234f658", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/de.lproj/Localizable.strings", "blob_sha": "021ae66d9d67abc2e3e1575ed946983cfd445542", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/de.lproj/Localizable.stringsdict", "blob_sha": "ddf4eb10a5ca48fd7d43f6133969e9c01039d87b", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2865,12 +2862,12 @@
     {"path": "MC1/Resources/Localization/de.lproj/Onboarding.strings", "blob_sha": "99b0e4e7205bb3269c6bfb11a74e0f689ff49c4d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/de.lproj/RemoteNodes.strings", "blob_sha": "db8b3ff985d33e39c69ee63541ff69b8c6c89029", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/de.lproj/RemoteNodes.stringsdict", "blob_sha": "155bd8ff89fa3658f07abecced37c736ec18a928", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/de.lproj/Settings.strings", "blob_sha": "9f7ae7562b40a528885c4ad891f62a0e1de7a464", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/de.lproj/Settings.stringsdict", "blob_sha": "a2076d077497a226b015e908a5dc1ca2c7d61cd7", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/de.lproj/Settings.strings", "blob_sha": "9f7ae7562b40a528885c4ad891f62a0e1de7a464", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/de.lproj/Settings.stringsdict", "blob_sha": "a2076d077497a226b015e908a5dc1ca2c7d61cd7", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/de.lproj/Tools.strings", "blob_sha": "45d84d6482739cc868929d6210c47af478875c21", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/de.lproj/WhatsNew.strings", "blob_sha": "a7cfe94864ff2875a6b0998e894ea4d5d7310bee", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/.gitkeep", "blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391", "kind": "resource", "primary_owner": null, "cross_references": ["WP-002"], "exclusion": "apple-only-glue"},
-    {"path": "MC1/Resources/Localization/en.lproj/Chats.strings", "blob_sha": "b234401936a60c71dc3bf1069d7cf785b621ab3c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/en.lproj/Chats.strings", "blob_sha": "b234401936a60c71dc3bf1069d7cf785b621ab3c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/Contacts.strings", "blob_sha": "d62fae5948eb3e5267f9fddfab98804be3832227", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/Localizable.strings", "blob_sha": "fb2bc56f6ec9c11b8910d9574c2ed66be10b81f1", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/Localizable.stringsdict", "blob_sha": "4da4a5d194a9b1f5b4ca71ead7dbc9257c7c4d9f", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2878,11 +2875,11 @@
     {"path": "MC1/Resources/Localization/en.lproj/Onboarding.strings", "blob_sha": "3841f3fc8211c57551eea5c924b8e4c86f6ade91", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/RemoteNodes.strings", "blob_sha": "75c355067d4cc2f474991a3d43fc78ba332a5510", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/RemoteNodes.stringsdict", "blob_sha": "092231857ac762771e39f8606ae206a961fdb15d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/en.lproj/Settings.strings", "blob_sha": "cd3ab48cc6bfa9785491ea8c9627abb32a3c6dcc", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/en.lproj/Settings.stringsdict", "blob_sha": "28250adbbf78257e7267de916b73a217dbb0a984", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/en.lproj/Settings.strings", "blob_sha": "cd3ab48cc6bfa9785491ea8c9627abb32a3c6dcc", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/en.lproj/Settings.stringsdict", "blob_sha": "28250adbbf78257e7267de916b73a217dbb0a984", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/Tools.strings", "blob_sha": "a556a1e1df2b9810a249cface608807de09ca1d6", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/en.lproj/WhatsNew.strings", "blob_sha": "34cf8030081bcbd2d79bd461d55c6fa0791dfcce", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/es.lproj/Chats.strings", "blob_sha": "f6fcac5a8d2aab82385f38ff0362476beaeb1ee5", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/es.lproj/Chats.strings", "blob_sha": "f6fcac5a8d2aab82385f38ff0362476beaeb1ee5", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/es.lproj/Contacts.strings", "blob_sha": "f0575ab63716a520350e8bd0415ced2c6049bb89", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/es.lproj/Localizable.strings", "blob_sha": "ce7fba622ed4662db48beb45339664eb2314031b", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/es.lproj/Localizable.stringsdict", "blob_sha": "1adce3ec1a01853eaeae4d7cbd1192177c418ca7", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2890,11 +2887,11 @@
     {"path": "MC1/Resources/Localization/es.lproj/Onboarding.strings", "blob_sha": "cc95878548f6887670055b63311d1989d3e1cd6b", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/es.lproj/RemoteNodes.strings", "blob_sha": "54a8dbe6958d2d5eae62a71dd5799ae06609c3b2", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/es.lproj/RemoteNodes.stringsdict", "blob_sha": "08b04465edbdaea8c2c666c791e94f8c785e94eb", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/es.lproj/Settings.strings", "blob_sha": "68b480269c1226bc26404850910635dda3c4e17a", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/es.lproj/Settings.stringsdict", "blob_sha": "c4c02912f44859170ed3e97288532bcc1eca58e2", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/es.lproj/Settings.strings", "blob_sha": "68b480269c1226bc26404850910635dda3c4e17a", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/es.lproj/Settings.stringsdict", "blob_sha": "c4c02912f44859170ed3e97288532bcc1eca58e2", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/es.lproj/Tools.strings", "blob_sha": "5ef8c574deabdf686fc5e5a8572af7fd26f058a4", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/es.lproj/WhatsNew.strings", "blob_sha": "41144f38c0cec3c0b0b4e19d5476c1eb6ee0ba92", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/fr.lproj/Chats.strings", "blob_sha": "c28bddbe959e324ba6115feb66c81d9d71278502", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/fr.lproj/Chats.strings", "blob_sha": "c28bddbe959e324ba6115feb66c81d9d71278502", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/fr.lproj/Contacts.strings", "blob_sha": "1764c76280aa2e924c8330937ca6c7b84380060f", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/fr.lproj/Localizable.strings", "blob_sha": "f2e90bccb90b75f7614515726d4c63023c1ac2c4", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/fr.lproj/Localizable.stringsdict", "blob_sha": "9c8494661636266be999386a709c690071ef4a76", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2902,11 +2899,11 @@
     {"path": "MC1/Resources/Localization/fr.lproj/Onboarding.strings", "blob_sha": "652d4abe4609c8c092200ae8e1f5c9c4b127cda4", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/fr.lproj/RemoteNodes.strings", "blob_sha": "4145fe1d2d7b6698f56ec9bf7a44f2e93cbf76ff", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/fr.lproj/RemoteNodes.stringsdict", "blob_sha": "530fc6bd04bb7a7a81fa3bf5f6bd14a059a8aeff", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/fr.lproj/Settings.strings", "blob_sha": "b95ef917bae4ecd0bdbd9ad556499d45a847eaf6", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/fr.lproj/Settings.stringsdict", "blob_sha": "6785d3acbee26a264a769848597ee14599ecec07", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/fr.lproj/Settings.strings", "blob_sha": "b95ef917bae4ecd0bdbd9ad556499d45a847eaf6", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/fr.lproj/Settings.stringsdict", "blob_sha": "6785d3acbee26a264a769848597ee14599ecec07", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/fr.lproj/Tools.strings", "blob_sha": "63dcdafd385981b9e1fcb8b2dcf70b332ff99156", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/fr.lproj/WhatsNew.strings", "blob_sha": "94b5e25473cac1ff5d058d8fe1f804515b97d962", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/it.lproj/Chats.strings", "blob_sha": "0a6a67b8f4ab01c024a267c65f31e651c2452923", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/it.lproj/Chats.strings", "blob_sha": "0a6a67b8f4ab01c024a267c65f31e651c2452923", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/it.lproj/Contacts.strings", "blob_sha": "0c7ca708c72d905c58d373295a9254b9efdb1cf4", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/it.lproj/Localizable.strings", "blob_sha": "cefaff6bf662b48ea98cd6105ee0047bc7b1cb1d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/it.lproj/Localizable.stringsdict", "blob_sha": "3fe657661491c6dfe5ae6fc7b0fbf208cc27a0b0", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2914,11 +2911,11 @@
     {"path": "MC1/Resources/Localization/it.lproj/Onboarding.strings", "blob_sha": "6ebd370577a82cbb2854ceb504428c0c54b23ae9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/it.lproj/RemoteNodes.strings", "blob_sha": "5c287000cab4b91321321a55423b46efe75c8899", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/it.lproj/RemoteNodes.stringsdict", "blob_sha": "04c6ffa2d4a95affbce21028c1fad953ea97bf4d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/it.lproj/Settings.strings", "blob_sha": "715c1e100ee6b22d2753b7ec8acaf4e381b34f23", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/it.lproj/Settings.stringsdict", "blob_sha": "c7b3536d3aec2352698d562baee4d6ac3b8efcfd", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/it.lproj/Settings.strings", "blob_sha": "715c1e100ee6b22d2753b7ec8acaf4e381b34f23", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/it.lproj/Settings.stringsdict", "blob_sha": "c7b3536d3aec2352698d562baee4d6ac3b8efcfd", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/it.lproj/Tools.strings", "blob_sha": "7ba45e7a6aa5231c8e03b62d86e94009886c703e", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/it.lproj/WhatsNew.strings", "blob_sha": "fe5e73d2b91275a6e5dc2dd81b255df8e80eaf82", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/ko.lproj/Chats.strings", "blob_sha": "c6a6b0496b50a337986c6a3af176851d20a5c2dc", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/ko.lproj/Chats.strings", "blob_sha": "c6a6b0496b50a337986c6a3af176851d20a5c2dc", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ko.lproj/Contacts.strings", "blob_sha": "7ace517391ca5ced8a47b120a08d5656ebcf075e", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ko.lproj/Localizable.strings", "blob_sha": "c2d2f24198730c0a88b1b48a5a6aa1c1543a30c9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ko.lproj/Localizable.stringsdict", "blob_sha": "70d97abe819711d211f280c7869a6bd7bec02f6d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2926,12 +2923,12 @@
     {"path": "MC1/Resources/Localization/ko.lproj/Onboarding.strings", "blob_sha": "ad8898b9d4599bb4fd2dded66bc2bb3cd9bfe8ae", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ko.lproj/RemoteNodes.strings", "blob_sha": "9950ddedebbe689d3ed9dd17828adc3a44a38199", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ko.lproj/RemoteNodes.stringsdict", "blob_sha": "af205bb666cc76f6ef4c07ca1488725cc6219238", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/ko.lproj/Settings.strings", "blob_sha": "9ed3e62ddbca2de41bd1a1ddc403ea7c09f1d07c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/ko.lproj/Settings.stringsdict", "blob_sha": "f3a8499e5929913f571066ada55e233682e44f6f", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/ko.lproj/Settings.strings", "blob_sha": "9ed3e62ddbca2de41bd1a1ddc403ea7c09f1d07c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/ko.lproj/Settings.stringsdict", "blob_sha": "f3a8499e5929913f571066ada55e233682e44f6f", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ko.lproj/Tools.strings", "blob_sha": "1e312e75b7231f4b4f44aea98d1cff1ebb978950", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ko.lproj/WhatsNew.strings", "blob_sha": "20cc32da59bb3819553c0e9a0b6e3841a6d1c2fc", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/.gitkeep", "blob_sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391", "kind": "resource", "primary_owner": null, "cross_references": ["WP-002"], "exclusion": "apple-only-glue"},
-    {"path": "MC1/Resources/Localization/nl.lproj/Chats.strings", "blob_sha": "768b0b735a44b6ffe20560110ac8800d3c1942cf", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/nl.lproj/Chats.strings", "blob_sha": "768b0b735a44b6ffe20560110ac8800d3c1942cf", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/Contacts.strings", "blob_sha": "081f5da7a89fe856c85fdcdd6c9f28b70ae45947", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/Localizable.strings", "blob_sha": "4285fc1d631f4b5a00bef159555459c47bd03fc6", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/Localizable.stringsdict", "blob_sha": "7f2e6d9e0e8f89df0c744847457b5d12f61324db", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2939,11 +2936,11 @@
     {"path": "MC1/Resources/Localization/nl.lproj/Onboarding.strings", "blob_sha": "791c9b07a46e60eefc422f61d9a997402bae380d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/RemoteNodes.strings", "blob_sha": "c9700d3ba12414d80b4a94020ecb50de2f76def9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/RemoteNodes.stringsdict", "blob_sha": "29e18254e358180fc5fb6dc58e53c87453a00499", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/nl.lproj/Settings.strings", "blob_sha": "586d0b1f3a37b1361e3ca9d9933df36a6e2b3d9b", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/nl.lproj/Settings.stringsdict", "blob_sha": "1e9065a8ebe5e028a6e5bb626a0761f16cd9d77c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/nl.lproj/Settings.strings", "blob_sha": "586d0b1f3a37b1361e3ca9d9933df36a6e2b3d9b", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/nl.lproj/Settings.stringsdict", "blob_sha": "1e9065a8ebe5e028a6e5bb626a0761f16cd9d77c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/Tools.strings", "blob_sha": "cb4b0b23d2c77364096ecf0404552346263903e1", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/nl.lproj/WhatsNew.strings", "blob_sha": "de87bf0a6627bffd37121a8db676c6c700af7512", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/pl.lproj/Chats.strings", "blob_sha": "2fe9d4535c905fd956f5a92f4504fd5df648ddff", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/pl.lproj/Chats.strings", "blob_sha": "2fe9d4535c905fd956f5a92f4504fd5df648ddff", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pl.lproj/Contacts.strings", "blob_sha": "307ebafae46d06165235e1d368ef9b9ccbb63975", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pl.lproj/Localizable.strings", "blob_sha": "f44806923075a84e6d56deb3412ed60bb4814217", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pl.lproj/Localizable.stringsdict", "blob_sha": "b528c75eb9a5b1015d7e4239d8e548a30a74429b", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2951,11 +2948,11 @@
     {"path": "MC1/Resources/Localization/pl.lproj/Onboarding.strings", "blob_sha": "52bf528077407d3f297320c6e315d4b051f7cecf", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pl.lproj/RemoteNodes.strings", "blob_sha": "cd051b7ed3bc18c1cbdeb410c1a733d71e647d66", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pl.lproj/RemoteNodes.stringsdict", "blob_sha": "a9fda4b4c4b7ceb96fa183dd9702702e0cc8697d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/pl.lproj/Settings.strings", "blob_sha": "910c63e20117674bb4f172452044054a66e0c36a", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/pl.lproj/Settings.stringsdict", "blob_sha": "72debf0ad2586fa8d8cfccf1f05a609c547bc7f2", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/pl.lproj/Settings.strings", "blob_sha": "910c63e20117674bb4f172452044054a66e0c36a", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/pl.lproj/Settings.stringsdict", "blob_sha": "72debf0ad2586fa8d8cfccf1f05a609c547bc7f2", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pl.lproj/Tools.strings", "blob_sha": "5f3cabea1c7e9acfba7688af648fb67c49d44b53", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pl.lproj/WhatsNew.strings", "blob_sha": "0fa17f9e5e7f4546b7bf2af89d811902bc484e24", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/pt.lproj/Chats.strings", "blob_sha": "a8766d993fc6b19dbebed14c424fecbe5a466979", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/pt.lproj/Chats.strings", "blob_sha": "a8766d993fc6b19dbebed14c424fecbe5a466979", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pt.lproj/Contacts.strings", "blob_sha": "ff5a4b04edcb9817f3fd119f359bebc934a611c3", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pt.lproj/Localizable.strings", "blob_sha": "6b581f2a6b6824dd33fec35f00b51abf7ab8b568", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pt.lproj/Localizable.stringsdict", "blob_sha": "c7df8cfd55eebd1138101ef2426ed0123dbb1ab8", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2963,11 +2960,11 @@
     {"path": "MC1/Resources/Localization/pt.lproj/Onboarding.strings", "blob_sha": "666e70b3979545e28451ee956e5379aa16b1c6e8", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pt.lproj/RemoteNodes.strings", "blob_sha": "583d3e9bcf17ea070a530b037019fd5a232a0bfb", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pt.lproj/RemoteNodes.stringsdict", "blob_sha": "22cf942f4f299b4b8f3659326632f4ba87ae0b09", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/pt.lproj/Settings.strings", "blob_sha": "9236a45870755f99c05390df02555aced6849c96", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/pt.lproj/Settings.stringsdict", "blob_sha": "ac447a569c809cca7bea1e54ba2fd906101e9ad4", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/pt.lproj/Settings.strings", "blob_sha": "9236a45870755f99c05390df02555aced6849c96", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/pt.lproj/Settings.stringsdict", "blob_sha": "ac447a569c809cca7bea1e54ba2fd906101e9ad4", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pt.lproj/Tools.strings", "blob_sha": "dccb5f040f9ca204cfc206805ff57a02a1422fe5", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/pt.lproj/WhatsNew.strings", "blob_sha": "4715ba80038f5d9fb9932a5dacf36100e0d59ef3", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/ru.lproj/Chats.strings", "blob_sha": "87827e7af0bc96794bf6ba3282d3336b24ffc0c9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/ru.lproj/Chats.strings", "blob_sha": "87827e7af0bc96794bf6ba3282d3336b24ffc0c9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ru.lproj/Contacts.strings", "blob_sha": "ec60c7c1c94c6c4d35a3ad1ff93b583bddd31d61", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ru.lproj/Localizable.strings", "blob_sha": "11c8ab3efc28baa652d1c719c5f5fae9c3588ff9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ru.lproj/Localizable.stringsdict", "blob_sha": "6e33c5c218d60c78e029a378a5b601f099d9013e", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2975,11 +2972,11 @@
     {"path": "MC1/Resources/Localization/ru.lproj/Onboarding.strings", "blob_sha": "b5e9b37c6deec081965d07fda43c66f646cfac42", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ru.lproj/RemoteNodes.strings", "blob_sha": "a2694888113c1e5f11b8a4a42f9e162409f8bfb2", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ru.lproj/RemoteNodes.stringsdict", "blob_sha": "04c29ca94c39e735bce019ba19cc0cc4a428a6da", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/ru.lproj/Settings.strings", "blob_sha": "65160a98297bf6b20fba65073945699711107fda", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/ru.lproj/Settings.stringsdict", "blob_sha": "32c4fc39774cf01b361a0b24420f18767a9b3e23", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/ru.lproj/Settings.strings", "blob_sha": "65160a98297bf6b20fba65073945699711107fda", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/ru.lproj/Settings.stringsdict", "blob_sha": "32c4fc39774cf01b361a0b24420f18767a9b3e23", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ru.lproj/Tools.strings", "blob_sha": "992fd03bae3313c310bdad8e42a302af45ba0704", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/ru.lproj/WhatsNew.strings", "blob_sha": "43d8346b5c91a5862354da29588b310c67583c44", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/uk.lproj/Chats.strings", "blob_sha": "538f29604acd346c1c4d191d23fe0ead1c334347", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/uk.lproj/Chats.strings", "blob_sha": "538f29604acd346c1c4d191d23fe0ead1c334347", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/uk.lproj/Contacts.strings", "blob_sha": "44a935c9e596ea7ef5bab256e62204dd0dc1d92c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/uk.lproj/Localizable.strings", "blob_sha": "047c293855d3d4e1b9e84f67d4206b7f2dd1e42f", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/uk.lproj/Localizable.stringsdict", "blob_sha": "67ca5b8a8b7071a25388abebd1e777853a63e948", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2987,11 +2984,11 @@
     {"path": "MC1/Resources/Localization/uk.lproj/Onboarding.strings", "blob_sha": "7815bcd80beb65f1a2d42a35de0dd053542933e5", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/uk.lproj/RemoteNodes.strings", "blob_sha": "7237b899f9420fcd9ee723e04537cebd7e7e419e", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/uk.lproj/RemoteNodes.stringsdict", "blob_sha": "118eb60eb0d76e73c578a540727b38475ff47b70", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/uk.lproj/Settings.strings", "blob_sha": "a5e417a8e42ce33426a33f27252a0b7b03a06e14", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/uk.lproj/Settings.stringsdict", "blob_sha": "cb759d9ee8ae696fc2e5af89cd9e591511eaa562", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/uk.lproj/Settings.strings", "blob_sha": "a5e417a8e42ce33426a33f27252a0b7b03a06e14", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/uk.lproj/Settings.stringsdict", "blob_sha": "cb759d9ee8ae696fc2e5af89cd9e591511eaa562", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/uk.lproj/Tools.strings", "blob_sha": "c1d1a09bf6db3ca98340b707f0d7f29cd19cea0c", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/uk.lproj/WhatsNew.strings", "blob_sha": "8d60b82b1cab65b4d8a85335166832dc8ec75c4d", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/zh-Hans.lproj/Chats.strings", "blob_sha": "b8a013f4027c81d6618e7a22784ed5bf756826e9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/zh-Hans.lproj/Chats.strings", "blob_sha": "b8a013f4027c81d6618e7a22784ed5bf756826e9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-306", "WP-307", "WP-308", "WP-309", "WP-310", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/Contacts.strings", "blob_sha": "c305c6fe0e5e15c14354bc4b41677dc5a2db2fcd", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-311", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/Localizable.strings", "blob_sha": "525ca44eb09e72c85be6297382dfe0e4619102c7", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/Localizable.stringsdict", "blob_sha": "ebb44fb0cbbcc874937e794060c05491b6ebfcda", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-301", "WP-302", "WP-304", "WP-401", "WP-407"], "exclusion": null},
@@ -2999,8 +2996,8 @@
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/Onboarding.strings", "blob_sha": "250d465035c7e24211d9f53d55566b8aac1eb42b", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-305", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/RemoteNodes.strings", "blob_sha": "582b6be63934ab00e60a288932a2acbf906642ff", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/RemoteNodes.stringsdict", "blob_sha": "d513718f48bd791dd449957d691096f77ddeb8d9", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-310", "WP-313", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.strings", "blob_sha": "dad01490cfa3f00f7a144f3c0aa10c8dbebbe42e", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
-    {"path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.stringsdict", "blob_sha": "921b551a5af6b075414ad43e9d92e0967604bf17", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-406", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.strings", "blob_sha": "dad01490cfa3f00f7a144f3c0aa10c8dbebbe42e", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
+    {"path": "MC1/Resources/Localization/zh-Hans.lproj/Settings.stringsdict", "blob_sha": "921b551a5af6b075414ad43e9d92e0967604bf17", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-317", "WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/Tools.strings", "blob_sha": "c98f32bf4f18cca1e056799b6da5deb815329d31", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-314", "WP-315", "WP-316", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/Localization/zh-Hans.lproj/WhatsNew.strings", "blob_sha": "3dcafdb849ad4885a10e55f6a1ac32fa2f75b34e", "kind": "resource", "primary_owner": "WP-005", "cross_references": ["WP-318", "WP-407"], "exclusion": null},
     {"path": "MC1/Resources/PrivacyInfo.xcprivacy", "blob_sha": "c3cce4b617d9fd00ccd12795a01d34651e2792cc", "kind": "resource", "primary_owner": null, "cross_references": ["WP-407"], "exclusion": "apple-only-glue"},
@@ -3022,18 +3019,18 @@
     {"path": "MC1/Services/LocationService.swift", "blob_sha": "74f588cf8a5f9de3c180462f69cc03ec6f78cca4", "kind": "production", "primary_owner": "WP-218", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Services/LogExportService.swift", "blob_sha": "ff409dfa54303562a0cbf15a875efd9db7bc9c92", "kind": "production", "primary_owner": "WP-212", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Services/MapSnapshotStore.swift", "blob_sha": "8dbe7b0865b631a37df765f042efe8e5d8b53fe5", "kind": "production", "primary_owner": "WP-312", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1/Services/MessageTranslating.swift", "blob_sha": "6caf0e0831c6a362a6d99a777cca181ef76f870c", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
-    {"path": "MC1/Services/MessageTranslationNeedsDownloadError.swift", "blob_sha": "a1d3dd0e150483740a7dc84b0c7916752b966fdb", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Services/MessageTranslating.swift", "blob_sha": "6caf0e0831c6a362a6d99a777cca181ef76f870c", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1/Services/MessageTranslationNeedsDownloadError.swift", "blob_sha": "a1d3dd0e150483740a7dc84b0c7916752b966fdb", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1/Services/NotificationStringProviderImpl.swift", "blob_sha": "6cbd8f44fe5228ac6c02d48a01f460c281ffc5d3", "kind": "production", "primary_owner": "WP-401", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Services/OfflineMapService.swift", "blob_sha": "acf3df6eb1a4da640f167e200f8442cc033c53ad", "kind": "production", "primary_owner": "WP-312", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Services/RedirectSafetyDelegate.swift", "blob_sha": "9463a591383e9ad2bc61276785e7fc27de1ee990", "kind": "production", "primary_owner": "WP-218", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Services/RegionResolver.swift", "blob_sha": "abff570c6c42365b0bcd734e6aa68d22767378f6", "kind": "production", "primary_owner": "WP-218", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1/Services/TranslationLanguageAvailability.swift", "blob_sha": "ae4d0cd6a75905d5a89fe71c568e55b439c58fb6", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
-    {"path": "MC1/Services/TranslationLanguageResolver.swift", "blob_sha": "bd6734d72dbdfb859eb2a7d51af8811145673059", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
-    {"path": "MC1/Services/TranslationPerformResult.swift", "blob_sha": "75756c40bf046b979199901a3eb77e90e1c2ec69", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
-    {"path": "MC1/Services/TranslationSession+Configuration.swift", "blob_sha": "4113c8ce8a81afca40d42a4e89c974d1ff8de5f2", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
-    {"path": "MC1/Services/TranslationSessionLauncher.swift", "blob_sha": "57e7f519842a503271f72058b604b5f46c7021d3", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
-    {"path": "MC1/Services/TranslationSessionRequest.swift", "blob_sha": "ed3b8cb512bd690aa20d1ef31a9e80bd58f55de2", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Services/TranslationLanguageAvailability.swift", "blob_sha": "ae4d0cd6a75905d5a89fe71c568e55b439c58fb6", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1/Services/TranslationLanguageResolver.swift", "blob_sha": "bd6734d72dbdfb859eb2a7d51af8811145673059", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1/Services/TranslationPerformResult.swift", "blob_sha": "75756c40bf046b979199901a3eb77e90e1c2ec69", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1/Services/TranslationSession+Configuration.swift", "blob_sha": "4113c8ce8a81afca40d42a4e89c974d1ff8de5f2", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1/Services/TranslationSessionLauncher.swift", "blob_sha": "57e7f519842a503271f72058b604b5f46c7021d3", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1/Services/TranslationSessionRequest.swift", "blob_sha": "ed3b8cb512bd690aa20d1ef31a9e80bd58f55de2", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1/Settings.bundle/Acknowledgements.plist", "blob_sha": "669fc9161638f49db0db36ee816ba19fce7fb633", "kind": "license", "primary_owner": "WP-318", "cross_references": ["WP-001", "WP-301", "WP-506"], "exclusion": null},
     {"path": "MC1/Settings.bundle/Packages/Catppuccin.plist", "blob_sha": "3ef6068cd507bf363ce97fff5b2f426d01ccca23", "kind": "license", "primary_owner": "WP-318", "cross_references": ["WP-001", "WP-301", "WP-506"], "exclusion": null},
     {"path": "MC1/Settings.bundle/Packages/Emojibase.plist", "blob_sha": "9495e4d8170318d768ada0efc146bd7547f20d5d", "kind": "license", "primary_owner": "WP-318", "cross_references": ["WP-001", "WP-301", "WP-506"], "exclusion": null},
@@ -3155,7 +3152,7 @@
     {"path": "MC1/Views/Chats/Components/BubbleFooterRow.swift", "blob_sha": "2c73cf2e87ff42ccd5d02f78411be125581ce897", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/BubbleFragmentStack.swift", "blob_sha": "f7b9cab32a5b7dbaaa885cb82bda0d685594ef4a", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/BubbleResolver.swift", "blob_sha": "4f0853824f2868916afddb76d3b4fa132f743edb", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/Components/BubbleTranslationControl.swift", "blob_sha": "631b8d1b88214fa7f27b750d084e0fe9f91b0dcf", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/Components/BubbleTranslationControl.swift", "blob_sha": "631b8d1b88214fa7f27b750d084e0fe9f91b0dcf", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1/Views/Chats/Components/ChatCellContentFactory.swift", "blob_sha": "f4cc119b0f8b7d85f059b085a5f4b7c51d699261", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/ChatComposeBarFade.swift", "blob_sha": "62dc134abfbae30a8eb2f27dded17b0029803c82", "kind": "production", "primary_owner": "WP-308", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/ChatComposerProxy.swift", "blob_sha": "660e290ae8eb6a4a132b15687f61301a9dd54088", "kind": "production", "primary_owner": "WP-308", "cross_references": ["WP-501"], "exclusion": null},
@@ -3167,7 +3164,7 @@
     {"path": "MC1/Views/Chats/Components/ChatShareMenu.swift", "blob_sha": "8c56ff474ba401740c3f16312808a42cc822e49f", "kind": "production", "primary_owner": "WP-308", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/ChatTiledCell.swift", "blob_sha": "01d0e81ae45581ac19f2abf90d71ea7897a8dc32", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/ChatTiledView.swift", "blob_sha": "f84f038766c79707585f9d3590f5135f6221bf85", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift", "blob_sha": "939726ace425f8a5dfc650523a8b0b98408be772", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/Components/ConversationTranslationSessionModifier.swift", "blob_sha": "939726ace425f8a5dfc650523a8b0b98408be772", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1/Views/Chats/Components/FallbackMatchIndicatorView.swift", "blob_sha": "75671b515e05009b5013201fdc8b7a5ab571bd64", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/FragmentLayout.swift", "blob_sha": "c685a8036d38c84c30d5b1c2e6e4cb873ec106fd", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/Components/Fragments/InlineImageFragmentView.swift", "blob_sha": "18ca4e8cab706702b0ee27d637fa25934ffb2e09", "kind": "production", "primary_owner": "WP-308", "cross_references": ["WP-501"], "exclusion": null},
@@ -3294,21 +3291,21 @@
     {"path": "MC1/Views/Chats/ViewModel/ChatMessageBakeState.swift", "blob_sha": "95fed3e1461ed9603bbf968f602b3e1c59ea87db", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/ViewModel/ChatSenderTables.swift", "blob_sha": "a7d93fbd6cd81aebe801930e516944f488d524dd", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/ViewModel/ChatTimelinePopulator.swift", "blob_sha": "3197cc92274985ece52ee7be3f075e147ae1ee05", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Channels.swift", "blob_sha": "b5f12b4788008044d049c286083491c0af7f8924", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationCache.swift", "blob_sha": "30bde11d92c297c753852ae004695165f28617b4", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationList.swift", "blob_sha": "65022e65071163aa9b4de5bddeaa9c78bee35085", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+DisplayItems.swift", "blob_sha": "a11d0d9df2216d2d087411920aa21c759a0719f6", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift", "blob_sha": "46db94afdf50058d886311fe18b50376c3a82546", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ItemBuild.swift", "blob_sha": "b7032551e18918f99a58ee11851aeb25860da78d", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift", "blob_sha": "9d0da471cb9e87587321f47a7a13c70420b5ed28", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift", "blob_sha": "fa228d01ac49998ba8674408977aaea4f33d2dd3", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift", "blob_sha": "8f9f79327aebbe61d96b0c9e935ed90bb33935ba", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Prefetch.swift", "blob_sha": "c3eb75cb44c609336b76bdf8f0a6b253e3438305", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ReactionIndexing.swift", "blob_sha": "c77db8c2e82d22fcc1f9b35f17e7d27af43981a5", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Reactions.swift", "blob_sha": "76255b9bb505b64f3802fb0a97c8c60de7d87b93", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift", "blob_sha": "afb96ae930eb11e8d2ba7a9013eaabfe7d376fb1", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift", "blob_sha": "989a1cd1641f389c30887f0e1115cf7fed21a2bd", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel.swift", "blob_sha": "971c435730b57300f5c0fa0e2f17fe7ba9db3659", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-406", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Channels.swift", "blob_sha": "b5f12b4788008044d049c286083491c0af7f8924", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationCache.swift", "blob_sha": "30bde11d92c297c753852ae004695165f28617b4", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ConversationList.swift", "blob_sha": "65022e65071163aa9b4de5bddeaa9c78bee35085", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+DisplayItems.swift", "blob_sha": "a11d0d9df2216d2d087411920aa21c759a0719f6", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift", "blob_sha": "46db94afdf50058d886311fe18b50376c3a82546", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ItemBuild.swift", "blob_sha": "b7032551e18918f99a58ee11851aeb25860da78d", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+MessageActions.swift", "blob_sha": "9d0da471cb9e87587321f47a7a13c70420b5ed28", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Messages.swift", "blob_sha": "fa228d01ac49998ba8674408977aaea4f33d2dd3", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Pagination.swift", "blob_sha": "8f9f79327aebbe61d96b0c9e935ed90bb33935ba", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Prefetch.swift", "blob_sha": "c3eb75cb44c609336b76bdf8f0a6b253e3438305", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+ReactionIndexing.swift", "blob_sha": "c77db8c2e82d22fcc1f9b35f17e7d27af43981a5", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Reactions.swift", "blob_sha": "76255b9bb505b64f3802fb0a97c8c60de7d87b93", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift", "blob_sha": "afb96ae930eb11e8d2ba7a9013eaabfe7d376fb1", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel+Translation.swift", "blob_sha": "989a1cd1641f389c30887f0e1115cf7fed21a2bd", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1/Views/Chats/ViewModel/ChatViewModel.swift", "blob_sha": "971c435730b57300f5c0fa0e2f17fe7ba9db3659", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-306", "WP-308", "WP-309", "WP-310", "WP-501"], "exclusion": null},
     {"path": "MC1/Views/Chats/ViewModel/ReactionIndexScope.swift", "blob_sha": "add928400247a1990de7c27c128156bfb9614ca4", "kind": "production", "primary_owner": "WP-307", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Components/AsyncActionLabel.swift", "blob_sha": "d1ee5930530417e957de8b8b05ad1610f3a551b9", "kind": "production", "primary_owner": "WP-304", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Components/AvatarCropGeometry.swift", "blob_sha": "c63d725ea26d0caf9d86d94ae8a50426c6295f93", "kind": "production", "primary_owner": "WP-304", "cross_references": ["WP-501"], "exclusion": null},
@@ -3466,7 +3463,7 @@
     {"path": "MC1/Views/RemoteNodes/Repeaters/RepeaterStatusView.swift", "blob_sha": "968588927e84ce3d4f5dd6f4fc3300e7be260934", "kind": "production", "primary_owner": "WP-313", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/RemoteNodes/Repeaters/RepeaterStatusViewModel.swift", "blob_sha": "cf5418d8c056579e41d492c58a87e950eb5e1519", "kind": "production", "primary_owner": "WP-313", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/RemoteNodes/Rooms/RoomConversationView.swift", "blob_sha": "c31d2baa290dfc7d9a4668e73757746be943bec3", "kind": "production", "primary_owner": "WP-310", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift", "blob_sha": "d83143660593e9b1614c141d30bed74154ecb1cf", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel+Translation.swift", "blob_sha": "d83143660593e9b1614c141d30bed74154ecb1cf", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1/Views/RemoteNodes/Rooms/RoomConversationViewModel.swift", "blob_sha": "ef974c471aefcb1d86f76c8a02d44eabcca100b4", "kind": "production", "primary_owner": "WP-310", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/RemoteNodes/Rooms/RoomMessageAction.swift", "blob_sha": "7763db34f2b268d65419550312fa10d8dee3dd96", "kind": "production", "primary_owner": "WP-310", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/RemoteNodes/Rooms/RoomMessageActionAvailability.swift", "blob_sha": "b03840fddd489730f42b38b770faa5ef6883cc1c", "kind": "production", "primary_owner": "WP-310", "cross_references": ["WP-501"], "exclusion": null},
@@ -3559,7 +3556,7 @@
     {"path": "MC1/Views/Settings/SettingsSubpage.swift", "blob_sha": "8edf932a7f6d05b045c621abd86d8ead286120a9", "kind": "production", "primary_owner": "WP-317", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Settings/SettingsView.swift", "blob_sha": "3e1fdd04751edf7c7b2733bd034bf2d614d04003", "kind": "production", "primary_owner": "WP-317", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Settings/SystemPairingSetupSheet.swift", "blob_sha": "44ab5b8710afbeb783858eb2206b32352056d748", "kind": "production", "primary_owner": "WP-317", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1/Views/Settings/TranslateIntoLanguageView.swift", "blob_sha": "85bd81d36502f6303fc89eec1b15b8b6f32ad602", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1/Views/Settings/TranslateIntoLanguageView.swift", "blob_sha": "85bd81d36502f6303fc89eec1b15b8b6f32ad602", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1/Views/Settings/TrustedContactsPickerView.swift", "blob_sha": "47eb5f39569807ad029209fce75ab174df3c64ba", "kind": "production", "primary_owner": "WP-317", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1/Views/Sidebar/SidebarBackgroundExtension.swift", "blob_sha": "12ca8ff9703dc7dda3f31b94f893d9dd55cb0b9b", "kind": "production", "primary_owner": null, "cross_references": ["WP-302"], "exclusion": "apple-only-glue"},
     {"path": "MC1/Views/Sidebar/SidebarContentColumnBackground.swift", "blob_sha": "0c926398088dc58b18700e4bd18bb341dbb4bba7", "kind": "production", "primary_owner": "WP-302", "cross_references": ["WP-501"], "exclusion": null},
@@ -3724,7 +3721,7 @@
     {"path": "MC1Services/Sources/MC1Services/Models/RemoteNodeSession.swift", "blob_sha": "eb906796c3f68d8e5c6e76515e6afdccebd3c832", "kind": "production", "primary_owner": "WP-201", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/BaseColorSlot.swift", "blob_sha": "4e81595cbcf65b86d6d6c960db4950874e7a66a5", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/ChatRenderState.swift", "blob_sha": "f76facc2f072c29b00be1930aa8d2a3e15be12fe", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
-    {"path": "MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift", "blob_sha": "a7b874956ec3e46626f897df9adff8716027481f", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-202", "WP-203", "WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1Services/Sources/MC1Services/Models/Rendering/DetectedLanguage.swift", "blob_sha": "a7b874956ec3e46626f897df9adff8716027481f", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/EnvInputs.swift", "blob_sha": "aca434f4d971d0f9dc4c8f7c575a2f168527b5b7", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/GroupingFlags.swift", "blob_sha": "0c614908c0b35e439ca239c22ecdb84d31a9d612", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/ImageReference.swift", "blob_sha": "67538a15f81be8777420012a332bba149e7d10e8", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
@@ -3737,11 +3734,11 @@
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageFragment.swift", "blob_sha": "41bd4665536760ee050f3e43abcce321b6892077", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageItem.swift", "blob_sha": "89ab05d4b972e2a83c39937fa5e89c261ee95f76", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTextPayload.swift", "blob_sha": "c721c0823bf460ffd4fc871dc9800497869d229b", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
-    {"path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift", "blob_sha": "fda5ac96d7216fc264adb3b0f63c578d00c9439a", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-202", "WP-203", "WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1Services/Sources/MC1Services/Models/Rendering/MessageTranslationChrome.swift", "blob_sha": "fda5ac96d7216fc264adb3b0f63c578d00c9439a", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/NodeNameResolution.swift", "blob_sha": "29e49a467e4fe2f96f9e75e4420457400576b8ec", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/PreviewLoadState.swift", "blob_sha": "8145f631f372f2d6b971c573ddabdaf919ab4759", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/Rendering/SNRQuality.swift", "blob_sha": "7bfd48a129a966c06f68ff6aec17eb428b631828", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
-    {"path": "MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift", "blob_sha": "c3354f58ffdbbb1625adb9bf897bfb2296dabff1", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-202", "WP-203", "WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1Services/Sources/MC1Services/Models/Rendering/TranslationTargetPreference.swift", "blob_sha": "c3354f58ffdbbb1625adb9bf897bfb2296dabff1", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Services/Sources/MC1Services/Models/RoomMessage.swift", "blob_sha": "4b4eb7bd393636adc00bf6d2c3679f6461c35921", "kind": "production", "primary_owner": "WP-201", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/RxLogEntry.swift", "blob_sha": "9477b3b1766242722011fa45eb3e876512931481", "kind": "production", "primary_owner": "WP-201", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Models/SavedTracePath.swift", "blob_sha": "13f2b2dbc5658aeefd3ed19f74468bb7db998dd9", "kind": "production", "primary_owner": "WP-201", "cross_references": ["WP-202", "WP-203", "WP-501"], "exclusion": null},
@@ -3828,7 +3825,7 @@
     {"path": "MC1Services/Sources/MC1Services/Services/MessageDTO+ReactionVisibility.swift", "blob_sha": "380bd15bcea5059d591c1dc1fa1fd828f285aab9", "kind": "production", "primary_owner": "WP-216", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift", "blob_sha": "2e10285fd96953b96c142e81e3d60c1f4966f3a1", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Services/MessageLRUCache.swift", "blob_sha": "e1fb7bf672546827b39eb2a805baf0030023af11", "kind": "production", "primary_owner": "WP-213", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift", "blob_sha": "4672107431f585313fefbbff02951a8c284cbdc0", "kind": "production", "primary_owner": "WP-406", "cross_references": ["WP-213", "WP-308", "WP-310", "WP-501"], "exclusion": null},
+    {"path": "MC1Services/Sources/MC1Services/Services/MessageLanguageDetector.swift", "blob_sha": "4672107431f585313fefbbff02951a8c284cbdc0", "kind": "production", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Services/Sources/MC1Services/Services/MessagePollingService.swift", "blob_sha": "c8180abcb59d3cfb696b8d41b0a8b503d1660c31", "kind": "production", "primary_owner": "WP-208", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift", "blob_sha": "a6443388d8fb9b222a5ca7e6138b7057a0b0f1b8", "kind": "production", "primary_owner": "WP-208", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Sources/MC1Services/Services/MessageService+SendChannel.swift", "blob_sha": "139d747632e26d5e520f78dcb654e9c6e975a243", "kind": "production", "primary_owner": "WP-208", "cross_references": ["WP-501"], "exclusion": null},
@@ -4013,8 +4010,8 @@
     {"path": "MC1Services/Tests/MC1ServicesTests/MC1ServicesTests.swift", "blob_sha": "0370e093131d6d434b08ecfe3d1d955679ef8899", "kind": "test", "primary_owner": "WP-304", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift", "blob_sha": "44853b6d73abecefd3d2036704e996f6503ea344", "kind": "test", "primary_owner": "WP-107", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift", "blob_sha": "8618dddfbebc39bbb791ce9699349bf76bd276a6", "kind": "test", "primary_owner": "WP-201", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift", "blob_sha": "1f2331d99c0dc878fd49898573bc7dfb07980812", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift", "blob_sha": "e0f6b111c1ba8a66c14331b79b8acf49a22aade8", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501"], "exclusion": null},
+    {"path": "MC1Services/Tests/MC1ServicesTests/MessageLanguageDetectorTests.swift", "blob_sha": "1f2331d99c0dc878fd49898573bc7dfb07980812", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1Services/Tests/MC1ServicesTests/MessageTranslationChromeTests.swift", "blob_sha": "e0f6b111c1ba8a66c14331b79b8acf49a22aade8", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Services/Tests/MC1ServicesTests/Mocks/MockAccessorySetupKitService.swift", "blob_sha": "8c96d591bdf65e6abacb4ae6997f2a8377a3cc23", "kind": "support", "primary_owner": "WP-206", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/Mocks/MockAppStateProvider.swift", "blob_sha": "9b16ee8e0e35fa1adb9a536ec1de3d1d6ec5380b", "kind": "support", "primary_owner": "WP-201", "cross_references": ["WP-202", "WP-203", "WP-208", "WP-209", "WP-210", "WP-213", "WP-216", "WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/Mocks/MockBLEStateMachine.swift", "blob_sha": "4722932c45d1826d118bcd310d1d3a06597d5f8a", "kind": "support", "primary_owner": "WP-205", "cross_references": ["WP-501"], "exclusion": null},
@@ -4115,7 +4112,7 @@
     {"path": "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorMessageHandlerTests.swift", "blob_sha": "879f8b0a4337fdcec2a56c93cc4e77457aa35e9e", "kind": "test", "primary_owner": "WP-214", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorTests.swift", "blob_sha": "a4f18ba706d58905cf44d22de75b5feca7f5adc7", "kind": "test", "primary_owner": "WP-214", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/SyncCoordinatorTimestampTests.swift", "blob_sha": "24631d48bdc9b5a37946390d2f2e4b0fe806ffe6", "kind": "test", "primary_owner": "WP-214", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift", "blob_sha": "9449782fe8b7eb8e68d67d05da70884d71546762", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501"], "exclusion": null},
+    {"path": "MC1Services/Tests/MC1ServicesTests/TranslationTargetPreferenceTests.swift", "blob_sha": "9449782fe8b7eb8e68d67d05da70884d71546762", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Services/Tests/MC1ServicesTests/Transport/BLEPhaseTests.swift", "blob_sha": "611a8ada3a952b58f3eb5699a79b723edaeab065", "kind": "test", "primary_owner": "WP-205", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineAutoReconnectRetryTests.swift", "blob_sha": "15930606163ed2e9b604a7b559a954b98857dd42", "kind": "test", "primary_owner": "WP-205", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineBondSuspectRecoveryTests.swift", "blob_sha": "d03756beefa2fd510651199e21c1def8fb360a81", "kind": "test", "primary_owner": "WP-205", "cross_references": ["WP-501"], "exclusion": null},
@@ -4200,9 +4197,9 @@
     {"path": "MC1Tests/Services/MapSnapshotStoreTests.swift", "blob_sha": "065bc4c347b9e7797d2a63599106f9758b2639e4", "kind": "test", "primary_owner": "WP-312", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Tests/Services/RegionResolverTests.swift", "blob_sha": "ae1d1666e5123efc40ff7784480a68367ede0df6", "kind": "test", "primary_owner": "WP-218", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Tests/Services/SettingsServiceApplyPresetTests.swift", "blob_sha": "1743bde7379bfe68807d0bbfd6ff89e4e6f6e182", "kind": "test", "primary_owner": "WP-211", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1Tests/Services/TranslationLanguageResolverTests.swift", "blob_sha": "dda4d61d6cff36ea9317e22e9fd6527cbac5da8b", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1Tests/Services/TranslationSessionConfigurationTests.swift", "blob_sha": "fab5b90cd09f4f230bac3e8734f58dbd2d37aaba", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501"], "exclusion": null},
-    {"path": "MC1Tests/Services/TranslationSessionLauncherTests.swift", "blob_sha": "4d56a1fa8bdae6bf492414375554bc649a4b0d79", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501"], "exclusion": null},
+    {"path": "MC1Tests/Services/TranslationLanguageResolverTests.swift", "blob_sha": "dda4d61d6cff36ea9317e22e9fd6527cbac5da8b", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1Tests/Services/TranslationSessionConfigurationTests.swift", "blob_sha": "fab5b90cd09f4f230bac3e8734f58dbd2d37aaba", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
+    {"path": "MC1Tests/Services/TranslationSessionLauncherTests.swift", "blob_sha": "4d56a1fa8bdae6bf492414375554bc649a4b0d79", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Tests/SidebarNavigationLayoutTests.swift", "blob_sha": "f953db4e598370e90898f5717f4c9041843254dc", "kind": "test", "primary_owner": "WP-302", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Tests/State/ChannelSlotOccupantChangedTests.swift", "blob_sha": "51b97871e809fe67f6c24a96d0cd75dd2b86075d", "kind": "test", "primary_owner": "WP-303", "cross_references": ["WP-501"], "exclusion": null},
     {"path": "MC1Tests/State/ChatPrewarmRefresherTests.swift", "blob_sha": "984aa71c54f3fd0625d1fb2e81cd7baf9c089ff5", "kind": "test", "primary_owner": "WP-303", "cross_references": ["WP-501"], "exclusion": null},
@@ -4240,10 +4237,10 @@
     {"path": "MC1Tests/ViewModels/ChatViewModelPaginationTests.swift", "blob_sha": "3cdec22a19fc8ebce02e3f17bf62bdf49226208e", "kind": "test", "primary_owner": "WP-307", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/ChatViewModelPreviewSeedTests.swift", "blob_sha": "e8ab4ef5908187d71ce2e0e0c12e93a473b45b44", "kind": "test", "primary_owner": "WP-307", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/ChatViewModelTests.swift", "blob_sha": "6b7e9d420b8c07ef422091f7aa510f55390da0f2", "kind": "test", "primary_owner": "WP-307", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
-    {"path": "MC1Tests/ViewModels/ChatViewModelTranslationTests.swift", "blob_sha": "ebeb8e5c4d229e92f94369285cace8f92e9a73b4", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
+    {"path": "MC1Tests/ViewModels/ChatViewModelTranslationTests.swift", "blob_sha": "ebeb8e5c4d229e92f94369285cace8f92e9a73b4", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Tests/ViewModels/ContactsViewModelTests.swift", "blob_sha": "e99d8b301063bec4d07566de74623958a1a1d5b2", "kind": "test", "primary_owner": "WP-311", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift", "blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c", "kind": "test", "primary_owner": "WP-311", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
-    {"path": "MC1Tests/ViewModels/GatedMessageTranslator.swift", "blob_sha": "cfb385e4234a0e3eb6c21a27754fc38eb429c862", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
+    {"path": "MC1Tests/ViewModels/GatedMessageTranslator.swift", "blob_sha": "cfb385e4234a0e3eb6c21a27754fc38eb429c862", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Tests/ViewModels/IncomingAvatarClusterTests.swift", "blob_sha": "c5be7820e1a1bc9dd15d210eba0f1f89ecb11d3e", "kind": "test", "primary_owner": "WP-307", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/IncomingAvatarIdentityTests.swift", "blob_sha": "2826ee0810a2fbf84cdcb3dbd6b4e225f0c9fe49", "kind": "test", "primary_owner": "WP-307", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/LineOfSightViewModelTests.swift", "blob_sha": "681a3ae62a193567af5f9f861db5c06c4fbfe9a9", "kind": "test", "primary_owner": "WP-315", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
@@ -4260,7 +4257,7 @@
     {"path": "MC1Tests/ViewModels/RepeaterSettingsViewModelRegionTests.swift", "blob_sha": "b431a0035a7e3491a1f23d3c0d06e2394d116a75", "kind": "test", "primary_owner": "WP-313", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/RepeaterStatusViewModelTests.swift", "blob_sha": "1c54b4077266aa64255ed883b63e81eaaf787584", "kind": "test", "primary_owner": "WP-313", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/RoomConversationViewModelOrderingTests.swift", "blob_sha": "197299050b6801d7c850b9c992cdcedfd1c4e26f", "kind": "test", "primary_owner": "WP-310", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
-    {"path": "MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift", "blob_sha": "a887e97d2bb2d6e431089e98ba4ac509ee8f9b59", "kind": "test", "primary_owner": "WP-406", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
+    {"path": "MC1Tests/ViewModels/RoomConversationViewModelTranslationTests.swift", "blob_sha": "a887e97d2bb2d6e431089e98ba4ac509ee8f9b59", "kind": "test", "primary_owner": null, "cross_references": ["WP-000"], "exclusion": "removed-translation"},
     {"path": "MC1Tests/ViewModels/RxLogViewModelTests.swift", "blob_sha": "f0a5ee46e8eb4190606b41d6c8bdafa29885d9d5", "kind": "test", "primary_owner": "WP-316", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/TelemetryHistoryOverviewViewModelTests.swift", "blob_sha": "7ec354668ef37265ec7e07fe13ff0bbd82106662", "kind": "test", "primary_owner": "WP-313", "cross_references": ["WP-501", "WP-502"], "exclusion": null},
     {"path": "MC1Tests/ViewModels/TracePathListenerTests.swift", "blob_sha": "07d66589f29995615d50fc4c963eb732d0a30b3a", "kind": "test", "primary_owner": "WP-314", "cross_references": ["WP-501", "WP-502"], "exclusion": null},

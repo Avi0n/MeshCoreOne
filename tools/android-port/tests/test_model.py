@@ -32,6 +32,7 @@ from controller.verification_config import (
 from controller.model import Manifest
 from controller.schema import load_json
 from controller.schema import digest
+from controller.scope_amendment import apply_translation_scope, project_translation_scope
 
 
 def evidence_reader(relative, name):
@@ -195,15 +196,15 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(counts["tracked_reference_files"], 1866)
         self.assertEqual(counts["kinds"]["production"], 1058)
         self.assertEqual(counts["kinds"]["test"] + counts["kinds"]["support"], 468)
-        self.assertEqual(counts["owned_files"], 1812)
-        self.assertEqual(counts["excluded_files"], 54)
-        self.assertEqual(counts["work_packages"], 65)
-        self.assertEqual(counts["dependency_edges"], 185)
+        self.assertEqual(counts["owned_files"], 1786)
+        self.assertEqual(counts["excluded_files"], 80)
+        self.assertEqual(counts["work_packages"], 64)
+        self.assertEqual(counts["dependency_edges"], 178)
         self.assertEqual(set(counts["human_gates"]), HUMAN_GATES)
 
     def test_expander_is_reproducible_not_a_runtime_glob(self):
         data, exclusions = build_inventory(REPO)
-        self.assertEqual(apply_overlay(data), project_content_scope(base_manifest().data))
+        self.assertEqual(apply_content_scope(apply_overlay(data)), base_manifest().data)
         self.assertEqual(exclusions, base_manifest().exclusions)
         self.assertTrue(all("*" not in e["path"] for e in data["inventory"]))
 
@@ -273,9 +274,10 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(project_policy_amendment(baseline), original)
         self.assertEqual(historical.data, original)
         self.assertEqual(historical.sha256, VERIFICATION_MANIFEST_SHA256)
-        self.assertEqual(apply_content_scope(baseline), manifest.data)
-        self.assertEqual(manifest.sha256, "58f7ebd7f46bbe0636c71005f20776efe139a287279e4f4708b25ce6bfa3f892")
-        self.assertEqual(content_scope_revisions(manifest, load_json(REPO / "docs/android/automation-policy.json")),
+        predecessor = Manifest(project_translation_scope(manifest.data), {}, REPO)
+        self.assertEqual(apply_content_scope(baseline), predecessor.data)
+        self.assertEqual(predecessor.sha256, "58f7ebd7f46bbe0636c71005f20776efe139a287279e4f4708b25ce6bfa3f892")
+        self.assertEqual(content_scope_revisions(predecessor, load_json(REPO / "docs/android/automation-policy.json")),
                          {"manifest_sha256": "4f8328f7295d2fdecce10489f99d992cd6b2d861c709f32297e21ed9c5b8fdf5",
                           "policy_revision": "375c9252499e63787449b907755e7bfa0dfb49281f0a46954527480165734428"})
 
@@ -430,13 +432,16 @@ class ManifestTests(unittest.TestCase):
         self.assertTrue(any("/Theme/" in p and p.endswith("Contents.json") for p in entries))
         self.assertTrue(any("Settings.bundle/Packages/" in p for p in entries))
 
-    def test_translation_is_required_and_never_excluded(self):
-        entries = [e for e in base_manifest().data["inventory"] if "Translat" in e["path"] or "LanguageDetector" in e["path"]]
-        self.assertTrue(entries)
+    def test_translation_is_user_excluded_not_a_port_or_future_requirement(self):
+        from inventory_rules import TRANSLATION_PATHS
+
+        entries = [e for e in base_manifest().data["inventory"] if e["path"] in TRANSLATION_PATHS]
+        self.assertEqual(len(entries), 26)
         for entry in entries:
-            self.assertEqual(entry["primary_owner"], "WP-406")
-            self.assertIsNone(entry["exclusion"])
-        self.assertTrue(base_manifest().wp("WP-406")["human_gate"])
+            self.assertIsNone(entry["primary_owner"])
+            self.assertEqual(entry["exclusion"], "removed-translation")
+            self.assertEqual(entry["cross_references"], ["WP-000"])
+        self.assertNotIn("WP-406", base_manifest().work_packages)
 
     def test_many_to_many_cross_references_do_not_duplicate_primary_owners(self):
         entries = base_manifest().data["inventory"]
@@ -526,7 +531,7 @@ class ManifestTests(unittest.TestCase):
 
     def test_removed_billing_generated_and_apple_glue_are_reviewed(self):
         reasons = Counter(e["reason_code"] for e in base_manifest().exclusions["entries"])
-        self.assertEqual(set(reasons), {"removed-billing", "generated-swift", "apple-only-glue"})
+        self.assertEqual(set(reasons), {"removed-billing", "removed-translation", "generated-swift", "apple-only-glue"})
         for entry in base_manifest().exclusions["entries"]:
             self.assertTrue(entry["review_basis"])
             self.assertTrue(entry["android_adaptation"])
@@ -537,10 +542,9 @@ class ManifestTests(unittest.TestCase):
         exclusions = copy.deepcopy(base_manifest().exclusions)
         entry = next(e for e in data["inventory"] if e["path"].endswith("/TranslationSessionLauncher.swift"))
         entry["exclusion"], entry["primary_owner"] = "apple-only-glue", None
-        exclusions["entries"].append({
-            "path": entry["path"], "blob_sha": entry["blob_sha"], "reason_code": "apple-only-glue",
-            "adaptation_wp": "WP-406", "review_basis": "fake", "android_adaptation": "fake",
-        })
+        excluded = next(e for e in exclusions["entries"] if e["path"] == entry["path"])
+        excluded.update(reason_code="apple-only-glue", adaptation_wp="WP-000",
+                        review_basis="fake", android_adaptation="fake")
         with self.assertRaisesRegex(PortError, "translation"):
             self.validate(data, exclusions)
 

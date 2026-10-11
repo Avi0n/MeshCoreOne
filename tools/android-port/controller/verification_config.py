@@ -11,6 +11,10 @@ if __package__ in (None, ""):
 
 from controller.errors import PortError
 from controller.schema import digest, load_json
+from controller.scope_amendment import (
+    apply_translation_scope, current_revisions, is_translation_scope, project_translation_scope,
+    project_translation_exclusions,
+)
 
 BOOTSTRAP_POLICY_AMENDMENT = {
     "schema_version": 1,
@@ -90,7 +94,9 @@ LEGACY_COMMANDS = {
 }
 
 
-def apply_overlay(data: dict):
+def apply_overlay(data: dict, repo: Path = Path(__file__).resolve().parents[3]):
+    if is_translation_scope(data):
+        return apply_translation_scope(apply_overlay(project_translation_scope(data, repo), repo), repo)
     source = digest(data)
     if source not in (BOOTSTRAP_MANIFEST_SHA256, WP_003_BOOTSTRAP_MANIFEST_SHA256):
         raise PortError("Frozen bootstrap generator changed outside the protected WP-003 overlay")
@@ -111,7 +117,9 @@ def apply_overlay(data: dict):
     return result
 
 
-def apply_content_scope(data: dict):
+def apply_content_scope(data: dict, repo: Path = Path(__file__).resolve().parents[3]):
+    if is_translation_scope(data):
+        return apply_translation_scope(apply_content_scope(project_translation_scope(data, repo), repo), repo)
     if not isinstance(data, dict) or digest(data) not in (
             VERIFICATION_MANIFEST_SHA256, BOOTSTRAP_POLICY_AMENDMENT["final_manifest_sha256"],
             WP_003_MANIFEST_REVISION):
@@ -122,7 +130,9 @@ def apply_content_scope(data: dict):
     return result
 
 
-def project_content_scope(data: dict):
+def project_content_scope(data: dict, repo: Path = Path(__file__).resolve().parents[3]):
+    if is_translation_scope(data):
+        data = project_translation_scope(data, repo)
     if not isinstance(data, dict):
         raise PortError("Malformed content-scope manifest lineage")
     result = copy.deepcopy(data)
@@ -174,13 +184,20 @@ def project_policy_amendment(data: dict):
 def content_scope_predecessor(manifest):
     from controller.model import Manifest
 
-    return Manifest(project_policy_amendment(project_content_scope(manifest.data)), manifest.exclusions, manifest.repo)
+    exclusions = (
+        project_translation_exclusions(manifest.exclusions, manifest.repo)
+        if is_translation_scope(manifest.data) else manifest.exclusions
+    )
+    return Manifest(project_policy_amendment(project_content_scope(manifest.data, manifest.repo)), exclusions, manifest.repo)
 
 
 def content_scope_manifest_revision(manifest):
     from controller.model import Manifest
 
-    data = project_content_scope(manifest.data)
+    if is_translation_scope(manifest.data):
+        project_translation_scope(manifest.data, manifest.repo)
+        return manifest.sha256
+    data = project_content_scope(manifest.data, manifest.repo)
     project_policy_amendment(data)
     baseline = Manifest(data, manifest.exclusions, manifest.repo)
     if baseline.sha256 == VERIFICATION_MANIFEST_SHA256:
@@ -192,7 +209,9 @@ def content_scope_revisions(manifest, policy):
     from controller.gates import policy_revision
     from controller.model import Manifest
 
-    data = project_content_scope(manifest.data)
+    if is_translation_scope(manifest.data):
+        return current_revisions(manifest, policy)
+    data = project_content_scope(manifest.data, manifest.repo)
     project_policy_amendment(data)
     baseline = Manifest(data, manifest.exclusions, manifest.repo)
     historical = baseline.sha256 == VERIFICATION_MANIFEST_SHA256
@@ -219,18 +238,19 @@ def check_configuration(repo: Path):
     from bootstrap import build_inventory
 
     generated, exclusions = build_inventory(repo)
-    expected = apply_overlay(generated)
+    expected = apply_overlay(generated, repo)
     actual = load_json(repo / "docs" / "android" / "port-manifest.json")
     amendment = load_json(repo / POLICY_AMENDMENT_EVIDENCE)
     if amendment != BOOTSTRAP_POLICY_AMENDMENT:
         raise PortError("Protected bootstrap policy amendment evidence drift")
-    if project_content_scope(actual) != expected or load_json(repo / "docs" / "android" / "not-ported.json") != exclusions:
+    if actual != apply_content_scope(expected, repo) or load_json(repo / "docs" / "android" / "not-ported.json") != exclusions:
         raise PortError("Protected verification overlay or frozen inventory drift")
     return {
         "schema_version": 1, "result": "valid", "bootstrap_manifest_sha256": digest(generated),
         "manifest_sha256": digest(actual), "verification_amendments": sorted(AMENDMENTS),
         "content_scope_amended": actual != expected,
         "policy_amendment": amendment["amendment_id"],
+        "translation_scope_removed": is_translation_scope(actual),
         "feature_verification_configured": False, "human_or_dependency_acceptance": False,
     }
 

@@ -10,8 +10,8 @@ from .paths import git_path
 from .schema import check_schema, digest, load_json
 
 REFERENCE_SHA = "db14559b39d32322b06477c6ae676112f583db50"
-APPROVED_PLAN_SHA256 = "b4e78619f84583221cbf38a48212c89669c91aa26cdcbcd60d4e04cd6b6dc888"
-HUMAN_GATES = {"WP-000", "WP-001", "WP-002", "WP-003", "WP-006", "WP-406", "WP-505", "WP-506"}
+APPROVED_PLAN_SHA256 = "e5c838d2566d0466175e2be4036d50e44be548319c9fcd8b83bccd4fc03930cd"
+HUMAN_GATES = {"WP-000", "WP-001", "WP-002", "WP-003", "WP-006", "WP-505", "WP-506"}
 SUPERVISED = {"WP-000", "WP-001", "WP-002", "WP-003"}
 REFERENCE_ROOTS = ("MC1/", "MC1Tests/", "MC1Widgets/", "MC1Services/", "MeshCore/", "Shared/", "AppIcon.icon/")
 SHA = re.compile(r"^[0-9a-f]{40}$")
@@ -60,8 +60,8 @@ def plan_rows(text: str) -> dict[str, dict]:
             "depends_on": [f"WP-{n}" for n in re.findall(r"\b\d{3}\b", dependencies)],
             "human_gate": len(cells) > 4 and cells[4] == "Human",
         }
-    if len(rows) != 65 or sum(len(r["depends_on"]) for r in rows.values()) != 185:
-        raise PortError("Approved plan must contain exactly 65 WPs and 185 dependency edges")
+    if len(rows) != 64 or sum(len(r["depends_on"]) for r in rows.values()) != 178 or "WP-406" in rows:
+        raise PortError("Approved active plan must contain exactly 64 WPs and 178 dependency edges, without WP-406")
     return rows
 
 
@@ -219,6 +219,8 @@ def validate_manifest(
         original_plan.encode()
     ).hexdigest() != APPROVED_PLAN_SHA256:
         raise PortError("Approved plan changed beyond repository-relative documentation paths")
+    from inventory_rules import TRANSLATION_PATHS, exclusion as reviewed_exclusion
+
     excluded = {}
     for entry in exclusions["entries"]:
         path = git_path(entry["path"])
@@ -228,8 +230,13 @@ def validate_manifest(
             raise PortError(f"Unknown or mismatched excluded source: {path}")
         if not entry["review_basis"] or not entry["android_adaptation"]:
             raise PortError(f"Unreviewed exclusion: {path}")
-        if "Translation" in path or "Translat" in path or "LanguageDetector" in path:
-            raise PortError(f"Required translation cannot be excluded: {path}")
+        if path in TRANSLATION_PATHS or entry["reason_code"] == "removed-translation":
+            reviewed = reviewed_exclusion(path)
+            if path not in TRANSLATION_PATHS or (
+                entry["reason_code"], entry["adaptation_wp"],
+                entry["review_basis"], entry["android_adaptation"],
+            ) != reviewed:
+                raise PortError(f"Unapproved translation exclusion: {path}")
         if entry["adaptation_wp"] not in lookup:
             raise PortError(f"Unknown exclusion adaptation owner: {path}")
         excluded[path] = entry
@@ -260,6 +267,8 @@ def validate_manifest(
         raise PortError(f"Unowned source files: {sorted(expected.keys() - seen)}")
     if excluded.keys() != {e["path"] for e in data["inventory"] if e["exclusion"] is not None}:
         raise PortError("Exclusion inventory mismatch")
+    if {p for p, e in excluded.items() if e["reason_code"] == "removed-translation"} != TRANSLATION_PATHS:
+        raise PortError("Exact user-approved translation exclusions are required")
     for wp in lookup.values():
         if not any(e["primary_owner"] == wp["id"] for e in data["inventory"]):
             if not wp["android_only_reason"]:

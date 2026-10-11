@@ -4,7 +4,8 @@
 application, production CI, reviewer execution, signing, repository settings or a fleet.
 `automation-policy.json` is committed with dispatch **off**, **paused**, activation unapproved,
 no trusted publisher/workflow IDs and branch rules unproven. The wrappers cannot override this.
-All 65 macro WPs remain pending until their actual merged PR and acceptance evidence are verified.
+The 64 active macro WPs require actual merged PR and acceptance evidence; the retired translation
+WP-406 is neither pending implementation nor completed. Historical installation counts remain history.
 
 ## Pinned inventory and authority
 
@@ -22,8 +23,8 @@ pin during bootstrap. The tree is not advanced by installation.
 | User-facing resources / data | 234 |
 | License / acknowledgement inputs | 43 |
 | Other reference / configuration / documentation inputs | 60 |
-| Primary-owned / explicitly excluded files | 1,812 / 54 |
-| Macro WPs / dependency edges / explicit human gates | 65 / 185 / 8 |
+| Primary-owned / explicitly excluded files | 1,786 / 80 |
+| Active macro WPs / dependency edges / explicit human gates | 64 / 178 / 7 |
 
 The plan's approximate 1,060 production figure includes the two package manifests. The test/support
 directory classification is **not** an assertion count. WP-004 inventories actual original cases and
@@ -36,13 +37,18 @@ icons, map styles, URL filtering data and all license inputs are included. Setti
 license translations beyond the twelve application locales; they are accounted for, not silently dropped.
 Pure purchase/refund/entitlement files are excluded; mixed theme/support files remain owned so their
 non-billing behavior survives. Generated Swift and Apple-only glue have explicit native adaptation WPs.
-**Translation is owned by WP-406 and required for the first feature-complete release.**
+**Message translation is removed from active scope, not deferred or required for future builds/releases.**
+The 26 exact `removed-translation` sources/tests/helper retain original blob identities and historical
+case/parameter-family inventory; WP-000 accounts for this user-approved exclusion, not a feature port.
+Mixed chats/rooms/settings/localization/backup/rendering remain owned. A new user feature request and
+scope/admission decision are required to add it again; no provider/model/placeholder is required.
 
 `bootstrap.py` is a one-pin bulk installer/expander, not an upstream resync heuristic. Its expansion
 rules are reviewed bootstrap inputs; the runtime reads only frozen exact paths, never broad ownership
 globs. Unexpected upstream additions, missing paths, duplicate/unknown owners and source/hash drift block.
-Running `bootstrap.py` without `--write` compares the complete generated structures with both canonical
-JSON files and fails on drift; it does not overwrite them or merely print apparently matching counts.
+`verification_config.py --check` compares complete generated structures through the exact protected
+overlays with canonical JSON and fails on drift; `bootstrap.py` checks the raw expansion, not the
+installed overlays. Neither check overwrites files or merely compares counts.
 Do not rerun installation with a different plan/pin. A changed macro/child WP or source revision requires
 a protected, human-reviewed amendment. Preserve the GPLv3 app and MIT MeshCore licenses.
 
@@ -73,7 +79,7 @@ Gradle builds to run, do that work from WSL (or another Linux environment) rathe
 Windows, since native-Windows Gradle/AGP behavior is not covered by CI.
 Every mutating command defaults to dry-run: no network, ledger writes, backlog issues, workers or merge.
 Use global `--live` only after separately approved setup; missing capability is a nonzero `BLOCKED`,
-never a simulated successful launch. All 65 handoffs fit the 65,536-character issue-body bound.
+never a simulated successful launch. All 64 active handoffs fit the 65,536-character issue-body bound.
 Wide read-only inputs (notably WP-501) reference the complete manifest/scope digest and deterministic
 `files --wp WP-501 --page N --page-size 100 --expected-manifest-sha <digest>
 --expected-source-sha <commit>` retrieval. Every page repeats the pin/scope/selection hashes, total count
@@ -93,6 +99,25 @@ verification entries are explicitly unconfigured and block automatic launch/acce
 supervised build/CI/test WPs supply real commands. UI/service/protocol placeholders never count as parity.
 The strict stdlib runner rejects a missing directory, zero discovered tests, errors/failures and skipped
 mandatory tests; raw unittest discovery alone would otherwise exit successfully with zero tests.
+
+### Explicit WP-000 scope lineage
+
+`scope-amendments/translation-removal.json` is the immutable, reversible catalog delta for the
+user-approved removal. It binds the preceding generated/final digests, new generated/overlay/final
+digests and current semantic policy revision, along with exact before/after reference metadata,
+profile identities, work-package entries and inventory entries. Full preimage/postimage checks reject
+changes outside this amendment, including partial deltas, altered blobs, gates, unrelated acceptance,
+ownership or capability paths. Existing verification/content/policy projections still validate their
+complete historical catalog; historical evidence is not refreshed as current acceptance. Current
+revision helpers return the new candidate identity, never old successful acceptance hashes.
+
+`test_inventory.py --check` continues reproducing the historical WP-004 declaration/case-family
+inventory (including excluded translation cases) from pinned source. The current manifest and
+`not-ported.json` give those exact files their current scope disposition; retained inventory details
+are history, not a current feature-success record. WP-501 must account for both, never silently drop tests.
+Upstream comparison retains changed translation exclusions as explicit review records, not automatic
+re-port proposals or new translation workers. Changes to upstream text or old headers cannot re-admit
+the removed feature without a new user request and scope/admission decision.
 
 ## Controller interfaces and persisted state
 

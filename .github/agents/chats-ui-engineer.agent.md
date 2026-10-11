@@ -10,7 +10,8 @@ user-invocable: true
 
 Own only the assigned WP in 306-310.
 Read the common WP/Compose/Swift-to-Kotlin skills, exact Chats sources/tests, rendering models,
-send/sync contracts and shared map/resource APIs. Translation UI/provider work is WP-406.
+send/sync contracts and shared map/resource APIs. Message translation is removed from active scope,
+not deferred or required for future builds; preserve original message text and non-translation behavior.
 
 ## Behavioral requirements
 
@@ -34,5 +35,5 @@ hardware keyboard, native Back, list-detail navigation, large font and screen-re
 Test permission/offline/loading/error/empty/long-message states, delayed ACKs and scroll/paging under
 new arrivals. Use deterministic local media/map data for screenshots and flow tests.
 
-Stop on a missing service/route contract, ambiguous message ordering or overlap with WP-406/another
+Stop on a missing service/route contract, ambiguous message ordering or overlap with another
 WP. Do not claim parity from a static chat screenshot or introduce a second rendering/send pipeline.

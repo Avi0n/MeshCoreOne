@@ -71,7 +71,11 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
     for entry in inputs:
         role = "primary" if entry["primary_owner"] == wp_id else "cross-reference"
         if entry["exclusion"]:
-            role += f"; excluded file: {entry['exclusion']} (adaptation still required)"
+            disposition = (
+                "user-approved scope removal; no port or future build requirement"
+                if entry["exclusion"] == "removed-translation" else "adaptation still required"
+            )
+            role += f"; excluded file: {entry['exclusion']} ({disposition})"
         lines.append(f"- {entry['path']}@{entry['blob_sha']} [{entry['kind']}; {role}]")
     if not inputs:
         lines.append(wp["android_only_reason"])
@@ -83,7 +87,11 @@ def render(manifest: Manifest, policy: dict, wp_id: str, attempt="unclaimed-dry-
         "",
         "## Verification",
         json.dumps(wp["verification"], ensure_ascii=True),
-        "Port every original case/parameter family from the independently approved WP-004 catalog.",
+        "Port every in-scope original case/parameter family from the independently approved WP-004 catalog; "
+        "account for exact user-approved exclusions without claiming passing tests/features.",
+        "Message translation is removed, not deferred or a future build/release requirement. "
+        "Do not register a translation placeholder/provider or treat inert shared contracts as a WP-407 blocker. "
+        "Re-admission requires a new user feature request and scope/admission decision.",
         "Use positive test discovery and exact repository/base/head/source/manifest/policy/run evidence.",
         "Headers: // PortedFrom: <git-relative path>@<reference SHA>; Android-only: // AndroidOnly: "
         f"{wp_id} <reason>. Generated outputs name generator and inputs.",

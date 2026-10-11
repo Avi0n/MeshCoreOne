@@ -12,7 +12,11 @@ The Android project sits beside the read-only Swift reference. ApplicationId/roo
 `com.meshcoreone.android`; debug adds `.debug`. Sideload APK releases only, no billing, all themes unlocked.
 Mesh messaging, data and core navigation work without internet or Google Play services.
 Google services may support optional features only after license/runtime/privacy approval.
-Translation and bidirectional iOS/Android backup compatibility are release requirements.
+Bidirectional iOS/Android backup compatibility remains a release requirement. Message translation is
+removed from active scope, not deferred, implemented or required for future builds/releases. Re-admission
+requires a new user feature request and scope/admission decision. Preserve original message text and
+app localization. Exact `removed-translation` exclusions are not ported features or passing tests;
+inert existing contracts/helpers are not WP-407 completion blockers.
 Preserve GPLv3 application and MIT protocol notices; do not assume a proprietary optional SDK is compatible.
 
 ## Before execution

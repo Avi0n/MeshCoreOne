@@ -16,7 +16,7 @@
         "properties": {
           "path": {"type": "string", "minLength": 1},
           "blob_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
-          "reason_code": {"type": "string", "enum": ["removed-billing", "generated-swift", "apple-only-glue"]},
+          "reason_code": {"type": "string", "enum": ["removed-billing", "removed-translation", "generated-swift", "apple-only-glue"]},
           "adaptation_wp": {"type": "string", "pattern": "^WP-[0-9]{3}$"},
           "review_basis": {"type": "string", "minLength": 1},
           "android_adaptation": {"type": "string", "minLength": 1}
