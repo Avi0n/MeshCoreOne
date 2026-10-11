@@ -125,14 +125,15 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **558 actually inspected families in 72 groups**:
+`review-proposals.json` contains **560 actually inspected families in 74 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
 modern session acknowledgment/error/scope/trace12, channel pipeline5,
 LPP18, distinct contact-packet/public-flags4, V112 parser/command/cache25
 complete RoundTrip39, complete event-filter/dispatch/error17 and WiFi frame/
-transport18 and lifecycle/input-validation/stop/binary-configuration10.
+transport18, lifecycle/input-validation/stop/binary-configuration10 and exact
+message-reset serialization/channel-datagram public-result2.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -300,7 +301,24 @@ all6 ConnectionState/2stop/2binary original identities; combined Python363/363
 passed,0failure/error/skip each. Both supported native locks released normally.
 These counts overlap earlier selections, not558 independently executed families.
 
-The 558 proposals are a bounded reviewable implementation increment,
+Next two required methods retain actual original10seconds/MCTst/58byte selfInfo,
+reset DeviceError17 and50ms parked getMessage/third write/NoMoreMessages, and
+exact12byte channel2/FFFF/DEADBE datagram-to-public MessageResult. Their exact
+current-head execution is pending. Shared startup assertion helper invocation/
+definition/assertions are explicitly bound; remaining coalescing/auto-fetch/
+timeout original-input families are not silently covered by these two.
+Owned audit stays local until coordinator PR169 repair actually lands.
+
+Coordinator's bounded immutable9046 read found no blocking mismatch in the
+entire WiFi cancellation class/checked helper/exact source family/real native
+consumer:192.0.2.1:9, virtual0/200ms, source10second connect and actual monotonic
+3second cancellation/closed/joined cleanup. Separate a6f55b86/5cc255f7 read
+found no blocking mismatch in all8 ConnectionState/stop originals and actual
+157line class/public consumers, including original unstarted mock semantics.
+Both are source-only reads, not independent execution/full17WiFi/session/full
+560family/privileged acceptance. Actual tests/consumer bytes are retained.
+
+The 560 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.

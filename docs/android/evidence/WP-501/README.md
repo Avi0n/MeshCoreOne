@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-558 inspected family proposals in72groups, exact source/assertion/helper/runner
+560 inspected family proposals in74groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and thirty-nine Kotlin acceptance cases.
+The follow-up has92 Python regressions and forty-one Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-558actually inspected proposals; native-body joins are only candidates.
+560actually inspected proposals; native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -356,6 +356,38 @@ success with Android/oracles skipped was immediately surfaced in6113271958.
 Coordinator owns the directly coupled services classifier omission repair in
 workflow_scope.py/test_workflow_scope.py; those paths are not edited here.
 No unselected job is promoted to44case hosted execution, nor2fe cherry-picked.
+Incremental four-file2fe54b8e..e9d31b4 classifier/capability/evidence source read
+found no blocking issue; actual169comment6113342735 records its exact scope/
+limitations. New services prefix selects existing scaffold and exact regression
+tests production/test/build paths without unrelated scopes; changing selector
+itself preserves existing all-scope fail-safe. No hosted e9d/native success is
+inferred. Coordinator directs keeping audit increments local until actual repair
+merge, not prematurely cherry-picking shared selector/receive-log files.
+
+Next exact-input public message increment adds two required methods preserving
+original10seconds/MCTst/58byte selfInfo and50ms serializer parked poll before
+reset DeviceError17/third0A write/NoMoreMessages; exact12byte channel2/FFFF/DEADBE
+datagram reaches typed public MessageResult only after actual0A request.
+Prior native shared defaults/onSend shortcut are not passed off as original
+delayed inputs. Explicit checked startSourceSession helper binds actual invoked
+definition/assertions;41required identity set awaits immutable execution. All
+other auto-fetch/coalescing/timeout source inputs remain separately unresolved,
+not added to passing totals merely because their full source/native bodies were
+read. Publication remains held local pending actual PR169 merge.
+
+Coordinator actual bounded immutable9046 source read: complete103line WiFi
+cancellation class and both checked helper invocations/unique actual body, frozen single family
+and unchanged real connect/socketIo/terminate/join consumer, no blocking input/
+assertion mismatch. Exact target/pending200ms/default10s/monotonic<3s/oneclose/
+exited/disconnected/cancellation message retained. Not independent39app/60protocol
+execution or all17other WiFi/codec families or hardware/privileged approval.
+Separate a6f55b86/5cc255f7 full157line lifecycle class and complete frozen6state/
+2stop/actual public start/stop/validation read found no blocking mismatch in
+those8originals; original stop is unstarted/disconnected with invocation0/1,
+not connected-live-transport evidence. The actual a6-to5cc delta has only5
+proposal/evidence/generated-binding files, no Kotlin/collector/consumer change.
+These provided source assessments retain exact input/object bindings and
+limitations; neither is promoted to independent native or full560family gate.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -393,7 +425,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the558families
+actual inspection. All1,786owned source dispositions require behavior review; only the560families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

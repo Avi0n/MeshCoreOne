@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "e8473f07d6138c274705c59293fd2ad922534f2557bd95a323aea6d204b41988",
+  "proposal_sha256": "0e61c2faf9e650eec279da6607b7e3d39eb77d11171eb73f42e923273bd24b21",
   "families": [
     {
       "group": "backup-envelope",
@@ -36847,7 +36847,7 @@
     },
     {
       "group": "lifecycle-original-unstarted-stop-ownership",
-      "comparison_sha256": "d8f8cc295fd657632628f0a446f1110eca104060c433d14104c76f3aa97cc0a3",
+      "comparison_sha256": "9daca0a1c032272ecd3142dedb0216e89ebaa72a9667a730ddae0bfb1bd3a152",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -37026,7 +37026,7 @@
     },
     {
       "group": "lifecycle-original-unstarted-stop-ownership",
-      "comparison_sha256": "d8f8cc295fd657632628f0a446f1110eca104060c433d14104c76f3aa97cc0a3",
+      "comparison_sha256": "9daca0a1c032272ecd3142dedb0216e89ebaa72a9667a730ddae0bfb1bd3a152",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -57175,7 +57175,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
@@ -57386,7 +57386,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
@@ -70213,7 +70213,7 @@
     },
     {
       "group": "lifecycle-original-failed-handshake-intermediate-states-and-retry",
-      "comparison_sha256": "3951fd5b3b3b0ebb3d12a3666e70448424166d7e777eba6a790986a41b0795f2",
+      "comparison_sha256": "65635d17295a4b688f4ed7ace52d665b3628938f80d5647aea87aff712b50c2a",
       "source_file_family_count": 6,
       "group_compared_family_count": 1,
       "partial_source_file": true,
@@ -70516,7 +70516,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -70541,7 +70541,7 @@
     },
     {
       "group": "lifecycle-original-input-validation-before-transport",
-      "comparison_sha256": "77f03692194f0c07c3c2eb41290e19af6798bf333da95ea23a4d42d3baff7bc3",
+      "comparison_sha256": "762016106a3c12e4957b7ed28e76255e5dd94d44e7d05e89b44756a951695ae0",
       "source_file_family_count": 6,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -70759,7 +70759,7 @@
     },
     {
       "group": "lifecycle-original-initial-and-reconnect-handshakes",
-      "comparison_sha256": "7a4318357076faa5c70f5f6a48fc3dafd3b13937b5ed9349c08620a1ecfee450",
+      "comparison_sha256": "3498ada741df3588c838db09c45bc1e54a60d8e03e59d0c74755dc40da5361e5",
       "source_file_family_count": 6,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -71069,7 +71069,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -71098,7 +71098,7 @@
     },
     {
       "group": "lifecycle-original-initial-and-reconnect-handshakes",
-      "comparison_sha256": "7a4318357076faa5c70f5f6a48fc3dafd3b13937b5ed9349c08620a1ecfee450",
+      "comparison_sha256": "3498ada741df3588c838db09c45bc1e54a60d8e03e59d0c74755dc40da5361e5",
       "source_file_family_count": 6,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -71408,7 +71408,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -71437,7 +71437,7 @@
     },
     {
       "group": "lifecycle-original-input-validation-before-transport",
-      "comparison_sha256": "77f03692194f0c07c3c2eb41290e19af6798bf333da95ea23a4d42d3baff7bc3",
+      "comparison_sha256": "762016106a3c12e4957b7ed28e76255e5dd94d44e7d05e89b44756a951695ae0",
       "source_file_family_count": 6,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -71655,7 +71655,7 @@
     },
     {
       "group": "lifecycle-original-input-validation-before-transport",
-      "comparison_sha256": "77f03692194f0c07c3c2eb41290e19af6798bf333da95ea23a4d42d3baff7bc3",
+      "comparison_sha256": "762016106a3c12e4957b7ed28e76255e5dd94d44e7d05e89b44756a951695ae0",
       "source_file_family_count": 6,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -71872,6 +71872,361 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "message-original-reset-error-and-fifty-millisecond-serializer-wait",
+      "comparison_sha256": "4d985c761e62007daee47016b95eca72bac3c871d499b4d346d2f759b5e8a705",
+      "source_file_family_count": 1,
+      "group_compared_family_count": 1,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+      "source_blob_sha": "eaba5efad98f93996a8f743615b5b895a18f313c",
+      "case_id": "GetMessageSerializationTests::an unrelated error does not fail an in-flight getMessage()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "86b797de909e7902ef51e20a3594a87a19b6deb16d975c80d050b08e4f0380f5",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 31,
+          "expression": "#expect(await transport.sentData.count == 2, \"getMessage must wait behind the in-flight command\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 36,
+          "expression": "#expect(throws: MeshCoreError.self) {\n      try await resetTask.value\n    }",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 40,
+          "expression": "Issue.record(\"Expected reset to fail with deviceError, got \\(String(describing: resetError))\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 44,
+          "expression": "#expect(code == 17)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 56,
+          "expression": "Issue.record(\"Expected getMessage to return .noMoreMessages, got \\(result)\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
+        "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+        "method_or_family_name": "originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError",
+        "line": 248,
+        "end_line": 284,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "4fc834639cb7de995c99915630793c1d33c36f8c1ac5b42ba76b31f746ca9e03",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 252,
+            "expression": "assertEquals(hex(\"01032020202020204d43547374\"), transport.sentData.single())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 262,
+            "expression": "assertEquals(2, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 263,
+            "expression": "assertEquals(hex(\"337265736574\"), transport.sentData.last())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 268,
+            "expression": "assertEquals(\"The original fifty-millisecond wait cannot send a poll early\", 2, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 269,
+            "expression": "assertFalse(reset.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 270,
+            "expression": "assertFalse(message.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 273,
+            "expression": "assertEquals(17u.toUByte(), reset.await().code)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 274,
+            "expression": "assertEquals(3, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 275,
+            "expression": "assertEquals(hex(\"0a\"), transport.sentData.last())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 276,
+            "expression": "assertFalse(\"The reset's error cannot become the poll's result\", message.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 279,
+            "expression": "assertEquals(MessageResult.NoMoreMessages, message.await())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 280,
+            "expression": "assertEquals(3, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 249,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startSourceSession",
+            "line": 250,
+            "expression": "startSourceSession(transport)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 252,
+            "expression": "hex(\"01032020202020204d43547374\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.single",
+            "line": 252,
+            "expression": "transport.sentData.single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.factoryReset",
+            "line": 255,
+            "expression": "session.factoryReset()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "error",
+            "line": 256,
+            "expression": "error(\"The reset must observe its own device error\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "catch",
+            "line": 257,
+            "expression": "catch (failure: MeshCoreException.DeviceError)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 261,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 263,
+            "expression": "hex(\"337265736574\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.last",
+            "line": 263,
+            "expression": "transport.sentData.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.getMessage",
+            "line": 264,
+            "expression": "session.getMessage()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 265,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 266,
+            "expression": "advanceTimeBy(50)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 267,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateError",
+            "line": 271,
+            "expression": "transport.simulateError(17u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 272,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "u.toUByte",
+            "line": 273,
+            "expression": "u.toUByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "reset.await",
+            "line": 273,
+            "expression": "reset.await()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 275,
+            "expression": "hex(\"0a\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.last",
+            "line": 275,
+            "expression": "transport.sentData.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 277,
+            "expression": "transport.simulateReceive(hex(\"0a\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 277,
+            "expression": "hex(\"0a\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 278,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "message.await",
+            "line": 279,
+            "expression": "message.await()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 282,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "GetMessageSerializationTests::an unrelated error does not fail an in-flight getMessage()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/RequestContext.kt",
+          "sha256": "08ca5678133d7ad31419e1ec6e052b12dd447fcf867ad1f0d7513538a8d6e220"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+          "sha256": "30dad0d2211e873fb22d2e2c523b1004b8278e71479ac6a2001fdb56cb462ac0"
+        }
+      ],
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "startSourceSession",
+            "line": 250,
+            "expression": "startSourceSession(transport)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+            "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
+            "method": "startSourceSession",
+            "line": 318,
+            "end_line": 333,
+            "body_sha256": "58f2c978083cb09e7e91f6651fb170439da91aaad1bf78b324679e0b8014a269",
+            "assertions": [
+              {
+                "name": "assertEquals",
+                "line": 326,
+                "expression": "assertEquals(1, transport.sentData.size)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertFalse",
+                "line": 327,
+                "expression": "assertFalse(starting.isCompleted)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertNotNull",
+                "line": 331,
+                "expression": "assertNotNull(session.currentSelfInfo)",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+        "originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
       "comparison_sha256": "9691220bd057384d4e9f998344b60c5476cceb06d58268243b25e568e41574d8",
       "source_file_family_count": 5,
@@ -71899,11 +72254,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCancelledPipelineKeepsTheSuccessorsIndexAndFreshName",
-        "line": 141,
-        "end_line": 171,
+        "line": 144,
+        "end_line": 174,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "439e2faf97ddca199fb00620fba7211e1199fc33886409160fd4ef2e633c39bd",
@@ -71911,49 +72266,49 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 149,
+            "line": 152,
             "expression": "assertEquals(3, transport.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 152,
+            "line": 155,
             "expression": "assertTrue(pipeline.isCancelled)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 157,
+            "line": 160,
             "expression": "assertEquals(\"Successor must wait for the old exchange slot\", 3, transport.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 160,
+            "line": 163,
             "expression": "assertEquals(4, transport.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 161,
+            "line": 164,
             "expression": "assertEquals(hex(\"1f00\"), transport.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 162,
+            "line": 165,
             "expression": "assertFalse(\"The late response cannot complete the successor\", successor.isCompleted)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 166,
+            "line": 169,
             "expression": "assertEquals(0u.toUByte(), result.index)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 167,
+            "line": 170,
             "expression": "assertEquals(\"fresh\", result.name)",
             "assertion_or_checked_wait": true
           }
@@ -71961,56 +72316,44 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 142,
+            "line": 145,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.setSupportsWriteWithoutResponse",
-            "line": 143,
+            "line": 146,
             "expression": "transport.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 144,
+            "line": 147,
             "expression": "sourcePipelineConfiguration(idleTimeout = 0.1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 145,
+            "line": 148,
             "expression": "startSourceSession(transport, configuration, sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 145,
+            "line": 148,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.getChannels",
-            "line": 147,
+            "line": 150,
             "expression": "session.getChannels(listOf(0u, 1u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 147,
-            "expression": "listOf(0u, 1u)",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "runCurrent",
-            "line": 148,
-            "expression": "runCurrent()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "pipeline.cancel",
             "line": 150,
-            "expression": "pipeline.cancel()",
+            "expression": "listOf(0u, 1u)",
             "assertion_or_checked_wait": false
           },
           {
@@ -72020,15 +72363,9 @@
             "assertion_or_checked_wait": false
           },
           {
-            "name": "transport.simulateReceive",
+            "name": "pipeline.cancel",
             "line": 153,
-            "expression": "transport.simulateReceive(sourceChannel(0, \"late\", 0xAA))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "sourceChannel",
-            "line": 153,
-            "expression": "sourceChannel(0, \"late\", 0xAA)",
+            "expression": "pipeline.cancel()",
             "assertion_or_checked_wait": false
           },
           {
@@ -72038,21 +72375,27 @@
             "assertion_or_checked_wait": false
           },
           {
-            "name": "session.getChannel",
-            "line": 155,
-            "expression": "session.getChannel(0u)",
+            "name": "transport.simulateReceive",
+            "line": 156,
+            "expression": "transport.simulateReceive(sourceChannel(0, \"late\", 0xAA))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceChannel",
+            "line": 156,
+            "expression": "sourceChannel(0, \"late\", 0xAA)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 156,
+            "line": 157,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "advanceTimeBy",
+            "name": "session.getChannel",
             "line": 158,
-            "expression": "advanceTimeBy(200)",
+            "expression": "session.getChannel(0u)",
             "assertion_or_checked_wait": false
           },
           {
@@ -72062,56 +72405,70 @@
             "assertion_or_checked_wait": false
           },
           {
-            "name": "hex",
+            "name": "advanceTimeBy",
             "line": 161,
+            "expression": "advanceTimeBy(200)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 162,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 164,
             "expression": "hex(\"1f00\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.sentData.last",
-            "line": 161,
+            "line": 164,
             "expression": "transport.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.simulateReceive",
-            "line": 163,
+            "line": 166,
             "expression": "transport.simulateReceive(sourceChannel(0, \"fresh\", 0xBB))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 163,
+            "line": 166,
             "expression": "sourceChannel(0, \"fresh\", 0xBB)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 164,
+            "line": 167,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "successor.await",
-            "line": 165,
+            "line": 168,
             "expression": "successor.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "u.toUByte",
-            "line": 166,
+            "line": 169,
             "expression": "u.toUByte()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 169,
+            "line": 172,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -72122,7 +72479,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -72181,11 +72538,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
-        "line": 176,
-        "end_line": 242,
+        "line": 179,
+        "end_line": 245,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "634a691a7ac47c1e065f2cfe477977626633bf0c992dd67ef857437b5411fecd",
@@ -72193,85 +72550,85 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 184,
+            "line": 187,
             "expression": "assertEquals(listOf(hex(\"1f00\"), hex(\"1f02\"), hex(\"1f07\")), outOfOrder.sentData.drop(1))",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 193,
+            "line": 196,
             "expression": "assertTrue(result.missing.isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 194,
+            "line": 197,
             "expression": "assertEquals(listOf<UByte>(0u, 2u, 7u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 195,
+            "line": 198,
             "expression": "assertEquals(listOf(\"zero\", \"two\", \"seven\"), result.received.map { it.name })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 196,
+            "line": 199,
             "expression": "assertFalse(result.received.any { it.index == 5u.toUByte() })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 208,
+            "line": 211,
             "expression": "assertEquals(5, dropped.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 216,
+            "line": 219,
             "expression": "assertEquals(listOf<UByte>(0u, 1u, 3u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 217,
+            "line": 220,
             "expression": "assertEquals(listOf<UByte>(2u), result.missing)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 228,
+            "line": 231,
             "expression": "assertEquals(2, serial.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 229,
+            "line": 232,
             "expression": "assertEquals(hex(\"1f00\"), serial.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 232,
+            "line": 235,
             "expression": "assertEquals(3, serial.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 233,
+            "line": 236,
             "expression": "assertEquals(hex(\"1f01\"), serial.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 237,
+            "line": 240,
             "expression": "assertEquals(listOf<UByte>(0u, 1u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 238,
+            "line": 241,
             "expression": "assertTrue(result.missing.isEmpty())",
             "assertion_or_checked_wait": true
           }
@@ -72279,439 +72636,441 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 177,
+            "line": 180,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.setSupportsWriteWithoutResponse",
-            "line": 178,
+            "line": 181,
             "expression": "outOfOrder.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 179,
+            "line": 182,
             "expression": "startSourceSession(outOfOrder, sourcePipelineConfiguration(),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 179,
+            "line": 182,
             "expression": "sourcePipelineConfiguration()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 180,
+            "line": 183,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first.getChannels",
-            "line": 182,
+            "line": 185,
             "expression": "first.getChannels(listOf(0u, 2u, 7u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 182,
+            "line": 185,
             "expression": "listOf(0u, 2u, 7u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 183,
+            "line": 186,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 184,
+            "line": 187,
             "expression": "listOf(hex(\"1f00\"), hex(\"1f02\"), hex(\"1f07\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f00\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f02\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f07\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.sentData.drop",
-            "line": 184,
+            "line": 187,
             "expression": "outOfOrder.sentData.drop(1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 185,
+            "line": 188,
             "expression": "outOfOrder.simulateReceive(sourceChannel(7, \"seven\", 0x77))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 185,
+            "line": 188,
             "expression": "sourceChannel(7, \"seven\", 0x77)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 186,
+            "line": 189,
             "expression": "outOfOrder.simulateReceive(sourceChannel(2, \"two\", 0x22))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 186,
+            "line": 189,
             "expression": "sourceChannel(2, \"two\", 0x22)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 187,
+            "line": 190,
             "expression": "outOfOrder.simulateReceive(sourceChannel(5, \"five\", 0x55))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 187,
+            "line": 190,
             "expression": "sourceChannel(5, \"five\", 0x55)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 188,
+            "line": 191,
             "expression": "outOfOrder.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 188,
+            "line": 191,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 189,
+            "line": 192,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 190,
+            "line": 193,
             "expression": "advanceTimeBy(20)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 191,
+            "line": 194,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 192,
+            "line": 195,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "result.missing.isEmpty",
-            "line": 193,
+            "line": 196,
             "expression": "result.missing.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 194,
+            "line": 197,
             "expression": "listOf<UByte>(0u, 2u, 7u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 195,
+            "line": 198,
             "expression": "listOf(\"zero\", \"two\", \"seven\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "u.toUByte",
-            "line": 196,
+            "line": 199,
             "expression": "u.toUByte()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first.stop",
-            "line": 198,
+            "line": 201,
             "expression": "first.stop()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MockTransport",
-            "line": 201,
+            "line": 204,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.setSupportsWriteWithoutResponse",
-            "line": 202,
+            "line": 205,
             "expression": "dropped.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 203,
+            "line": 206,
             "expression": "startSourceSession(dropped, sourcePipelineConfiguration(idleTimeout = 0.1),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 203,
+            "line": 206,
             "expression": "sourcePipelineConfiguration(idleTimeout = 0.1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 204,
+            "line": 207,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "second.getChannels",
-            "line": 206,
+            "line": 209,
             "expression": "second.getChannels(listOf(0u, 1u, 2u, 3u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 206,
+            "line": 209,
             "expression": "listOf(0u, 1u, 2u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 207,
+            "line": 210,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 209,
+            "line": 212,
             "expression": "dropped.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 209,
+            "line": 212,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 210,
+            "line": 213,
             "expression": "dropped.simulateReceive(sourceChannel(1, \"one\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 210,
+            "line": 213,
             "expression": "sourceChannel(1, \"one\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 211,
+            "line": 214,
             "expression": "dropped.simulateReceive(sourceChannel(3, \"three\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 211,
+            "line": 214,
             "expression": "sourceChannel(3, \"three\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 212,
+            "line": 215,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 213,
+            "line": 216,
             "expression": "advanceTimeBy(200)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 214,
+            "line": 217,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 215,
+            "line": 218,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 216,
+            "line": 219,
             "expression": "listOf<UByte>(0u, 1u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 217,
+            "line": 220,
             "expression": "listOf<UByte>(2u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "second.stop",
-            "line": 219,
+            "line": 222,
             "expression": "second.stop()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MockTransport",
-            "line": 222,
+            "line": 225,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 223,
+            "line": 226,
             "expression": "startSourceSession(serial, sourcePipelineConfiguration(),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 223,
+            "line": 226,
             "expression": "sourcePipelineConfiguration()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 224,
+            "line": 227,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "third.getChannels",
-            "line": 226,
+            "line": 229,
             "expression": "third.getChannels(listOf(0u, 1u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 226,
+            "line": 229,
             "expression": "listOf(0u, 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 227,
+            "line": 230,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 229,
+            "line": 232,
             "expression": "hex(\"1f00\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.sentData.last",
-            "line": 229,
+            "line": 232,
             "expression": "serial.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.simulateReceive",
-            "line": 230,
+            "line": 233,
             "expression": "serial.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 230,
+            "line": 233,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 231,
+            "line": 234,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 233,
+            "line": 236,
             "expression": "hex(\"1f01\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.sentData.last",
-            "line": 233,
+            "line": 236,
             "expression": "serial.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.simulateReceive",
-            "line": 234,
+            "line": 237,
             "expression": "serial.simulateReceive(sourceChannel(1, \"one\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 234,
+            "line": 237,
             "expression": "sourceChannel(1, \"one\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 235,
+            "line": 238,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 236,
+            "line": 239,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 237,
+            "line": 240,
             "expression": "listOf<UByte>(0u, 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "result.missing.isEmpty",
-            "line": 238,
+            "line": 241,
             "expression": "result.missing.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "third.stop",
-            "line": 240,
+            "line": 243,
             "expression": "third.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -72724,7 +73083,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -72807,11 +73166,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
-        "line": 176,
-        "end_line": 242,
+        "line": 179,
+        "end_line": 245,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "634a691a7ac47c1e065f2cfe477977626633bf0c992dd67ef857437b5411fecd",
@@ -72819,85 +73178,85 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 184,
+            "line": 187,
             "expression": "assertEquals(listOf(hex(\"1f00\"), hex(\"1f02\"), hex(\"1f07\")), outOfOrder.sentData.drop(1))",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 193,
+            "line": 196,
             "expression": "assertTrue(result.missing.isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 194,
+            "line": 197,
             "expression": "assertEquals(listOf<UByte>(0u, 2u, 7u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 195,
+            "line": 198,
             "expression": "assertEquals(listOf(\"zero\", \"two\", \"seven\"), result.received.map { it.name })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 196,
+            "line": 199,
             "expression": "assertFalse(result.received.any { it.index == 5u.toUByte() })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 208,
+            "line": 211,
             "expression": "assertEquals(5, dropped.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 216,
+            "line": 219,
             "expression": "assertEquals(listOf<UByte>(0u, 1u, 3u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 217,
+            "line": 220,
             "expression": "assertEquals(listOf<UByte>(2u), result.missing)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 228,
+            "line": 231,
             "expression": "assertEquals(2, serial.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 229,
+            "line": 232,
             "expression": "assertEquals(hex(\"1f00\"), serial.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 232,
+            "line": 235,
             "expression": "assertEquals(3, serial.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 233,
+            "line": 236,
             "expression": "assertEquals(hex(\"1f01\"), serial.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 237,
+            "line": 240,
             "expression": "assertEquals(listOf<UByte>(0u, 1u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 238,
+            "line": 241,
             "expression": "assertTrue(result.missing.isEmpty())",
             "assertion_or_checked_wait": true
           }
@@ -72905,439 +73264,441 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 177,
+            "line": 180,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.setSupportsWriteWithoutResponse",
-            "line": 178,
+            "line": 181,
             "expression": "outOfOrder.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 179,
+            "line": 182,
             "expression": "startSourceSession(outOfOrder, sourcePipelineConfiguration(),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 179,
+            "line": 182,
             "expression": "sourcePipelineConfiguration()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 180,
+            "line": 183,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first.getChannels",
-            "line": 182,
+            "line": 185,
             "expression": "first.getChannels(listOf(0u, 2u, 7u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 182,
+            "line": 185,
             "expression": "listOf(0u, 2u, 7u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 183,
+            "line": 186,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 184,
+            "line": 187,
             "expression": "listOf(hex(\"1f00\"), hex(\"1f02\"), hex(\"1f07\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f00\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f02\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f07\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.sentData.drop",
-            "line": 184,
+            "line": 187,
             "expression": "outOfOrder.sentData.drop(1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 185,
+            "line": 188,
             "expression": "outOfOrder.simulateReceive(sourceChannel(7, \"seven\", 0x77))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 185,
+            "line": 188,
             "expression": "sourceChannel(7, \"seven\", 0x77)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 186,
+            "line": 189,
             "expression": "outOfOrder.simulateReceive(sourceChannel(2, \"two\", 0x22))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 186,
+            "line": 189,
             "expression": "sourceChannel(2, \"two\", 0x22)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 187,
+            "line": 190,
             "expression": "outOfOrder.simulateReceive(sourceChannel(5, \"five\", 0x55))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 187,
+            "line": 190,
             "expression": "sourceChannel(5, \"five\", 0x55)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 188,
+            "line": 191,
             "expression": "outOfOrder.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 188,
+            "line": 191,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 189,
+            "line": 192,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 190,
+            "line": 193,
             "expression": "advanceTimeBy(20)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 191,
+            "line": 194,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 192,
+            "line": 195,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "result.missing.isEmpty",
-            "line": 193,
+            "line": 196,
             "expression": "result.missing.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 194,
+            "line": 197,
             "expression": "listOf<UByte>(0u, 2u, 7u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 195,
+            "line": 198,
             "expression": "listOf(\"zero\", \"two\", \"seven\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "u.toUByte",
-            "line": 196,
+            "line": 199,
             "expression": "u.toUByte()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first.stop",
-            "line": 198,
+            "line": 201,
             "expression": "first.stop()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MockTransport",
-            "line": 201,
+            "line": 204,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.setSupportsWriteWithoutResponse",
-            "line": 202,
+            "line": 205,
             "expression": "dropped.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 203,
+            "line": 206,
             "expression": "startSourceSession(dropped, sourcePipelineConfiguration(idleTimeout = 0.1),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 203,
+            "line": 206,
             "expression": "sourcePipelineConfiguration(idleTimeout = 0.1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 204,
+            "line": 207,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "second.getChannels",
-            "line": 206,
+            "line": 209,
             "expression": "second.getChannels(listOf(0u, 1u, 2u, 3u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 206,
+            "line": 209,
             "expression": "listOf(0u, 1u, 2u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 207,
+            "line": 210,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 209,
+            "line": 212,
             "expression": "dropped.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 209,
+            "line": 212,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 210,
+            "line": 213,
             "expression": "dropped.simulateReceive(sourceChannel(1, \"one\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 210,
+            "line": 213,
             "expression": "sourceChannel(1, \"one\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 211,
+            "line": 214,
             "expression": "dropped.simulateReceive(sourceChannel(3, \"three\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 211,
+            "line": 214,
             "expression": "sourceChannel(3, \"three\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 212,
+            "line": 215,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 213,
+            "line": 216,
             "expression": "advanceTimeBy(200)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 214,
+            "line": 217,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 215,
+            "line": 218,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 216,
+            "line": 219,
             "expression": "listOf<UByte>(0u, 1u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 217,
+            "line": 220,
             "expression": "listOf<UByte>(2u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "second.stop",
-            "line": 219,
+            "line": 222,
             "expression": "second.stop()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MockTransport",
-            "line": 222,
+            "line": 225,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 223,
+            "line": 226,
             "expression": "startSourceSession(serial, sourcePipelineConfiguration(),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 223,
+            "line": 226,
             "expression": "sourcePipelineConfiguration()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 224,
+            "line": 227,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "third.getChannels",
-            "line": 226,
+            "line": 229,
             "expression": "third.getChannels(listOf(0u, 1u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 226,
+            "line": 229,
             "expression": "listOf(0u, 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 227,
+            "line": 230,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 229,
+            "line": 232,
             "expression": "hex(\"1f00\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.sentData.last",
-            "line": 229,
+            "line": 232,
             "expression": "serial.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.simulateReceive",
-            "line": 230,
+            "line": 233,
             "expression": "serial.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 230,
+            "line": 233,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 231,
+            "line": 234,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 233,
+            "line": 236,
             "expression": "hex(\"1f01\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.sentData.last",
-            "line": 233,
+            "line": 236,
             "expression": "serial.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.simulateReceive",
-            "line": 234,
+            "line": 237,
             "expression": "serial.simulateReceive(sourceChannel(1, \"one\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 234,
+            "line": 237,
             "expression": "sourceChannel(1, \"one\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 235,
+            "line": 238,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 236,
+            "line": 239,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 237,
+            "line": 240,
             "expression": "listOf<UByte>(0u, 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "result.missing.isEmpty",
-            "line": 238,
+            "line": 241,
             "expression": "result.missing.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "third.stop",
-            "line": 240,
+            "line": 243,
             "expression": "third.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -73350,7 +73711,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -73409,11 +73770,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
-        "line": 176,
-        "end_line": 242,
+        "line": 179,
+        "end_line": 245,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "634a691a7ac47c1e065f2cfe477977626633bf0c992dd67ef857437b5411fecd",
@@ -73421,85 +73782,85 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 184,
+            "line": 187,
             "expression": "assertEquals(listOf(hex(\"1f00\"), hex(\"1f02\"), hex(\"1f07\")), outOfOrder.sentData.drop(1))",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 193,
+            "line": 196,
             "expression": "assertTrue(result.missing.isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 194,
+            "line": 197,
             "expression": "assertEquals(listOf<UByte>(0u, 2u, 7u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 195,
+            "line": 198,
             "expression": "assertEquals(listOf(\"zero\", \"two\", \"seven\"), result.received.map { it.name })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 196,
+            "line": 199,
             "expression": "assertFalse(result.received.any { it.index == 5u.toUByte() })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 208,
+            "line": 211,
             "expression": "assertEquals(5, dropped.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 216,
+            "line": 219,
             "expression": "assertEquals(listOf<UByte>(0u, 1u, 3u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 217,
+            "line": 220,
             "expression": "assertEquals(listOf<UByte>(2u), result.missing)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 228,
+            "line": 231,
             "expression": "assertEquals(2, serial.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 229,
+            "line": 232,
             "expression": "assertEquals(hex(\"1f00\"), serial.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 232,
+            "line": 235,
             "expression": "assertEquals(3, serial.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 233,
+            "line": 236,
             "expression": "assertEquals(hex(\"1f01\"), serial.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 237,
+            "line": 240,
             "expression": "assertEquals(listOf<UByte>(0u, 1u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 238,
+            "line": 241,
             "expression": "assertTrue(result.missing.isEmpty())",
             "assertion_or_checked_wait": true
           }
@@ -73507,439 +73868,441 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 177,
+            "line": 180,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.setSupportsWriteWithoutResponse",
-            "line": 178,
+            "line": 181,
             "expression": "outOfOrder.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 179,
+            "line": 182,
             "expression": "startSourceSession(outOfOrder, sourcePipelineConfiguration(),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 179,
+            "line": 182,
             "expression": "sourcePipelineConfiguration()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 180,
+            "line": 183,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first.getChannels",
-            "line": 182,
+            "line": 185,
             "expression": "first.getChannels(listOf(0u, 2u, 7u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 182,
+            "line": 185,
             "expression": "listOf(0u, 2u, 7u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 183,
+            "line": 186,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 184,
+            "line": 187,
             "expression": "listOf(hex(\"1f00\"), hex(\"1f02\"), hex(\"1f07\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f00\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f02\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 184,
+            "line": 187,
             "expression": "hex(\"1f07\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.sentData.drop",
-            "line": 184,
+            "line": 187,
             "expression": "outOfOrder.sentData.drop(1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 185,
+            "line": 188,
             "expression": "outOfOrder.simulateReceive(sourceChannel(7, \"seven\", 0x77))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 185,
+            "line": 188,
             "expression": "sourceChannel(7, \"seven\", 0x77)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 186,
+            "line": 189,
             "expression": "outOfOrder.simulateReceive(sourceChannel(2, \"two\", 0x22))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 186,
+            "line": 189,
             "expression": "sourceChannel(2, \"two\", 0x22)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 187,
+            "line": 190,
             "expression": "outOfOrder.simulateReceive(sourceChannel(5, \"five\", 0x55))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 187,
+            "line": 190,
             "expression": "sourceChannel(5, \"five\", 0x55)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "outOfOrder.simulateReceive",
-            "line": 188,
+            "line": 191,
             "expression": "outOfOrder.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 188,
+            "line": 191,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 189,
+            "line": 192,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 190,
+            "line": 193,
             "expression": "advanceTimeBy(20)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 191,
+            "line": 194,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 192,
+            "line": 195,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "result.missing.isEmpty",
-            "line": 193,
+            "line": 196,
             "expression": "result.missing.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 194,
+            "line": 197,
             "expression": "listOf<UByte>(0u, 2u, 7u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 195,
+            "line": 198,
             "expression": "listOf(\"zero\", \"two\", \"seven\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "u.toUByte",
-            "line": 196,
+            "line": 199,
             "expression": "u.toUByte()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first.stop",
-            "line": 198,
+            "line": 201,
             "expression": "first.stop()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MockTransport",
-            "line": 201,
+            "line": 204,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.setSupportsWriteWithoutResponse",
-            "line": 202,
+            "line": 205,
             "expression": "dropped.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 203,
+            "line": 206,
             "expression": "startSourceSession(dropped, sourcePipelineConfiguration(idleTimeout = 0.1),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 203,
+            "line": 206,
             "expression": "sourcePipelineConfiguration(idleTimeout = 0.1)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 204,
+            "line": 207,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "second.getChannels",
-            "line": 206,
+            "line": 209,
             "expression": "second.getChannels(listOf(0u, 1u, 2u, 3u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 206,
+            "line": 209,
             "expression": "listOf(0u, 1u, 2u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 207,
+            "line": 210,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 209,
+            "line": 212,
             "expression": "dropped.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 209,
+            "line": 212,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 210,
+            "line": 213,
             "expression": "dropped.simulateReceive(sourceChannel(1, \"one\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 210,
+            "line": 213,
             "expression": "sourceChannel(1, \"one\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dropped.simulateReceive",
-            "line": 211,
+            "line": 214,
             "expression": "dropped.simulateReceive(sourceChannel(3, \"three\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 211,
+            "line": 214,
             "expression": "sourceChannel(3, \"three\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 212,
+            "line": 215,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 213,
+            "line": 216,
             "expression": "advanceTimeBy(200)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 214,
+            "line": 217,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 215,
+            "line": 218,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 216,
+            "line": 219,
             "expression": "listOf<UByte>(0u, 1u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 217,
+            "line": 220,
             "expression": "listOf<UByte>(2u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "second.stop",
-            "line": 219,
+            "line": 222,
             "expression": "second.stop()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MockTransport",
-            "line": 222,
+            "line": 225,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 223,
+            "line": 226,
             "expression": "startSourceSession(serial, sourcePipelineConfiguration(),\n            sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 223,
+            "line": 226,
             "expression": "sourcePipelineConfiguration()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 224,
+            "line": 227,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "third.getChannels",
-            "line": 226,
+            "line": 229,
             "expression": "third.getChannels(listOf(0u, 1u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 226,
+            "line": 229,
             "expression": "listOf(0u, 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 227,
+            "line": 230,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 229,
+            "line": 232,
             "expression": "hex(\"1f00\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.sentData.last",
-            "line": 229,
+            "line": 232,
             "expression": "serial.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.simulateReceive",
-            "line": 230,
+            "line": 233,
             "expression": "serial.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 230,
+            "line": 233,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 231,
+            "line": 234,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 233,
+            "line": 236,
             "expression": "hex(\"1f01\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.sentData.last",
-            "line": 233,
+            "line": 236,
             "expression": "serial.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "serial.simulateReceive",
-            "line": 234,
+            "line": 237,
             "expression": "serial.simulateReceive(sourceChannel(1, \"one\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 234,
+            "line": 237,
             "expression": "sourceChannel(1, \"one\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 235,
+            "line": 238,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 236,
+            "line": 239,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 237,
+            "line": 240,
             "expression": "listOf<UByte>(0u, 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "result.missing.isEmpty",
-            "line": 238,
+            "line": 241,
             "expression": "result.missing.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "third.stop",
-            "line": 240,
+            "line": 243,
             "expression": "third.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -73952,7 +74315,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -74023,11 +74386,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalWindowHoldsForFiftyMillisecondsAndRefillsWithoutMissingSlots",
-        "line": 105,
-        "end_line": 138,
+        "line": 108,
+        "end_line": 141,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "912da6198759e1a9be28dd16af18e94bb39b1addfb338ff056212aef15246fc8",
@@ -74035,61 +74398,61 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 113,
+            "line": 116,
             "expression": "assertEquals(listOf(hex(\"1f00\"), hex(\"1f01\")), transport.sentData.drop(1))",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 116,
+            "line": 119,
             "expression": "assertEquals(\"The original fifty-millisecond window must not issue a third read\", 3, transport.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 117,
+            "line": 120,
             "expression": "assertFalse(call.isCompleted)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 120,
+            "line": 123,
             "expression": "assertEquals(4, transport.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 121,
+            "line": 124,
             "expression": "assertEquals(hex(\"1f02\"), transport.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 124,
+            "line": 127,
             "expression": "assertEquals(5, transport.sentData.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 125,
+            "line": 128,
             "expression": "assertEquals(hex(\"1f03\"), transport.sentData.last())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 132,
+            "line": 135,
             "expression": "assertEquals(listOf<UByte>(0u, 1u, 2u, 3u), result.received.map { it.index })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 133,
+            "line": 136,
             "expression": "assertTrue(result.missing.isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 134,
+            "line": 137,
             "expression": "assertEquals(5, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -74097,80 +74460,44 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 106,
+            "line": 109,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.setSupportsWriteWithoutResponse",
-            "line": 107,
+            "line": 110,
             "expression": "transport.setSupportsWriteWithoutResponse(true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePipelineConfiguration",
-            "line": 108,
+            "line": 111,
             "expression": "sourcePipelineConfiguration(window = 2)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 109,
+            "line": 112,
             "expression": "startSourceSession(transport, configuration, sourceSelfInfo(915_000, 125_000, 7, \"Test\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceSelfInfo",
-            "line": 109,
+            "line": 112,
             "expression": "sourceSelfInfo(915_000, 125_000, 7, \"Test\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.getChannels",
-            "line": 111,
+            "line": 114,
             "expression": "session.getChannels(listOf(0u, 1u, 2u, 3u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 111,
-            "expression": "listOf(0u, 1u, 2u, 3u)",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "runCurrent",
-            "line": 112,
-            "expression": "runCurrent()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "listOf",
-            "line": 113,
-            "expression": "listOf(hex(\"1f00\"), hex(\"1f01\"))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "hex",
-            "line": 113,
-            "expression": "hex(\"1f00\")",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "hex",
-            "line": 113,
-            "expression": "hex(\"1f01\")",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "transport.sentData.drop",
-            "line": 113,
-            "expression": "transport.sentData.drop(1)",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "advanceTimeBy",
             "line": 114,
-            "expression": "advanceTimeBy(50)",
+            "expression": "listOf(0u, 1u, 2u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
@@ -74180,134 +74507,172 @@
             "assertion_or_checked_wait": false
           },
           {
-            "name": "transport.simulateReceive",
+            "name": "listOf",
+            "line": 116,
+            "expression": "listOf(hex(\"1f00\"), hex(\"1f01\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 116,
+            "expression": "hex(\"1f00\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 116,
+            "expression": "hex(\"1f01\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.drop",
+            "line": 116,
+            "expression": "transport.sentData.drop(1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 117,
+            "expression": "advanceTimeBy(50)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
             "line": 118,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 121,
             "expression": "transport.simulateReceive(sourceChannel(0, \"zero\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 118,
+            "line": 121,
             "expression": "sourceChannel(0, \"zero\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 119,
+            "line": 122,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 121,
+            "line": 124,
             "expression": "hex(\"1f02\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.sentData.last",
-            "line": 121,
+            "line": 124,
             "expression": "transport.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.simulateReceive",
-            "line": 122,
+            "line": 125,
             "expression": "transport.simulateReceive(sourceChannel(1, \"one\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 122,
+            "line": 125,
             "expression": "sourceChannel(1, \"one\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 123,
+            "line": 126,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 125,
+            "line": 128,
             "expression": "hex(\"1f03\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.sentData.last",
-            "line": 125,
+            "line": 128,
             "expression": "transport.sentData.last()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.simulateReceive",
-            "line": 126,
+            "line": 129,
             "expression": "transport.simulateReceive(sourceChannel(2, \"two\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 126,
+            "line": 129,
             "expression": "sourceChannel(2, \"two\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "transport.simulateReceive",
-            "line": 127,
+            "line": 130,
             "expression": "transport.simulateReceive(sourceChannel(3, \"three\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceChannel",
-            "line": 127,
+            "line": 130,
             "expression": "sourceChannel(3, \"three\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 128,
+            "line": 131,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 129,
+            "line": 132,
             "expression": "advanceTimeBy(20)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 130,
+            "line": 133,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "call.await",
-            "line": 131,
+            "line": 134,
             "expression": "call.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 132,
+            "line": 135,
             "expression": "listOf<UByte>(0u, 1u, 2u, 3u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "result.missing.isEmpty",
-            "line": 133,
+            "line": 136,
             "expression": "result.missing.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 136,
+            "line": 139,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -74318,7 +74683,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -74346,6 +74711,309 @@
       "runner_identity": [
         "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "originalWindowHoldsForFiftyMillisecondsAndRefillsWithoutMissingSlots"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "message-original-channel-datagram-public-fetch-result",
+      "comparison_sha256": "5542baf1545fbfbe91be1932714ce5975e45a2694d0e0d74f84155f36ad5469c",
+      "source_file_family_count": 1,
+      "group_compared_family_count": 1,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+      "source_blob_sha": "fe4d52015b1fdd8458f607f298c6bcbf352b5927",
+      "case_id": "V115GetMessageTests::getMessage yields channelDatagram()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "671d89242399acf5a47acb86f120b909f36efc30fb7ceb0c2ab2a16284bcf739",
+      "original_assertions": [
+        {
+          "name": "Issue.record",
+          "line": 39,
+          "expression": "Issue.record(\"Expected .channelDatagram, got \\(result)\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 44,
+          "expression": "#expect(dg.channelIndex == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 45,
+          "expression": "#expect(dg.dataType == 0xFFFF)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 46,
+          "expression": "#expect(dg.data == Data([0xDE, 0xAD, 0xBE]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
+        "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+        "method_or_family_name": "originalDatagramFrameReachesThePublicMessageResultAfterItsWrite",
+        "line": 287,
+        "end_line": 311,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "e297a87d9143a333423e5b3d71d1d7f33452a690737b36d9c706f4064f37db67",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 291,
+            "expression": "assertEquals(hex(\"01032020202020204d43547374\"), transport.sentData.single())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 294,
+            "expression": "assertEquals(2, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 295,
+            "expression": "assertEquals(hex(\"0a\"), transport.sentData.last())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 296,
+            "expression": "assertFalse(poll.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 300,
+            "expression": "assertTrue(result is MessageResult.ChannelDatagram)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 302,
+            "expression": "assertEquals(2u.toUByte(), datagram.channelIndex)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 303,
+            "expression": "assertEquals(0xffffu.toUShort(), datagram.dataType)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 304,
+            "expression": "assertEquals(hex(\"deadbe\"), datagram.data)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 305,
+            "expression": "assertEquals(0xffu.toUByte(), datagram.pathLength)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 306,
+            "expression": "assertEquals(0.0, datagram.snr, 0.0)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 307,
+            "expression": "assertEquals(2, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 288,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startSourceSession",
+            "line": 289,
+            "expression": "startSourceSession(transport)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 291,
+            "expression": "hex(\"01032020202020204d43547374\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.single",
+            "line": 291,
+            "expression": "transport.sentData.single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.getMessage",
+            "line": 292,
+            "expression": "session.getMessage()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 293,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 295,
+            "expression": "hex(\"0a\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.last",
+            "line": 295,
+            "expression": "transport.sentData.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 297,
+            "expression": "transport.simulateReceive(hex(\"1b00000002ffffff03deadbe\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 297,
+            "expression": "hex(\"1b00000002ffffff03deadbe\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 298,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "poll.await",
+            "line": 299,
+            "expression": "poll.await()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "u.toUByte",
+            "line": 302,
+            "expression": "u.toUByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "u.toUShort",
+            "line": 303,
+            "expression": "u.toUShort()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "hex",
+            "line": 304,
+            "expression": "hex(\"deadbe\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "u.toUByte",
+            "line": 305,
+            "expression": "u.toUByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 309,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "V115GetMessageTests::getMessage yields channelDatagram()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt",
+          "sha256": "f43520d33e1f89c8a90d114de3f1994312c443c67dfe64b78e99c7a7132cdcdb"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/Parsers.kt",
+          "sha256": "e0cc30c4d517d24418d6e1ea3e2503ceef588bc4abc9dc88b66d49fc9ffa184e"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MessageResult.kt",
+          "sha256": "4c9ec9b79f5000ff8f5450dcb2a8413ea0316ff60c303a94a8eea3894b42f32a"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MessagingPayloads.kt",
+          "sha256": "b5e8ed86c7edd117877c344a01d320db4027291a46f47ab74ef90f8beb7e7a66"
+        }
+      ],
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "startSourceSession",
+            "line": 289,
+            "expression": "startSourceSession(transport)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+            "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
+            "method": "startSourceSession",
+            "line": 318,
+            "end_line": 333,
+            "body_sha256": "58f2c978083cb09e7e91f6651fb170439da91aaad1bf78b324679e0b8014a269",
+            "assertions": [
+              {
+                "name": "assertEquals",
+                "line": 326,
+                "expression": "assertEquals(1, transport.sentData.size)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertFalse",
+                "line": 327,
+                "expression": "assertFalse(starting.isCompleted)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertNotNull",
+                "line": 331,
+                "expression": "assertNotNull(session.currentSelfInfo)",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+        "originalDatagramFrameReachesThePublicMessageResultAfterItsWrite"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -74383,11 +75051,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDeviceErrorsRemainTypedAfterDelayedResponse",
-        "line": 64,
-        "end_line": 76,
+        "line": 67,
+        "end_line": 79,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "1428279f2d64b25452cefc3435e64de871f9a6cd06229cf18738fe26e390dd18",
@@ -74395,7 +75063,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 72,
+            "line": 75,
             "expression": "assertEquals(\"Startup plus exactly two failed writes\", 3, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -74403,55 +75071,57 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 65,
+            "line": 68,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 66,
+            "line": 69,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedError",
-            "line": 68,
+            "line": 71,
             "expression": "delayedError(transport, \"3e00ff010042\", 2u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 69,
+            "line": 72,
             "expression": "session.sendChannelData(0u, 1u, hex(\"42\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 69,
+            "line": 72,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedError",
-            "line": 71,
+            "line": 74,
             "expression": "delayedError(transport, \"40\", 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.getDefaultFloodScope",
-            "line": 71,
+            "line": 74,
             "expression": "session.getDefaultFloodScope()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 74,
+            "line": 77,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -74463,7 +75133,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -74806,11 +75476,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
-        "line": 38,
-        "end_line": 60,
+        "line": 41,
+        "end_line": 63,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "6dcc91f66a22462b155e892af16e67b973c6b86ec0053ba9f1732c8f7866be13",
@@ -74818,7 +75488,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 56,
+            "line": 59,
             "expression": "assertEquals(\"Startup plus exactly six acknowledged writes\", 7, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -74826,151 +75496,153 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 39,
+            "line": 42,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 40,
+            "line": 43,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 42,
+            "line": 45,
             "expression": "delayedOk(transport, \"3e01ffffff010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 43,
+            "line": 46,
             "expression": "session.sendChannelData(1u, 0xffffu, hex(\"010203\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 43,
+            "line": 46,
             "expression": "hex(\"010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 45,
+            "line": 48,
             "expression": "delayedOk(transport, \"3e0003112233ffff42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 46,
+            "line": 49,
             "expression": "session.sendChannelData(0u, 0xffffu, hex(\"42\"), 3u, hex(\"112233\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"112233\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 48,
+            "line": 51,
             "expression": "delayedOk(transport, \"3f4575726f7065\" + \"00\".repeat(25) + \"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(25)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 49,
+            "line": 52,
             "expression": "session.setDefaultFloodScope(\"Europe\", hex(\"5a\".repeat(16)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 49,
+            "line": 52,
             "expression": "hex(\"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 49,
+            "line": 52,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 51,
+            "line": 54,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 51,
+            "line": 54,
             "expression": "session.setDefaultFloodScope(\"\", Bytes.EMPTY)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 52,
+            "line": 55,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 52,
+            "line": 55,
             "expression": "session.setDefaultFloodScope(\"ignored\", FloodScope.Disabled)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 53,
+            "line": 56,
             "expression": "delayedOk(transport, \"3f707562\" + \"00\".repeat(28) + \"efa1f375d76194fa51a3556a97e641e6\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 53,
+            "line": 56,
             "expression": "repeat(28)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 54,
+            "line": 57,
             "expression": "session.setDefaultFloodScope(\"pub\", FloodScope.ChannelName(\"public\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "FloodScope.ChannelName",
-            "line": 54,
+            "line": 57,
             "expression": "FloodScope.ChannelName(\"public\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 58,
+            "line": 61,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -74986,7 +75658,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -75065,11 +75737,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
-        "line": 38,
-        "end_line": 60,
+        "line": 41,
+        "end_line": 63,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "6dcc91f66a22462b155e892af16e67b973c6b86ec0053ba9f1732c8f7866be13",
@@ -75077,7 +75749,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 56,
+            "line": 59,
             "expression": "assertEquals(\"Startup plus exactly six acknowledged writes\", 7, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -75085,151 +75757,153 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 39,
+            "line": 42,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 40,
+            "line": 43,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 42,
+            "line": 45,
             "expression": "delayedOk(transport, \"3e01ffffff010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 43,
+            "line": 46,
             "expression": "session.sendChannelData(1u, 0xffffu, hex(\"010203\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 43,
+            "line": 46,
             "expression": "hex(\"010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 45,
+            "line": 48,
             "expression": "delayedOk(transport, \"3e0003112233ffff42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 46,
+            "line": 49,
             "expression": "session.sendChannelData(0u, 0xffffu, hex(\"42\"), 3u, hex(\"112233\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"112233\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 48,
+            "line": 51,
             "expression": "delayedOk(transport, \"3f4575726f7065\" + \"00\".repeat(25) + \"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(25)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 49,
+            "line": 52,
             "expression": "session.setDefaultFloodScope(\"Europe\", hex(\"5a\".repeat(16)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 49,
+            "line": 52,
             "expression": "hex(\"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 49,
+            "line": 52,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 51,
+            "line": 54,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 51,
+            "line": 54,
             "expression": "session.setDefaultFloodScope(\"\", Bytes.EMPTY)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 52,
+            "line": 55,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 52,
+            "line": 55,
             "expression": "session.setDefaultFloodScope(\"ignored\", FloodScope.Disabled)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 53,
+            "line": 56,
             "expression": "delayedOk(transport, \"3f707562\" + \"00\".repeat(28) + \"efa1f375d76194fa51a3556a97e641e6\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 53,
+            "line": 56,
             "expression": "repeat(28)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 54,
+            "line": 57,
             "expression": "session.setDefaultFloodScope(\"pub\", FloodScope.ChannelName(\"public\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "FloodScope.ChannelName",
-            "line": 54,
+            "line": 57,
             "expression": "FloodScope.ChannelName(\"public\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 58,
+            "line": 61,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -75245,7 +75919,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -75306,11 +75980,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDeviceErrorsRemainTypedAfterDelayedResponse",
-        "line": 64,
-        "end_line": 76,
+        "line": 67,
+        "end_line": 79,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "1428279f2d64b25452cefc3435e64de871f9a6cd06229cf18738fe26e390dd18",
@@ -75318,7 +75992,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 72,
+            "line": 75,
             "expression": "assertEquals(\"Startup plus exactly two failed writes\", 3, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -75326,55 +76000,57 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 65,
+            "line": 68,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 66,
+            "line": 69,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedError",
-            "line": 68,
+            "line": 71,
             "expression": "delayedError(transport, \"3e00ff010042\", 2u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 69,
+            "line": 72,
             "expression": "session.sendChannelData(0u, 1u, hex(\"42\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 69,
+            "line": 72,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedError",
-            "line": 71,
+            "line": 74,
             "expression": "delayedError(transport, \"40\", 1u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.getDefaultFloodScope",
-            "line": 71,
+            "line": 74,
             "expression": "session.getDefaultFloodScope()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 74,
+            "line": 77,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -75386,7 +76062,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -75681,11 +76357,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
-        "line": 38,
-        "end_line": 60,
+        "line": 41,
+        "end_line": 63,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "6dcc91f66a22462b155e892af16e67b973c6b86ec0053ba9f1732c8f7866be13",
@@ -75693,7 +76369,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 56,
+            "line": 59,
             "expression": "assertEquals(\"Startup plus exactly six acknowledged writes\", 7, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -75701,151 +76377,153 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 39,
+            "line": 42,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 40,
+            "line": 43,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 42,
+            "line": 45,
             "expression": "delayedOk(transport, \"3e01ffffff010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 43,
+            "line": 46,
             "expression": "session.sendChannelData(1u, 0xffffu, hex(\"010203\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 43,
+            "line": 46,
             "expression": "hex(\"010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 45,
+            "line": 48,
             "expression": "delayedOk(transport, \"3e0003112233ffff42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 46,
+            "line": 49,
             "expression": "session.sendChannelData(0u, 0xffffu, hex(\"42\"), 3u, hex(\"112233\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"112233\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 48,
+            "line": 51,
             "expression": "delayedOk(transport, \"3f4575726f7065\" + \"00\".repeat(25) + \"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(25)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 49,
+            "line": 52,
             "expression": "session.setDefaultFloodScope(\"Europe\", hex(\"5a\".repeat(16)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 49,
+            "line": 52,
             "expression": "hex(\"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 49,
+            "line": 52,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 51,
+            "line": 54,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 51,
+            "line": 54,
             "expression": "session.setDefaultFloodScope(\"\", Bytes.EMPTY)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 52,
+            "line": 55,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 52,
+            "line": 55,
             "expression": "session.setDefaultFloodScope(\"ignored\", FloodScope.Disabled)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 53,
+            "line": 56,
             "expression": "delayedOk(transport, \"3f707562\" + \"00\".repeat(28) + \"efa1f375d76194fa51a3556a97e641e6\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 53,
+            "line": 56,
             "expression": "repeat(28)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 54,
+            "line": 57,
             "expression": "session.setDefaultFloodScope(\"pub\", FloodScope.ChannelName(\"public\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "FloodScope.ChannelName",
-            "line": 54,
+            "line": 57,
             "expression": "FloodScope.ChannelName(\"public\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 58,
+            "line": 61,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -75861,7 +76539,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -75910,11 +76588,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
-        "line": 38,
-        "end_line": 60,
+        "line": 41,
+        "end_line": 63,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "6dcc91f66a22462b155e892af16e67b973c6b86ec0053ba9f1732c8f7866be13",
@@ -75922,7 +76600,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 56,
+            "line": 59,
             "expression": "assertEquals(\"Startup plus exactly six acknowledged writes\", 7, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -75930,151 +76608,153 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 39,
+            "line": 42,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 40,
+            "line": 43,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 42,
+            "line": 45,
             "expression": "delayedOk(transport, \"3e01ffffff010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 43,
+            "line": 46,
             "expression": "session.sendChannelData(1u, 0xffffu, hex(\"010203\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 43,
+            "line": 46,
             "expression": "hex(\"010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 45,
+            "line": 48,
             "expression": "delayedOk(transport, \"3e0003112233ffff42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 46,
+            "line": 49,
             "expression": "session.sendChannelData(0u, 0xffffu, hex(\"42\"), 3u, hex(\"112233\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"112233\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 48,
+            "line": 51,
             "expression": "delayedOk(transport, \"3f4575726f7065\" + \"00\".repeat(25) + \"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(25)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 49,
+            "line": 52,
             "expression": "session.setDefaultFloodScope(\"Europe\", hex(\"5a\".repeat(16)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 49,
+            "line": 52,
             "expression": "hex(\"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 49,
+            "line": 52,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 51,
+            "line": 54,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 51,
+            "line": 54,
             "expression": "session.setDefaultFloodScope(\"\", Bytes.EMPTY)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 52,
+            "line": 55,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 52,
+            "line": 55,
             "expression": "session.setDefaultFloodScope(\"ignored\", FloodScope.Disabled)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 53,
+            "line": 56,
             "expression": "delayedOk(transport, \"3f707562\" + \"00\".repeat(28) + \"efa1f375d76194fa51a3556a97e641e6\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 53,
+            "line": 56,
             "expression": "repeat(28)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 54,
+            "line": 57,
             "expression": "session.setDefaultFloodScope(\"pub\", FloodScope.ChannelName(\"public\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "FloodScope.ChannelName",
-            "line": 54,
+            "line": 57,
             "expression": "FloodScope.ChannelName(\"public\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 58,
+            "line": 61,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -76090,7 +76770,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -76139,11 +76819,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
-        "line": 38,
-        "end_line": 60,
+        "line": 41,
+        "end_line": 63,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "6dcc91f66a22462b155e892af16e67b973c6b86ec0053ba9f1732c8f7866be13",
@@ -76151,7 +76831,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 56,
+            "line": 59,
             "expression": "assertEquals(\"Startup plus exactly six acknowledged writes\", 7, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -76159,151 +76839,153 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 39,
+            "line": 42,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 40,
+            "line": 43,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 42,
+            "line": 45,
             "expression": "delayedOk(transport, \"3e01ffffff010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 43,
+            "line": 46,
             "expression": "session.sendChannelData(1u, 0xffffu, hex(\"010203\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 43,
+            "line": 46,
             "expression": "hex(\"010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 45,
+            "line": 48,
             "expression": "delayedOk(transport, \"3e0003112233ffff42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 46,
+            "line": 49,
             "expression": "session.sendChannelData(0u, 0xffffu, hex(\"42\"), 3u, hex(\"112233\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"112233\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 48,
+            "line": 51,
             "expression": "delayedOk(transport, \"3f4575726f7065\" + \"00\".repeat(25) + \"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(25)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 49,
+            "line": 52,
             "expression": "session.setDefaultFloodScope(\"Europe\", hex(\"5a\".repeat(16)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 49,
+            "line": 52,
             "expression": "hex(\"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 49,
+            "line": 52,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 51,
+            "line": 54,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 51,
+            "line": 54,
             "expression": "session.setDefaultFloodScope(\"\", Bytes.EMPTY)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 52,
+            "line": 55,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 52,
+            "line": 55,
             "expression": "session.setDefaultFloodScope(\"ignored\", FloodScope.Disabled)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 53,
+            "line": 56,
             "expression": "delayedOk(transport, \"3f707562\" + \"00\".repeat(28) + \"efa1f375d76194fa51a3556a97e641e6\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 53,
+            "line": 56,
             "expression": "repeat(28)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 54,
+            "line": 57,
             "expression": "session.setDefaultFloodScope(\"pub\", FloodScope.ChannelName(\"public\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "FloodScope.ChannelName",
-            "line": 54,
+            "line": 57,
             "expression": "FloodScope.ChannelName(\"public\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 58,
+            "line": 61,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -76319,7 +77001,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -76386,11 +77068,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350",
+        "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
-        "line": 38,
-        "end_line": 60,
+        "line": 41,
+        "end_line": 63,
         "factory_method": null,
         "registration_identity_resolution": null,
         "body_sha256": "6dcc91f66a22462b155e892af16e67b973c6b86ec0053ba9f1732c8f7866be13",
@@ -76398,7 +77080,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 56,
+            "line": 59,
             "expression": "assertEquals(\"Startup plus exactly six acknowledged writes\", 7, transport.sentData.size)",
             "assertion_or_checked_wait": true
           }
@@ -76406,151 +77088,153 @@
         "actions_and_helper_calls": [
           {
             "name": "MockTransport",
-            "line": 39,
+            "line": 42,
             "expression": "MockTransport()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "startSourceSession",
-            "line": 40,
+            "line": 43,
             "expression": "startSourceSession(transport)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 42,
+            "line": 45,
             "expression": "delayedOk(transport, \"3e01ffffff010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 43,
+            "line": 46,
             "expression": "session.sendChannelData(1u, 0xffffu, hex(\"010203\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 43,
+            "line": 46,
             "expression": "hex(\"010203\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 45,
+            "line": 48,
             "expression": "delayedOk(transport, \"3e0003112233ffff42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.sendChannelData",
-            "line": 46,
+            "line": 49,
             "expression": "session.sendChannelData(0u, 0xffffu, hex(\"42\"), 3u, hex(\"112233\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"42\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 46,
+            "line": 49,
             "expression": "hex(\"112233\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 48,
+            "line": 51,
             "expression": "delayedOk(transport, \"3f4575726f7065\" + \"00\".repeat(25) + \"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(25)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 48,
+            "line": 51,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 49,
+            "line": 52,
             "expression": "session.setDefaultFloodScope(\"Europe\", hex(\"5a\".repeat(16)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "hex",
-            "line": 49,
+            "line": 52,
             "expression": "hex(\"5a\".repeat(16))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 49,
+            "line": 52,
             "expression": "repeat(16)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 51,
+            "line": 54,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 51,
+            "line": 54,
             "expression": "session.setDefaultFloodScope(\"\", Bytes.EMPTY)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 52,
+            "line": 55,
             "expression": "delayedOk(transport, \"3f\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 52,
+            "line": 55,
             "expression": "session.setDefaultFloodScope(\"ignored\", FloodScope.Disabled)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "delayedOk",
-            "line": 53,
+            "line": 56,
             "expression": "delayedOk(transport, \"3f707562\" + \"00\".repeat(28) + \"efa1f375d76194fa51a3556a97e641e6\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 53,
+            "line": 56,
             "expression": "repeat(28)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.setDefaultFloodScope",
-            "line": 54,
+            "line": 57,
             "expression": "session.setDefaultFloodScope(\"pub\", FloodScope.ChannelName(\"public\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "FloodScope.ChannelName",
-            "line": 54,
+            "line": 57,
             "expression": "FloodScope.ChannelName(\"public\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "session.stop",
-            "line": 58,
+            "line": 61,
             "expression": "session.stop()",
             "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
           "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
         ],
         "explicit_original_case_ids": [
@@ -76566,7 +77250,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+          "sha256": "6bd144184a2e5a02a129da3ad3ff73a8401b361034eb35c2d3852ffbf225cda6"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -77764,7 +78448,7 @@
     },
     {
       "group": "wifi-original-testnet-target-and-inflight-cancellation-budget",
-      "comparison_sha256": "8d524b6d0d5d2d02cef18e13ea806393127b8cc55f6e0cec6ec04b408e90f95b",
+      "comparison_sha256": "5d6b8a96b6c2be8551851fd3b57b80cf022a86c78afb578369dfed434f70f3f4",
       "source_file_family_count": 12,
       "group_compared_family_count": 1,
       "partial_source_file": true,

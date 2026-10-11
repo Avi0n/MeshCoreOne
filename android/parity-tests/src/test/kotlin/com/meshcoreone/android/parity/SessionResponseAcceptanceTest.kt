@@ -1,11 +1,14 @@
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.OriginalCase
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.config.SessionConfiguration
+import com.meshcoreone.android.core.protocol.event.MessageResult
 import com.meshcoreone.android.core.protocol.model.FloodScope
 import com.meshcoreone.android.core.protocol.session.MeshCoreSession
 import com.meshcoreone.android.core.protocol.session.SessionClock
@@ -238,6 +241,72 @@ class SessionResponseAcceptanceTest {
             assertTrue(result.missing.isEmpty())
         } finally {
             third.stop()
+        }
+    }
+
+    @OriginalCase("GetMessageSerializationTests::an unrelated error does not fail an in-flight getMessage()")
+    @Test fun originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError() = runTest {
+        val transport = MockTransport()
+        val session = startSourceSession(transport)
+        try {
+            assertEquals(hex("01032020202020204d43547374"), transport.sentData.single())
+            val reset = backgroundScope.async {
+                try {
+                    session.factoryReset()
+                    error("The reset must observe its own device error")
+                } catch (failure: MeshCoreException.DeviceError) {
+                    failure
+                }
+            }
+            runCurrent()
+            assertEquals(2, transport.sentData.size)
+            assertEquals(hex("337265736574"), transport.sentData.last())
+            val message = backgroundScope.async { session.getMessage() }
+            runCurrent()
+            advanceTimeBy(50)
+            runCurrent()
+            assertEquals("The original fifty-millisecond wait cannot send a poll early", 2, transport.sentData.size)
+            assertFalse(reset.isCompleted)
+            assertFalse(message.isCompleted)
+            transport.simulateError(17u)
+            runCurrent()
+            assertEquals(17u.toUByte(), reset.await().code)
+            assertEquals(3, transport.sentData.size)
+            assertEquals(hex("0a"), transport.sentData.last())
+            assertFalse("The reset's error cannot become the poll's result", message.isCompleted)
+            transport.simulateReceive(hex("0a"))
+            runCurrent()
+            assertEquals(MessageResult.NoMoreMessages, message.await())
+            assertEquals(3, transport.sentData.size)
+        } finally {
+            session.stop()
+        }
+    }
+
+    @OriginalCase("V115GetMessageTests::getMessage yields channelDatagram()")
+    @Test fun originalDatagramFrameReachesThePublicMessageResultAfterItsWrite() = runTest {
+        val transport = MockTransport()
+        val session = startSourceSession(transport)
+        try {
+            assertEquals(hex("01032020202020204d43547374"), transport.sentData.single())
+            val poll = backgroundScope.async { session.getMessage() }
+            runCurrent()
+            assertEquals(2, transport.sentData.size)
+            assertEquals(hex("0a"), transport.sentData.last())
+            assertFalse(poll.isCompleted)
+            transport.simulateReceive(hex("1b00000002ffffff03deadbe"))
+            runCurrent()
+            val result = poll.await()
+            assertTrue(result is MessageResult.ChannelDatagram)
+            val datagram = (result as MessageResult.ChannelDatagram).datagram
+            assertEquals(2u.toUByte(), datagram.channelIndex)
+            assertEquals(0xffffu.toUShort(), datagram.dataType)
+            assertEquals(hex("deadbe"), datagram.data)
+            assertEquals(0xffu.toUByte(), datagram.pathLength)
+            assertEquals(0.0, datagram.snr, 0.0)
+            assertEquals(2, transport.sentData.size)
+        } finally {
+            session.stop()
         }
     }
 

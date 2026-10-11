@@ -100,6 +100,10 @@ WP501_ACCEPTANCE_CASES = {
      "originalInvalidInputsDoNotWriteOrConnect"),
     ("com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
      "originalUnstartedStopRetainsTheDisconnectOwnershipFlag"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalDatagramFrameReachesThePublicMessageResultAfterItsWrite"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",
