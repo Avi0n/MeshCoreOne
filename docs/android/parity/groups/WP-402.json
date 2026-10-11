@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-402",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1/State/LiveActivityManager.swift",
+      "blob_sha": "046fd6829df43990062eec7f0e26184bcf8b9cba",
+      "kind": "production",
+      "owner": "WP-402",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/State/LiveActivityManagerTests.swift",
+      "blob_sha": "5cd3c71bc820e5b2e0e9339c19c8a91d3837dd5d",
+      "kind": "test",
+      "owner": "WP-402",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Widgets/MeshStatusLiveActivity.swift",
+      "blob_sha": "1c6f60a0c0ee97d3833edfbd240b30cd028bfeeb",
+      "kind": "production",
+      "owner": "WP-402",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Widgets/Views/LockScreenView.swift",
+      "blob_sha": "53390096f710da087b6ab74b007f0b064747a957",
+      "kind": "production",
+      "owner": "WP-402",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "Shared/MeshStatusAttributes.swift",
+      "blob_sha": "c38a47c4cc5998aa6839f5e0fc2c118e166205de",
+      "kind": "production",
+      "owner": "WP-402",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MC1Tests/State/LiveActivityManagerTests.swift",
+      "source_blob_sha": "5cd3c71bc820e5b2e0e9339c19c8a91d3837dd5d",
+      "case_id": "LiveActivityManagerTests::no packets reads as zero()",
+      "parameter_family": "single",
+      "line": 11,
+      "end_line": 13,
+      "declaration_sha256": "3b9722b7952c69b9e5db346bebfaca6f3d5ec9fb6e7de427a3490ea40fd227a2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 12,
+          "expression": "#expect(LiveActivityManager.packetsPerMinute(timestamps: [], now: now) == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`no packets reads as zero`",
+          "line": 11,
+          "expression": "`no packets reads as zero`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LiveActivityManager.packetsPerMinute",
+          "line": 12,
+          "expression": "LiveActivityManager.packetsPerMinute(timestamps: [], now: now)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/State/LiveActivityManagerTests.swift",
+      "source_blob_sha": "5cd3c71bc820e5b2e0e9339c19c8a91d3837dd5d",
+      "case_id": "LiveActivityManagerTests::default 60s window returns the exact count, matching the RX Log()",
+      "parameter_family": "single",
+      "line": 16,
+      "end_line": 19,
+      "declaration_sha256": "13f4c40df68ddeb0bb24f70317278594102cf1ed780793a0526c3e01dc6d5646",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(LiveActivityManager.packetsPerMinute(timestamps: timestamps, now: now) == 7)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`default 60s window returns the exact count, matching the RX Log`",
+          "line": 16,
+          "expression": "`default 60s window returns the exact count, matching the RX Log`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "now.addingTimeInterval",
+          "line": 17,
+          "expression": "now.addingTimeInterval(-Double($0) * 5)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Double",
+          "line": 17,
+          "expression": "Double($0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LiveActivityManager.packetsPerMinute",
+          "line": 18,
+          "expression": "LiveActivityManager.packetsPerMinute(timestamps: timestamps, now: now)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/State/LiveActivityManagerTests.swift",
+      "source_blob_sha": "5cd3c71bc820e5b2e0e9339c19c8a91d3837dd5d",
+      "case_id": "LiveActivityManagerTests::packets older than the window are excluded()",
+      "parameter_family": "single",
+      "line": 22,
+      "end_line": 30,
+      "declaration_sha256": "50c904eeec25795af859ee440eb47128e2659e34ca2df72265fdef9e7a6c0fc8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 29,
+          "expression": "#expect(LiveActivityManager.packetsPerMinute(timestamps: timestamps, now: now) == 2)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`packets older than the window are excluded`",
+          "line": 22,
+          "expression": "`packets older than the window are excluded`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "now.addingTimeInterval",
+          "line": 24,
+          "expression": "now.addingTimeInterval(-10)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "now.addingTimeInterval",
+          "line": 25,
+          "expression": "now.addingTimeInterval(-59)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "now.addingTimeInterval",
+          "line": 26,
+          "expression": "now.addingTimeInterval(-61)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "now.addingTimeInterval",
+          "line": 27,
+          "expression": "now.addingTimeInterval(-120)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LiveActivityManager.packetsPerMinute",
+          "line": 29,
+          "expression": "LiveActivityManager.packetsPerMinute(timestamps: timestamps, now: now)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/State/LiveActivityManagerTests.swift",
+      "source_blob_sha": "5cd3c71bc820e5b2e0e9339c19c8a91d3837dd5d",
+      "case_id": "LiveActivityManagerTests::a timestamp exactly at the cutoff is included()",
+      "parameter_family": "single",
+      "line": 33,
+      "end_line": 36,
+      "declaration_sha256": "eb13faf73e415276061befdb0a35ee342a2770ed01d03e1ac27d1d6e3f0afd2c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 35,
+          "expression": "#expect(LiveActivityManager.packetsPerMinute(timestamps: [atCutoff], now: now) == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`a timestamp exactly at the cutoff is included`",
+          "line": 33,
+          "expression": "`a timestamp exactly at the cutoff is included`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "now.addingTimeInterval",
+          "line": 34,
+          "expression": "now.addingTimeInterval(-LiveActivityManager.packetWindowSeconds)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LiveActivityManager.packetsPerMinute",
+          "line": 35,
+          "expression": "LiveActivityManager.packetsPerMinute(timestamps: [atCutoff], now: now)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/State/LiveActivityManagerTests.swift",
+      "source_blob_sha": "5cd3c71bc820e5b2e0e9339c19c8a91d3837dd5d",
+      "case_id": "LiveActivityManagerTests::a shorter window still projects to a per-minute rate()",
+      "parameter_family": "single",
+      "line": 39,
+      "end_line": 42,
+      "declaration_sha256": "fcf49dd4e534f947944adc949aab94e094a1ab8788f4fd46346a60328dfc50d8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 41,
+          "expression": "#expect(LiveActivityManager.packetsPerMinute(timestamps: timestamps, now: now, window: 15) == 12)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`a shorter window still projects to a per-minute rate`",
+          "line": 39,
+          "expression": "`a shorter window still projects to a per-minute rate`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "now.addingTimeInterval",
+          "line": 40,
+          "expression": "now.addingTimeInterval(-Double($0))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Double",
+          "line": 40,
+          "expression": "Double($0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "LiveActivityManager.packetsPerMinute",
+          "line": 41,
+          "expression": "LiveActivityManager.packetsPerMinute(timestamps: timestamps, now: now, window: 15)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    }
+  ]
+}

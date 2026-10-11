@@ -74,6 +74,7 @@ jobs:
           python tools/android-port/controller/validate.py
           python tools/android-port/portmap.py
           python android/parity-tests/audit.py --check
+          python android/parity-tests/semantic.py --check
       - name: No controller inputs selected
         if: ${{ needs.scope.outputs.controller != 'true' }}
         run: echo "Controller suite not selected."

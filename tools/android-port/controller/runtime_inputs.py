@@ -44,8 +44,13 @@ FIXED_INPUTS = (
     "docs/android/evidence/WP-201/collect_evidence.py",
     "tools/android-port/tests/test_domain_room_evidence.py",
     "android/parity-tests/audit.py", "android/parity-tests/test_audit.py",
+    "android/parity-tests/semantic.py", "android/parity-tests/test_semantic.py",
+    "android/parity-tests/acceptance.py", "android/parity-tests/test_acceptance.py",
     "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBackupAcceptanceTest.kt",
+    "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContentCancellationAcceptanceTest.kt",
+    "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DeviceRepeatAcceptanceTest.kt",
     "docs/android/parity/coverage-policy.json", "docs/android/parity/accounting.json",
+    "docs/android/parity/review-proposals.json", "docs/android/parity/review-bindings.json",
 )
 
 

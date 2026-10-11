@@ -39,7 +39,13 @@ WP501_ACCEPTANCE_CASES = {
         "swiftProducedFixtureReachesTheOfflineTimelineWithOriginalBytes",
         "corruptedManifestCannotMutateTheProcessStore",
         "cancelledCodecClosesInputAndDoesNotBecomeInvalidFileSuccess",
+        "redactedRadioDefaultsUsePinnedValuesRatherThanTheCandidateAsOracle",
     )
+} | {
+    ("com.meshcoreone.android.parity.ContentCancellationAcceptanceTest",
+     "callerTimeoutRemainsCancellationAndDoesNotPoisonInlineRetry"),
+    ("com.meshcoreone.android.parity.DeviceRepeatAcceptanceTest",
+     "sourcePreRepeatParametersSurviveSelfInfoWithoutMutatingTheOriginal"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

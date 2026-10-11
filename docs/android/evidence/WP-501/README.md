@@ -20,9 +20,11 @@ capabilities. No release/recreate or ledger edits occurred.
 
 ## Acceptance scope
 
-WP-501-behavior and WP-501-source-test-parity: complete source/family accounting
-plus executable cross-component acceptance extensions; **independent full
-behavioral acceptance remains BLOCKED**. All 1,866 inputs and 5,133 declarations
+WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
+179 inspected family proposals in15groups, exact source/assertion/helper/runner
+bindings and executable cross-component acceptance extensions. **The full semantic
+audit is unfinished and a mounted content cancellation defect is proven**;
+independent full behavioral acceptance remains BLOCKED. All 1,866 inputs and 5,133 declarations
 remain present. 1,786 paths are in scope; 80 are exact charter exclusions.
 All 111 excluded historical declarations remain accountable; 66 of these are
 the removed-translation declarations, not passing tests.
@@ -52,11 +54,29 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The final candidate has 32 Python regressions and nine Kotlin acceptance cases,
-including actual pinned Swift-export restore into the offline timeline.
-The new Kotlin consumer tests and exact-candidate full checks must pass before
-publication is called verified. Current results/logs are read in place and
-reported on the PR, never committed as a duplicate execution bundle. The
+The follow-up has 65 Python regressions and twelve Kotlin acceptance cases.
+The current Python suite passes65/65 without failure/error/skip.
+`semantic.py` generates58complete owner worklists/5,133original families and
+179actually inspected proposals;3,344native-body joins are only candidates.
+The Windows isolated-cache task
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
+ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
+0errors/skips. The failing mounted caller-timeout assertion and exact producer
+bytes are in the [immediate defect report](inline-caller-timeout-defect.md),
+posted for coordinator filing/repair. New semantic runner bindings have not
+yet been verified by the new candidate's full hosted stage.
+
+Baseline [run38155192945](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38155192945)
+is SUCCESS at exact250dd50e. Initial WP-501
+[run38156685101](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38156685101)
+is SUCCESS at exactee7981b5: classifier/controller/LinuxAndroid/Swiftcodec/
+SwiftDatarestore-export/android-ci passed. This proves the nine committed
+WP-501 Kotlin cases, not these uncommitted additional assertions or full parity.
+No overlapping module/oracle totals are double-added.
+
+New Kotlin assertions and exact-candidate full checks must pass before publication
+is called verified. Results/logs are read in place and reported on the PR,
+never committed as a duplicate execution bundle. The
 integrated main APK already supplied by WP-407 is not relabeled as a new
 WP-501-accepted artifact; this candidate changes only tests and validation wiring.
 
@@ -66,9 +86,12 @@ The generated worklist has 2,341 recognized historical/marker family candidates,
 2,681 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All 1,786 owned source dispositions require independent
-behavior review. Current original/native identity joins and candidate test
-passes cannot self-certify that review.
+actual inspection. All1,786owned source dispositions require behavior review; only the179families
+described above have actual bounded comparison proposals so far.
+Completing remaining original/native/helper/consumer/resource comparisons is
+assigned worker implementation, not a new unavailable human gate.
+Actual independent acceptance can resolve only through existing authenticated,
+current candidate authority, never current joins or candidate self-certification.
 
 Proven actionable product defects must be filed immediately using the existing
 bug template and sent to the coordinator with source/case/parameter behavior,

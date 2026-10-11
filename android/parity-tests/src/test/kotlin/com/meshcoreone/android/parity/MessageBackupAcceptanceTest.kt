@@ -1,4 +1,5 @@
 // PortedFrom: MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1Services/Tests/MC1ServicesTests/AppBackupServiceTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // WP-501 Cross-component text families through actual codec, Room restore and process consumers.
 package com.meshcoreone.android.parity
 
@@ -20,6 +21,36 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MessageBackupAcceptanceTest : RoomProcessTest() {
+    @Test fun redactedRadioDefaultsUsePinnedValuesRatherThanTheCandidateAsOracle() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val storage = MeshCoreStorage.get(context)
+        try {
+            val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+            val original = DeviceDTO(
+                radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = "Synthetic radio",
+                blePin = 123_456u, frequency = 869_500u, bandwidth = 125_000u, spreadingFactor = 12u, codingRate = 8u,
+                txPower = 14, maxTxPower = 22, latitude = 48.8566, longitude = 2.3522,
+            )
+            store.saveDevice(original)
+            val exported = AppBackupCodec().parseBackup(AppBackupService(storage.backupPreferences, "synthetic", "1").export(store).data)
+                .devices.single()
+            assertNotEquals(original.id, exported.id)
+            assertEquals(original.publicKey, exported.publicKey)
+            assertEquals(0u, exported.blePin)
+            assertEquals(915_000u, exported.frequency)
+            assertEquals(250_000u, exported.bandwidth)
+            assertEquals(10.toUByte(), exported.spreadingFactor)
+            assertEquals(5.toUByte(), exported.codingRate)
+            assertEquals(20.toByte(), exported.txPower)
+            assertEquals(20.toByte(), exported.maxTxPower)
+            assertEquals(0.0, exported.latitude, 0.0)
+            assertEquals(0.0, exported.longitude, 0.0)
+            assertEquals(original, store.fetchDevice(radio))
+        } finally {
+            storage.close()
+        }
+    }
+
     @Test fun cjkOriginalTextSurvivesBackupAndMountedTimeline() = roundTrip("\u4F60\u597D\uFF0C\u4E16\u754C")
     @Test fun rtlOriginalTextSurvivesBackupAndMountedTimeline() = roundTrip("\u05E9\u05DC\u05D5\u05DD 123 \u0645\u0631\u062D\u0628\u0627")
     @Test fun zwjOriginalTextSurvivesBackupAndMountedTimeline() = roundTrip("\uD83D\uDC69\u200D\uD83D\uDCBB\uD83C\uDFFD")

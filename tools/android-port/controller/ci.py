@@ -230,6 +230,8 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
     if "scaffold" in selected:
         report["suites"] = collect_suites(REPO / "android")
         report["module_unit_tests"] = check_module_tests(REPO)
+        execute([sys.executable, str(REPO / "android" / "parity-tests" / "semantic.py"),
+                 "--check", "--verify-execution"], environment, output / "parity-family-execution.log")
         report["reports"] = collect_lint(REPO / "android")
         validate_graph_runtime(REPO / "android" / "build" / "reports" / "scaffold")
     if "protocol" in selected:
@@ -262,6 +264,8 @@ def python_checks(output: Path):
             None, output / "pinned-notices.log")
     execute([sys.executable, str(REPO / "android" / "parity-tests" / "audit.py"), "--check"],
             None, output / "parity-accounting.log")
+    execute([sys.executable, str(REPO / "android" / "parity-tests" / "semantic.py"), "--check"],
+            None, output / "parity-semantic-proposals.log")
     results = {}
     for name, path, minimum in (
         ("scaffold", REPO / "android" / "scaffold", PYTHON_MINIMUMS["scaffold"]),

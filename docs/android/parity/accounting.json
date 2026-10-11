@@ -3018,7 +3018,8 @@
         "android/app/src/main/kotlin/com/meshcoreone/android/app/content/BitmapImageDecoder.kt",
         "android/app/src/main/kotlin/com/meshcoreone/android/app/content/ContentMemoryPressure.kt",
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/content/ImageDecoding.kt",
-        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/content/InlineImageCache.kt"
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/content/InlineImageCache.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContentCancellationAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -13316,7 +13317,8 @@
       "owner": "WP-203",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/AppBackupServiceTest.kt"
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/AppBackupServiceTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBackupAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -14190,7 +14192,8 @@
       "owner": "WP-201",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt"
+        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DeviceRepeatAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },

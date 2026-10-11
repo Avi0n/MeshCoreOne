@@ -1,0 +1,5097 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-302",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1/ContentView.swift",
+      "blob_sha": "9beb0ea2574e02608ac972e71eaeac2ef93b30fa",
+      "kind": "production",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/MainActivity.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/MainActivity.kt",
+          "sha256": "b37bb6dbdae81d725289ace7668818169bdd0d929c597032a5e4018a7eeacd30",
+          "source_references": [
+            "MC1/ContentView.swift"
+          ],
+          "methods": [
+            {
+              "name": "bindDeepLinks",
+              "line": 63,
+              "end_line": 70
+            },
+            {
+              "name": "submitInitialViewIntent",
+              "line": 72,
+              "end_line": 76
+            },
+            {
+              "name": "submitNewViewIntent",
+              "line": 78,
+              "end_line": 82
+            },
+            {
+              "name": "submitViewIntent",
+              "line": 84,
+              "end_line": 87
+            },
+            {
+              "name": "attachBaseContext",
+              "line": 91,
+              "end_line": 93
+            },
+            {
+              "name": "onCreate",
+              "line": 103,
+              "end_line": 160
+            },
+            {
+              "name": "produceContainer",
+              "line": 167,
+              "end_line": 178
+            },
+            {
+              "name": "onNewIntent",
+              "line": 180,
+              "end_line": 184
+            },
+            {
+              "name": "onResume",
+              "line": 187,
+              "end_line": 206
+            },
+            {
+              "name": "onPause",
+              "line": 208,
+              "end_line": 214
+            },
+            {
+              "name": "onDestroy",
+              "line": 216,
+              "end_line": 219
+            },
+            {
+              "name": "launchChooser",
+              "line": 221,
+              "end_line": 226
+            },
+            {
+              "name": "onActivityResult",
+              "line": 230,
+              "end_line": 235
+            },
+            {
+              "name": "onSaveInstanceState",
+              "line": 242,
+              "end_line": 245
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt",
+          "sha256": "623ae943b148bce7de818532b7509605702cec6b54a6c293d75d8be83e267e29",
+          "source_references": [
+            "MC1/ContentView.swift",
+            "MC1/Views/AppSidebar.swift",
+            "MC1/Views/MainSidebarView.swift",
+            "MC1/Views/Sidebar/SidebarContentColumnBackground.swift"
+          ],
+          "methods": [
+            {
+              "name": "titleResource",
+              "line": 114,
+              "end_line": 120
+            },
+            {
+              "name": "symbol",
+              "line": 122,
+              "end_line": 128
+            },
+            {
+              "name": "NativeNavigationShell",
+              "line": 132,
+              "end_line": 341
+            },
+            {
+              "name": "calculateScene",
+              "line": 347,
+              "end_line": 358
+            },
+            {
+              "name": "ExistingFeatureContent",
+              "line": 415,
+              "end_line": 522
+            },
+            {
+              "name": "openContact",
+              "line": 453,
+              "end_line": 454
+            },
+            {
+              "name": "openDiscovery",
+              "line": 456,
+              "end_line": 456
+            },
+            {
+              "name": "openChat",
+              "line": 457,
+              "end_line": 458
+            },
+            {
+              "name": "openMap",
+              "line": 460,
+              "end_line": 461
+            },
+            {
+              "name": "openRemoteNode",
+              "line": 463,
+              "end_line": 466
+            },
+            {
+              "name": "back",
+              "line": 468,
+              "end_line": 470
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/State/AppTab.swift",
+      "blob_sha": "58dca95ede840767b42049592f1574c1c24db1d8",
+      "kind": "production",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt",
+          "sha256": "cb5fe635c060fdb2835888692af4b874bffb4b59e66e62a5f58ea26faf737bc4",
+          "source_references": [
+            "MC1/State/AppTab.swift",
+            "MC1/State/MapFocusRequest.swift",
+            "MC1/State/NavigationCoordinator.swift",
+            "MC1/Views/Chats/HashtagDeeplinkSupport.swift",
+            "MC1/Views/Chats/Navigation/ChatRoute.swift",
+            "MC1/Views/Contacts/ContactDetailView.swift",
+            "MC1/Views/MainSidebarView.swift",
+            "MC1/Views/Settings/SettingsDetail.swift",
+            "MC1/Views/Tools/ToolSelection.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 43,
+              "end_line": 43
+            },
+            {
+              "name": "hashCode",
+              "line": 44,
+              "end_line": 44
+            },
+            {
+              "name": "equals",
+              "line": 47,
+              "end_line": 47
+            },
+            {
+              "name": "hashCode",
+              "line": 48,
+              "end_line": 48
+            },
+            {
+              "name": "equals",
+              "line": 51,
+              "end_line": 51
+            },
+            {
+              "name": "hashCode",
+              "line": 52,
+              "end_line": 52
+            },
+            {
+              "name": "usesRail",
+              "line": 97,
+              "end_line": 97
+            },
+            {
+              "name": "tilesListDetail",
+              "line": 98,
+              "end_line": 98
+            },
+            {
+              "name": "showsRail",
+              "line": 99,
+              "end_line": 100
+            },
+            {
+              "name": "initialStacks",
+              "line": 103,
+              "end_line": 106
+            },
+            {
+              "name": "select",
+              "line": 157,
+              "end_line": 162
+            },
+            {
+              "name": "push",
+              "line": 164,
+              "end_line": 180
+            },
+            {
+              "name": "removeDestinations",
+              "line": 182,
+              "end_line": 187
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/State/NavigationCoordinator.swift",
+      "blob_sha": "c6674caf1ea9f8914a2490a978d7759cdd151cdf",
+      "kind": "production",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationCoordinator.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationSavedState.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NotificationNavigationBinding.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NotificationNavigationRequest.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/PersistenceNavigationLookup.kt",
+        "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/PlatformPorts.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationCoordinator.kt",
+          "sha256": "a914a3c83fb86151ef0bd08c99523262ee9fb522f6827186f74d682400bbf3b0",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift",
+            "MC1/Views/Contacts/ContactDetailView.swift",
+            "MC1/Views/MainSidebarView.swift"
+          ],
+          "methods": [
+            {
+              "name": "restoreHostState",
+              "line": 42,
+              "end_line": 46
+            },
+            {
+              "name": "attachHostState",
+              "line": 49,
+              "end_line": 66
+            },
+            {
+              "name": "selectTab",
+              "line": 68,
+              "end_line": 68
+            },
+            {
+              "name": "measureWindow",
+              "line": 69,
+              "end_line": 72
+            },
+            {
+              "name": "navigate",
+              "line": 74,
+              "end_line": 80
+            },
+            {
+              "name": "navigateToChat",
+              "line": 82,
+              "end_line": 88
+            },
+            {
+              "name": "navigateToChannel",
+              "line": 90,
+              "end_line": 96
+            },
+            {
+              "name": "navigateToRoom",
+              "line": 98,
+              "end_line": 103
+            },
+            {
+              "name": "navigateToDiscovery",
+              "line": 105,
+              "end_line": 109
+            },
+            {
+              "name": "navigateToContacts",
+              "line": 111,
+              "end_line": 111
+            },
+            {
+              "name": "navigateToContactDetail",
+              "line": 112,
+              "end_line": 116
+            },
+            {
+              "name": "navigateToRemoteNode",
+              "line": 118,
+              "end_line": 119
+            },
+            {
+              "name": "navigateToMap",
+              "line": 121,
+              "end_line": 123
+            },
+            {
+              "name": "navigateToSetting",
+              "line": 125,
+              "end_line": 127
+            },
+            {
+              "name": "navigateToTool",
+              "line": 129,
+              "end_line": 131
+            },
+            {
+              "name": "stageContactLink",
+              "line": 133,
+              "end_line": 133
+            },
+            {
+              "name": "stageChannelLink",
+              "line": 134,
+              "end_line": 134
+            },
+            {
+              "name": "stageHashtag",
+              "line": 135,
+              "end_line": 135
+            },
+            {
+              "name": "setPendingDeviceMenuTipDonation",
+              "line": 136,
+              "end_line": 137
+            },
+            {
+              "name": "clearPendingNavigation",
+              "line": 139,
+              "end_line": 139
+            },
+            {
+              "name": "clearPendingRoomNavigation",
+              "line": 140,
+              "end_line": 140
+            },
+            {
+              "name": "clearPendingRoomAuthentication",
+              "line": 141,
+              "end_line": 141
+            },
+            {
+              "name": "clearPendingChannelNavigation",
+              "line": 142,
+              "end_line": 142
+            },
+            {
+              "name": "clearPendingDiscoveryNavigation",
+              "line": 143,
+              "end_line": 143
+            },
+            {
+              "name": "clearPendingScrollToMessage",
+              "line": 144,
+              "end_line": 144
+            },
+            {
+              "name": "clearPendingContactDetailNavigation",
+              "line": 145,
+              "end_line": 145
+            },
+            {
+              "name": "clearPendingMapFocus",
+              "line": 146,
+              "end_line": 146
+            },
+            {
+              "name": "clearPendingContactLink",
+              "line": 147,
+              "end_line": 147
+            },
+            {
+              "name": "clearPendingChannelLink",
+              "line": 148,
+              "end_line": 148
+            },
+            {
+              "name": "clearPendingHashtag",
+              "line": 149,
+              "end_line": 149
+            },
+            {
+              "name": "clearFailure",
+              "line": 150,
+              "end_line": 152
+            },
+            {
+              "name": "setNavigationReady",
+              "line": 155,
+              "end_line": 155
+            },
+            {
+              "name": "enqueueNotification",
+              "line": 157,
+              "end_line": 168
+            },
+            {
+              "name": "consumePendingNotification",
+              "line": 170,
+              "end_line": 180
+            },
+            {
+              "name": "clearPerDeviceSelection",
+              "line": 182,
+              "end_line": 182
+            },
+            {
+              "name": "clearPerRadioSelection",
+              "line": 184,
+              "end_line": 186
+            },
+            {
+              "name": "clearPendingLinks",
+              "line": 188,
+              "end_line": 193
+            },
+            {
+              "name": "replaceRadio",
+              "line": 196,
+              "end_line": 204
+            },
+            {
+              "name": "manuallyDisconnect",
+              "line": 206,
+              "end_line": 208
+            },
+            {
+              "name": "back",
+              "line": 210,
+              "end_line": 241
+            },
+            {
+              "name": "handleNotification",
+              "line": 243,
+              "end_line": 250
+            },
+            {
+              "name": "handleNotificationRequest",
+              "line": 252,
+              "end_line": 283
+            },
+            {
+              "name": "commitNotification",
+              "line": 285,
+              "end_line": 336
+            },
+            {
+              "name": "resolve",
+              "line": 338,
+              "end_line": 386
+            },
+            {
+              "name": "resolveContact",
+              "line": 388,
+              "end_line": 393
+            },
+            {
+              "name": "resolveChannel",
+              "line": 395,
+              "end_line": 401
+            },
+            {
+              "name": "clearDeviceSelection",
+              "line": 417,
+              "end_line": 432
+            },
+            {
+              "name": "clearRadioSelection",
+              "line": 434,
+              "end_line": 439
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationSavedState.kt",
+          "sha256": "776be52561b4b8ce8551b1815c7a3e20b9663af940482a2a44a81f3dba09ad47",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift"
+          ],
+          "methods": [
+            {
+              "name": "encode",
+              "line": 14,
+              "end_line": 30
+            },
+            {
+              "name": "restore",
+              "line": 32,
+              "end_line": 85
+            },
+            {
+              "name": "invalid",
+              "line": 33,
+              "end_line": 33
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt",
+          "sha256": "cb5fe635c060fdb2835888692af4b874bffb4b59e66e62a5f58ea26faf737bc4",
+          "source_references": [
+            "MC1/State/AppTab.swift",
+            "MC1/State/MapFocusRequest.swift",
+            "MC1/State/NavigationCoordinator.swift",
+            "MC1/Views/Chats/HashtagDeeplinkSupport.swift",
+            "MC1/Views/Chats/Navigation/ChatRoute.swift",
+            "MC1/Views/Contacts/ContactDetailView.swift",
+            "MC1/Views/MainSidebarView.swift",
+            "MC1/Views/Settings/SettingsDetail.swift",
+            "MC1/Views/Tools/ToolSelection.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 43,
+              "end_line": 43
+            },
+            {
+              "name": "hashCode",
+              "line": 44,
+              "end_line": 44
+            },
+            {
+              "name": "equals",
+              "line": 47,
+              "end_line": 47
+            },
+            {
+              "name": "hashCode",
+              "line": 48,
+              "end_line": 48
+            },
+            {
+              "name": "equals",
+              "line": 51,
+              "end_line": 51
+            },
+            {
+              "name": "hashCode",
+              "line": 52,
+              "end_line": 52
+            },
+            {
+              "name": "usesRail",
+              "line": 97,
+              "end_line": 97
+            },
+            {
+              "name": "tilesListDetail",
+              "line": 98,
+              "end_line": 98
+            },
+            {
+              "name": "showsRail",
+              "line": 99,
+              "end_line": 100
+            },
+            {
+              "name": "initialStacks",
+              "line": 103,
+              "end_line": 106
+            },
+            {
+              "name": "select",
+              "line": 157,
+              "end_line": 162
+            },
+            {
+              "name": "push",
+              "line": 164,
+              "end_line": 180
+            },
+            {
+              "name": "removeDestinations",
+              "line": 182,
+              "end_line": 187
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NotificationNavigationBinding.kt",
+          "sha256": "69eae60b138b65195c681a281f838f17fc3e490d27ff2ff8b3efd57933f475a2",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift"
+          ],
+          "methods": [
+            {
+              "name": "close",
+              "line": 42,
+              "end_line": 48
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NotificationNavigationRequest.kt",
+          "sha256": "c1f27bb717c6e16b225e4e8e519ab88b5576e2a187804f87d447d81bedd33e41",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift"
+          ],
+          "methods": [
+            {
+              "name": "fromPayload",
+              "line": 33,
+              "end_line": 45
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/PersistenceNavigationLookup.kt",
+          "sha256": "3d49b309ef0def904f4ccbdbff19518fc4f652db3b39cd51c48faf163b612035",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift"
+          ],
+          "methods": [
+            {
+              "name": "contact",
+              "line": 10,
+              "end_line": 10
+            },
+            {
+              "name": "channel",
+              "line": 11,
+              "end_line": 11
+            },
+            {
+              "name": "room",
+              "line": 12,
+              "end_line": 12
+            }
+          ]
+        },
+        {
+          "path": "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/PlatformPorts.kt",
+          "sha256": "146645df0e9f38bd0fcd54f865b55e1aa488b5aca2da818ba842c0bb05db2134",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift",
+            "MC1Services/Sources/MC1Services/Protocols/NotificationStringProvider.swift"
+          ],
+          "methods": [
+            {
+              "name": "cancel",
+              "line": 58,
+              "end_line": 63
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/AppSidebar.swift",
+      "blob_sha": "6e03a9a183123b23d80061f31550caa865ffcbf0",
+      "kind": "production",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt",
+          "sha256": "623ae943b148bce7de818532b7509605702cec6b54a6c293d75d8be83e267e29",
+          "source_references": [
+            "MC1/ContentView.swift",
+            "MC1/Views/AppSidebar.swift",
+            "MC1/Views/MainSidebarView.swift",
+            "MC1/Views/Sidebar/SidebarContentColumnBackground.swift"
+          ],
+          "methods": [
+            {
+              "name": "titleResource",
+              "line": 114,
+              "end_line": 120
+            },
+            {
+              "name": "symbol",
+              "line": 122,
+              "end_line": 128
+            },
+            {
+              "name": "NativeNavigationShell",
+              "line": 132,
+              "end_line": 341
+            },
+            {
+              "name": "calculateScene",
+              "line": 347,
+              "end_line": 358
+            },
+            {
+              "name": "ExistingFeatureContent",
+              "line": 415,
+              "end_line": 522
+            },
+            {
+              "name": "openContact",
+              "line": 453,
+              "end_line": 454
+            },
+            {
+              "name": "openDiscovery",
+              "line": 456,
+              "end_line": 456
+            },
+            {
+              "name": "openChat",
+              "line": 457,
+              "end_line": 458
+            },
+            {
+              "name": "openMap",
+              "line": 460,
+              "end_line": 461
+            },
+            {
+              "name": "openRemoteNode",
+              "line": 463,
+              "end_line": 466
+            },
+            {
+              "name": "back",
+              "line": 468,
+              "end_line": 470
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/MainSidebarView.swift",
+      "blob_sha": "bfe1c28a54187fe98ed1db354bfe11a5526d345a",
+      "kind": "production",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationCoordinator.kt",
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt",
+          "sha256": "623ae943b148bce7de818532b7509605702cec6b54a6c293d75d8be83e267e29",
+          "source_references": [
+            "MC1/ContentView.swift",
+            "MC1/Views/AppSidebar.swift",
+            "MC1/Views/MainSidebarView.swift",
+            "MC1/Views/Sidebar/SidebarContentColumnBackground.swift"
+          ],
+          "methods": [
+            {
+              "name": "titleResource",
+              "line": 114,
+              "end_line": 120
+            },
+            {
+              "name": "symbol",
+              "line": 122,
+              "end_line": 128
+            },
+            {
+              "name": "NativeNavigationShell",
+              "line": 132,
+              "end_line": 341
+            },
+            {
+              "name": "calculateScene",
+              "line": 347,
+              "end_line": 358
+            },
+            {
+              "name": "ExistingFeatureContent",
+              "line": 415,
+              "end_line": 522
+            },
+            {
+              "name": "openContact",
+              "line": 453,
+              "end_line": 454
+            },
+            {
+              "name": "openDiscovery",
+              "line": 456,
+              "end_line": 456
+            },
+            {
+              "name": "openChat",
+              "line": 457,
+              "end_line": 458
+            },
+            {
+              "name": "openMap",
+              "line": 460,
+              "end_line": 461
+            },
+            {
+              "name": "openRemoteNode",
+              "line": 463,
+              "end_line": 466
+            },
+            {
+              "name": "back",
+              "line": 468,
+              "end_line": 470
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationCoordinator.kt",
+          "sha256": "a914a3c83fb86151ef0bd08c99523262ee9fb522f6827186f74d682400bbf3b0",
+          "source_references": [
+            "MC1/State/NavigationCoordinator.swift",
+            "MC1/Views/Contacts/ContactDetailView.swift",
+            "MC1/Views/MainSidebarView.swift"
+          ],
+          "methods": [
+            {
+              "name": "restoreHostState",
+              "line": 42,
+              "end_line": 46
+            },
+            {
+              "name": "attachHostState",
+              "line": 49,
+              "end_line": 66
+            },
+            {
+              "name": "selectTab",
+              "line": 68,
+              "end_line": 68
+            },
+            {
+              "name": "measureWindow",
+              "line": 69,
+              "end_line": 72
+            },
+            {
+              "name": "navigate",
+              "line": 74,
+              "end_line": 80
+            },
+            {
+              "name": "navigateToChat",
+              "line": 82,
+              "end_line": 88
+            },
+            {
+              "name": "navigateToChannel",
+              "line": 90,
+              "end_line": 96
+            },
+            {
+              "name": "navigateToRoom",
+              "line": 98,
+              "end_line": 103
+            },
+            {
+              "name": "navigateToDiscovery",
+              "line": 105,
+              "end_line": 109
+            },
+            {
+              "name": "navigateToContacts",
+              "line": 111,
+              "end_line": 111
+            },
+            {
+              "name": "navigateToContactDetail",
+              "line": 112,
+              "end_line": 116
+            },
+            {
+              "name": "navigateToRemoteNode",
+              "line": 118,
+              "end_line": 119
+            },
+            {
+              "name": "navigateToMap",
+              "line": 121,
+              "end_line": 123
+            },
+            {
+              "name": "navigateToSetting",
+              "line": 125,
+              "end_line": 127
+            },
+            {
+              "name": "navigateToTool",
+              "line": 129,
+              "end_line": 131
+            },
+            {
+              "name": "stageContactLink",
+              "line": 133,
+              "end_line": 133
+            },
+            {
+              "name": "stageChannelLink",
+              "line": 134,
+              "end_line": 134
+            },
+            {
+              "name": "stageHashtag",
+              "line": 135,
+              "end_line": 135
+            },
+            {
+              "name": "setPendingDeviceMenuTipDonation",
+              "line": 136,
+              "end_line": 137
+            },
+            {
+              "name": "clearPendingNavigation",
+              "line": 139,
+              "end_line": 139
+            },
+            {
+              "name": "clearPendingRoomNavigation",
+              "line": 140,
+              "end_line": 140
+            },
+            {
+              "name": "clearPendingRoomAuthentication",
+              "line": 141,
+              "end_line": 141
+            },
+            {
+              "name": "clearPendingChannelNavigation",
+              "line": 142,
+              "end_line": 142
+            },
+            {
+              "name": "clearPendingDiscoveryNavigation",
+              "line": 143,
+              "end_line": 143
+            },
+            {
+              "name": "clearPendingScrollToMessage",
+              "line": 144,
+              "end_line": 144
+            },
+            {
+              "name": "clearPendingContactDetailNavigation",
+              "line": 145,
+              "end_line": 145
+            },
+            {
+              "name": "clearPendingMapFocus",
+              "line": 146,
+              "end_line": 146
+            },
+            {
+              "name": "clearPendingContactLink",
+              "line": 147,
+              "end_line": 147
+            },
+            {
+              "name": "clearPendingChannelLink",
+              "line": 148,
+              "end_line": 148
+            },
+            {
+              "name": "clearPendingHashtag",
+              "line": 149,
+              "end_line": 149
+            },
+            {
+              "name": "clearFailure",
+              "line": 150,
+              "end_line": 152
+            },
+            {
+              "name": "setNavigationReady",
+              "line": 155,
+              "end_line": 155
+            },
+            {
+              "name": "enqueueNotification",
+              "line": 157,
+              "end_line": 168
+            },
+            {
+              "name": "consumePendingNotification",
+              "line": 170,
+              "end_line": 180
+            },
+            {
+              "name": "clearPerDeviceSelection",
+              "line": 182,
+              "end_line": 182
+            },
+            {
+              "name": "clearPerRadioSelection",
+              "line": 184,
+              "end_line": 186
+            },
+            {
+              "name": "clearPendingLinks",
+              "line": 188,
+              "end_line": 193
+            },
+            {
+              "name": "replaceRadio",
+              "line": 196,
+              "end_line": 204
+            },
+            {
+              "name": "manuallyDisconnect",
+              "line": 206,
+              "end_line": 208
+            },
+            {
+              "name": "back",
+              "line": 210,
+              "end_line": 241
+            },
+            {
+              "name": "handleNotification",
+              "line": 243,
+              "end_line": 250
+            },
+            {
+              "name": "handleNotificationRequest",
+              "line": 252,
+              "end_line": 283
+            },
+            {
+              "name": "commitNotification",
+              "line": 285,
+              "end_line": 336
+            },
+            {
+              "name": "resolve",
+              "line": 338,
+              "end_line": 386
+            },
+            {
+              "name": "resolveContact",
+              "line": 388,
+              "end_line": 393
+            },
+            {
+              "name": "resolveChannel",
+              "line": 395,
+              "end_line": 401
+            },
+            {
+              "name": "clearDeviceSelection",
+              "line": 417,
+              "end_line": 432
+            },
+            {
+              "name": "clearRadioSelection",
+              "line": 434,
+              "end_line": 439
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NavigationState.kt",
+          "sha256": "cb5fe635c060fdb2835888692af4b874bffb4b59e66e62a5f58ea26faf737bc4",
+          "source_references": [
+            "MC1/State/AppTab.swift",
+            "MC1/State/MapFocusRequest.swift",
+            "MC1/State/NavigationCoordinator.swift",
+            "MC1/Views/Chats/HashtagDeeplinkSupport.swift",
+            "MC1/Views/Chats/Navigation/ChatRoute.swift",
+            "MC1/Views/Contacts/ContactDetailView.swift",
+            "MC1/Views/MainSidebarView.swift",
+            "MC1/Views/Settings/SettingsDetail.swift",
+            "MC1/Views/Tools/ToolSelection.swift"
+          ],
+          "methods": [
+            {
+              "name": "equals",
+              "line": 43,
+              "end_line": 43
+            },
+            {
+              "name": "hashCode",
+              "line": 44,
+              "end_line": 44
+            },
+            {
+              "name": "equals",
+              "line": 47,
+              "end_line": 47
+            },
+            {
+              "name": "hashCode",
+              "line": 48,
+              "end_line": 48
+            },
+            {
+              "name": "equals",
+              "line": 51,
+              "end_line": 51
+            },
+            {
+              "name": "hashCode",
+              "line": 52,
+              "end_line": 52
+            },
+            {
+              "name": "usesRail",
+              "line": 97,
+              "end_line": 97
+            },
+            {
+              "name": "tilesListDetail",
+              "line": 98,
+              "end_line": 98
+            },
+            {
+              "name": "showsRail",
+              "line": 99,
+              "end_line": 100
+            },
+            {
+              "name": "initialStacks",
+              "line": 103,
+              "end_line": 106
+            },
+            {
+              "name": "select",
+              "line": 157,
+              "end_line": 162
+            },
+            {
+              "name": "push",
+              "line": 164,
+              "end_line": 180
+            },
+            {
+              "name": "removeDestinations",
+              "line": 182,
+              "end_line": 187
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1/Views/Sidebar/SidebarContentColumnBackground.swift",
+      "blob_sha": "0c926398088dc58b18700e4bd18bb341dbb4bba7",
+      "kind": "production",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/NativeNavigationShell.kt",
+          "sha256": "623ae943b148bce7de818532b7509605702cec6b54a6c293d75d8be83e267e29",
+          "source_references": [
+            "MC1/ContentView.swift",
+            "MC1/Views/AppSidebar.swift",
+            "MC1/Views/MainSidebarView.swift",
+            "MC1/Views/Sidebar/SidebarContentColumnBackground.swift"
+          ],
+          "methods": [
+            {
+              "name": "titleResource",
+              "line": 114,
+              "end_line": 120
+            },
+            {
+              "name": "symbol",
+              "line": 122,
+              "end_line": 128
+            },
+            {
+              "name": "NativeNavigationShell",
+              "line": 132,
+              "end_line": 341
+            },
+            {
+              "name": "calculateScene",
+              "line": 347,
+              "end_line": 358
+            },
+            {
+              "name": "ExistingFeatureContent",
+              "line": 415,
+              "end_line": 522
+            },
+            {
+              "name": "openContact",
+              "line": 453,
+              "end_line": 454
+            },
+            {
+              "name": "openDiscovery",
+              "line": 456,
+              "end_line": 456
+            },
+            {
+              "name": "openChat",
+              "line": 457,
+              "end_line": 458
+            },
+            {
+              "name": "openMap",
+              "line": 460,
+              "end_line": 461
+            },
+            {
+              "name": "openRemoteNode",
+              "line": 463,
+              "end_line": 466
+            },
+            {
+              "name": "back",
+              "line": 468,
+              "end_line": 470
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "kind": "test",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases/OriginalNavigationCases.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases/OriginalNavigationCases.kt",
+          "sha256": "ea18dc0de59e7ac34d56221fd2ea762816bf028099596af37a13c842729ce369",
+          "source_references": [
+            "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+            "MC1Tests/AppState/NavigationStateTests.swift",
+            "MC1Tests/SidebarNavigationLayoutTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "contact",
+              "line": 27,
+              "end_line": 31
+            },
+            {
+              "name": "channel",
+              "line": 32,
+              "end_line": 35
+            },
+            {
+              "name": "room",
+              "line": 36,
+              "end_line": 40
+            },
+            {
+              "name": "assertChat",
+              "line": 46,
+              "end_line": 50
+            },
+            {
+              "name": "dmNotificationTapNavigatesToChatWithContact",
+              "line": 52,
+              "end_line": 59
+            },
+            {
+              "name": "newContactNotificationWithManualAddContactsNavigatesToDiscovery",
+              "line": 61,
+              "end_line": 70
+            },
+            {
+              "name": "newContactNotificationWithoutManualAddContactsNavigatesToContactDetail",
+              "line": 72,
+              "end_line": 81
+            },
+            {
+              "name": "channelNotificationTapNavigatesToChannel",
+              "line": 83,
+              "end_line": 92
+            },
+            {
+              "name": "reactionNotificationOnDmNavigatesToChatWithScrollToMessageId",
+              "line": 94,
+              "end_line": 101
+            },
+            {
+              "name": "reactionNotificationOnChannelNavigatesToChannelWithScrollToMessageId",
+              "line": 103,
+              "end_line": 112
+            },
+            {
+              "name": "navigateToMapSetsPendingMapFocusAndSelectsTheMapTab",
+              "line": 114,
+              "end_line": 119
+            },
+            {
+              "name": "chatConsumerForwardsMapCoordinateToNavigationSink",
+              "line": 121,
+              "end_line": 128
+            },
+            {
+              "name": "clearPendingMapFocusResetsThePendingFocus",
+              "line": 130,
+              "end_line": 133
+            },
+            {
+              "name": "navigateToSettingSetsSelectedSettingAndSelectsTheSettingsTab",
+              "line": 135,
+              "end_line": 139
+            },
+            {
+              "name": "pendingContactLinkStartsNilAndClearsViaHelper",
+              "line": 141,
+              "end_line": 145
+            },
+            {
+              "name": "pendingChannelLinkStartsNilAndClearsViaHelper",
+              "line": 147,
+              "end_line": 151
+            },
+            {
+              "name": "pendingHashtagStartsNilAndClearsViaHelper",
+              "line": 153,
+              "end_line": 157
+            },
+            {
+              "name": "clearPendingLinksClearsTheHoistedNodesSelectedContact",
+              "line": 159,
+              "end_line": 162
+            },
+            {
+              "name": "clearPendingLinksClearsTheHoistedNodesDiscoveryFlag",
+              "line": 164,
+              "end_line": 167
+            },
+            {
+              "name": "clearPendingLinksClearsEveryStagedPerRadioFieldAtOnce",
+              "line": 169,
+              "end_line": 180
+            },
+            {
+              "name": "clearPerRadioSelectionClearsTheHoistedChatsRoute",
+              "line": 182,
+              "end_line": 185
+            },
+            {
+              "name": "clearPerRadioSelectionClearsARadioRequiringTool",
+              "line": 187,
+              "end_line": 191
+            },
+            {
+              "name": "clearPerRadioSelectionPreservesTheOfflineLineOfSightTool",
+              "line": 193,
+              "end_line": 197
+            },
+            {
+              "name": "clearPerRadioSelectionClearsAPerDeviceSettingsPage",
+              "line": 199,
+              "end_line": 203
+            },
+            {
+              "name": "clearPerRadioSelectionPreservesADeviceIndependentSettingsPage",
+              "line": 205,
+              "end_line": 209
+            },
+            {
+              "name": "languageSettingsPageIsDeviceIndependent",
+              "line": 211,
+              "end_line": 215
+            },
+            {
+              "name": "defaultNavigationStateIsTabZeroWithNoPendingNavigation",
+              "line": 217,
+              "end_line": 224
+            },
+            {
+              "name": "navigateToChatSetsContactRouteAndTab",
+              "line": 226,
+              "end_line": 229
+            },
+            {
+              "name": "navigateToChatWithScrollToMessageIdSetsMessageId",
+              "line": 231,
+              "end_line": 234
+            },
+            {
+              "name": "navigateToChatSwitchesToChatsTabFromAnotherTab",
+              "line": 236,
+              "end_line": 239
+            },
+            {
+              "name": "navigateToRoomSetsSessionRouteAndTab",
+              "line": 241,
+              "end_line": 245
+            },
+            {
+              "name": "navigateToChannelSetsChannelRouteAndTab",
+              "line": 247,
+              "end_line": 252
+            },
+            {
+              "name": "navigateToChannelWithScrollToMessageIdSetsMessageId",
+              "line": 254,
+              "end_line": 257
+            },
+            {
+              "name": "navigateToDiscoverySetsPendingFlagAndContactsTab",
+              "line": 259,
+              "end_line": 262
+            },
+            {
+              "name": "navigateToDiscoveryDoesNotHideTabBar",
+              "line": 264,
+              "end_line": 266
+            },
+            {
+              "name": "navigateToContactsSwitchesToContactsTab",
+              "line": 268,
+              "end_line": 271
+            },
+            {
+              "name": "navigateToContactDetailSetsContactAndContactsTab",
+              "line": 273,
+              "end_line": 276
+            },
+            {
+              "name": "clearPendingNavigationClearsChatContact",
+              "line": 278,
+              "end_line": 281
+            },
+            {
+              "name": "clearPendingRoomNavigationClearsRoomSession",
+              "line": 283,
+              "end_line": 286
+            },
+            {
+              "name": "clearPendingRoomAuthenticationClearsRoomAuthSession",
+              "line": 288,
+              "end_line": 291
+            },
+            {
+              "name": "clearPendingChannelNavigationClearsChannel",
+              "line": 293,
+              "end_line": 296
+            },
+            {
+              "name": "clearPendingDiscoveryNavigationClearsDiscoveryFlag",
+              "line": 298,
+              "end_line": 301
+            },
+            {
+              "name": "clearPendingScrollToMessageClearsMessageId",
+              "line": 303,
+              "end_line": 306
+            },
+            {
+              "name": "clearPendingContactDetailNavigationClearsContactDetail",
+              "line": 308,
+              "end_line": 311
+            },
+            {
+              "name": "navigateToChatFromContactsTabHidesTabBarAndSwitchesTab",
+              "line": 313,
+              "end_line": 316
+            },
+            {
+              "name": "multipleNavigationCallsOverwritePendingState",
+              "line": 318,
+              "end_line": 321
+            },
+            {
+              "name": "deviceMenuTipDonationIsPendingByDefaultWhenFalse",
+              "line": 323,
+              "end_line": 325
+            },
+            {
+              "name": "sectionSidebarIsNarrowEnoughThatElevenInchPortraitTilesAllThreeColumns",
+              "line": 327,
+              "end_line": 330
+            },
+            {
+              "name": "iPadMiniPortraitIntentionallyCollapsesRatherThanTiling",
+              "line": 332,
+              "end_line": 335
+            },
+            {
+              "name": "sidebarWidthIsInIconOnlyRangeNotAFullSidebar",
+              "line": 337,
+              "end_line": 339
+            },
+            {
+              "name": "aSidebarCollapsingToolCollapsesTheSidebarEvenWhenTheContainerIsWide",
+              "line": 341,
+              "end_line": 344
+            },
+            {
+              "name": "aWideContainerTilesTheSidebarWhenNoSidebarCollapsingToolIsOpen",
+              "line": 346,
+              "end_line": 349
+            },
+            {
+              "name": "aNarrowContainerCollapsesToTheSectionsHiddenShape",
+              "line": 351,
+              "end_line": 359
+            },
+            {
+              "name": "lineOfSightAndTracePathCollapseSidebarOtherToolsKeepIt",
+              "line": 361,
+              "end_line": 368
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "kind": "test",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases/OriginalNavigationCases.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases/OriginalNavigationCases.kt",
+          "sha256": "ea18dc0de59e7ac34d56221fd2ea762816bf028099596af37a13c842729ce369",
+          "source_references": [
+            "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+            "MC1Tests/AppState/NavigationStateTests.swift",
+            "MC1Tests/SidebarNavigationLayoutTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "contact",
+              "line": 27,
+              "end_line": 31
+            },
+            {
+              "name": "channel",
+              "line": 32,
+              "end_line": 35
+            },
+            {
+              "name": "room",
+              "line": 36,
+              "end_line": 40
+            },
+            {
+              "name": "assertChat",
+              "line": 46,
+              "end_line": 50
+            },
+            {
+              "name": "dmNotificationTapNavigatesToChatWithContact",
+              "line": 52,
+              "end_line": 59
+            },
+            {
+              "name": "newContactNotificationWithManualAddContactsNavigatesToDiscovery",
+              "line": 61,
+              "end_line": 70
+            },
+            {
+              "name": "newContactNotificationWithoutManualAddContactsNavigatesToContactDetail",
+              "line": 72,
+              "end_line": 81
+            },
+            {
+              "name": "channelNotificationTapNavigatesToChannel",
+              "line": 83,
+              "end_line": 92
+            },
+            {
+              "name": "reactionNotificationOnDmNavigatesToChatWithScrollToMessageId",
+              "line": 94,
+              "end_line": 101
+            },
+            {
+              "name": "reactionNotificationOnChannelNavigatesToChannelWithScrollToMessageId",
+              "line": 103,
+              "end_line": 112
+            },
+            {
+              "name": "navigateToMapSetsPendingMapFocusAndSelectsTheMapTab",
+              "line": 114,
+              "end_line": 119
+            },
+            {
+              "name": "chatConsumerForwardsMapCoordinateToNavigationSink",
+              "line": 121,
+              "end_line": 128
+            },
+            {
+              "name": "clearPendingMapFocusResetsThePendingFocus",
+              "line": 130,
+              "end_line": 133
+            },
+            {
+              "name": "navigateToSettingSetsSelectedSettingAndSelectsTheSettingsTab",
+              "line": 135,
+              "end_line": 139
+            },
+            {
+              "name": "pendingContactLinkStartsNilAndClearsViaHelper",
+              "line": 141,
+              "end_line": 145
+            },
+            {
+              "name": "pendingChannelLinkStartsNilAndClearsViaHelper",
+              "line": 147,
+              "end_line": 151
+            },
+            {
+              "name": "pendingHashtagStartsNilAndClearsViaHelper",
+              "line": 153,
+              "end_line": 157
+            },
+            {
+              "name": "clearPendingLinksClearsTheHoistedNodesSelectedContact",
+              "line": 159,
+              "end_line": 162
+            },
+            {
+              "name": "clearPendingLinksClearsTheHoistedNodesDiscoveryFlag",
+              "line": 164,
+              "end_line": 167
+            },
+            {
+              "name": "clearPendingLinksClearsEveryStagedPerRadioFieldAtOnce",
+              "line": 169,
+              "end_line": 180
+            },
+            {
+              "name": "clearPerRadioSelectionClearsTheHoistedChatsRoute",
+              "line": 182,
+              "end_line": 185
+            },
+            {
+              "name": "clearPerRadioSelectionClearsARadioRequiringTool",
+              "line": 187,
+              "end_line": 191
+            },
+            {
+              "name": "clearPerRadioSelectionPreservesTheOfflineLineOfSightTool",
+              "line": 193,
+              "end_line": 197
+            },
+            {
+              "name": "clearPerRadioSelectionClearsAPerDeviceSettingsPage",
+              "line": 199,
+              "end_line": 203
+            },
+            {
+              "name": "clearPerRadioSelectionPreservesADeviceIndependentSettingsPage",
+              "line": 205,
+              "end_line": 209
+            },
+            {
+              "name": "languageSettingsPageIsDeviceIndependent",
+              "line": 211,
+              "end_line": 215
+            },
+            {
+              "name": "defaultNavigationStateIsTabZeroWithNoPendingNavigation",
+              "line": 217,
+              "end_line": 224
+            },
+            {
+              "name": "navigateToChatSetsContactRouteAndTab",
+              "line": 226,
+              "end_line": 229
+            },
+            {
+              "name": "navigateToChatWithScrollToMessageIdSetsMessageId",
+              "line": 231,
+              "end_line": 234
+            },
+            {
+              "name": "navigateToChatSwitchesToChatsTabFromAnotherTab",
+              "line": 236,
+              "end_line": 239
+            },
+            {
+              "name": "navigateToRoomSetsSessionRouteAndTab",
+              "line": 241,
+              "end_line": 245
+            },
+            {
+              "name": "navigateToChannelSetsChannelRouteAndTab",
+              "line": 247,
+              "end_line": 252
+            },
+            {
+              "name": "navigateToChannelWithScrollToMessageIdSetsMessageId",
+              "line": 254,
+              "end_line": 257
+            },
+            {
+              "name": "navigateToDiscoverySetsPendingFlagAndContactsTab",
+              "line": 259,
+              "end_line": 262
+            },
+            {
+              "name": "navigateToDiscoveryDoesNotHideTabBar",
+              "line": 264,
+              "end_line": 266
+            },
+            {
+              "name": "navigateToContactsSwitchesToContactsTab",
+              "line": 268,
+              "end_line": 271
+            },
+            {
+              "name": "navigateToContactDetailSetsContactAndContactsTab",
+              "line": 273,
+              "end_line": 276
+            },
+            {
+              "name": "clearPendingNavigationClearsChatContact",
+              "line": 278,
+              "end_line": 281
+            },
+            {
+              "name": "clearPendingRoomNavigationClearsRoomSession",
+              "line": 283,
+              "end_line": 286
+            },
+            {
+              "name": "clearPendingRoomAuthenticationClearsRoomAuthSession",
+              "line": 288,
+              "end_line": 291
+            },
+            {
+              "name": "clearPendingChannelNavigationClearsChannel",
+              "line": 293,
+              "end_line": 296
+            },
+            {
+              "name": "clearPendingDiscoveryNavigationClearsDiscoveryFlag",
+              "line": 298,
+              "end_line": 301
+            },
+            {
+              "name": "clearPendingScrollToMessageClearsMessageId",
+              "line": 303,
+              "end_line": 306
+            },
+            {
+              "name": "clearPendingContactDetailNavigationClearsContactDetail",
+              "line": 308,
+              "end_line": 311
+            },
+            {
+              "name": "navigateToChatFromContactsTabHidesTabBarAndSwitchesTab",
+              "line": 313,
+              "end_line": 316
+            },
+            {
+              "name": "multipleNavigationCallsOverwritePendingState",
+              "line": 318,
+              "end_line": 321
+            },
+            {
+              "name": "deviceMenuTipDonationIsPendingByDefaultWhenFalse",
+              "line": 323,
+              "end_line": 325
+            },
+            {
+              "name": "sectionSidebarIsNarrowEnoughThatElevenInchPortraitTilesAllThreeColumns",
+              "line": 327,
+              "end_line": 330
+            },
+            {
+              "name": "iPadMiniPortraitIntentionallyCollapsesRatherThanTiling",
+              "line": 332,
+              "end_line": 335
+            },
+            {
+              "name": "sidebarWidthIsInIconOnlyRangeNotAFullSidebar",
+              "line": 337,
+              "end_line": 339
+            },
+            {
+              "name": "aSidebarCollapsingToolCollapsesTheSidebarEvenWhenTheContainerIsWide",
+              "line": 341,
+              "end_line": 344
+            },
+            {
+              "name": "aWideContainerTilesTheSidebarWhenNoSidebarCollapsingToolIsOpen",
+              "line": 346,
+              "end_line": 349
+            },
+            {
+              "name": "aNarrowContainerCollapsesToTheSectionsHiddenShape",
+              "line": 351,
+              "end_line": 359
+            },
+            {
+              "name": "lineOfSightAndTracePathCollapseSidebarOtherToolsKeepIt",
+              "line": 361,
+              "end_line": 368
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "kind": "test",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases/OriginalNavigationCases.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/app/src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases/OriginalNavigationCases.kt",
+          "sha256": "ea18dc0de59e7ac34d56221fd2ea762816bf028099596af37a13c842729ce369",
+          "source_references": [
+            "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+            "MC1Tests/AppState/NavigationStateTests.swift",
+            "MC1Tests/SidebarNavigationLayoutTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "contact",
+              "line": 27,
+              "end_line": 31
+            },
+            {
+              "name": "channel",
+              "line": 32,
+              "end_line": 35
+            },
+            {
+              "name": "room",
+              "line": 36,
+              "end_line": 40
+            },
+            {
+              "name": "assertChat",
+              "line": 46,
+              "end_line": 50
+            },
+            {
+              "name": "dmNotificationTapNavigatesToChatWithContact",
+              "line": 52,
+              "end_line": 59
+            },
+            {
+              "name": "newContactNotificationWithManualAddContactsNavigatesToDiscovery",
+              "line": 61,
+              "end_line": 70
+            },
+            {
+              "name": "newContactNotificationWithoutManualAddContactsNavigatesToContactDetail",
+              "line": 72,
+              "end_line": 81
+            },
+            {
+              "name": "channelNotificationTapNavigatesToChannel",
+              "line": 83,
+              "end_line": 92
+            },
+            {
+              "name": "reactionNotificationOnDmNavigatesToChatWithScrollToMessageId",
+              "line": 94,
+              "end_line": 101
+            },
+            {
+              "name": "reactionNotificationOnChannelNavigatesToChannelWithScrollToMessageId",
+              "line": 103,
+              "end_line": 112
+            },
+            {
+              "name": "navigateToMapSetsPendingMapFocusAndSelectsTheMapTab",
+              "line": 114,
+              "end_line": 119
+            },
+            {
+              "name": "chatConsumerForwardsMapCoordinateToNavigationSink",
+              "line": 121,
+              "end_line": 128
+            },
+            {
+              "name": "clearPendingMapFocusResetsThePendingFocus",
+              "line": 130,
+              "end_line": 133
+            },
+            {
+              "name": "navigateToSettingSetsSelectedSettingAndSelectsTheSettingsTab",
+              "line": 135,
+              "end_line": 139
+            },
+            {
+              "name": "pendingContactLinkStartsNilAndClearsViaHelper",
+              "line": 141,
+              "end_line": 145
+            },
+            {
+              "name": "pendingChannelLinkStartsNilAndClearsViaHelper",
+              "line": 147,
+              "end_line": 151
+            },
+            {
+              "name": "pendingHashtagStartsNilAndClearsViaHelper",
+              "line": 153,
+              "end_line": 157
+            },
+            {
+              "name": "clearPendingLinksClearsTheHoistedNodesSelectedContact",
+              "line": 159,
+              "end_line": 162
+            },
+            {
+              "name": "clearPendingLinksClearsTheHoistedNodesDiscoveryFlag",
+              "line": 164,
+              "end_line": 167
+            },
+            {
+              "name": "clearPendingLinksClearsEveryStagedPerRadioFieldAtOnce",
+              "line": 169,
+              "end_line": 180
+            },
+            {
+              "name": "clearPerRadioSelectionClearsTheHoistedChatsRoute",
+              "line": 182,
+              "end_line": 185
+            },
+            {
+              "name": "clearPerRadioSelectionClearsARadioRequiringTool",
+              "line": 187,
+              "end_line": 191
+            },
+            {
+              "name": "clearPerRadioSelectionPreservesTheOfflineLineOfSightTool",
+              "line": 193,
+              "end_line": 197
+            },
+            {
+              "name": "clearPerRadioSelectionClearsAPerDeviceSettingsPage",
+              "line": 199,
+              "end_line": 203
+            },
+            {
+              "name": "clearPerRadioSelectionPreservesADeviceIndependentSettingsPage",
+              "line": 205,
+              "end_line": 209
+            },
+            {
+              "name": "languageSettingsPageIsDeviceIndependent",
+              "line": 211,
+              "end_line": 215
+            },
+            {
+              "name": "defaultNavigationStateIsTabZeroWithNoPendingNavigation",
+              "line": 217,
+              "end_line": 224
+            },
+            {
+              "name": "navigateToChatSetsContactRouteAndTab",
+              "line": 226,
+              "end_line": 229
+            },
+            {
+              "name": "navigateToChatWithScrollToMessageIdSetsMessageId",
+              "line": 231,
+              "end_line": 234
+            },
+            {
+              "name": "navigateToChatSwitchesToChatsTabFromAnotherTab",
+              "line": 236,
+              "end_line": 239
+            },
+            {
+              "name": "navigateToRoomSetsSessionRouteAndTab",
+              "line": 241,
+              "end_line": 245
+            },
+            {
+              "name": "navigateToChannelSetsChannelRouteAndTab",
+              "line": 247,
+              "end_line": 252
+            },
+            {
+              "name": "navigateToChannelWithScrollToMessageIdSetsMessageId",
+              "line": 254,
+              "end_line": 257
+            },
+            {
+              "name": "navigateToDiscoverySetsPendingFlagAndContactsTab",
+              "line": 259,
+              "end_line": 262
+            },
+            {
+              "name": "navigateToDiscoveryDoesNotHideTabBar",
+              "line": 264,
+              "end_line": 266
+            },
+            {
+              "name": "navigateToContactsSwitchesToContactsTab",
+              "line": 268,
+              "end_line": 271
+            },
+            {
+              "name": "navigateToContactDetailSetsContactAndContactsTab",
+              "line": 273,
+              "end_line": 276
+            },
+            {
+              "name": "clearPendingNavigationClearsChatContact",
+              "line": 278,
+              "end_line": 281
+            },
+            {
+              "name": "clearPendingRoomNavigationClearsRoomSession",
+              "line": 283,
+              "end_line": 286
+            },
+            {
+              "name": "clearPendingRoomAuthenticationClearsRoomAuthSession",
+              "line": 288,
+              "end_line": 291
+            },
+            {
+              "name": "clearPendingChannelNavigationClearsChannel",
+              "line": 293,
+              "end_line": 296
+            },
+            {
+              "name": "clearPendingDiscoveryNavigationClearsDiscoveryFlag",
+              "line": 298,
+              "end_line": 301
+            },
+            {
+              "name": "clearPendingScrollToMessageClearsMessageId",
+              "line": 303,
+              "end_line": 306
+            },
+            {
+              "name": "clearPendingContactDetailNavigationClearsContactDetail",
+              "line": 308,
+              "end_line": 311
+            },
+            {
+              "name": "navigateToChatFromContactsTabHidesTabBarAndSwitchesTab",
+              "line": 313,
+              "end_line": 316
+            },
+            {
+              "name": "multipleNavigationCallsOverwritePendingState",
+              "line": 318,
+              "end_line": 321
+            },
+            {
+              "name": "deviceMenuTipDonationIsPendingByDefaultWhenFalse",
+              "line": 323,
+              "end_line": 325
+            },
+            {
+              "name": "sectionSidebarIsNarrowEnoughThatElevenInchPortraitTilesAllThreeColumns",
+              "line": 327,
+              "end_line": 330
+            },
+            {
+              "name": "iPadMiniPortraitIntentionallyCollapsesRatherThanTiling",
+              "line": 332,
+              "end_line": 335
+            },
+            {
+              "name": "sidebarWidthIsInIconOnlyRangeNotAFullSidebar",
+              "line": 337,
+              "end_line": 339
+            },
+            {
+              "name": "aSidebarCollapsingToolCollapsesTheSidebarEvenWhenTheContainerIsWide",
+              "line": 341,
+              "end_line": 344
+            },
+            {
+              "name": "aWideContainerTilesTheSidebarWhenNoSidebarCollapsingToolIsOpen",
+              "line": 346,
+              "end_line": 349
+            },
+            {
+              "name": "aNarrowContainerCollapsesToTheSectionsHiddenShape",
+              "line": 351,
+              "end_line": 359
+            },
+            {
+              "name": "lineOfSightAndTracePathCollapseSidebarOtherToolsKeepIt",
+              "line": 361,
+              "end_line": 368
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    },
+    {
+      "path": "docs/guides/iPad_Layout.md",
+      "blob_sha": "228abe670286b5b561ad0c85487c3769fae1e351",
+      "kind": "reference",
+      "owner": "WP-302",
+      "exclusion": null,
+      "candidate_native_paths": [],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": [
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorNotificationTests::DM notification tap navigates to chat with contact()",
+      "parameter_family": "single",
+      "line": 113,
+      "end_line": 134,
+      "declaration_sha256": "be503126951bb091a245c69f91a72abf02dfe19c9335c03150ec29c628f9323b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 131,
+          "expression": "#expect(coordinator.pendingChatContact?.id == contact.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 132,
+          "expression": "#expect(coordinator.chatsSelectedRoute == .direct(contact))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 133,
+          "expression": "#expect(coordinator.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`DM notification tap navigates to chat with contact`",
+          "line": 113,
+          "expression": "`DM notification tap navigates to chat with contact`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 114,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeSeededDataStore",
+          "line": 115,
+          "expression": "Self.makeSeededDataStore(\n      contact: contact,\n      channel: Self.makeChannel()\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 117,
+          "expression": "Self.makeChannel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 119,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 120,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.configureNotificationHandlers",
+          "line": 122,
+          "expression": "coordinator.configureNotificationHandlers(\n      notificationService: notificationService,\n      dataStore: dataStore,\n      connectedDevice: { nil }\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "direct",
+          "line": 132,
+          "expression": "direct(contact)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorNotificationTests::New contact notification with manualAddContacts navigates to discovery()",
+      "parameter_family": "single",
+      "line": 139,
+      "end_line": 159,
+      "declaration_sha256": "8aa2d55a6c71c923dfa6ebaf5859777571d79461d8c736cb95eee3db997cdb65",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 157,
+          "expression": "#expect(coordinator.pendingDiscoveryNavigation == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 158,
+          "expression": "#expect(coordinator.selectedTab == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`New contact notification with manualAddContacts navigates to discovery`",
+          "line": 139,
+          "expression": "`New contact notification with manualAddContacts navigates to discovery`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 140,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeSeededDataStore",
+          "line": 141,
+          "expression": "Self.makeSeededDataStore(\n      contact: contact,\n      channel: Self.makeChannel()\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 143,
+          "expression": "Self.makeChannel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 145,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 146,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDeviceDTO",
+          "line": 147,
+          "expression": "Self.makeDeviceDTO(manualAddContacts: true)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.configureNotificationHandlers",
+          "line": 149,
+          "expression": "coordinator.configureNotificationHandlers(\n      notificationService: notificationService,\n      dataStore: dataStore,\n      connectedDevice: { device }\n    )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorNotificationTests::New contact notification without manualAddContacts navigates to contact detail()",
+      "parameter_family": "single",
+      "line": 162,
+      "end_line": 182,
+      "declaration_sha256": "d7e28921acae287e88daa6ac71969833d2544de50af03360a3ef9ce793afbd4c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 180,
+          "expression": "#expect(coordinator.pendingContactDetail?.id == contact.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 181,
+          "expression": "#expect(coordinator.selectedTab == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`New contact notification without manualAddContacts navigates to contact detail`",
+          "line": 162,
+          "expression": "`New contact notification without manualAddContacts navigates to contact detail`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 163,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeSeededDataStore",
+          "line": 164,
+          "expression": "Self.makeSeededDataStore(\n      contact: contact,\n      channel: Self.makeChannel()\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 166,
+          "expression": "Self.makeChannel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 168,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 169,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeDeviceDTO",
+          "line": 170,
+          "expression": "Self.makeDeviceDTO(manualAddContacts: false)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.configureNotificationHandlers",
+          "line": 172,
+          "expression": "coordinator.configureNotificationHandlers(\n      notificationService: notificationService,\n      dataStore: dataStore,\n      connectedDevice: { device }\n    )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorNotificationTests::Channel notification tap navigates to channel()",
+      "parameter_family": "single",
+      "line": 187,
+      "end_line": 209,
+      "declaration_sha256": "47710c215729e1857b2332667256a642b70895f38047f8bc590d87b7863817c1",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 206,
+          "expression": "#expect(coordinator.pendingChannel?.id == channel.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 207,
+          "expression": "#expect(coordinator.chatsSelectedRoute == .channel(channel))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 208,
+          "expression": "#expect(coordinator.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Channel notification tap navigates to channel`",
+          "line": 187,
+          "expression": "`Channel notification tap navigates to channel`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 188,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 190,
+          "expression": "Self.makeChannel(radioID: radioID, index: channelIndex)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeSeededDataStore",
+          "line": 191,
+          "expression": "Self.makeSeededDataStore(\n      contact: Self.makeContact(),\n      channel: channel\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 192,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 195,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 196,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.configureNotificationHandlers",
+          "line": 198,
+          "expression": "coordinator.configureNotificationHandlers(\n      notificationService: notificationService,\n      dataStore: dataStore,\n      connectedDevice: { nil }\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "channel",
+          "line": 207,
+          "expression": "channel(channel)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorNotificationTests::Reaction notification on DM navigates to chat with scrollToMessageID()",
+      "parameter_family": "single",
+      "line": 214,
+      "end_line": 235,
+      "declaration_sha256": "9a6f4412a5edd89f6c4164be136c752b3d05c185813e5485ea252a0df78eedf8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 232,
+          "expression": "#expect(coordinator.pendingChatContact?.id == contact.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 233,
+          "expression": "#expect(coordinator.pendingScrollToMessageID == messageID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 234,
+          "expression": "#expect(coordinator.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Reaction notification on DM navigates to chat with scrollToMessageID`",
+          "line": 214,
+          "expression": "`Reaction notification on DM navigates to chat with scrollToMessageID`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 215,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 216,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeSeededDataStore",
+          "line": 217,
+          "expression": "Self.makeSeededDataStore(\n      contact: contact,\n      channel: Self.makeChannel()\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 219,
+          "expression": "Self.makeChannel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 221,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 222,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.configureNotificationHandlers",
+          "line": 224,
+          "expression": "coordinator.configureNotificationHandlers(\n      notificationService: notificationService,\n      dataStore: dataStore,\n      connectedDevice: { nil }\n    )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorNotificationTests::Reaction notification on channel navigates to channel with scrollToMessageID()",
+      "parameter_family": "single",
+      "line": 238,
+      "end_line": 262,
+      "declaration_sha256": "c789742c221c5d49908e67d52bca7249e1100be8dcec830a0b0df43479409f49",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 259,
+          "expression": "#expect(coordinator.pendingChannel?.id == channel.id)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 260,
+          "expression": "#expect(coordinator.pendingScrollToMessageID == messageID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 261,
+          "expression": "#expect(coordinator.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Reaction notification on channel navigates to channel with scrollToMessageID`",
+          "line": 238,
+          "expression": "`Reaction notification on channel navigates to channel with scrollToMessageID`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 239,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 241,
+          "expression": "Self.makeChannel(radioID: radioID, index: channelIndex)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 242,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeSeededDataStore",
+          "line": 243,
+          "expression": "Self.makeSeededDataStore(\n      contact: Self.makeContact(),\n      channel: channel\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 244,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 247,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NotificationService",
+          "line": 248,
+          "expression": "NotificationService()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.configureNotificationHandlers",
+          "line": 250,
+          "expression": "coordinator.configureNotificationHandlers(\n      notificationService: notificationService,\n      dataStore: dataStore,\n      connectedDevice: { nil }\n    )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorMapTests::navigateToMap sets pendingMapFocus and selects the map tab()",
+      "parameter_family": "single",
+      "line": 269,
+      "end_line": 279,
+      "declaration_sha256": "b10076f644cffb1b95fd9faf3a19952bce4e2bc230241f82c77b55f5126a9d02",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 275,
+          "expression": "#expect(coordinator.pendingMapFocus?.latitude == 37.3349)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 276,
+          "expression": "#expect(coordinator.pendingMapFocus?.longitude == -122.00902)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 277,
+          "expression": "#expect(coordinator.pendingMapFocus?.coordinate.latitude == 37.3349)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 278,
+          "expression": "#expect(coordinator.selectedTab == AppTab.map.rawValue)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToMap sets pendingMapFocus and selects the map tab`",
+          "line": 269,
+          "expression": "`navigateToMap sets pendingMapFocus and selects the map tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 270,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CLLocationCoordinate2D",
+          "line": 271,
+          "expression": "CLLocationCoordinate2D(latitude: 37.3349, longitude: -122.00902)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.navigateToMap",
+          "line": 273,
+          "expression": "coordinator.navigateToMap(coordinate: coordinate)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorMapTests::ChatViewModel.navigateToMap forwards the coordinate to the navigation sink()",
+      "parameter_family": "single",
+      "line": 282,
+      "end_line": 295,
+      "declaration_sha256": "1bb3b751f388a94747970421529b2674145d2a59f670dd435f274f76ff111227",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 292,
+          "expression": "#expect(coordinator.pendingMapFocus?.latitude == 51.5074)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 293,
+          "expression": "#expect(coordinator.pendingMapFocus?.longitude == -0.1278)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 294,
+          "expression": "#expect(coordinator.selectedTab == AppTab.map.rawValue)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`ChatViewModel.navigateToMap forwards the coordinate to the navigation sink`",
+          "line": 282,
+          "expression": "`ChatViewModel.navigateToMap forwards the coordinate to the navigation sink`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 283,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "ChatViewModel",
+          "line": 284,
+          "expression": "ChatViewModel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.navigateToMap",
+          "line": 285,
+          "expression": "coordinator.navigateToMap(coordinate: $0)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CLLocationCoordinate2D",
+          "line": 286,
+          "expression": "CLLocationCoordinate2D(latitude: 51.5074, longitude: -0.1278)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "viewModel.navigateToMap",
+          "line": 290,
+          "expression": "viewModel.navigateToMap(coordinate)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorMapTests::clearPendingMapFocus resets the pending focus()",
+      "parameter_family": "single",
+      "line": 298,
+      "end_line": 305,
+      "declaration_sha256": "81633c2dcb54dc3ff8886974a474d2455e6ffc54dd06aeade1c337d8f6bf388f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 304,
+          "expression": "#expect(coordinator.pendingMapFocus == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingMapFocus resets the pending focus`",
+          "line": 298,
+          "expression": "`clearPendingMapFocus resets the pending focus`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 299,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.navigateToMap",
+          "line": 300,
+          "expression": "coordinator.navigateToMap(coordinate: CLLocationCoordinate2D(latitude: 1, longitude: 2))",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "CLLocationCoordinate2D",
+          "line": 300,
+          "expression": "CLLocationCoordinate2D(latitude: 1, longitude: 2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPendingMapFocus",
+          "line": 302,
+          "expression": "coordinator.clearPendingMapFocus()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorSettingsTests::navigateToSetting sets selectedSetting and selects the settings tab()",
+      "parameter_family": "single",
+      "line": 312,
+      "end_line": 320,
+      "declaration_sha256": "50067826b12673ffe76d443205d02720a4ab180ec2e6634d0410e04f467a9632",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 318,
+          "expression": "#expect(coordinator.selectedSetting == .support)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 319,
+          "expression": "#expect(coordinator.selectedTab == AppTab.settings.rawValue)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToSetting sets selectedSetting and selects the settings tab`",
+          "line": 312,
+          "expression": "`navigateToSetting sets selectedSetting and selects the settings tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 313,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.navigateToSetting",
+          "line": 316,
+          "expression": "coordinator.navigateToSetting(.support)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::pendingContactLink starts nil and clears via helper()",
+      "parameter_family": "single",
+      "line": 327,
+      "end_line": 338,
+      "declaration_sha256": "72012c511eca887449964934597799733b08ed00d55d0d41ff0c85ed27e54396",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 329,
+          "expression": "#expect(coordinator.pendingContactLink == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 335,
+          "expression": "#expect(coordinator.pendingContactLink != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 337,
+          "expression": "#expect(coordinator.pendingContactLink == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`pendingContactLink starts nil and clears via helper`",
+          "line": 327,
+          "expression": "`pendingContactLink starts nil and clears via helper`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 328,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreURLParser.ContactResult",
+          "line": 330,
+          "expression": "MeshCoreURLParser.ContactResult(\n      name: \"Alice\",\n      publicKey: Data(repeating: 0xAB, count: 32),\n      contactType: .chat\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 332,
+          "expression": "Data(repeating: 0xAB, count: 32)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPendingContactLink",
+          "line": 336,
+          "expression": "coordinator.clearPendingContactLink()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::pendingChannelLink starts nil and clears via helper()",
+      "parameter_family": "single",
+      "line": 341,
+      "end_line": 351,
+      "declaration_sha256": "39506f71d7cf940e03daf049ee4c5b22d9eded89090fdfff4f35504ab639ba59",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 343,
+          "expression": "#expect(coordinator.pendingChannelLink == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 348,
+          "expression": "#expect(coordinator.pendingChannelLink != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 350,
+          "expression": "#expect(coordinator.pendingChannelLink == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`pendingChannelLink starts nil and clears via helper`",
+          "line": 341,
+          "expression": "`pendingChannelLink starts nil and clears via helper`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 342,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreURLParser.ChannelResult",
+          "line": 344,
+          "expression": "MeshCoreURLParser.ChannelResult(\n      name: \"general\",\n      secret: Data(repeating: 0xCC, count: 16)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 346,
+          "expression": "Data(repeating: 0xCC, count: 16)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPendingChannelLink",
+          "line": 349,
+          "expression": "coordinator.clearPendingChannelLink()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::pendingHashtag starts nil and clears via helper()",
+      "parameter_family": "single",
+      "line": 354,
+      "end_line": 361,
+      "declaration_sha256": "ba30029086bfd65b46e8058c820c99d3fce3b756d7928ab95f6c911429c8913f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 356,
+          "expression": "#expect(coordinator.pendingHashtag == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 358,
+          "expression": "#expect(coordinator.pendingHashtag != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 360,
+          "expression": "#expect(coordinator.pendingHashtag == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`pendingHashtag starts nil and clears via helper`",
+          "line": 354,
+          "expression": "`pendingHashtag starts nil and clears via helper`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 355,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "HashtagJoinRequest",
+          "line": 357,
+          "expression": "HashtagJoinRequest(id: \"#general\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPendingHashtag",
+          "line": 359,
+          "expression": "coordinator.clearPendingHashtag()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPendingLinks clears the hoisted Nodes selected contact()",
+      "parameter_family": "single",
+      "line": 393,
+      "end_line": 401,
+      "declaration_sha256": "56170f62833aae79e73146739d5bd4dc8168bc03dff7b9146f298e10a3b1bcff",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 396,
+          "expression": "#expect(coordinator.selectedContact != nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 400,
+          "expression": "#expect(coordinator.selectedContact == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingLinks clears the hoisted Nodes selected contact`",
+          "line": 393,
+          "expression": "`clearPendingLinks clears the hoisted Nodes selected contact`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 394,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 395,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPendingLinks",
+          "line": 398,
+          "expression": "coordinator.clearPendingLinks()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPendingLinks clears the hoisted Nodes discovery flag()",
+      "parameter_family": "single",
+      "line": 404,
+      "end_line": 411,
+      "declaration_sha256": "2c3b7a472e31539aee18cca8d244d06215b66301f72dba5c0fcdaa7432ab1779",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 410,
+          "expression": "#expect(coordinator.nodesShowingDiscovery == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingLinks clears the hoisted Nodes discovery flag`",
+          "line": 404,
+          "expression": "`clearPendingLinks clears the hoisted Nodes discovery flag`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 405,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPendingLinks",
+          "line": 408,
+          "expression": "coordinator.clearPendingLinks()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPendingLinks clears every staged per-radio field at once()",
+      "parameter_family": "single",
+      "line": 414,
+      "end_line": 440,
+      "declaration_sha256": "0be2f3b279d60527eea2a89b30cbed628371dc435e4aed0aeacac654f1126292",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 433,
+          "expression": "#expect(coordinator.pendingContactLink == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 434,
+          "expression": "#expect(coordinator.pendingChannelLink == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 435,
+          "expression": "#expect(coordinator.pendingHashtag == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 436,
+          "expression": "#expect(coordinator.selectedContact == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 437,
+          "expression": "#expect(coordinator.nodesShowingDiscovery == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 438,
+          "expression": "#expect(coordinator.chatsSelectedRoute == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 439,
+          "expression": "#expect(coordinator.selectedTool == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingLinks clears every staged per-radio field at once`",
+          "line": 414,
+          "expression": "`clearPendingLinks clears every staged per-radio field at once`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 415,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreURLParser.ContactResult",
+          "line": 416,
+          "expression": "MeshCoreURLParser.ContactResult(\n      name: \"Alice\",\n      publicKey: Data(repeating: 0xAB, count: 32),\n      contactType: .chat\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 418,
+          "expression": "Data(repeating: 0xAB, count: 32)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MeshCoreURLParser.ChannelResult",
+          "line": 421,
+          "expression": "MeshCoreURLParser.ChannelResult(\n      name: \"general\",\n      secret: Data(repeating: 0xCC, count: 16)\n    )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Data",
+          "line": 423,
+          "expression": "Data(repeating: 0xCC, count: 16)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "HashtagJoinRequest",
+          "line": 425,
+          "expression": "HashtagJoinRequest(id: \"#general\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 426,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "direct",
+          "line": 428,
+          "expression": "direct(Self.makeContact())",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 428,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPendingLinks",
+          "line": 431,
+          "expression": "coordinator.clearPendingLinks()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPerRadioSelection clears the hoisted Chats route()",
+      "parameter_family": "single",
+      "line": 445,
+      "end_line": 452,
+      "declaration_sha256": "80cda432c7e4d267ccd1350eedd249ec5295d4796a261b4ce6d04a7dd0baca3d",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 451,
+          "expression": "#expect(coordinator.chatsSelectedRoute == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPerRadioSelection clears the hoisted Chats route`",
+          "line": 445,
+          "expression": "`clearPerRadioSelection clears the hoisted Chats route`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 446,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "direct",
+          "line": 447,
+          "expression": "direct(Self.makeContact())",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 447,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPerRadioSelection",
+          "line": 449,
+          "expression": "coordinator.clearPerRadioSelection()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPerRadioSelection clears a radio-requiring tool()",
+      "parameter_family": "single",
+      "line": 455,
+      "end_line": 463,
+      "declaration_sha256": "097b3f07edc2cea109f79bc036132d792aaf7f1ea7988198ea5ca9e12334540c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 458,
+          "expression": "#expect(coordinator.selectedTool?.requiresRadio == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 462,
+          "expression": "#expect(coordinator.selectedTool == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPerRadioSelection clears a radio-requiring tool`",
+          "line": 455,
+          "expression": "`clearPerRadioSelection clears a radio-requiring tool`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 456,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPerRadioSelection",
+          "line": 460,
+          "expression": "coordinator.clearPerRadioSelection()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPerRadioSelection preserves the offline Line of Sight tool()",
+      "parameter_family": "single",
+      "line": 466,
+      "end_line": 474,
+      "declaration_sha256": "dc3e4662ac2c1179e7cad96596da2a40d309a4963cff84a76907074e538ce631",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 469,
+          "expression": "#expect(coordinator.selectedTool?.requiresRadio == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 473,
+          "expression": "#expect(coordinator.selectedTool == .lineOfSight)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPerRadioSelection preserves the offline Line of Sight tool`",
+          "line": 466,
+          "expression": "`clearPerRadioSelection preserves the offline Line of Sight tool`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 467,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPerRadioSelection",
+          "line": 471,
+          "expression": "coordinator.clearPerRadioSelection()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPerRadioSelection clears a per-device settings page()",
+      "parameter_family": "single",
+      "line": 477,
+      "end_line": 485,
+      "declaration_sha256": "befa907393534bed6c409fab9aab20d27a7a9ad67797defb6b836ee7b2583161",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 480,
+          "expression": "#expect(coordinator.selectedSetting?.requiresDevice == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 484,
+          "expression": "#expect(coordinator.selectedSetting == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPerRadioSelection clears a per-device settings page`",
+          "line": 477,
+          "expression": "`clearPerRadioSelection clears a per-device settings page`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 478,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPerRadioSelection",
+          "line": 482,
+          "expression": "coordinator.clearPerRadioSelection()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::clearPerRadioSelection preserves a device-independent settings page()",
+      "parameter_family": "single",
+      "line": 488,
+      "end_line": 496,
+      "declaration_sha256": "bdd8e422b09959f89e9a7a7ecbc4e12c5d0704ad1480836b89a2d2851aff37f5",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 491,
+          "expression": "#expect(coordinator.selectedSetting?.requiresDevice == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 495,
+          "expression": "#expect(coordinator.selectedSetting == .appearance)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPerRadioSelection preserves a device-independent settings page`",
+          "line": 488,
+          "expression": "`clearPerRadioSelection preserves a device-independent settings page`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 489,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPerRadioSelection",
+          "line": 493,
+          "expression": "coordinator.clearPerRadioSelection()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationCoordinatorTests.swift",
+      "source_blob_sha": "099996a13ac2c2b7b812babceac1931c9172d1cd",
+      "case_id": "NavigationCoordinatorPendingLinkTests::language settings page is device-independent()",
+      "parameter_family": "single",
+      "line": 499,
+      "end_line": 505,
+      "declaration_sha256": "39077d6665368577006712998e68fec81612347421d995e0ae5294fde657775e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 502,
+          "expression": "#expect(coordinator.selectedSetting?.requiresDevice == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 504,
+          "expression": "#expect(coordinator.selectedSetting == .language)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`language settings page is device-independent`",
+          "line": 499,
+          "expression": "`language settings page is device-independent`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "NavigationCoordinator",
+          "line": 500,
+          "expression": "NavigationCoordinator()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "coordinator.clearPerDeviceSelection",
+          "line": 503,
+          "expression": "coordinator.clearPerDeviceSelection()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::Default navigation state is tab 0 with no pending navigation()",
+      "parameter_family": "single",
+      "line": 92,
+      "end_line": 104,
+      "declaration_sha256": "292e35ba7c0b2714b7974876fe8c14ba73d82d833a192f42362ced950e112729",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 94,
+          "expression": "#expect(appState.navigation.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 95,
+          "expression": "#expect(appState.navigation.pendingChatContact == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 96,
+          "expression": "#expect(appState.navigation.pendingChannel == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 97,
+          "expression": "#expect(appState.navigation.pendingRoomSession == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 98,
+          "expression": "#expect(appState.navigation.pendingRoomAuthentication == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 99,
+          "expression": "#expect(appState.navigation.pendingDiscoveryNavigation == false)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 100,
+          "expression": "#expect(appState.navigation.pendingContactDetail == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 101,
+          "expression": "#expect(appState.navigation.pendingScrollToMessageID == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 102,
+          "expression": "#expect(appState.navigation.chatsSelectedRoute == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 103,
+          "expression": "#expect(appState.navigation.tabBarVisibility == .visible)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Default navigation state is tab 0 with no pending navigation`",
+          "line": 92,
+          "expression": "`Default navigation state is tab 0 with no pending navigation`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 93,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToChat sets contact, route, and tab()",
+      "parameter_family": "single",
+      "line": 109,
+      "end_line": 120,
+      "declaration_sha256": "de769823f54103e61c0b87440749e6d82d7baf355ded84831606f8b93bdefbb5",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 115,
+          "expression": "#expect(appState.navigation.pendingChatContact == contact)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 116,
+          "expression": "#expect(appState.navigation.chatsSelectedRoute == .direct(contact))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 117,
+          "expression": "#expect(appState.navigation.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 118,
+          "expression": "#expect(appState.navigation.tabBarVisibility == .hidden)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 119,
+          "expression": "#expect(appState.navigation.pendingScrollToMessageID == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToChat sets contact, route, and tab`",
+          "line": 109,
+          "expression": "`navigateToChat sets contact, route, and tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 110,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 111,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChat",
+          "line": 113,
+          "expression": "appState.navigation.navigateToChat(with: contact)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "direct",
+          "line": 116,
+          "expression": "direct(contact)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToChat with scrollToMessageID sets message ID()",
+      "parameter_family": "single",
+      "line": 123,
+      "end_line": 134,
+      "declaration_sha256": "2f702ba568a69a246ed7f2343aa569df0db9102b515e92dd8510c968d58df838",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 130,
+          "expression": "#expect(appState.navigation.pendingChatContact == contact)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 131,
+          "expression": "#expect(appState.navigation.pendingScrollToMessageID == messageID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 132,
+          "expression": "#expect(appState.navigation.chatsSelectedRoute == .direct(contact))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 133,
+          "expression": "#expect(appState.navigation.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToChat with scrollToMessageID sets message ID`",
+          "line": 123,
+          "expression": "`navigateToChat with scrollToMessageID sets message ID`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 124,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 125,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 126,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChat",
+          "line": 128,
+          "expression": "appState.navigation.navigateToChat(with: contact, scrollToMessageID: messageID)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "direct",
+          "line": 132,
+          "expression": "direct(contact)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToChat switches to Chats tab from another tab()",
+      "parameter_family": "single",
+      "line": 137,
+      "end_line": 146,
+      "declaration_sha256": "c80ecec3daca53b96ff468fb2729c5054eba37f08ac667464d028bd4538b4572",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 144,
+          "expression": "#expect(appState.navigation.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 145,
+          "expression": "#expect(appState.navigation.pendingChatContact == contact)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToChat switches to Chats tab from another tab`",
+          "line": 137,
+          "expression": "`navigateToChat switches to Chats tab from another tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 138,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 140,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChat",
+          "line": 142,
+          "expression": "appState.navigation.navigateToChat(with: contact)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToRoom sets session, route, and tab()",
+      "parameter_family": "single",
+      "line": 151,
+      "end_line": 161,
+      "declaration_sha256": "eaf0db3e3378591faa93a1bb352768e542bf3e9fde23c0da8b199e89bddab454",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 157,
+          "expression": "#expect(appState.navigation.pendingRoomSession == session)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 158,
+          "expression": "#expect(appState.navigation.chatsSelectedRoute == .room(session))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 159,
+          "expression": "#expect(appState.navigation.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 160,
+          "expression": "#expect(appState.navigation.tabBarVisibility == .hidden)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToRoom sets session, route, and tab`",
+          "line": 151,
+          "expression": "`navigateToRoom sets session, route, and tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 152,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeRoomSession",
+          "line": 153,
+          "expression": "Self.makeRoomSession()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToRoom",
+          "line": 155,
+          "expression": "appState.navigation.navigateToRoom(with: session)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "room",
+          "line": 158,
+          "expression": "room(session)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToChannel sets channel, route, and tab()",
+      "parameter_family": "single",
+      "line": 166,
+      "end_line": 177,
+      "declaration_sha256": "de5897f9fa666962b758b47fc33c26407d1f9a606d093a9b3dbdea22c4ad3c4e",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 172,
+          "expression": "#expect(appState.navigation.pendingChannel == channel)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 173,
+          "expression": "#expect(appState.navigation.chatsSelectedRoute == .channel(channel))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 174,
+          "expression": "#expect(appState.navigation.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 175,
+          "expression": "#expect(appState.navigation.tabBarVisibility == .hidden)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 176,
+          "expression": "#expect(appState.navigation.pendingScrollToMessageID == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToChannel sets channel, route, and tab`",
+          "line": 166,
+          "expression": "`navigateToChannel sets channel, route, and tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 167,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 168,
+          "expression": "Self.makeChannel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChannel",
+          "line": 170,
+          "expression": "appState.navigation.navigateToChannel(with: channel)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "channel",
+          "line": 173,
+          "expression": "channel(channel)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToChannel with scrollToMessageID sets message ID()",
+      "parameter_family": "single",
+      "line": 180,
+      "end_line": 189,
+      "declaration_sha256": "12b8e06335e0daad3a417daf2c53be8aea04ca8624c65aa785c1f5e4171aedb9",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 187,
+          "expression": "#expect(appState.navigation.pendingChannel == channel)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 188,
+          "expression": "#expect(appState.navigation.pendingScrollToMessageID == messageID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToChannel with scrollToMessageID sets message ID`",
+          "line": 180,
+          "expression": "`navigateToChannel with scrollToMessageID sets message ID`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 181,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 182,
+          "expression": "Self.makeChannel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 183,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChannel",
+          "line": 185,
+          "expression": "appState.navigation.navigateToChannel(with: channel, scrollToMessageID: messageID)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToDiscovery sets pending flag and contacts tab()",
+      "parameter_family": "single",
+      "line": 194,
+      "end_line": 201,
+      "declaration_sha256": "5bfc49d0de37e4136f8eead2eb7a67b7401be3dd3d4c67d1fa45ce5d26b42b3b",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 199,
+          "expression": "#expect(appState.navigation.pendingDiscoveryNavigation == true)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 200,
+          "expression": "#expect(appState.navigation.selectedTab == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToDiscovery sets pending flag and contacts tab`",
+          "line": 194,
+          "expression": "`navigateToDiscovery sets pending flag and contacts tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 195,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToDiscovery",
+          "line": 197,
+          "expression": "appState.navigation.navigateToDiscovery()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToDiscovery does not hide tab bar()",
+      "parameter_family": "single",
+      "line": 204,
+      "end_line": 210,
+      "declaration_sha256": "cfa8ecb8dccea746e1efe1c253659212d39788ec03dc0758f3d752a76dc83b73",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 209,
+          "expression": "#expect(appState.navigation.tabBarVisibility == .visible)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToDiscovery does not hide tab bar`",
+          "line": 204,
+          "expression": "`navigateToDiscovery does not hide tab bar`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 205,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToDiscovery",
+          "line": 207,
+          "expression": "appState.navigation.navigateToDiscovery()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToContacts switches to contacts tab()",
+      "parameter_family": "single",
+      "line": 215,
+      "end_line": 222,
+      "declaration_sha256": "2de1713d8052ae1fe568bdd50d0f41fed4f02752bef46dfa6787d2e2cbf78726",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 221,
+          "expression": "#expect(appState.navigation.selectedTab == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToContacts switches to contacts tab`",
+          "line": 215,
+          "expression": "`navigateToContacts switches to contacts tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 216,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToContacts",
+          "line": 219,
+          "expression": "appState.navigation.navigateToContacts()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToContactDetail sets contact and contacts tab()",
+      "parameter_family": "single",
+      "line": 227,
+      "end_line": 235,
+      "declaration_sha256": "f228e0d01ec68545a96f7afee67f4856f4e92b27e443c168e34cacef5a7a2650",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 233,
+          "expression": "#expect(appState.navigation.pendingContactDetail == contact)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 234,
+          "expression": "#expect(appState.navigation.selectedTab == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToContactDetail sets contact and contacts tab`",
+          "line": 227,
+          "expression": "`navigateToContactDetail sets contact and contacts tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 228,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 229,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToContactDetail",
+          "line": 231,
+          "expression": "appState.navigation.navigateToContactDetail(contact)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::clearPendingNavigation clears chat contact()",
+      "parameter_family": "single",
+      "line": 240,
+      "end_line": 247,
+      "declaration_sha256": "1c17404717abf43636d1d6ba01a70ed4e2dddc0b7ccf011d5675575d78c02d40",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 246,
+          "expression": "#expect(appState.navigation.pendingChatContact == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingNavigation clears chat contact`",
+          "line": 240,
+          "expression": "`clearPendingNavigation clears chat contact`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 241,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 242,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.clearPendingNavigation",
+          "line": 244,
+          "expression": "appState.navigation.clearPendingNavigation()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::clearPendingRoomNavigation clears room session()",
+      "parameter_family": "single",
+      "line": 250,
+      "end_line": 257,
+      "declaration_sha256": "b8a2390456f28075f330895746710fb1475803e06a9706729fff5fcbe81ee1f0",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 256,
+          "expression": "#expect(appState.navigation.pendingRoomSession == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingRoomNavigation clears room session`",
+          "line": 250,
+          "expression": "`clearPendingRoomNavigation clears room session`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 251,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeRoomSession",
+          "line": 252,
+          "expression": "Self.makeRoomSession()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.clearPendingRoomNavigation",
+          "line": 254,
+          "expression": "appState.navigation.clearPendingRoomNavigation()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::clearPendingRoomAuthentication clears room auth session()",
+      "parameter_family": "single",
+      "line": 260,
+      "end_line": 267,
+      "declaration_sha256": "a12238c1e95b8b1e86bcda58e114131d725e8f95b08b3839f6edd3916367f50f",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 266,
+          "expression": "#expect(appState.navigation.pendingRoomAuthentication == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingRoomAuthentication clears room auth session`",
+          "line": 260,
+          "expression": "`clearPendingRoomAuthentication clears room auth session`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 261,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeRoomSession",
+          "line": 262,
+          "expression": "Self.makeRoomSession()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.clearPendingRoomAuthentication",
+          "line": 264,
+          "expression": "appState.navigation.clearPendingRoomAuthentication()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::clearPendingChannelNavigation clears channel()",
+      "parameter_family": "single",
+      "line": 270,
+      "end_line": 277,
+      "declaration_sha256": "491c1a6345c92b1be6ea91239a6bd4f4d9f64421878e1a79b6b9c70033df2d36",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 276,
+          "expression": "#expect(appState.navigation.pendingChannel == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingChannelNavigation clears channel`",
+          "line": 270,
+          "expression": "`clearPendingChannelNavigation clears channel`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 271,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeChannel",
+          "line": 272,
+          "expression": "Self.makeChannel()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.clearPendingChannelNavigation",
+          "line": 274,
+          "expression": "appState.navigation.clearPendingChannelNavigation()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::clearPendingDiscoveryNavigation clears discovery flag()",
+      "parameter_family": "single",
+      "line": 280,
+      "end_line": 287,
+      "declaration_sha256": "f4ef44cb090ae71e422a9ccb7227011b28b40b5ee91a16ce32bfd438d578f3a2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 286,
+          "expression": "#expect(appState.navigation.pendingDiscoveryNavigation == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingDiscoveryNavigation clears discovery flag`",
+          "line": 280,
+          "expression": "`clearPendingDiscoveryNavigation clears discovery flag`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 281,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.clearPendingDiscoveryNavigation",
+          "line": 284,
+          "expression": "appState.navigation.clearPendingDiscoveryNavigation()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::clearPendingScrollToMessage clears message ID()",
+      "parameter_family": "single",
+      "line": 290,
+      "end_line": 297,
+      "declaration_sha256": "cdf457876f23d42f71dee79aae4face840a315431a0e74626cd6c6ade34c1d30",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 296,
+          "expression": "#expect(appState.navigation.pendingScrollToMessageID == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingScrollToMessage clears message ID`",
+          "line": 290,
+          "expression": "`clearPendingScrollToMessage clears message ID`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 291,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "UUID",
+          "line": 292,
+          "expression": "UUID()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.clearPendingScrollToMessage",
+          "line": 294,
+          "expression": "appState.navigation.clearPendingScrollToMessage()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::clearPendingContactDetailNavigation clears contact detail()",
+      "parameter_family": "single",
+      "line": 300,
+      "end_line": 307,
+      "declaration_sha256": "bde1506e145a13ca0cfb42651cbdad7ef3e306ee8bb7ce62bbe60fe2c03317e8",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 306,
+          "expression": "#expect(appState.navigation.pendingContactDetail == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`clearPendingContactDetailNavigation clears contact detail`",
+          "line": 300,
+          "expression": "`clearPendingContactDetailNavigation clears contact detail`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 301,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 302,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.clearPendingContactDetailNavigation",
+          "line": 304,
+          "expression": "appState.navigation.clearPendingContactDetailNavigation()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::navigateToChat from contacts tab hides tab bar and switches tab()",
+      "parameter_family": "single",
+      "line": 312,
+      "end_line": 323,
+      "declaration_sha256": "55a3de5dd3e1cfb177c445f95237c4ce6660aeefa82f03197e0f8f934f79d914",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 319,
+          "expression": "#expect(appState.navigation.tabBarVisibility == .hidden)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 320,
+          "expression": "#expect(appState.navigation.selectedTab == 0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 321,
+          "expression": "#expect(appState.navigation.pendingChatContact == contact)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 322,
+          "expression": "#expect(appState.navigation.chatsSelectedRoute == .direct(contact))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`navigateToChat from contacts tab hides tab bar and switches tab`",
+          "line": 312,
+          "expression": "`navigateToChat from contacts tab hides tab bar and switches tab`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 313,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 315,
+          "expression": "Self.makeContact()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChat",
+          "line": 317,
+          "expression": "appState.navigation.navigateToChat(with: contact)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "direct",
+          "line": 322,
+          "expression": "direct(contact)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::Multiple navigation calls overwrite pending state()",
+      "parameter_family": "single",
+      "line": 326,
+      "end_line": 336,
+      "declaration_sha256": "334c1ceadefc9e599609a1e53a8eaa9c51268bbd1ddd02b5e514f41a69afd9cb",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 334,
+          "expression": "#expect(appState.navigation.pendingChatContact == contact2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 335,
+          "expression": "#expect(appState.navigation.chatsSelectedRoute == .direct(contact2))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Multiple navigation calls overwrite pending state`",
+          "line": 326,
+          "expression": "`Multiple navigation calls overwrite pending state`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 327,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 328,
+          "expression": "Self.makeContact(name: \"First\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "Self.makeContact",
+          "line": 329,
+          "expression": "Self.makeContact(name: \"Second\")",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChat",
+          "line": 331,
+          "expression": "appState.navigation.navigateToChat(with: contact1)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "appState.navigation.navigateToChat",
+          "line": 332,
+          "expression": "appState.navigation.navigateToChat(with: contact2)",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "direct",
+          "line": 335,
+          "expression": "direct(contact2)",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/AppState/NavigationStateTests.swift",
+      "source_blob_sha": "9f7917549c74a199b68cdb3215884c5ca0a3aab7",
+      "case_id": "NavigationStateTests::Device menu tip donation is pending by default when false()",
+      "parameter_family": "single",
+      "line": 339,
+      "end_line": 342,
+      "declaration_sha256": "724887ef1f23ab50e840f7c985d60d64968570a8aa4c7db5f3e60ef3aa7298e6",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 341,
+          "expression": "#expect(appState.navigation.pendingDeviceMenuTipDonation == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Device menu tip donation is pending by default when false`",
+          "line": 339,
+          "expression": "`Device menu tip donation is pending by default when false`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "AppState",
+          "line": 340,
+          "expression": "AppState()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "source_blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "case_id": "SidebarNavigationLayoutTests::Section sidebar is narrow enough that 11-inch portrait tiles all three columns()",
+      "parameter_family": "single",
+      "line": 19,
+      "end_line": 21,
+      "declaration_sha256": "2eca372ab36bf7bd039d9468c287067debfb80a5b2b2c97b513b5d5c6af1539c",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 20,
+          "expression": "#expect(MainSidebarView.sidebarTileableMinWidth <= Self.iPad11InchPortraitWidth)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Section sidebar is narrow enough that 11-inch portrait tiles all three columns`",
+          "line": 19,
+          "expression": "`Section sidebar is narrow enough that 11-inch portrait tiles all three columns`()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "source_blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "case_id": "SidebarNavigationLayoutTests::iPad mini portrait intentionally collapses rather than tiling()",
+      "parameter_family": "single",
+      "line": 24,
+      "end_line": 26,
+      "declaration_sha256": "cbde7be03dbeaf374f2e9df46b31691ac2deacc2cffc83af1eb1d83e50a4abd1",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 25,
+          "expression": "#expect(MainSidebarView.sidebarTileableMinWidth > Self.iPadMiniPortraitWidth)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`iPad mini portrait intentionally collapses rather than tiling`",
+          "line": 24,
+          "expression": "`iPad mini portrait intentionally collapses rather than tiling`()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "source_blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "case_id": "SidebarNavigationLayoutTests::Sidebar width is in icon-only range, not a full sidebar()",
+      "parameter_family": "single",
+      "line": 29,
+      "end_line": 33,
+      "declaration_sha256": "e372f48c669966e2483977c13bc3ff23d5a0f9e1f2fc899a079b7550402d2bc2",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 32,
+          "expression": "#expect(MainSidebarView.sidebarColumnWidth <= Self.iconSidebarUpperBound)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Sidebar width is in icon-only range, not a full sidebar`",
+          "line": 29,
+          "expression": "`Sidebar width is in icon-only range, not a full sidebar`()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "source_blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "case_id": "SidebarNavigationLayoutTests::A sidebar-collapsing tool collapses the sidebar even when the container is wide()",
+      "parameter_family": "single",
+      "line": 36,
+      "end_line": 43,
+      "declaration_sha256": "6708d559f42b0a7cc1953c9cb96d1e056c70f5049dc7a72c51dfa9feaa3ceadf",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 42,
+          "expression": "#expect(visibility == .doubleColumn)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`A sidebar-collapsing tool collapses the sidebar even when the container is wide`",
+          "line": 36,
+          "expression": "`A sidebar-collapsing tool collapses the sidebar even when the container is wide`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MainSidebarView.sidebarVisibility",
+          "line": 37,
+          "expression": "MainSidebarView.sidebarVisibility(\n      isWide: true,\n      toolCollapsesSidebar: true,\n      sectionCollapsed: .doubleColumn\n    )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "source_blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "case_id": "SidebarNavigationLayoutTests::A wide container tiles the sidebar when no sidebar-collapsing tool is open()",
+      "parameter_family": "single",
+      "line": 46,
+      "end_line": 53,
+      "declaration_sha256": "5542930fde03e95b07dd0ace28448068d733b4ca30afdb2074aa7ea584a111f6",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 52,
+          "expression": "#expect(visibility == .all)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`A wide container tiles the sidebar when no sidebar-collapsing tool is open`",
+          "line": 46,
+          "expression": "`A wide container tiles the sidebar when no sidebar-collapsing tool is open`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MainSidebarView.sidebarVisibility",
+          "line": 47,
+          "expression": "MainSidebarView.sidebarVisibility(\n      isWide: true,\n      toolCollapsesSidebar: false,\n      sectionCollapsed: .doubleColumn\n    )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "source_blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "case_id": "SidebarNavigationLayoutTests::A narrow container collapses to the section's hidden shape()",
+      "parameter_family": "single",
+      "line": 56,
+      "end_line": 67,
+      "declaration_sha256": "d11938058f79bac9e3d34a394ac3a2115eead1164213b66bfe9a94b2f8e35838",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 57,
+          "expression": "#expect(\n      MainSidebarView.sidebarVisibility(\n        isWide: false, toolCollapsesSidebar: false, sectionCollapsed: .doubleColumn\n      ) == .doubleColumn\n    )",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 62,
+          "expression": "#expect(\n      MainSidebarView.sidebarVisibility(\n        isWide: false, toolCollapsesSidebar: false, sectionCollapsed: .detailOnly\n      ) == .detailOnly\n    )",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`A narrow container collapses to the section's hidden shape`",
+          "line": 56,
+          "expression": "`A narrow container collapses to the section's hidden shape`()",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MainSidebarView.sidebarVisibility",
+          "line": 58,
+          "expression": "MainSidebarView.sidebarVisibility(\n        isWide: false, toolCollapsesSidebar: false, sectionCollapsed: .doubleColumn\n      )",
+          "assertion_or_checked_wait": false
+        },
+        {
+          "name": "MainSidebarView.sidebarVisibility",
+          "line": 63,
+          "expression": "MainSidebarView.sidebarVisibility(\n        isWide: false, toolCollapsesSidebar: false, sectionCollapsed: .detailOnly\n      )",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    },
+    {
+      "source_path": "MC1Tests/SidebarNavigationLayoutTests.swift",
+      "source_blob_sha": "f953db4e598370e90898f5717f4c9041843254dc",
+      "case_id": "SidebarNavigationLayoutTests::Line of Sight and Trace Path collapse the sidebar; other tools keep it()",
+      "parameter_family": "single",
+      "line": 70,
+      "end_line": 76,
+      "declaration_sha256": "80d84b30af0736be201f72e95d9a242c8c522341e2991dabca8e9ac4f6130386",
+      "inputs": null,
+      "compile_conditions": [],
+      "assertions": [
+        {
+          "name": "#expect",
+          "line": 71,
+          "expression": "#expect(ToolSelection.lineOfSight.prefersCollapsedSidebar)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 72,
+          "expression": "#expect(ToolSelection.tracePath.prefersCollapsedSidebar)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 74,
+          "expression": "#expect(!tool.prefersCollapsedSidebar)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "helper_assertions": [],
+      "actions_and_helper_calls": [
+        {
+          "name": "`Line of Sight and Trace Path collapse the sidebar; other tools keep it`",
+          "line": 70,
+          "expression": "`Line of Sight and Trace Path collapse the sidebar; other tools keep it`()",
+          "assertion_or_checked_wait": false
+        }
+      ],
+      "native_proposals": [],
+      "review": "unresolved-native-family"
+    }
+  ]
+}

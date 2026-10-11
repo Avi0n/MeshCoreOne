@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generator": "android/parity-tests/semantic.py",
+  "owner": "WP-401",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "proposal_not_acceptance": true,
+  "sources": [
+    {
+      "path": "MC1/Services/NotificationStringProviderImpl.swift",
+      "blob_sha": "6cbd8f44fe5228ac6c02d48a01f460c281ffc5d3",
+      "kind": "production",
+      "owner": "WP-401",
+      "exclusion": null,
+      "candidate_native_paths": [
+        "android/platform/notifications/src/main/kotlin/com/meshcoreone/android/platform/notifications/messaging/AndroidNotificationStringProvider.kt"
+      ],
+      "acceptance": "independent-behavior-review-required",
+      "native_contracts": [
+        {
+          "path": "android/platform/notifications/src/main/kotlin/com/meshcoreone/android/platform/notifications/messaging/AndroidNotificationStringProvider.kt",
+          "sha256": "1f5746e0b2d7d63dacf3ff66154e15d1fa0696574581d44cfefd4f5aa67195a5",
+          "source_references": [
+            "MC1/Services/NotificationStringProviderImpl.swift"
+          ],
+          "methods": [
+            {
+              "name": "discoveryNotificationTitle",
+              "line": 13,
+              "end_line": 19
+            },
+            {
+              "name": "lowBatteryBody",
+              "line": 32,
+              "end_line": 33
+            },
+            {
+              "name": "quickReplyFailedBody",
+              "line": 38,
+              "end_line": 39
+            },
+            {
+              "name": "defaultChannelName",
+              "line": 44,
+              "end_line": 45
+            },
+            {
+              "name": "reactionNotificationBody",
+              "line": 47,
+              "end_line": 48
+            }
+          ]
+        }
+      ],
+      "review": "compare-observable-actions-state-error-cancellation-and-resources"
+    }
+  ],
+  "families": []
+}

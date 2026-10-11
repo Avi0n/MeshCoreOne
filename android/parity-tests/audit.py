@@ -3,6 +3,7 @@
 import argparse
 from collections import Counter, defaultdict
 import json
+import os
 from pathlib import Path
 import re
 import sys
@@ -202,13 +203,20 @@ def main(argv=None):
     mode.add_argument("--check", action="store_true")
     mode.add_argument("--generate", action="store_true")
     mode.add_argument("--require-acceptance", action="store_true")
+    parser.add_argument("--pr", type=int, help="Existing implementation PR for authenticated acceptance lookup")
+    parser.add_argument("--base-sha", help="Expected exact reviewed base (not guessed from main)")
+    parser.add_argument("--head-sha", help="Expected exact reviewed candidate")
     args = parser.parse_args(argv)
     try:
         value = generate()
         write_or_check(repo_path(REPO, OUTPUT), json_bytes(value), check=not args.generate)
         print(json.dumps({"accounting": "complete", "acceptance": value["acceptance"], **value["counts"]}))
         if args.require_acceptance:
-            raise PortError(value["blocker"])
+            from acceptance import github_review
+
+            if args.pr is None or not args.base_sha or not args.head_sha:
+                raise PortError("Acceptance lookup requires --pr, --base-sha and --head-sha; candidate accounting is not approval")
+            print(json.dumps(github_review(args.pr, args.base_sha, args.head_sha, os.environ)))
         return 0
     except (OSError, ValueError, KeyError, PortError) as error:
         print(f"BLOCKED: {error}", file=sys.stderr)

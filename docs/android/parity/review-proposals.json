@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "status": "candidate-semantic-comparisons-not-independent-approval",
+  "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
+  "groups": [
+    {
+      "id": "chat-coordinates",
+      "source_path": "MC1Tests/Utilities/ChatCoordinateDetectorTests.swift",
+      "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
+      "runner_directory": "feature/chats/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
+      "runner_name": "annotated-method",
+      "comparison": "All nine original declarations retain the exact input strings, decimal precision, validity clamps, integer/list/version rejection, null absence and document-order selection. The period case additionally asserts the exact detected substring excludes the period; document-order count/first/last latitude checks match the source, not just nonempty output.",
+      "inputs": "37.334900/-122.009020 tolerance1e-6;3,4;200.0,400.0;1.0,2.0,3.0;v1.2,3.4;no coordinates;A10.0,20.0 and B30.0,40.0;37.7749,-122.4194 ending a sentence.",
+      "adaptations": "Kotlin UTF16 start/end offsets replace Swift String ranges, with actual substring assertions. Native independent Swift-oracle edge probes extend fullwidth digits, NBSP/newline, four-digit numbers and trailing punctuation; those extra probes are not counted as additional original declarations.",
+      "helpers": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ChatCoordinateDetector.kt"
+      ],
+      "consumer": "The production tokenizer and formatted-message map coordinate both call this detector; integer or invalid fixes are not manufactured for map previews. Token-priority survival is compared in the separate tokenizer group.",
+      "unresolved": [],
+      "methods": [
+        "A valid decimal pair is detected",
+        "An integer pair is not detected",
+        "An out-of-range pair is rejected by the clamp, not the regex",
+        "A three-number decimal list is treated as a list, not a coordinate",
+        "A version-like string is not detected",
+        "firstCoordinate returns nil when there is no coordinate",
+        "firstCoordinate returns the first of several coordinates",
+        "matches returns every valid coordinate in document order",
+        "A coordinate ending a sentence is detected, period excluded"
+      ]
+    },
+    {
+      "id": "mention-insertion",
+      "source_path": "MC1Tests/Utilities/MentionInsertionTests.swift",
+      "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MentionUtilitiesTest.kt",
+      "runner_directory": "feature/chats/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.chats.composer.MentionUtilitiesTest",
+      "runner_name": "annotated-method",
+      "comparison": "All four declarations compare complete resulting draft strings, including preceding text, an existing completed mention and the trailing space. Native insertMention performs the source detectActiveMention plus backwards literal replacement sequence rather than testing a handwritten imitation.",
+      "inputs": "hey @ali/Alice;@bob/Bob;Hello @[Alice] and @jo/John;@bob/Bob's Solar Node. The mesh node name, not the searched nickname, is inserted.",
+      "adaptations": "The inline Swift test replacement sequence is extracted to the feature-local production insertMention helper. UTF16 slicing is confined to the exact literal search range; it does not split a contact name. No-active-query no-op is an additional native case.",
+      "helpers": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MentionUtilities.kt"
+      ],
+      "consumer": "Composer uses the selected contact's mesh name for insertion. The complete draft remains original text; no translation or nickname rewrite is introduced.",
+      "unresolved": [],
+      "methods": [
+        "insertMention replaces @query with mention format",
+        "insertMention handles query at start of text",
+        "insertMention preserves preceding text",
+        "insertMention uses contact name not nickname"
+      ]
+    },
+    {
+      "id": "mention-utilities",
+      "source_path": "MC1Tests/Utilities/MentionUtilitiesTests.swift",
+      "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MentionUtilitiesTest.kt",
+      "runner_directory": "feature/chats/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.chats.composer.MentionUtilitiesTest",
+      "runner_name": "annotated-method",
+      "comparison": "All forty-eight declarations preserve creation/spacing, ordered extraction of adjacent and Unicode mentions, all three malformed patterns, active-query null-versus-empty distinctions, email/double-@/unclosed-bracket/completed-mention behavior, chat-only filtering, full and partial recency ordering, and exact case-insensitive self-name equality rather than partial matching. Actual fixture helpers create named contacts with explicit types; extra diacritic/whitespace probes strengthen the native tests.",
+      "inputs": "Alice/My Node/Node-123/empty;hello with and without trailing space;adjacent Alice/Bob;Japanese mention;email@domain/test@example.com;@/@jo/@alice/hey @bob/@ hello/@[Alice] hey @bo/@@alice/@[Alice;Alice/Bob/Amanda and chat1/repeater2/room3;sender stamps Charlie300/Alice200/Bob100 and Bob500/Alice100 with missing Zoe/Dan;three ALICE case variants;Ali versus Alice.",
+      "adaptations": "Native immutable contacts retain random UUID fixtures; their32-byte zero key replaces the source's single-byte key, unused in these name/type tests. Locale.US is injected to make alphabetical assertions deterministic. Canonical text matching and grapheme whitespace are actual shared native helpers; current-locale integration remains separately audited rather than treating the US fixture as universal locale proof.",
+      "helpers": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MentionUtilities.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ComposerText.kt",
+        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/list/support/Support.kt"
+      ],
+      "consumer": "Composer name filtering uses displayName while inserted and self-mentioned identities retain mesh name. Recent sender order uses full mesh-name keys; null timestamp remains distinct from zero.",
+      "unresolved": [],
+      "methods": [
+        "createMention creates correct format",
+        "createMention handles names with spaces",
+        "createMention handles special characters",
+        "appendMention into empty draft yields just the mention",
+        "appendMention preserves draft and adds a separating space",
+        "appendMention does not double the space when draft ends in whitespace",
+        "createMention handles empty name",
+        "extractMentions parses single mention",
+        "extractMentions parses multiple mentions",
+        "extractMentions returns empty for no mentions",
+        "extractMentions handles names with spaces",
+        "extractMentions handles special characters",
+        "extractMentions handles adjacent mentions",
+        "extractMentions ignores malformed patterns",
+        "extractMentions handles empty message",
+        "extractMentions handles Unicode names",
+        "detectActiveMention returns nil for empty text",
+        "detectActiveMention returns nil for text without @",
+        "detectActiveMention returns empty string for @ alone",
+        "detectActiveMention returns query after @",
+        "detectActiveMention works at start of message",
+        "detectActiveMention works after space",
+        "detectActiveMention returns nil for @ mid-word",
+        "detectActiveMention returns nil when space follows @",
+        "detectActiveMention returns last active mention",
+        "detectActiveMention returns nil for completed mention",
+        "detectActiveMention handles Unicode",
+        "detectActiveMention ignores email addresses",
+        "detectActiveMention handles double @ symbols",
+        "detectActiveMention returns nil for unclosed bracket",
+        "filterContacts matches using localizedStandardContains",
+        "filterContacts excludes repeaters",
+        "filterContacts excludes rooms",
+        "filterContacts sorts alphabetically",
+        "filterContacts returns empty for no matches",
+        "filterContacts handles empty input",
+        "filterContacts sorts by sender order when provided",
+        "filterContacts sender order partial match: ordered first, then alphabetical",
+        "containsSelfMention returns true for exact match",
+        "containsSelfMention is case insensitive",
+        "containsSelfMention returns false for different name",
+        "containsSelfMention handles multiple mentions",
+        "containsSelfMention returns false for empty text",
+        "containsSelfMention returns false for empty selfName",
+        "containsSelfMention handles names with spaces",
+        "containsSelfMention handles special characters",
+        "containsSelfMention returns false for partial match",
+        "containsSelfMention returns false for text without mentions"
+      ]
+    },
+    {
+      "id": "message-link-tokenizer",
+      "source_path": "MC1Tests/Views/Chats/Linkify/MessageLinkTokenizerTests.swift",
+      "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
+      "runner_directory": "feature/chats/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
+      "runner_name": "annotated-method",
+      "comparison": "All fourteen declarations compare detector kind/style/destination, exact hashtag URL, trailing punctuation and unknown host, mention priority, nonoverlapping sorted tokens, HTTP fragment exclusion, hashtag wins over both contact/channel links, first surviving map coordinate, contact-chip occlusion, null map result and dot-decimal URL parse round trip with1e-6 tolerance. Helpers select the token actually covering the tested substring, not an arbitrary token of the expected kind.",
+      "inputs": "Source literal URL/hashtag/contact/unknown host/coordinate strings;AB repeated32-byte contact key;37.7749/-122.4194 then10.0/20.0;Base1.0,2.0 chip then3.5,4.5;37.334900/-122.009020 exact six-decimal URL.",
+      "adaptations": "The overlapping mention fixture uses @www.WCMesh.com instead of @WCMesh.com to trigger the native URL detector; priority, covering characters and scheme remain asserted. Native merged stream requires at least3 tokens before the adjacency loop, eliminating the source's possible vacuous loop. Native token URLs check the exact prefix instead of Apple URL host/scheme properties. Material token colors replace SwiftUI Color; these logic bodies do not claim screenshot/color acceptance.",
+      "helpers": [
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizer.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/LinkToken.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ChatCoordinateDetector.kt"
+      ],
+      "consumer": "Map previews follow the first coordinate surviving token priority, never a hidden contact-chip coordinate. Contact and channel links remain actionable tokens only when they survive overlap; message formatter pre-pass supplies the actual mention/contact ranges.",
+      "unresolved": [],
+      "methods": [
+        "URL detector emits a url token",
+        "Hashtag detector emits a bold, non-underlined token",
+        "MeshCore link detector emits a meshcore token and trims trailing punctuation",
+        "MeshCore link with a non-contact, non-channel host is ignored",
+        "Coordinate detector emits a coordinate token",
+        "A pre-pass mention span outranks a URL detection over the same characters",
+        "The merged token stream is sorted and non-overlapping",
+        "A hashtag inside a URL is excluded via the shared URL ranges",
+        "A hashtag inside a meshcore link wins the overlap and the meshcore link is dropped",
+        "A hashtag inside a meshcore contact link also wins the overlap and drops the link",
+        "mapCoordinate is the first surviving coordinate in document order",
+        "mapCoordinate skips a coordinate that lost to a higher-priority token",
+        "No coordinate yields a nil mapCoordinate",
+        "A coordinate token URL round-trips through MeshCoreURLParser with dot-decimals"
+      ]
+    },
+    {
+      "id": "backup-service",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/AppBackupServiceTests.swift",
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/AppBackupServiceTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.AppBackupServiceTest",
+      "runner_name": "annotated-method",
+      "comparison": "All sixteen declarations traverse real Room export/import and actual compression/codec. Counts match actual persisted rows; preview URL/title survive while image/icon/fetched fields clear without mutating local data; empty history retains the device; reimport inserts0; full-public-key match remaps every child partition; fresh device surrogate prevents UUID collision overwriting. Sensitive fields are checked against source literals, with WP-501 adding independent SF10/CR5 wire assertions instead of relying on candidate redactedForBackup as expected output.",
+      "inputs": "Original1device/1contact/2messages with1024/32 preview blobs;500/64 stripping case;3contacts;20contacts compression; all12 model families; shared-key radio remap; sensitive123456/869500/125000/12/8/14/22/48.8566/2.3522 fields; original WiFi10.0.0.2:5000; public keysF7/F8; idempotent message dedup key.",
+      "adaptations": "Fixed UUID/radio fixtures replace randomly minted originals. Native compression case uses20 distinct32-byte keys rather than original33-byte keys; compression/record-count behavior is the compared property, not key-length validation. Native remapped channel is namedGeneral instead ofRemapped, retaining its stored label. A native fresh-store-equivalent test deletes source device before reimport; remaining child-state integration belongs BackupIntegrationTests. DataStore presence checks replace isolated UserDefaults.",
+      "helpers": [
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBackupAcceptanceTest.kt"
+      ],
+      "consumer": "Actual persisted device/contact/channel/message fields and source-store nonmutation are asserted. WP-501 extends restored messages into the offline process timeline. Independent SwiftData restore/export remains the declared macOS hosted oracle, not a Kotlin round trip.",
+      "unresolved": [],
+      "methods": [
+        "Export produces valid compressed backup",
+        "Export strips link preview blobs from messages",
+        "Export succeeds with empty store",
+        "Manifest counts match exported array sizes",
+        "Export output is smaller than raw JSON for large payloads",
+        "Envelope contains expected version",
+        "Import into empty store restores all records",
+        "Import remaps radioID when local device has same publicKey",
+        "Export redacts sensitive device fields (BLE PIN, radio config)",
+        "Export preserves non-sensitive device fields",
+        "Export strips Bluetooth connection methods",
+        "Import strips Bluetooth connection methods from legacy backups",
+        "Redacted device round-trips through export and import with safe defaults",
+        "Importing same backup twice results in zero inserts on second pass",
+        "Export returns ExportResult carrying the envelope manifest",
+        "Import assigns fresh Device.id so an id collision cannot upsert the local row"
+      ]
+    },
+    {
+      "id": "backup-envelope",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/AppBackupEnvelopeTests.swift",
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/AppBackupEnvelopeTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.AppBackupEnvelopeTest",
+      "runner_name": "annotated-method",
+      "comparison": "All twenty-five declarations retain every envelope family, metadata/manifest/defaults, exact fractional Unix dates, typed invalid/truncated/oversized/future-version/corrupt-manifest outcomes, discovered-node fields, legacy discovered absence and preference-presence restore semantics. Native tests additionally check every family count, missing required arrays, negative nanosecond date, exact found/max version payload, opaque map-filter strings and no fabricated link-content toggle.",
+      "inputs": "Source Unix1700000500.9876542/1700000501.1234567/1700000502.7654321; garbage00FFABCD; half truncated stream; compressed50MiB+1;2MiB zero bomb under1MiB override; version999; one12-family envelope; original preference emoji lists/CJK fields; exact map-filter JSON strings and local false/light/false presence.",
+      "adaptations": "Native immutable snapshot equality strengthens source array-count checks. Swift NSData .zlib is actual raw DEFLATE in the pinned oracle, not RFC1950; no compression-byte equality is asserted. Native compressedExactCap validates the public size contract; BackupCodecBoundaryTest separately proves real streaming50MiB/512MiB exact/+1 boundaries, ownership/closure and framing, and AppBackupCodec byte overload was inspected for pre-inflate size validation. DataStore absent-key semantics replace UserDefaults object(nil), never a silent default.",
+      "helpers": [
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupCodecBoundaryTest.kt",
+        "android/core/testing/fixtures/reference-codec/reference-envelope.json"
+      ],
+      "consumer": "Restored preferences report actual keys and retain pre-existing local values; old showInlineImages never reconstructs linkPreviewsEnabled. Error descriptions stay nonempty, sanitized and never claim rollback. Real bidirectional codec/restore evidence remains the independent hosted Swift jobs.",
+      "unresolved": [],
+      "methods": [
+        "Envelope round-trips through JSON encode/decode",
+        "Backup JSON round-trips sub-second timestamps without truncation",
+        "parseBackup decompresses and decodes a valid backup",
+        "parseBackup throws invalidFile for garbage data",
+        "parseBackup throws invalidFile for truncated zlib payloads",
+        "parseBackup rejects files larger than the size cap",
+        "parseBackup rejects payloads whose decompressed size exceeds the cap",
+        "parseBackup throws unsupportedVersion for future versions",
+        "parseBackup throws corruptedManifest when counts mismatch",
+        "DiscoveredNodeDTO survives JSON encode \u2192 decode round-trip",
+        "Legacy envelope without discoveredNodes decodes to empty array",
+        "Manifest validates correctly when counts match",
+        "Manifest detects mismatch",
+        "ImportResult computes totals correctly",
+        "BackupUserDefaults round-trips through JSON",
+        "Legacy envelope without showIncomingSendTime decodes to nil and restore skips it",
+        "Legacy envelope without showIncomingHeardCount decodes to nil and restore skips it",
+        "Legacy envelope without map preference keys decodes to nil and restore skips them",
+        "Map preference keys round-trip non-default values through restore",
+        "Legacy envelope without mapFilter keys decodes to nil and restore skips them",
+        "mapFilterMainMap non-default JSON string round-trips through restore",
+        "dual legacy discovered and mapFilterMainMap both preserve on envelope wire",
+        "showInlineImages survives restore and never reconstructs the link-content toggle",
+        "Legacy envelope without showInlineImages decodes to nil and restore skips it",
+        "AppBackupError provides user-facing descriptions"
+      ]
+    },
+    {
+      "id": "ed25519-conversion",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Ed25519ToX25519Tests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/Ed25519ToX25519Test.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.crypto.Ed25519ToX25519Test",
+      "runner_name": "method()",
+      "comparison": "All three declarations preserve SHA512 seed expansion/clamping, Ed-public-to-X conversion, bilateral shared-secret equality, converted-key direct decrypt timestamp1703123456/textHello and rejection of0/16-byte public inputs. Native independent expected private/public keys and nonzero shared-secret assertions strengthen the original symmetry assertion.",
+      "inputs": "Two pre-existing independent RFC8032-derived key vectors replace random signing seeds; original Hello/type0/timestamp1703123456 direct message; zero-length and zero-filled16-byte public input.",
+      "adaptations": "The first native method is deliberately renamed to say independent RFC keys, not falsely claim CryptoKit execution. Original nil invalid-length result maps to the disclosed typed InvalidKeyLength with ED25519_PUBLIC format and actual length asserted.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/CryptoFixtures.kt",
+        "docs/android/evidence/WP-102/key-vectors.tsv",
+        "docs/android/evidence/WP-102/message-vectors.tsv",
+        "docs/android/evidence/WP-102/vector-generation.json"
+      ],
+      "consumer": "The direct decrypt case passes actual converted peer public/expanded recipient private keys into production crypto, not only a conversion round trip.",
+      "unresolved": [],
+      "native_method_overrides": {
+        "Public key conversion round-trip with CryptoKit": "Public key conversion round-trip with independent RFC keys"
+      },
+      "methods": [
+        "Public key conversion round-trip with CryptoKit",
+        "DM decrypt with converted Ed25519 keys",
+        "Conversion rejects invalid inputs"
+      ]
+    },
+    {
+      "id": "channel-crypto",
+      "source_path": "MeshCore/Tests/MeshCoreTests/ChannelCryptoTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/ChannelCryptoTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.crypto.ChannelCryptoTest",
+      "runner_name": "method()",
+      "comparison": "All ten original declarations compare typed decrypt outcomes, timestamp/type/text and exact constants. The original AES-128-ECB zero-padding/full-secret HMAC helper is replaced by pre-existing independently produced Python/Swift bytes, not Kotlin-generated ciphertext. CryptoFixtures.assertChannel requires Success then compares all three decoded fields. Wrong-key/corrupt-tag/short-packet methods assert the exact failure object, not any failure.",
+      "inputs": "Original testSecret 8b3387e9c5cdea6ac9e5edbaa115cd72, timestamp1703123456; empty timestamp/type0; original long/CJK/emoji strings; txtTypes0,1,2; original32-byte secret uses first16 for AES and all32 for HMAC.",
+      "adaptations": "Three txtTypes are one original declaration with an internal loop, not three original parameter families. Native full-secret test also proves truncating the HMAC key fails.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/CryptoFixtures.kt",
+        "docs/android/evidence/WP-102/message-vectors.tsv",
+        "docs/android/evidence/WP-102/vector-generation.json"
+      ],
+      "consumer": "ChannelCrypto.decrypt returns typed wire outcomes; native receive-log consumers must not manufacture successful text on failure. Consumer service families remain separate.",
+      "unresolved": [],
+      "methods": [
+        "Decrypt success",
+        "Decrypt wrong key",
+        "Decrypt corrupted MAC",
+        "Decrypt payload too short",
+        "Decrypt empty message",
+        "Decrypt long message",
+        "Decrypt unicode message",
+        "constants",
+        "Decrypt with different txtTypes",
+        "Decrypt with 32-byte secret uses first 16 bytes for AES"
+      ]
+    },
+    {
+      "id": "direct-crypto",
+      "source_path": "MeshCore/Tests/MeshCoreTests/DirectMessageCryptoTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/DirectMessageCryptoTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.crypto.DirectMessageCryptoTest",
+      "runner_name": "method()",
+      "comparison": "All nine originals preserve typed Success/MacMismatch/InvalidPayload/KeyError, UTF8/empty text, timestamp extraction and six wire constants. CryptoFixtures.assertDirect checks Success and timestamp/type/text. Corruption changes original MAC offsets2/3; short input00010203 remains InvalidPayload; invalid-key precedence uses the original24-byte payload/two-byte private/zero32 public inputs.",
+      "inputs": "Original timestamp1703123456, type0 and original Hello/Secret/Test/CJK/emoji texts; empty timestamp/type0; independent RFC7748 key pair and shared secret.",
+      "adaptations": "Fixed independently proven RFC7748 keys replace Swift randomly generated Curve25519 keys, retaining agreement and wrong-key behavior while making assertions reproducible. No claim Kotlin executes CryptoKit.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/crypto/CryptoFixtures.kt",
+        "docs/android/evidence/WP-102/message-vectors.tsv",
+        "docs/android/evidence/WP-102/vector-generation.json"
+      ],
+      "consumer": "extractTimestamp uses the same authenticated production decrypt result, not a header-only fake. Nullable invalid-UTF8 direct text is covered by IndependentMessageVectorTest; receive-log integration remains separate.",
+      "unresolved": [],
+      "methods": [
+        "Decrypt success",
+        "Decrypt wrong key",
+        "Decrypt corrupted MAC",
+        "Decrypt payload too short",
+        "Decrypt empty message",
+        "Decrypt unicode message",
+        "Extract timestamp",
+        "constants",
+        "Invalid key length"
+      ]
+    },
+    {
+      "id": "contact-paths",
+      "native_factory": "contactPaths",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/ContactDTOPathTests.swift",
+      "native_path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
+      "runner_directory": "core/model/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All nine originals retain byte-content chunks and uppercase hex, encoded hash-size/hop-count interpretation, clipping extra out-path bytes, FF flood sentinel, explicit zero-hop nonflood semantics and inbound null-versus-zero fallback. Native testContact's default FF sentinel was inspected; no null value is replaced by0.",
+      "inputs": "1A2B3C/hash1/count3;1A2B3C4D/hash2/count2;1A2BFFFF/hash1/count2;FF sentinel with nonempty bytes; outbound3/inbound5;outbound0/inbound5;flood inbound2,0,null.",
+      "adaptations": "Immutable Bytes/SnapshotList and RadioId replace Data/Swift value collections; Kotlin equality is byte-content equality. Dynamic sourceCases preserves the complete original display identity.",
+      "helpers": [
+        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt"
+      ],
+      "consumer": "displayedHopCount is the node-detail path summary contract; pathNodesHex delegates to the same pathHops byte chunks. UI actions remain separately reviewed.",
+      "unresolved": [],
+      "methods": [
+        "Single-byte hops chunk into one (data, hex) pair each",
+        "Multi-byte hops chunk by the encoded hash size",
+        "Hops ignore bytes beyond the encoded path length",
+        "A flood-routed contact has no hops",
+        "Displayed hops use the out-path count when a route is set, ignoring inbound",
+        "A set out-path of zero hops displays zero, not the inbound fallback",
+        "A flood-routed contact falls back to the inbound advert hops",
+        "An inbound zero is a real value, not nil",
+        "Flood-routed with no inbound reception has no displayed hops"
+      ]
+    },
+    {
+      "id": "message-paths",
+      "native_factory": "messagePaths",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift",
+      "native_path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
+      "runner_directory": "core/model/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All four originals retain single/multibyte byte-content chunks and uppercase hex. Unlike contact clipping, a message's trailing partial hop stays a short final chunk. Null pathNodes produces no hops; native testMessage defaults were inspected rather than inferred from the family name.",
+      "inputs": "1A2B3C/hash1/count3;1A2B3C4D/hash2/count2;1A2B3C/hash2/count1 retains3C;null pathNodes/hash1/count0.",
+      "adaptations": "Immutable Bytes/SnapshotList replace Data and Swift arrays; sourceCases lambda registration preserves the original identity.",
+      "helpers": [
+        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt"
+      ],
+      "consumer": "Message pathHops/pathNodesHex feed message details. Contact and message route truncation policies must remain distinct.",
+      "unresolved": [],
+      "methods": [
+        "Single-byte hops chunk into one (data, hex) pair each",
+        "Multi-byte hops chunk by the encoded hash size",
+        "A trailing partial hop is kept as a short final chunk",
+        "A message with no path nodes has no hops"
+      ]
+    },
+    {
+      "id": "device-client-repeat",
+      "native_factory": "clientRepeat",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Models/DeviceDTOClientRepeatTests.swift",
+      "native_path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
+      "runner_directory": "core/model/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All eighteen originals retain radioID/id default identity, firmware8/9/10 threshold, location-policy0/1/2, immutable copy retention/optional-null clearing, four-field pre-repeat completeness and save/clear transitions. Updating from SelfInfo retains clientRepeat/pre-repeat fields while replacing current radio params/name.",
+      "inputs": "Original selfInfo906.875MHz/250kHz/SF11/CR8/UpdatedNode; preRepeat915000/250000/8/5; isolated optional preRepeatFrequency915000; autoAddConfig0F.",
+      "adaptations": "Named immutable copy replaces the Swift copy mutation closure. RadioId wraps the same UUID. TestValues.testSelfInfo preserves source radio units. Existing carry-forward test derives pre-repeat SF10 from native helper defaults rather than the original SF8; WP-501 DeviceRepeatAcceptanceTest separately executes the exact original915000/250000/8/5 family and verifies both retained fields and unchanged original DTO.",
+      "helpers": [
+        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DeviceRepeatAcceptanceTest.kt"
+      ],
+      "consumer": "These DTO transitions are the reconnect/client-repeat/settings policy inputs, not proof of actual radio reconfiguration. That integration and hardware remain separate.",
+      "unresolved": [],
+      "methods": [
+        "helper defaults radioID to id",
+        "supportsClientRepeat returns true for firmware v9",
+        "supportsClientRepeat returns false for firmware v8",
+        "supportsClientRepeat returns true for firmware v10",
+        "sharesLocationPublicly is false for policy none",
+        "sharesLocationPublicly is true for policy share",
+        "sharesLocationPublicly is true for policy prefs",
+        "copy mutates only specified fields",
+        "copy can set optional fields to nil",
+        "copy can update multiple fields at once",
+        "savingPreRepeatSettings copies current radio params",
+        "savingPreRepeatSettings preserves other fields",
+        "clearingPreRepeatSettings sets all preRepeat fields to nil",
+        "hasPreRepeatSettings requires all four fields",
+        "hasPreRepeatSettings returns false when all nil",
+        "updating(from: SelfInfo) carries forward clientRepeat",
+        "updating(from: SelfInfo) carries forward preRepeat settings",
+        "updating(from: SelfInfo) updates radio params from SelfInfo"
+      ]
+    },
+    {
+      "id": "firmware-comparison",
+      "native_factory": "firmwareVersions",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Models/FirmwareVersionComparisonTests.swift",
+      "native_path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
+      "runner_directory": "core/model/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All three declarations preserve every literal string and target major/minor pair, including first-version CLI banner handling and malformed false outcomes. Native loop grouping is an equivalent execution shape, not a skipped string family.",
+      "inputs": "v1.15.0/1.15/v1.15/v1.15.0-abc true and v1.14.1/1.14 false at1.15; MeshCore v1.15.0 (2025-04-18) true at1.15 and1.14, v1.14.1 false at1.15; MeshCore/empty/v1 false at1.0.",
+      "adaptations": "Kotlin loops consolidate assertions without replacing input strings or predicates.",
+      "helpers": [
+        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt"
+      ],
+      "consumer": "Firmware feature gates use first major/minor, not lexicographic strings. Runtime feature admission is not inferred from these pure functions.",
+      "unresolved": [],
+      "methods": [
+        "bare and v-prefixed versions compare on major minor",
+        "CLI ver banner compares on the first major minor",
+        "unparseable strings are not at least any version"
+      ]
+    },
+    {
+      "id": "channel-frame-budget",
+      "native_factory": "protocolLimits",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/Models/ProtocolLimitsTests.swift",
+      "native_path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
+      "runner_directory": "core/model/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All three declarations retain exact nine-block cap139, available lengths133/106/0 for name-byte counts4/31/200 and actual regional1-hop frame sizes157/173 against172/176. Native literals preserve the source constants' values; no lower cap or Unicode-character count substitutes for UTF8 bytes.",
+      "inputs": "Composed139 and147, transport codes enabled, one path byte, name byte counts4/31/200.",
+      "adaptations": "Int/Long widening is lossless for these nonnegative byte budgets.",
+      "helpers": [
+        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt"
+      ],
+      "consumer": "Composer byte-budget and repeat/log framing depend on this contract; actual send pipeline evidence remains separately required.",
+      "unresolved": [],
+      "methods": [
+        "composed cap is the last 9-block size",
+        "Region 1-hop at the cap fits a 172-byte companion frame",
+        "Region 1-hop at 147 overflows 172 and still fits 176"
+      ]
+    },
+    {
+      "id": "node-location",
+      "native_factory": "nodeLocations",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/NodeLocationFixTests.swift",
+      "native_path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
+      "runner_directory": "core/model/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All four declarations retain first usable GPS selection after a temperature point, exact37.7749/-122.4194 coordinate,0/0 sentinel rejection,999/999 range rejection and absence of GPS. Native GPS channel1 rather than source channel2 is immaterial to primaryFix, which selects by GPS type/coordinate; this difference is disclosed rather than mistaken for exact input equality.",
+      "inputs": "Temperature21.5 then GPS37.7749/-122.4194; GPS0/0; GPS999/999; temperature-only.",
+      "adaptations": "GPS channel number in the mixed-type case changes2 to1; observable primaryFix semantics are independent of channel. CoreLocation is replaced by native coordinate validation without OS/GPS calls.",
+      "helpers": [
+        "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt"
+      ],
+      "consumer": "Map/node location consumers must distinguish null fix from a real coordinate; these pure cases do not certify device GPS permission/hardware.",
+      "unresolved": [],
+      "methods": [
+        "Primary fix is the first valid GPS point",
+        "A (0,0) fix is dropped",
+        "An out-of-range fix is dropped",
+        "No GPS point yields no fix"
+      ]
+    }
+  ]
+}
