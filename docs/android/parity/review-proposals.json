@@ -5,6 +5,174 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "event-public-session-filter-registration-flood-and-teardown",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Both originals subscribe through actual MeshCoreSession.events(anyAcknowledgement) before collection. Advertisement1/ACK10203040/trip500/advertisement2 returns only the exact ACK. Five hundred i%256 nonmatching advertisements, five times100slot capacity, cannot evict ACKABCDEF12/trip1234. Actual public-session generation, PacketParser and dispatcher are used, not just a standalone dispatcher. Stop drains queued ACK and terminates collection; exactly one startup write asserts no accidental contact-refresh command.",
+      "inputs": "Exact source ACK bytes, UInt32 trips500/1234, nonmatching event type, ordering, source default session5seconds/MeshCore-Swift and500count retained. Source dispatchForTesting admits one-byte advertisement keys; independent existing dispatcher tests retain those exact short keys. The public native receive route instead pads each original one-byte key with31zero bytes because real wire Advertisement requires32bytes. Literal80/82 and JDK LE encode independently, not candidate PacketBuilder. SelfInfo58byte valid minimal startup is supplemental, not an original startup assertion.",
+      "adaptations": "Frozen test-only event injection is internal to Swift. The native public seam deliberately goes through mock transport/actual parser and therefore needs startup plus a valid32byte advertisement frame. Predicate only inspects event case, not key length; exact short-key dispatcher tests are retained and explicitly listed as supporting assertions, not claimed changed wire expectations. Whole terminated list equality strengthens original first-only check. Virtual scheduler replaces wall time; no consumer runs while500events dispatch.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt"
+      ],
+      "consumer": "Read complete frozen dispatcher/filter/session.events bodies and actual native eventsTracked/receive/end-generation. Eager registration binds current generation before collection; filter runs before bounded queue insertion. Stop finishes current generation streams while retaining queued data; later generations get distinct dispatchers. This does not prove all lifecycle/reconnect or physical ACK delivery families.",
+      "unresolved": ["Both new methods await actual execution and independent adaptation review; original exact short-key direct-dispatch identities must also execute as support evidence."],
+      "methods": [
+        "filtered subscription receives only matching events",
+        "filtered subscription survives flood of non-matching events"
+      ]
+    },
+    {
+      "id": "event-login-factories-complete-original-prefixes",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Original LoginInfo permissions1/adminfalse/prefixDEADBEEF0102 matches anyLoginSuccess, which rejects nil loginFailed/OK. Original failed prefixAABB andnil match anyLoginFailed, which rejects original permissions0/adminfalse/six-byte prefix success andOK. All seven boolean assertions retained with exact original prefix inputs.",
+      "inputs": "Source six-byte DEADBEEF0102 is explicit independent literal. Existing factory tests used unrelated one-byte01 success prefix; this owned method fills the exact input family rather than promoting that variant.",
+      "adaptations": "Two originals share one JUnit4 method; count one actual runner. No missing prefix is silently filled and no login command or authentication backend is introduced.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt"
+      ],
+      "consumer": "Actual filters match sealed event case regardless of prefix but preserve original payload object; tested rejects prevent success/failure/OK conflation. Actual login firmware command outcomes remain separately audited.",
+      "unresolved": ["New method awaits execution and independent review; predecessor prefix difference is an acceptance input gap, not a proven product defect."],
+      "methods": [
+        "anyLoginSuccess matches .loginSuccess and rejects unrelated events",
+        "anyLoginFailed matches .loginFailed and rejects unrelated events"
+      ]
+    },
+    {
+      "id": "event-rx-advertisement-and-message-factories",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+      "runner_name": "method()",
+      "native_method_overrides": {
+        "rxLogData matches .rxLogData and rejects unrelated events": "RF log filter matches only RF logs",
+        "anyAdvertisement matches .advertisement and rejects unrelated events": "Any advertisement matches all senders and rejects unrelated events",
+        "anyContactMessage matches .contactMessageReceived and rejects unrelated events": "Any contact message matches only direct receipts",
+        "anyChannelMessage matches .channelMessageReceived and rejects unrelated events": "Any channel message matches only channel text receipts"
+      },
+      "comparison": "All4 source input/assertion families retained: rx log6/-72/raw00/flood/text/version0/bits2/niltransport/zero path/empty payload; AABB/FF advertisements accepted with OK/error1 rejects; contact0102/path0/type0/hello/nilsig/SNR accepted with AA/OK rejects; channel3/path0/type0/hi/nilSNR accepted with AA/noMore rejects. Native additionally rejects channel datagram, keeping channel binary separate from text receipt.",
+      "inputs": "Read complete actual contactMessage/channelMessage helper bodies. All source literals remain except current Date becomes deterministic Instant.EPOCH. Timestamp is not accessed by predicates; this is explicit adaptation, not proof of timestamp preservation.",
+      "adaptations": "Four explicit display renames bind actual annotated methods. Kotlin sealed cases/unsigned fields replace Swift enum matching; no source declaration is inferred from a header.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt"
+      ],
+      "consumer": "Actual event case predicates feed dispatcher subscription filtering before buffering. Contact/channel-message factory assertions test text receipt variants, not arbitrary content/storage/rendering.",
+      "unresolved": ["Exact4 runner identities await current candidate execution; independent review remains required."],
+      "methods": [
+        "rxLogData matches .rxLogData and rejects unrelated events",
+        "anyAdvertisement matches .advertisement and rejects unrelated events",
+        "anyContactMessage matches .contactMessageReceived and rejects unrelated events",
+        "anyChannelMessage matches .channelMessageReceived and rejects unrelated events"
+      ]
+    },
+    {
+      "id": "event-any-acknowledgement-positive-negative-payload-families",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+      "runner_name": "method()",
+      "native_method_overrides": {
+        "matches .acknowledgement regardless of code": "Any acknowledgement matches regardless of code",
+        "does not match non-acknowledgement events": "Any acknowledgement rejects all unrelated cases"
+      },
+      "comparison": "Both original declarations retain code01020304/trip100 and FFEEDDCC/niltrip positives and OKnil/error42/advertAA negatives. Code lengths, signed-high bytes and optional trip remain exact independent literals.",
+      "inputs": "Actual EventFilterTest bodies contain the original payloads directly; matching neither compares code nor requires trip. No expected code is derived from parser output.",
+      "adaptations": "Explicit two display renames and UByte/UInt native types; no source assertion/parameter family is dropped.",
+      "helpers": ["android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt"],
+      "consumer": "Any ACK filter is used by persistent session listeners and public subscription acceptance; filtering before capacity protects receipt from unrelated events. This factory test is not an ACK wire/parser proof.",
+      "unresolved": ["Exact2 runner identities await current candidate execution and independent review."],
+      "methods": ["matches .acknowledgement regardless of code", "does not match non-acknowledgement events"]
+    },
+    {
+      "id": "event-slow-consumer-overflow-drop-observability",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.event.EventDispatcherTest",
+      "runner_name": "method()",
+      "native_method_overrides": {
+        "droppedEventCount increments when a slow consumer overflows the buffer": "Slow consumer preserves latest 100 with exact counted and observed oldest drops"
+      },
+      "comparison": "Source eager unfiltered tracked subscription holds200advertisements keys0..199 without consuming. Native exact same source byte family requires100drops (stronger than source >=100), every monotonic1..100 diagnostic count/subscription ID/advertisement case, and surviving latest100..199 in order after explicit finish.",
+      "inputs": "Actual source100buffer/200events retained, not lowered capacity. Native Bytes.of handles0..199 unsigned correctly; no modulo adaptation required for this family.",
+      "adaptations": "Injected diagnostic observer replaces OSLog/signposts without logging sensitive keys. Finished explicit queue allows complete retained data assertion; source only keeps stream alive and reads count. Swift actor serialization becomes locked queue/dispatcher; no SharedFlow conflation of data.",
+      "helpers": ["android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt"],
+      "consumer": "Read actual locked offer removes only oldest at100capacity; filter is evaluated first; finish drains queue and consumer cancellation discards without false overflow. Other11 native concurrency/cancel/teardown cases supplement but are not additional original declarations.",
+      "unresolved": ["Exact native identity awaits current candidate execution; OS logging output and general lifecycle review remain separate."],
+      "methods": ["droppedEventCount increments when a slow consumer overflows the buffer"]
+    },
+    {
+      "id": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+      "runner_name": "method()",
+      "native_method_overrides": {
+        "All six firmware sub-codes map to the matching ErrorCode": "All six firmware subcodes retain original typed and raw error accessors",
+        "Unknown or out-of-range bytes yield a nil typed code but keep the raw value": "Every unknown byte has null typed error but unchanged raw value",
+        "A missing sub-code byte yields a nil typed code": "A missing subcode retains its attribute entry and null typed code",
+        "Non-error events have no typed error code": "Nonerror cases never gain a device error code",
+        "deviceErrorCode is nil for non-deviceError MeshCoreError cases": "Nonerror cases never gain a device error code"
+      },
+      "comparison": "Five declarations retain all original assertions: explicit raw1..6 canonical unsupported/notfound/full/badstate/fileIO/illegal enum values through ErrorCode/Event.Error/DeviceError, unknown0/99 remains raw/niltyped, nilsubcode stays nil, OKnil/noMore no typedcode, Timeout/deviceError7 no typedcode. Native exhausts unknown0/7..255 and checks raw attribute; it does not map unknown to a known fallback.",
+      "inputs": "Read six explicit native expected enum constants paired via index+1; all6 original parameter rows are covered by one loop, not six fabricated discovered tests. Unknown99 is actually in7..255. Two nonerror original declarations share one actual method; five families bind four runner identities.",
+      "adaptations": "Swift ErrorCode(rawValue:) becomes explicit fromRawValue with UByte raw preservation. Optional typed accessors stay null for unmodeled bytes; no silent success-shaped error conversion.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/MeshCoreException.kt"
+      ],
+      "consumer": "Actual typed accessors delegate to canonical rawcode mapping; asynchronous command query/simple consumer raises DeviceError with same raw byte. App localization/UX error recovery are separate consumer families, not asserted by canonical enum tests.",
+      "unresolved": ["Exact4 runner identities await current candidate execution and independent review."],
+      "methods": [
+        "All six firmware sub-codes map to the matching ErrorCode",
+        "Unknown or out-of-range bytes yield a nil typed code but keep the raw value",
+        "A missing sub-code byte yields a nil typed code",
+        "Non-error events have no typed error code",
+        "deviceErrorCode is nil for non-deviceError MeshCoreError cases"
+      ]
+    },
+    {
+      "id": "event-real-error-frame-dispatch-to-canonical-accessor",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Source exact RESP_CODE_ERR01/illegalArgument06 frame parsed through actual PacketParser yields typed ILLEGAL_ARGUMENT. Native additionally requires Error case and preserved raw06 instead of trusting a direct constructed-event accessor.",
+      "inputs": "Literal independent0106 frame, not candidate ResponseCode/ErrorCode encoder. Predecessor EventPayloadTest covered direct accessors but omitted this source parser-consumer body.",
+      "adaptations": "One original declaration binds one JUnit4 method; native strengthens typed accessor-only expectation with case/rawbyte assertions.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt"
+      ],
+      "consumer": "Actual response01 dispatch keeps nullable raw byte and typed accessor maps06 only. Does not certify all malformed error frames or higher-level error UI.",
+      "unresolved": ["New method awaits execution and independent review; predecessor missing parser assertion is an acceptance gap, not a demonstrated product defect."],
+      "methods": ["PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code"]
+    },
+    {
       "id": "roundtrip-exact-contact-and-negative-boundary-input-acceptance",
       "source_path": "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift",
       "partial_source_file": true,
@@ -22,7 +190,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
       ],
       "consumer": "Read frozen RoundTrip declarations and real source/native Contact/SelfInfo/ContactMessage parsers. Contact mode3 is rejected before path slicing,55byte selfInfo before fixed-width reads, and signed message only accepts four signature bytes. Complete contact retains last advertisement/modification seconds rather than confusing outgoing147byte reserved tail with incoming147byte lastMod. These parser assertions do not certify storage/rendering of every message.",
-      "unresolved": ["The new required method awaits exact-candidate execution and independent semantic review; predecessor input/size omissions are acceptance gaps, not proven product defects."],
+      "unresolved": ["At exact9862024a2a31bed227f6bb98cd19f5f2cbdbd35c this required method passed within34appcases (all30owned+4repair),0failure/error/skip. Hosted exact-head and independent semantic review remain required; predecessor input/size omissions are acceptance gaps, not proven product defects."],
       "methods": [
         "Contact round trip",
         "Contact rejects reserved path length encoding",
@@ -49,7 +217,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketSize.kt"
       ],
       "consumer": "Read full frozen field declarations, shared native helpers and source/native SelfInfo/DeviceInfo parsers. v9 consumes repeat only after79byte fixed block; v10 consumes mode only when a byte exists, never shifting string fields. SelfInfo bit shifts preserve environment/location/base0/1/2. Session firmware guards consume actual capability version/mode; these valid frame families do not prove every unsupported firmware guard or UI capability state.",
-      "unresolved": ["Exact8 current-native identities must be observed; unasserted malformed UTF8/platform consumer behavior remains separate."],
+      "unresolved": ["All8 exact identities passed at9862024a within138protocolcases,0failure/error/skip. Hosted/independent review and unasserted malformed UTF8/platform consumer behavior remain separate."],
       "methods": [
         "SelfInfo round trip",
         "SelfInfo negative TX power round trip",
@@ -79,7 +247,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/ParserText.kt"
       ],
       "consumer": "Read source/native ContactMessage/ChannelMessage/ChannelInfo parsing and byte minimums. A complete empty broadcast is not NoMoreMessages; original text and sender/channel routing remain populated. Before-null invalidUTF8 differs from after-null garbage. These raw protocol values alone do not certify process timeline, unread/reply/reaction or localization consumption; those original families remain separate work.",
-      "unresolved": ["Exact7 current-native identities must be observed; arbitrary malformed UTF8 segmentation differences are not passed from this single FF byte."],
+      "unresolved": ["All7 exact identities passed at9862024a within138protocolcases,0failure/error/skip. Hosted/independent review remain required; arbitrary malformed UTF8 segmentation differences are not passed from this single FF byte."],
       "methods": [
         "ContactMessage v3 round trip",
         "ChannelMessage v3 round trip",
@@ -112,7 +280,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/DevicePayloads.kt"
       ],
       "consumer": "Read actual original status/stats/range/variable input and native helpers/parsers. Optional receiveErrors is a trailing UInt32, not rxAirtime; legacy defaults are separately asserted. Range order is preserved without sorting; customvariables splits firstcolon and ignores no tested valid pairs. These parser assertions do not certify live telemetry presentation or all malformed/truncated scalar families.",
-      "unresolved": ["Exact7 current-native identities must be observed; helper-body execution requires actual exact testcase discovery, not just generated byte bindings."],
+      "unresolved": ["All7 exact identities, including actual checked packetStats calls, passed at9862024a within138protocolcases,0failure/error/skip. Hosted and independent review remain required; generated byte bindings alone are not execution."],
       "methods": [
         "StatusResponse round trip",
         "CoreStats round trip",
@@ -142,7 +310,7 @@
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/ParserTestSupport.kt"
       ],
       "consumer": "Actual BE quantization and signed decoder are inspected in the companion LPP group. Roundtrip value/type/order is not proof against two mutually consistent wire errors, so independent Python/source byte evidence remains separate and required. Mock/radio/physical telemetry is not inferred.",
-      "unresolved": ["Exact5 current-native identities must be observed; no independent golden or extra original count is manufactured from roundtrips."],
+      "unresolved": ["All5 exact identities passed at9862024a within138protocolcases,0failure/error/skip. Hosted/independent review remain required; no independent golden or extra original count is manufactured from roundtrips."],
       "methods": [
         "LPP encoder/decoder temperature round trip",
         "LPP encoder/decoder GPS round trip",
@@ -171,7 +339,7 @@
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/NewCommandsTest.kt"
       ],
       "consumer": "Read frozen PacketBuilder scaledRadioValue/epochSeconds32/setRadio and actual native implementations. Packet building is not actual remote RF reconfiguration; no admin action is sent to a physical radio. High-level settings confirmation/error/cancellation remains separate from builder byte equality.",
-      "unresolved": ["Exact8 current-native identities await the next scoped protocol selection; prior selected126cases did not include this class."],
+      "unresolved": ["All8 exact identities passed at9862024a within138protocolcases,0failure/error/skip, after adding ContactAndRadioCommandsTest to scoped selection. Hosted/independent review remain required; earlier126cases did not include this class."],
       "methods": [
         "setRadio with repeat appends byte",
         "setRadio without repeat no extra byte",
@@ -343,7 +511,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
       ],
       "consumer": "Read frozen PacketBuilder updateContact, saturation helpers, MeshCoreSession+Contacts publicupdate/changeFlags/addContact and actual native builder/legacyContactFrame/simple exchange. Full-contact add uses147bytes/threezero reserved bytes; legacy change flags retains144bytes and no lastModified in both, so wire shape is not conflated. NaN coordinates clamp0, longitude200 clamps180 and negative date clamps0. Test-only MockTransport does not authorize or certify remote radio reconfiguration.",
-      "unresolved": ["Both new required methods passed at exactc8237db2ae342d969d0d5118ba68491609a13597 within33app cases (all29 required identities plus4 repair methods),0failure/error/skip. Hosted exact-head and independent source/assertion review remain required; predecessor input omissions are acceptance gaps, not an established product defect."],
+      "unresolved": ["Both new methods passed at c8237db2 within33app cases,0failure/error/skip. Coordinator's actual bounded immutable c8237db2 read found no blocking mismatch in these4 original families/checked-helper wiring, with full147/public144 separation and exact source public inputs. It is not whole474family approval, LPP/V112 completion, hosted execution or general Unicode-name proof. Hosted exact-head and remaining independent review remain required."],
       "methods": [
         "updateContact produces 147 bytes",
         "updateContact correct layout",

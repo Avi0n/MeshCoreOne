@@ -56,6 +56,7 @@ FIXED_INPUTS = (
     "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
     "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
     "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt",
+    "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
     "docs/android/parity/coverage-policy.json", "docs/android/parity/accounting.json",
     "docs/android/parity/review-proposals.json", "docs/android/parity/review-bindings.json",
 )

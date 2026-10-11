@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "788dab17e847d0ddf26d8d5f26e5c847476f61df80871c8a08e0900fa4cde666",
+  "proposal_sha256": "187e6a607ee18c5ee97f0adfc20654be9dca007d0577225a7b8ca254cd625f91",
   "families": [
     {
       "group": "backup-envelope",
@@ -56481,6 +56481,2640 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "event-slow-consumer-overflow-drop-observability",
+      "comparison_sha256": "b2b3b09b1419e185e75183aa8438252d0617c6306aa0471a30962d7d02a18b82",
+      "source_file_family_count": 1,
+      "group_compared_family_count": 1,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+      "source_blob_sha": "c9bfec91329df22624041f50496a63f86ad45e3d",
+      "case_id": "EventDispatcherDropTests::droppedEventCount increments when a slow consumer overflows the buffer()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "96ae49590cb8581c0f1362f668b0f296c78ec80681c7cfeffa63e9566b7bffdb",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(await dispatcher.droppedEventCount >= 100)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+        "sha256": "fbbb1ec45b9b6ffaf1749c2eb318b0e2b5e9c83c21f0a6fa7ced0b7d3b7c2ef5",
+        "class": "com.meshcoreone.android.core.protocol.event.EventDispatcherTest",
+        "method_or_family_name": "Slow consumer preserves latest 100 with exact counted and observed oldest drops",
+        "line": 27,
+        "end_line": 37,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "13cadea99c540a8f2d6167a961051f43b3961c17875094dd71407caf806a8382",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 32,
+            "expression": "assertEquals(100L, dispatcher.droppedEventCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 33,
+            "expression": "assertEquals((1L..100L).toList(), drops.map { it.totalDroppedEvents })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 34,
+            "expression": "assertTrue(drops.all { it.subscriptionId == subscription.id && it.caseName == \"advertisement\" })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 36,
+            "expression": "assertEquals((100..199).map { MeshEvent.Advertisement(Bytes.of(it)) }, subscription.stream.toList())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "mutableListOf",
+            "line": 28,
+            "expression": "mutableListOf<EventDrop>()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "dispatcher.subscribeTracked",
+            "line": 30,
+            "expression": "dispatcher.subscribeTracked()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 31,
+            "expression": "repeat(200)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "dispatcher.dispatch",
+            "line": 31,
+            "expression": "dispatcher.dispatch(MeshEvent.Advertisement(Bytes.of(it)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 31,
+            "expression": "MeshEvent.Advertisement(Bytes.of(it))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 31,
+            "expression": "Bytes.of(it)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toList",
+            "line": 33,
+            "expression": "toList()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "dispatcher.finishSubscription",
+            "line": 35,
+            "expression": "dispatcher.finishSubscription(subscription.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 36,
+            "expression": "MeshEvent.Advertisement(Bytes.of(it))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 36,
+            "expression": "Bytes.of(it)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "subscription.stream.toList",
+            "line": 36,
+            "expression": "subscription.stream.toList()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/EventDispatcher.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherDropTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+          "sha256": "83683b4f22616e5e1e10d54bcb85aa13c0661b2d3e53679315b9692098ca0381"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventDispatcherTest",
+        "Slow consumer preserves latest 100 with exact counted and observed oldest drops()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-public-session-filter-registration-flood-and-teardown",
+      "comparison_sha256": "f7ad5572462e52863eeff82719ab03d41dc7b9e6e6d2adb5cbdf4b65c17a0ea8",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+      "source_blob_sha": "c87c405ef976ed64ad8ec544dc061ed31cd767ab",
+      "case_id": "EventDispatcherFilteredSubscriptionTests::filtered subscription receives only matching events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "30dd26b5d2ec19da3c1a60a95479dcbf8b104337e2016529668b1552c1819d5b",
+      "original_assertions": [
+        {
+          "name": "Issue.record",
+          "line": 22,
+          "expression": "Issue.record(\"Expected acknowledgement, got \\(String(describing: first))\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 25,
+          "expression": "#expect(code == Data([0x10, 0x20, 0x30, 0x40]))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(tripTime == 500)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+        "sha256": "8c7a30cf03af70139f6f116c2789e9803fcf8c439513264202cddda7e675cb41",
+        "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "method_or_family_name": "publicSessionFiltersBeforeCollectionAndEndsOnStop",
+        "line": 29,
+        "end_line": 45,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "d9dfc12760d05e0570afd2c9e7004844ed9fa03b9ba3d19ba5681a86422d7805",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 40,
+            "expression": "assertEquals(listOf(MeshEvent.Acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500u)), stream.toList())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 41,
+            "expression": "assertEquals(\"Filtering must not trigger extra commands\", 1, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 30,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 31,
+            "expression": "MeshCoreSession(transport, clock = publicSessionClock(), coroutineContext = backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 31,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.events",
+            "line": 32,
+            "expression": "session.events(EventFilter.anyAcknowledgement)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startWireSession",
+            "line": 34,
+            "expression": "startWireSession(session, transport)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 35,
+            "expression": "transport.simulateReceive(advertisement(1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advertisement",
+            "line": 35,
+            "expression": "advertisement(1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 36,
+            "expression": "transport.simulateReceive(acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "acknowledgement",
+            "line": 36,
+            "expression": "acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 36,
+            "expression": "Bytes.of(0x10, 0x20, 0x30, 0x40)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 37,
+            "expression": "transport.simulateReceive(advertisement(2))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advertisement",
+            "line": 37,
+            "expression": "advertisement(2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 38,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 39,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 40,
+            "expression": "listOf(MeshEvent.Acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500u))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Acknowledgement",
+            "line": 40,
+            "expression": "MeshEvent.Acknowledgement(Bytes.of(0x10, 0x20, 0x30, 0x40), 500u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 40,
+            "expression": "Bytes.of(0x10, 0x20, 0x30, 0x40)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "stream.toList",
+            "line": 40,
+            "expression": "stream.toList()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 43,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "EventDispatcherFilteredSubscriptionTests::filtered subscription receives only matching events()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "8c7a30cf03af70139f6f116c2789e9803fcf8c439513264202cddda7e675cb41"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "2ef52b7c37d69e52c2f35a41a135fddf7c26ec983f706871706988a93298360c"
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+          "sha256": "fbbb1ec45b9b6ffaf1749c2eb318b0e2b5e9c83c21f0a6fa7ced0b7d3b7c2ef5"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+          "sha256": "83683b4f22616e5e1e10d54bcb85aa13c0661b2d3e53679315b9692098ca0381"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt",
+          "sha256": "f43520d33e1f89c8a90d114de3f1994312c443c67dfe64b78e99c7a7132cdcdb"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "publicSessionFiltersBeforeCollectionAndEndsOnStop"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-public-session-filter-registration-flood-and-teardown",
+      "comparison_sha256": "f7ad5572462e52863eeff82719ab03d41dc7b9e6e6d2adb5cbdf4b65c17a0ea8",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+      "source_blob_sha": "c87c405ef976ed64ad8ec544dc061ed31cd767ab",
+      "case_id": "EventDispatcherFilteredSubscriptionTests::filtered subscription survives flood of non-matching events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b95d8958d60936a2ad96422e0583b3cf999850bd782d2d8cff2e92b6743b5f66",
+      "original_assertions": [
+        {
+          "name": "Issue.record",
+          "line": 49,
+          "expression": "Issue.record(\"filter not applied \u2014 iterator yielded a non-ACK event first. Got: \\(String(describing: event))\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 52,
+          "expression": "#expect(code == expectedCode)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 53,
+          "expression": "#expect(tripTime == 1234)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+        "sha256": "8c7a30cf03af70139f6f116c2789e9803fcf8c439513264202cddda7e675cb41",
+        "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "method_or_family_name": "publicSessionRetainsAcknowledgementAfterFiveHundredNonmatchingEvents",
+        "line": 48,
+        "end_line": 63,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "ec7ec3e3c868dadf04f75e383de6768b1f21100c8516a9ee0d457bd3d73128b3",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 58,
+            "expression": "assertEquals(listOf(MeshEvent.Acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234u)), stream.toList())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 59,
+            "expression": "assertEquals(\"Receiving the flood must not write or refresh contacts\", 1, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 49,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 50,
+            "expression": "MeshCoreSession(transport, clock = publicSessionClock(), coroutineContext = backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 50,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.events",
+            "line": 51,
+            "expression": "session.events(EventFilter.anyAcknowledgement)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startWireSession",
+            "line": 53,
+            "expression": "startWireSession(session, transport)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 54,
+            "expression": "repeat(500)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 54,
+            "expression": "transport.simulateReceive(advertisement(it % 256))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advertisement",
+            "line": 54,
+            "expression": "advertisement(it % 256)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 55,
+            "expression": "transport.simulateReceive(acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "acknowledgement",
+            "line": 55,
+            "expression": "acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 55,
+            "expression": "Bytes.of(0xab, 0xcd, 0xef, 0x12)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 56,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 57,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 58,
+            "expression": "listOf(MeshEvent.Acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234u))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Acknowledgement",
+            "line": 58,
+            "expression": "MeshEvent.Acknowledgement(Bytes.of(0xab, 0xcd, 0xef, 0x12), 1234u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 58,
+            "expression": "Bytes.of(0xab, 0xcd, 0xef, 0x12)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "stream.toList",
+            "line": 58,
+            "expression": "stream.toList()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 61,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "EventDispatcherFilteredSubscriptionTests::filtered subscription survives flood of non-matching events()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+          "sha256": "8c7a30cf03af70139f6f116c2789e9803fcf8c439513264202cddda7e675cb41"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "2ef52b7c37d69e52c2f35a41a135fddf7c26ec983f706871706988a93298360c"
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
+          "sha256": "fbbb1ec45b9b6ffaf1749c2eb318b0e2b5e9c83c21f0a6fa7ced0b7d3b7c2ef5"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+          "sha256": "83683b4f22616e5e1e10d54bcb85aa13c0661b2d3e53679315b9692098ca0381"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt",
+          "sha256": "f43520d33e1f89c8a90d114de3f1994312c443c67dfe64b78e99c7a7132cdcdb"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "publicSessionRetainsAcknowledgementAfterFiveHundredNonmatchingEvents"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-any-acknowledgement-positive-negative-payload-families",
+      "comparison_sha256": "77fd8e3b3458c3ddda6742226d6a033f8084288c86ae90a728923e0d3ea0219e",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+      "source_blob_sha": "cbf5470fc9f3b4ed91f8941ea06149925f589030",
+      "case_id": "EventFilterAnyAcknowledgementTests::does not match non-acknowledgement events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "68dcea6ed76f8b3a4467dbfd0fea70547dbdb0d8f36ef5f8419a373159479fd9",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 23,
+          "expression": "#expect(!filter.matches(.error(code: 42)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+        "class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "method_or_family_name": "Any acknowledgement rejects all unrelated cases",
+        "line": 26,
+        "end_line": 30,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "99c696077a3ca93235d3170b9b21158d1d2ce640152d736e6a38b96cf3fa75b1",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertFalse",
+            "line": 27,
+            "expression": "assertFalse(EventFilter.anyAcknowledgement.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 28,
+            "expression": "assertFalse(EventFilter.anyAcknowledgement.matches(MeshEvent.Error(42u)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 29,
+            "expression": "assertFalse(EventFilter.anyAcknowledgement.matches(MeshEvent.Advertisement(Bytes.of(0xaa))))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "EventFilter.anyAcknowledgement.matches",
+            "line": 27,
+            "expression": "EventFilter.anyAcknowledgement.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 27,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyAcknowledgement.matches",
+            "line": 28,
+            "expression": "EventFilter.anyAcknowledgement.matches(MeshEvent.Error(42u))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Error",
+            "line": 28,
+            "expression": "MeshEvent.Error(42u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyAcknowledgement.matches",
+            "line": 29,
+            "expression": "EventFilter.anyAcknowledgement.matches(MeshEvent.Advertisement(Bytes.of(0xaa)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 29,
+            "expression": "MeshEvent.Advertisement(Bytes.of(0xaa))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 29,
+            "expression": "Bytes.of(0xaa)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "Any acknowledgement rejects all unrelated cases()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-any-acknowledgement-positive-negative-payload-families",
+      "comparison_sha256": "77fd8e3b3458c3ddda6742226d6a033f8084288c86ae90a728923e0d3ea0219e",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+      "source_blob_sha": "cbf5470fc9f3b4ed91f8941ea06149925f589030",
+      "case_id": "EventFilterAnyAcknowledgementTests::matches .acknowledgement regardless of code()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "83fb7fcc5a5062c6548e84efe795f713613ac6f82cbd3e12a1a78160becad505",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 14,
+          "expression": "#expect(filter.matches(a))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 15,
+          "expression": "#expect(filter.matches(b))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+        "class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "method_or_family_name": "Any acknowledgement matches regardless of code",
+        "line": 20,
+        "end_line": 23,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "019ad1a6f80900ac542f75e48e374519ece620c8d47a09ee4d15c6cc10490e18",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 21,
+            "expression": "assertTrue(EventFilter.anyAcknowledgement.matches(MeshEvent.Acknowledgement(Bytes.of(1, 2, 3, 4), 100u)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 22,
+            "expression": "assertTrue(EventFilter.anyAcknowledgement.matches(MeshEvent.Acknowledgement(Bytes.of(255, 238, 221, 204))))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "EventFilter.anyAcknowledgement.matches",
+            "line": 21,
+            "expression": "EventFilter.anyAcknowledgement.matches(MeshEvent.Acknowledgement(Bytes.of(1, 2, 3, 4), 100u))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Acknowledgement",
+            "line": 21,
+            "expression": "MeshEvent.Acknowledgement(Bytes.of(1, 2, 3, 4), 100u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 21,
+            "expression": "Bytes.of(1, 2, 3, 4)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyAcknowledgement.matches",
+            "line": 22,
+            "expression": "EventFilter.anyAcknowledgement.matches(MeshEvent.Acknowledgement(Bytes.of(255, 238, 221, 204)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Acknowledgement",
+            "line": 22,
+            "expression": "MeshEvent.Acknowledgement(Bytes.of(255, 238, 221, 204))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 22,
+            "expression": "Bytes.of(255, 238, 221, 204)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "Any acknowledgement matches regardless of code()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-rx-advertisement-and-message-factories",
+      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 4,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyAdvertisement matches .advertisement and rejects unrelated events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "a3232d8b10701df32cb16fae015692fd64d725fe78944c05e23d73e633368c29",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 37,
+          "expression": "#expect(filter.matches(.advertisement(publicKey: Data([0xAA, 0xBB]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 38,
+          "expression": "#expect(filter.matches(.advertisement(publicKey: Data([0xFF]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 39,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 40,
+          "expression": "#expect(!filter.matches(.error(code: 1)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+        "class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "method_or_family_name": "Any advertisement matches all senders and rejects unrelated events",
+        "line": 44,
+        "end_line": 49,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "5e9de185a51ee1fb1b054186551b8b2601b97a4caae1ece90c02e538f9bb9fba",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 45,
+            "expression": "assertTrue(EventFilter.anyAdvertisement.matches(MeshEvent.Advertisement(Bytes.of(0xaa, 0xbb))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 46,
+            "expression": "assertTrue(EventFilter.anyAdvertisement.matches(MeshEvent.Advertisement(Bytes.of(0xff))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 47,
+            "expression": "assertFalse(EventFilter.anyAdvertisement.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 48,
+            "expression": "assertFalse(EventFilter.anyAdvertisement.matches(MeshEvent.Error(1u)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "EventFilter.anyAdvertisement.matches",
+            "line": 45,
+            "expression": "EventFilter.anyAdvertisement.matches(MeshEvent.Advertisement(Bytes.of(0xaa, 0xbb)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 45,
+            "expression": "MeshEvent.Advertisement(Bytes.of(0xaa, 0xbb))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 45,
+            "expression": "Bytes.of(0xaa, 0xbb)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyAdvertisement.matches",
+            "line": 46,
+            "expression": "EventFilter.anyAdvertisement.matches(MeshEvent.Advertisement(Bytes.of(0xff)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 46,
+            "expression": "MeshEvent.Advertisement(Bytes.of(0xff))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 46,
+            "expression": "Bytes.of(0xff)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyAdvertisement.matches",
+            "line": 47,
+            "expression": "EventFilter.anyAdvertisement.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 47,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyAdvertisement.matches",
+            "line": 48,
+            "expression": "EventFilter.anyAdvertisement.matches(MeshEvent.Error(1u))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Error",
+            "line": 48,
+            "expression": "MeshEvent.Error(1u)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+          "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt",
+          "sha256": "26e93004b2d167eafdcc5fb81d623b987a08ef14aa8c60ce3cfece9387dc4b5b"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "Any advertisement matches all senders and rejects unrelated events()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-rx-advertisement-and-message-factories",
+      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 4,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyChannelMessage matches .channelMessageReceived and rejects unrelated events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ae59ab85ec75772a76e7505269aebda6c2b4e9d1dc7aae4ffc1485bd1e03d0af",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 77,
+          "expression": "#expect(filter.matches(.channelMessageReceived(msg)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 78,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 79,
+          "expression": "#expect(!filter.matches(.noMoreMessages))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+        "class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "method_or_family_name": "Any channel message matches only channel text receipts",
+        "line": 59,
+        "end_line": 66,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "43fbcf49c8d1b53e2e8eae66641374fa9afe9c20ac7bd01d27040e5e0e4c616f",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 60,
+            "expression": "assertTrue(EventFilter.anyChannelMessage.matches(MeshEvent.ChannelMessageReceived(channelMessage())))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 61,
+            "expression": "assertFalse(EventFilter.anyChannelMessage.matches(MeshEvent.Advertisement(Bytes.of(0xaa))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 62,
+            "expression": "assertFalse(EventFilter.anyChannelMessage.matches(MeshEvent.NoMoreMessages))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 63,
+            "expression": "assertFalse(EventFilter.anyChannelMessage.matches(MeshEvent.ChannelDataReceived(\n            ChannelDatagram(3u, 0u, 0xffffu, Bytes.EMPTY, 1.0),\n        )))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "EventFilter.anyChannelMessage.matches",
+            "line": 60,
+            "expression": "EventFilter.anyChannelMessage.matches(MeshEvent.ChannelMessageReceived(channelMessage()))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.ChannelMessageReceived",
+            "line": 60,
+            "expression": "MeshEvent.ChannelMessageReceived(channelMessage())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "channelMessage",
+            "line": 60,
+            "expression": "channelMessage()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyChannelMessage.matches",
+            "line": 61,
+            "expression": "EventFilter.anyChannelMessage.matches(MeshEvent.Advertisement(Bytes.of(0xaa)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 61,
+            "expression": "MeshEvent.Advertisement(Bytes.of(0xaa))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 61,
+            "expression": "Bytes.of(0xaa)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyChannelMessage.matches",
+            "line": 62,
+            "expression": "EventFilter.anyChannelMessage.matches(MeshEvent.NoMoreMessages)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyChannelMessage.matches",
+            "line": 63,
+            "expression": "EventFilter.anyChannelMessage.matches(MeshEvent.ChannelDataReceived(\n            ChannelDatagram(3u, 0u, 0xffffu, Bytes.EMPTY, 1.0),\n        ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.ChannelDataReceived",
+            "line": 63,
+            "expression": "MeshEvent.ChannelDataReceived(\n            ChannelDatagram(3u, 0u, 0xffffu, Bytes.EMPTY, 1.0),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ChannelDatagram",
+            "line": 64,
+            "expression": "ChannelDatagram(3u, 0u, 0xffffu, Bytes.EMPTY, 1.0)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+          "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt",
+          "sha256": "26e93004b2d167eafdcc5fb81d623b987a08ef14aa8c60ce3cfece9387dc4b5b"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "Any channel message matches only channel text receipts()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-rx-advertisement-and-message-factories",
+      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 4,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyContactMessage matches .contactMessageReceived and rejects unrelated events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b0249be10bf2ba66da93e5478722a5791e766c6c0c4787624292aabedfd10cb4",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 58,
+          "expression": "#expect(filter.matches(.contactMessageReceived(msg)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 59,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 60,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+        "class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "method_or_family_name": "Any contact message matches only direct receipts",
+        "line": 52,
+        "end_line": 56,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "da7955775a1e21eadcb9eab2be5a8612e67ed5d64713b6ff0ebacccf8cc9cf06",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 53,
+            "expression": "assertTrue(EventFilter.anyContactMessage.matches(MeshEvent.ContactMessageReceived(contactMessage())))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 54,
+            "expression": "assertFalse(EventFilter.anyContactMessage.matches(MeshEvent.Advertisement(Bytes.of(0xaa))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 55,
+            "expression": "assertFalse(EventFilter.anyContactMessage.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "EventFilter.anyContactMessage.matches",
+            "line": 53,
+            "expression": "EventFilter.anyContactMessage.matches(MeshEvent.ContactMessageReceived(contactMessage()))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.ContactMessageReceived",
+            "line": 53,
+            "expression": "MeshEvent.ContactMessageReceived(contactMessage())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "contactMessage",
+            "line": 53,
+            "expression": "contactMessage()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyContactMessage.matches",
+            "line": 54,
+            "expression": "EventFilter.anyContactMessage.matches(MeshEvent.Advertisement(Bytes.of(0xaa)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 54,
+            "expression": "MeshEvent.Advertisement(Bytes.of(0xaa))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 54,
+            "expression": "Bytes.of(0xaa)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyContactMessage.matches",
+            "line": 55,
+            "expression": "EventFilter.anyContactMessage.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 55,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+          "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt",
+          "sha256": "26e93004b2d167eafdcc5fb81d623b987a08ef14aa8c60ce3cfece9387dc4b5b"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "Any contact message matches only direct receipts()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-login-factories-complete-original-prefixes",
+      "comparison_sha256": "28500742958663646f615de30bbfe9519b0710b142b71c24bdb3aded09e6902b",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 2,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyLoginFailed matches .loginFailed and rejects unrelated events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "26fe7181c21b17bebfdd75ace7143865d8260aff2b596f32a1b150963bdbe83c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 109,
+          "expression": "#expect(filter.matches(.loginFailed(publicKeyPrefix: Data([0xAA, 0xBB]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 110,
+          "expression": "#expect(filter.matches(.loginFailed(publicKeyPrefix: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 111,
+          "expression": "#expect(!filter.matches(.loginSuccess(info)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 112,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+        "sha256": "8c7a30cf03af70139f6f116c2789e9803fcf8c439513264202cddda7e675cb41",
+        "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "method_or_family_name": "originalLoginFiltersRetainCompleteSixBytePrefixes",
+        "line": 67,
+        "end_line": 76,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "c92f107eb4639387aef8b8be27d45fd6b47c1d5aecf60aa789baaaabcd8d4e0e",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 69,
+            "expression": "assertTrue(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 70,
+            "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 71,
+            "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 72,
+            "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 73,
+            "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 74,
+            "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 75,
+            "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes.of",
+            "line": 68,
+            "expression": "Bytes.of(0xde, 0xad, 0xbe, 0xef, 1, 2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginSuccess.matches",
+            "line": 69,
+            "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginSuccess",
+            "line": 69,
+            "expression": "MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "LoginInfo",
+            "line": 69,
+            "expression": "LoginInfo(1u, false, prefix)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginSuccess.matches",
+            "line": 70,
+            "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginFailed",
+            "line": 70,
+            "expression": "MeshEvent.LoginFailed(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginSuccess.matches",
+            "line": 71,
+            "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 71,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 72,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginFailed",
+            "line": 72,
+            "expression": "MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 72,
+            "expression": "Bytes.of(0xaa, 0xbb)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 73,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginFailed",
+            "line": 73,
+            "expression": "MeshEvent.LoginFailed(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 74,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginSuccess",
+            "line": 74,
+            "expression": "MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "LoginInfo",
+            "line": 74,
+            "expression": "LoginInfo(0u, false, prefix)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 75,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 75,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "EventFilterFactoryTests::anyLoginSuccess matches .loginSuccess and rejects unrelated events()",
+          "EventFilterFactoryTests::anyLoginFailed matches .loginFailed and rejects unrelated events()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt",
+          "sha256": "78ff241e0e5306d34f21b8d2c96800a58e67a20e8a83dddb336bd44b8f55ac3b"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "originalLoginFiltersRetainCompleteSixBytePrefixes"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-login-factories-complete-original-prefixes",
+      "comparison_sha256": "28500742958663646f615de30bbfe9519b0710b142b71c24bdb3aded09e6902b",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 2,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::anyLoginSuccess matches .loginSuccess and rejects unrelated events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f7474a7193006f90fddc2085adcf69b99ffaa4030a44f0b761671016ef601c5e",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 93,
+          "expression": "#expect(filter.matches(.loginSuccess(info)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 94,
+          "expression": "#expect(!filter.matches(.loginFailed(publicKeyPrefix: nil)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 95,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+        "sha256": "8c7a30cf03af70139f6f116c2789e9803fcf8c439513264202cddda7e675cb41",
+        "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "method_or_family_name": "originalLoginFiltersRetainCompleteSixBytePrefixes",
+        "line": 67,
+        "end_line": 76,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "c92f107eb4639387aef8b8be27d45fd6b47c1d5aecf60aa789baaaabcd8d4e0e",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 69,
+            "expression": "assertTrue(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 70,
+            "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 71,
+            "expression": "assertFalse(EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 72,
+            "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 73,
+            "expression": "assertTrue(EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 74,
+            "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 75,
+            "expression": "assertFalse(EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes.of",
+            "line": 68,
+            "expression": "Bytes.of(0xde, 0xad, 0xbe, 0xef, 1, 2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginSuccess.matches",
+            "line": 69,
+            "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginSuccess",
+            "line": 69,
+            "expression": "MeshEvent.LoginSuccess(LoginInfo(1u, false, prefix))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "LoginInfo",
+            "line": 69,
+            "expression": "LoginInfo(1u, false, prefix)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginSuccess.matches",
+            "line": 70,
+            "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.LoginFailed(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginFailed",
+            "line": 70,
+            "expression": "MeshEvent.LoginFailed(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginSuccess.matches",
+            "line": 71,
+            "expression": "EventFilter.anyLoginSuccess.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 71,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 72,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginFailed",
+            "line": 72,
+            "expression": "MeshEvent.LoginFailed(Bytes.of(0xaa, 0xbb))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 72,
+            "expression": "Bytes.of(0xaa, 0xbb)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 73,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginFailed(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginFailed",
+            "line": 73,
+            "expression": "MeshEvent.LoginFailed(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 74,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.LoginSuccess",
+            "line": 74,
+            "expression": "MeshEvent.LoginSuccess(LoginInfo(0u, false, prefix))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "LoginInfo",
+            "line": 74,
+            "expression": "LoginInfo(0u, false, prefix)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.anyLoginFailed.matches",
+            "line": 75,
+            "expression": "EventFilter.anyLoginFailed.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 75,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "EventFilterFactoryTests::anyLoginSuccess matches .loginSuccess and rejects unrelated events()",
+          "EventFilterFactoryTests::anyLoginFailed matches .loginFailed and rejects unrelated events()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt",
+          "sha256": "78ff241e0e5306d34f21b8d2c96800a58e67a20e8a83dddb336bd44b8f55ac3b"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "originalLoginFiltersRetainCompleteSixBytePrefixes"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-rx-advertisement-and-message-factories",
+      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 4,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+      "source_blob_sha": "0a43d2cb94db6ea7d4bcc7f8302f89f00b170011",
+      "case_id": "EventFilterFactoryTests::rxLogData matches .rxLogData and rejects unrelated events()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "3980058782875065baba2056d9cb243fc4cc6e0f3e19a9ea0f4091c0a94e32a8",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(filter.matches(.rxLogData(log)))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(!filter.matches(.advertisement(publicKey: Data([0xAA]))))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 28,
+          "expression": "#expect(!filter.matches(.ok(value: nil)))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+        "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b",
+        "class": "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "method_or_family_name": "RF log filter matches only RF logs",
+        "line": 33,
+        "end_line": 41,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "721ef7ba4dfdb83dbfc4b48ecc5d6923054162eb091538047ccdc323a445af81",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 38,
+            "expression": "assertTrue(EventFilter.rxLogData.matches(MeshEvent.RxLogData(log)))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 39,
+            "expression": "assertFalse(EventFilter.rxLogData.matches(MeshEvent.Advertisement(Bytes.of(0xaa))))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 40,
+            "expression": "assertFalse(EventFilter.rxLogData.matches(MeshEvent.Ok(null)))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "ParsedRxLogData",
+            "line": 34,
+            "expression": "ParsedRxLogData(\n            6.0, -72, Bytes.of(0), RouteType.FLOOD, PayloadType.TEXT_MESSAGE,\n            0u, 2u, null, 0u, emptyList(), Bytes.EMPTY,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 35,
+            "expression": "Bytes.of(0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "emptyList",
+            "line": 36,
+            "expression": "emptyList()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.rxLogData.matches",
+            "line": 38,
+            "expression": "EventFilter.rxLogData.matches(MeshEvent.RxLogData(log))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.RxLogData",
+            "line": 38,
+            "expression": "MeshEvent.RxLogData(log)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.rxLogData.matches",
+            "line": 39,
+            "expression": "EventFilter.rxLogData.matches(MeshEvent.Advertisement(Bytes.of(0xaa)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Advertisement",
+            "line": 39,
+            "expression": "MeshEvent.Advertisement(Bytes.of(0xaa))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 39,
+            "expression": "Bytes.of(0xaa)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EventFilter.rxLogData.matches",
+            "line": 40,
+            "expression": "EventFilter.rxLogData.matches(MeshEvent.Ok(null))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Ok",
+            "line": 40,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/EventFilter.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventFilterTest.kt",
+          "sha256": "b903245f2f3e61ff1d42e7b10e02adc40dca2a987f6ebe25db3d68085cd8ea2b"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt",
+          "sha256": "b378a2349d81a471bf4f2e98639133fe340618bcbba49b7fb33e663882ebb3a4"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt",
+          "sha256": "26e93004b2d167eafdcc5fb81d623b987a08ef14aa8c60ce3cfece9387dc4b5b"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventFilterTest",
+        "RF log filter matches only RF logs()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
+      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::A missing sub-code byte yields a nil typed code()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "bdabd253c0bb025ea00c0ff515df183b8ac550a8317c7910b91a9dc38a2f77d9",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 36,
+          "expression": "#expect(MeshEvent.error(code: nil).errorCode == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+        "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+        "class": "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "method_or_family_name": "A missing subcode retains its attribute entry and null typed code",
+        "line": 57,
+        "end_line": 62,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "9bcc4682f2a4f3776503eaeece7d7db10e71b19e0c1ec712ed9162d6376bde48",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 59,
+            "expression": "assertNull(event.errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 60,
+            "expression": "assertTrue(event.attributes.containsKey(\"code\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 61,
+            "expression": "assertNull(event.attributes[\"code\"])",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MeshEvent.Error",
+            "line": 58,
+            "expression": "MeshEvent.Error(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "event.attributes.containsKey",
+            "line": 60,
+            "expression": "event.attributes.containsKey(\"code\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+          "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+          "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+          "sha256": "1cb6d31f3cb89f5e7ae7fc6949c6944965599fc393cee16b9d4c4fbc00d3a6f9"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+          "sha256": "1e1452e78a4b4bff820b38792f41332bceea6936736bc9497526d34cbb391517"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/MeshCoreException.kt",
+          "sha256": "ad1780bf9fccecb58b070243a0c51a85125e314df9ec416722a0025d1f43b426"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "A missing subcode retains its attribute entry and null typed code()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
+      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::All six firmware sub-codes map to the matching ErrorCode(raw : UInt8 , expected : ErrorCode)",
+      "parameter_family": "arguments-sha256:86b5653d13992e0aea1818b3d611fe6ecc53cfb16e2b4aa2f2f76268ba9ed13c",
+      "original_declaration_sha256": "fdea800c0ac50af87cf6b0b04d4966bad4f80214f3eb18b1b58843b2f924cab2",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 16,
+          "expression": "#expect(ErrorCode(rawValue: raw) == expected)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(MeshEvent.error(code: raw).errorCode == expected)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(MeshCoreError.deviceError(code: raw).deviceErrorCode == expected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": {
+        "declaration": "@Test(arguments: [\n    (UInt8(1), ErrorCode.unsupportedCommand),\n    (UInt8(2), ErrorCode.notFound),\n    (UInt8(3), ErrorCode.tableFull),\n    (UInt8(4), ErrorCode.badState),\n    (UInt8(5), ErrorCode.fileIOError),\n    (UInt8(6), ErrorCode.illegalArgument)\n  ])",
+        "axes": [
+          {
+            "expression": "[ ( UInt8 ( 1 ) , ErrorCode . unsupportedCommand ) , ( UInt8 ( 2 ) , ErrorCode . notFound ) , ( UInt8 ( 3 ) , ErrorCode . tableFull ) , ( UInt8 ( 4 ) , ErrorCode . badState ) , ( UInt8 ( 5 ) , ErrorCode . fileIOError ) , ( UInt8 ( 6 ) , ErrorCode . illegalArgument ) ]",
+            "kind": "literal-collection",
+            "declared_rows": [
+              "( UInt8 ( 1 ) , ErrorCode . unsupportedCommand )",
+              "( UInt8 ( 2 ) , ErrorCode . notFound )",
+              "( UInt8 ( 3 ) , ErrorCode . tableFull )",
+              "( UInt8 ( 4 ) , ErrorCode . badState )",
+              "( UInt8 ( 5 ) , ErrorCode . fileIOError )",
+              "( UInt8 ( 6 ) , ErrorCode . illegalArgument )"
+            ],
+            "declared_count": 6,
+            "definition": null
+          }
+        ],
+        "combination": "collection",
+        "declared_count": 6
+      },
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+        "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+        "class": "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "method_or_family_name": "All six firmware subcodes retain original typed and raw error accessors",
+        "line": 32,
+        "end_line": 44,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "054c7b3801cf2302e25dd1b7750bf8b5aedde6faf7d18bd0dd1bc5abb5dbc8f1",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 39,
+            "expression": "assertEquals(code, ErrorCode.fromRawValue(raw))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 40,
+            "expression": "assertEquals(code, MeshEvent.Error(raw).errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 41,
+            "expression": "assertEquals(raw, MeshEvent.Error(raw).code)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 42,
+            "expression": "assertEquals(code, MeshCoreException.DeviceError(raw).deviceErrorCode)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "listOf",
+            "line": 33,
+            "expression": "listOf(\n            ErrorCode.UNSUPPORTED_COMMAND, ErrorCode.NOT_FOUND, ErrorCode.TABLE_FULL,\n            ErrorCode.BAD_STATE, ErrorCode.FILE_IO_ERROR, ErrorCode.ILLEGAL_ARGUMENT,\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 37,
+            "expression": "for ((index, code) in expected.withIndex())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "expected.withIndex",
+            "line": 37,
+            "expression": "expected.withIndex()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toUByte",
+            "line": 38,
+            "expression": "toUByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ErrorCode.fromRawValue",
+            "line": 39,
+            "expression": "ErrorCode.fromRawValue(raw)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Error",
+            "line": 40,
+            "expression": "MeshEvent.Error(raw)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Error",
+            "line": 41,
+            "expression": "MeshEvent.Error(raw)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreException.DeviceError",
+            "line": 42,
+            "expression": "MeshCoreException.DeviceError(raw)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+          "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+          "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+          "sha256": "1cb6d31f3cb89f5e7ae7fc6949c6944965599fc393cee16b9d4c4fbc00d3a6f9"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+          "sha256": "1e1452e78a4b4bff820b38792f41332bceea6936736bc9497526d34cbb391517"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/MeshCoreException.kt",
+          "sha256": "ad1780bf9fccecb58b070243a0c51a85125e314df9ec416722a0025d1f43b426"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "All six firmware subcodes retain original typed and raw error accessors()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
+      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::Non-error events have no typed error code()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "cf64fa5703ab7f8c54699c63e0bfb76e03413427f8c72f251638aa2f22d5d1be",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 41,
+          "expression": "#expect(MeshEvent.ok(value: nil).errorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 42,
+          "expression": "#expect(MeshEvent.noMoreMessages.errorCode == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+        "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+        "class": "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "method_or_family_name": "Nonerror cases never gain a device error code",
+        "line": 65,
+        "end_line": 70,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "811fd62b7fecd34465d33d0d638448c660cabc6023c3e023060412bade658668",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 66,
+            "expression": "assertNull(MeshEvent.Ok(null).errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 67,
+            "expression": "assertNull(MeshEvent.NoMoreMessages.errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 68,
+            "expression": "assertNull(MeshCoreException.Timeout().deviceErrorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 69,
+            "expression": "assertNull(MeshCoreException.DeviceError(7u).deviceErrorCode)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MeshEvent.Ok",
+            "line": 66,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreException.Timeout",
+            "line": 68,
+            "expression": "MeshCoreException.Timeout()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreException.DeviceError",
+            "line": 69,
+            "expression": "MeshCoreException.DeviceError(7u)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+          "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+          "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+          "sha256": "1cb6d31f3cb89f5e7ae7fc6949c6944965599fc393cee16b9d4c4fbc00d3a6f9"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+          "sha256": "1e1452e78a4b4bff820b38792f41332bceea6936736bc9497526d34cbb391517"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/MeshCoreException.kt",
+          "sha256": "ad1780bf9fccecb58b070243a0c51a85125e314df9ec416722a0025d1f43b426"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "Nonerror cases never gain a device error code()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-real-error-frame-dispatch-to-canonical-accessor",
+      "comparison_sha256": "76260745a0c02b82fc2b77f4bdd0107145b8892b9051141fb9bd106f47d3a3d3",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 1,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "9851572eb6967d8fb1ff936f36501b8ddc7f5c7e9680ea184919fc9e24fcf4de",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 49,
+          "expression": "#expect(event.errorCode == .illegalArgument)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
+        "sha256": "8c7a30cf03af70139f6f116c2789e9803fcf8c439513264202cddda7e675cb41",
+        "class": "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "method_or_family_name": "originalErrorFrameReachesTheTypedFirmwareAccessor",
+        "line": 79,
+        "end_line": 84,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "7c00ab4ba63ddde42c2ef83fd6668eb240ad5a5975e143490a3046009b5857c0",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 81,
+            "expression": "assertTrue(parsed is MeshEvent.Error)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 82,
+            "expression": "assertEquals(ErrorCode.ILLEGAL_ARGUMENT, parsed.errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 83,
+            "expression": "assertEquals(6u.toUByte(), (parsed as MeshEvent.Error).code)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "PacketParser.parse",
+            "line": 80,
+            "expression": "PacketParser.parse(Bytes.of(1, 6))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 80,
+            "expression": "Bytes.of(1, 6)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "u.toUByte",
+            "line": 83,
+            "expression": "u.toUByte()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/EventFilterFactoryTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MeshEventErrorCodeTests::PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt",
+          "sha256": "f43520d33e1f89c8a90d114de3f1994312c443c67dfe64b78e99c7a7132cdcdb"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+          "sha256": "1e1452e78a4b4bff820b38792f41332bceea6936736bc9497526d34cbb391517"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+          "sha256": "1cb6d31f3cb89f5e7ae7fc6949c6944965599fc393cee16b9d4c4fbc00d3a6f9"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+        "originalErrorFrameReachesTheTypedFirmwareAccessor"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
+      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::Unknown or out-of-range bytes yield a nil typed code but keep the raw value()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "aeba98cae36f0250c1b698f75551460f705e3b3a89d97add2c5e8547e2ae075c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 24,
+          "expression": "#expect(event.errorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(event99.errorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 28,
+          "expression": "#expect(code == 99)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "Issue.record",
+          "line": 30,
+          "expression": "Issue.record(\"Expected .error case to preserve the raw byte\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+        "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+        "class": "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "method_or_family_name": "Every unknown byte has null typed error but unchanged raw value",
+        "line": 47,
+        "end_line": 54,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "510857698ac789bc4ab814c1f1e9013b4c0c1faa26b1feded4fbc93e746fb5ca",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 50,
+            "expression": "assertNull(event.errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 51,
+            "expression": "assertEquals(value.toUByte(), event.code)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 52,
+            "expression": "assertEquals(value.toUByte(), event.attributes[\"code\"])",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "for",
+            "line": 48,
+            "expression": "for (value in listOf(0) + (7..255))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 48,
+            "expression": "listOf(0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshEvent.Error",
+            "line": 49,
+            "expression": "MeshEvent.Error(value.toUByte())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "value.toUByte",
+            "line": 49,
+            "expression": "value.toUByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "value.toUByte",
+            "line": 51,
+            "expression": "value.toUByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "value.toUByte",
+            "line": 52,
+            "expression": "value.toUByte()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+          "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+          "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+          "sha256": "1cb6d31f3cb89f5e7ae7fc6949c6944965599fc393cee16b9d4c4fbc00d3a6f9"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+          "sha256": "1e1452e78a4b4bff820b38792f41332bceea6936736bc9497526d34cbb391517"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/MeshCoreException.kt",
+          "sha256": "ad1780bf9fccecb58b070243a0c51a85125e314df9ec416722a0025d1f43b426"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "Every unknown byte has null typed error but unchanged raw value()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
+      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+      "source_blob_sha": "48d923a33dac403e8a330cccf9828fd0fb2b79b6",
+      "case_id": "MeshEventErrorCodeTests::deviceErrorCode is nil for non-deviceError MeshCoreError cases()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "5c1dd123aa1fb85a4ceb53d36298a00bc91d527d24c76bcdb768c390efa28a7d",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 54,
+          "expression": "#expect(MeshCoreError.timeout.deviceErrorCode == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 55,
+          "expression": "#expect(MeshCoreError.deviceError(code: 7).deviceErrorCode == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt",
+        "sha256": "441644376420ac0337aad7a3f2a3103fa9fc7f9008eb667a241548625c045778",
+        "class": "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "method_or_family_name": "Nonerror cases never gain a device error code",
+        "line": 65,
+        "end_line": 70,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "811fd62b7fecd34465d33d0d638448c660cabc6023c3e023060412bade658668",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 66,
+            "expression": "assertNull(MeshEvent.Ok(null).errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 67,
+            "expression": "assertNull(MeshEvent.NoMoreMessages.errorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 68,
+            "expression": "assertNull(MeshCoreException.Timeout().deviceErrorCode)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 69,
+            "expression": "assertNull(MeshCoreException.DeviceError(7u).deviceErrorCode)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MeshEvent.Ok",
+            "line": 66,
+            "expression": "MeshEvent.Ok(null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreException.Timeout",
+            "line": 68,
+            "expression": "MeshCoreException.Timeout()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreException.DeviceError",
+            "line": 69,
+            "expression": "MeshCoreException.DeviceError(7u)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MeshCore/Sources/MeshCore/Events/DiagnosticsPayloads.swift",
+          "MeshCore/Sources/MeshCore/Events/MeshEvent.swift",
+          "MeshCore/Sources/MeshCore/Events/RemoteAdminPayloads.swift",
+          "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift"
+        ],
+        "explicit_original_case_ids": [],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+          "sha256": "1cb6d31f3cb89f5e7ae7fc6949c6944965599fc393cee16b9d4c4fbc00d3a6f9"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MeshEvent.kt",
+          "sha256": "1e1452e78a4b4bff820b38792f41332bceea6936736bc9497526d34cbb391517"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/MeshCoreException.kt",
+          "sha256": "ad1780bf9fccecb58b070243a0c51a85125e314df9ec416722a0025d1f43b426"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.event.EventPayloadTest",
+        "Nonerror cases never gain a device error code()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "protocol-byte-padding-endian-and-grapheme-boundaries",
       "comparison_sha256": "c211b6ad2e7ef381acb3c597f270951d847678cd56bf99f1ac40d7b814f55cb7",
       "source_file_family_count": 19,
@@ -60999,7 +63633,7 @@
     },
     {
       "group": "contact-packet-distinct-source-inputs-and-public-flags-hardening",
-      "comparison_sha256": "3d84f34656c023334862cf040922e2c11bc8860ab95669a1b1645b452bee7efa",
+      "comparison_sha256": "e0b481a5fa6b51624aaa9903a8bc3d578045d85235164ed6ece0943051164451",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -61530,7 +64164,7 @@
     },
     {
       "group": "contact-packet-distinct-source-inputs-and-public-flags-hardening",
-      "comparison_sha256": "3d84f34656c023334862cf040922e2c11bc8860ab95669a1b1645b452bee7efa",
+      "comparison_sha256": "e0b481a5fa6b51624aaa9903a8bc3d578045d85235164ed6ece0943051164451",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -61967,7 +64601,7 @@
     },
     {
       "group": "contact-packet-distinct-source-inputs-and-public-flags-hardening",
-      "comparison_sha256": "3d84f34656c023334862cf040922e2c11bc8860ab95669a1b1645b452bee7efa",
+      "comparison_sha256": "e0b481a5fa6b51624aaa9903a8bc3d578045d85235164ed6ece0943051164451",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -62338,7 +64972,7 @@
     },
     {
       "group": "contact-packet-distinct-source-inputs-and-public-flags-hardening",
-      "comparison_sha256": "3d84f34656c023334862cf040922e2c11bc8860ab95669a1b1645b452bee7efa",
+      "comparison_sha256": "e0b481a5fa6b51624aaa9903a8bc3d578045d85235164ed6ece0943051164451",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -74642,7 +77276,7 @@
     },
     {
       "group": "roundtrip-status-stats-ranges-and-custom-variable-consumers",
-      "comparison_sha256": "20a56c9eb6347f0d37319d4050be767853eeb486b52a97f4bccc75aa5ebb587a",
+      "comparison_sha256": "47396aa9715f62398667c07d807dbdad185e0762d44f4e0103a82296f2c8cf67",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -74819,7 +77453,7 @@
     },
     {
       "group": "roundtrip-message-channel-null-and-invalid-utf8-fields",
-      "comparison_sha256": "8b2a4444ce26181e8ccf88a7f363789b8786303020b0403aa56e398bbc9ae2cc",
+      "comparison_sha256": "8d85cf353a2fb953ee762f2a61c59d1a870eda3bf2baa37bee05e763f07e82da",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -74986,7 +77620,7 @@
     },
     {
       "group": "roundtrip-message-channel-null-and-invalid-utf8-fields",
-      "comparison_sha256": "8b2a4444ce26181e8ccf88a7f363789b8786303020b0403aa56e398bbc9ae2cc",
+      "comparison_sha256": "8d85cf353a2fb953ee762f2a61c59d1a870eda3bf2baa37bee05e763f07e82da",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -75153,7 +77787,7 @@
     },
     {
       "group": "roundtrip-message-channel-null-and-invalid-utf8-fields",
-      "comparison_sha256": "8b2a4444ce26181e8ccf88a7f363789b8786303020b0403aa56e398bbc9ae2cc",
+      "comparison_sha256": "8d85cf353a2fb953ee762f2a61c59d1a870eda3bf2baa37bee05e763f07e82da",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -75314,7 +77948,7 @@
     },
     {
       "group": "roundtrip-message-channel-null-and-invalid-utf8-fields",
-      "comparison_sha256": "8b2a4444ce26181e8ccf88a7f363789b8786303020b0403aa56e398bbc9ae2cc",
+      "comparison_sha256": "8d85cf353a2fb953ee762f2a61c59d1a870eda3bf2baa37bee05e763f07e82da",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -75469,7 +78103,7 @@
     },
     {
       "group": "roundtrip-message-channel-null-and-invalid-utf8-fields",
-      "comparison_sha256": "8b2a4444ce26181e8ccf88a7f363789b8786303020b0403aa56e398bbc9ae2cc",
+      "comparison_sha256": "8d85cf353a2fb953ee762f2a61c59d1a870eda3bf2baa37bee05e763f07e82da",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -75624,7 +78258,7 @@
     },
     {
       "group": "roundtrip-message-channel-null-and-invalid-utf8-fields",
-      "comparison_sha256": "8b2a4444ce26181e8ccf88a7f363789b8786303020b0403aa56e398bbc9ae2cc",
+      "comparison_sha256": "8d85cf353a2fb953ee762f2a61c59d1a870eda3bf2baa37bee05e763f07e82da",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -75785,7 +78419,7 @@
     },
     {
       "group": "roundtrip-exact-contact-and-negative-boundary-input-acceptance",
-      "comparison_sha256": "971430798fae3e77c7e30d9eadd87882e40da3c37af79f1577782a2370747c09",
+      "comparison_sha256": "f4393aeff9b9d9876c968ee1e271f54f0edabfb56f355f1ff1b4c958483d76dc",
       "source_file_family_count": 39,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -76457,7 +79091,7 @@
     },
     {
       "group": "roundtrip-exact-contact-and-negative-boundary-input-acceptance",
-      "comparison_sha256": "971430798fae3e77c7e30d9eadd87882e40da3c37af79f1577782a2370747c09",
+      "comparison_sha256": "f4393aeff9b9d9876c968ee1e271f54f0edabfb56f355f1ff1b4c958483d76dc",
       "source_file_family_count": 39,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -77177,7 +79811,7 @@
     },
     {
       "group": "roundtrip-exact-contact-and-negative-boundary-input-acceptance",
-      "comparison_sha256": "971430798fae3e77c7e30d9eadd87882e40da3c37af79f1577782a2370747c09",
+      "comparison_sha256": "f4393aeff9b9d9876c968ee1e271f54f0edabfb56f355f1ff1b4c958483d76dc",
       "source_file_family_count": 39,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -77849,7 +80483,7 @@
     },
     {
       "group": "roundtrip-message-channel-null-and-invalid-utf8-fields",
-      "comparison_sha256": "8b2a4444ce26181e8ccf88a7f363789b8786303020b0403aa56e398bbc9ae2cc",
+      "comparison_sha256": "8d85cf353a2fb953ee762f2a61c59d1a870eda3bf2baa37bee05e763f07e82da",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -78016,7 +80650,7 @@
     },
     {
       "group": "roundtrip-status-stats-ranges-and-custom-variable-consumers",
-      "comparison_sha256": "20a56c9eb6347f0d37319d4050be767853eeb486b52a97f4bccc75aa5ebb587a",
+      "comparison_sha256": "47396aa9715f62398667c07d807dbdad185e0762d44f4e0103a82296f2c8cf67",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -78199,7 +80833,7 @@
     },
     {
       "group": "roundtrip-status-stats-ranges-and-custom-variable-consumers",
-      "comparison_sha256": "20a56c9eb6347f0d37319d4050be767853eeb486b52a97f4bccc75aa5ebb587a",
+      "comparison_sha256": "47396aa9715f62398667c07d807dbdad185e0762d44f4e0103a82296f2c8cf67",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -78328,7 +80962,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -78535,7 +81169,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -78694,7 +81328,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -78823,7 +81457,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -79012,7 +81646,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -79147,7 +81781,7 @@
     },
     {
       "group": "roundtrip-source-lpp-temperature-gps-multi-and-signed-vector-values",
-      "comparison_sha256": "04c6ab79631e5be563474eba5f964e44d8a1ec60d4a1a63538d39c4a53ec8149",
+      "comparison_sha256": "860d25ca78e4111e1967f3e0ab29ffe04f5b17b33f5016576f5ed255ed834e77",
       "source_file_family_count": 39,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -79330,7 +81964,7 @@
     },
     {
       "group": "roundtrip-source-lpp-temperature-gps-multi-and-signed-vector-values",
-      "comparison_sha256": "04c6ab79631e5be563474eba5f964e44d8a1ec60d4a1a63538d39c4a53ec8149",
+      "comparison_sha256": "860d25ca78e4111e1967f3e0ab29ffe04f5b17b33f5016576f5ed255ed834e77",
       "source_file_family_count": 39,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -79495,7 +82129,7 @@
     },
     {
       "group": "roundtrip-source-lpp-temperature-gps-multi-and-signed-vector-values",
-      "comparison_sha256": "04c6ab79631e5be563474eba5f964e44d8a1ec60d4a1a63538d39c4a53ec8149",
+      "comparison_sha256": "860d25ca78e4111e1967f3e0ab29ffe04f5b17b33f5016576f5ed255ed834e77",
       "source_file_family_count": 39,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -79732,7 +82366,7 @@
     },
     {
       "group": "roundtrip-source-lpp-temperature-gps-multi-and-signed-vector-values",
-      "comparison_sha256": "04c6ab79631e5be563474eba5f964e44d8a1ec60d4a1a63538d39c4a53ec8149",
+      "comparison_sha256": "860d25ca78e4111e1967f3e0ab29ffe04f5b17b33f5016576f5ed255ed834e77",
       "source_file_family_count": 39,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -79861,7 +82495,7 @@
     },
     {
       "group": "roundtrip-source-lpp-temperature-gps-multi-and-signed-vector-values",
-      "comparison_sha256": "04c6ab79631e5be563474eba5f964e44d8a1ec60d4a1a63538d39c4a53ec8149",
+      "comparison_sha256": "860d25ca78e4111e1967f3e0ab29ffe04f5b17b33f5016576f5ed255ed834e77",
       "source_file_family_count": 39,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -80020,7 +82654,7 @@
     },
     {
       "group": "roundtrip-status-stats-ranges-and-custom-variable-consumers",
-      "comparison_sha256": "20a56c9eb6347f0d37319d4050be767853eeb486b52a97f4bccc75aa5ebb587a",
+      "comparison_sha256": "47396aa9715f62398667c07d807dbdad185e0762d44f4e0103a82296f2c8cf67",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -80173,7 +82807,7 @@
     },
     {
       "group": "roundtrip-status-stats-ranges-and-custom-variable-consumers",
-      "comparison_sha256": "20a56c9eb6347f0d37319d4050be767853eeb486b52a97f4bccc75aa5ebb587a",
+      "comparison_sha256": "47396aa9715f62398667c07d807dbdad185e0762d44f4e0103a82296f2c8cf67",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -80326,7 +82960,7 @@
     },
     {
       "group": "roundtrip-status-stats-ranges-and-custom-variable-consumers",
-      "comparison_sha256": "20a56c9eb6347f0d37319d4050be767853eeb486b52a97f4bccc75aa5ebb587a",
+      "comparison_sha256": "47396aa9715f62398667c07d807dbdad185e0762d44f4e0103a82296f2c8cf67",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -80521,7 +83155,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -80674,7 +83308,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -80833,7 +83467,7 @@
     },
     {
       "group": "roundtrip-exact-contact-and-negative-boundary-input-acceptance",
-      "comparison_sha256": "971430798fae3e77c7e30d9eadd87882e40da3c37af79f1577782a2370747c09",
+      "comparison_sha256": "f4393aeff9b9d9876c968ee1e271f54f0edabfb56f355f1ff1b4c958483d76dc",
       "source_file_family_count": 39,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -81511,7 +84145,7 @@
     },
     {
       "group": "roundtrip-selfinfo-fields-and-versioned-device-capability-consumers",
-      "comparison_sha256": "2b73fbaea5d1b7a70338d935181a4854b74646450efc932cca9f9cb0ea91949d",
+      "comparison_sha256": "5dd740b71b559fd0934b8d4babc4c8f5269ed834990980cd50e0d75a261018e1",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -81874,7 +84508,7 @@
     },
     {
       "group": "roundtrip-status-stats-ranges-and-custom-variable-consumers",
-      "comparison_sha256": "20a56c9eb6347f0d37319d4050be767853eeb486b52a97f4bccc75aa5ebb587a",
+      "comparison_sha256": "47396aa9715f62398667c07d807dbdad185e0762d44f4e0103a82296f2c8cf67",
       "source_file_family_count": 39,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -82111,7 +84745,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -82193,7 +84827,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -82335,7 +84969,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -82417,7 +85051,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -82505,7 +85139,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -82587,7 +85221,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -82711,7 +85345,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -82793,7 +85427,7 @@
     },
     {
       "group": "roundtrip-radio-rounding-clamps-time-and-signed-power-packets",
-      "comparison_sha256": "a7759ce3f1b4338eb876606b9168f02f13fe5cd439b49be3ee43b7d587839396",
+      "comparison_sha256": "fe7e3cbaa2014ecf3a5cec6b3068ef861c5efe7eee9031ae7a32c0b402a9c46c",
       "source_file_family_count": 39,
       "group_compared_family_count": 8,
       "partial_source_file": true,

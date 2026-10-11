@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-513 inspected family proposals in57groups, exact source/assertion/helper/runner
+530 inspected family proposals in64groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and thirty Kotlin acceptance cases.
+The follow-up has92 Python regressions and thirty-four Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-513actually inspected proposals;3,959native-body joins are only candidates.
+530actually inspected proposals;3,961native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -229,12 +229,30 @@ All39 additional original RoundTrip declarations now have complete inspected
 comparisons and a new required exact-input method. It asserts incoming147-byte
 contact/count/Unixfields and original all-zero reservedC1,55-byte truncated selfInfo
 and SNR0/path0/three-byte signed-message signature input shapes, rather than
-promoting predecessor altered shared fixtures. This30th required method awaits
-execution. Other RoundTrip groups preserve full capability/message/stats/LPP/
+promoting predecessor altered shared fixtures. This30th required method actually
+passed at exact9862024a2a31bed227f6bb98cd19f5f2cbdbd35c within34app cases
+(all30owned+4repair),0failure/error/skip. Other RoundTrip groups preserve full capability/message/stats/LPP/
 radio/time/power assertions with actual helper bodies, including packetStats
 checked invocation/definition binding. Prior c8237db2 selection did not include
-ContactAndRadioCommandsTest; its8 original radio/time/power identities still
-require the next declared scoped selection.
+ContactAndRadioCommandsTest; adding that selector to the same protocol command
+above at9862024a actually discovered/run/passed138/138,0failure/error/skip.
+Strict XML positively contained all78 LPP/V112/RoundTrip original identities
+and all12 independent Python/pinned-input/telemetry support identities.
+Combined controller/local/parity at committed9862024a passed363/363,0failure/
+error/skip. Do not double-add these overlapping suites or infer all513families passed.
+
+All17 frozen event declarations now have inspected source/input/helper/consumer
+bindings:6factory/2ACK/2filtered/1overflow/6error families, including all6 firmware
+subcode parameter rows. Four new required methods preserve complete original
+six-byte login prefix and literal0106 error-parser/accessor, plus actual public
+session eager registration,500nonmatching events and stop/drain termination.
+These methods await execution. Source internal dispatch admits one-byte
+advertisement keys; actual wire ingress pads the original byte with31zeros
+because real parser requires32bytes. Existing exact short-key direct dispatcher
+assertions remain required support evidence. Fixed EPOCH message timestamps are
+irrelevant to the type-only filter but are explicitly disclosed, not date proof.
+Coordinator's actual bounded c8237db2 source read found no blocking mismatch in
+four contact families/checked-helper wiring, not whole474/LPP/V112/hosted approval.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -272,7 +290,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the427families
+actual inspection. All1,786owned source dispositions require behavior review; only the530families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

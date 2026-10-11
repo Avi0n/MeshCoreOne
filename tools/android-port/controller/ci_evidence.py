@@ -82,6 +82,14 @@ WP501_ACCEPTANCE_CASES = {
      "originalPublicFlagsSeamSaturatesAndWaitsForAcknowledgement"),
     ("com.meshcoreone.android.parity.ProtocolRoundTripAcceptanceTest",
      "originalBoundaryFramesRetainExactSourceInputs"),
+    ("com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+     "publicSessionFiltersBeforeCollectionAndEndsOnStop"),
+    ("com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+     "publicSessionRetainsAcknowledgementAfterFiveHundredNonmatchingEvents"),
+    ("com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+     "originalLoginFiltersRetainCompleteSixBytePrefixes"),
+    ("com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
+     "originalErrorFrameReachesTheTypedFirmwareAccessor"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

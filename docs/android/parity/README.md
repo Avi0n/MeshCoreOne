@@ -112,7 +112,7 @@ relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
 The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely thirty arbitrary passing tests. All existing module/primary suite
+not merely thirty-four arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -125,13 +125,13 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **513 actually inspected families in 57 groups**:
+`review-proposals.json` contains **530 actually inspected families in 64 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
 modern session acknowledgment/error/scope/trace12, channel pipeline5,
 LPP18, distinct contact-packet/public-flags4, V112 parser/command/cache25
-and complete RoundTrip39.
+complete RoundTrip39 and complete event-filter/dispatch/error17.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -178,7 +178,7 @@ Kotlin labels use their own Unicode/escape/interpolation rules, not the Swift
 string decoder. Suite-qualified `original` builders retain actual case,
 optional signature and row, not just their suite name. Computed rows remain
 explicitly unresolved and cannot claim a literal runner identity. The increase
-to3,959 candidate native joins from extracting these real registrations is not
+to3,961 candidate native joins from extracting these real registrations is not
 another615 inspected or passing original families.
 
 Three more required methods retain every original channel-pipeline input and
@@ -235,12 +235,31 @@ One new required method covers four original contact/boundary declarations with
 exact147byte incoming contact/count/Unixfields, original all-zero reservedC1
 frame, original55byte truncated self-info and source SNR0/path0/type2/three-byte
 signature. Earlier shared negative fixtures had different fields; they are not
-promoted as exact source input evidence. This method awaits execution.
+promoted as exact source input evidence. At exact9862024a all30 then-required
+app methods plus4 repair regressions passed34/34. Scoped protocol138/138passed
+positively contained all78 LPP/V112/RoundTrip original runner identities, all12
+independent fixture/pinned-input/telemetry support cases. Combined Python363/363
+passed; all suites had0failure/error/skip. This is not whole513-family execution.
 Checked packetStats helper invocations bind the actual field assertions, not
 an empty-looking registration title. Roundtrip consistency is not independent
 wire evidence; the separate pinned Python/source LPP fixture checks remain required.
 
-The 513 proposals are a bounded reviewable implementation increment,
+All17 original event declarations now have inspected source/helper/consumer
+comparisons, including all6 firmware-code parameter rows. Four further required
+methods preserve exact six-byte login prefix and0106 parser-to-error accessor,
+and exercise eager actual public-session filtering,500nonmatching events and
+stop/drained ACK termination. Source dispatchForTesting accepts one-byte
+advertisements; the public native wire route pads those keys to32bytes because
+the real parser requires them. Supporting existing dispatcher tests retain the
+exact short-key source events. Timestamp in contact/channel predicate helpers
+becomes fixed EPOCH; these predicates never inspect it. These adaptations are
+explicit and require independent review. The four new methods await execution.
+
+Coordinator's actual bounded immutable c8237db2 read found no blocking mismatch
+in four contact families and checked-helper wiring; it is not LPP/V112 completion,
+whole474family approval, hosted execution or general Unicode-name proof.
+
+The 530 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -265,7 +284,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the thirty
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the thirty-four
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new
