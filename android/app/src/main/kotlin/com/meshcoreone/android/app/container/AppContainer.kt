@@ -211,8 +211,9 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         dependencies.connectivityDiagnostics, dependencies.ensureBonded, dependencies.knownEndpoints, dependencies.bonds,
     )
 
+    internal val deviceAccess = ManagerDeviceAccess(connectionManager)
     internal val deviceEditor = ConnectedDeviceEditor(
-        ManagerDeviceAccess(connectionManager), dependencies.store, dependencies.store,
+        deviceAccess, dependencies.store, dependencies.store,
         { sessions.current?.let { ContactRemoval(it.token.radioId, it) } },
         RadioPresetMatcher { frequency, bandwidth, spreadingFactor, codingRate ->
             RadioPresets.matchingPresets(frequency, bandwidth, spreadingFactor, codingRate).map { it.id }.toSet()

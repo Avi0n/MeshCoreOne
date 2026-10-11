@@ -31,6 +31,8 @@ internal fun AppChatConversationScreen(
     onScrollConsumed: (UUID) -> Unit,
     report: (String, Throwable?) -> Unit,
     attachments: @Composable (MessageDTO, Boolean) -> Unit,
+    emojiPicker: EmojiPickerStateHolder? = null,
+    emojiStatus: @Composable () -> Unit = {},
 ) {
     val state by timeline.state.collectAsState()
     val draft by composer.state.collectAsState()
@@ -95,7 +97,8 @@ internal fun AppChatConversationScreen(
             MentionSuggestionList(draft.mentionSuggestions, composer::selectMention,
                 Modifier.align(Alignment.BottomCenter).padding(horizontal = 12.dp, vertical = 8.dp))
         }
-        ComposerRoute(composer, placeholder, onPickContact)
+        emojiStatus()
+        ComposerRoute(composer, placeholder, onPickContact, emojiPicker = emojiPicker)
     }
     picker?.let { context ->
         MentionPickerSheet(context, onSelect = { picker = null; links.navigateToContact(it) }, onDismiss = { picker = null })

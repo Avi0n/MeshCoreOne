@@ -31,10 +31,10 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
     private val navigation get() = container.navigation
     private val logger = Logger.getLogger("com.mc1.AppChatsFeature")
     internal val content get() = container.chatContent
-    private val changes = combine(
+    private val changes = merge(combine(
         app.servicesVersion, app.conversationsVersion, app.contactsVersion,
         app.sessionStateChangeCount, container.connectionManager.snapshot,
-    ) { _, _, _, _, _ -> Unit }
+    ) { _, _, _, _, _ -> Unit }, container.deviceAccess.changes.map { Unit })
     val connectionState = container.connectionManager.snapshot.map { it.state }
         .stateIn(scope, SharingStarted.Eagerly, app.connectionState)
     val currentRadioId = changes.map { app.currentRadioId }
@@ -55,6 +55,11 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
     }
 
     internal fun maximumChannels(): UByte = app.connectedDevice?.maxChannels ?: 0u
+
+    internal fun pathDevice(radio: RadioId, screenScope: kotlinx.coroutines.CoroutineScope): StateFlow<DeviceDTO?> {
+        fun current() = app.connectedDevice?.takeIf { it.radioId == radio }
+        return changes.map { current() }.stateIn(screenScope, SharingStarted.Eagerly, current())
+    }
 
     val drafts = object : TimelineDraftStore {
         override fun get(conversationId: ChatConversationID) = app.draftStore.draft(conversationId)

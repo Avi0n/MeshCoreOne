@@ -49,7 +49,7 @@ abstract class OriginalNavigationCases {
         assertEquals(AppTab.CHATS, n.state.value.selectedTab)
     }
 
-    @Test fun `DM notification tap navigates to chat with contact`() = runBlocking {
+    @Test fun dmNotificationTapNavigatesToChatWithContact() = runBlocking {
         val c = contact(); val n = NavigationCoordinator()
         NotificationFixture(this, radio, n, lookup()).use {
             requireNotNull(it.service.onNotificationTapped)(EntityKey(radio, c.id))
@@ -58,7 +58,7 @@ abstract class OriginalNavigationCases {
         assertChat(n, c)
     }
 
-    @Test fun `New contact notification with manualAddContacts navigates to discovery`() = runBlocking {
+    @Test fun newContactNotificationWithManualAddContactsNavigatesToDiscovery() = runBlocking {
         val n = NavigationCoordinator()
         val device = DeviceDTO(radioId = radio, publicKey = contact().publicKey, nodeName = "Fixture", manualAddContacts = true)
         NotificationFixture(this, radio, n, lookup(), { device }).use {
@@ -69,7 +69,7 @@ abstract class OriginalNavigationCases {
         assertEquals(AppTab.NODES, n.state.value.selectedTab)
     }
 
-    @Test fun `New contact notification without manualAddContacts navigates to contact detail`() = runBlocking {
+    @Test fun newContactNotificationWithoutManualAddContactsNavigatesToContactDetail() = runBlocking {
         val n = NavigationCoordinator(); val c = contact()
         val device = DeviceDTO(radioId = radio, publicKey = c.publicKey, nodeName = "Fixture", manualAddContacts = false)
         NotificationFixture(this, radio, n, lookup(), { device }).use {
@@ -80,7 +80,7 @@ abstract class OriginalNavigationCases {
         assertEquals(AppTab.NODES, n.state.value.selectedTab)
     }
 
-    @Test fun `Channel notification tap navigates to channel`() = runBlocking {
+    @Test fun channelNotificationTapNavigatesToChannel() = runBlocking {
         val n = NavigationCoordinator(); val c = channel(3u)
         NotificationFixture(this, radio, n, lookup(channel = c)).use {
             requireNotNull(it.service.onChannelNotificationTapped)(radio, c.index)
@@ -91,7 +91,7 @@ abstract class OriginalNavigationCases {
         assertEquals(AppTab.CHATS, n.state.value.selectedTab)
     }
 
-    @Test fun `Reaction notification on DM navigates to chat with scrollToMessageID`() = runBlocking {
+    @Test fun reactionNotificationOnDmNavigatesToChatWithScrollToMessageId() = runBlocking {
         val n = NavigationCoordinator(); val c = contact()
         NotificationFixture(this, radio, n, lookup()).use {
             requireNotNull(it.service.onReactionNotificationTapped)(EntityKey(radio, c.id), null, null, messageId)
@@ -100,7 +100,7 @@ abstract class OriginalNavigationCases {
         assertChat(n, c); assertEquals(messageId, n.state.value.pendingScrollToMessageID)
     }
 
-    @Test fun `Reaction notification on channel navigates to channel with scrollToMessageID`() = runBlocking {
+    @Test fun reactionNotificationOnChannelNavigatesToChannelWithScrollToMessageId() = runBlocking {
         val n = NavigationCoordinator(); val c = channel(1u)
         NotificationFixture(this, radio, n, lookup(channel = c)).use {
             requireNotNull(it.service.onReactionNotificationTapped)(null, c.index, radio, messageId)
@@ -111,14 +111,14 @@ abstract class OriginalNavigationCases {
         assertEquals(messageId, n.state.value.pendingScrollToMessageID)
     }
 
-    @Test fun `navigateToMap sets pendingMapFocus and selects the map tab`() {
+    @Test fun navigateToMapSetsPendingMapFocusAndSelectsTheMapTab() {
         val n = NavigationCoordinator(); n.navigateToMap(37.3349, -122.00902)
         assertEquals(MapFocusRequest(37.3349, -122.00902), n.state.value.pendingMapFocus)
         assertEquals(37.3349, requireNotNull(n.state.value.pendingMapFocus).coordinate.latitude, 0.0)
         assertEquals(AppTab.MAP, n.state.value.selectedTab)
     }
 
-    @Test fun `chatConsumerForwardsMapCoordinateToNavigationSink`() {
+    @Test fun chatConsumerForwardsMapCoordinateToNavigationSink() {
         val n = NavigationCoordinator()
         val consumer = MapNavigationConsumer()
         consumer.onNavigateToMap = { n.navigateToMap(it.latitude, it.longitude) }
@@ -127,46 +127,46 @@ abstract class OriginalNavigationCases {
         assertEquals(AppTab.MAP, n.state.value.selectedTab)
     }
 
-    @Test fun `clearPendingMapFocus resets the pending focus`() {
+    @Test fun clearPendingMapFocusResetsThePendingFocus() {
         val n = NavigationCoordinator(); n.navigateToMap(1.0, 2.0); n.clearPendingMapFocus()
         assertNull(n.state.value.pendingMapFocus)
     }
 
-    @Test fun `navigateToSetting sets selectedSetting and selects the settings tab`() {
+    @Test fun navigateToSettingSetsSelectedSettingAndSelectsTheSettingsTab() {
         val n = NavigationCoordinator(); n.navigateToSetting(SettingsDetail.SUPPORT)
         assertEquals(SettingsDetail.SUPPORT, n.state.value.selectedSetting)
         assertEquals(AppTab.SETTINGS, n.state.value.selectedTab)
     }
 
-    @Test fun `pendingContactLink starts nil and clears via helper`() {
+    @Test fun pendingContactLinkStartsNilAndClearsViaHelper() {
         val n = NavigationCoordinator(); assertNull(n.state.value.pendingContactLink)
         n.stageContactLink(ContactLinkRequest("Alice", Bytes(ByteArray(32) { 0xAB.toByte() }), ContactType.CHAT))
         assertNotNull(n.state.value.pendingContactLink); n.clearPendingContactLink(); assertNull(n.state.value.pendingContactLink)
     }
 
-    @Test fun `pendingChannelLink starts nil and clears via helper`() {
+    @Test fun pendingChannelLinkStartsNilAndClearsViaHelper() {
         val n = NavigationCoordinator(); assertNull(n.state.value.pendingChannelLink)
         n.stageChannelLink(ChannelLinkRequest("general", Bytes(ByteArray(16) { 0xCC.toByte() })))
         assertNotNull(n.state.value.pendingChannelLink); n.clearPendingChannelLink(); assertNull(n.state.value.pendingChannelLink)
     }
 
-    @Test fun `pendingHashtag starts nil and clears via helper`() {
+    @Test fun pendingHashtagStartsNilAndClearsViaHelper() {
         val n = NavigationCoordinator(); assertNull(n.state.value.pendingHashtag)
         n.stageHashtag(HashtagJoinRequest("#general")); assertNotNull(n.state.value.pendingHashtag)
         n.clearPendingHashtag(); assertNull(n.state.value.pendingHashtag)
     }
 
-    @Test fun `clearPendingLinks clears the hoisted Nodes selected contact`() {
+    @Test fun clearPendingLinksClearsTheHoistedNodesSelectedContact() {
         val n = NavigationCoordinator(); n.navigateToContactDetail(contact()); assertNotNull(n.state.value.selectedContact)
         n.clearPendingLinks(); assertNull(n.state.value.selectedContact)
     }
 
-    @Test fun `clearPendingLinks clears the hoisted Nodes discovery flag`() {
+    @Test fun clearPendingLinksClearsTheHoistedNodesDiscoveryFlag() {
         val n = NavigationCoordinator(); n.navigateToDiscovery(); n.clearPendingLinks()
         assertFalse(n.state.value.nodesShowingDiscovery)
     }
 
-    @Test fun `clearPendingLinks clears every staged per-radio field at once`() {
+    @Test fun clearPendingLinksClearsEveryStagedPerRadioFieldAtOnce() {
         val n = NavigationCoordinator()
         n.stageContactLink(ContactLinkRequest("Alice", contact().publicKey, ContactType.CHAT))
         n.stageChannelLink(ChannelLinkRequest("general", channel().secret))
@@ -179,42 +179,42 @@ abstract class OriginalNavigationCases {
         assertNull(s.selectedTool)
     }
 
-    @Test fun `clearPerRadioSelection clears the hoisted Chats route`() {
+    @Test fun clearPerRadioSelectionClearsTheHoistedChatsRoute() {
         val n = NavigationCoordinator(); n.navigateToChat(contact()); n.clearPerRadioSelection()
         assertNull(n.state.value.chatsSelectedRoute)
     }
 
-    @Test fun `clearPerRadioSelection clears a radio-requiring tool`() {
+    @Test fun clearPerRadioSelectionClearsARadioRequiringTool() {
         val n = NavigationCoordinator(); n.navigateToTool(ToolSelection.CLI)
         assertTrue(requireNotNull(n.state.value.selectedTool).requiresRadio)
         n.clearPerRadioSelection(); assertNull(n.state.value.selectedTool)
     }
 
-    @Test fun `clearPerRadioSelection preserves the offline Line of Sight tool`() {
+    @Test fun clearPerRadioSelectionPreservesTheOfflineLineOfSightTool() {
         val n = NavigationCoordinator(); n.navigateToTool(ToolSelection.LINE_OF_SIGHT)
         assertFalse(requireNotNull(n.state.value.selectedTool).requiresRadio)
         n.clearPerRadioSelection(); assertEquals(ToolSelection.LINE_OF_SIGHT, n.state.value.selectedTool)
     }
 
-    @Test fun `clearPerRadioSelection clears a per-device settings page`() {
+    @Test fun clearPerRadioSelectionClearsAPerDeviceSettingsPage() {
         val n = NavigationCoordinator(); n.navigateToSetting(SettingsDetail.RADIO)
         assertTrue(requireNotNull(n.state.value.selectedSetting).requiresDevice)
         n.clearPerRadioSelection(); assertNull(n.state.value.selectedSetting)
     }
 
-    @Test fun `clearPerRadioSelection preserves a device-independent settings page`() {
+    @Test fun clearPerRadioSelectionPreservesADeviceIndependentSettingsPage() {
         val n = NavigationCoordinator(); n.navigateToSetting(SettingsDetail.APPEARANCE)
         assertFalse(requireNotNull(n.state.value.selectedSetting).requiresDevice)
         n.clearPerRadioSelection(); assertEquals(SettingsDetail.APPEARANCE, n.state.value.selectedSetting)
     }
 
-    @Test fun `language settings page is device-independent`() {
+    @Test fun languageSettingsPageIsDeviceIndependent() {
         val n = NavigationCoordinator(); n.navigateToSetting(SettingsDetail.LANGUAGE)
         assertFalse(requireNotNull(n.state.value.selectedSetting).requiresDevice)
         n.clearPerDeviceSelection(); assertEquals(SettingsDetail.LANGUAGE, n.state.value.selectedSetting)
     }
 
-    @Test fun `Default navigation state is tab 0 with no pending navigation`() {
+    @Test fun defaultNavigationStateIsTabZeroWithNoPendingNavigation() {
         val s = NavigationCoordinator().state.value
         assertEquals(0, s.selectedTab.sourceIndex)
         assertNull(s.pendingChatContact); assertNull(s.pendingChannel); assertNull(s.pendingRoomSession)
@@ -223,132 +223,132 @@ abstract class OriginalNavigationCases {
         assertTrue(s.tabBarVisible)
     }
 
-    @Test fun `navigateToChat sets contact, route, and tab`() {
+    @Test fun navigateToChatSetsContactRouteAndTab() {
         val n = NavigationCoordinator(); val c = contact(); n.navigateToChat(c)
         assertChat(n, c); assertFalse(n.state.value.tabBarVisible); assertNull(n.state.value.pendingScrollToMessageID)
     }
 
-    @Test fun `navigateToChat with scrollToMessageID sets message ID`() {
+    @Test fun navigateToChatWithScrollToMessageIdSetsMessageId() {
         val n = NavigationCoordinator(); val c = contact(); n.navigateToChat(c, messageId)
         assertChat(n, c); assertEquals(messageId, n.state.value.pendingScrollToMessageID)
     }
 
-    @Test fun `navigateToChat switches to Chats tab from another tab`() {
+    @Test fun navigateToChatSwitchesToChatsTabFromAnotherTab() {
         val n = NavigationCoordinator(); n.selectTab(AppTab.TOOLS); val c = contact(); n.navigateToChat(c)
         assertChat(n, c)
     }
 
-    @Test fun `navigateToRoom sets session, route, and tab`() {
+    @Test fun navigateToRoomSetsSessionRouteAndTab() {
         val n = NavigationCoordinator(); val r = room(); n.navigateToRoom(r)
         assertEquals(r, n.state.value.pendingRoomSession); assertEquals(ChatSelection.Room(r), n.state.value.chatsSelectedRoute)
         assertEquals(AppTab.CHATS, n.state.value.selectedTab); assertFalse(n.state.value.tabBarVisible)
     }
 
-    @Test fun `navigateToChannel sets channel, route, and tab`() {
+    @Test fun navigateToChannelSetsChannelRouteAndTab() {
         val n = NavigationCoordinator(); val c = channel(); n.navigateToChannel(c)
         assertEquals(c, n.state.value.pendingChannel); assertEquals(ChatSelection.Channel(c), n.state.value.chatsSelectedRoute)
         assertEquals(AppTab.CHATS, n.state.value.selectedTab); assertFalse(n.state.value.tabBarVisible)
         assertNull(n.state.value.pendingScrollToMessageID)
     }
 
-    @Test fun `navigateToChannel with scrollToMessageID sets message ID`() {
+    @Test fun navigateToChannelWithScrollToMessageIdSetsMessageId() {
         val n = NavigationCoordinator(); val c = channel(); n.navigateToChannel(c, messageId)
         assertEquals(c, n.state.value.pendingChannel); assertEquals(messageId, n.state.value.pendingScrollToMessageID)
     }
 
-    @Test fun `navigateToDiscovery sets pending flag and contacts tab`() {
+    @Test fun navigateToDiscoverySetsPendingFlagAndContactsTab() {
         val n = NavigationCoordinator(); n.navigateToDiscovery()
         assertTrue(n.state.value.pendingDiscoveryNavigation); assertEquals(AppTab.NODES, n.state.value.selectedTab)
     }
 
-    @Test fun `navigateToDiscovery does not hide tab bar`() {
+    @Test fun navigateToDiscoveryDoesNotHideTabBar() {
         val n = NavigationCoordinator(); n.navigateToDiscovery(); assertTrue(n.state.value.tabBarVisible)
     }
 
-    @Test fun `navigateToContacts switches to contacts tab`() {
+    @Test fun navigateToContactsSwitchesToContactsTab() {
         val n = NavigationCoordinator(); n.selectTab(AppTab.TOOLS); n.navigateToContacts()
         assertEquals(AppTab.NODES, n.state.value.selectedTab)
     }
 
-    @Test fun `navigateToContactDetail sets contact and contacts tab`() {
+    @Test fun navigateToContactDetailSetsContactAndContactsTab() {
         val n = NavigationCoordinator(); val c = contact(); n.navigateToContactDetail(c)
         assertEquals(c, n.state.value.pendingContactDetail); assertEquals(AppTab.NODES, n.state.value.selectedTab)
     }
 
-    @Test fun `clearPendingNavigation clears chat contact`() {
+    @Test fun clearPendingNavigationClearsChatContact() {
         val n = NavigationCoordinator(); n.navigateToChat(contact()); n.clearPendingNavigation()
         assertNull(n.state.value.pendingChatContact)
     }
 
-    @Test fun `clearPendingRoomNavigation clears room session`() {
+    @Test fun clearPendingRoomNavigationClearsRoomSession() {
         val n = NavigationCoordinator(); n.navigateToRoom(room()); n.clearPendingRoomNavigation()
         assertNull(n.state.value.pendingRoomSession)
     }
 
-    @Test fun `clearPendingRoomAuthentication clears room auth session`() {
+    @Test fun clearPendingRoomAuthenticationClearsRoomAuthSession() {
         val n = NavigationCoordinator(NavigationState(pendingRoomAuthentication = room()))
         n.clearPendingRoomAuthentication(); assertNull(n.state.value.pendingRoomAuthentication)
     }
 
-    @Test fun `clearPendingChannelNavigation clears channel`() {
+    @Test fun clearPendingChannelNavigationClearsChannel() {
         val n = NavigationCoordinator(); n.navigateToChannel(channel()); n.clearPendingChannelNavigation()
         assertNull(n.state.value.pendingChannel)
     }
 
-    @Test fun `clearPendingDiscoveryNavigation clears discovery flag`() {
+    @Test fun clearPendingDiscoveryNavigationClearsDiscoveryFlag() {
         val n = NavigationCoordinator(); n.navigateToDiscovery(); n.clearPendingDiscoveryNavigation()
         assertFalse(n.state.value.pendingDiscoveryNavigation)
     }
 
-    @Test fun `clearPendingScrollToMessage clears message ID`() {
+    @Test fun clearPendingScrollToMessageClearsMessageId() {
         val n = NavigationCoordinator(); n.navigateToChat(contact(), messageId); n.clearPendingScrollToMessage()
         assertNull(n.state.value.pendingScrollToMessageID)
     }
 
-    @Test fun `clearPendingContactDetailNavigation clears contact detail`() {
+    @Test fun clearPendingContactDetailNavigationClearsContactDetail() {
         val n = NavigationCoordinator(); n.navigateToContactDetail(contact()); n.clearPendingContactDetailNavigation()
         assertNull(n.state.value.pendingContactDetail)
     }
 
-    @Test fun `navigateToChat from contacts tab hides tab bar and switches tab`() {
+    @Test fun navigateToChatFromContactsTabHidesTabBarAndSwitchesTab() {
         val n = NavigationCoordinator(); n.selectTab(AppTab.NODES); val c = contact(); n.navigateToChat(c)
         assertChat(n, c); assertFalse(n.state.value.tabBarVisible)
     }
 
-    @Test fun `Multiple navigation calls overwrite pending state`() {
+    @Test fun multipleNavigationCallsOverwritePendingState() {
         val n = NavigationCoordinator(); n.navigateToChat(contact("First")); val c = contact("Second"); n.navigateToChat(c)
         assertEquals(c, n.state.value.pendingChatContact); assertEquals(ChatSelection.Direct(c), n.state.value.chatsSelectedRoute)
     }
 
-    @Test fun `Device menu tip donation is pending by default when false`() {
+    @Test fun deviceMenuTipDonationIsPendingByDefaultWhenFalse() {
         assertFalse(NavigationCoordinator().state.value.pendingDeviceMenuTipDonation)
     }
 
-    @Test fun `Section sidebar is narrow enough that 11-inch portrait tiles all three columns`() {
+    @Test fun sectionSidebarIsNarrowEnoughThatElevenInchPortraitTilesAllThreeColumns() {
         assertTrue(NavigationLayout.TILE_MIN_WIDTH_DP <= 834)
         assertTrue(NavigationLayout.tilesListDetail(834f))
     }
 
-    @Test fun `iPad mini portrait intentionally collapses rather than tiling`() {
+    @Test fun iPadMiniPortraitIntentionallyCollapsesRatherThanTiling() {
         assertTrue(NavigationLayout.TILE_MIN_WIDTH_DP > 744)
         assertFalse(NavigationLayout.tilesListDetail(744f))
     }
 
-    @Test fun `Sidebar width is in icon-only range, not a full sidebar`() {
+    @Test fun sidebarWidthIsInIconOnlyRangeNotAFullSidebar() {
         assertTrue(NavigationLayout.RAIL_WIDTH_DP <= 115)
     }
 
-    @Test fun `A sidebar-collapsing tool collapses the sidebar even when the container is wide`() {
+    @Test fun aSidebarCollapsingToolCollapsesTheSidebarEvenWhenTheContainerIsWide() {
         assertFalse(NavigationLayout.showsRail(834f, ToolSelection.LINE_OF_SIGHT))
         assertFalse(NavigationLayout.showsRail(834f, ToolSelection.TRACE_PATH))
     }
 
-    @Test fun `A wide container tiles the sidebar when no sidebar-collapsing tool is open`() {
+    @Test fun aWideContainerTilesTheSidebarWhenNoSidebarCollapsingToolIsOpen() {
         assertTrue(NavigationLayout.showsRail(834f, null))
         assertTrue(NavigationLayout.tilesListDetail(834f))
     }
 
-    @Test fun `A narrow container collapses to the section's hidden shape`() {
+    @Test fun aNarrowContainerCollapsesToTheSectionsHiddenShape() {
         assertFalse(NavigationLayout.tilesListDetail(744f))
         assertTrue(NavigationLayout.usesRail(744f))
         assertTrue(NavigationLayout.showsRail(744f, null))
@@ -358,7 +358,7 @@ abstract class OriginalNavigationCases {
         assertTrue(NavigationLayout.usesRail(600f))
     }
 
-    @Test fun `lineOfSightAndTracePathCollapseSidebarOtherToolsKeepIt`() {
+    @Test fun lineOfSightAndTracePathCollapseSidebarOtherToolsKeepIt() {
         assertTrue(ToolSelection.LINE_OF_SIGHT.prefersCollapsedSidebar)
         assertTrue(ToolSelection.TRACE_PATH.prefersCollapsedSidebar)
         ToolSelection.entries.filter { it != ToolSelection.LINE_OF_SIGHT && it != ToolSelection.TRACE_PATH }.forEach {

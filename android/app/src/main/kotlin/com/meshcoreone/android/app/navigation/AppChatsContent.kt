@@ -142,16 +142,17 @@ private fun AppChatConversation(
         val context = LocalContext.current
         val producer = remember(context) { LocationManagerLocationProducing(context) }
         DisposableEffect(producer) { onDispose { producer.close() } }
+        var phoneLocation by remember { mutableStateOf<Coordinate?>(null) }
         val location = remember(producer) {
             object : ComposerLocationSource {
                 override val isAuthorized get() =
                     context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                override val currentCoordinate: Coordinate? get() = null
+                override val currentCoordinate: Coordinate? get() = phoneLocation.takeIf { isAuthorized }
                 override suspend fun requestCurrentLocation(timeoutMillis: Long): Coordinate? {
                     if (!isAuthorized) return null
                     return try {
                         withTimeout(timeoutMillis) {
-                            producer.requestLocation().let { Coordinate(it.latitude, it.longitude) }
+                            producer.requestLocation().let { Coordinate(it.latitude, it.longitude) }.also { phoneLocation = it }
                         }
                     } catch (_: TimeoutCancellationException) {
                         feature.report("Location share timed out", null)
@@ -189,6 +190,7 @@ private fun AppChatConversation(
         }
         var pickContact by remember { mutableStateOf(false) }
         var actionMessage by remember { mutableStateOf<com.meshcoreone.android.core.model.MessageDTO?>(null) }
+        val emojiPicker = remember(feature, scope) { feature.content?.emojiPicker(scope) }
         if (pickContact) androidx.compose.material3.AlertDialog(
             onDismissRequest = { pickContact = false },
             text = {
@@ -210,7 +212,7 @@ private fun AppChatConversation(
             },
         )
         actionMessage?.let { message ->
-            AppMessageActions(feature, message, conversation, timeline, composer, coordinator,
+            AppMessageActions(feature, message, conversation, timeline, composer, location, coordinator,
                 onReply = { if (conversation is TimelineConversation.Direct) replyTo = it.id },
                 onDismiss = { actionMessage = null })
         }
@@ -235,6 +237,24 @@ private fun AppChatConversation(
                 if (coordinator.state.value.pendingScrollToMessageID == requested) coordinator.clearPendingScrollToMessage()
             },
             report = feature::report,
+            emojiPicker = emojiPicker,
+            emojiStatus = {
+                feature.content?.let { content ->
+                    val save by content.emojiPreferences.save.collectAsStateWithLifecycle()
+                    when (val current = save) {
+                        is com.meshcoreone.android.app.container.EmojiPreferenceSave.Failed ->
+                            androidx.compose.foundation.layout.Row {
+                                androidx.compose.material3.Text(com.meshcoreone.android.core.ui.uiString(
+                                    UiErrorMapper().message(current.cause),
+                                ), modifier = androidx.compose.ui.Modifier.weight(1f))
+                                androidx.compose.material3.TextButton(onClick = content.emojiPreferences::retry) {
+                                    androidx.compose.material3.Text(stringResource(AppChatsStrings.chatsMessageActionRetry))
+                                }
+                            }
+                        else -> Unit
+                    }
+                }
+            },
             attachments = { message, outgoing ->
                 feature.content?.let { AppMessageContent(it, message, feature::report) }
                 androidx.compose.material3.TextButton(onClick = { actionMessage = message }) {

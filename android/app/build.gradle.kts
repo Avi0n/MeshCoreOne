@@ -178,6 +178,18 @@ tasks.register("resolveWp302NavigationDependencies") {
 }
 
 val repository = rootProject.projectDir.parentFile
+val verifyEmojiCatalog by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Verify the complete source-selected emoji catalog and its exact packaged notices."
+    workingDir(repository)
+    commandLine("python", "tools/android-port/emoji_convert.py", "--check")
+    inputs.file(repository.resolve("tools/android-port/emoji_convert.py"))
+    inputs.file(layout.projectDirectory.file("src/main/assets/emoji/emojibase.json"))
+    inputs.files(listOf(
+        "Emojibase-Bindings-Apache-2.0.txt", "Emojibase-Data-MIT.txt", "Unicode-License.txt",
+    ).map { layout.projectDirectory.file("src/main/assets/licenses/$it") }).withPropertyName("emojiNotices")
+}
+tasks.named("preBuild") { dependsOn(verifyEmojiCatalog) }
 val navigationInputBinding = layout.buildDirectory.file("reports/wp302/input-binding.properties")
 val navigationArtifactDirectory = layout.buildDirectory.dir("reports/wp302/screens")
 val prepareNavigationTestInputs by tasks.registering {

@@ -78,6 +78,7 @@ internal class ContainerHarness(
     identity: (ConnectionTarget) -> Bytes = { key(7) },
     deliveryOverride: RecordingDelivery? = null,
     primerFactory: com.meshcoreone.android.app.state.ChatPrimerFactory = com.meshcoreone.android.app.state.ChatPrimerFactory { null },
+    chatContent: AppChatContent? = null,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -111,6 +112,7 @@ internal class ContainerHarness(
             messagingReporter = com.meshcoreone.android.core.contracts.domain.MessagingIssueReporter { messagingDiagnostics += it },
             newBootstrapDebugLog = { DebugLogBuffer(store, it) },
             primerFactory = primerFactory,
+            chatContent = chatContent,
         ),
     )
     val manager get() = container.connectionManager
@@ -174,4 +176,3 @@ abstract class RoomProcessTest {
         }
     }
 }
-

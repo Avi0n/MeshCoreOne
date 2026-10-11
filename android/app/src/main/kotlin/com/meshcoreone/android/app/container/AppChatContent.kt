@@ -42,6 +42,15 @@ class AppChatContent internal constructor(
     private val dimensions = inlineImageDimensionsStore(context).also(imageCache::attachDimensionsStore)
     private val decoder = InlineImageDecoder()
     private val thumbnails = BitmapImageDecoder()
+    private val emojiCatalog = AppEmojiCatalog(context.assets)
+    internal val emojiPreferences = AppEmojiPreferences(preferenceStore, scope)
+    internal fun emojiPicker(screenScope: CoroutineScope) =
+        com.meshcoreone.android.feature.chats.composer.EmojiPickerStateHolder(
+            com.meshcoreone.android.feature.chats.composer.EmojiCatalogSource {
+                emojiPreferences.refresh()
+                emojiCatalog.load()
+            }, emojiPreferences, screenScope,
+        )
     val malware = AndroidMalwareDomainFilter(context, com.meshcoreone.android.core.datastore.MeshCoreStorage.get(context).preferences, http, scope = scope)
 
     private val previews = object : LinkPreviewPort {

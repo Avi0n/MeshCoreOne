@@ -36,7 +36,10 @@ class NavigationKeyboardBackTest {
             compose.activity.setContent {
                 MeshCoreTheme(motionScale = 0f) {
                     NativeNavigationShell(navigation) { destination, _ ->
-                        Box(Modifier.fillMaxSize().testTag("os-pane")) {
+                        val paneModifier = if (destination is NavigationDestination.Setting) {
+                            Modifier.fillMaxSize().testTag("os-pane")
+                        } else Modifier.fillMaxSize()
+                        Box(paneModifier) {
                             if (destination is NavigationDestination.Setting) {
                                 var draft by remember { mutableStateOf("") }
                                 OutlinedTextField(draft, { draft = it }, Modifier.testTag("os-editor"))
