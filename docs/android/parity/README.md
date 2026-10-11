@@ -372,6 +372,16 @@ files/helpers/new methods and actual requestContactRefresh/full-exchange mutatio
 consumers with no blocking mismatch in those two source families. Original
 inputs, final wire/config and delayed fresh cache assertions remain bound;
 not independent52app/37protocol execution or hardware/full acceptance.
+Initial43132243 app56discovered/55passed/1failed,0error/skip, at an owned
+supplemental140ms elapsed assertion after awaiting actual160ms timeout. Original
+source observes140ms before await, not a140ms completion promise. Corrected
+observation moves before await without changing idle0.08/hard1/typedTimeout.
+Protocol did not run after failure; corrected immutable execution remains required.
+Coordinator bounded906/bfa remaining three message methods/all10originals/
+complete helpers/actual consumers found no blocking mismatch, with prompt native
+follower cancellation/real-clock threshold adaptations explicitly preserved.
+Together with prior settings/contact read this is12source comparisons, not
+independent52app/37protocol execution/full acceptance/protected approval.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native

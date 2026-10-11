@@ -517,6 +517,24 @@ mutateOtherParams full core.exchange read found no blocking mismatch in those
 two source families. Original source inputs and wire+fresh-cache assertions are
 preserved; stronger native50ms waits are not source5ms emulator/hardware proof
 or independent52app/37protocol execution/full approval.
+Initial4313224322bffbf0e7dfa449d8f8f7b99034b657 native app execution discovered56:
+55passed/1failed,0error/skip. The new contact-stream method's supplemental elapsed
+assertion followed response.await and expected140ms, but actual completion was
+160ms. Full actual stack points only to that assertion. Frozen source sleeps
+140ms and then awaits; it does not promise timeout completion at140ms.
+Both source/native progress watchdogs may observe start-header progress on first
+80ms tick and expire on the next160ms tick. Corrected test checks exact140ms
+before await, preserving original0.08idle/1hard configuration and typedTimeout,
+not raising a production deadline or accepting fake success. Protocol selection
+did not run after failed app; current corrected execution remains required.
+Coordinator bounded906/bfa remaining three automatic/coalesced/real-clock
+methods/all10frozen families and complete source/shared helpers/actual native
+consumers found no blocking source mismatch. Original10s/AA or01selfInfo/cleared
+history/3x83/20/50/100ms/150/300ms/error9 and real<1s/>=80ms/2s cancellation
+thresholds remain bound. Prompt native follower cancellation is documented
+adaptation; outer5s cancellation propagates. Together with prior two-family
+settings/contact read, this completes12 bounded source comparisons from906,
+not independent52app/37protocol execution/fullWP501 or protected approval.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

@@ -791,8 +791,8 @@ class SessionResponseAcceptanceTest {
                     assertFalse(response.isCompleted)
                     advanceTimeBy(61)
                     runCurrent()
-                    assertTrue(response.await() is MeshCoreException.Timeout)
                     assertEquals(140L, testScheduler.currentTime - started)
+                    assertTrue(response.await() is MeshCoreException.Timeout)
                     assertTrue(session.isContactsDirty)
                 } else {
                     val response = backgroundScope.async {
