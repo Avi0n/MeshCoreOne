@@ -12,11 +12,20 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-Latest completed hosted candidate: [a27ca4032 primary38181356057](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38181356057),
+Latest completed hosted candidate: [af2f6f597 primary38183893582](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38183893582),
+actual SUCCESS/all six jobs/basea19. Full18868-line official log read directly:
+actual JSON controller363/Python96/app695/services2640/protocol4711/chats360/
+maps20/model166/data409/database45/l10n25, all selected counts positive with
+0failure/error/skip. Distinct pinned codec/independentcrypto PASS explicitly
+does not prove Kotlin restore; realSwiftData stage PASS binds a19/af2/db145/
+unchangedmanifest/policy/run38183893582/attempt1. Overlapping module/backup
+counts are not added. No second result bundle retained; this result does not
+certify later issue175/RxLog bytes or full WP501 acceptance.
+
+Earlier completed hosted candidate: [a27ca4032 primary38181356057](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38181356057),
 actual SUCCESS/all five scopes/all six jobs on basea19. Full officiallog/actual
 JSON read directly; declared native/controller/codec/realSwiftData scopespassed,
-positive0failure/error/skip, no duplicatebundle. Currentpublishedaf2f6f597
-primary38183893582stillrunning; not a result of the local175changes.
+positive0failure/error/skip, no duplicatebundle.
 
 Earlier completed hosted candidate: [368c6957 primary38177276628](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38177276628),
 actual SUCCESS/all five scopes/all six jobs, on basea19. Authoritative full log
@@ -92,7 +101,7 @@ families regain original named-case predicates instead of positional enum
 lists; same admitted path/reservation20, no product edit. Independent Python
 hashlib confirms the existing AABBCC first8SHA256 literalfa22dfe1da9013b3,
 not candidate-produced expectation.815/121inspected; immutable declared
-24RxLog runner execution pending. Direct parser/hash tests do not certify
+24RxLog runner execution passed at5f796204a. Direct parser/hash tests do not certify
 live decryption/storage/repeat delivery/cancellation/full consumer parity.
 
 The first combined363-test invocation on this edited RxLog worktree discovered
@@ -101,6 +110,18 @@ The first combined363-test invocation on this edited RxLog worktree discovered
 and semantic checks passed, but that dirty invocation is not clean-head PASS.
 Commit the admitted changes before the unchanged declared rerun; do not weaken
 the guard or reuse594 proof as execution of this new candidate.
+
+Corrected clean `5f796204a3d8538f8e9de594beeeec2769ef99f1`:
+`python <session-files>\wp501-native-check.py --head 5f796204a3d8538f8e9de594beeeec2769ef99f1 --rxlog-only`
+invokes declared
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest.parsing --tests com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest.types --dependency-verification=strict --quiet`.
+Actual required/discovered/run/passed24/24/24/24,0failure/error/skip;
+readiness passed, supported native/Gradle locks released normally. OriginalRxLog
+executed blob `8d9406fdb1c970aa548af8a2a2e197cd19c9fb0f`.
+The unchanged combined declared Python command above then passed363/363,
+0failure/error/skip on this clean committed candidate. No app/bugfix rerun at5f
+is claimed: those unchanged bytes remain executed at594; evidence-only
+follow-up files do not become new native execution or independent approval.
 
 [Bounded PR176 source review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/176#issuecomment-6115173434)
 returned no blocking finding at exactbasea19/heada4e83853b5f9b5f2fa43c282b52fbc82b8a31761,
@@ -127,7 +148,7 @@ as explicitlyUNVERIFIED:92parity/21local/15scaffoldPython and preflightpassed;
 unchangedLinuxscaffold Expected3/found0contracts/model/protocoltransformlocks
 failed beforeappdiscovery. No hook/lock/cache/checksum bypass/force/cleanup.
 Existing draft165template/bodyupdated and boundedreviewhandoff6115044833.
-Exactprimary38183893582running;38183893563is separate setup, no new fullpass.
+Exactprimary38183893582completedSUCCESS above;38183893563is separate setup.
 
 Accounting generation passed; an attempted semantic.py --generate invocation
 failed its CLIusage check because that flag does not exist. No binding/test

@@ -36,7 +36,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogEntryDecryptor.kt"
       ],
       "consumer": "Actual LogData adapter removes optional SNR/RSSI bytes and falls back to raw LogData on invalid RF parse in both source/native. Raw payload-type nibble survives enum UNKNOWN into region HMAC; sender lookup consumes one-byte extracted prefix for flood/direct, while actual source/native live DM decryption and DTO senderPrefix remain direct-only. Service copies all parsed fields/hash/path into persisted DTO, stamps only flood adverts, yields to screen consumers and awaits repeats; these direct13 originals do not execute storage/decryption/region/live lifecycle or certify flood-DM decryption.",
-      "unresolved": ["Exact24RxLog parsing/types identities require immutable declared protocol execution and independent bounded review; full source/resource/consumer acceptance remains unfinished."],
+      "unresolved": ["Exact5f796204a required/discovered/run/passed24/24RxLog and clean363/363Python,0failure/error/skip; independent bounded review/full source/resource/consumer acceptance remains unfinished. CompletedAF2 hosted run does not execute these later bytes."],
       "methods": [
         "Parse empty payload returns nil",
         "Parse FLOOD GROUP_TEXT packet",
@@ -75,7 +75,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogService.kt"
       ],
       "consumer": "Actual parser binds route rawvalues, transport-code presence and payload rawtype before building DTO; service/DTO keep packetPayload-only hash independent of signal/route/path for repeat correlation. Raw nibble is preserved separately for region resolution. Direct-only DTOsenderPrefix/live DM-decryption gate remains source-equivalent and is not certified by enum/hash originals. No mounted-screen/locale/cancellation/persistence/repeat-delivery acceptance claimed from these11 tests.",
-      "unresolved": ["Three named-assertion support repairs and all24RxLog identities await immutable protocol execution/independent review; no full WP-501 or hosted-current acceptance."],
+      "unresolved": ["Three named-assertion support repairs executed within exact5f796204a24/24RxLog/clean363Python,0failure/error/skip; independent bounded review/current-hosted/full WP-501 acceptance still pending."],
       "methods": [
         "RouteType raw values match protocol spec",
         "RouteType hasTransportCode",

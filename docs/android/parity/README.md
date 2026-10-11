@@ -66,14 +66,21 @@ Independent hashlib confirms the existing supplemental AABBCC packet hash;
 no candidate-generated expectation or golden change. Rawtype12-14UNKNOWN/
 15RAW_CUSTOM, reservedC1 rejection, exact path/sender/recipient bytes and
 all nullable signals retained.815families/121groups inspected,66mandatory,
-0candidate-approved acceptance; immutable24-case discovery/review pending.
+0candidate-approved acceptance. Exact5f796204a immutable24/24RxLog and clean
+363/363Python passed,0failure/error/skip; independent bounded review pending.
+Dirty predecessor363/361/2errors correctly failed committed-input guards,
+not product assertions; unchanged clean rerun passed after commit.
 No direct parser/hash original certifies persistence, repeats, decryption or
 full live cancellation. Coordinator173production remains exclusive.
 Source-only PR176 review returned no bounded blocker at exacta4e/basea19;
 it did not execute or approve that candidate or advance this branch's base.
 
 Published accumulatedaf2f6f597/basea19, existingdraftPR165. Exactprimary
-38183893582running,38183893563separate setup; no completed newhostedclaim.
+38183893582completedSUCCESS/all6jobs; full18868-line official log/actualJSON
+read directly: app695/services2640/protocol4711/chats360/model166/data409/
+db45/l10n25/controller363/Python96 positive0failure/error/skip and separate
+realSwiftData PASS bounda19/af2/db145. No duplicatebundle, full501approval or
+later175/RxLog current-hosted claim;38183893563is separate setup.
 Normalinstalled prepush Python92parity/21local/15scaffold and preflightpassed,
 Linuxscaffold againfailed unchangedtransformlockExpected3/found0 beforeapp
 discovery. Normalpush explicitlyUNVERIFIED; no hook/cache/checksum bypass.

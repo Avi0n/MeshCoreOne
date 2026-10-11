@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "017d439a748966f67cbeedcf98a1bf808bb72af25ba50ea9ef330aa81ea0e39d",
+  "proposal_sha256": "2d7c7a25aa4a24428bd11cb997b763c33aee4edc152dffe2d3f74bc466179e76",
   "families": [
     {
       "group": "backup-envelope",
@@ -85679,7 +85679,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -85848,7 +85848,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -86036,7 +86036,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -86224,7 +86224,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -86472,7 +86472,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -86636,7 +86636,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -86896,7 +86896,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -87108,7 +87108,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -87296,7 +87296,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -87550,7 +87550,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -87816,7 +87816,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -87943,7 +87943,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -88107,7 +88107,7 @@
     },
     {
       "group": "rxlog-original-wire-routes-paths-raw-types-and-payload-hashes",
-      "comparison_sha256": "a7557e0f37d85a70e73213d5ac4e180d01d534ada78047264666bbe782697b29",
+      "comparison_sha256": "28edf6f3b3591c2f0c11a77e95bfa02e682b5e2f95b7adb7c035ab151645662c",
       "source_file_family_count": 13,
       "group_compared_family_count": 13,
       "partial_source_file": false,
@@ -88240,7 +88240,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -88483,7 +88483,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -88636,7 +88636,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -88752,7 +88752,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -88887,7 +88887,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -89040,7 +89040,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -89157,7 +89157,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -89256,7 +89256,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -89379,7 +89379,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -89507,7 +89507,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
@@ -89635,7 +89635,7 @@
     },
     {
       "group": "rxlog-original-named-enum-values-display-and-stable-payload-hash",
-      "comparison_sha256": "760e1104f253dacea3e1d37e88d3b0a360a80487fa88fd7d3ad253387a9534a5",
+      "comparison_sha256": "2e7ca929834d0842ff10c43eca10092814a71f5c0b390fb58acee555252a59a1",
       "source_file_family_count": 11,
       "group_compared_family_count": 11,
       "partial_source_file": false,
