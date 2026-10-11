@@ -74,6 +74,7 @@ class BleRuntimeLink(
     private val memory: BleReconnectMemory = BleReconnectMemory(),
     private val diagnostics: StateFlow<BleLinkDiagnostics> = ble.diagnostics,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val onSessionLive: (SessionToken?) -> Unit = {},
 ) : RuntimeLink {
     private sealed interface Event {
         data class Lost(val cause: Throwable?) : Event
@@ -196,12 +197,17 @@ class BleRuntimeLink(
 
     override suspend fun setSessionLive(token: SessionToken?) {
         val generation = diagnostics.value.generation
-        if (token != null) { ble.setAppSessionLive(generation, deviceId); return }
+        if (token != null) {
+            ble.setAppSessionLive(generation, deviceId)
+            onSessionLive(token)
+            return
+        }
         try {
             ble.setAppSessionLive(generation, null)
         } catch (gone: BleTransportException) {
             if (gone.error != BleError.NotConnected && gone.error !is BleError.StaleGeneration) throw gone
         }
+        onSessionLive(null)
     }
 
     override suspend fun recordBondVerification(deviceId: UUID, at: Instant) = ble.recordBondVerification(deviceId, at)
