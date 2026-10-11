@@ -251,12 +251,7 @@ class SessionResponseAcceptanceTest {
         configuration: SessionConfiguration = SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst"),
         selfInfo: Bytes = sourceSelfInfo(869_525, 250_000, 11, ""),
     ): MeshCoreSession {
-        val clock = object : SessionClock {
-            override val now: Duration get() = testScheduler.currentTime.milliseconds
-            override val wallClock: Clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
-            override suspend fun sleepFor(duration: Duration) = delay(duration)
-        }
-        val session = MeshCoreSession(transport, configuration, clock, backgroundScope.coroutineContext)
+        val session = MeshCoreSession(transport, configuration, publicSessionClock(), backgroundScope.coroutineContext)
         val starting = backgroundScope.async { session.start() }
         runCurrent()
         assertEquals(1, transport.sentData.size)
@@ -318,4 +313,11 @@ class SessionResponseAcceptanceTest {
     }
 
     private fun hex(value: String): Bytes = Bytes.fromHex(value)
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+internal fun TestScope.publicSessionClock(): SessionClock = object : SessionClock {
+    override val now: Duration get() = testScheduler.currentTime.milliseconds
+    override val wallClock: Clock = Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)
+    override suspend fun sleepFor(duration: Duration) = delay(duration)
 }

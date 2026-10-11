@@ -87,23 +87,23 @@ class EventDeliveryAcceptanceTest {
         val startup = async { session.start() }
         runCurrent()
         assertEquals(
-            Bytes.of(1, 3, 32, 32, 32, 32, 32, 32) + Bytes.copyOf("MeshCore-Swift".toByteArray(Charsets.UTF_8)),
+            Bytes.of(1, 3, 32, 32, 32, 32, 32, 32) + Bytes("MeshCore-Swift".toByteArray(Charsets.UTF_8)),
             transport.sentData.single(),
         )
         val selfInfo = ByteBuffer.allocate(58).order(ByteOrder.LITTLE_ENDIAN)
             .put(5).put(1).put(20).put(30).put(ByteArray(32) { 0xaa.toByte() })
             .putInt(0).putInt(0).put(2).put(1).put(0).put(1)
             .putInt(915_000).putInt(250_000).put(10).put(5).array()
-        transport.simulateReceive(Bytes.copyOf(selfInfo))
+        transport.simulateReceive(Bytes(selfInfo))
         runCurrent()
         startup.await()
     }
 
     private fun advertisement(firstByte: Int): Bytes =
-        Bytes.of(0x80, firstByte) + Bytes.copyOf(ByteArray(31))
+        Bytes.of(0x80, firstByte) + Bytes(ByteArray(31))
 
     private fun acknowledgement(code: Bytes, tripTime: Int): Bytes =
-        Bytes.of(0x82) + code + Bytes.copyOf(
+        Bytes.of(0x82) + code + Bytes(
             ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(tripTime).array(),
         )
 }

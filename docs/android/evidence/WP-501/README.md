@@ -246,7 +246,13 @@ bindings:6factory/2ACK/2filtered/1overflow/6error families, including all6 firmw
 subcode parameter rows. Four new required methods preserve complete original
 six-byte login prefix and literal0106 error-parser/accessor, plus actual public
 session eager registration,500nonmatching events and stop/drain termination.
-These methods await execution. Source internal dispatch admits one-byte
+These methods await execution.
+The initial29aea85f local native attempt failed before JUnit at compile:
+nonexistent Bytes.copyOf and a clock helper that was still embedded privately
+in SessionResponseAcceptanceTest. The owned test correction uses real Bytes
+constructor and extracts that unchanged clock body for both acceptance classes.
+This is a test-owned compile repair, not a production defect or passing execution.
+Source internal dispatch admits one-byte
 advertisement keys; actual wire ingress pads the original byte with31zeros
 because real parser requires32bytes. Existing exact short-key direct dispatcher
 assertions remain required support evidence. Fixed EPOCH message timestamps are
