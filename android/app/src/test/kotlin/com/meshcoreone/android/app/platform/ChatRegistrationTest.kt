@@ -24,8 +24,8 @@ class ChatRegistrationTest : RoomProcessTest() {
             val room = RemoteNodeSessionDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 6 }),
                 name = "Synthetic room", role = RemoteNodeRole.ROOM_SERVER)
             val foreignRoom = room.copy(radioId = RadioId(UUID.randomUUID()))
-            store.saveRemoteNodeSession(room)
-            store.saveRemoteNodeSession(foreignRoom)
+            store.saveRemoteNodeSessionDTO(room)
+            store.saveRemoteNodeSessionDTO(foreignRoom)
             val message = RoomMessageDTO(sessionID = room.id, authorKeyPrefix = Bytes(ByteArray(6) { 5 }),
                 text = "Persisted selected radio", timestamp = 1u)
             val foreign = message.copy(text = "Must not render another radio's payload")
@@ -40,6 +40,7 @@ class ChatRegistrationTest : RoomProcessTest() {
             }
             assertEquals(message, seen.filterIsInstance<RoomConversationEvent.MessageReceived>().single().message)
             val unrelated = message.copy(id = UUID.randomUUID(), sessionID = UUID.randomUUID(), text = "Other room")
+            store.saveRemoteNodeSessionDTO(room.copy(id = unrelated.sessionID, publicKey = Bytes(ByteArray(32) { 7 })))
             store.saveRoomMessage(radio, unrelated)
             h.appState.messageEventStream.send(MessageEvent.RoomMessageStatusUpdated(unrelated.id))
             h.settle()
