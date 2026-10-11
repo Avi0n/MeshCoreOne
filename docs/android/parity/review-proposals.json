@@ -5,6 +5,34 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "All five originals retain actual public-session assertions and exact setup. Requested0/2/7 accepts seven/77, two/22 and zero/00 in sorted slots while unrequested five/55 is excluded. Missing index2 from0/1/2/3 remains exactlymissing[2]/received[0,1,3]. Window2 writes only0/1 for the original50ms interval; each reply refills exactly2 then3; all four received indexes, empty missing and exactly five total writes are asserted. Cancelled0/1 pipeline drains late0/AA; successor remains behind its old exchange slot, cannot complete on the late frame and returns exactindex0/namefresh after fresh0/BB. Default transport capabilityfalse forces serial0 then1, not priming both before the first response.",
+      "inputs": "Original defaultTimeout10/clientIdentifierMCTst, window8/defaultidle1.5/hard5/grace0.02 retained, with window2 only in the window family and idle0.1 only in dropped/cancelled families. Original selfInfo915000/125000/SF7/CR5/nameTest, 32-byte01 public key and all names/16-byte secret literals retained. Distinct fresh session/MockTransport per ordering/loss/serial family prevents quarantine or cached-state carryover. Independently encoded ByteBuffer self-info and literal channel frames do not call candidate PacketBuilder or its channel encoder.",
+      "adaptations": "Real coroutine test scheduler replaces wall-clock task/poll sleeps while measuring the original50ms hold, write barriers and20ms post-drain grace. Existing native component cases used shorter shared deadlines and omitted missing-empty/window50ms/returned-index assertions; new owned assertions preserve those exact source inputs/assertions rather than accepting title/header equivalence. Three original ordering/loss/serial families share one actual method; window and cancellation have separate methods. Five originals therefore bind three discovered runner identities, not five fabricated test results.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
+      ],
+      "consumer": "Inspected actual window/outstanding-index collector, progress watchdog, sorted partial receipt, whole-exchange ownership and exact getChannel index predicate. Public consumer distinguishes partial missing from complete snapshots and never mistakes an old same-index response for its successor. Native unresolved-index quarantine is the explicit WP107 adaptation; this source scenario's delivered late0 allows fresh0, not proof that arbitrarily late unanswered index1 is safe. Mock capability dispatch and deterministic ingestion are not physical BLE/WiFi delivery.",
+      "unresolved": ["Three newly required methods await current-candidate execution and independent source/assertion review; no production defect is inferred solely from predecessor acceptance gaps."],
+      "methods": [
+        "each requested index lands in its own slot and unrequested indexes are ignored",
+        "dropped writes surface as missing indexes after the idle timeout",
+        "no more than the window is outstanding before the first response, then refills",
+        "a cancelled getChannels does not leak a late channelInfo into a same-type successor",
+        "falls back to serial reads when the transport lacks write-without-response"
+      ]
+    },
+    {
       "id": "modern-session-delayed-ack-and-typed-device-error-consumers",
       "source_path": "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift",
       "partial_source_file": true,

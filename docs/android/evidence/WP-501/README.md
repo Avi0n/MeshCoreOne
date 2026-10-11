@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-422 inspected family proposals in45groups, exact source/assertion/helper/runner
+427 inspected family proposals in46groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has85 Python regressions and twenty-four Kotlin acceptance cases.
+The follow-up has85 Python regressions and twenty-seven Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-422actually inspected proposals;3,959native-body joins are only candidates.
+427actually inspected proposals;3,959native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -165,6 +165,16 @@ The new delayed-response/typed-error/10-second assertions passed, not just compi
 Combined controller/local/parity at immutableb501548b ran356/356passed,0failure/
 error/skip. No unselected family, full semantic acceptance or CI result is inferred.
 
+All five original getChannels pipeline families now have complete inspected
+comparisons and three additional required methods. Exact source configuration,
+self-info/name/secret/indices and distinct sessions replace shortened shared
+component fixtures. New assertions measure50ms window hold, missing-empty and
+returned fresh index/name, plus original sorted/unrequested/lost/serial outcomes.
+They await new-candidate execution rather than inheriting b501548b's passes.
+Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
+classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
+android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
+
 Baseline [run38155192945](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38155192945)
 is SUCCESS at exact250dd50e. Initial WP-501
 [run38156685101](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38156685101)
@@ -198,7 +208,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the422families
+actual inspection. All1,786owned source dispositions require behavior review; only the427families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

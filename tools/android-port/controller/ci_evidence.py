@@ -70,6 +70,12 @@ WP501_ACCEPTANCE_CASES = {
      "originalDeviceErrorsRemainTypedAfterDelayedResponse"),
     ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
      "noResponseRetainsSourceTenSecondTimeout"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalWindowHoldsForFiftyMillisecondsAndRefillsWithoutMissingSlots"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalCancelledPipelineKeepsTheSuccessorsIndexAndFreshName"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

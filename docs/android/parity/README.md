@@ -112,7 +112,7 @@ relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
 The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely twenty-four arbitrary passing tests. All existing module/primary suite
+not merely twenty-seven arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -125,11 +125,11 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **422 actually inspected families in 45 groups**:
+`review-proposals.json` contains **427 actually inspected families in 46 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
-and modern session acknowledgment/error/scope/trace12.
+modern session acknowledgment/error/scope/trace12 and channel pipeline5.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -179,7 +179,15 @@ explicitly unresolved and cannot claim a literal runner identity. The increase
 to3,959 candidate native joins from extracting these real registrations is not
 another615 inspected or passing original families.
 
-The 422 proposals are a bounded reviewable implementation increment,
+Three more required methods retain every original channel-pipeline input and
+assertion: window8/defaultidle1.5/hard5/grace0.02/MCTst/10s and original self-info,
+with source-specific window2 and idle0.1 overrides. They measure the original
+50ms no-refill interval, require missing-empty and exact returned index0/namefresh,
+and use distinct real sessions for ordering/loss/serial cases rather than shortened
+shared fixture defaults. Five originals bind three native runner identities;
+these additions await their new candidate execution.
+
+The 427 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -204,7 +212,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-four
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-seven
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new
