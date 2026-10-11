@@ -273,14 +273,20 @@ actual in-flight socket, virtual200ms pending interval and real3second cancellat
 completion budget. Only the blocking SYN phase is injected; no external connection
 is made. It strengthens existing precancelled/immediate-other-target variants,
 without claiming physical DNS/network-binding/radio behavior. New method and all
-17 original native runner identities await execution.
+17 original native runner identities actually passed at exact
+9046a46325b8fbb4bfeb68bdfb8000d9c91fceca: app39/39 (all35owned+4repair),
+protocol60/60 with both in-flight/deadline supports and combined Python363/363,
+0failure/error/skip each. These suites overlap earlier selections, not extra
+original-family totals.
 
 Coordinator's actual bounded99039051 source read found no blocking mismatch in
 four exact RoundTrip frames and five new event/login/error families/shared clock.
 It distinguishes original short-key direct-dispatch support from public32byte
 padding and verifies af-to990 input equality; not remaining35RoundTrip/all17event/
-530families/privileged acceptance. Current published990 primary runs uninterrupted;
-this next increment is local only.
+530families/privileged acceptance. Published990 primary38169351736 actually failed
+at the separate core:services RxLog restart readiness test; SwiftData was skipped.
+Coordinator owns its bounded test-readiness repair and no RxLog path is edited
+here. This next increment is still local only; no current hosted pass is inferred.
 
 The 548 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families

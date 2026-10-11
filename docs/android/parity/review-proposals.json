@@ -16,7 +16,7 @@
       "adaptations": "Swift mutating Data decoder becomes a three-byte header plus fixed payload state; valid original wire behavior remains identical. Existing WP108 typed outbound65536+ rejection replaces source UInt16 trap; EOF finish() reports typed truncated frame instead of silently discarded suffix. These already documented adaptations are supplemental, not changed original expected frames.",
       "helpers": ["android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiFrameCodec.kt"],
       "consumer": "Read complete frozen/native encoder and decoder plus actual transport send/receive loop. Length is unsigned LE16, payload delimiters are data, partial state is preserved and zero payload returns exactly one empty frame. Send uses outbound3C, receive decoder inbound3E; TCP consumer preserves all completed frames before EOF failure. Higher-layer parser/connection-generation evidence remains separate.",
-      "unresolved": ["All6 exact current runner identities require execution and independent review; supplemental max-length/EOF cases are not automatically all audited original families."],
+      "unresolved": ["All6 exact original identities passed at9046a463 within60protocolcases,0failure/error/skip. Hosted exact-head and independent review remain required; supplemental max-length/EOF cases are not automatically additional audited original families."],
       "methods": [
         "Encodes frame with correct delimiter and length",
         "Encodes empty frame",
@@ -47,7 +47,7 @@
         "docs/android/deviations/WP-108.md"
       ],
       "consumer": "Read full frozen/native connection/read/close/handler bodies. Established generation owns socket and unbounded ingestion queue; eager stream exists before connect, send locks full frame, idempotent connect guard prevents orphan connection, manual disconnect clears callback before teardown, cleanFIN publishes all complete frames then closes once and reports nil loss. Initial failure cannot call established-loss handler. This does not establish every JVM DNS implementation interruption or Android LAN permissions/network binding/physical no-internet radio behavior.",
-      "unresolved": ["All11 exact current runner identities require execution and independent adaptation review; physical/platform network behavior remains separately scoped."],
+      "unresolved": ["All11 exact original identities passed at9046a463 within60protocolcases,0failure/error/skip. Hosted exact-head and independent adaptation review remain required; physical/platform network behavior remains separately scoped."],
       "methods": [
         "Initial state is disconnected",
         "Advertises pipelined reads without a Write-Without-Response characteristic",
@@ -84,7 +84,7 @@
         "docs/android/deviations/WP-108.md"
       ],
       "consumer": "Actual default10second connect deadline, runInterruptible operation, outerCancellation and generation socket-close/IO join must preserve cancellation instead of timeout or success. Actual DNS interruptibility on every OS and physical SYN cleanup remain documented platform limitations; no external TESTNET probe or radio administration is performed.",
-      "unresolved": ["New35th required method needs actual execution and independent source/adaptation review. Existing in-flight cancellation/9999-to10000ms deadline identities must execute as support; no production defect is established by predecessor input differences."],
+      "unresolved": ["The35th required method passed at exact9046a46325b8fbb4bfeb68bdfb8000d9c91fceca within39appcases (all35owned+4repair),0failure/error/skip. Existing in-flight cancellation and9999-to10000ms deadline support identities passed within60protocolcases. Hosted exact-head and independent source/adaptation review remain required; no production defect is established by predecessor input differences."],
       "methods": ["Cancelling connect() does not leave it parked"]
     },
     {

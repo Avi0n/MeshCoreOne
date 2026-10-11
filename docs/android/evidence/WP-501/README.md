@@ -287,7 +287,16 @@ FIN/drained queue/callback state match source bodies with disclosed adaptations.
 The35th required method preserves original192.0.2.1:9 target, virtual200ms genuinely
 pending connect and real3second completion budget using a one-phase blocked Socket,
 not an external SYN or precancelled call. It and all17 original native WiFi runner
-identities await execution. Prior WP108 typed EOF/overflow/exceptional Flow/fresh
+identities passed at exact9046a46325b8fbb4bfeb68bdfb8000d9c91fceca:
+app39discovered/run/passed (all35owned+4repair),0failure/error/skip.
+The same locked private-cache launcher used the existing app selector plus
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest --tests com.meshcoreone.android.core.protocol.transport.WiFiTransportTest --tests com.meshcoreone.android.core.protocol.transport.WiFiTransportIoTest --dependency-verification=strict`.
+Strict actual XML discovered/run/passed60/60,0failure/error/skip, positively
+containing all17 original WiFi/codec identities plus both in-flight cancellation
+and exact9999/10000ms deadline supports. Combined controller/local/parity at the
+same immutable9046a463 passed363/363,0failure/error/skip. Other selected cases are
+not extra original declarations and totals overlap previous selections.
+Prior WP108 typed EOF/overflow/exceptional Flow/fresh
 generation adaptations remain explicit; no platform DNS/radio evidence is inferred.
 Initial local7b015594 discovered39appcases:38passed/1failed,0error/skip.
 The new method's real-dispatcher wait allowed runTest to advance automatically
@@ -303,8 +312,16 @@ the source time bounds or product code; no native discovery/pass is inferred.
 Coordinator's actual bounded99039051 read found no blocking mismatch in four
 exact RoundTrip frames and five new event/login/error families/shared helper.
 It explicitly does not approve remaining35RoundTrip/all17event/530families/
-privileged acceptance. Current990 primary38169351736 remains in progress at
-latest read; the next source/test increment is kept local to avoid interrupting it.
+privileged acceptance. Actual published990 primary38169351736 completedFAILURE:
+core:services2639completed/1failed at RxLogServiceReprocessTest.cases()[8],
+restart readiness timed out5seconds waiting for the replacement subscription's
+one persisted record. Classifier/controller/Swiftcodec succeeded; SwiftData
+restore/export skipped after Android failure; android-ci failed. Coordinator
+owns the bounded AndroidOnly test-readiness race repair with original5seconds/
+packet/second-radio assertion and product bytes unchanged. No RxLog path is edited
+or failure rerun away here. Worker9046a463 native/Gradle locks released normally;
+coordinator was immediately notified in PR165 comment6113188780. The next source/
+test increment remains local, not a hosted pass or full548-family acceptance.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

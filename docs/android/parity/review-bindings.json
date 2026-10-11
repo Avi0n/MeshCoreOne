@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "c4d8a5a88f2075515927cf6fc6cf46c2b389abe8ea11bb532ba8417903b7d3f6",
+  "proposal_sha256": "b29650c5f4d9898e5c6dc476cdea87d35f6b07c545b0e243bebb40b647a37d96",
   "families": [
     {
       "group": "backup-envelope",
@@ -74552,7 +74552,7 @@
     },
     {
       "group": "wifi-independent-literal-frame-and-incomplete-chunk-families",
-      "comparison_sha256": "552b0fd68f52dffcafd3628f7bc664a12c48428c35396de586d0ede644adb5bf",
+      "comparison_sha256": "2d9a65a90255977550319cf68323673eff07ba147350284c8b62210f290f6699",
       "source_file_family_count": 6,
       "group_compared_family_count": 6,
       "partial_source_file": false,
@@ -74722,7 +74722,7 @@
     },
     {
       "group": "wifi-independent-literal-frame-and-incomplete-chunk-families",
-      "comparison_sha256": "552b0fd68f52dffcafd3628f7bc664a12c48428c35396de586d0ede644adb5bf",
+      "comparison_sha256": "2d9a65a90255977550319cf68323673eff07ba147350284c8b62210f290f6699",
       "source_file_family_count": 6,
       "group_compared_family_count": 6,
       "partial_source_file": false,
@@ -74832,7 +74832,7 @@
     },
     {
       "group": "wifi-independent-literal-frame-and-incomplete-chunk-families",
-      "comparison_sha256": "552b0fd68f52dffcafd3628f7bc664a12c48428c35396de586d0ede644adb5bf",
+      "comparison_sha256": "2d9a65a90255977550319cf68323673eff07ba147350284c8b62210f290f6699",
       "source_file_family_count": 6,
       "group_compared_family_count": 6,
       "partial_source_file": false,
@@ -74942,7 +74942,7 @@
     },
     {
       "group": "wifi-independent-literal-frame-and-incomplete-chunk-families",
-      "comparison_sha256": "552b0fd68f52dffcafd3628f7bc664a12c48428c35396de586d0ede644adb5bf",
+      "comparison_sha256": "2d9a65a90255977550319cf68323673eff07ba147350284c8b62210f290f6699",
       "source_file_family_count": 6,
       "group_compared_family_count": 6,
       "partial_source_file": false,
@@ -75034,7 +75034,7 @@
     },
     {
       "group": "wifi-independent-literal-frame-and-incomplete-chunk-families",
-      "comparison_sha256": "552b0fd68f52dffcafd3628f7bc664a12c48428c35396de586d0ede644adb5bf",
+      "comparison_sha256": "2d9a65a90255977550319cf68323673eff07ba147350284c8b62210f290f6699",
       "source_file_family_count": 6,
       "group_compared_family_count": 6,
       "partial_source_file": false,
@@ -75168,7 +75168,7 @@
     },
     {
       "group": "wifi-independent-literal-frame-and-incomplete-chunk-families",
-      "comparison_sha256": "552b0fd68f52dffcafd3628f7bc664a12c48428c35396de586d0ede644adb5bf",
+      "comparison_sha256": "2d9a65a90255977550319cf68323673eff07ba147350284c8b62210f290f6699",
       "source_file_family_count": 6,
       "group_compared_family_count": 6,
       "partial_source_file": false,
@@ -75326,7 +75326,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -75454,7 +75454,7 @@
     },
     {
       "group": "wifi-original-testnet-target-and-inflight-cancellation-budget",
-      "comparison_sha256": "c0f902306ad0eb9863661415a4e3317f0cc7d3b829b5d34c0d3e0d29fe375e26",
+      "comparison_sha256": "8d524b6d0d5d2d02cef18e13ea806393127b8cc55f6e0cec6ec04b408e90f95b",
       "source_file_family_count": 12,
       "group_compared_family_count": 1,
       "partial_source_file": true,
@@ -75906,7 +75906,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -76004,7 +76004,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -76144,7 +76144,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -76290,7 +76290,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -76412,7 +76412,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -76612,7 +76612,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -76722,7 +76722,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -77024,7 +77024,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -77158,7 +77158,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
@@ -77460,7 +77460,7 @@
     },
     {
       "group": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
-      "comparison_sha256": "76e7a0fb4407d5ad3616247b13413ca05415d7b009f795f1db5384fd0dedf77c",
+      "comparison_sha256": "0845892ebad23643e2d4ad9590025cd6fcabd98595e88aa7ccf1116f0df04f20",
       "source_file_family_count": 12,
       "group_compared_family_count": 11,
       "partial_source_file": true,
