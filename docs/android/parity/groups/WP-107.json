@@ -6151,7 +6151,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -6289,72 +6289,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -6393,7 +6393,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -6531,72 +6531,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -6731,7 +6731,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -6869,72 +6869,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -6973,7 +6973,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -7111,72 +7111,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -7215,7 +7215,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -7353,72 +7353,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -7458,7 +7458,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -7596,72 +7596,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -7768,7 +7768,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -7906,72 +7906,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -8007,7 +8007,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -8145,72 +8145,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -8249,7 +8249,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -8387,72 +8387,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -8488,7 +8488,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
             "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
@@ -8626,72 +8626,72 @@
             {
               "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
               "line": 1269,
-              "end_line": 1366
+              "end_line": 1370
             },
             {
               "name": "sourceRegionSelfInfo",
-              "line": 1368,
-              "end_line": 1372
+              "line": 1372,
+              "end_line": 1376
             },
             {
               "name": "sourceCorrelationStatus",
-              "line": 1374,
-              "end_line": 1380
+              "line": 1378,
+              "end_line": 1384
             },
             {
               "name": "sourceCorrelationContact",
-              "line": 1382,
-              "end_line": 1383
+              "line": 1386,
+              "end_line": 1387
             },
             {
               "name": "sourceAutomaticSelfInfo",
-              "line": 1386,
-              "end_line": 1388
+              "line": 1390,
+              "end_line": 1392
             },
             {
               "name": "sourcePipelineConfiguration",
-              "line": 1390,
-              "end_line": 1393
+              "line": 1394,
+              "end_line": 1397
             },
             {
               "name": "startSourceSession",
-              "line": 1395,
-              "end_line": 1410
+              "line": 1399,
+              "end_line": 1414
             },
             {
               "name": "sourceSelfInfo",
-              "line": 1412,
-              "end_line": 1418
+              "line": 1416,
+              "end_line": 1422
             },
             {
               "name": "sourceChannel",
-              "line": 1420,
-              "end_line": 1421
+              "line": 1424,
+              "end_line": 1425
             },
             {
               "name": "delayedOk",
-              "line": 1424,
-              "end_line": 1438
+              "line": 1428,
+              "end_line": 1442
             },
             {
               "name": "delayedError",
-              "line": 1440,
-              "end_line": 1459
+              "line": 1444,
+              "end_line": 1463
             },
             {
               "name": "hex",
-              "line": 1461,
-              "end_line": 1461
-            },
-            {
-              "name": "publicSessionClock",
               "line": 1465,
               "end_line": 1465
             },
             {
+              "name": "publicSessionClock",
+              "line": 1469,
+              "end_line": 1469
+            },
+            {
               "name": "sleepFor",
-              "line": 1468,
-              "end_line": 1468
+              "line": 1472,
+              "end_line": 1472
             }
           ]
         }
@@ -9602,7 +9602,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalContactInvalidationsRetainSourceSelfInfoHistoryAndFiftyMillisecondObservation",
           "line": 505,
@@ -10144,7 +10144,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
           "line": 330,
@@ -10917,7 +10917,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
           "line": 330,
@@ -11647,7 +11647,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
           "line": 330,
@@ -15101,7 +15101,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
           "line": 395,
@@ -15864,7 +15864,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
           "line": 395,
@@ -16621,7 +16621,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
           "line": 395,
@@ -17403,7 +17403,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
           "line": 395,
@@ -18263,7 +18263,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError",
           "line": 262,
@@ -18684,7 +18684,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
           "line": 478,
@@ -19047,7 +19047,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
           "line": 478,
@@ -19410,7 +19410,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
           "line": 478,
@@ -19867,7 +19867,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo",
           "line": 621,
@@ -20437,7 +20437,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo",
           "line": 621,
@@ -21043,7 +21043,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo",
           "line": 621,
@@ -21595,7 +21595,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalStartupIgnoresErrorNinetyNineBeforeItsExactSelfInfo",
           "line": 592,
@@ -21977,7 +21977,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
           "line": 687,
@@ -22927,7 +22927,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
           "line": 687,
@@ -23835,7 +23835,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
           "line": 687,
@@ -24815,7 +24815,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
           "line": 770,
@@ -25548,7 +25548,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
           "line": 770,
@@ -26245,7 +26245,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
           "line": 770,
@@ -26942,7 +26942,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
           "line": 770,
@@ -27669,7 +27669,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
           "line": 687,
@@ -28595,7 +28595,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
           "line": 687,
@@ -29479,7 +29479,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
           "line": 843,
@@ -30266,7 +30266,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
           "line": 843,
@@ -30887,7 +30887,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
           "line": 843,
@@ -31559,7 +31559,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
           "line": 917,
@@ -32069,7 +32069,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
           "line": 917,
@@ -32609,7 +32609,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
           "line": 968,
@@ -33263,7 +33263,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
           "line": 968,
@@ -33972,7 +33972,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
           "line": 1018,
@@ -34879,7 +34879,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
           "line": 1018,
@@ -35695,7 +35695,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
           "line": 1018,
@@ -36469,7 +36469,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
           "line": 968,
@@ -37057,7 +37057,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes",
           "line": 1094,
@@ -37542,7 +37542,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes",
           "line": 1094,
@@ -37979,7 +37979,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
           "line": 917,
@@ -38640,7 +38640,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
           "line": 1125,
@@ -39631,7 +39631,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
           "line": 1125,
@@ -40532,7 +40532,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement",
           "line": 1204,
@@ -41318,7 +41318,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
           "line": 1125,
@@ -42188,7 +42188,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement",
           "line": 1204,
@@ -43036,7 +43036,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
           "line": 193,
@@ -43927,7 +43927,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
           "line": 193,
@@ -44940,7 +44940,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalWindowHoldsForFiftyMillisecondsAndRefillsWithoutMissingSlots",
           "line": 122,
@@ -45584,7 +45584,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCancelledPipelineKeepsTheSuccessorsIndexAndFreshName",
           "line": 158,
@@ -46114,7 +46114,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
           "line": 193,
@@ -46984,7 +46984,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalConcurrentSettingsWaitForEachFreshSelfInfoBeforeTheNextWrite",
           "line": 538,
@@ -47642,7 +47642,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalDatagramFrameReachesThePublicMessageResultAfterItsWrite",
           "line": 301,
@@ -48056,7 +48056,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
           "line": 55,
@@ -48464,7 +48464,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalDeviceErrorsRemainTypedAfterDelayedResponse",
           "line": 81,
@@ -48795,7 +48795,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
           "line": 55,
@@ -49227,7 +49227,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
           "line": 55,
@@ -49592,7 +49592,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
           "line": 55,
@@ -49951,7 +49951,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
           "line": 55,
@@ -50376,7 +50376,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
           "line": 55,
@@ -51206,7 +51206,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "sha256": "cb0886e4962af82df039ad01f8dc0fc27529ad768235b4ad67082ef9fc27a4e3",
           "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
           "method_or_family_name": "originalDeviceErrorsRemainTypedAfterDelayedResponse",
           "line": 81,

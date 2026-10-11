@@ -48,6 +48,17 @@ production signing or release certification.
 
 ## Local execution before candidate publication
 
+Exact2b90c8aa24a3034b85eb4921c752324bcf4cb38f declared app-only invocation
+discovered69,passed68,failed1 (newregionmethod),0errors/skips. Required
+Timeout/DeviceError exceptions escaped backgroundScope child tasks into the
+test harness despite later await/catch assertions; failure stack retains
+original Timeout and suppressed DeviceError10/Timeouts. Local test repair
+records only these two exact typed outcomes inside async using Result.failure,
+then asserts failure identity/code after real reset ACK. All unexpected errors
+and cancellation still escape, successful list requires actual parsed output.
+No source input/timeout/threshold/production change or fabricated emptylist
+fallback. Initial2b90failure retained; corrected immutable execution pending.
+
 Exact9fc6e33c4fc46d9998a649c999d58a5a67bf8b33 executed declared isolated
 `python <session-files>\wp501-native-check.py --head 9fc6e33c4fc46d9998a649c999d58a5a67bf8b33 --regions-only`
 selecting `:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalRegionsCasesTest --tests com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest.transportCodes --dependency-verification=strict --quiet`.

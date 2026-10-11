@@ -1292,7 +1292,15 @@ class SessionResponseAcceptanceTest {
                     typeRawValue = if (rawType) 4u else 2u,
                 )
                 val startedAt = testScheduler.currentTime
-                val call = backgroundScope.async { session.requestRegions(contact) }
+                val call = backgroundScope.async {
+                    try {
+                        Result.success(session.requestRegions(contact))
+                    } catch (failure: MeshCoreException.Timeout) {
+                        Result.failure<List<String>>(failure)
+                    } catch (failure: MeshCoreException.DeviceError) {
+                        Result.failure<List<String>>(failure)
+                    }
+                }
                 runCurrent()
                 val temporary = transport.sentData.single()
                 assertEquals(147, temporary.size)
@@ -1339,23 +1347,19 @@ class SessionResponseAcceptanceTest {
                 assertFalse("Restore acknowledgment is still outstanding", call.isCompleted)
                 transport.simulateOK()
                 runCurrent()
+                val outcome = call.await()
                 when (scenario) {
-                    "full" -> assertEquals(listOf("Europe", "UK", "France"), call.await())
+                    "full" -> assertEquals(listOf("Europe", "UK", "France"), outcome.getOrThrow())
                     "error" -> {
-                        try {
-                            call.await()
-                            fail("Region error must remain a typed device error")
-                        } catch (failure: MeshCoreException.DeviceError) {
-                            assertEquals(10u.toUByte(), failure.code)
+                        when (val failure = outcome.exceptionOrNull()) {
+                            is MeshCoreException.DeviceError -> assertEquals(10u.toUByte(), failure.code)
+                            else -> fail("Region error must remain a typed device error, got $failure")
                         }
                     }
                     else -> {
-                        try {
-                            call.await()
-                            fail("Missing region response cannot become an empty successful list")
-                        } catch (failure: MeshCoreException.Timeout) {
-                            assertEquals(200L, testScheduler.currentTime - startedAt)
-                        }
+                        assertTrue("Missing region response must remain a typed timeout",
+                            outcome.exceptionOrNull() is MeshCoreException.Timeout)
+                        assertEquals(200L, testScheduler.currentTime - startedAt)
                     }
                 }
                 assertEquals(listOf(9, 0x39, 0x0d), transport.sentData.map { it[0].toInt() })
