@@ -52,6 +52,8 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
+The final candidate has 32 Python regressions and nine Kotlin acceptance cases,
+including actual pinned Swift-export restore into the offline timeline.
 The new Kotlin consumer tests and exact-candidate full checks must pass before
 publication is called verified. Current results/logs are read in place and
 reported on the PR, never committed as a duplicate execution bundle. The

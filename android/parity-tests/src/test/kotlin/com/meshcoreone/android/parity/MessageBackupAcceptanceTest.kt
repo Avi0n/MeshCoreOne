@@ -76,6 +76,42 @@ class MessageBackupAcceptanceTest : RoomProcessTest() {
         }
     }
 
+    @Test fun swiftProducedFixtureReachesTheOfflineTimelineWithOriginalBytes() = runTest {
+        val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
+        val harness = ContainerHarness(this, store)
+        try {
+            val fixture = java.io.File(requireNotNull(System.getProperty("referenceCodecFixtures")))
+                .resolve("reference-envelope.meshcoreone").readBytes()
+            assertEquals(1835, fixture.size)
+            assertEquals("32e5898f8254eed7ca2744e5206698c00c95e5a1ee8767ece187b8599a012ffc",
+                java.security.MessageDigest.getInstance("SHA-256").digest(fixture).joinToString("") { "%02x".format(it) })
+            val parsed = AppBackupCodec().parseBackup(Bytes(fixture))
+            val result = AppBackupService(storage.backupPreferences, "synthetic", "1").importBackup(parsed, store)
+            assertEquals(1L, result.counts.getValue(BackupModelKind.MESSAGES).inserted)
+            val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+            val contact = store.fetchContacts(radio).single()
+            assertEquals(Bytes.of(0, 0x80, 0xFF), contact.avatarImageData)
+            val restored = requireNotNull(store.fetchMessage(EntityKey(radio,
+                UUID.fromString("00000000-0000-0000-0000-000000000004"))))
+            val original = "Hi\u4F60\uD83D\uDE00\u05E9\u05DC\u05D5\u05DD"
+            assertArrayEquals(original.toByteArray(Charsets.UTF_8), restored.text.toByteArray(Charsets.UTF_8))
+            assertEquals(UInt.MAX_VALUE, restored.timestamp)
+            assertEquals(Instant.ofEpochSecond(1_700_000_501, 123_456_700), restored.createdAt)
+            val conversation = TimelineConversation.Direct(contact)
+            val timeline = ChatViewModel(conversation, harness.container.chatsFeature.timeline(conversation), backgroundScope)
+            timeline.start()
+            timeline.open()
+            harness.eventually("actual Swift-produced message visible") { timeline.state.value.messages.size == 1 }
+            assertEquals(restored.id, timeline.state.value.messages.single().id)
+            assertEquals(original, timeline.state.value.messages.single().text)
+            assertEquals(0, harness.lifecycle.created.size)
+            assertTrue(harness.links.links.isEmpty())
+        } finally {
+            harness.container.close()
+            storage.close()
+        }
+    }
+
     @Test fun corruptedManifestCannotMutateTheProcessStore() = runTest {
         val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
         try {

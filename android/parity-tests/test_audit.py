@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 import audit
 from controller.errors import PortError
@@ -129,6 +130,20 @@ class AccountingTest(unittest.TestCase):
         self.assertNotEqual(before["case_families"][0]["original_detail_sha256"],
                             after["case_families"][0]["original_detail_sha256"])
 
+    def test_policy_cannot_allow_mandatory_skips(self):
+        manifest = audit.load_manifest(audit.REPO)
+        policy = audit.load_json(audit.repo_path(audit.REPO, audit.POLICY))
+        policy["mandatory_skips_allowed"] = True
+        with patch.object(audit, "load_json", return_value=policy), self.assertRaisesRegex(PortError, "Coverage policy"):
+            audit.current_policy(audit.REPO, manifest)
+
+    def test_policy_cannot_add_unapproved_exclusions(self):
+        manifest = audit.load_manifest(audit.REPO)
+        policy = audit.load_json(audit.repo_path(audit.REPO, audit.POLICY))
+        policy["new_exclusions_allowed"] = True
+        with patch.object(audit, "load_json", return_value=policy), self.assertRaisesRegex(PortError, "Coverage policy"):
+            audit.current_policy(audit.REPO, manifest)
+
 
 class CurrentExecutionTest(unittest.TestCase):
     def setUp(self):
@@ -221,7 +236,7 @@ class WiringTest(unittest.TestCase):
     def test_exact_required_behavioral_names_are_distinct_and_nonzero(self):
         from controller.ci_evidence import WP501_ACCEPTANCE_CASES
 
-        self.assertEqual(8, len(WP501_ACCEPTANCE_CASES))
+        self.assertEqual(9, len(WP501_ACCEPTANCE_CASES))
         text = (audit.REPO / "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBackupAcceptanceTest.kt").read_text(encoding="utf-8")
         for _, method in WP501_ACCEPTANCE_CASES:
             self.assertIn(f"@Test fun {method}(", text)

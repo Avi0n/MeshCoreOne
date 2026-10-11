@@ -36,6 +36,7 @@ WP501_ACCEPTANCE_CASES = {
         "decomposedOriginalTextSurvivesBackupAndMountedTimeline",
         "composedOriginalTextSurvivesBackupAndMountedTimeline",
         "whitespaceAndQuoteOriginalTextSurvivesBackupAndMountedTimeline",
+        "swiftProducedFixtureReachesTheOfflineTimelineWithOriginalBytes",
         "corruptedManifestCannotMutateTheProcessStore",
         "cancelledCodecClosesInputAndDoesNotBecomeInvalidFileSuccess",
     )

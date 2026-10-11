@@ -109,6 +109,9 @@ val prepareAppPlatformSdks = tasks.register<Sync>("prepareAppPlatformSdks") {
     into(layout.buildDirectory.dir("platform-sdks"))
 }
 tasks.withType<Test>().configureEach {
+    inputs.dir(rootProject.layout.projectDirectory.dir("core/testing/fixtures/reference-codec"))
+    systemProperty("referenceCodecFixtures",
+        rootProject.layout.projectDirectory.dir("core/testing/fixtures/reference-codec").asFile.absolutePath)
     dependsOn(prepareAppPlatformSdks)
     forkEvery = 1
     jvmArgumentProviders.add(ContentPlatformSdkArguments(
