@@ -104,14 +104,15 @@ the source32-byte secret with inherit/US flood scope; and device-only deletion
 followed by export/restore of all seven original orphan child kinds.
 Source and destination stay simultaneously open, source rows are never cleared,
 and restored Hello reaches the offline native timeline. These fill the
-clear-source adaptation's missing evidence; native execution is still pending.
+clear-source adaptation's missing evidence; all six fresh-store cases executed
+and passed at be12305a. Current-candidate checks remain separately required.
 Two more assertions retain the exact original 32-byte B2/A1 stale-secret and
 C1/C4/D4/D5 draft-slot families. They check unchanged live occupants, reminted
 relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
 The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely twenty-one arbitrary passing tests. All existing module/primary suite
+not merely twenty-four arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -124,10 +125,11 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **382 actually inspected families in 40 groups**:
+`review-proposals.json` contains **422 actually inspected families in 45 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
-protocol/application byte/path/transport54.
+protocol/application byte/path/transport54, modern command/flood-scope/reset28
+and modern session acknowledgment/error/scope/trace12.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -159,7 +161,21 @@ Path encoding retains all three parameter rows and twelve nested round-trip
 pairs with explicit harmless display renames; reserved modes, endian bytes,
 grapheme limits and actual interface delegation are compared independently.
 
-The 382 proposals are a bounded reviewable implementation increment,
+Three new required session methods preserve original10-second/MCTst setup and
+independently encoded self-info. Six success families cannot complete before
+delayed OK or on an unrelated event; two device-error families retain their
+raw typed codes; a supplemental deadline measures9,999/10,000ms. The previous
+component helper replied synchronously inside `onSend`, so these are additional
+consumer assertions rather than a claim that its title proved suspension.
+
+Kotlin labels use their own Unicode/escape/interpolation rules, not the Swift
+string decoder. Suite-qualified `original` builders retain actual case,
+optional signature and row, not just their suite name. Computed rows remain
+explicitly unresolved and cannot claim a literal runner identity. The increase
+to3,959 candidate native joins from extracting these real registrations is not
+another615 inspected or passing original families.
+
+The 422 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -184,7 +200,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-one
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-four
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new

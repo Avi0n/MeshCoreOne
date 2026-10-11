@@ -2693,6 +2693,7 @@
           "line": 20,
           "end_line": 28,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "26bdc8a40bf051a61045efae2819100df549702ad5b802b0d80144bfdb6adc1a",
           "registration": null,
           "assertions": [
@@ -2845,6 +2846,7 @@
           "line": 31,
           "end_line": 38,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d82931311a105e751cebe3d1d8f791a779449d751fce698008ccc4044af8a891",
           "registration": null,
           "assertions": [
@@ -3009,6 +3011,7 @@
           "line": 41,
           "end_line": 51,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "28980e52a943236ace57104256acefa2ae618797d09fac19c3bc407c42848c18",
           "registration": null,
           "assertions": [
@@ -3186,6 +3189,7 @@
           "line": 54,
           "end_line": 66,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5cb56dc99de3c5aa1e01233ccf5d9f1e180d1f31c84aa9e06ab2175454e0501c",
           "registration": null,
           "assertions": [
@@ -3376,6 +3380,7 @@
           "line": 69,
           "end_line": 77,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "ba23674657bee7e3cf6f5b03a1eb13f28c7995ea3c3f923a4ed9a79b8da1a512",
           "registration": null,
           "assertions": [
@@ -3580,6 +3585,7 @@
           "line": 80,
           "end_line": 92,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9cdda5da9321e6e4c526c3313c68453c84e4844895555b1034164e65306eabf3",
           "registration": null,
           "assertions": [
@@ -3963,6 +3969,7 @@
           "line": 29,
           "end_line": 50,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9ce4234641d14db530c76a8d9a43a478cbd1512d420be54cf9ef5db96bc4101c",
           "registration": null,
           "assertions": [
@@ -4256,6 +4263,7 @@
           "line": 53,
           "end_line": 69,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e55aa33e26cdd31d9a941f2aff2e633df96fce6d0993bdded83261163ba4223e",
           "registration": null,
           "assertions": [
@@ -4484,6 +4492,7 @@
           "line": 72,
           "end_line": 79,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "758aea6041d4d4ef1d3a95587d2c19fb43ff40c80f5ff5411f5ccacf8e630caa",
           "registration": null,
           "assertions": [
@@ -4657,6 +4666,7 @@
           "line": 82,
           "end_line": 90,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1b9c474e5454fec26fb15da8223a5a3bde615ae10113988e17f630136dd8aa04",
           "registration": null,
           "assertions": [
@@ -4879,6 +4889,7 @@
           "line": 93,
           "end_line": 105,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "888d6d5c0d8791ff2ed1f538121f0269688bd86f115d97eb35c9eefc87b78cb5",
           "registration": null,
           "assertions": [
@@ -5155,6 +5166,7 @@
           "line": 108,
           "end_line": 125,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1fb5db477e076638691a4f03a4bd37bab31d0e4d9cff3be43fc84de2ff83bf72",
           "registration": null,
           "assertions": [
@@ -5329,6 +5341,7 @@
           "line": 47,
           "end_line": 53,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9eca3ebf148a0d74637ae5ada46c19a6f93501bb8e1d5bbb98b2785c12cda2c3",
           "registration": null,
           "assertions": [
@@ -5460,6 +5473,7 @@
           "line": 56,
           "end_line": 60,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "938263343b5a5d100d26537e3f436febdfad245bed4b066ded78ef60b96c9e78",
           "registration": null,
           "assertions": [
@@ -5579,6 +5593,7 @@
           "line": 63,
           "end_line": 67,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c580ce17a2b04eb13b6c19d3bd74888215ab89c9e041044154802d8f6362b870",
           "registration": null,
           "assertions": [
@@ -5698,6 +5713,7 @@
           "line": 70,
           "end_line": 77,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a86fe0c348bd65f7e7fe7f5d6f1d9fd4efaf631fac0ffc9fd60afae0e69b5188",
           "registration": null,
           "assertions": [
@@ -5889,6 +5905,7 @@
           "line": 80,
           "end_line": 90,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d6ca906d99d6be07fbb82fb527449b5d7e74cd1828e4696f98c693be38b32729",
           "registration": null,
           "assertions": [
@@ -6062,6 +6079,7 @@
           "line": 27,
           "end_line": 39,
           "factory_method": "nativeCases",
+          "registration_identity_resolution": null,
           "body_sha256": "fb961a09e27427471bd8bc451655e1f79d14e1be27f3200f8d1a183dfa2b5860",
           "registration": "nativeCase(\"clearing the surfaced-auth latch lets the same device re-alert\")",
           "assertions": [
@@ -6225,6 +6243,7 @@
           "line": 93,
           "end_line": 106,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0e536242f8fcfc1c839ce50584458f00f296cb031a5b716bf0f93ef7d00eb287",
           "registration": null,
           "assertions": [
@@ -6369,6 +6388,7 @@
           "line": 109,
           "end_line": 119,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "581c1277543e55470c5d2259f766859b9ec428141d9b6f950bd1cc7a48c9bb27",
           "registration": null,
           "assertions": [
@@ -6531,6 +6551,7 @@
           "line": 122,
           "end_line": 132,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "92ac77b5b2fff48a097b78c73530b37054c5bfa790901891d14f44ae9fd3f482",
           "registration": null,
           "assertions": [
@@ -6686,6 +6707,7 @@
           "line": 39,
           "end_line": 49,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9177d8caa9e82d766895719f7448dac5f87133d9c1adcc0cfbb508da284ea19c",
           "registration": null,
           "assertions": [
@@ -6847,6 +6869,7 @@
           "line": 52,
           "end_line": 61,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b49ae092de4486b809e16094c3cbff745e6a88f99a121649d51ff180e4f0df02",
           "registration": null,
           "assertions": [
@@ -6997,6 +7020,7 @@
           "line": 64,
           "end_line": 72,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "554bce8c152f16e57af42e50d1521536c33d0f7900e963db2eef99accd0fcf3c",
           "registration": null,
           "assertions": [
@@ -7200,6 +7224,7 @@
           "line": 75,
           "end_line": 84,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b1dd4fcab9d35773e1ce3e46a06f686a6c775df68cdc60deec53454e41b48149",
           "registration": null,
           "assertions": [
@@ -7337,6 +7362,7 @@
           "line": 87,
           "end_line": 95,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "799a3e3bfded4b3e31115586f5eb3829cbab844e6d7a6195bf611fbf37bc237d",
           "registration": null,
           "assertions": [
@@ -7469,6 +7495,7 @@
           "line": 98,
           "end_line": 105,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "065e7265267cb02975a8016c764599fa7f42ee9efb7b018d83193fe9085984a3",
           "registration": null,
           "assertions": [
@@ -7606,6 +7633,7 @@
           "line": 108,
           "end_line": 115,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5c13a0dae71d6d7791355caf6d9a4d6305bbe382026a8861b7c2ca5d4284e9a9",
           "registration": null,
           "assertions": [
@@ -7755,6 +7783,7 @@
           "line": 118,
           "end_line": 133,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "707c0f66c6e9998069f25c8ae47d385a6352582e909c68c873b31e5030030af1",
           "registration": null,
           "assertions": [
@@ -7946,6 +7975,7 @@
           "line": 136,
           "end_line": 145,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a98f0f7a513d8f8ad7064888b071c88156b62a4f040a6abbca227183fd489100",
           "registration": null,
           "assertions": [
@@ -8125,6 +8155,7 @@
           "line": 148,
           "end_line": 155,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c1f02ba6d15e9bd8bf195ef7b450bcda37b80f0faaffd5882cd6fe85d82a708d",
           "registration": null,
           "assertions": [
@@ -8305,6 +8336,7 @@
           "line": 158,
           "end_line": 168,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "179ef56915ec10098ef987e04f051d38620c77ffc008c0a96b84cc59d1cb841d",
           "registration": null,
           "assertions": [
@@ -8478,6 +8510,7 @@
           "line": 171,
           "end_line": 186,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "4ca35e1233b469dfa28c5c10cad649e0ca6f4cde3269c360c793b7cedc9d1a8f",
           "registration": null,
           "assertions": [
@@ -8669,6 +8702,7 @@
           "line": 189,
           "end_line": 196,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e20b7e11a2ae9d1c20201a67513ec97732ca448181a061b6fd507b8c9fc05bb4",
           "registration": null,
           "assertions": [
@@ -8794,6 +8828,7 @@
           "line": 199,
           "end_line": 206,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "990875064afde1ce730c0a5d0978f52faf8a781cf514f836e9bb79531ee278fe",
           "registration": null,
           "assertions": [
@@ -8925,6 +8960,7 @@
           "line": 209,
           "end_line": 220,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "02ed0e4fcaef70632f2aa6f0e4957119c984d901cc378dc50e59a36ac50e4e6b",
           "registration": null,
           "assertions": [
@@ -9080,6 +9116,7 @@
           "line": 223,
           "end_line": 230,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "4d7a459152b202c44f4f673c2c42bfc7f410b7eae31bc55be42083b9bed8cff4",
           "registration": null,
           "assertions": [
@@ -9253,6 +9290,7 @@
           "line": 233,
           "end_line": 243,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "ee1ee243abff4789473c918b1b852dc9521f19ed10d3ed5ea1da3eedf9291b46",
           "registration": null,
           "assertions": [
@@ -9432,6 +9470,7 @@
           "line": 246,
           "end_line": 253,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "feede1d06358615188f60362f8e795afbf704189d48fc7c2498ecc8b2eb65785",
           "registration": null,
           "assertions": [
@@ -9587,6 +9626,7 @@
           "line": 256,
           "end_line": 261,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d32d0f46abc51f38c7f98f583a7f38060162e2ba6b101a2cfae54ca06f0a2c2e",
           "registration": null,
           "assertions": [
@@ -9724,6 +9764,7 @@
           "line": 264,
           "end_line": 270,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "55e462dd3a694acb19f2fabd91ea49d059615a0f7d3cfc2ca4ef6856e8a875d5",
           "registration": null,
           "assertions": [
@@ -9825,6 +9866,7 @@
           "line": 273,
           "end_line": 276,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "db5cdf47137607594b7c6cf511c7ca1c4e98c2bffa13b1b12e6ec7eb63834cf3",
           "registration": null,
           "assertions": [
@@ -9915,6 +9957,7 @@
           "line": 279,
           "end_line": 282,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a08f49cd614525762f63fbf3a727f5b545ab4171e9871c21436ab636e32e76e9",
           "registration": null,
           "assertions": [
@@ -10035,6 +10078,7 @@
           "line": 285,
           "end_line": 293,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "7eb64fad21f9cf120b8dd706eecc94d5b0babeb5cac413ae8a2ec9a978458b83",
           "registration": null,
           "assertions": [
@@ -10172,6 +10216,7 @@
           "line": 296,
           "end_line": 304,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "4e2f1252c06ca96611e7c7176cd10ebe8286bb5f757e110ac0305981a9d1b426",
           "registration": null,
           "assertions": [
@@ -10297,6 +10342,7 @@
           "line": 307,
           "end_line": 311,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "64568e218ee0ddb0f89b05807c1a873a235b1061d315a83976f10193d5b1617f",
           "registration": null,
           "assertions": [
@@ -10404,6 +10450,7 @@
           "line": 314,
           "end_line": 321,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "6dd8b1242a88f50198a3fd0a72be1da1dbd1e2ba51886905a0581b24d3c92a89",
           "registration": null,
           "assertions": [
@@ -10592,6 +10639,7 @@
           "line": 22,
           "end_line": 33,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1b5ebaaa9fc8042046d115a38af3ef6159f1b5b47c2409e36b8b1282a4f35131",
           "registration": null,
           "assertions": [
@@ -10780,6 +10828,7 @@
           "line": 36,
           "end_line": 47,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1a8dd39f7dc87140a8da3830b80cb2555686a624ec31a69f30be018b6408820b",
           "registration": null,
           "assertions": [
@@ -10975,6 +11024,7 @@
           "line": 50,
           "end_line": 67,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "aabbcd507595bd6a756e0ab0437874c8f03063a91e560261976b2e4b76c91e34",
           "registration": null,
           "assertions": [
@@ -11129,6 +11179,7 @@
           "line": 42,
           "end_line": 44,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5edd387c38e3a0cc0d79b73296888f52e1dcab3f3193a4986f122d7518aa0281",
           "registration": null,
           "assertions": [
@@ -11217,6 +11268,7 @@
           "line": 47,
           "end_line": 49,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "616fd832b86c803c4dda2c9cdf7f667403a871a723f646ef205752cc04e5fdfb",
           "registration": null,
           "assertions": [
@@ -11305,6 +11357,7 @@
           "line": 52,
           "end_line": 54,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d75f46f03cf895acd4f38798f1dc7a70284b01324c39313b2dc5e5e46b45a20f",
           "registration": null,
           "assertions": [
@@ -11406,6 +11459,7 @@
           "line": 57,
           "end_line": 63,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "57a6f36c0e5fce64f7b0a466ca9a752b9b52df2dd12a978264410d3ecc404ea4",
           "registration": null,
           "assertions": [
@@ -11588,6 +11642,7 @@
           "line": 66,
           "end_line": 82,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e88c0dbf0a7cbf13e80a7622f7353e1b394151d34240035a0742b34d2c731f7f",
           "registration": null,
           "assertions": [
@@ -11761,6 +11816,7 @@
           "line": 85,
           "end_line": 91,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "90a089b7168a4a68fb805765040e4448467fb3a32368a01a132462ffd9415671",
           "registration": null,
           "assertions": [
@@ -11893,6 +11949,7 @@
           "line": 94,
           "end_line": 100,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b2b3e34fffe25b18dfec87f6165d282980408a043af3968e301c8441d9fcc65b",
           "registration": null,
           "assertions": [
@@ -12031,6 +12088,7 @@
           "line": 103,
           "end_line": 108,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1ed87aaa07e6622f1d4270489bad3ec9bc97698ca7f7faf30089e1db2182e556",
           "registration": null,
           "assertions": [
@@ -12157,6 +12215,7 @@
           "line": 111,
           "end_line": 115,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "778c8776727ab196aa93c5a479a7f1756a29c333e80ba14a6c3b26800323a655",
           "registration": null,
           "assertions": [
@@ -12265,6 +12324,7 @@
           "line": 118,
           "end_line": 122,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "26afae6bae5fd3becd896a340d359e084295ff5d6ee05356548624036839d8fa",
           "registration": null,
           "assertions": [
@@ -12391,6 +12451,7 @@
           "line": 125,
           "end_line": 129,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5c8e098c44612dd046a03540e05077a3edfea399d0103b3da3474b26676627a4",
           "registration": null,
           "assertions": [
@@ -12529,6 +12590,7 @@
           "line": 132,
           "end_line": 136,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b158fdb99c43a79e2cc983fddabc59d9b83f0631abc7b5b050f5a7f34d1ec8f5",
           "registration": null,
           "assertions": [
@@ -12667,6 +12729,7 @@
           "line": 139,
           "end_line": 143,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "023338933ab8b7449672f98936e84f59339f24efa354c512402085f677d9e26d",
           "registration": null,
           "assertions": [
@@ -12805,6 +12868,7 @@
           "line": 146,
           "end_line": 151,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "ce724ff88fc0e082c594a58f664904ed8ab362738fa02d48d481544c041634e4",
           "registration": null,
           "assertions": [
@@ -12937,6 +13001,7 @@
           "line": 154,
           "end_line": 161,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e97ba84e71e471af0d6adf4b49fb91f75f33461ff7b1a6dc13c7502c82c9db93",
           "registration": null,
           "assertions": [
@@ -13063,6 +13128,7 @@
           "line": 164,
           "end_line": 171,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "3604d67b69b05fced2a679a2182cab30977412552019d4997805083d7d8c9f2d",
           "registration": null,
           "assertions": [
@@ -13189,6 +13255,7 @@
           "line": 174,
           "end_line": 178,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "16e403ecf8c18a98dfaa62138ea0c73e75c1b4888e27bd3f5ed0d40e03f1d091",
           "registration": null,
           "assertions": [
@@ -13308,6 +13375,7 @@
           "line": 181,
           "end_line": 188,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "efabb373c2a06e65cdd9bbedf70d102fcf009752b4bfc61062335ca933242af1",
           "registration": null,
           "assertions": [
@@ -13469,6 +13537,7 @@
           "line": 191,
           "end_line": 199,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "cc83e74c12cb97237e3c044094832a7238220e51bb09dae7654947c91fecd827",
           "registration": null,
           "assertions": [
@@ -13594,6 +13663,7 @@
           "line": 202,
           "end_line": 204,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "3787a8964bab79e7c8367c27442536db16e0eb2e2eca6c0e1dea5326023b5b70",
           "registration": null,
           "assertions": [
@@ -13688,6 +13758,7 @@
           "line": 207,
           "end_line": 209,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "685735c102862039e8bdc4a3be4c04acdfc46d3710b835259dee4b37b18a110a",
           "registration": null,
           "assertions": [],
@@ -13824,6 +13895,7 @@
           "line": 212,
           "end_line": 218,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d21abdd58581efe6c654342d5383d24853ab1ffb284bc2cdebfc680e91b0a76b",
           "registration": null,
           "assertions": [
@@ -14003,6 +14075,7 @@
           "line": 221,
           "end_line": 226,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "548af9d6ac5aee6f658716eeabb31ee0f14ee08ae384f597f6b717eaeda4ec26",
           "registration": null,
           "assertions": [
@@ -14176,6 +14249,7 @@
           "line": 229,
           "end_line": 234,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e9424b645f439d97c4314315eb7cb694a6dfa14d25ca2d265acb52671d36f6d8",
           "registration": null,
           "assertions": [
@@ -14343,6 +14417,7 @@
           "line": 237,
           "end_line": 242,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0437ad9efc72cf12fa205f3c6e1a0beba85ddb89adbdd077addfb010c9914009",
           "registration": null,
           "assertions": [
@@ -14498,6 +14573,7 @@
           "line": 46,
           "end_line": 65,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "423a1ce13b2d2c580d5daaff725bed5a69a836246d6102887ebe1caf9db0798a",
           "registration": null,
           "assertions": [
@@ -14696,6 +14772,7 @@
           "line": 68,
           "end_line": 74,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0734f68eef2696fe7aafff2dbc8027b8575333347fd070a8e9c59ef714743cac",
           "registration": null,
           "assertions": [
@@ -14816,6 +14893,7 @@
           "line": 77,
           "end_line": 80,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "80b3dc91ead05e08f3449b15ee0fba56577c3249c6e2e8e9c6dc5f4f302a519e",
           "registration": null,
           "assertions": [
@@ -14929,6 +15007,7 @@
           "line": 83,
           "end_line": 87,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "8951e1c34f49ec8d379bd03ef58a7a9b8e1e372ba316b11ec2dfc829f77b5789",
           "registration": null,
           "assertions": [
@@ -15048,6 +15127,7 @@
           "line": 90,
           "end_line": 93,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "bc3487a2dca86856ec9a5d4114548074391ee3c121c89dff41850c6deea08f48",
           "registration": null,
           "assertions": [
@@ -15143,6 +15223,7 @@
           "line": 96,
           "end_line": 99,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d2d5e388d99c6e8a57fb042393d0120b0911dda6472fafca83686f371b3de345",
           "registration": null,
           "assertions": [
@@ -15238,6 +15319,7 @@
           "line": 102,
           "end_line": 105,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "93a2817c9c9e8e6d5c04b15f5bbb7841c712b8761923122f37cc5c11346988bf",
           "registration": null,
           "assertions": [
@@ -15363,6 +15445,7 @@
           "line": 108,
           "end_line": 113,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e7860ff011113e78d70709ee755470fc5239a4a61525cd3a1dbe5bd20fd99218",
           "registration": null,
           "assertions": [
@@ -15482,6 +15565,7 @@
           "line": 116,
           "end_line": 123,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5f9eef7289ca7758c5714ed91af9c7d9ce246b0b71099fc109c4ce2d16570db6",
           "registration": null,
           "assertions": [
@@ -15608,6 +15692,7 @@
           "line": 126,
           "end_line": 133,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "eac6acceb94fbfa46f245c4cf10b9aaa59dc434e1ff2346ed4a5130ce04f8990",
           "registration": null,
           "assertions": [
@@ -15800,6 +15885,7 @@
           "line": 46,
           "end_line": 57,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "06c29125fad0dc2957e59ea2b9815599c4160ca69a87b63fc7c89d8f0a2275ec",
           "registration": null,
           "assertions": [
@@ -16047,6 +16133,7 @@
           "line": 60,
           "end_line": 72,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "6e5161f752dd3c3f0bd62f225b5c0fd82d227948b33e9db01de3f3c0fb6049de",
           "registration": null,
           "assertions": [
@@ -16294,6 +16381,7 @@
           "line": 75,
           "end_line": 85,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0ca958b3a2733ad7be2947d06079221a89d4d96629b1d475d3b0f90cf0e40686",
           "registration": null,
           "assertions": [
@@ -16499,6 +16587,7 @@
           "line": 36,
           "end_line": 48,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e8d28ae175d07e25ccac2cc23b802e57e57443583f273462a693627b9c57b7a8",
           "registration": null,
           "assertions": [
@@ -16708,6 +16797,7 @@
           "line": 51,
           "end_line": 65,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "3cff94fb6ffe6895941644cf2265da30280cd70170483c80441f2461a8b314df",
           "registration": null,
           "assertions": [
@@ -16941,6 +17031,7 @@
           "line": 68,
           "end_line": 74,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1d576e04b0d6d93e1f26cf88eac2c603c7a2a9bdc5f57b58eb0563f576956934",
           "registration": null,
           "assertions": [
@@ -17150,6 +17241,7 @@
           "line": 77,
           "end_line": 86,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "2f3f6b2357755451d085613e9d1439f6a16ae372a71b2d148b1854bac91203f1",
           "registration": null,
           "assertions": [
@@ -17371,6 +17463,7 @@
           "line": 89,
           "end_line": 100,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "441f63adc78c0beddf0da4f526ced5c92eda7e356a353919d72990b6eca705bc",
           "registration": null,
           "assertions": [
@@ -17568,6 +17661,7 @@
           "line": 103,
           "end_line": 111,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9a53593fedd52bf8b065b42b7a1f95f2a6c65666b69c492257420f4026c73026",
           "registration": null,
           "assertions": [
@@ -17759,6 +17853,7 @@
           "line": 114,
           "end_line": 122,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "32a28007095d8a4db795f012ee78ecb2a0f6762834747265a76b42aeefd1e8c7",
           "registration": null,
           "assertions": [
@@ -17966,6 +18061,7 @@
           "line": 125,
           "end_line": 133,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "8ebb6c9ae611ad2a1859d874f35e51a75656b611b82b4f9dce2b501a4b23737a",
           "registration": null,
           "assertions": [
@@ -18125,6 +18221,7 @@
           "line": 136,
           "end_line": 142,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "f56a4dbbcf0e8801bb93fc7869c1481d687e76297b1dcd52727e85e807f0b014",
           "registration": null,
           "assertions": [
@@ -18286,6 +18383,7 @@
           "line": 145,
           "end_line": 153,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0609bbb187ac6d0b92946db4780a13f320766b760f243f8d482dfb1c33e3c46b",
           "registration": null,
           "assertions": [
@@ -18465,6 +18563,7 @@
           "line": 156,
           "end_line": 169,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "2598be809e69118eb6c35f323dab4d8bbde6a105bbf0d5454bb195e45c0fcf34",
           "registration": null,
           "assertions": [
@@ -18719,6 +18818,7 @@
           "line": 172,
           "end_line": 184,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9a253a7eb226df6dd18fcc0541b6e2c3bc008f1715a8012ef983885aa8821596",
           "registration": null,
           "assertions": [
@@ -18955,6 +19055,7 @@
           "line": 187,
           "end_line": 199,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "de9fffe12cf1d2cebb40a9be298221c0d4bfcd678394f6388c929e7cc2cce72f",
           "registration": null,
           "assertions": [
@@ -19164,6 +19265,7 @@
           "line": 202,
           "end_line": 213,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5778f6f35a1ba61339a3668d28f4fbef8760ecfaf4332257a09b16a6719ef951",
           "registration": null,
           "assertions": [
@@ -19325,6 +19427,7 @@
           "line": 216,
           "end_line": 225,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "09ef70fdb0aa5af52d16f18b9be456c4e8e775b717691cf398c995eeb0df3ee5",
           "registration": null,
           "assertions": [
@@ -19467,6 +19570,7 @@
           "line": 228,
           "end_line": 236,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1941f842f661fd20b1bc15bbb6c2aa06f5f40a8d07391634e61bf997bd0227b8",
           "registration": null,
           "assertions": [
@@ -19615,6 +19719,7 @@
           "line": 239,
           "end_line": 247,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5f10f68f4aa0c92166591f8e52712d1f11ded4ec037b5bff7211c9a1da16736e",
           "registration": null,
           "assertions": [
@@ -19846,6 +19951,7 @@
           "line": 88,
           "end_line": 102,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c906040289d0c900438924c198f576a42405b352047b6cd3d476d214d409f257",
           "registration": null,
           "assertions": [
@@ -20120,6 +20226,7 @@
           "line": 105,
           "end_line": 117,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "f27e10b93a5727121ff013d20987ece2186f0d80de08d2d054f4787cbfe4a8e3",
           "registration": null,
           "assertions": [
@@ -20337,6 +20444,7 @@
           "line": 120,
           "end_line": 131,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "26828ac8836ed969c49629e12b16264d3fa15e15fca917917532ceaba109de81",
           "registration": null,
           "assertions": [
@@ -20548,6 +20656,7 @@
           "line": 134,
           "end_line": 148,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b0660397213954d7f4d6d9dbf64a719ec58505394bf7137b9b5d5f570fd50fbc",
           "registration": null,
           "assertions": [
@@ -20700,6 +20809,7 @@
           "line": 13,
           "end_line": 16,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1789ab7235f1b12889e8f96760bb522d5ce2f7a53a9c61d4c7216dd52f895bdc",
           "registration": null,
           "assertions": [
@@ -20764,6 +20874,7 @@
           "line": 19,
           "end_line": 21,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "663e07c6457bd0f7adb83fc8698b61db844fa24b83bfa45b6e42e0547b2ea494",
           "registration": null,
           "assertions": [

@@ -2015,8 +2015,150 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+          "method_or_family_name": "filtered subscription receives only matching events",
+          "line": 145,
+          "end_line": 156,
+          "factory_method": "originalSeams",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "5c5b732628be1232ce5f7d8cf7e66b89f9b866c03b2bd74f06e5944997e43997",
+          "registration": "original(\"EventDispatcherFilteredSubscriptionTests\", \"filtered subscription receives only matching events\")",
+          "assertions": [
+            {
+              "name": "assertIs",
+              "line": 152,
+              "expression": "assertIs<MeshEvent.Acknowledgement>(stream.first())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 153,
+              "expression": "assertEquals(hex(\"10203040\"), event.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 154,
+              "expression": "assertEquals(500u, event.tripTime)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "fixture",
+              "line": 146,
+              "expression": "fixture()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.events",
+              "line": 147,
+              "expression": "f.session.events(EventFilter.anyAcknowledgement)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "start",
+              "line": 148,
+              "expression": "start(f)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 149,
+              "expression": "f.transport.receive(raw(0x80, filled(1, 32)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw",
+              "line": 149,
+              "expression": "raw(0x80, filled(1, 32))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 149,
+              "expression": "filled(1, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 150,
+              "expression": "f.transport.receive(ackPacket(hex(\"10203040\"), 500))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ackPacket",
+              "line": 150,
+              "expression": "ackPacket(hex(\"10203040\"), 500)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 150,
+              "expression": "hex(\"10203040\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 151,
+              "expression": "f.transport.receive(raw(0x80, filled(2, 32)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw",
+              "line": 151,
+              "expression": "raw(0x80, filled(2, 32))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 151,
+              "expression": "filled(2, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 151,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stream.first",
+              "line": 152,
+              "expression": "stream.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 153,
+              "expression": "hex(\"10203040\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.stop",
+              "line": 155,
+              "expression": "f.session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventDispatcherFilteredSubscriptionTests::filtered subscription receives only matching events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
@@ -2135,8 +2277,150 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+          "method_or_family_name": "filtered subscription survives flood of non-matching events",
+          "line": 157,
+          "end_line": 168,
+          "factory_method": "originalSeams",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "0656f66a3a4606bf66450ff8f6c8ef62efef257716cb2010089251962182c381",
+          "registration": "original(\"EventDispatcherFilteredSubscriptionTests\", \"filtered subscription survives flood of non-matching events\")",
+          "assertions": [
+            {
+              "name": "assertIs",
+              "line": 163,
+              "expression": "assertIs<MeshEvent.Acknowledgement>(stream.first())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 164,
+              "expression": "assertEquals(hex(\"abcdef12\"), event.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 165,
+              "expression": "assertEquals(1234u, event.tripTime)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 166,
+              "expression": "assertEquals(0L, f.session.core.generation().dispatcher.droppedEventCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "fixture",
+              "line": 158,
+              "expression": "fixture()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.events",
+              "line": 159,
+              "expression": "f.session.events(EventFilter.anyAcknowledgement)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "start",
+              "line": 160,
+              "expression": "start(f)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeat",
+              "line": 161,
+              "expression": "repeat(500)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 161,
+              "expression": "f.transport.receive(raw(0x80, filled(it % 256, 32)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw",
+              "line": 161,
+              "expression": "raw(0x80, filled(it % 256, 32))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 161,
+              "expression": "filled(it % 256, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.receive",
+              "line": 162,
+              "expression": "f.transport.receive(ackPacket(hex(\"abcdef12\"), 1234))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ackPacket",
+              "line": 162,
+              "expression": "ackPacket(hex(\"abcdef12\"), 1234)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 162,
+              "expression": "hex(\"abcdef12\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 162,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "stream.first",
+              "line": 163,
+              "expression": "stream.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 164,
+              "expression": "hex(\"abcdef12\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.core.generation",
+              "line": 166,
+              "expression": "f.session.core.generation()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.stop",
+              "line": 167,
+              "expression": "f.session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "EventDispatcherFilteredSubscriptionTests::filtered subscription survives flood of non-matching events()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventFilterAnyAcknowledgementTests.swift",
@@ -3163,8 +3447,70 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
+          "sha256": "84816d9bbce8269068b7da548f3c2958683cc52d7d77af0f01211787a755f3a4",
+          "class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
+          "method_or_family_name": "PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code",
+          "line": 240,
+          "end_line": 243,
+          "factory_method": "wp106RouterSeam",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "cc0ec73e2e9a8af133313751df46e45a9b101a9192aa22b800829c5cf71f35f1",
+          "registration": "original(\"MeshEventErrorCodeTests\", \"PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 241,
+              "expression": "assertEquals(ErrorCode.ILLEGAL_ARGUMENT, event.errorCode)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 242,
+              "expression": "assertEquals(6u.toUByte(), assertIs<MeshEvent.Error>(event).code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 242,
+              "expression": "assertIs<MeshEvent.Error>(event)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "PacketParser.parse",
+              "line": 241,
+              "expression": "PacketParser.parse(hex(\"0106\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 241,
+              "expression": "hex(\"0106\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 242,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "MeshEventErrorCodeTests::PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MeshCore/Tests/MeshCoreTests/Events/MeshEventErrorCodeTests.swift",

@@ -9444,6 +9444,7 @@
           "line": 50,
           "end_line": 54,
           "factory_method": "channelStorageValues",
+          "registration_identity_resolution": null,
           "body_sha256": "603ec313ad806bf6c89d9ec7e71e3d61a378e7ac5a99971522ca592ec0d57ec2",
           "registration": "\"ChannelFloodScopeTests\",\n        \"Three distinct cases compare as equal only to themselves\" to",
           "assertions": [
@@ -9573,6 +9574,7 @@
           "line": 55,
           "end_line": 55,
           "factory_method": "channelStorageValues",
+          "registration_identity_resolution": null,
           "body_sha256": "b2173595646e7c7778df460466956ba9fc64da551f34f1bc8bf5d0e56b091a68",
           "registration": "},\n        \"DTO default floodScope is .inherit\" to",
           "assertions": [
@@ -9654,6 +9656,7 @@
           "line": 56,
           "end_line": 56,
           "factory_method": "channelStorageValues",
+          "registration_identity_resolution": null,
           "body_sha256": "79e25a5ca1e67d588e27a95bf668207068ca396d9a2873cd4651bdd2d6c511ba",
           "registration": "},\n        \"DTO floodScope roundtrips for .inherit\" to",
           "assertions": [
@@ -9741,6 +9744,7 @@
           "line": 57,
           "end_line": 57,
           "factory_method": "channelStorageValues",
+          "registration_identity_resolution": null,
           "body_sha256": "e966734a1c53238ae599a9c50bceefc8c6f7abdd35bffce1577bda485574a5ce",
           "registration": "},\n        \"DTO floodScope roundtrips for .allRegions\" to",
           "assertions": [
@@ -9840,6 +9844,7 @@
           "line": 58,
           "end_line": 58,
           "factory_method": "channelStorageValues",
+          "registration_identity_resolution": null,
           "body_sha256": "b1e03dbb913358414c05196b12a23f5bcda8ec45327f46a09e8d45c689fca86f",
           "registration": "},\n        \"DTO floodScope roundtrips for .region(name)\" to",
           "assertions": [
@@ -9951,6 +9956,7 @@
           "line": 59,
           "end_line": 62,
           "factory_method": "channelStorageValues",
+          "registration_identity_resolution": null,
           "body_sha256": "0ce5122c43ce70bc8d7251ca552127be85edc1283a90761f5b5c7d832ae6ef59",
           "registration": "},\n        \"DTO treats .region with empty name as .inherit defensively\" to",
           "assertions": [
@@ -10080,6 +10086,7 @@
           "line": 133,
           "end_line": 136,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "46a7276cc35b5846bb5df572082d41f191c7bc927c9d7630ddbc00ee42ee834f",
           "registration": null,
           "assertions": [
@@ -10220,6 +10227,7 @@
           "line": 138,
           "end_line": 141,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "7eda5ea1eebd5213fc79d05f47ea2083e00450b83e7835273e6d074561fdd723",
           "registration": null,
           "assertions": [
@@ -10378,6 +10386,7 @@
           "line": 143,
           "end_line": 146,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "6c8f1b95d5a6ce1beb886f3af6d510703a1773bdf205143586816349dbbb8199",
           "registration": null,
           "assertions": [
@@ -10548,6 +10557,7 @@
           "line": 74,
           "end_line": 78,
           "factory_method": "legacyFieldPolicies",
+          "registration_identity_resolution": null,
           "body_sha256": "8120630bbe0b9890deb7a38b4ea922c5265afc7e259de46f03bb16f077a410f0",
           "registration": "\"ChannelFloodScopeTests\",\n        \"Codable round-trips all three cases for current envelope format\" to",
           "assertions": [
@@ -10659,6 +10669,7 @@
           "line": 79,
           "end_line": 79,
           "factory_method": "legacyFieldPolicies",
+          "registration_identity_resolution": null,
           "body_sha256": "b4075fbdfb48fb00a49782c4f820e8a7976947c97c8aed91d3333e90bae1b104",
           "registration": "},\n        \"Legacy envelope (missing mode key, nil regionScope) decodes as .inherit\" to",
           "assertions": [
@@ -10758,6 +10769,7 @@
           "line": 80,
           "end_line": 80,
           "factory_method": "legacyFieldPolicies",
+          "registration_identity_resolution": null,
           "body_sha256": "4e5b5c51f9242f8b2509476710a0b6ecd3a7f40833c3044d12f2bfa3d765ef80",
           "registration": "},\n        \"Legacy envelope (missing mode key, named regionScope) decodes as .region\" to",
           "assertions": [
@@ -10851,6 +10863,7 @@
           "line": 81,
           "end_line": 81,
           "factory_method": "legacyFieldPolicies",
+          "registration_identity_resolution": null,
           "body_sha256": "b814b0d4761d4eb09fb7baa50d5b2e0b5790b6b28259c5c20497bafb47193011",
           "registration": "},\n        \"Legacy envelope omitting notificationLevel key decodes as .all\" to",
           "assertions": [
@@ -10938,6 +10951,7 @@
           "line": 82,
           "end_line": 82,
           "factory_method": "legacyFieldPolicies",
+          "registration_identity_resolution": null,
           "body_sha256": "94a2a6996e615b92981e636489420c858e4fd3bf5bbc0d41d4117a2db31e3d5c",
           "registration": "},\n        \"Legacy envelope omitting unreadMentionCount key decodes as 0\" to",
           "assertions": [
@@ -11025,6 +11039,7 @@
           "line": 83,
           "end_line": 83,
           "factory_method": "legacyFieldPolicies",
+          "registration_identity_resolution": null,
           "body_sha256": "65e874c9583e8fb840164db9763d4e36098c5596d75394fda905fa1f469c837c",
           "registration": "},\n        \"Legacy envelope omitting isFavorite key decodes as false\" to",
           "assertions": [
@@ -11166,6 +11181,7 @@
           "line": 148,
           "end_line": 154,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9e3df3662d1e4e3322024192dfadcf995817ad3809d2e1ba7bcd655ecc0630e5",
           "registration": null,
           "assertions": [
@@ -11420,6 +11436,7 @@
           "line": 20,
           "end_line": 25,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "dff3cd52a4272038bcf59a3f27a7212c053f9c701cb5375728476922d194df19",
           "registration": "\"ContactDTOPathTests\",\n        \"Single-byte hops chunk into one (data, hex) pair each\" to",
           "assertions": [
@@ -11523,6 +11540,7 @@
           "line": 51,
           "end_line": 55,
           "factory_method": "messagePaths",
+          "registration_identity_resolution": null,
           "body_sha256": "2cde55c6e5da9728f4f1402ebc250bf75d3561f7d8211b44605db90a39b7422e",
           "registration": "\"MessageDTOPathTests\",\n        \"Single-byte hops chunk into one (data, hex) pair each\" to",
           "assertions": [
@@ -11705,6 +11723,7 @@
           "line": 26,
           "end_line": 30,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "d8d257b302f4a0684a01703ecddb7deb928784a0274c77646beded858921c5c5",
           "registration": "},\n        \"Multi-byte hops chunk by the encoded hash size\" to",
           "assertions": [
@@ -11790,6 +11809,7 @@
           "line": 56,
           "end_line": 60,
           "factory_method": "messagePaths",
+          "registration_identity_resolution": null,
           "body_sha256": "43e71911dc621703d02f0c6c73a89ba7046eec4857836c94b9f6c74bc2e49bc1",
           "registration": "},\n        \"Multi-byte hops chunk by the encoded hash size\" to",
           "assertions": [
@@ -11930,6 +11950,7 @@
           "line": 31,
           "end_line": 33,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "e226c319a765d5ebe211d64eeb9f0ad8d2bf7c58e87d8daabb28aeefbc65b7f5",
           "registration": "},\n        \"Hops ignore bytes beyond the encoded path length\" to",
           "assertions": [
@@ -12040,6 +12061,7 @@
           "line": 34,
           "end_line": 37,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "ae80582a8a4041ee952411236380f9403bd5fda9b21b072e74c46cf8e476d0c6",
           "registration": "},\n        \"A flood-routed contact has no hops\" to",
           "assertions": [
@@ -12162,6 +12184,7 @@
           "line": 38,
           "end_line": 40,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "cf3230d4e6af37b5ac704b0744b4025a7d7cc3a54e0dfe78d3a3f49ffaa0be8a",
           "registration": "},\n        \"Displayed hops use the out-path count when a route is set, ignoring inbound\" to",
           "assertions": [
@@ -12272,6 +12295,7 @@
           "line": 41,
           "end_line": 44,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "9731203fb91af541a3543ba297931ee915b22b9c9a6e5286da57c58c78467253",
           "registration": "},\n        \"A set out-path of zero hops displays zero, not the inbound fallback\" to",
           "assertions": [
@@ -12376,6 +12400,7 @@
           "line": 45,
           "end_line": 45,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "5f0acdb25503e08e7c0654764e42de925b49a2a00a549cb1ca284fa4ed83d915",
           "registration": "},\n        \"A flood-routed contact falls back to the inbound advert hops\" to",
           "assertions": [
@@ -12462,6 +12487,7 @@
           "line": 46,
           "end_line": 46,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "692e63b1ad3ec9a44648b4490979d6f325b6daecb40d7922c96303a8e7c0064d",
           "registration": "},\n        \"An inbound zero is a real value, not nil\" to",
           "assertions": [
@@ -12548,6 +12574,7 @@
           "line": 47,
           "end_line": 47,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "79be6a0aeb9260903ef352e94885881b276b6c0409ad441b118074082762f7a6",
           "registration": "},\n        \"Flood-routed with no inbound reception has no displayed hops\" to",
           "assertions": [
@@ -12658,6 +12685,7 @@
           "line": 157,
           "end_line": 160,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "40e5944f107adfcd682d5429c30aee8075283b7fc6499e6c83a7f50e37a37bd8",
           "registration": null,
           "assertions": [
@@ -12810,6 +12838,7 @@
           "line": 162,
           "end_line": 164,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "3233c3901d2f76d259ba1d031f0d3ec7105737c9d4601bb4c1e8aaa8f6a3a703",
           "registration": null,
           "assertions": [
@@ -12986,6 +13015,7 @@
           "line": 132,
           "end_line": 135,
           "factory_method": "identityFactory",
+          "registration_identity_resolution": null,
           "body_sha256": "fef5a31b1c68a63e111f0d4bfea6ccbb5997494d597aed6de6142a16feacec9c",
           "registration": "\"DevicePublicKeyDeduplicationTests\",\n        \"createDevice preserves radioID from existing device\" to",
           "assertions": [
@@ -13127,6 +13157,7 @@
           "line": 136,
           "end_line": 136,
           "factory_method": "identityFactory",
+          "registration_identity_resolution": null,
           "body_sha256": "3a8004642f2b3c3f3ea678fdb943a43b8ab19f6d8f43a162dfdf9493c4fb83aa",
           "registration": "},\n        \"createDevice uses the provided radioID for new pairings\" to",
           "assertions": [
@@ -13286,6 +13317,7 @@
           "line": 137,
           "end_line": 140,
           "factory_method": "identityFactory",
+          "registration_identity_resolution": null,
           "body_sha256": "892713ad434425f93260aecceef16ff817aa69a740e3e1b25639c4efde969240",
           "registration": "},\n        \"createDevice copies appliedRadioPresetID from existingDevice\" to",
           "assertions": [
@@ -13427,6 +13459,7 @@
           "line": 141,
           "end_line": 141,
           "factory_method": "identityFactory",
+          "registration_identity_resolution": null,
           "body_sha256": "fefccdebec3fc53d84466b05c6383cab3065fc64878a16b8c5a148107e74b73d",
           "registration": "},\n        \"createDevice leaves appliedRadioPresetID nil without an existingDevice\" to",
           "assertions": [
@@ -13544,6 +13577,7 @@
           "line": 142,
           "end_line": 142,
           "factory_method": "identityFactory",
+          "registration_identity_resolution": null,
           "body_sha256": "53ea5079b4cd05c6f4b41714806cf45bf5921cb9f1b51e27b866741b426a8925",
           "registration": "},\n        \"createDevice persists the Bluetooth method supplied by the BLE connect path\" to",
           "assertions": [
@@ -13709,6 +13743,7 @@
           "line": 143,
           "end_line": 146,
           "factory_method": "identityFactory",
+          "registration_identity_resolution": null,
           "body_sha256": "6c0f004634fac15592571645c150072dcb569cf0ef98e65c2abe80d7398ccd15",
           "registration": "},\n        \"createDevice merges a Bluetooth method with an existing WiFi method\" to",
           "assertions": [
@@ -13916,6 +13951,7 @@
           "line": 147,
           "end_line": 151,
           "factory_method": "identityFactory",
+          "registration_identity_resolution": null,
           "body_sha256": "c31e432f08bfceaf0757dbef55f6050ce314ab483963ab5de8b8058f4eb53f4b",
           "registration": "},\n        \"createDevice replaces a stale Bluetooth peripheral UUID instead of accumulating\" to",
           "assertions": [
@@ -14099,6 +14135,7 @@
           "line": 33,
           "end_line": 37,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c9189fcb01ffa70db2c5886d9383180538d7dfbf7ee21f0ed576a978b406a47e",
           "registration": null,
           "assertions": [
@@ -14371,6 +14408,7 @@
           "line": 39,
           "end_line": 46,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "8b81dc8c961ad4dbd5b07e529cb911279c55e054e27d9a802be8c659cd15a897",
           "registration": null,
           "assertions": [
@@ -14571,6 +14609,7 @@
           "line": 48,
           "end_line": 53,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5cfbc3ae47b33bacf29aea0c62969456574b24e5f59b545fec9772ca04b31a3c",
           "registration": null,
           "assertions": [
@@ -14801,6 +14840,7 @@
           "line": 55,
           "end_line": 60,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "4b50b6aa7166c2d37c71990494cccc728704860b37c2ed07aa905e1dbfebc461",
           "registration": null,
           "assertions": [
@@ -14989,6 +15029,7 @@
           "line": 62,
           "end_line": 65,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "8a849c01d57998c5abb962f510a57dac6b9e09af559b4ab26bf1e52ea51c0eef",
           "registration": null,
           "assertions": [
@@ -15225,6 +15266,7 @@
           "line": 67,
           "end_line": 76,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b629906d6efe3d1c269b66747c2e752346b508ba32bc14f79360451d47f30fdb",
           "registration": null,
           "assertions": [
@@ -15515,6 +15557,7 @@
           "line": 78,
           "end_line": 81,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "ecf99b3ed4d890ee45a57bbffee16411e5ddcc315a323d2c421bcb607c3b2e41",
           "registration": null,
           "assertions": [
@@ -15667,6 +15710,7 @@
           "line": 83,
           "end_line": 87,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "57b4eea245f94ce35e0d2b0718945564a7e5ecbff447d73b4121fb9d1702019b",
           "registration": null,
           "assertions": [
@@ -15807,6 +15851,7 @@
           "line": 89,
           "end_line": 89,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "4065d39d858b2eb1d9f724b4e0d0f41f4b6afec749db72dbd3b3208d9cc3652b",
           "registration": null,
           "assertions": [
@@ -15911,6 +15956,7 @@
           "line": 91,
           "end_line": 93,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "7e4121b3bace04cb51aba25f98af75ebbf8110bd85157b6350ea28dc0e291def",
           "registration": null,
           "assertions": [
@@ -16075,6 +16121,7 @@
           "line": 95,
           "end_line": 100,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "04e770fa85f9749cb65315380ed26bbeae3c406717fb2ca0db29a0d01f75ac8e",
           "registration": null,
           "assertions": [
@@ -16335,6 +16382,7 @@
           "line": 102,
           "end_line": 109,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "41e43cfb00aa32855b132a10528bf2c5b7747826f2170ff711790b459bcbfe6c",
           "registration": null,
           "assertions": [
@@ -16625,6 +16673,7 @@
           "line": 111,
           "end_line": 117,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "ef0bb0e1238ed8f3d6c0e24c398b0db9d5f93223d665b965a2a08966ed9acd89",
           "registration": null,
           "assertions": [
@@ -16873,6 +16922,7 @@
           "line": 119,
           "end_line": 124,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e26de5eac8c5980d571800cf1d5bc96fb9fcd6505d33518e12ee54f4f30ecc29",
           "registration": null,
           "assertions": [
@@ -17061,6 +17111,7 @@
           "line": 126,
           "end_line": 130,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "4c4637f5fdb6c346713556108e15033c66de32b431a4202fa512be1215ce5488",
           "registration": null,
           "assertions": [
@@ -17249,6 +17300,7 @@
           "line": 20,
           "end_line": 25,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "dff3cd52a4272038bcf59a3f27a7212c053f9c701cb5375728476922d194df19",
           "registration": "\"ContactDTOPathTests\",\n        \"Single-byte hops chunk into one (data, hex) pair each\" to",
           "assertions": [
@@ -17352,6 +17404,7 @@
           "line": 51,
           "end_line": 55,
           "factory_method": "messagePaths",
+          "registration_identity_resolution": null,
           "body_sha256": "2cde55c6e5da9728f4f1402ebc250bf75d3561f7d8211b44605db90a39b7422e",
           "registration": "\"MessageDTOPathTests\",\n        \"Single-byte hops chunk into one (data, hex) pair each\" to",
           "assertions": [
@@ -17534,6 +17587,7 @@
           "line": 26,
           "end_line": 30,
           "factory_method": "contactPaths",
+          "registration_identity_resolution": null,
           "body_sha256": "d8d257b302f4a0684a01703ecddb7deb928784a0274c77646beded858921c5c5",
           "registration": "},\n        \"Multi-byte hops chunk by the encoded hash size\" to",
           "assertions": [
@@ -17619,6 +17673,7 @@
           "line": 56,
           "end_line": 60,
           "factory_method": "messagePaths",
+          "registration_identity_resolution": null,
           "body_sha256": "43e71911dc621703d02f0c6c73a89ba7046eec4857836c94b9f6c74bc2e49bc1",
           "registration": "},\n        \"Multi-byte hops chunk by the encoded hash size\" to",
           "assertions": [
@@ -17759,6 +17814,7 @@
           "line": 61,
           "end_line": 63,
           "factory_method": "messagePaths",
+          "registration_identity_resolution": null,
           "body_sha256": "70c33139657971ae1ecfb81ee34b8db742e8e1f3d6ad3c56ca8ace871112a0a0",
           "registration": "},\n        \"A trailing partial hop is kept as a short final chunk\" to",
           "assertions": [
@@ -17869,6 +17925,7 @@
           "line": 64,
           "end_line": 64,
           "factory_method": "messagePaths",
+          "registration_identity_resolution": null,
           "body_sha256": "d8d4c77be93fedbdf63ff1dfb4ab9e68686645dd8af9fa4572c1e5755505b397",
           "registration": "},\n        \"A message with no path nodes has no hops\" to",
           "assertions": [
@@ -17967,6 +18024,7 @@
           "line": 24,
           "end_line": 24,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "b2173595646e7c7778df460466956ba9fc64da551f34f1bc8bf5d0e56b091a68",
           "registration": "\"ChannelRegionScopeTests\",\n        \"Default floodScope is .inherit\" to",
           "assertions": [
@@ -18054,6 +18112,7 @@
           "line": 25,
           "end_line": 25,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "dcf2fa5847807fac0b6fb2b4f2907aa2287abb4391e18aaf4cb807e5d8509158",
           "registration": "},\n        \".region(name) preserved on init\" to",
           "assertions": [
@@ -18165,6 +18224,7 @@
           "line": 26,
           "end_line": 29,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "dbb3f00a3f01d83c8e31ef2d73d267e3b82427cb2940383e98f9f1a7e8a06adc",
           "registration": "},\n        \"with(notificationLevel:) preserves .region(name)\" to",
           "assertions": [
@@ -18270,6 +18330,7 @@
           "line": 30,
           "end_line": 30,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "859a0d9d2478907aafb4bbfd38cf708584f69dbe774c77f69149dff7021dc7dc",
           "registration": "},\n        \"with(notificationLevel:) preserves .allRegions\" to",
           "assertions": [
@@ -18357,6 +18418,7 @@
           "line": 31,
           "end_line": 31,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "121bebc517199a4dbfe3dc17e84343d9205cf1dc0d73c4db6b0636375195dc20",
           "registration": "},\n        \"with(notificationLevel:) preserves .inherit\" to",
           "assertions": [
@@ -18462,6 +18524,7 @@
           "line": 32,
           "end_line": 35,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "ed2093c418a3e0f203055e1612dd387087fbcff6232d71fbb5bc9bd7f119156f",
           "registration": "},\n        \"with(isFavorite:) preserves .region(name)\" to",
           "assertions": [
@@ -18567,6 +18630,7 @@
           "line": 36,
           "end_line": 36,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "df5640d2bd8987fb9e3be8f5e0317869214d12c38472cd4df8ca652964438c76",
           "registration": "},\n        \"with(isFavorite:) preserves .inherit\" to",
           "assertions": [
@@ -18672,6 +18736,7 @@
           "line": 37,
           "end_line": 37,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "297fb43d854eac164a4c6f01cadcef09abda2737834ea00c1a4981e899ff7e6a",
           "registration": "},\n        \"with(floodScope:) updates from .region to .region\" to",
           "assertions": [
@@ -18789,6 +18854,7 @@
           "line": 38,
           "end_line": 41,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "0b75ef8524297f3bdaaed67b8760fadc72b25f2b4464f8a3fcf5f4d0c303f73c",
           "registration": "},\n        \"with(floodScope: .inherit) clears region name in storage\" to",
           "assertions": [
@@ -18900,6 +18966,7 @@
           "line": 42,
           "end_line": 42,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "2e16f58f320e20218ab95964445d23cd561fb7f5bdac7faf10dba06957396eb5",
           "registration": "},\n        \"with(floodScope:) sets specific region from inherit\" to",
           "assertions": [
@@ -19071,6 +19138,7 @@
           "line": 43,
           "end_line": 46,
           "factory_method": "channelRegionCopies",
+          "registration_identity_resolution": null,
           "body_sha256": "707504a54d71be5bffc4cff2c2f93baad0f0eb41093d2b1acdb0a6aabb321d0d",
           "registration": "},\n        \"with(floodScope:) preserves all other fields\" to",
           "assertions": [
@@ -19248,6 +19316,7 @@
           "line": 167,
           "end_line": 173,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c2d7f88eafdf45104af0cdf54598444ca389ec15bc2192b89e8b143c1d88d2a8",
           "registration": null,
           "assertions": [
@@ -19388,6 +19457,7 @@
           "line": 175,
           "end_line": 178,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a06ea6f91b4ce17052cefa5c5b4a2c565f0137ca324e7e50f8987d1db543bd09",
           "registration": null,
           "assertions": [
@@ -19486,6 +19556,7 @@
           "line": 118,
           "end_line": 118,
           "factory_method": "connectionValues",
+          "registration_identity_resolution": null,
           "body_sha256": "14ebac5f9b5828ff2eff0cccde96e350033fe92b0c00b5427c06366ca1c7101f",
           "registration": "\"ConnectionMethodTests\",\n        \"Bluetooth method has correct identifier\" to",
           "assertions": [
@@ -19567,6 +19638,7 @@
           "line": 119,
           "end_line": 119,
           "factory_method": "connectionValues",
+          "registration_identity_resolution": null,
           "body_sha256": "5e8541efed3f6d0f224ba9eeae44665c8b710dc9c14531115824fe97ab595d28",
           "registration": "},\n        \"WiFi method has correct identifier\" to",
           "assertions": [
@@ -19642,6 +19714,7 @@
           "line": 120,
           "end_line": 120,
           "factory_method": "connectionValues",
+          "registration_identity_resolution": null,
           "body_sha256": "d6f17a490e6f94dd92a58f3989a79b5293417f347f11e31bf1817c4d7207cc90",
           "registration": "},\n        \"Display name returns custom name when set\" to",
           "assertions": [
@@ -19717,6 +19790,7 @@
           "line": 121,
           "end_line": 121,
           "factory_method": "connectionValues",
+          "registration_identity_resolution": null,
           "body_sha256": "2cc3c041ee60abcfa9f78abaf6ca3a6988ab72140a673c83823e244e50b1d7f5",
           "registration": "},\n        \"Display name returns nil when not set\" to",
           "assertions": [
@@ -19804,6 +19878,7 @@
           "line": 68,
           "end_line": 68,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "991e247cd0efcb544ecdaa40e9e75c36a46e4fc249c7ef518bcf4188e9cde885",
           "registration": "\"DeviceDTOClientRepeatTests\",\n        \"helper defaults radioID to id\" to",
           "assertions": [
@@ -19902,6 +19977,7 @@
           "line": 69,
           "end_line": 69,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "cd416f0aacf3b0b00b08629934f98986db42b0a9dc4384dc9aedbcc86546d81d",
           "registration": "},\n        \"supportsClientRepeat returns true for firmware v9\" to",
           "assertions": [
@@ -19976,6 +20052,7 @@
           "line": 70,
           "end_line": 70,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "19203b26253bbff3e2e4bfa2284944f6985e3e99e77d6c4698105f31ff7898cd",
           "registration": "},\n        \"supportsClientRepeat returns false for firmware v8\" to",
           "assertions": [
@@ -20056,6 +20133,7 @@
           "line": 71,
           "end_line": 71,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "71a4e89078c85e7b29edfb709551cbbdeeb1404132d2e604bc1085364a70fe43",
           "registration": "},\n        \"supportsClientRepeat returns true for firmware v10\" to",
           "assertions": [
@@ -20142,6 +20220,7 @@
           "line": 72,
           "end_line": 74,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "2f11e99b63fe796fb91ee96843003c77c3bdc7287f67bbc6d4269c6293d70db4",
           "registration": "},\n        \"sharesLocationPublicly is false for policy none\" to",
           "assertions": [
@@ -20234,6 +20313,7 @@
           "line": 75,
           "end_line": 77,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "cb27ccd31120071d28b2018c42982eed74fe054523425f9db30eefb00bdfcb03",
           "registration": "},\n        \"sharesLocationPublicly is true for policy share\" to",
           "assertions": [
@@ -20326,6 +20406,7 @@
           "line": 78,
           "end_line": 80,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "db47c84e604f2c1aac2d0bab6e527170c5ab36cc54f5d513da4a459ff450817e",
           "registration": "},\n        \"sharesLocationPublicly is true for policy prefs\" to",
           "assertions": [
@@ -20430,6 +20511,7 @@
           "line": 81,
           "end_line": 84,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "7bbfc14545486ea923a9511507b444f15b462066a3cef5dedd3fce55ef97dfec",
           "registration": "},\n        \"copy mutates only specified fields\" to",
           "assertions": [
@@ -20540,6 +20622,7 @@
           "line": 85,
           "end_line": 85,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "15db7ff592005be74fc6e1cf16d6fe4cce8c1dd0e2339b69ed78393f5f9661ec",
           "registration": "},\n        \"copy can set optional fields to nil\" to",
           "assertions": [
@@ -20638,6 +20721,7 @@
           "line": 86,
           "end_line": 86,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "cb5e77c9e244f78885398d35a77c8da494a96ad1bb4ab1b5cae7a8246fc59d7a",
           "registration": "},\n        \"copy can update multiple fields at once\" to",
           "assertions": [
@@ -20760,6 +20844,7 @@
           "line": 87,
           "end_line": 91,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "542ca66f1a8d199efa3d7237e695310e74387e41f78f713d6ffbd1f1523c8834",
           "registration": "},\n        \"savingPreRepeatSettings copies current radio params\" to",
           "assertions": [
@@ -20894,6 +20979,7 @@
           "line": 92,
           "end_line": 95,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "b8c38dc99d671db60818465eadde5d25381ee302f85d4fa21ddf2240cced1e2a",
           "registration": "},\n        \"savingPreRepeatSettings preserves other fields\" to",
           "assertions": [
@@ -21022,6 +21108,7 @@
           "line": 96,
           "end_line": 99,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "facbcd724d237b28a2e63091d56fa39a847b11f16065048b413fb2fb8a9e86af",
           "registration": "},\n        \"clearingPreRepeatSettings sets all preRepeat fields to nil\" to",
           "assertions": [
@@ -21144,6 +21231,7 @@
           "line": 100,
           "end_line": 100,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "90dcb6b0f5a250c5d5187b36ea613c6c81722c7f4b000b2f30f7ebd68cea9189",
           "registration": "},\n        \"hasPreRepeatSettings requires all four fields\" to",
           "assertions": [
@@ -21242,6 +21330,7 @@
           "line": 101,
           "end_line": 101,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "69ff6e1d0044caab7dff1f25194ae601515edbfd15c0f4fad65b878ad11972e3",
           "registration": "},\n        \"hasPreRepeatSettings returns false when all nil\" to",
           "assertions": [
@@ -21322,6 +21411,7 @@
           "line": 102,
           "end_line": 102,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "57b296a1af92d5effb67b502d5e6bb5cd5a504ac2a530147cc05d4fe4fc42e2c",
           "registration": "},\n        \"updating(from: SelfInfo) carries forward clientRepeat\" to",
           "assertions": [
@@ -21444,6 +21534,7 @@
           "line": 103,
           "end_line": 107,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "73d09e334bc61a8723624983fc2ac0fa04b04c04c98e98b803879d1451bb6db4",
           "registration": "},\n        \"updating(from: SelfInfo) carries forward preRepeat settings\" to",
           "assertions": [
@@ -21590,6 +21681,7 @@
           "line": 108,
           "end_line": 112,
           "factory_method": "clientRepeat",
+          "registration_identity_resolution": null,
           "body_sha256": "d700b0d41c2614b31345cdff62301cb6708253d742bcaabd4544bcfa54776a4d",
           "registration": "},\n        \"updating(from: SelfInfo) updates radio params from SelfInfo\" to",
           "assertions": [
@@ -21772,6 +21864,7 @@
           "line": 116,
           "end_line": 119,
           "factory_method": "firmwareVersions",
+          "registration_identity_resolution": null,
           "body_sha256": "20e427bf93cd680436feb9e8e17c3189dbd025df4f3ee73ae44adc1da32dff16",
           "registration": "\"FirmwareVersionComparisonTests\",\n        \"bare and v-prefixed versions compare on major minor\" to",
           "assertions": [
@@ -21894,6 +21987,7 @@
           "line": 120,
           "end_line": 123,
           "factory_method": "firmwareVersions",
+          "registration_identity_resolution": null,
           "body_sha256": "950165cc097c380da418cc6c28baa1851d3438e85e1efc88df23c30208bb4f70",
           "registration": "},\n        \"CLI ver banner compares on the first major minor\" to",
           "assertions": [
@@ -22016,6 +22110,7 @@
           "line": 124,
           "end_line": 124,
           "factory_method": "firmwareVersions",
+          "registration_identity_resolution": null,
           "body_sha256": "74cb89f50f6bbcf9756924995da3392e4f0b03fc6aeb80452b8c9ee9b2bfb7b3",
           "registration": "},\n        \"unparseable strings are not at least any version\" to",
           "assertions": [
@@ -22126,6 +22221,7 @@
           "line": 128,
           "end_line": 131,
           "factory_method": "protocolLimits",
+          "registration_identity_resolution": null,
           "body_sha256": "0009bb74a8398498970d73c80e9a00deb214848597cd1b740c50a418c4200052",
           "registration": "\"ProtocolLimitsTests\",\n        \"composed cap is the last 9-block size\" to",
           "assertions": [
@@ -22236,6 +22332,7 @@
           "line": 132,
           "end_line": 135,
           "factory_method": "protocolLimits",
+          "registration_identity_resolution": null,
           "body_sha256": "c1c47acbf7e1999c45a100cd58005d2bed209abf6047a9ed6c9820f2480cb4ed",
           "registration": "},\n        \"Region 1-hop at the cap fits a 172-byte companion frame\" to",
           "assertions": [
@@ -22328,6 +22425,7 @@
           "line": 136,
           "end_line": 139,
           "factory_method": "protocolLimits",
+          "registration_identity_resolution": null,
           "body_sha256": "d71c2975aa19524027f75230052d46883ae862f1c656b1096a67ef9b9c43706c",
           "registration": "},\n        \"Region 1-hop at 147 overflows 172 and still fits 176\" to",
           "assertions": [
@@ -22474,6 +22572,7 @@
           "line": 87,
           "end_line": 92,
           "factory_method": "regionLabels",
+          "registration_identity_resolution": null,
           "body_sha256": "9dd9badd730db83ace3d3dc3890cf7a223814b76a6ab20361ea34b1651826869",
           "registration": "\"RegionScopeSemanticsTests\",\n        \"storageFields maps none unique and ambiguous\" to",
           "assertions": [
@@ -22639,6 +22738,7 @@
           "line": 93,
           "end_line": 93,
           "factory_method": "regionLabels",
+          "registration_identity_resolution": null,
           "body_sha256": "f9dacb4704681e076ef421ff90ec3c975ac49c7cfc390e5986c1f01c6edc3613",
           "registration": "},\n        \"coalesce prefers multi-match over sticky scope\" to",
           "assertions": [
@@ -22738,6 +22838,7 @@
           "line": 94,
           "end_line": 94,
           "factory_method": "regionLabels",
+          "registration_identity_resolution": null,
           "body_sha256": "779a27e403412fcd7805e1195c6f78e70b0df405ce063f56a79292364f7a4c66",
           "registration": "},\n        \"coalesce unique from single match\" to",
           "assertions": [
@@ -22831,6 +22932,7 @@
           "line": 95,
           "end_line": 95,
           "factory_method": "regionLabels",
+          "registration_identity_resolution": null,
           "body_sha256": "65b3280e81200f1b51ae756fac36aff93d944d50752b39777fd38bbad835fa80",
           "registration": "},\n        \"coalesce legacy unique from scope only\" to",
           "assertions": [
@@ -22930,6 +23032,7 @@
           "line": 96,
           "end_line": 99,
           "factory_method": "regionLabels",
+          "registration_identity_resolution": null,
           "body_sha256": "5f0823145398277c1550a8e6ccbb26dd65e36c1d34309b222867d8153cad31b7",
           "registration": "},\n        \"coalesce none when both empty\" to",
           "assertions": [
@@ -23065,6 +23168,7 @@
           "line": 100,
           "end_line": 103,
           "factory_method": "regionLabels",
+          "registration_identity_resolution": null,
           "body_sha256": "1614b05f9e1a52345667ccc5c5fd59b19ec949d2011714bda107bc28c8df7310",
           "registration": "},\n        \"chipLabel joins ambiguous with slash separator\" to",
           "assertions": [
@@ -23236,6 +23340,7 @@
           "line": 104,
           "end_line": 114,
           "factory_method": "regionLabels",
+          "registration_identity_resolution": null,
           "body_sha256": "cbca38e02d0bf685cb4ed0c24fc67f454bf767a35dd648f8fbfe20dd4d22b131",
           "registration": "},\n        \"matchRegions multi-match never stores first-match as regionScope\" to",
           "assertions": [
@@ -23407,6 +23512,7 @@
           "line": 144,
           "end_line": 147,
           "factory_method": "nodeLocations",
+          "registration_identity_resolution": null,
           "body_sha256": "9cf330254bd07ca9be5278b0db85a043d541c5aa44175b0d31e9c6070c7e6236",
           "registration": "\"NodeLocationFixTests\",\n        \"Primary fix is the first valid GPS point\" to",
           "assertions": [
@@ -23517,6 +23623,7 @@
           "line": 148,
           "end_line": 148,
           "factory_method": "nodeLocations",
+          "registration_identity_resolution": null,
           "body_sha256": "6a7924b16cd8f9f0512e453a26de1e949bf0b8d4b3c7da6cb29f6dd770cc7ccf",
           "registration": "},\n        \"A (0,0) fix is dropped\" to",
           "assertions": [
@@ -23609,6 +23716,7 @@
           "line": 149,
           "end_line": 149,
           "factory_method": "nodeLocations",
+          "registration_identity_resolution": null,
           "body_sha256": "bdb722eabf9d0a3bf267cfd058d2cd52ecd675a8dc9624c1532d6d445cd7c8ed",
           "registration": "},\n        \"An out-of-range fix is dropped\" to",
           "assertions": [
@@ -23707,6 +23815,7 @@
           "line": 150,
           "end_line": 150,
           "factory_method": "nodeLocations",
+          "registration_identity_resolution": null,
           "body_sha256": "a937bed99b341480c2653c402a3e9be0bd533370d9ff4043a1c05f5a0e9a2bcb",
           "registration": "},\n        \"No GPS point yields no fix\" to",
           "assertions": [
@@ -23811,6 +23920,7 @@
           "line": 155,
           "end_line": 155,
           "factory_method": "deviceIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "f74e5f59c3f59f11b496fe1dac60730c1219d32e934570fb9cb638464845c0ed",
           "registration": "\"DeviceIdentityTests\",\n        \"Derives consistent UUID from public key\" to",
           "assertions": [
@@ -23910,6 +24020,7 @@
           "line": 156,
           "end_line": 156,
           "factory_method": "deviceIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "9828120fc159a034dad3d4740bf2f36169c4d89c45555c7552759cf5ed249de6",
           "registration": "},\n        \"Different public keys produce different UUIDs\" to",
           "assertions": [
@@ -24063,6 +24174,7 @@
           "line": 157,
           "end_line": 161,
           "factory_method": "deviceIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "fe828b46023038ea3ac5b501c47c07f1300149f61bc781d89f3447c2b82deb89",
           "registration": "},\n        \"UUID derivation uses SHA256\" to",
           "assertions": [
@@ -24198,6 +24310,7 @@
           "line": 168,
           "end_line": 168,
           "factory_method": "vContactIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "41d483d0f4f2f9b1ba04764353385350f74257ab17d774e393217458825e82ef",
           "registration": "\"VContactIdentityTests\",\n        \"Salt is eleven bytes without null terminator\" to",
           "assertions": [
@@ -24291,6 +24404,7 @@
           "line": 169,
           "end_line": 169,
           "factory_method": "vContactIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "2f89e239db6faf3b15878affaf8415264ed60ba6fe17c9bd5b911dd2118c4d5c",
           "registration": "},\n        \"Derives golden V-contact public key for known self key\" to",
           "assertions": [
@@ -24396,6 +24510,7 @@
           "line": 170,
           "end_line": 170,
           "factory_method": "vContactIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "fb490d375941ea426d482a96bea88ffe9a2115adeceb57cef8e8f1402ea8d9e3",
           "registration": "},\n        \"Different self keys produce different V-contact keys\" to",
           "assertions": [
@@ -24519,6 +24634,7 @@
           "line": 171,
           "end_line": 171,
           "factory_method": "vContactIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "a3c18c8900239d23e3a27f5a87a89646229435a7ba3793822f809a680823f260",
           "registration": "},\n        \"Derivation matches manual CryptoKit concatenation\" to",
           "assertions": [
@@ -24624,6 +24740,7 @@
           "line": 172,
           "end_line": 172,
           "factory_method": "vContactIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "613b5bd10b540f7e289230f8a1f2544dc16f8395a7f7b38d66277314b4cb39a9",
           "registration": "},\n        \"isVContact matches only derived key\" to",
           "assertions": [
@@ -24783,6 +24900,7 @@
           "line": 173,
           "end_line": 176,
           "factory_method": "vContactIdentity",
+          "registration_identity_resolution": null,
           "body_sha256": "178d44a325773a6beb1a8bba11d5b3ec4ad9b7138603a2f5148e2675cac28000",
           "registration": "},\n        \"Invalid key lengths fail open as non-V\" to",
           "assertions": [

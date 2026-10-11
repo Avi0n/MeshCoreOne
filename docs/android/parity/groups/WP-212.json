@@ -2495,6 +2495,7 @@
           "line": 83,
           "end_line": 83,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "d0a11801d06e6cf4ed00048fcdc2184644c15c4fe5c001eb0d5bbc96f83b8956",
           "registration": "\"RFCalculatorTests\",\n        \"Speed of light constant is correct\" to",
           "assertions": [],
@@ -2551,6 +2552,7 @@
           "line": 84,
           "end_line": 84,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "2a55e2a9e6504461d38324f25fb16afbca7c1edf5057b5d48c1b4c1816d7a685",
           "registration": "},\n        \"Earth radius constant is correct\" to",
           "assertions": [],
@@ -2576,6 +2578,7 @@
           "line": 21,
           "end_line": 23,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5797ae44f63ced62f61c5f1c0a151d046c6115340f78c862ed88ba9b85e31ea7",
           "registration": null,
           "assertions": [
@@ -2644,6 +2647,7 @@
           "line": 85,
           "end_line": 87,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "612ab7e90baff73039cbb658dbd1892eeed032a224ba941ed73e9778b97c0863",
           "registration": "},\n        \"Wavelength at 910 MHz is approximately 0.3294m\" to",
           "assertions": [],
@@ -2718,6 +2722,7 @@
           "line": 88,
           "end_line": 90,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "262c693a89e9a0e06b058456c069d427bf6720113c7b5e1306483fea37616fc7",
           "registration": "},\n        \"Wavelength at 2400 MHz is approximately 0.125m\" to",
           "assertions": [],
@@ -2786,6 +2791,7 @@
           "line": 91,
           "end_line": 91,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "b2371e9d3b7a4ba2cd25c3b119f2d9df0878766534bafb3c9d625341459c9ae9",
           "registration": "},\n        \"Wavelength returns 0 for zero frequency\" to",
           "assertions": [],
@@ -2854,6 +2860,7 @@
           "line": 92,
           "end_line": 92,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "a97ef4f4c312e41b1a234646b202e4596264bbcf7549c0ad7733c412f9ade981",
           "registration": "},\n        \"Wavelength returns 0 for negative frequency\" to",
           "assertions": [],
@@ -2928,6 +2935,7 @@
           "line": 93,
           "end_line": 95,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "35f3ad168da14fa16bd5f11e175ae3a79168546b253f265bb26ac949b23717ab",
           "registration": "},\n        \"Fresnel radius at midpoint is approximately 22.23m for 6km at 910MHz\" to",
           "assertions": [],
@@ -3014,6 +3022,7 @@
           "line": 96,
           "end_line": 103,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "9b97deabbfc8ac00ff81b85bc8701dbf1df88e471e8cb660af60c66ca23388e9",
           "registration": "},\n        \"Fresnel radius at quarter point is smaller than at midpoint\" to",
           "assertions": [
@@ -3107,6 +3116,7 @@
           "line": 104,
           "end_line": 108,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "23a9afc5dd380a1d9912b24b3ade59469454128b2c861927a09a854a7285e1ba",
           "registration": "},\n        \"Fresnel radius is symmetric\" to",
           "assertions": [],
@@ -3217,6 +3227,7 @@
           "line": 109,
           "end_line": 114,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "52ac16b0cdc2e68edf3880879bcd4fbca52c19542e82abd6674f6f07c8b4aff4",
           "registration": "},\n        \"Fresnel radius returns 0 for invalid inputs\" to",
           "assertions": [],
@@ -3327,6 +3338,7 @@
           "line": 115,
           "end_line": 117,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "7dfe2c6e4bd5f30459c66c59240cdc8cc206df6640ca82ffaf4df56082f1c862",
           "registration": "},\n        \"Earth bulge at midpoint with k=0.25 is approximately 2.82m for 6km\" to",
           "assertions": [],
@@ -3413,6 +3425,7 @@
           "line": 118,
           "end_line": 123,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "b259f89f5b23420069e310ded00cb722589048c8ed4c2fd9efc5a9b9b963c591",
           "registration": "},\n        \"Earth bulge with standard atmosphere k=1.33 is smaller\" to",
           "assertions": [
@@ -3506,6 +3519,7 @@
           "line": 124,
           "end_line": 130,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "52ba50cb3a5388012e890f209b5070bd1db89c1f81c2e72262e5e09c108cb7fc",
           "registration": "},\n        \"Earth bulge is symmetric\" to",
           "assertions": [],
@@ -3616,6 +3630,7 @@
           "line": 131,
           "end_line": 136,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "34675608b6884260a9316c016dc0ad4a30ae880b258005ed1940ef7ef7176f74",
           "registration": "},\n        \"Earth bulge returns 0 for invalid inputs\" to",
           "assertions": [],
@@ -3726,6 +3741,7 @@
           "line": 137,
           "end_line": 139,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "726cd5cee86d1bde7486a033aa1f2f353b966dd2225990fb8bbe87f52bc2196f",
           "registration": "},\n        \"Path loss is approximately 107.2 dB for 6km at 910MHz\" to",
           "assertions": [],
@@ -3836,6 +3852,7 @@
           "line": 140,
           "end_line": 149,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "787134c991ffdd37949077059d9fad2b47256e68693860a5b6dec7f895fe88ad",
           "registration": "},\n        \"Path loss increases with distance\" to",
           "assertions": [
@@ -3953,6 +3970,7 @@
           "line": 150,
           "end_line": 156,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "4fe3d8e3ca7a4ea47d9457d306fc28046448558aa408a2a108210bfbcc940c14",
           "registration": "},\n        \"Path loss increases with frequency\" to",
           "assertions": [
@@ -4076,6 +4094,7 @@
           "line": 157,
           "end_line": 162,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "7788d9d33be4a9d6ee47e602af1bd0b18d5a2394b53ae01b06694c9bb2e1b907",
           "registration": "},\n        \"Path loss returns 0 for invalid inputs\" to",
           "assertions": [],
@@ -4180,6 +4199,7 @@
           "line": 163,
           "end_line": 165,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "132b8ef45b2513e4de3a6e7c9918586e7bb3471ed01b68f8eaef4fb925f5c790",
           "registration": "},\n        \"Diffraction loss is zero for clear line-of-sight (v below grazing)\" to",
           "assertions": [],
@@ -4254,6 +4274,7 @@
           "line": 166,
           "end_line": 168,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "a3915f3fc5f3cfffe2188b636169e57c4a2b4c896d40b46868415493029db67c",
           "registration": "},\n        \"Diffraction loss is approximately 6 dB for grazing (v near 0)\" to",
           "assertions": [],
@@ -4328,6 +4349,7 @@
           "line": 169,
           "end_line": 172,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "056133eeb1a4e05e1c1686d647502d7f033fc8bcac7584bb52147f8eda6ad315",
           "registration": "},\n        \"Diffraction loss increases for blocked path (v near 1)\" to",
           "assertions": [],
@@ -4414,6 +4436,7 @@
           "line": 173,
           "end_line": 179,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "9f335a8f26e808d7ebfc3ae40167bfc67edb575414cd11f20cece95056de41fe",
           "registration": "},\n        \"Diffraction loss is greater for larger obstructions\" to",
           "assertions": [
@@ -4507,6 +4530,7 @@
           "line": 180,
           "end_line": 182,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "143a1d7aa117f9436a7f045f27cc3a5d3eeed32d4dc67862c1981500c0447e52",
           "registration": "},\n        \"Diffraction loss matches ITU-R P.526 reference value at strong obstruction (v \u2248 2.4)\" to",
           "assertions": [],
@@ -4599,6 +4623,7 @@
           "line": 183,
           "end_line": 187,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "b2f1e4d191570681d98588dea96aa78c31e46a5daf6deb87af4b7160cbefbc57",
           "registration": "},\n        \"Diffraction loss returns 0 for invalid inputs\" to",
           "assertions": [],
@@ -4697,6 +4722,7 @@
           "line": 188,
           "end_line": 190,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "63ac238e14cd0b5fdbe090583f6462c822ebff1ddb5f6e885122fa13439a18c4",
           "registration": "},\n        \"Distance between same coordinates is zero\" to",
           "assertions": [],
@@ -4728,6 +4754,7 @@
           "line": 26,
           "end_line": 30,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "29a0876d860818a4904ba78afd132c85be536f06de8ebc5f1f9a5a9120c34554",
           "registration": null,
           "assertions": [
@@ -4821,6 +4848,7 @@
           "line": 191,
           "end_line": 193,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "a8af6064c3ad6c223284049d9b8dcd055a1b37893cafadfaa3f0f54f0f5032a3",
           "registration": "},\n        \"Haversine distance calculation is accurate\" to",
           "assertions": [],
@@ -4852,6 +4880,7 @@
           "line": 33,
           "end_line": 42,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "1b1dda81d68a41fe0e93359a17eeb5e5d0adb264c30eff4449c0df01d60866f1",
           "registration": null,
           "assertions": [
@@ -4963,6 +4992,7 @@
           "line": 194,
           "end_line": 200,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "dee6f8986c34ef228d6dff4e6448983cf114025ab11ba906b4a1f571e31082d9",
           "registration": "},\n        \"Haversine distance is symmetric\" to",
           "assertions": [],
@@ -5000,6 +5030,7 @@
           "line": 45,
           "end_line": 53,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "2494f191c0754a05ee36bf5f3a135a41adfd5ee31d9f38ba4a1d711335d25bca",
           "registration": null,
           "assertions": [
@@ -5111,6 +5142,7 @@
           "line": 201,
           "end_line": 204,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "4b11f691e094fb55488f88299aa3e5947d02bf85d3f721ae737f45cae7f8c8ed",
           "registration": "},\n        \"Distance across date line is correct\" to",
           "assertions": [],
@@ -5148,6 +5180,7 @@
           "line": 56,
           "end_line": 65,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "912be0947adb359ee01aeac67db0746d8af19954b4daa6abc68e09a2ed70de45",
           "registration": null,
           "assertions": [
@@ -5253,6 +5286,7 @@
           "line": 205,
           "end_line": 208,
           "factory_method": "rfCalculator",
+          "registration_identity_resolution": null,
           "body_sha256": "af348c20cef10c0f3eabe9ef8721489d6a1fdbb47feb493c0a10a765ab5dc060",
           "registration": "},\n        \"Short distance calculation is accurate\" to",
           "assertions": [],
@@ -5290,6 +5324,7 @@
           "line": 68,
           "end_line": 78,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0277aae2848985172708eaa974d4a26472afe7dce266a25c679d2788028ef634",
           "registration": null,
           "assertions": [
@@ -5407,6 +5442,7 @@
           "line": 213,
           "end_line": 220,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "3cc3d9d34b1593ea7dee59b3e69f121e0ef3084ed353dab0cd9899643a02c929",
           "registration": "\"PathAnalysisTests\",\n        \"Clear path with flat terrain returns clear status\" to",
           "assertions": [
@@ -5536,6 +5572,7 @@
           "line": 221,
           "end_line": 226,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "2e3f4795a9348d1a2f70294dd14b20a36d88c8b6121893fcc645d2fd5f3896ba",
           "registration": "},\n        \"Clear path has only FSPL, no diffraction loss\" to",
           "assertions": [],
@@ -5640,6 +5677,7 @@
           "line": 227,
           "end_line": 232,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "95770d2f9c21c3e6b49b16992c9b470dbed30cfb5209233fb9136393c983c414",
           "registration": "},\n        \"Blocked path with 100m mountain returns blocked status\" to",
           "assertions": [
@@ -5745,6 +5783,7 @@
           "line": 233,
           "end_line": 237,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "99d0db3645c1b0c61cdd55cd53ce51988e37c0641e3d4c4d571ae7604e308ef2",
           "registration": "},\n        \"Blocked path has significant diffraction loss\" to",
           "assertions": [
@@ -5838,6 +5877,7 @@
           "line": 238,
           "end_line": 244,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "74f01244b25fba505a8fb3615070a898a949a8b0db415a0b50a3c9693b796eec",
           "registration": "},\n        \"Marginal path with partial obstruction returns marginal status\" to",
           "assertions": [
@@ -5943,6 +5983,7 @@
           "line": 245,
           "end_line": 251,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "cf028cf743eaaedfde5859c9a7fe7cf3360c80dc938293e2f012b6a28d6797cc",
           "registration": "},\n        \"Partial obstruction path returns partial obstruction status\" to",
           "assertions": [
@@ -6048,6 +6089,7 @@
           "line": 252,
           "end_line": 256,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "581729307830c8a9bbd22213eaf00a6cd57e8dbd2c80a24c2a7d5e8c577bfc54",
           "registration": "},\n        \"Empty profile returns blocked status\" to",
           "assertions": [
@@ -6141,6 +6183,7 @@
           "line": 257,
           "end_line": 260,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "f852010b5c74882e30c0e64f41e88ec61eca77a5ff173697bda7767fe468ea05",
           "registration": "},\n        \"Single sample profile returns blocked status\" to",
           "assertions": [
@@ -6252,6 +6295,7 @@
           "line": 261,
           "end_line": 266,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "5902f12feb187ef4cb8b51dac66e233c3ef2a9b06af7f3056c9de008fc1a3f4d",
           "registration": "},\n        \"Profile with zero total distance returns blocked status\" to",
           "assertions": [
@@ -6357,6 +6401,7 @@
           "line": 267,
           "end_line": 271,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "49b33a0a2842d94d89507175436a88bee4d89d754ce70eeb1391a32d81cdc22e",
           "registration": "},\n        \"Asymmetric antenna heights are handled correctly\" to",
           "assertions": [
@@ -6450,6 +6495,7 @@
           "line": 272,
           "end_line": 277,
           "factory_method": "pathAnalysis",
+          "registration_identity_resolution": null,
           "body_sha256": "f2aab88e6722cff06b5e1f18d79ef9c766f24ad1302c381a1c260ff67cc2462a",
           "registration": "},\n        \"Custom k-factor affects earth bulge calculation\" to",
           "assertions": [
@@ -6555,6 +6601,7 @@
           "line": 282,
           "end_line": 285,
           "factory_method": "pathAnalysisResultFields",
+          "registration_identity_resolution": null,
           "body_sha256": "5989d2d37ef0cfa0d600f2f4cfcb0712352ccfc96f75615a1e6c96771bec56ae",
           "registration": "\"PathAnalysisResultFieldsTests\",\n        \"PathAnalysisResult includes frequency used in calculation\" to",
           "assertions": [],
@@ -6653,6 +6700,7 @@
           "line": 286,
           "end_line": 289,
           "factory_method": "pathAnalysisResultFields",
+          "registration_identity_resolution": null,
           "body_sha256": "9511de3ab04b72170077cfd491420efe8e9e3016c10e3f99fb06e53eb36ba0f7",
           "registration": "},\n        \"PathAnalysisResult includes k-factor used in calculation\" to",
           "assertions": [],
@@ -6757,6 +6805,7 @@
           "line": 294,
           "end_line": 300,
           "factory_method": "segmentAnalysisWithSlices",
+          "registration_identity_resolution": null,
           "body_sha256": "e0d850491f08fd1acc5c124a4dc6a73f27f61744f2ac045d7b1fc71732cb055e",
           "registration": "\"SegmentAnalysisTests\",\n        \"analyzePathSegment works with ArraySlice\" to",
           "assertions": [
@@ -6868,6 +6917,7 @@
           "line": 301,
           "end_line": 306,
           "factory_method": "segmentAnalysisWithSlices",
+          "registration_identity_resolution": null,
           "body_sha256": "05bc738de35f884fed555b22039c23a0db1dc377e96f77320e4f50c4875a6c19",
           "registration": "},\n        \"analyzePathSegment handles overlapping slice indices\" to",
           "assertions": [],
@@ -6990,6 +7040,7 @@
           "line": 60,
           "end_line": 69,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "1b463b94a48f03448d3a6769d3bc7fb4c6f1b33d34079115bffc2c59ac341352",
           "registration": "\"RFPathAnalysisCharacterizationTests\",\n        \"Flat 6km path at 910MHz pins clear-status outputs\" to",
           "assertions": [
@@ -7203,6 +7254,7 @@
           "line": 70,
           "end_line": 82,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "2f7e7d9e50f8f347c7711f9cec9932bbf1fbf5f2ceb978caef75b8da86862743",
           "registration": "},\n        \"100m mountain at 6km pins blocked-status outputs\" to",
           "assertions": [
@@ -7410,6 +7462,7 @@
           "line": 83,
           "end_line": 94,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "f3ec9890f21aa996fe837f5dca175755bda2cc448aca82505455b999d7992fcd",
           "registration": "},\n        \"45m hill with asymmetric heights at 868MHz, k=1.33 pins outputs\" to",
           "assertions": [
@@ -7611,6 +7664,7 @@
           "line": 95,
           "end_line": 106,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "fc7ee0291d4373f8180fc7565456f5639e573a4b419b29f03081065973dd4197",
           "registration": "},\n        \"Rolling 10km terrain pins multi-region outputs\" to",
           "assertions": [
@@ -7806,6 +7860,7 @@
           "line": 107,
           "end_line": 120,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "5869255120f9f02e99d575888e358fa5308d84c6ad86fd177c87f0d38acb3eca",
           "registration": "},\n        \"A-to-R segment over rolling terrain pins outputs\" to",
           "assertions": [
@@ -8037,6 +8092,7 @@
           "line": 121,
           "end_line": 136,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "97659e627a95d2d3dd50e719c4677f173afd7025c47a970e72ebd24c73f2d9ab",
           "registration": "},\n        \"R-to-B segment keeps absolute obstruction distances\" to",
           "assertions": [
@@ -8190,6 +8246,7 @@
           "line": 137,
           "end_line": 143,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "81375ec975c1569989844d53053f41039ab6b6a382719f6c1f6e830f147bff7a",
           "registration": "},\n        \"Full profile passed as a slice matches analyzePath exactly\" to",
           "assertions": [
@@ -8319,6 +8376,7 @@
           "line": 144,
           "end_line": 155,
           "factory_method": "characterization",
+          "registration_identity_resolution": null,
           "body_sha256": "b5db2e85657b68b6feaef7c177e0e5319e58dc03f25ad78123897f2dcef78bed",
           "registration": "},\n        \"Degenerate inputs return the zeroed blocked result\" to",
           "assertions": [
@@ -8466,6 +8524,7 @@
           "line": 23,
           "end_line": 30,
           "factory_method": "segmentAnalysisTypes",
+          "registration_identity_resolution": null,
           "body_sha256": "2e785faf2136565023cad00c89427091752aa09ed9768bf69a8513c870e7c94c",
           "registration": "\"SegmentAnalysisTypeTests\",\n        \"SegmentAnalysisResult stores segment data\" to",
           "assertions": [
@@ -8589,6 +8648,7 @@
           "line": 31,
           "end_line": 39,
           "factory_method": "segmentAnalysisTypes",
+          "registration_identity_resolution": null,
           "body_sha256": "67c6def9dea826ef2f30b2380915e99d7a577af38044b53c9af5eca3aef77e8f",
           "registration": "},\n        \"RelayPathAnalysisResult combines segments\" to",
           "assertions": [
@@ -8724,6 +8784,7 @@
           "line": 40,
           "end_line": 52,
           "factory_method": "segmentAnalysisTypes",
+          "registration_identity_resolution": null,
           "body_sha256": "4b7f585ab4c58ee73723e2645a0ace0358ba9226bf9592ff3c3bd529e6d306cb",
           "registration": "},\n        \"RelayPathAnalysisResult overall status is worst of segments\" to",
           "assertions": [
@@ -10092,6 +10153,7 @@
           "line": 34,
           "end_line": 43,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "faf9a2c3d7100537be08009c7a37ce239c6d8a65c69197a44d5775dd0dbecbc9",
           "registration": "hopCase(\"advert RX-log entry stamps the inbound hop count keyed by full pubkey\")",
           "assertions": [
@@ -10275,6 +10337,7 @@
           "line": 44,
           "end_line": 51,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "e5541385a7fa766cfbeacb662d9cd789d6804812e0d075a6dd4f16f6ef72b0e3",
           "registration": "hopCase(\"a directly-heard advert stamps a hop count of zero\")",
           "assertions": [
@@ -10434,6 +10497,7 @@
           "line": 52,
           "end_line": 57,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "05f76111245a0dd592d290504d5b12a5af4d89b5b2e03bf735826fd7fe5766d4",
           "registration": "hopCase(\"a truncated advert payload (shorter than a public key) is never stamped\")",
           "assertions": [
@@ -10599,6 +10663,7 @@
           "line": 58,
           "end_line": 67,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "9c6f105774dac381107f788dbd4cd599c22c059e30bab42593a48210e6539bed",
           "registration": "hopCase(\"advert timestamp is extracted from the payload and passed to the store\")",
           "assertions": [
@@ -10758,6 +10823,7 @@
           "line": 68,
           "end_line": 73,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "735348b9b852e491b57ac381216a97a4140f904d64625d13f9b76edd4d42c922",
           "registration": "hopCase(\"a payload exactly 32 bytes (no timestamp) passes nil advertTimestamp\")",
           "assertions": [
@@ -10911,6 +10977,7 @@
           "line": 74,
           "end_line": 79,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "27a31810d1651e6e3936ef2e4368274f11fbf9fdbf0f2ae387e59d4af1f152b3",
           "registration": "hopCase(\"a non-advert entry never stamps an inbound hop count\")",
           "assertions": [
@@ -11064,6 +11131,7 @@
           "line": 80,
           "end_line": 86,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "f580a9e3b255d6bf9eff0dca7962e03b677e982c50b5634fc405bcfd78bcc7f2",
           "registration": "hopCase(\"a direct-routed advert is never stamped: its path length is route, not hops traversed\")",
           "assertions": [
@@ -11418,6 +11486,7 @@
           "line": 67,
           "end_line": 99,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "6eef60db326da662aa93900cc980b7bd20ea96e0f3ccc4e6ab6d42b3798dcff8",
           "registration": "case(\"replaceScopeKeyCache rewrites sticky first-match to ambiguous multi-match\")",
           "assertions": [
@@ -11844,6 +11913,7 @@
           "line": 100,
           "end_line": 120,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "9a85a158e44c2b48a45b9f9701d1046e4e644dced2dc8eb1b833700820a03b8f",
           "registration": "case(\"empty known regions clears sticky labels\")",
           "assertions": [
@@ -12168,6 +12238,7 @@
           "line": 121,
           "end_line": 139,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "1b24139d7ce12560318087c6786d68d28361936d6141cf32fc62ca4b53e15bdd",
           "registration": "case(\"live resolve persists unique name and matches array together\")",
           "assertions": [
@@ -12541,6 +12612,7 @@
           "line": 140,
           "end_line": 165,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "93c4da179db00b75691e8e772a420ae7d8e422341e9e2e6e67ab5e737b230889",
           "registration": "case(\"regionUpdateEvents yields message IDs after channel message reprocess\")",
           "assertions": [
@@ -12986,6 +13058,7 @@
           "line": 166,
           "end_line": 198,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "c0f58f754b90a4abc57554805c1347f2581125b803f71c9423b81db16ebf9612",
           "registration": "case(\"regionUpdateEvents yields message IDs after DM message reprocess\")",
           "assertions": [
@@ -13433,6 +13506,7 @@
           "line": 199,
           "end_line": 226,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "d9689cd0f000b02e8e941ba8f103db2c2b508ad9db1d96c9d79888caa6926312",
           "registration": "case(\"reprocess overwrites intermediate resolution with final cache\")",
           "assertions": [
@@ -13862,6 +13936,7 @@
           "line": 29,
           "end_line": 57,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "931e954c4348d1c6776c7ac852bfe274614c355f7a8e8d66e009f17450f32d9f",
           "registration": "case(\"late-decrypted channel entries keep the matching channel index and name\")",
           "assertions": [
@@ -14234,6 +14309,7 @@
           "line": 58,
           "end_line": 75,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "7d4f5d42b9124324789b5661c4765ef9deac953b125c3a063167588b7aa72eed",
           "registration": "case(\"coexisting entry stream subscribers each receive every entry\")",
           "assertions": [],
@@ -14458,6 +14534,7 @@
           "line": 76,
           "end_line": 90,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "902ba0f942519aa1534479675dfa9c9516876373ac73616c4e00bdfce8801670",
           "registration": "case(\"finishEntryStream ends every subscriber's iteration\")",
           "assertions": [

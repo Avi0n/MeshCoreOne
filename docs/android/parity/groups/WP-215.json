@@ -685,6 +685,7 @@
           "line": 21,
           "end_line": 23,
           "factory_method": "configureGuard",
+          "registration_identity_resolution": null,
           "body_sha256": "7913f4f50a68cc61bb8e958aec39b8edd32e82ae3e46710ba9bbde8222a225e1",
           "registration": "case(\"Handler is not configured before configure() is called\")",
           "assertions": [
@@ -760,6 +761,7 @@
           "line": 24,
           "end_line": 28,
           "factory_method": "configureGuard",
+          "registration_identity_resolution": null,
           "body_sha256": "7cdbda54370f9c4e246fa4fa728eced86a7b976879830e7d043ba741b4639079",
           "registration": "case(\"Handler is configured after configure() is called\")",
           "assertions": [
@@ -841,6 +843,7 @@
           "line": 33,
           "end_line": 36,
           "factory_method": "reactionPreviewTruncation",
+          "registration_identity_resolution": null,
           "body_sha256": "5cb43008f294dcd064cdf9c16c6b4d60963767dd4e7b63d7b9cc9b0adc08eb23",
           "registration": "case(\"Text at 49 characters is returned unchanged\")",
           "assertions": [
@@ -922,6 +925,7 @@
           "line": 37,
           "end_line": 40,
           "factory_method": "reactionPreviewTruncation",
+          "registration_identity_resolution": null,
           "body_sha256": "f831c5c43c24fbf8e1274741a9a42548d64a402e6dc3ba175cc44cd61aa6522d",
           "registration": "case(\"Text at exactly 50 characters is returned unchanged\")",
           "assertions": [
@@ -1009,6 +1013,7 @@
           "line": 41,
           "end_line": 44,
           "factory_method": "reactionPreviewTruncation",
+          "registration_identity_resolution": null,
           "body_sha256": "e5255d66751a6bc057af91baa9c977d0f1d8b59fd5cafc85b97f6f98daf79925",
           "registration": "case(\"Text at 51 characters is truncated to 47 plus ellipsis\")",
           "assertions": [
@@ -1096,6 +1101,7 @@
           "line": 49,
           "end_line": 53,
           "factory_method": "channelDisplayNameFallback",
+          "registration_identity_resolution": null,
           "body_sha256": "238f33935b379599595509311d614971062e9a51f2107a6be690380b934b379a",
           "registration": "case(\"Stored channel name wins over the localized fallback\")",
           "assertions": [
@@ -1213,6 +1219,7 @@
           "line": 54,
           "end_line": 58,
           "factory_method": "channelDisplayNameFallback",
+          "registration_identity_resolution": null,
           "body_sha256": "14157b924fcffac0bf85eff531c80ec7cda8d91f2582a7c26a998d41a27d8a34",
           "registration": "case(\"Missing name falls back to the string provider\")",
           "assertions": [
@@ -1306,6 +1313,7 @@
           "line": 59,
           "end_line": 61,
           "factory_method": "channelDisplayNameFallback",
+          "registration_identity_resolution": null,
           "body_sha256": "dd0b53b40b3121e531ffbe416d32588e2a16534559a24d93f661dc2c9ff44803",
           "registration": "case(\"Missing name and provider fall back to the English literal\")",
           "assertions": [
@@ -1381,6 +1389,7 @@
           "line": 24,
           "end_line": 26,
           "factory_method": "suppression",
+          "registration_identity_resolution": null,
           "body_sha256": "804b1e9a0d6c24a9d272d704c0d7f2395d8ee5b03807da27b761e2d627c6cfa8",
           "registration": "case(\"Suppression flag defaults to false\")",
           "assertions": [
@@ -1456,6 +1465,7 @@
           "line": 27,
           "end_line": 33,
           "factory_method": "suppression",
+          "registration_identity_resolution": null,
           "body_sha256": "b00a5a183e17bb09e76945898a074e49f09d14b3e275c0a0e3927c023ade5b78",
           "registration": "case(\"Suppression flag can be set and cleared\")",
           "assertions": [
@@ -1531,6 +1541,7 @@
           "line": 34,
           "end_line": 42,
           "factory_method": "suppression",
+          "registration_identity_resolution": null,
           "body_sha256": "27d81885546d2ef5bd0d5b702744f0b14083c9f599d64a01165d6e5b0adac5a7",
           "registration": "case(\"Suppression flag can be toggled multiple times\")",
           "assertions": [
@@ -1618,6 +1629,7 @@
           "line": 47,
           "end_line": 54,
           "factory_method": "reactionCallbacks",
+          "registration_identity_resolution": null,
           "body_sha256": "6b0d8374d98cf3233ce4a66ee3ee0b7041bcfcb6bfa418a0f7bdc70e220a9349",
           "registration": "case(\"onReactionNotificationTapped callback can be set\")",
           "assertions": [
@@ -1753,6 +1765,7 @@
           "line": 55,
           "end_line": 67,
           "factory_method": "reactionCallbacks",
+          "registration_identity_resolution": null,
           "body_sha256": "232b63b4af0f197f371ad5517265fd6a759385f95452ce4a3985c2b098840df3",
           "registration": "case(\"onReactionNotificationTapped receives all parameters\")",
           "assertions": [
@@ -1888,6 +1901,7 @@
           "line": 72,
           "end_line": 85,
           "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
           "body_sha256": "ed1ca789ad5549c485b46f1574b248421b7ee5e1b6895c305bebb8c6cd1217eb",
           "registration": "case(\"Room message notification is suppressed when isSuppressingNotifications is true\")",
           "assertions": [
@@ -1999,6 +2013,7 @@
           "line": 86,
           "end_line": 88,
           "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
           "body_sha256": "23e568d6e8806aee0434d7fd3ee964fe61c904c628c8a67aa900b98a3f9e1e1f",
           "registration": "case(\"Notification category includes reaction\")",
           "assertions": [
@@ -2079,6 +2094,7 @@
           "line": 89,
           "end_line": 97,
           "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
           "body_sha256": "c99b9f8b479b959007aea96be01bcdc95af18b212010d41b670c2c29e5aa78d9",
           "registration": "case(\"Active room session tracking can be set and cleared\")",
           "assertions": [
@@ -2268,6 +2284,7 @@
           "line": 98,
           "end_line": 131,
           "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
           "body_sha256": "6b011ad16b85d7e3884cc469f8684a6d13441493ccbef924e16a962cd3bdc3ca",
           "registration": "case(\"setActiveConversation populates only the passed slot and clears the rest\")",
           "assertions": [
@@ -2487,6 +2504,7 @@
           "line": 132,
           "end_line": 141,
           "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
           "body_sha256": "1a128bca6fa42f1c32fb3a010414fb25e3897713b11520745a04ed7feca1d8a1",
           "registration": "case(\"onRoomMarkAsRead callback can be set and receives parameters\")",
           "assertions": [
@@ -2598,6 +2616,7 @@
           "line": 142,
           "end_line": 150,
           "factory_method": "roomNotifications",
+          "registration_identity_resolution": null,
           "body_sha256": "ea9b2a7be7c716cc9b61daccf17bded882a0cf88e2763f2c547167d8e8b4a6c6",
           "registration": "case(\"onRoomNotificationTapped callback can be set and receives the session ID\")",
           "assertions": [

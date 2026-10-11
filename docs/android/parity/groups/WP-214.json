@@ -1467,6 +1467,7 @@
           "line": 44,
           "end_line": 54,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "86b8c19f48fa97956c79b04c448b849f9a345a5bf6d834b68c5ee4d3630caa46",
           "registration": "case(\"Cancelling resync loop closes the activity bracket with succeeded=false\")",
           "assertions": [
@@ -1696,6 +1697,7 @@
           "line": 55,
           "end_line": 65,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "bd3e8d9e9b733181ff0c758dfb3f2b961564bb97fd54b89f3564ed0df9542fd0",
           "registration": "case(\"Resync loop exits and closes bracket when connectionIntent changes\")",
           "assertions": [
@@ -1924,6 +1926,7 @@
           "line": 66,
           "end_line": 75,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "72db3d7232a486869ade5ae2f15a73b7834e21cb6d1b74c6b1626106a712ff75",
           "registration": "case(\"Max resync attempts triggers disconnect and onResyncFailed\")",
           "assertions": [
@@ -2146,6 +2149,7 @@
           "line": 76,
           "end_line": 86,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "5db01ee89dbe9770870954b9fdee8583a28af9255dad89a5b4e141d8aca1d01b",
           "registration": "case(\"Each resync attempt opens and closes an inner bracket\")",
           "assertions": [
@@ -2344,6 +2348,7 @@
           "line": 87,
           "end_line": 96,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "d421a7b2787acbc72d1ac8ef7b5083d8bb79945cab44419c79ca6fddf83f4ddb",
           "registration": "case(\"Resync success promotes .syncing \u2192 .ready\")",
           "assertions": [
@@ -2536,6 +2541,7 @@
           "line": 97,
           "end_line": 103,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "6ec0483958db71c361961dc7ebef2469cef4b13bf8a3a1c70e2619020ef84068",
           "registration": "case(\"Resync success calls onDeviceSynced\")",
           "assertions": [
@@ -2711,6 +2717,7 @@
           "line": 104,
           "end_line": 115,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "09061045421df4ecd522e7ba65613d0930937480ef8d92e963b1a6d0ac223758",
           "registration": "case(\"Disconnect during .syncing transitions to .disconnected and closes bracket\")",
           "assertions": [
@@ -2975,6 +2982,7 @@
           "line": 116,
           "end_line": 134,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "7ec37209e8fbb693be69528b251e410ab229ca93ffe43bbdc809597a73e021fa",
           "registration": "case(\"Superseded resync loop cannot disconnect a healthy successor connection\")",
           "assertions": [
@@ -3197,6 +3205,7 @@
           "line": 135,
           "end_line": 149,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "e575e5b5cde462c218dc1615975a5421f54193cd723e8f6cea09c85cf1c075c9",
           "registration": "case(\"Cancelling the resync loop stops further resync attempts\")",
           "assertions": [
@@ -3446,6 +3455,7 @@
           "line": 31,
           "end_line": 40,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "aec94daa1a7c75ea20fcf1a5896905dc651fd0621c3068a5754c995a80a0f1c5",
           "registration": "case(\"WiFi uses ESP32 channel sync cooldown\")",
           "assertions": [
@@ -3569,6 +3579,7 @@
           "line": 41,
           "end_line": 43,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "95038fe14e19f8e7b379a10f8067e72dfb64516abcb42b3e453867e929139b51",
           "registration": "case(\"nRF52 over BLE enables pipelined channel reads\")",
           "assertions": [
@@ -3662,6 +3673,7 @@
           "line": 44,
           "end_line": 46,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "7f0eb3b4c532c9eed53d401c8b274fcc82562fda9ba086fc2471fe3846dcdfdc",
           "registration": "case(\"nRF52 over WiFi does not pipeline channel reads\")",
           "assertions": [
@@ -3755,6 +3767,7 @@
           "line": 47,
           "end_line": 49,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "c5d5c5b669b039c07f83df7dcd9cb46a92108b8861ba82dbb237fb2b67daa8ff",
           "registration": "case(\"ESP32 over BLE does not pipeline channel reads\")",
           "assertions": [
@@ -3848,6 +3861,7 @@
           "line": 50,
           "end_line": 52,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "1a19ac59e0769ff215a774c04488d0890b499c8cfb452bf9e2ed0abc0444b435",
           "registration": "case(\"ESP32 over WiFi enables pipelined channel reads\")",
           "assertions": [
@@ -3929,6 +3943,7 @@
           "line": 53,
           "end_line": 57,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "0f607f382e2e3c55dd4d23a7356221b76a16d3d523dc66ed83bd475290485c66",
           "registration": "case(\"WiFi connect resolves a recognized ESP32 model to ESP32\")",
           "assertions": [
@@ -4052,6 +4067,7 @@
           "line": 58,
           "end_line": 65,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "b42066ef1ebdc8cf4853662be4dcbc2748c0ae2c88193df559e4d774bbbd1e01",
           "registration": "case(\"WiFi connect resolves an unrecognized model to ESP32 (WiFi implies ESP32-class)\")",
           "assertions": [
@@ -4169,6 +4185,7 @@
           "line": 66,
           "end_line": 70,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "4b10cae97ab533afa813c5eb0f91f1ba371f9fe043c66db7437382fd6ebe08d4",
           "registration": "case(\"BLE connect leaves an unrecognized model as unknown (no WiFi coalesce)\")",
           "assertions": [
@@ -4262,6 +4279,7 @@
           "line": 71,
           "end_line": 75,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "4369bba086242f831639a35d9022241f7cb93aebdd082143b8e3af2946c983e3",
           "registration": "case(\"BLE connect resolves an nRF52 model to nRF52\")",
           "assertions": [
@@ -4355,6 +4373,7 @@
           "line": 76,
           "end_line": 80,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "6da47eb0ec7700f5f26693dcca73c31ad37d11df36de92ad3aeb53f3b53c2b43",
           "registration": "case(\"Heartbeat pauses while syncing\")",
           "assertions": [
@@ -4484,6 +4503,7 @@
           "line": 41,
           "end_line": 44,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "aebff3fc81c105f183f5b7671884a326a11936a52100f05f31cbde08ba75958c",
           "registration": "case(\"Channels skipped when lastCleanChannelSync is recent and skip window > 0\")",
           "assertions": [
@@ -4619,6 +4639,7 @@
           "line": 45,
           "end_line": 48,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "73cde61b4b52ad3511d09a10bcfbcd1e56e6525fe75761c4e6b8bfb9133d5252",
           "registration": "case(\"Channels sync when lastCleanChannelSync is nil\")",
           "assertions": [
@@ -4748,6 +4769,7 @@
           "line": 49,
           "end_line": 52,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "c53486aab1a805dd20b9dd27218c0c91a49495cffe8cf32731063662a3b969e1",
           "registration": "case(\"Channels skipped when last attempted channel sync is recent\")",
           "assertions": [
@@ -4895,6 +4917,7 @@
           "line": 53,
           "end_line": 56,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "f97fd895ca308ac9ac26e2d344338c23d15bf5ac4afbb2589f35440f60c47525",
           "registration": "case(\"Channels sync when lastCleanChannelSync is expired (outside window)\")",
           "assertions": [
@@ -5036,6 +5059,7 @@
           "line": 57,
           "end_line": 60,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "9b1b3e03e8aa3c3c77bdf91f87644bed653c293d7a8f49233c6cf5b221f5246f",
           "registration": "case(\"forceFullSync bypasses channel skip\")",
           "assertions": [
@@ -5165,6 +5189,7 @@
           "line": 61,
           "end_line": 64,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "0809e51f0d8f1fa22c6aa7453c26a0c31fb5367e78cab2970d888c707d8be8da",
           "registration": "case(\"Zero skip window disables skip\")",
           "assertions": [
@@ -5318,6 +5343,7 @@
           "line": 65,
           "end_line": 77,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "4c75dc08e6e4b027002a175c2265868147fddc8cfd4f9176406ba2369fbd5893",
           "registration": "case(\"Callback fires on clean channel phase (zero errors)\")",
           "assertions": [
@@ -5543,6 +5569,7 @@
           "line": 78,
           "end_line": 90,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "5a1aa7c2ff65148ce4b80b8b0130b1626c110ed82251bfb52a5eeefe71254b66",
           "registration": "case(\"Callback fires when initial sync fails but retry recovers\")",
           "assertions": [
@@ -5768,6 +5795,7 @@
           "line": 91,
           "end_line": 103,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "5e217b39f383d1d1addf98fdde12fce3d5ceed536bab7202d46df173ef3f4ada",
           "registration": "case(\"Callback does not fire when channel sync has errors after retries\")",
           "assertions": [
@@ -6011,6 +6039,7 @@
           "line": 104,
           "end_line": 124,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "8eb958c800e31231df8902d557369c640c7722c7511ea0045a514530b93f5333",
           "registration": "case(\"Callback does not fire with mixed retryable and non-retryable errors even when retry succeeds\")",
           "assertions": [
@@ -6218,6 +6247,7 @@
           "line": 125,
           "end_line": 131,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "058d1d54a75485a3f270e18aa30d784bb1f35547f32f58c86f4dfe21183e5894",
           "registration": "case(\"Callback does not fire when channels are skipped\")",
           "assertions": [
@@ -6371,6 +6401,7 @@
           "line": 132,
           "end_line": 138,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "c88e613c753b13e63397fe71df170e5012ea5a9dfed35365d72a05fe52b3b93c",
           "registration": "case(\"Callback does not fire when initial sync is clean but channels skipped in background\")",
           "assertions": [
@@ -6524,6 +6555,7 @@
           "line": 139,
           "end_line": 153,
           "factory_method": "cases",
+          "registration_identity_resolution": null,
           "body_sha256": "1fa075c404a6dc26ee9d0a2d9cff361d209b57544e4843cf56d9599b97478f49",
           "registration": "case(\"Post-sync diagnostics still run when channels are skipped\")",
           "assertions": [
@@ -7331,6 +7363,7 @@
           "line": 85,
           "end_line": 85,
           "factory_method": "blockedCache",
+          "registration_identity_resolution": null,
           "body_sha256": "f8b275bfb27d51445c8412b92d6da1a6276ae39c75ffb65f4c004f00d66c53cf",
           "registration": "case(\"isBlockedSender returns false for empty cache\")",
           "assertions": [
@@ -7442,6 +7475,7 @@
           "line": 86,
           "end_line": 93,
           "factory_method": "blockedCache",
+          "registration_identity_resolution": null,
           "body_sha256": "d04284f1dbc516adb1f87642034813d4310150be56a0fa509e231d2fd6a0b943",
           "registration": "case(\"refreshBlockedContactsCache loads blocked contacts by name\")",
           "assertions": [
@@ -7583,6 +7617,7 @@
           "line": 94,
           "end_line": 101,
           "factory_method": "blockedCache",
+          "registration_identity_resolution": null,
           "body_sha256": "574bb6b5d7985b5127c13427c06a0ea1ec25cb33b24a3ee21a5477d8c3d12c5d",
           "registration": "case(\"refreshBlockedContactsCache does not cache non-blocked contacts\")",
           "assertions": [
@@ -7754,6 +7789,7 @@
           "line": 102,
           "end_line": 113,
           "factory_method": "blockedCache",
+          "registration_identity_resolution": null,
           "body_sha256": "9049582622ed44a4bedbbb67fc858f81f8e74ca26022275d7f0c6a0fdf55579c",
           "registration": "case(\"refreshBlockedContactsCache replaces previous cache\")",
           "assertions": [
@@ -7895,6 +7931,7 @@
           "line": 114,
           "end_line": 114,
           "factory_method": "blockedCache",
+          "registration_identity_resolution": null,
           "body_sha256": "2550db4e0b5e1636471d79f8794370089117e69d877fd3e0d98490d79172999e",
           "registration": "case(\"isBlockedSender returns false for nil name\")",
           "assertions": [
@@ -8036,6 +8073,7 @@
           "line": 115,
           "end_line": 125,
           "factory_method": "blockedCache",
+          "registration_identity_resolution": null,
           "body_sha256": "c5e6d87f86e3ac7cf4befe8574515b7bb74e37afa9a39bea2c6cb96051017a55",
           "registration": "case(\"blockedSenderNames returns snapshot of cached names\")",
           "assertions": [
@@ -8200,6 +8238,7 @@
           "line": 130,
           "end_line": 138,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "a6f31e4118b4d8b4933a7a34687585c75cf7512b391e2874ce1ddcb2188041d1",
           "registration": "case(\"wireMessageHandlers completes without error\")",
           "assertions": [
@@ -8340,6 +8379,7 @@
           "line": 139,
           "end_line": 148,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "d8dd152696efeb6558bcb8ca5747a11206e3413db0d1f4231fad63939a5fb0ff",
           "registration": "case(\"startDiscoveryEventMonitoring completes without error\")",
           "assertions": [
@@ -8649,6 +8689,7 @@
           "line": 156,
           "end_line": 169,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "60ac39a7ddc82ea451c258f158fc808e00939a44fc311aac37db732094db8c9b",
           "registration": "case(\"inbound DM stamps contact lastHeard\")",
           "assertions": [
@@ -8886,6 +8927,7 @@
           "line": 170,
           "end_line": 181,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "d0d2b20ac4d9de1286797aab2fc477bcf27dd05344d159feb3e853931beb6a76",
           "registration": "case(\"inbound channel message does not stamp lastHeard on a contact\")",
           "assertions": [
@@ -9141,6 +9183,7 @@
           "line": 182,
           "end_line": 196,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "925cd8b5f6b3db9b77797864809a5e90772724d51207ee62a999f45df77cd1f2",
           "registration": "case(\"live channel receive with undecryptable RX does not copy regionScope onto Message\")",
           "assertions": [
@@ -9480,6 +9523,7 @@
           "line": 197,
           "end_line": 222,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "96103bec100d5b42383f8580612d49ace67bbbcfb2cf618b0fea6e1676335d75",
           "registration": "case(\"channel save with undecryptable RX harvests no extras and still broadcasts\")",
           "assertions": [
@@ -9927,6 +9971,7 @@
           "line": 223,
           "end_line": 243,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "73fda922fd042984eed395c5fe81a61f4aca4915628f4898e744dda3c87841f9",
           "registration": "case(\"duplicate channel receive with unknown path does not save a second message\")",
           "assertions": [
@@ -10314,6 +10359,7 @@
           "line": 244,
           "end_line": 260,
           "factory_method": "handlers",
+          "registration_identity_resolution": null,
           "body_sha256": "ba1e875e6656244b0776b3a3d0441c8560f526e0f18fa81e2b5392ab2d9e6b3b",
           "registration": "case(\"same-path duplicate channel receive inserts nothing\")",
           "assertions": [
@@ -10689,6 +10735,7 @@
           "line": 46,
           "end_line": 52,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "815eb6233813bb1e8e2240af50a17906e6a1aa60986184ae7a5fae8a77495309",
           "registration": "case(\"SyncCoordinator initializes with idle state\")",
           "assertions": [
@@ -10782,6 +10829,7 @@
           "line": 53,
           "end_line": 58,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "c70673b3a136d9c07d14e000b68870f9aa266ac761d8f0b076d4a0d3f54f837f",
           "registration": "case(\"notifyContactsChanged increments contactsVersion\")",
           "assertions": [
@@ -10863,6 +10911,7 @@
           "line": 59,
           "end_line": 64,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "027caea65c272e445e718a4697c02e2a1fa4010bfa3f481e5351d52af132d4bb",
           "registration": "case(\"notifyConversationsChanged increments conversationsVersion\")",
           "assertions": [
@@ -10962,6 +11011,7 @@
           "line": 65,
           "end_line": 72,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "9ac29f08dcafe8fb158ee3a14257a30567adee8b3d0f111670cd89c6f676c7cd",
           "registration": "case(\"Multiple notifications increment correctly\")",
           "assertions": [
@@ -11127,6 +11177,7 @@
           "line": 73,
           "end_line": 83,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "18b69a1e9cd7d6af8ad4852bbceb8003395b5864518bd1aab1c848b00915136f",
           "registration": "case(\"Sync activity callbacks fire during full sync\")",
           "assertions": [
@@ -11352,6 +11403,7 @@
           "line": 84,
           "end_line": 97,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "ea0286c5e1b224059a2574bfc71b83ea344ce4f2d429fa2bc4ba407a62d90e47",
           "registration": "case(\"Channel phase failure is partial and keeps connection usable\")",
           "assertions": [
@@ -11595,6 +11647,7 @@
           "line": 98,
           "end_line": 113,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "01ffc3b88658764e3b74201eae3b0a6a8c9d2a7ac7fe17c65c170e9a52c5f9e2",
           "registration": "case(\"Message polling failure does not fail contacts and channels\")",
           "assertions": [
@@ -11826,6 +11879,7 @@
           "line": 114,
           "end_line": 125,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "67ce4cc8ce18065a488f88b7ee75a0f6f72d3f6d71b9f66c0be15464f411185f",
           "registration": "case(\"Sync activity callbacks not double called on error\")",
           "assertions": [
@@ -12015,6 +12069,7 @@
           "line": 126,
           "end_line": 134,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "a1a3c763fa2d586694b24b7c25d628d9c9e2e832db6d44fb22d81e42aa25a6fd",
           "registration": "case(\"Sync activity ends before messages phase\")",
           "assertions": [
@@ -12162,6 +12217,7 @@
           "line": 135,
           "end_line": 140,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "d874264b0345b01ac99dd441482d3a640ab200f2036f2517efc2c6137893ee3a",
           "registration": "case(\"onDisconnected clears notification suppression flag\")",
           "assertions": [
@@ -12267,6 +12323,7 @@
           "line": 141,
           "end_line": 145,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "5a59169ad1f4dadfb50d156f26a973c27b78d50b06e1ade12d8b58c7982b7123",
           "registration": "case(\"onDisconnected resets sync state to idle\")",
           "assertions": [
@@ -12483,6 +12540,7 @@
           "line": 146,
           "end_line": 160,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "f45c513fcb32bf5eec487a16aaff4c628b2e1c6f06afd82c94a5db397fd10b43",
           "registration": "case(\"onDisconnected calls onSyncActivityEnded when mid-sync in contacts phase\")",
           "assertions": [
@@ -12696,6 +12754,7 @@
           "line": 161,
           "end_line": 170,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "643a38c4845f4ac38ff43798b847a175be9e2716c93598d23d7bff1469707dc3",
           "registration": "case(\"Background sync skips channel sync\")",
           "assertions": [
@@ -12867,6 +12926,7 @@
           "line": 171,
           "end_line": 180,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "f33b4fb8e2c9491f1039342aaf60c8230efe08a7617b9b7097c89c51d0ddabb1",
           "registration": "case(\"Foreground sync includes channel sync\")",
           "assertions": [
@@ -13032,6 +13092,7 @@
           "line": 181,
           "end_line": 192,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "03c154f24921223edec8dfb8b13d3ff4573161339587bbb6c70beab5091025d1",
           "registration": "case(\"performFullSync forwards the pipelined-read flag from config into channel sync\")",
           "assertions": [
@@ -13197,6 +13258,7 @@
           "line": 193,
           "end_line": 201,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "8e9a5e19a3d04db0d2c1663de347dc2466835a5415237e7366fc6389655d310b",
           "registration": "case(\"performFullSync defaults channel sync to the serial read path\")",
           "assertions": [
@@ -13356,6 +13418,7 @@
           "line": 202,
           "end_line": 211,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "ad48e97d628abf053204fcf095cd82f35262e15d95a153091f22604293b823a9",
           "registration": "case(\"Nil appStateProvider defaults to foreground behavior\")",
           "assertions": [
@@ -13566,6 +13629,7 @@
           "line": 212,
           "end_line": 226,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "8560fc9674ab44ace2e564fad6039ac4441da0ba839267863bf140e1e2ceb5c8",
           "registration": "case(\"performFullSync ignores duplicate calls when already syncing\")",
           "assertions": [
@@ -13815,6 +13879,7 @@
           "line": 227,
           "end_line": 240,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "3a5ce334f046529713f2f09252c54d3792aab6d598c7ab29127b6700a4ea13e7",
           "registration": "case(\"Cancellation during channels phase ends sync activity once and resets state\")",
           "assertions": [
@@ -14028,6 +14093,7 @@
           "line": 241,
           "end_line": 251,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "f3b4174b521e3ba5edf9124cdfb07562a5c426f5d2ccc48fc294dfff2a7aff68",
           "registration": "case(\"performFullSync clears notification suppression after poll completes\")",
           "assertions": [
@@ -14199,6 +14265,7 @@
           "line": 252,
           "end_line": 262,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "e528ba2eda8645e5beca79398d756371664154a2dddb793f781cd3c178508df0",
           "registration": "case(\"Contact sync passes lastContactSync timestamp from device\")",
           "assertions": [
@@ -14376,6 +14443,7 @@
           "line": 263,
           "end_line": 271,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "8c5f0f301cb20bc6ca06e42d55734628f8eff86869b9511dfe9d3b4983fd4123",
           "registration": "case(\"Successful sync passes succeeded: true to onEnded callback\")",
           "assertions": [
@@ -14583,6 +14651,7 @@
           "line": 272,
           "end_line": 283,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "ba58fc76f7c13060ce818e8812eefa59bcf5a302c48af0d3fa6effebb22cb520",
           "registration": "case(\"Failed sync passes succeeded: false to onEnded callback\")",
           "assertions": [
@@ -14832,6 +14901,7 @@
           "line": 53,
           "end_line": 64,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "3e368332e65c545fe1ebc81c94b12d4265804826b827dcceb09c3f827de45384",
           "registration": "case(\"performAdvertContactSync writes watermark and uses since filter\")",
           "assertions": [
@@ -15147,6 +15217,7 @@
           "line": 65,
           "end_line": 82,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "62ff9b55bf79e059d60d926d91f94142b8cc54281f4825717c040cfa81bf74f1",
           "registration": "case(\"performAdvertContactSync fullRefetch uses epoch zero and skips pruning\")",
           "assertions": [
@@ -15444,6 +15515,7 @@
           "line": 83,
           "end_line": 94,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "d9bd9bb190fb62bc59f0f5ac087fb3c41fc822185cfd4abfdf65160add2deeac",
           "registration": "case(\"performAdvertContactSync returns busy when manual contact sync is active\")",
           "assertions": [
@@ -15771,6 +15843,7 @@
           "line": 95,
           "end_line": 116,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "3561f6c537277267a1f661cbf341e8f8068f30dc7de35330af31f7ab14994ce0",
           "registration": "case(\"far-future watermark recovers with one full refetch then incremental\")",
           "assertions": [
@@ -16110,6 +16183,7 @@
           "line": 117,
           "end_line": 132,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "3912889ee87bb7079cf9f22dde9321875c16a34a97a42088295b3545421902be",
           "registration": "case(\"far-future watermark recovery retries after a failed recovery fetch\")",
           "assertions": [
@@ -16467,6 +16541,7 @@
           "line": 133,
           "end_line": 150,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "be2e0d9eec690c7985e37861f9fb5c6a3c05dd48902538fc090524614f8afb3f",
           "registration": "case(\"advert invalid watermark recovery is prune-free and keeps local-only contacts\")",
           "assertions": [
@@ -16830,6 +16905,7 @@
           "line": 151,
           "end_line": 165,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "a4ddfd2b837842de89f10879bb6b2e62b1bd75e82ef8d81b4fe738ee9d0891d9",
           "registration": "case(\"advert invalid watermark recovery full-fetches at most once per coordinator\")",
           "assertions": [
@@ -17103,6 +17179,7 @@
           "line": 166,
           "end_line": 176,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "91bd23ebe821c8b50c45bda74dae4856fd73cc469dca6c0ffd7f248257c5e034",
           "registration": "case(\"watermark a few minutes ahead of phone stays incremental\")",
           "assertions": [
@@ -17560,6 +17637,7 @@
           "line": 198,
           "end_line": 208,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "baeb575ee7d813ed37e516409707087f8ff75412601f891c0382d0cb517ced7d",
           "registration": "case(\"Advert sync runs after a full sync that found no contacts\")",
           "assertions": [
@@ -17767,6 +17845,7 @@
           "line": 209,
           "end_line": 218,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "aab6930f6ef3cb95559c28a8a496896fdb2bffe9a8b4f35503333e02fa732a4b",
           "registration": "case(\"Full sync still prunes after an advert sync attempt with no watermark\")",
           "assertions": [
@@ -17995,6 +18074,7 @@
           "line": 219,
           "end_line": 234,
           "factory_method": "advertDeltaSync",
+          "registration_identity_resolution": null,
           "body_sha256": "6fa27b020a0c51b3ce871f55dded093e64db590d60eb8d4db515f2c05265599d",
           "registration": "case(\"performAdvertContactSync returns false while sync claimed\")",
           "assertions": [
@@ -18250,6 +18330,7 @@
           "line": 239,
           "end_line": 257,
           "factory_method": "advertClaimWaits",
+          "registration_identity_resolution": null,
           "body_sha256": "a74d07ac327fd988de4d21fa6b49b800de212aff746b2065b3f4a0404139cc20",
           "registration": "case(\"Channel retry waits for an active advert contact sync instead of skipping\")",
           "assertions": [
@@ -18523,6 +18604,7 @@
           "line": 258,
           "end_line": 275,
           "factory_method": "advertClaimWaits",
+          "registration_identity_resolution": null,
           "body_sha256": "98e96a1c2cea0a991ec079e5978bd1301fc657fe8d2e8534517a07d412928d3b",
           "registration": "case(\"claimManualContactSync is atomic with the wait so advert cannot claim in the gap\")",
           "assertions": [
@@ -18742,6 +18824,7 @@
           "line": 276,
           "end_line": 290,
           "factory_method": "advertClaimWaits",
+          "registration_identity_resolution": null,
           "body_sha256": "4d83126415086b489bbc027c25ba42652f724821a96f04c5d0b125a66d802b5a",
           "registration": "case(\"waitForAdvertContactSync throws when cancelled\")",
           "assertions": [
@@ -18937,6 +19020,7 @@
           "line": 291,
           "end_line": 302,
           "factory_method": "advertClaimWaits",
+          "registration_identity_resolution": null,
           "body_sha256": "54a205f5b8d9de943d5f97b64a7fbe95e9b4caeb446c0909721d1ee3f4e2f56b",
           "registration": "case(\"waitForAdvertContactSync throws when the bound is reached\")",
           "assertions": [
@@ -19137,6 +19221,7 @@
           "line": 303,
           "end_line": 318,
           "factory_method": "advertClaimWaits",
+          "registration_identity_resolution": null,
           "body_sha256": "d0d9fb60d62e7c2fa1b72a10f9e605725632e4fb4d664a4ea5709377bbb980c7",
           "registration": "case(\"onDisconnected resumes advert claim waiters\")",
           "assertions": [
@@ -19344,6 +19429,7 @@
           "line": 284,
           "end_line": 296,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "34adf6168cb22ef593ad0f9405311f1593135a982dd41b1dcc6040c8dd171597",
           "registration": "case(\"beginResyncActivity and endResyncActivity fire the correct callbacks\")",
           "assertions": [
@@ -19539,6 +19625,7 @@
           "line": 297,
           "end_line": 304,
           "factory_method": "stateAndLifecycle",
+          "registration_identity_resolution": null,
           "body_sha256": "d869134175cd41ad8fde484225fded382ffe574606afe475d2df809c863a70cd",
           "registration": "case(\"Disconnect during resync does not double-end the resync bracket\")",
           "assertions": [
@@ -19818,6 +19905,7 @@
           "line": 323,
           "end_line": 339,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "259738a40111e5382bee340775388d0b2ba1dff226d9e5abf41733205c52dd9d",
           "registration": "case(\"At-capacity connect forces full contact sync and prunes the missing non-favourite\")",
           "assertions": [
@@ -20169,6 +20257,7 @@
           "line": 340,
           "end_line": 353,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "995323eb55e83bfbaa96f6c76d69c4b42b2932aedbb8b55163ccda8035bd38e6",
           "registration": "case(\"Below-capacity connect keeps incremental contact sync and does not prune\")",
           "assertions": [
@@ -20424,6 +20513,7 @@
           "line": 354,
           "end_line": 362,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "727688b16155b3ab088e6d951e514dbd20f0006dbe1f4de00d0f2e485a04da22",
           "registration": "case(\"maxContacts zero does not force capacity full contact sync\")",
           "assertions": [
@@ -20655,6 +20745,7 @@
           "line": 363,
           "end_line": 375,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "18af03aff90e7b6960a8d4e5c2cd05197a7a90bcaf4ba91ccfcc8e39f32c8491",
           "registration": "case(\"Contact count read failure falls back to incremental and keeps connection usable\")",
           "assertions": [
@@ -20994,6 +21085,7 @@
           "line": 376,
           "end_line": 394,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "d0f35b47e15c0ffc50070fdcc25e4a6731325ea613612dd48adc17c9d210abc5",
           "registration": "case(\"Full sync prune skips a truncated stream the ratio floor would have pruned\")",
           "assertions": [
@@ -21339,6 +21431,7 @@
           "line": 395,
           "end_line": 406,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "470e3388c2f9c2165897485acac7cbdf2d218f4f8b919c31ff9587250b879c00",
           "registration": "case(\"Full sync prune removes a favourite absent from a complete device set\")",
           "assertions": [
@@ -21624,6 +21717,7 @@
           "line": 407,
           "end_line": 418,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "f9b164dd56cc9968bb098ae90426b74652b884ce98f1cf3d8f5f4b24b3e94c3f",
           "registration": "case(\"Full sync prune removes orphans when the device genuinely shrank below half\")",
           "assertions": [
@@ -21957,6 +22051,7 @@
           "line": 419,
           "end_line": 433,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "94cdad1921c8f717d4c603faf9e918ffd94fb576498a6e2395fc505d16ee5ebb",
           "registration": "case(\"Full sync prune preserves the local V-contact omitted from a complete stream\")",
           "assertions": [
@@ -22296,6 +22391,7 @@
           "line": 434,
           "end_line": 445,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "ef37cdc5fa7cef262eca7208ca8e2f6537f2ee1ab4790368e2180555b4fdda37",
           "registration": "case(\"V-contact in the last slot keeps the connect incremental, not at capacity\")",
           "assertions": [
@@ -22599,6 +22695,7 @@
           "line": 446,
           "end_line": 460,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "1aa0c10250bad6cb1b3aaa436afb7026137cdd399b47b1974c6ceab14f5eb2e0",
           "registration": "case(\"Full sync prune skips when the device sent no contact total\")",
           "assertions": [
@@ -22896,6 +22993,7 @@
           "line": 461,
           "end_line": 473,
           "factory_method": "capacityAndPrune",
+          "registration_identity_resolution": null,
           "body_sha256": "9fc499cea11351c00355b255c849a0923a1dae6945bb28230ef87fc3d8395866",
           "registration": "case(\"Full sync prune skips when the self public key is the wrong length\")",
           "assertions": [
@@ -23109,6 +23207,7 @@
           "line": 50,
           "end_line": 50,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "3097cc89dc7d7410fa325cc18829f1b059c9d497770321ff999fe6a33fd013f5",
           "registration": "case(\"Timestamp within valid range is not corrected\")",
           "assertions": [
@@ -23214,6 +23313,7 @@
           "line": 51,
           "end_line": 51,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "9859fd270afea5c5be14b52a4f4b450f5deb117908015a20b87d9eb0b4515be3",
           "registration": "case(\"Timestamp 1 minute in future is not corrected\")",
           "assertions": [
@@ -23325,6 +23425,7 @@
           "line": 52,
           "end_line": 52,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "9b06ad4ee28413ce8ebd3e7849741db7021e19f082ebac9c1597c2af45e9fcff",
           "registration": "case(\"Timestamp exactly 5 minutes in future is not corrected\")",
           "assertions": [
@@ -23442,6 +23543,7 @@
           "line": 53,
           "end_line": 53,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "7d4656dff3fa0dd942cdc20f1e7c5df68c2fabc897ed5add48222578b4929467",
           "registration": "case(\"Timestamp 6 minutes in future is corrected\")",
           "assertions": [
@@ -23553,6 +23655,7 @@
           "line": 54,
           "end_line": 54,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "0a49663bccd8f68794ae938bcc49f626805913a7ff29fd529a5f0e28ac452a60",
           "registration": "case(\"Timestamp 1 week ago is not corrected\")",
           "assertions": [
@@ -23664,6 +23767,7 @@
           "line": 55,
           "end_line": 55,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "5ec940e625dbc1e4133a1a1cd44922d48f9bf2d67ade53d586ddf0323ef030cf",
           "registration": "case(\"Timestamp 3 months ago is not corrected\")",
           "assertions": [
@@ -23793,6 +23897,7 @@
           "line": 56,
           "end_line": 60,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "24cc5abedcc4b8383f97cd8cbe1faacf8784f3ceccf88df0d4fd67688991f0f4",
           "registration": "case(\"Timestamp exactly 6 months in past is not corrected\")",
           "assertions": [
@@ -23916,6 +24021,7 @@
           "line": 61,
           "end_line": 61,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "f56053422bda35cfef3461b9544cf836c694d838a60eeda1767813412673904c",
           "registration": "case(\"Timestamp 7 months ago is corrected\")",
           "assertions": [
@@ -24021,6 +24127,7 @@
           "line": 62,
           "end_line": 62,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "4674013b457c8697025ad6d695394c076b8254da6f5b8021b97aec95acb17837",
           "registration": "case(\"Timestamp of zero (Unix epoch) is corrected\")",
           "assertions": [
@@ -24126,6 +24233,7 @@
           "line": 63,
           "end_line": 63,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "a941bd5f3449818ad08838f8a3d5ff0af3b46261253e16c2a32f1cf771238e7a",
           "registration": "case(\"Timestamp from year 2020 is corrected\")",
           "assertions": [
@@ -24231,6 +24339,7 @@
           "line": 64,
           "end_line": 64,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "be9132efb405b8635689a86318ed0c50dd130dc19e91b0c297196c27b2db870d",
           "registration": "case(\"Timestamp from year 2030 is corrected\")",
           "assertions": [
@@ -24336,6 +24445,7 @@
           "line": 65,
           "end_line": 73,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "17a13fbb654b8c705cebe04b55881cc614e2571d86de4095cfe3f20468004237",
           "registration": "case(\"Original timestamp is preserved when correction is applied\")",
           "assertions": [
@@ -24477,6 +24587,7 @@
           "line": 74,
           "end_line": 81,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "0ae339b9c35aaeabcb3b17bc41e6d06291e1efc8e0eb934d4c3e9b6f35936e44",
           "registration": "case(\"Corrected timestamp differs from original for invalid input\")",
           "assertions": [
@@ -24600,6 +24711,7 @@
           "line": 82,
           "end_line": 82,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "9ef4bfc93faa77500c85c067fef5329b6bc6a7cb5bb35dcc9695a320a8da13d8",
           "registration": "case(\"Receive time near Unix epoch does not crash\")",
           "assertions": [
@@ -24687,6 +24799,7 @@
           "line": 83,
           "end_line": 87,
           "factory_method": "timestampCorrection",
+          "registration_identity_resolution": null,
           "body_sha256": "0b1cc38845d4dd561621d924c972fadcf28e031f217842b56aba013dcf00e0fd",
           "registration": "case(\"Receive time at Unix epoch handles timestamp validation\")",
           "assertions": [

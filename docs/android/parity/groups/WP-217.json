@@ -763,6 +763,7 @@
           "line": 30,
           "end_line": 37,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2cfde2007352ef0da8422548c329149ed5e7d6c488776ad53ec59454c014907b",
           "registration": "case(\"link preview columns land\")",
           "assertions": [
@@ -916,6 +917,7 @@
           "line": 38,
           "end_line": 48,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4921643f98e9d9ffde206876837197a8ed2edc3ec54f550dc00d485cffecca5b",
           "registration": "case(\"reaction summary and rows land\")",
           "assertions": [
@@ -1063,6 +1065,7 @@
           "line": 49,
           "end_line": 58,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8b3461d08d4e10398e7ad356c60a8db003628d187b9c88df7b8e92eb9e717f27",
           "registration": "case(\"channel notification state lands\")",
           "assertions": [
@@ -1162,6 +1165,7 @@
           "line": 59,
           "end_line": 62,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "0307a0e26273fc45ccfe966e1e2506e27fce802f442e7a2b226bdf92618b5068",
           "registration": "case(\"heard repeats land\")",
           "assertions": [
@@ -1363,6 +1367,7 @@
           "line": 63,
           "end_line": 89,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "234b383d88bf2960cb6dd385e800b02fb73c008c42f75b722ebc7ab8d74de180",
           "registration": "case(\"incoming extra paths land on located repeater prefixes\")",
           "assertions": [
@@ -1606,6 +1611,7 @@
           "line": 90,
           "end_line": 96,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "de1808cb068ea488fefb6fbfac1afce0ddf9f0187749adb27453177858ee62ff",
           "registration": "case(\"flood route fields round trip through save message\")",
           "assertions": [
@@ -1771,6 +1777,7 @@
           "line": 97,
           "end_line": 110,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "45c8c540287fe9d91a332fa82b9cbdf54f54f93b1dff4432b7b25403d39c8aa7",
           "registration": "case(\"ambiguous flood dual fields round trip\")",
           "assertions": [
@@ -1948,6 +1955,7 @@
           "line": 111,
           "end_line": 122,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3980e07d9bcf38a24460f71a2fb0028ae9e0659a9b968af79d285328d1d72b07",
           "registration": "case(\"rx log region rows land\")",
           "assertions": [
@@ -2077,6 +2085,7 @@
           "line": 123,
           "end_line": 128,
           "factory_method": "seedLandsTests",
+          "registration_identity_resolution": null,
           "body_sha256": "404859185082480c404dace5222d8662a228a70b39b0b5ecaeea2c796a36ab24",
           "registration": "case(\"node status snapshots seed a GPS track for the location-history node\")",
           "assertions": [
@@ -2236,6 +2245,7 @@
           "line": 133,
           "end_line": 149,
           "factory_method": "reseedTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c907dbaa60525ab75fccf7616473da0241a5f5ada7bceb83c38e3ce0f23f1891",
           "registration": "case(\"reseeding preserves a user-set avatarImageData\")",
           "assertions": [
@@ -2479,6 +2489,7 @@
           "line": 150,
           "end_line": 164,
           "factory_method": "reseedTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ebef65b0e25ef98df388736c1a93d7f94f9937086e79a85643c84786e9dfb69f",
           "registration": "case(\"reseeding is idempotent\")",
           "assertions": [
@@ -2626,6 +2637,7 @@
           "line": 18,
           "end_line": 23,
           "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a22470b5138996630b3b19b373e0c33053cdc2b974cd30ee3a66e214e7b5f8f8",
           "registration": "case(\"shared returns the same instance\")",
           "assertions": [
@@ -2701,6 +2713,7 @@
           "line": 26,
           "end_line": 30,
           "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
           "body_sha256": "014a8521f2e37ba1b825cf1214032e7e46961eb5f3ea373cadb533c7854f742d",
           "registration": "case(\"properties default to false for new instances\")",
           "assertions": [
@@ -2806,6 +2819,7 @@
           "line": 33,
           "end_line": 43,
           "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
           "body_sha256": "45b7b33beafd5ba8b5cfbb6ce3e87d5faba5106dccd7dd74b5b5897299a9d189",
           "registration": "case(\"unlock sets both isUnlocked and isEnabled to true\")",
           "assertions": [
@@ -2911,6 +2925,7 @@
           "line": 46,
           "end_line": 53,
           "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8acd480bc81482e63fb34807ec1ede0c7155b955f85768b03adcd0a6bb393c77",
           "registration": "case(\"UserDefaults persistence works for isUnlocked\")",
           "assertions": [
@@ -2998,6 +3013,7 @@
           "line": 54,
           "end_line": 61,
           "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5bc85b72fd1c6a1fe28815dbc089df6dcbff387a1e8e2d4b7b46e255dc53b270",
           "registration": "case(\"UserDefaults persistence works for isEnabled\")",
           "assertions": [
@@ -3103,6 +3119,7 @@
           "line": 62,
           "end_line": 70,
           "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5bd4f111b17be3d1aba9dd087f07f7b2abe4dc2afdad700247f5413ebc4772ef",
           "registration": "case(\"unlock persists both values to UserDefaults\")",
           "assertions": [
@@ -3220,6 +3237,7 @@
           "line": 71,
           "end_line": 79,
           "factory_method": "demoModeManagerTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9e51f122c7d72fc3e85a50b101c4d8f97662b257781dfa0667a70fbfc27e8c26",
           "registration": "case(\"values persist and can be read back\")",
           "assertions": [

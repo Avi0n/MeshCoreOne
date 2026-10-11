@@ -22,10 +22,10 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-382 inspected family proposals in40groups, exact source/assertion/helper/runner
+422 inspected family proposals in45groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
-merged coordinator repair whose unchanged worker assertion awaits re-execution**;
+merged coordinator repair whose unchanged worker assertion passed at be12305a**;
 independent full behavioral acceptance remains BLOCKED. All 1,866 inputs and 5,133 declarations
 remain present. 1,786 paths are in scope; 80 are exact charter exclusions.
 All 111 excluded historical declarations remain accountable; 66 of these are
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has72 Python regressions and twenty-one Kotlin acceptance cases.
+The follow-up has85 Python regressions and twenty-four Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-382actually inspected proposals;3,344native-body joins are only candidates.
+422actually inspected proposals;3,959native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -107,7 +107,7 @@ grapheme vectors, every path mode/sentinel and three parameter rows/twelve
 round-trip pairs, actual opt-in transport defaults and original app hex inputs.
 The new combined15-family app assertion uses the real production formatter/
 parser, not the protocol's recreated test-only application adapter. It counts
-once as a required JUnit execution and awaits native verification.
+once as a required JUnit execution and actually passed at be12305a.
 
 Coordinator repair8967cba594296833e0219f9fdd444f3c673f7461 was independently
 source-reviewed against base250dd50e and the unchanged worker assertion, with
@@ -121,8 +121,39 @@ b24272846f3dc74e9df912c11cb945c5fe5e96b5 after the completed eight-commit rebase
 The inherited repaired AppChatContent blob is
 6868cb2ac4e538483a881ce2a718a96bb065a727. Accounting and semantic bindings were
 regenerated against the actual integrated sources without changing the pin.
-New candidate execution
-is still required; the earlier failure is not relabeled as repaired execution.
+At exactbe12305aa3f39133ac09b5caa3333cf61ec609b1 the supported credential-stripped
+Windows launcher, private caches and shared native/Gradle hard locks executed
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --tests com.meshcoreone.android.app.platform.InlineContentCancellationTest --tests com.meshcoreone.android.app.platform.PreviewPolicyTest --dependency-verification=strict`.
+Strict positive XML identities discovered25/run25/passed25/0failure/error/skip:
+all21 then-required WP501 methods and all4 actual coordinator repair regressions.
+An earlier selector accidentally named those repair classes under app.container
+and only executed21parity cases; the corrected app.platform selector actually
+executed all25, rather than counting absent repair selectors as green.
+The unchanged original worker caller-cancellation assertion passes. Combined
+controller/local/parity at immutablebe12305a also ran343/343pass/0failure/error/skip.
+Normal supported push passed Python/preflight, failed WSL scaffold at the existing
+Expected3/found0 transform lock and published explicitlyUNVERIFIED. Exact primary
+hosted38163834649 remains the authoritative candidate result/log;38163834639 is
+the separate setup workflow, not the primary Android check.
+
+The additional40 inspected families compare all28 modern command/scope/reset
+literal packer declarations and all12 modern session consumer declarations.
+Three new required methods add delayed-OK/unrelated-event suspension, delayed
+typed device errors and exact9,999/10,000ms timeout with original10-second/MCTst
+setup. They have no native result yet. Existing immediate `onSend` reply helpers
+are not promoted as independent already-written suspension evidence.
+Kotlin literal Unicode/surrogate/interpolation decoding and suite/case/signature/
+row registration now have13additional Python regressions,85/85passed. Computed
+rows are preserved as explicitly unresolved, not guessed display identities.
+The extra615 extracted native joins are mapping candidates, not inspected or
+passing source families; the frozen5,133-declaration denominator is unchanged.
+
+Coordinator independently reported no blocking source/input/assertion mismatch
+in the four54-family primitive groups atbe12305a, including the actual production
+helpers/consumers and original contact CHAT/null-heard defaults. This bounded
+read assessment does not approve all422 comparisons, full WP501, platform Unicode
+tables, physical transport, UI or a privileged gate. Actual main38162783204 is
+SUCCESS atc68f4140, separately from candidate execution.
 
 Baseline [run38155192945](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38155192945)
 is SUCCESS at exact250dd50e. Initial WP-501
@@ -157,7 +188,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the382families
+actual inspection. All1,786owned source dispositions require behavior review; only the422families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

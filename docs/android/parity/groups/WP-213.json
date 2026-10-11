@@ -2902,6 +2902,7 @@
           "line": 43,
           "end_line": 54,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "64403dace43a733e98d05d81d20ac0d233bcc28772a9ed9e26972bcf083bcd71",
           "registration": "case(\"interactive bind always succeeds and revokes the prior writer\")",
           "assertions": [
@@ -3079,6 +3080,7 @@
           "line": 55,
           "end_line": 67,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4976d7aa96a9a6893f84fba86d749d57a0a7ff3e68457b092f9edd1c0bf2bc9f",
           "registration": "case(\"releaseWriter vacates the slot for a later prime bind\")",
           "assertions": [
@@ -3268,6 +3270,7 @@
           "line": 68,
           "end_line": 81,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "514aaad2d83ec2f6558decbd47fe2e334e02226aa47f223e877f5260d04dad72",
           "registration": "case(\"releaseWriter from a superseded owner does not evict the successor\")",
           "assertions": [
@@ -3571,6 +3574,7 @@
           "line": 82,
           "end_line": 117,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9a6c45f9eaf1ea966a9ec8835cad0247ef44849fc0049a2c8f7fbf2d04fb5728",
           "registration": "case(\"stale writer mutations all no-op\")",
           "assertions": [
@@ -3904,6 +3908,7 @@
           "line": 118,
           "end_line": 130,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1cf2568564c9698d394328d44627e31058431f6eb7f2df9b5d5c63c83fdfa784",
           "registration": "case(\"current writer mutations apply\")",
           "assertions": [
@@ -4081,6 +4086,7 @@
           "line": 131,
           "end_line": 140,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4e236ce4877d30831d17397c3bf1cdec49a5105b6d9cc9c0645c049c8d6f6547",
           "registration": "case(\"prime bind is denied while an interactive owner is alive\")",
           "assertions": [
@@ -4282,6 +4288,7 @@
           "line": 141,
           "end_line": 155,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3616723aa43e53c27969f28ef91dc8cdb8531fd53421a990349c0385c87793a0",
           "registration": "case(\"prime bind succeeds over a vacant slot, a prior prime, and a deallocated owner\")",
           "assertions": [
@@ -4477,6 +4484,7 @@
           "line": 156,
           "end_line": 170,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "eec513c1bb1066f9f005d0283bd379bf0f5fe57335865121a664ca6266b9d04b",
           "registration": "case(\"interactive bind swaps hooks atomically with write ownership\")",
           "assertions": [
@@ -4678,6 +4686,7 @@
           "line": 171,
           "end_line": 184,
           "factory_method": "chatTimelineWriterTests",
+          "registration_identity_resolution": null,
           "body_sha256": "85dff5cfb6e249f9be4672bebc72a1b3f2436b830d5fb76b555efda6b8bfacd6",
           "registration": "case(\"stale writer cannot schedule a full rebuild\")",
           "assertions": [
@@ -4873,6 +4882,7 @@
           "line": 39,
           "end_line": 47,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a5e533559c00ebbcdb5a10aa91d0453582205e584f4f992f064ad8399db6086b",
           "registration": "case(\"setDraft / draft / clearDraft round-trip\")",
           "assertions": [
@@ -5026,6 +5036,7 @@
           "line": 48,
           "end_line": 53,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "56bbdf3994dd5dc06350917d8fc7e3d7b40c19a8ebfb1121e218b660fbb69b95",
           "registration": "case(\"draft survives a new DraftStore instance on the same suite (restart)\")",
           "assertions": [
@@ -5167,6 +5178,7 @@
           "line": 54,
           "end_line": 61,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "afde27093b7c02726083ded4baeec12634837bb3ba676603da5edecd2993dfba",
           "registration": "case(\"whitespace / newline-only input removes the entry\")",
           "assertions": [
@@ -5302,6 +5314,7 @@
           "line": 62,
           "end_line": 67,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9af9e6697ffce98f7a27156197cb5c459cc0456895638dd28e3ff473886c97a1",
           "registration": "case(\"non-empty draft with a trailing newline is stored verbatim\")",
           "assertions": [
@@ -5419,6 +5432,7 @@
           "line": 68,
           "end_line": 73,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "73a5820012d91acf716cebb947a0c99432d9ecda38985304434665b1e5d35bb3",
           "registration": "case(\"draftToApply returns the saved draft when the field is empty\")",
           "assertions": [
@@ -5536,6 +5550,7 @@
           "line": 74,
           "end_line": 79,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1e62e44b2add6d3ecdef9e37dd7b6e06de5afe83a52c02a5f43f95ee8b4037dd",
           "registration": "case(\"draftToApply returns nil when the field already has text\")",
           "assertions": [
@@ -5647,6 +5662,7 @@
           "line": 80,
           "end_line": 82,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "52c14e656af7852af5a5d307d5137d8f0a26ead80437a623831d03042d46ab7a",
           "registration": "case(\"draftToApply returns nil when no draft exists\")",
           "assertions": [
@@ -5782,6 +5798,7 @@
           "line": 83,
           "end_line": 91,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b59790a7fa9e6d4b393243e0ce9029aae75652f2f8000d9e434dffe13ec18641",
           "registration": "case(\"dm and channel drafts at matching identifiers do not collide\")",
           "assertions": [
@@ -5971,6 +5988,7 @@
           "line": 92,
           "end_line": 100,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c03ad5fd75e685112f5e85849ada216fb5ab505f06d5e2b3f90c995647a20ec7",
           "registration": "case(\"same channel index on different radios is isolated\")",
           "assertions": [
@@ -6160,6 +6178,7 @@
           "line": 101,
           "end_line": 108,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e4f6090f752941f9b710cc810ad0fc3719fb47909c5a88e45012cfb803264f3e",
           "registration": "case(\"clearDraft persists the deletion across a fresh instance (restart)\")",
           "assertions": [
@@ -6301,6 +6320,7 @@
           "line": 109,
           "end_line": 116,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c410a42583dfa330d95a77c368a053446df0d6ecb8d660456085401548f267cc",
           "registration": "case(\"whitespace-clear persists the deletion across a fresh instance (restart)\")",
           "assertions": [
@@ -6448,6 +6468,7 @@
           "line": 117,
           "end_line": 125,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3b82bf231b8bdebe2d715b846dd7d066cbfca40bd116879ea9540abd1be44332",
           "registration": "case(\"clearDraft on a never-set id is a no-op\")",
           "assertions": [
@@ -6703,6 +6724,7 @@
           "line": 126,
           "end_line": 139,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "79d4010fa5611a0ca5ea4467dde4e38e33c66bcfb9cfa1a6500e709a5ac2406c",
           "registration": "case(\"clearChannelDrafts(radioID:indices:) clears the given slots and persists\")",
           "assertions": [
@@ -7024,6 +7046,7 @@
           "line": 140,
           "end_line": 151,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ba2d1061d177c7b0ec402f9f5c32c4eb9c28b90cfb177030d22de38031d2163b",
           "registration": "case(\"clearChannelDrafts(slotsByRadio:) clears slots across radios, leaving dm drafts intact\")",
           "assertions": [
@@ -7267,6 +7290,7 @@
           "line": 152,
           "end_line": 157,
           "factory_method": "draftStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "83fb2e9387995aa4cff3b47291b92e3fe8603f6174d9ca86b77dfaa8cf764741",
           "registration": "case(\"draftStorageKey encodes dm and channel keys in the pinned format\")",
           "assertions": [
@@ -7390,6 +7414,7 @@
           "line": 33,
           "end_line": 36,
           "factory_method": "envInputsThemeTokenTests",
+          "registration_identity_resolution": null,
           "body_sha256": "11da9b2a2be0de8ad93cfddb250fa82124f2e7bdcca744f7b29138a8e19b25a2",
           "registration": "case(\"changing only themeID makes EnvInputs unequal (drives cache invalidation)\")",
           "assertions": [
@@ -7507,6 +7532,7 @@
           "line": 37,
           "end_line": 40,
           "factory_method": "envInputsThemeTokenTests",
+          "registration_identity_resolution": null,
           "body_sha256": "fac3e27f6fcb6a73491e41723ae5b8420d482fe2f3336d23e11ccf8a18d3a74b",
           "registration": "case(\"changing only preferredLanguageCode makes EnvInputs unequal\")",
           "assertions": [
@@ -7594,6 +7620,7 @@
           "line": 41,
           "end_line": 43,
           "factory_method": "envInputsThemeTokenTests",
+          "registration_identity_resolution": null,
           "body_sha256": "422d7c56df55cc96a37c47cf6bac00a215555de8ca4a954e51432a4cf2ab9f8b",
           "registration": "case(\"EnvInputs.default carries the default theme id\")",
           "assertions": [
@@ -7698,6 +7725,7 @@
           "line": 44,
           "end_line": 48,
           "factory_method": "envInputsThemeTokenTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b350770face51423bd258e8c2dd6f2d58811d4b1ac0e42c8c57a14e4cda3bdf9",
           "registration": "case(\"preferredLanguageCode from locale collapses region and script\")",
           "assertions": [
@@ -7857,6 +7885,7 @@
           "line": 86,
           "end_line": 94,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c892e3f6162d499e37223ae97280a67d1d5a72fe99dad404b6f7105d13dbdff9",
           "registration": "case(\"save then aspect(for:) returns the expected ratio\")",
           "assertions": [
@@ -8010,6 +8039,7 @@
           "line": 55,
           "end_line": 62,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0d5dc5bc76568411ba5912b553c06cd54ea4afb535feb66d7f20cff34fe5292b",
           "registration": null,
           "assertions": [
@@ -8060,6 +8090,7 @@
           "line": 95,
           "end_line": 103,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "cd2f2ab4c7becf2fe85aea3a34443882fb0aa37adf10217c0149e7f244ca26ef",
           "registration": "case(\"save with zero width is rejected silently\")",
           "assertions": [
@@ -8213,6 +8244,7 @@
           "line": 66,
           "end_line": 73,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "7e2c7e06996a75d8ca63a2f77471d810a1f72a6dec3172f26895e680f8a43867",
           "registration": null,
           "assertions": [
@@ -8263,6 +8295,7 @@
           "line": 104,
           "end_line": 112,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "163dbecdcf83fa7790cd1b7b752af4bac2bb7a26257e6bb8d761b8b01ac3c371",
           "registration": "case(\"save with zero height is rejected silently\")",
           "assertions": [
@@ -8428,6 +8461,7 @@
           "line": 101,
           "end_line": 109,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9a89087149356f7f91c1552090bd11273e19e26b30fe1d82b9332b65b2f92c1f",
           "registration": null,
           "assertions": [
@@ -8484,6 +8518,7 @@
           "line": 113,
           "end_line": 116,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d0c4cf4e41829c009147e44034d25f1440c2806b566e7e31e6896e45b825c0b5",
           "registration": "case(\"init recovers from a corrupt file by starting empty\")",
           "assertions": [
@@ -8613,6 +8648,7 @@
           "line": 134,
           "end_line": 140,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "bddd4967ee3459456236ebeaf6cefc94e9d1094247abf52a213f9f6ffb01f485",
           "registration": null,
           "assertions": [
@@ -8657,6 +8693,7 @@
           "line": 117,
           "end_line": 120,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "79043ce3321da5a576d22379dbfe77fe1f5bd5c37516a38692817e60a0a5016c",
           "registration": "case(\"init on non-existent file yields empty store\")",
           "assertions": [
@@ -8828,6 +8865,7 @@
           "line": 121,
           "end_line": 132,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c8337543c40357a299fdd2502914b3cf344904e3ce4fa7798bcef6f0c0683294",
           "registration": "case(\"two saves are both readable via aspect(for:)\")",
           "assertions": [
@@ -9023,6 +9061,7 @@
           "line": 157,
           "end_line": 169,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "4020796cc369332c26247146e2fd58b24b920c51f1816e4686cf948b24bfb63e",
           "registration": null,
           "assertions": [
@@ -9085,6 +9124,7 @@
           "line": 133,
           "end_line": 142,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "153b78b6933c52618f995f945bda09d93c5cb1a29c0f02dbf8955b87f4e85c50",
           "registration": "case(\"resolutionUpdates emits the URL on save\")",
           "assertions": [
@@ -9328,6 +9368,7 @@
           "line": 173,
           "end_line": 190,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "00be9407db00393b3da5ab347692749cdfdd348b41c543c57c5278568e9d346b",
           "registration": null,
           "assertions": [
@@ -9432,6 +9473,7 @@
           "line": 143,
           "end_line": 157,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c39d72f3315138a2b4b4b5db74c9cc5ea57b4e788fc22e467072ff37f7126e36",
           "registration": "case(\"resolutionUpdates delivers every event to every concurrent subscriber\")",
           "assertions": [
@@ -9663,6 +9705,7 @@
           "line": 158,
           "end_line": 167,
           "factory_method": "inlineImageDimensionsStoreTests",
+          "registration_identity_resolution": null,
           "body_sha256": "dae34d88e7033bc2957b553890583c8b2ea745ad6a7757e2c54801ec73e2d86c",
           "registration": "case(\"round-trip: recreated store reads previously persisted aspect\")",
           "assertions": [
@@ -9846,6 +9889,7 @@
           "line": 89,
           "end_line": 105,
           "factory_method": "chatCoordinatorRegistryOfflineTests",
+          "registration_identity_resolution": null,
           "body_sha256": "eb771f01d474ff7c56b0ce745b8401162ce03762761ab89865bc3308078f0821",
           "registration": "dynamicTest(\"ChatCoordinatorRegistryOfflineTests::coordinator against offline store returns coordinator bound to store()\")",
           "assertions": [
@@ -10024,6 +10068,7 @@
           "line": 22,
           "end_line": 28,
           "factory_method": "chatCoordinatorRegistryTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e32f6302bf670dd9c124057628a8d569440d4db2b38c05cdabc9d55981bfc706",
           "registration": "case(\"coordinator(for:) returns the same instance on repeat calls\")",
           "assertions": [
@@ -10166,6 +10211,7 @@
           "line": 29,
           "end_line": 37,
           "factory_method": "chatCoordinatorRegistryTests",
+          "registration_identity_resolution": null,
           "body_sha256": "aa425b427311265f0d0f181971880d9aa92496281644a9777274b6e3cc76988b",
           "registration": "case(\"Distinct conversation IDs yield distinct coordinators\")",
           "assertions": [
@@ -10356,6 +10402,7 @@
           "line": 38,
           "end_line": 50,
           "factory_method": "chatCoordinatorRegistryTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9550262aad771050e4b551aaa12d31646625089f6b87753f9e5665ce630f272b",
           "registration": "case(\"coordinator exceeding cap evicts least recently used\")",
           "assertions": [
@@ -10582,6 +10629,7 @@
           "line": 51,
           "end_line": 64,
           "factory_method": "chatCoordinatorRegistryTests",
+          "registration_identity_resolution": null,
           "body_sha256": "0501b8bef9f272ac1e870a6a8b13f2ae7e444187ad2dc22bebbb030b07b212a7",
           "registration": "case(\"coordinator touching entry promotes it to most recently used\")",
           "assertions": [
@@ -10802,6 +10850,7 @@
           "line": 65,
           "end_line": 78,
           "factory_method": "chatCoordinatorRegistryTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4f63edfa815726cf5e0e77d3546f8fa26a45515beee8cd5b84078cf719b16c6d",
           "registration": "case(\"remove(for:) evicts only that conversation so the next lookup starts fresh\")",
           "assertions": [
@@ -10974,6 +11023,7 @@
           "line": 24,
           "end_line": 29,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "eff1802337f3e2f1a1fc0d96f517dd31b3d0a9004f7aadff9f6e09ad481428dc",
           "registration": "case(\"initialPageSize keeps the standard page when unread fits within it\")",
           "assertions": [
@@ -11073,6 +11123,7 @@
           "line": 30,
           "end_line": 35,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2155bd03113beb7b5d9c62fb5b707f8ef8207d3be858e2e3a9f1637539a33c95",
           "registration": "case(\"initialPageSize grows to cover all unread plus read context\")",
           "assertions": [
@@ -11148,6 +11199,7 @@
           "line": 36,
           "end_line": 38,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3e160b816625d61748fdbcc4d64d3010ab5bc02b33caf1ff630fd05895b70025",
           "registration": "case(\"initialPageSize caps a huge unread backlog\")",
           "assertions": [
@@ -11259,6 +11311,7 @@
           "line": 39,
           "end_line": 49,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c2524fd99d665c4b5ca55a9d2a8e287fd42d9717a39774ae1dfcefc10737a2ab",
           "registration": "case(\"append adds a new message and bumps renderStateID\")",
           "assertions": [
@@ -11388,6 +11441,7 @@
           "line": 50,
           "end_line": 61,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "788ea0c5c1c84c9b16882727a208e334191310a9f4871962a1acd058ae2a756e",
           "registration": "case(\"append is idempotent on duplicate id\")",
           "assertions": [
@@ -11511,6 +11565,7 @@
           "line": 62,
           "end_line": 70,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "11f8f0eb881079935ca5c6623822c6ffbca24667a05de7e7d0127d7bdf94bffb",
           "registration": "case(\"update no-ops on missing id\")",
           "assertions": [
@@ -11640,6 +11695,7 @@
           "line": 71,
           "end_line": 81,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "eaa534e42d050a7e0b5afdf69ab2957192c1cbf212c47ff86dead9e3244c4ba0",
           "registration": "case(\"update mutates an existing message in place and bumps renderStateID\")",
           "assertions": [
@@ -11781,6 +11837,7 @@
           "line": 82,
           "end_line": 92,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8a7cb0537d307a3d75e148862ea2789159873985aa87fffb4ddefbde033b8b0c",
           "registration": "case(\"renderStateID increments on every mutation\")",
           "assertions": [
@@ -11946,6 +12003,7 @@
           "line": 93,
           "end_line": 128,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9600ee119a337d09a885be5999367a773758fb9a75145d817431f1312f5f714f",
           "registration": "case(\"rebuildItems fires renderStateInvalidated when setRenderState rejects stale build\")",
           "assertions": [
@@ -12129,6 +12187,7 @@
           "line": 129,
           "end_line": 137,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a3e58405f148155a2803033349ed04a79bdc374893c0f8702525eb80e5501b4b",
           "registration": "case(\"setRenderState returns false on stale capturedID\")",
           "assertions": [
@@ -12246,6 +12305,7 @@
           "line": 138,
           "end_line": 145,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2f35d7cee513e39d1ed5aa9a14ba87cd2e55b5f0b2d527ea0c7144e6a73e535f",
           "registration": "case(\"setRenderState applies when capturedID matches\")",
           "assertions": [
@@ -12381,6 +12441,7 @@
           "line": 146,
           "end_line": 158,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "6c170311f0f20e4ef68bb88af88acb59be71f1bfd9d7b6fe2ba914b842bc736d",
           "registration": "case(\"enqueueReload unions IDs into pendingReloadIDs\")",
           "assertions": [
@@ -12606,6 +12667,7 @@
           "line": 159,
           "end_line": 181,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "312022503d57fd41dfd0ebd52b90788370eb1f08d2705d3564fc5caa1b6a715d",
           "registration": "case(\"applyReloadedIDs invokes renderItemRebuilder after refreshing a DTO\")",
           "assertions": [
@@ -12831,6 +12893,7 @@
           "line": 182,
           "end_line": 194,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "53200d3e142acbd77372e13dff682a554f3b70bbd2506223668ada32a5621419",
           "registration": "case(\"applyStatusUpdate blocks .failed -> .pending unless userInitiated\")",
           "assertions": [
@@ -12942,6 +13005,7 @@
           "line": 195,
           "end_line": 197,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "cdd4029eedca3a998ce97a421614b2c7b9b68bf216e90178f88b59d2fecf18a2",
           "registration": "case(\"fresh coordinator starts in .uninitialized phase\")",
           "assertions": [
@@ -13023,6 +13087,7 @@
           "line": 198,
           "end_line": 206,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c4fe54913a7dd3ecd3b19ab8e699f09f88aa855a2ed696d316c8404500174eb1",
           "registration": "case(\"beginLoading transitions .uninitialized to .loading\")",
           "assertions": [
@@ -13122,6 +13187,7 @@
           "line": 207,
           "end_line": 216,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3157217b57ebee8bbff578c26b582bba406a7c9e18ce423ac906dbc9ec8b0a67",
           "registration": "case(\"beginLoading is a no-op once .loaded\")",
           "assertions": [
@@ -13233,6 +13299,7 @@
           "line": 217,
           "end_line": 226,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b01152fec6d8bacc97a6c6a55d12151e412fc9a7cf3d69d1f1d412f8fd449a66",
           "registration": "case(\"beginLoading is a no-op while already .loading\")",
           "assertions": [
@@ -13332,6 +13399,7 @@
           "line": 227,
           "end_line": 235,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "22efc82bc8c578368f1d7b7a65f182c8ab3555966f7d29483cbfed908f619594",
           "registration": "case(\"markLoaded transitions .uninitialized to .loaded\")",
           "assertions": [
@@ -13431,6 +13499,7 @@
           "line": 236,
           "end_line": 245,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "24118e75af743c1189b6c4f35f89bc9011e6151125a52b0f109eb3a140cb4c14",
           "registration": "case(\"markLoaded transitions .loading to .loaded\")",
           "assertions": [
@@ -13536,6 +13605,7 @@
           "line": 246,
           "end_line": 255,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "066901d71f9fefc529ab83d344201c070f8a61be1136022b20c0437102fc6b30",
           "registration": "case(\"markLoaded is idempotent when already .loaded\")",
           "assertions": [
@@ -13641,6 +13711,7 @@
           "line": 256,
           "end_line": 263,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c89a8404bed936b0d19db94bc6c07846a069b45f30ea9ef087f98cb989cc39ee",
           "registration": "case(\"replaceAll transitions phase to .loaded\")",
           "assertions": [
@@ -13752,6 +13823,7 @@
           "line": 264,
           "end_line": 272,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b69a015332c6e3ac1d0bb117f6a70675c4bb1f2ace022084a5e09b649331d5db",
           "registration": "case(\"replaceAll with empty list still transitions to .loaded\")",
           "assertions": [
@@ -13917,6 +13989,7 @@
           "line": 273,
           "end_line": 285,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1fdd773169806d7d982440bf943b73a20b9630ae989e4248847595bfc95728b2",
           "registration": "case(\"phase is observed identically by sibling view models sharing one coordinator\")",
           "assertions": [
@@ -14136,6 +14209,7 @@
           "line": 286,
           "end_line": 304,
           "factory_method": "chatCoordinatorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "327a7c799e0ecd010bc752b0457658da1dbf6d7abb10693e047011b572b753ef",
           "registration": "case(\"applyReloadedIDs skips renderItemRebuilder for unknown IDs\")",
           "assertions": [
@@ -14331,6 +14405,7 @@
           "line": 19,
           "end_line": 28,
           "factory_method": "messageLRUCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a6560a031db7a67f8bf40826921b1fb465b0df7eaae7a44978e01dfa04b2279d",
           "registration": "case(\"Indexes and retrieves message\")",
           "assertions": [
@@ -14460,6 +14535,7 @@
           "line": 29,
           "end_line": 31,
           "factory_method": "messageLRUCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c9f1b1b19557cb02fe508678840ab2d528a942b8533a877abd7e60e641f2d0af",
           "registration": "case(\"Returns empty array for non-existent message\")",
           "assertions": [
@@ -14595,6 +14671,7 @@
           "line": 32,
           "end_line": 39,
           "factory_method": "messageLRUCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "6221d4b7f3845c4f5d59dfad0fa5d5a5a9c3d675b70af70b7aec231572aae9ff",
           "registration": "case(\"Evicts oldest key at capacity\")",
           "assertions": [
@@ -14772,6 +14849,7 @@
           "line": 40,
           "end_line": 46,
           "factory_method": "messageLRUCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1288dac34c480f85a9d1f2581f8dd4770e9e04c54fa733f1ebec309afa00d2df",
           "registration": "case(\"Different channels are separate\")",
           "assertions": [
@@ -14931,6 +15009,7 @@
           "line": 47,
           "end_line": 57,
           "factory_method": "messageLRUCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "058cc3a7ea308b767394c71a272cbb7d57240c1b2a7a671ed502f7fe9b3e1173",
           "registration": "case(\"Stores multiple candidates per key\")",
           "assertions": [
@@ -15102,6 +15181,7 @@
           "line": 58,
           "end_line": 69,
           "factory_method": "messageLRUCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f90d47c3cefa4b00ba72c8c4783ac2257c7d8fde925aafe9caad9964c553cd56",
           "registration": "case(\"Caps candidates per key\")",
           "assertions": [
@@ -15261,6 +15341,7 @@
           "line": 70,
           "end_line": 78,
           "factory_method": "messageLRUCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e02799859ff5041a91df102ba813258b6e98b0424d6def28977830f67450387f",
           "registration": "case(\"Re-indexing same messageID updates instead of duplicating\")",
           "assertions": [
@@ -15390,6 +15471,7 @@
           "line": 78,
           "end_line": 86,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d04c9c0f696c71f2b64ac3c54d6d98cc6bd0a194f042dd2c358a449278df90fa",
           "registration": "case(\"empty has expected field defaults\")",
           "assertions": [
@@ -15525,6 +15607,7 @@
           "line": 87,
           "end_line": 95,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1276a3a430da8e2347c465a19a3229a38126b24419f9915dc0037743b6dedb7b",
           "registration": "case(\"with(...) replaces only specified fields\")",
           "assertions": [
@@ -15648,6 +15731,7 @@
           "line": 96,
           "end_line": 102,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e3bdbb386c7f7af015337a024c6ffa549884b5840a63015c8322488dc2cf2b99",
           "registration": "case(\"with(phase:) replaces only the phase\")",
           "assertions": [
@@ -15759,6 +15843,7 @@
           "line": 103,
           "end_line": 106,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "40c71d382bf0dfe0b2fcb041ab2a02b33bae65bcdefb9369748789eb1f4daa44",
           "registration": "case(\"appendingItem preserves phase\")",
           "assertions": [
@@ -15876,6 +15961,7 @@
           "line": 107,
           "end_line": 118,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f532114a97c53e22f7db2c1727215d0ba9c264143535e44a7a6753726b4d2676",
           "registration": "case(\"updatingItem preserves phase\")",
           "assertions": [
@@ -16023,6 +16109,7 @@
           "line": 119,
           "end_line": 129,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "336462028b14a14c33d40b3268a19529b52726572d968e204389bbe1fa5847db",
           "registration": "case(\"removingItem preserves phase\")",
           "assertions": [
@@ -16170,6 +16257,7 @@
           "line": 130,
           "end_line": 136,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "615fe4eacdc714378bee0b44b4cb12fa1a1f6dc9bbe8c7de5eeaa392b5619a3f",
           "registration": "case(\"itemIndexByID matches items after buildItems\")",
           "assertions": [
@@ -16287,6 +16375,7 @@
           "line": 137,
           "end_line": 142,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1c063e524805472b03901011c09e1d1631870fc3827a8ace90e1993fdd981270",
           "registration": "case(\"Two builds with identical inputs produce equal render states\")",
           "assertions": [
@@ -16404,6 +16493,7 @@
           "line": 143,
           "end_line": 154,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "865ba46d5b36369aa23a2eedab36ef11df745798659e6b8d01e8017a091b6300",
           "registration": "case(\"ChatViewModel accessors mirror renderState field-for-field\")",
           "assertions": [
@@ -16533,6 +16623,7 @@
           "line": 155,
           "end_line": 165,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "6320beeea2d5a4fa2b20e60dcdbfeb04b10db0cd1ae29cbf4bfade15e0e97459",
           "registration": "case(\"updatingItem replaces a single row, leaves others untouched\")",
           "assertions": [
@@ -16662,6 +16753,7 @@
           "line": 166,
           "end_line": 171,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ce70880024f5e094020057a16dd860f02df0fd7bf1abb5f7565d8d35d51ccabc",
           "registration": "case(\"updatingItem no-ops on missing ID\")",
           "assertions": [
@@ -16797,6 +16889,7 @@
           "line": 172,
           "end_line": 180,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c15de070e2ef544058198690a74d498f1d789d6137f2d5df7fe6736dcf9676d1",
           "registration": "case(\"removingItem removes the row and rebuilds the index\")",
           "assertions": [
@@ -16920,6 +17013,7 @@
           "line": 181,
           "end_line": 186,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "34efe8f6eb910d46a75a33aa84a62612814cf117351fbea8d8b5aa633f9aa02c",
           "registration": "case(\"removingItem no-ops on missing ID\")",
           "assertions": [
@@ -17031,6 +17125,7 @@
           "line": 187,
           "end_line": 195,
           "factory_method": "chatRenderStateTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b3da3822815fcd0ff7551277a785e3d3b06a1d595b4259fb981cfc20a46a160b",
           "registration": "case(\"appendingItem appends and updates totalFetchedCount\")",
           "assertions": [
@@ -17166,6 +17261,7 @@
           "line": 17,
           "end_line": 26,
           "factory_method": "messageFootprintHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "7f12a3d0e0b22ba619efc7c04a53ca3ae4ec32b192991cd9b8f584b334ff7fe4",
           "registration": "case(\"sendCount change flips MessageItem.hashValue\")",
           "assertions": [
@@ -17313,6 +17409,7 @@
           "line": 27,
           "end_line": 33,
           "factory_method": "messageFootprintHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "83154eb8410f862f09fb8144e831c171aa4d405486679d77b6a37cce4aa48a76",
           "registration": "case(\"heardRepeats change flips MessageItem.hashValue\")",
           "assertions": [
@@ -17442,6 +17539,7 @@
           "line": 34,
           "end_line": 40,
           "factory_method": "messageFootprintHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "562e7fb06a3c17fb42ad37361e0834f12bf11885498cb5d754c26607938fecc1",
           "registration": "case(\"status change flips MessageItem.hashValue\")",
           "assertions": [
@@ -17571,6 +17669,7 @@
           "line": 23,
           "end_line": 41,
           "factory_method": "messageFragmentBuilderOffMainTests",
+          "registration_identity_resolution": null,
           "body_sha256": "50179bf9139afc02a7f7974171735a4d25b3387ff3265d40f2d8e82599f5f8f5",
           "registration": "dynamicTest(\"MessageFragmentBuilderOffMainTests::Builder is callable from a detached task off the main actor()\")",
           "assertions": [
@@ -17742,6 +17841,7 @@
           "line": 46,
           "end_line": 51,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "98a7cdd2dc4ebb73a887718316e302a30b3e98ae67350c8ea7fde7b91a8cab0e",
           "registration": "case(\"plain text produces a single text fragment\")",
           "assertions": [
@@ -17985,6 +18085,7 @@
           "line": 52,
           "end_line": 72,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "528fdb825c0a1d70b232b51ff07cddbd0f320f9b843ccbc8aa3784b4350bacc5",
           "registration": "case(\"translation chrome copies onto the payload and leaves raw original\")",
           "assertions": [
@@ -18216,6 +18317,7 @@
           "line": 73,
           "end_line": 79,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c83c6b7b76c2381b55bc04cc76825b4fcb01458ddbf6ed023f2a34c476a53760",
           "registration": "case(\"reaction summary appears after the text fragment\")",
           "assertions": [
@@ -18363,6 +18465,7 @@
           "line": 80,
           "end_line": 87,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "df822a90cd1ad462b897d0bda5f80cd4a77a8ac6cb90d2efb6b5a985c95d0cf3",
           "registration": "case(\"adding a reaction flips the item hash\")",
           "assertions": [
@@ -18516,6 +18619,7 @@
           "line": 88,
           "end_line": 92,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1a60c7eaceb91ff1cdcd34ac0be04ff022644d6dea9792acc5a652058887d1e3",
           "registration": "case(\"malware warning replaces preview and inline image fragments\")",
           "assertions": [
@@ -18675,6 +18779,7 @@
           "line": 93,
           "end_line": 99,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "26b3055dc0992180c775eed148805817b12b475d588de7b9328cc9130ceb86fd",
           "registration": "case(\"image url with isInlineImageURL true routes to inline image\")",
           "assertions": [
@@ -18840,6 +18945,7 @@
           "line": 100,
           "end_line": 106,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ab17ca93dc7766319789931951c807eeae544d6f6eb91c64c679c0030ba82071",
           "registration": "case(\"link content off suppresses inline image and link preview for image url\")",
           "assertions": [
@@ -18993,6 +19099,7 @@
           "line": 107,
           "end_line": 111,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9dc7422a0019b5ff3c5fc93f518c7c8dc5cfff93aa4787c971d599d724f0b66e",
           "registration": "case(\"link content off suppresses link preview for non image url\")",
           "assertions": [
@@ -19152,6 +19259,7 @@
           "line": 112,
           "end_line": 118,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d55e001bc6b6ced2ac069fb5dc73fb709891a865e663fb0be7683019b2f7a013",
           "registration": "case(\"link content on routes non image url to link preview\")",
           "assertions": [
@@ -19317,6 +19425,7 @@
           "line": 119,
           "end_line": 125,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d9e2e9a4cd8fcf9e6180d38ef8546ad32885a039d85c1dc2ad22f0726365e19b",
           "registration": "case(\"disabled preview state yields disabled inline image\")",
           "assertions": [
@@ -19488,6 +19597,7 @@
           "line": 126,
           "end_line": 132,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "348c9a7c0d294b9764a2e0f108997d2d066342da9086d86368cd2149eebfa3c6",
           "registration": "case(\"page serving image url reroutes to link preview\")",
           "assertions": [
@@ -19635,6 +19745,7 @@
           "line": 133,
           "end_line": 139,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c79f1837362fd4ed10138f7bf8a2c09af6d48129cb72f2b79d014e2d041044c4",
           "registration": "case(\"legacy link preview surfaces with persisted fields when state is idle\")",
           "assertions": [
@@ -19788,6 +19899,7 @@
           "line": 140,
           "end_line": 146,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f1c30490db130d6900134cad1f901e124cf80734861abc1d56b07fe123349a36",
           "registration": "case(\"legacy link preview carries image reference when inputs say so\")",
           "assertions": [
@@ -19935,6 +20047,7 @@
           "line": 147,
           "end_line": 154,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "78d3c8de6ee40d58ef53896d67cb440e2a3af845dfccf211a088d3d6edc853e9",
           "registration": "case(\"same inputs produce equal items and equal hashes\")",
           "assertions": [
@@ -20064,6 +20177,7 @@
           "line": 155,
           "end_line": 159,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "55980baf3e2fae9f737f880141e6c774d02442f3b18ae6658a32bd0eff05daac",
           "registration": "case(\"shouldRequestPreviewFetch is true on idle with URL and no legacy fields\")",
           "assertions": [
@@ -20175,6 +20289,7 @@
           "line": 160,
           "end_line": 164,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2a8c2406abb3403b62d2ddbc01dd1b440e9adf77ff41d0a6ed4a801737f39c9e",
           "registration": "case(\"shouldRequestPreviewFetch is false on legacy message\")",
           "assertions": [
@@ -20280,6 +20395,7 @@
           "line": 165,
           "end_line": 168,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4ae8608ef9254320088ef3f1ede9b3582df6bd5fa1432bfaaad9897a6b7874e7",
           "registration": "case(\"envelope captures containsSelfMention from message\")",
           "assertions": [
@@ -20379,6 +20495,7 @@
           "line": 169,
           "end_line": 172,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "730c5c4f049004b16d18cce6bbd231f380e4c833e22b2ed656396c4b8e1650f2",
           "registration": "case(\"envelope captures mentionSeen from message\")",
           "assertions": [
@@ -20502,6 +20619,7 @@
           "line": 173,
           "end_line": 184,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9f39a5e03fd0443d48dc15aa5d566be36d75cc6e41e06ae43f56d99efb6b3b3e",
           "registration": "case(\"envelope date is the message send time, not its drain time\")",
           "assertions": [
@@ -20631,6 +20749,7 @@
           "line": 185,
           "end_line": 188,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9df1f7240f9b4288aca699f296b28d984782d044a151bf2c5402eba6b08ae839",
           "registration": "case(\"footer captures heardRepeats from message\")",
           "assertions": [
@@ -20730,6 +20849,7 @@
           "line": 189,
           "end_line": 192,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9da341aa245e703385a49c44109d860c600f19e2df84e50219a833887a25a17a",
           "registration": "case(\"footer captures retryAttempt from message\")",
           "assertions": [
@@ -20829,6 +20949,7 @@
           "line": 193,
           "end_line": 196,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1c91052424f3a6b4169bdae04c71c4060e8a3a2804ac6a9fd2899805622261e7",
           "registration": "case(\"footer captures maxRetryAttempts from message\")",
           "assertions": [
@@ -20946,6 +21067,7 @@
           "line": 197,
           "end_line": 203,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "eb92fe5e2fd830ba68c789bbd15d61c8f99cb78eca8e4e2f3afb7f8e14083adf",
           "registration": "case(\"footer shows send time on incoming message\")",
           "assertions": [
@@ -21075,6 +21197,7 @@
           "line": 204,
           "end_line": 209,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "eeef0f84127b21e8d4697fd078d48ddf229cf4bcbe0e39a3e91ab9d2cb18887c",
           "registration": "case(\"footer shows send time regardless of the legacy showIncomingSendTime flag\")",
           "assertions": [
@@ -21192,6 +21315,7 @@
           "line": 210,
           "end_line": 213,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b8a95e7612ead0ef5c51d2c32eb0a72f0292f33b5094791c2da9e285e7f54a52",
           "registration": "case(\"footer shows send time on outgoing messages\")",
           "assertions": [
@@ -21309,6 +21433,7 @@
           "line": 214,
           "end_line": 220,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e047623200c13bdb42ac358b8e17e12fe672f1d4709d19d8e5de983296ba58dc",
           "registration": "case(\"footer send time uses the corrected value and flags correction\")",
           "assertions": [
@@ -21462,6 +21587,7 @@
           "line": 221,
           "end_line": 228,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "cf0abb730993c8a38157c3241649942e027183a474bf8d34f774de9359396a98",
           "registration": "case(\"previewState change flips the item hash\")",
           "assertions": [
@@ -21639,6 +21765,7 @@
           "line": 229,
           "end_line": 237,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9f9c0d366ca9a4676ec3085f862d2f8fbf6df755dc9792c0b8889d75db8cf3a9",
           "registration": "case(\"loadedPreview change flips the item hash\")",
           "assertions": [
@@ -21846,6 +21973,7 @@
           "line": 238,
           "end_line": 250,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "32208136ffcdcecdd26fb8fffc3888ced3016942a48b9c839981c6d6f370eebd",
           "registration": "case(\"preview fetch task id is distinct per fetch-wanting message\")",
           "assertions": [
@@ -22065,6 +22193,7 @@
           "line": 251,
           "end_line": 261,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "36fc6fb9ec4c9d69d2bf6e7e61c906394706200e221cf85782cea7a05158c8e8",
           "registration": "case(\"preview fetch task id is nil when no fetch is wanted\")",
           "assertions": [
@@ -22266,6 +22395,7 @@
           "line": 262,
           "end_line": 270,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5f8066384a1c74522256b10a1c3de247cfe0a4d9b1595fc3af35460116626abf",
           "registration": "dynamicTest(\"MessageFragmentBuilderTests::MessageDTO field change flips the item hash(scenario : HashFlipScenario)\")",
           "assertions": [
@@ -22431,6 +22561,7 @@
           "line": 271,
           "end_line": 279,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b68ba11025d27af457f433851edda66c58bb9390ef56930962d221d6f999f626",
           "registration": "case(\"A coordinate in build inputs emits a mapPreview fragment\")",
           "assertions": [
@@ -22566,6 +22697,7 @@
           "line": 280,
           "end_line": 284,
           "factory_method": "messageFragmentBuilderTests",
+          "registration_identity_resolution": null,
           "body_sha256": "bcd5f382f62bff6e9e2a383c763c379b68e1b63a534a5ad69a916ac0735ee348",
           "registration": "case(\"No coordinate means no mapPreview fragment\")",
           "assertions": [

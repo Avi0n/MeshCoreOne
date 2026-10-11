@@ -11,7 +11,7 @@ import audit
 from controller.errors import PortError
 from controller.schema import digest, load_json
 from oracle.reference import FrozenReference, SOURCE_SHA, json_bytes, repo_path, write_or_check
-from oracle.swift import IDENTIFIER, NUMBER, Syntax, Token, literal_string
+from oracle.swift import IDENTIFIER, NUMBER, Syntax, Token
 
 GROUP_ROOT = "docs/android/parity/groups"
 REVIEW_PROPOSALS = "docs/android/parity/review-proposals.json"
@@ -227,9 +227,39 @@ def kotlin_methods(syntax, text):
 def literal(token):
     if token.kind != "string":
         return None
+    raw = token.text
+    if raw.startswith('"""'):
+        body = raw[3:-3]
+        return None if re.search(r"\$(?:\{|`|[^\W\d])", body) else body
+    body, result, index = raw[1:-1], [], 0
+    escapes = {"t": "\t", "b": "\b", "n": "\n", "r": "\r",
+               "'": "'", '"': '"', "\\": "\\", "$": "$"}
+    while index < len(body):
+        char = body[index]
+        if char == "$" and re.match(r"(?:\{|`|[^\W\d])", body[index + 1:]):
+            return None
+        if char != "\\":
+            result.append(char)
+            index += 1
+            continue
+        index += 1
+        if index >= len(body):
+            return None
+        escape = body[index]
+        if escape == "u":
+            digits = body[index + 1:index + 5]
+            if len(digits) != 4 or re.fullmatch(r"[0-9A-Fa-f]{4}", digits) is None:
+                return None
+            result.append(chr(int(digits, 16)))
+            index += 5
+        elif escape in escapes:
+            result.append(escapes[escape])
+            index += 1
+        else:
+            return None
     try:
-        return literal_string(token)
-    except PortError:
+        return "".join(result).encode("utf-16-le", "surrogatepass").decode("utf-16-le")
+    except UnicodeError:
         return None
 
 
@@ -243,6 +273,9 @@ def named_lambdas(syntax, text, methods):
             name = literal(tokens[index])
             if name is None:
                 continue
+            original_ids = []
+            identity_resolution = None
+            opening = None
             cursor = index + 1
             if cursor + 1 < end and tokens[cursor].text == "to" and tokens[cursor + 1].text == "{":
                 cursor += 1
@@ -254,6 +287,23 @@ def named_lambdas(syntax, text, methods):
                 cursor = syntax.pairs[opening] + 1
             if cursor >= end or tokens[cursor].text != "{":
                 continue
+            if opening is not None and index > begin + 1 and tokens[index - 2].text == "original":
+                arguments = tokens[opening + 1:syntax.pairs[opening]]
+                if len(arguments) not in (3, 5, 7) or any(
+                    arguments[position].text != "," for position in range(1, len(arguments), 2)
+                ):
+                    raise PortError("Malformed suite-qualified original test registration")
+                labels = [literal(arguments[position]) for position in range(0, len(arguments), 2)]
+                if not labels[0] or not labels[1]:
+                    raise PortError("Original test registration needs literal suite and case")
+                suite, name = labels[:2]
+                if any(label is None for label in labels[2:]):
+                    identity_resolution = "nonliteral-signature-or-row-requires-explicit-runner-review"
+                else:
+                    signature = labels[2] if len(labels) > 2 else "()"
+                    row = labels[3] if len(labels) > 3 else ""
+                    original_ids = [f"{suite}::{name}{signature}{row}"]
+                    identity_resolution = "exact-literal-display"
             close = syntax.pairs[cursor]
             result.append({
                 **method, "factory_method": method["name"], "name": name,
@@ -261,6 +311,8 @@ def named_lambdas(syntax, text, methods):
                 "begin_token": cursor, "end_token": close + 1,
                 "body_sha256": text_digest(raw(text, tokens, cursor, close + 1)),
                 "registration": raw(text, tokens, max(begin, index - 2), cursor),
+                "explicit_original_case_ids": original_ids,
+                "registration_identity_resolution": identity_resolution,
             })
     return result
 
@@ -311,17 +363,18 @@ def native_units(repo):
                 "path": relative, "sha256": files[relative]["sha256"], "class": unit["class"],
                 "method_or_family_name": unit["name"], "line": unit["line"], "end_line": unit["end_line"],
                 "factory_method": unit.get("factory_method"),
+                "registration_identity_resolution": unit.get("registration_identity_resolution"),
                 "body_sha256": unit["body_sha256"], "registration": unit.get("registration"),
                 "assertions": assertions,
                 "actions_and_helper_calls": [row for row in operations if not row["assertion_or_checked_wait"]],
                 "source_references": sources,
-                "explicit_original_case_ids": annotations[unit["declaration_token"]] if "registration" not in unit else [],
+                "explicit_original_case_ids": annotations[unit["declaration_token"]] if "registration" not in unit
+                    else unit["explicit_original_case_ids"],
                 "execution": "exact-candidate-runner-identity-resolution-required",
             }
             by_name[unit["name"]].append(record)
-            if "registration" not in unit:
-                for identity in annotations[unit["declaration_token"]]:
-                    by_name[identity].append(record)
+            for identity in record["explicit_original_case_ids"]:
+                by_name[identity].append(record)
     return by_name, files
 
 
@@ -443,6 +496,11 @@ def bind_reviews(groups, repo=audit.REPO):
                           if candidate["path"] == target["native_path"] and
                           (family["case_id"] in candidate.get("explicit_original_case_ids", [])
                            if group["runner_name"] == "annotated-method" else candidate["method_or_family_name"] == native_name)
+                          and (group["runner_name"] != "original-case-id" or
+                               (candidate.get("registration_identity_resolution") !=
+                                "nonliteral-signature-or-row-requires-explicit-runner-review" and
+                                (not candidate.get("explicit_original_case_ids") or
+                                 family["case_id"] in candidate["explicit_original_case_ids"])))
                           and candidate["factory_method"] == group.get("native_factory")]
             if not candidates and native_name != method and group["runner_name"] != "annotated-method":
                 # A disclosed rename must be resolved against the actual native body,
@@ -456,6 +514,13 @@ def bind_reviews(groups, repo=audit.REPO):
             if len(candidates) != 1 or not candidates[0]["assertions"]:
                 raise PortError(f"Missing/ambiguous actual native assertions: {group['id']}: {method}")
             native = candidates[0]
+            if group["runner_name"] == "original-case-id" and (
+                native.get("registration_identity_resolution") ==
+                    "nonliteral-signature-or-row-requires-explicit-runner-review" or
+                (native.get("explicit_original_case_ids") and
+                 family["case_id"] not in native["explicit_original_case_ids"])
+            ):
+                raise PortError("Unresolved or mismatched original runner display identity")
             if native["class"] != target["runner_class"]:
                 raise PortError("Native assertion owner disagrees with expected runner class")
             if group["runner_name"] not in ("method", "method()", "original-case-id", "annotated-method"):

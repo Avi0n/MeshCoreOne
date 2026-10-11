@@ -5,6 +5,158 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "modern-session-delayed-ack-and-typed-device-error-consumers",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Eight source declarations now use delayed-response assertions on the actual public session, parser and merged MockTransport instead of only the prior synchronous onSend response helper. Six success families preserve channel1/FFFF/010203, direct channel0/path03112233/FFFF/42, Europe/5A16 scope, empty clear, disabled ignored-name clear and pub/public derived-key overload. Each exact independent frame is written while the caller remains suspended; unrelated battery event and100ms clock advancement cannot complete it; actual OK releases it. Two error families preserve channel0/type0001/42 plus device code2, and scope read40 plus device code1, with suspension before the actual error and typed raw-code assertion afterward.",
+      "inputs": "Original defaultTimeout10/clientIdentifierMCTst and source selfInfo helper fields retained, including869525/250000/SF11/CR5 and32byte01 key. Startup bytes come from independent JDK ByteBuffer, not candidate PacketBuilder. Derived public key is independent pinned literalEFA1F375D76194FA51A3556A97E641E6. A supplemental case checks9,999ms pending/10,000ms typed timeout/no invented success; it is not an extra original declaration.",
+      "adaptations": "Swift real task/poll barriers become an injected coroutine test-scheduler SessionClock and explicit runCurrent/100ms assertions. The existing internal component clock pattern is reused through the public seam without adding a production helper or test-module dependency. Six originals share one success method; two share one error method; required discovery counts those two and the supplemental timeout once each, not eight fabricated runner cases. Native firmware/type/path guards remain disclosed in WP107 and do not alter these valid original inputs.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
+      ],
+      "consumer": "Actual session simple exchange must write once and await OK or typed DeviceError; getDefaultFloodScope errors cannot become nil absence. The predecessor component command helper replied inside onSend, so it did not independently assert the already-written suspension state. New assertions fill that measurable acceptance gap; no proven production failure or physical/admin command is inferred.",
+      "unresolved": ["The three new exact required methods await execution on the current committed candidate; later full independent semantic review remains required."],
+      "methods": [
+        "sendChannelData emits correct frame and awaits OK",
+        "sendChannelData throws deviceError on error response",
+        "sendChannelData forwards pathLength and pathBytes to the builder",
+        "setDefaultFloodScope with name and key",
+        "setDefaultFloodScope clears with empty args",
+        "setDefaultFloodScope FloodScope overload \u2014 disabled clears",
+        "setDefaultFloodScope FloodScope overload \u2014 channelName derives key",
+        "getDefaultFloodScope propagates device errors"
+      ]
+    },
+    {
+      "id": "modern-session-scope-absence-and-trace-no-write-guards",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalChannelCasesTest.kt",
+      "native_factory": "sourceCases",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.session.OriginalChannelCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "Four remaining originals preserve scope read40, response1C/NA plus29null bytes/C316 and full name/key result; lone1C returns nullable absence. Trace omitted-null and explicit empty path both throw typed InvalidInput before session start or any transport write. Native assertions retain actual parser flow and assert sentDataempty, not fake repository/session results.",
+      "inputs": "Exact NA/C316 response, empty1C response and absent/Bytes.EMPTY paths. Native shared selfInfo setup uses915000/125000/SF7 instead of original869525/250000/SF11, and default deadline1/clientMCore instead of10/MCTst; none of these four assertions depends on RF settings, client identity or deadline. Differences are explicitly bounded, not exact-input equivalence.",
+      "adaptations": "Jupiter dynamic tests preserve full suite-qualified original display identity. Real session MockTransport replaces source actor mock. Immediate response helper is adequate for result/null/error parsing here, but is not accepted as delayed-ACK evidence; the eight other originals use separate new delayed assertions. Trace guard failure is before any connected generation in both originals.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/SessionTestSupport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt"
+      ],
+      "consumer": "Nullable unconfigured scope remains distinct from typed unsupported-device response in the companion error group. Invalid trace inputs cannot initiate an admin/send action. These cases do not authorize physical-radio reconfiguration or replace downstream hardware evidence.",
+      "unresolved": [],
+      "methods": [
+        "getDefaultFloodScope returns populated scope",
+        "getDefaultFloodScope returns nil when empty",
+        "sendTrace throws invalidInput when path is nil",
+        "sendTrace throws invalidInput when path is empty"
+      ]
+    },
+    {
+      "id": "modern-command-width-clamp-and-path-mode-packets",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/NewCommandsTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/NewCommandsTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.command.NewCommandsTest",
+      "runner_name": "method()",
+      "comparison": "All12 original declarations preserve actual independent packet expectations. Raw path1122/payloadAABBCC emits19021122AABBCC; empty path/AA emits1900AA;80 path11 bytes and220 payload22 bytes clamp independently to64/184. Queries1C/1E use literalAA/BB32-byte keys;31-byte keys append exactly one zero. Advert path2A00 usesCC32 andCC31 plus zero. Tuning2B is exactly one byte. Path mode3D00 retains all three original0/1/2 parameter rows, while reserved3 clamps to2.",
+      "inputs": "Every original byte, input length and reserved/mode value retained. The single source parameter family has three actual native loop rows, not three invented declarations. Full packet equality additionally asserts all offsets/lengths that source checked separately. repeatedByte only constructs literal test data and expected fields; it does not call candidate packet-building code.",
+      "adaptations": "Defensive content-equal Bytes replaces Foundation Data; UInt8 is UByte, not a signed command ordinal. The mode family's display rename removes parenthesized label but binds the actual loop. Low-level builders retain original padding/clamping; high-level session validation is not substituted for the packer.",
+      "native_method_overrides": {
+        "setPathHashMode mode 0 (1-byte hashes)": "setPathHashMode mode 0 1 and 2 parameter family"
+      },
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/command/PacketBuilder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/bytes/Bytes.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/bytes/ByteCursor.kt"
+      ],
+      "consumer": "Actual source and native setPathHashMode consumers both reject mode above2 with typed InvalidInput before simple-command exchange. Builder reserved3 still clamps independently. Query packet assertions do not certify asynchronous key correlation or real transport delivery; those consumer families remain separate work.",
+      "unresolved": [],
+      "methods": [
+        "sendRawData format",
+        "sendRawData empty path",
+        "sendRawData clamps to firmware limits",
+        "hasConnection format",
+        "hasConnection pads short public key to protocol width",
+        "getContactByKey format",
+        "getContactByKey pads short public key to protocol width",
+        "getAdvertPath format",
+        "getAdvertPath pads short public key to protocol width",
+        "getTuningParams format",
+        "setPathHashMode mode 0 (1-byte hashes)",
+        "setPathHashMode clamps reserved values to max supported mode"
+      ]
+    },
+    {
+      "id": "channel-binary-datagram-and-persisted-flood-scope-packets",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/V115CommandsTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/V115CommandsTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.command.V115CommandsTest",
+      "runner_name": "method()",
+      "comparison": "All14 original declarations preserve literal channel2/floodFF/typeFFFF/payloadAABBCC; explicit flood drops DEADBEEF path bytes; direct mode03 has112233 plus type1234LE/payload0102, mode42 has11223344 plusFFFF/AA. Caller-declared path05 with only0102 remains verbatim in the builder. Payload200 repeated55 clamps to independently expected163 bytes. Persisted scope3F encodes test plus27 zeros/AB16; empty clears; A50 becomesA30 plus zero/CD16; x/010203 adds30 name zeros and13 key zeros; empty name ignoresAA16; A27 plus rocket drops whole4-byte grapheme and adds4 zeros; disabled scope clears even nameignored. Read40 is exactly one byte.",
+      "inputs": "Every original literal input/output retained. Native expected payload length163 is a literal rather than the candidate's own constant. Complete packet equality supplements source offset/count assertions. Rocket is represented by its exact UTF16 surrogate escape, preserving the original UTF8 bytes. No golden is generated by PacketBuilder.",
+      "adaptations": "Five harmless display renames replace parentheses, ==0xFF and .disabled without changing test inputs. Foundation Data slicing becomes immutable complete-packet equality. Primitive grapheme-safe30-byte truncation,31-byte name padding and16-byte key padding remain independent; disabled scope and empty-name clear are distinct branches.",
+      "native_method_overrides": {
+        "sendChannelData flood (default pathLength) format": "sendChannelData flood default pathLength format",
+        "sendChannelData flood ignores pathBytes when pathLength == 0xFF": "sendChannelData flood ignores pathBytes when pathLength is FF",
+        "sendChannelData direct-path format (1-byte hashes)": "sendChannelData direct-path format 1-byte hashes",
+        "sendChannelData direct-path format (2-byte hashes)": "sendChannelData direct-path format 2-byte hashes",
+        "setDefaultFloodScope with .disabled scope clears": "setDefaultFloodScope with disabled scope clears"
+      },
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/command/PacketBuilder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/Destination.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/bytes/Bytes.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/NewCommandsTest.kt"
+      ],
+      "consumer": "Inspected actual source/native session consumers delegate valid packets through awaited simple exchange and decode default scope via event/error matcher. WP104 explicitly distinguishes the dumb packer from session firmware/type/path consistency guards; native adds those guards rather than silently changing this malformed-path packer case. Session ACK/error/cancellation and capability guard assertions remain separately audited, not passed from builder equality.",
+      "unresolved": [],
+      "methods": [
+        "sendChannelData flood (default pathLength) format",
+        "sendChannelData flood ignores pathBytes when pathLength == 0xFF",
+        "sendChannelData direct-path format (1-byte hashes)",
+        "sendChannelData direct-path format (2-byte hashes)",
+        "sendChannelData passes caller-supplied pathBytes verbatim",
+        "sendChannelData clamps payload to 163 bytes",
+        "setDefaultFloodScope set format",
+        "setDefaultFloodScope clear format",
+        "setDefaultFloodScope truncates long name to 30 bytes",
+        "setDefaultFloodScope pads short key to 16 bytes",
+        "setDefaultFloodScope treats empty name as clear regardless of key",
+        "setDefaultFloodScope preserves codepoint boundary when truncating",
+        "setDefaultFloodScope with .disabled scope clears",
+        "getDefaultFloodScope format"
+      ]
+    },
+    {
+      "id": "factory-reset-guard-packet-not-radio-reconfiguration",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/FactoryResetTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/NewCommandsTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.command.NewCommandsTest",
+      "runner_name": "method()",
+      "comparison": "Both originals require six bytes: command33 followed by literal ASCIIreset. One native method independently asserts size6/33 and decodedreset; the other asserts337265736574 exact bytes. Neither expected packet is synthesized by a candidate encoder.",
+      "inputs": "Zero-argument builder, exact command and five-character guard. Tests only construct bytes; no physical device receives an administrative command.",
+      "adaptations": "Source suffix Data/optionalUTF8 decoding becomes checked immutable slice/UTF8 decoding over the same five ASCII bytes. Native valid session consumer delegates this same packet through simple exchange; transport/error/cancellation remain separate comparisons.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/command/PacketBuilder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/bytes/Bytes.kt"
+      ],
+      "consumer": "Source Signing.factoryReset and native session factoryReset await simple-command acknowledgment; packet evidence does not certify destructive physical-radio behavior or authorize an operator action.",
+      "unresolved": [],
+      "methods": ["factoryReset includes guard string", "factoryReset exact bytes"]
+    },
+    {
       "id": "protocol-byte-padding-endian-and-grapheme-boundaries",
       "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift",
       "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/primitives/BytesTest.kt",

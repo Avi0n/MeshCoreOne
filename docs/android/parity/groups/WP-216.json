@@ -1203,6 +1203,7 @@
           "line": 34,
           "end_line": 38,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "fc0b13852abb99fc02d92ef35dd23d97bbd1d4f55edb913436f2cb05567a1a51",
           "registration": "case(\"parse with valid format returns sender and message\")",
           "assertions": [
@@ -1284,6 +1285,7 @@
           "line": 39,
           "end_line": 39,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ce4e9c37cdc777f8d5157146e0ba4c8b294bda4c4d2ef54b484d96a5a8c4c7bf",
           "registration": "case(\"parse with no colon returns nil\")",
           "assertions": [
@@ -1353,6 +1355,7 @@
           "line": 40,
           "end_line": 40,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d12f11f165199303e33173ceae6a92e9610c5df190a4f6efd5d05f6717a41a0b",
           "registration": "case(\"parse with colon at start returns nil\")",
           "assertions": [
@@ -1434,6 +1437,7 @@
           "line": 41,
           "end_line": 43,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "06fe3951bb841a28dc9b6964f371b7fd49a7f66cf305d3e9e83d536224fa1dd6",
           "registration": "case(\"parse with empty message returns empty text\")",
           "assertions": [
@@ -1521,6 +1525,7 @@
           "line": 44,
           "end_line": 46,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "cd2a26e53281cd456c46db549f1da0558ba92f42dc459d663deaee447475c4a7",
           "registration": "case(\"parse with message containing colons only splits on first\")",
           "assertions": [
@@ -1602,6 +1607,7 @@
           "line": 47,
           "end_line": 49,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c94c822bf275a48d64e342188e1d2ff9a7c577b03262b192c4b10951203dde09",
           "registration": "case(\"parse trims whitespace from message\")",
           "assertions": [
@@ -1677,6 +1683,7 @@
           "line": 50,
           "end_line": 52,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "222645b01612dd16342f863f19b03672d6fe8c8c793785acd69141125770f95e",
           "registration": "case(\"parse preserves spaces in sender name\")",
           "assertions": [
@@ -1752,6 +1759,7 @@
           "line": 53,
           "end_line": 57,
           "factory_method": "channelMessageFormatParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3070631a8632e62c7ff9b55bfba83a4d0a3c483551d57b88ba180324b8817aa0",
           "registration": "case(\"parse trims leading and trailing whitespace from sender\")",
           "assertions": [
@@ -1935,6 +1943,7 @@
           "line": 67,
           "end_line": 89,
           "factory_method": "processForRepeatsMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "71e39b41592208000d944adb209b29e88712f6e10eb196c922992cea1b00d58c",
           "registration": "case(\"counts a repeat whose send is far outside the old 10s window\")",
           "assertions": [
@@ -2196,6 +2205,7 @@
           "line": 90,
           "end_line": 104,
           "factory_method": "processForRepeatsMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ae8e6b815d61ee9a1fc4849df05b749b9a4438ee373dfac4e0190c67726e9445",
           "registration": "case(\"same RX log entry is counted once\")",
           "assertions": [
@@ -2403,6 +2413,7 @@
           "line": 105,
           "end_line": 114,
           "factory_method": "processForRepeatsMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "13f373225c221b6a9b4ab615b6eca625659609f952af16a373d39e868ddf3649",
           "registration": "case(\"no match for unknown timestamp\")",
           "assertions": [
@@ -2598,6 +2609,7 @@
           "line": 115,
           "end_line": 128,
           "factory_method": "processForRepeatsMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b523e8cd944f97c1c7b5bcffb42c9022e435b22e6b2efafcb5c866a08641b546",
           "registration": "case(\"exact text disambiguates messages sharing channel and timestamp\")",
           "assertions": [
@@ -2805,6 +2817,7 @@
           "line": 129,
           "end_line": 146,
           "factory_method": "processForRepeatsMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "96c026443882b7b048cc315751bcfdb7dc3be78bd263f2c5db14560967a28242",
           "registration": "case(\"new-node rename then three TEST Hello echoes attach\")",
           "assertions": [
@@ -3036,6 +3049,7 @@
           "line": 151,
           "end_line": 171,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "08620b0ef294fa3e740c7265d06308d2a483e7de2786cc269f89e68b3c409bea",
           "registration": "case(\"incoming channel RX with a different path inserts a repeat\")",
           "assertions": [
@@ -3279,6 +3293,7 @@
           "line": 172,
           "end_line": 189,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "197506369d265da7837fb208f6203ad194b01da89e5475932446c906cce5f099",
           "registration": "case(\"incoming RX whose path equals message pathNodes inserts nothing\")",
           "assertions": [
@@ -3516,6 +3531,7 @@
           "line": 190,
           "end_line": 206,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a7aefb1f304a1368939da2732a8023f0c738c36aefcc0614f0633ed4fbfab357",
           "registration": "case(\"second incoming RX with the same extra path inserts nothing\")",
           "assertions": [
@@ -3753,6 +3769,7 @@
           "line": 207,
           "end_line": 223,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c5ff2b35b787a3bf338839ef33f625c21c8d446ff7adc68fe9fb3c6be2540e23",
           "registration": "case(\"clock-corrected incoming message still joins extra RX by wire timestamp\")",
           "assertions": [
@@ -3984,6 +4001,7 @@
           "line": 224,
           "end_line": 242,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2f895fcbdb61770814a434dcd8ccf57f8e4e7ee793b333799e9596c2f0499b4c",
           "registration": "case(\"empty path extra is recorded as a 0-hop arrival\")",
           "assertions": [
@@ -4281,6 +4299,7 @@
           "line": 243,
           "end_line": 270,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e5ea6ca9b626b012b405e65fc7bf10c098ce7b11bd238c7838d2ac8d09eb5d12",
           "registration": "case(\"harvest after save records extras from RX rows that arrived first\")",
           "assertions": [
@@ -4596,6 +4615,7 @@
           "line": 271,
           "end_line": 293,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "50643a16986fc4cf824be6623c5da262cfea4e2d77c43f879360e840bc27322b",
           "registration": "case(\"harvest ignores a same-stamp 0x88 whose body does not match\")",
           "assertions": [
@@ -4875,6 +4895,7 @@
           "line": 294,
           "end_line": 313,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "bd41da8f20e9f5121f11f3c60abdae6ba10ab96cd4b3999b8c3eddc6168d60ba",
           "registration": "case(\"harvest adopts a matching path onto an unknown incoming message\")",
           "assertions": [
@@ -5154,6 +5175,7 @@
           "line": 314,
           "end_line": 339,
           "factory_method": "incomingExtraPathTests",
+          "registration_identity_resolution": null,
           "body_sha256": "523784c62eeac8c6f9393aa7522861111f2702f3fc43081d7fd53f75796372ac",
           "registration": "case(\"harvest adopts the first matching path and records the later extra\")",
           "assertions": [
@@ -5379,6 +5401,7 @@
           "line": 17,
           "end_line": 19,
           "factory_method": "parseValidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "49828fe8db30df7bb5db54f4d0d1748733c50169f446376f759cb6a3268a7482",
           "registration": "case(\"Parses valid reaction with thumbs up (index 00)\")",
           "assertions": [
@@ -5466,6 +5489,7 @@
           "line": 20,
           "end_line": 22,
           "factory_method": "parseValidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "26efda60f2d3cecd8a2b831ba594dd2bd5e8a4e0205f52c1c5f05db94fae286c",
           "registration": "case(\"Parses valid reaction with fire (index 05)\")",
           "assertions": [
@@ -5553,6 +5577,7 @@
           "line": 23,
           "end_line": 25,
           "factory_method": "parseValidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "71e815737d1baf0b959b71a8ac303c910404cbd21f2d607327b6af4e42d7c868",
           "registration": "case(\"Parses valid reaction with heart (index 01)\")",
           "assertions": [
@@ -5640,6 +5665,7 @@
           "line": 26,
           "end_line": 28,
           "factory_method": "parseValidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5b5f23bf8ac4cf6c3cc808dbe1a94df72cb163024820e076aa7c2593fb12164e",
           "registration": "case(\"Parses reaction at max valid emoji index (0xb7)\")",
           "assertions": [
@@ -5715,6 +5741,7 @@
           "line": 33,
           "end_line": 33,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "bd6b146366203e190198ff5d57e4633597c54bc794e13fc4fe9eff22b54fb1cd",
           "registration": "case(\"Rejects plain text\")",
           "assertions": [
@@ -5784,6 +5811,7 @@
           "line": 34,
           "end_line": 34,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b28efe0a86cb3f934318afbaf18e409dafcece7a56b80b954e3571708b6f90ef",
           "registration": "case(\"Rejects wrong prefix\")",
           "assertions": [
@@ -5853,6 +5881,7 @@
           "line": 35,
           "end_line": 35,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d447d29d23ad54c18e4e98d48399d3d5279022ada75a64c9751d08cbb6a39b58",
           "registration": "case(\"Rejects uppercase hex in hash\")",
           "assertions": [
@@ -5922,6 +5951,7 @@
           "line": 36,
           "end_line": 36,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f12cd22dce5daaf705a8365950d149c2353584bee663731c1c46a360892918d1",
           "registration": "case(\"Rejects uppercase hex in index\")",
           "assertions": [
@@ -5991,6 +6021,7 @@
           "line": 37,
           "end_line": 37,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "803ae1b86654595d7e0da35048108c0f7bd052c65af997bf5451f7d746621614",
           "registration": "case(\"Rejects too short\")",
           "assertions": [
@@ -6060,6 +6091,7 @@
           "line": 38,
           "end_line": 38,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "388ac5dacb0fc64f63a9e337f1c545b15fc24751125046ce77304841e98f8979",
           "registration": "case(\"Rejects too long\")",
           "assertions": [
@@ -6129,6 +6161,7 @@
           "line": 39,
           "end_line": 39,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8b710facff1f7c10182784b0a25d81b312fbb7778d9f2933ed768b98a672ae24",
           "registration": "case(\"Rejects missing colons\")",
           "assertions": [
@@ -6198,6 +6231,7 @@
           "line": 40,
           "end_line": 43,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "83cd21d4faff963e090c01a76b6d66da8ee2950cdf46381ef8c3800ff66b886f",
           "registration": "case(\"Rejects emoji index beyond table size\")",
           "assertions": [
@@ -6267,6 +6301,7 @@
           "line": 44,
           "end_line": 44,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "27aa0308101e96728a615c0db4e592b3dfbe4a4b895fb30cafbeb6f0c819da10",
           "registration": "case(\"Rejects channel reaction format\")",
           "assertions": [
@@ -6336,6 +6371,7 @@
           "line": 45,
           "end_line": 45,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1cc28a471c4dde1a32255e5885a4dccec3ecfcbf91bf2592aade6b9bb07cdec5",
           "registration": "case(\"Rejects legacy DM reaction format\")",
           "assertions": [
@@ -6405,6 +6441,7 @@
           "line": 46,
           "end_line": 46,
           "factory_method": "parseInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3aa0c17dc65bc7ee1b0dfd7205b94d31b30748cce2728d5bcc4d7934bc8eadc5",
           "registration": "case(\"Rejects empty string\")",
           "assertions": [
@@ -6570,6 +6607,7 @@
           "line": 51,
           "end_line": 66,
           "factory_method": "emojiIndexMappingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4dfff7184d72a8ce13aa9e92c8d27fafb4788982c8b6643736a952fe1a8129ea",
           "registration": "case(\"Spot-check emoji indices across all categories\")",
           "assertions": [
@@ -6735,6 +6773,7 @@
           "line": 71,
           "end_line": 74,
           "factory_method": "dartStringHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4b7c6bfd854fb4e17b3f70ee3c5dfa313db19e0a25796eeb28cdaa952aaae398",
           "registration": "case(\"Dart hash of empty input produces 1\")",
           "assertions": [
@@ -6822,6 +6861,7 @@
           "line": 75,
           "end_line": 78,
           "factory_method": "dartStringHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5ca74ecdd12749eb4c82e7cb8d0d9d37a37956847aefce80ab849a4661cd7200",
           "registration": "case(\"Dart hash is deterministic\")",
           "assertions": [
@@ -6909,6 +6949,7 @@
           "line": 79,
           "end_line": 84,
           "factory_method": "dartStringHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2af9f374bed2d96da1022655b90585caa313ca468717ce483ed6172ecdd82b29",
           "registration": "case(\"Dart hash of single character 'a'\")",
           "assertions": [
@@ -7014,6 +7055,7 @@
           "line": 85,
           "end_line": 89,
           "factory_method": "dartStringHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "cf69a0d1cb89196704a9b1af9480975b1c46919b89b1927743afbba9b3d83e2a",
           "registration": "case(\"Dart hash result is within 30-bit range\")",
           "assertions": [
@@ -7107,6 +7149,7 @@
           "line": 90,
           "end_line": 92,
           "factory_method": "dartStringHashTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c5a5eab3dce7bcb28b73946fa266865434863ef5ba8684ade92dc75401795990",
           "registration": "case(\"Different inputs produce different hashes\")",
           "assertions": [
@@ -7188,6 +7231,7 @@
           "line": 97,
           "end_line": 101,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "fd766acd70714366db7890905d88166cfca5690263e85646fc515f75a285c35b",
           "registration": "case(\"computeReactionHash returns 4-char lowercase hex\")",
           "assertions": [
@@ -7269,6 +7313,7 @@
           "line": 102,
           "end_line": 107,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3b81526edc367c994caf4952831273f25cfd54b2c6f10fc899026cf6cb4904ba",
           "registration": "case(\"computeReactionHash is deterministic\")",
           "assertions": [
@@ -7350,6 +7395,7 @@
           "line": 108,
           "end_line": 110,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "902e368a36bc3011464fdb717cec14ed52a71dcc90e0b9918782f25112bd9f87",
           "registration": "case(\"computeReactionHash changes with different timestamp\")",
           "assertions": [
@@ -7431,6 +7477,7 @@
           "line": 111,
           "end_line": 116,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a65d8572c89d539023a3bfc92cdbd977e0bff7b75efc75f5497f99d0efe86a6b",
           "registration": "case(\"computeReactionHash changes with different sender\")",
           "assertions": [
@@ -7512,6 +7559,7 @@
           "line": 117,
           "end_line": 119,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "7df93c406ad421e291d37fb9dc90bc2a0af860cdf63eb5daafe908f5c5cd2752",
           "registration": "case(\"computeReactionHash changes with different text\")",
           "assertions": [
@@ -7599,6 +7647,7 @@
           "line": 120,
           "end_line": 125,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c82546bed514a6182edea6e3b4bb9b98d731ae6a2d0b39980a3632ee16394b9f",
           "registration": "case(\"computeReactionHash with nil sender (DM mode)\")",
           "assertions": [
@@ -7686,6 +7735,7 @@
           "line": 126,
           "end_line": 129,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "590e23e66d603a73d99612e2bd07fe2d73353d3a510ad76ee75520747cfb976c",
           "registration": "case(\"computeReactionHash truncates text to 5 UTF-16 code units\")",
           "assertions": [
@@ -7761,6 +7811,7 @@
           "line": 130,
           "end_line": 132,
           "factory_method": "hashComputationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ec42c620a875afdb9f7b346818e619980222b100235d0a6fcf4a3bd05a08c3f9",
           "registration": "case(\"computeReactionHash handles short text (fewer than 5 code units)\")",
           "assertions": [
@@ -7842,6 +7893,7 @@
           "line": 137,
           "end_line": 143,
           "factory_method": "utf16EdgeCaseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "adacdaf1fee97f21557fced40308af6f81fe65697e8e097046eedf8ec18e8257",
           "registration": "case(\"computeReactionHash handles emoji in text (multi-code-unit)\")",
           "assertions": [
@@ -7923,6 +7975,7 @@
           "line": 144,
           "end_line": 146,
           "factory_method": "utf16EdgeCaseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "0bde8d505cf87c8955bc4d16629e06499da9065fad1f6b1b90434f286e24b5b1",
           "registration": "case(\"computeReactionHash handles empty text\")",
           "assertions": [
@@ -7998,6 +8051,7 @@
           "line": 151,
           "end_line": 154,
           "factory_method": "crossAppVectorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "dc2cba6562043239aee7de876235b6490680e1666cf584beaa45890609295b3b",
           "registration": "case(\"Dart hash matches known Dart VM output for 'hello'\")",
           "assertions": [
@@ -8091,6 +8145,7 @@
           "line": 155,
           "end_line": 160,
           "factory_method": "crossAppVectorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "7ebda5dbf0bb0ea9a5179a2317a92b240bbe1a7265bee87cb1c743fee85bde62",
           "registration": "case(\"computeReactionHash is internally consistent\")",
           "assertions": [
@@ -8172,6 +8227,7 @@
           "line": 161,
           "end_line": 161,
           "factory_method": "crossAppVectorTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1069a8ce70ecddf6e4808ef277665fa0340ceaaeac40020853e47535d7716c44",
           "registration": "case(\"Emoji table has exactly 184 entries\")",
           "assertions": [
@@ -8258,6 +8314,7 @@
           "line": 166,
           "end_line": 172,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9295a511a84632117a6c0e3e79b68f908b639331d67483b367f1e9c9eee772d6",
           "registration": "case(\"Parses v1 reaction from real wire capture\")",
           "assertions": [
@@ -8375,6 +8432,7 @@
           "line": 173,
           "end_line": 175,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d2a313af5fb7b35d8c8fb9d7116b3f8738b535c4cc9ea6ee7ea63a8242585222",
           "registration": "case(\"Parses v1 reaction with heart emoji\")",
           "assertions": [
@@ -8456,6 +8514,7 @@
           "line": 176,
           "end_line": 178,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1e54284354ec86ab6fd61646eaf22ab84a61ea15ebcfe2945417279500a08b7e",
           "registration": "case(\"Parses v1 reaction with fire emoji\")",
           "assertions": [
@@ -8531,6 +8590,7 @@
           "line": 179,
           "end_line": 179,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ca83ee19edf80845bad01cec99c6683570f1cb54327779b42df8d633530eead9",
           "registration": "case(\"V1 rejects v3 format\")",
           "assertions": [
@@ -8600,6 +8660,7 @@
           "line": 180,
           "end_line": 180,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a82609081e9e0aa23d3762e41cb9cd0298690d5d08183695a3269f47635a6a4e",
           "registration": "case(\"V1 rejects plain text\")",
           "assertions": [
@@ -8669,6 +8730,7 @@
           "line": 181,
           "end_line": 181,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "44dccf78d77a8905b35d72c6de8341a188d93b9bfbdad2932fc4988e32c9df5e",
           "registration": "case(\"V1 rejects wrong prefix\")",
           "assertions": [
@@ -8738,6 +8800,7 @@
           "line": 182,
           "end_line": 182,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3a11e1e9a01af0b3b8f1dca8c488ba972bfb3d671cc2e8087ceb2e29c1582552",
           "registration": "case(\"V1 rejects too few underscore parts\")",
           "assertions": [
@@ -8807,6 +8870,7 @@
           "line": 183,
           "end_line": 183,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d88ca7d2e5356828f6358ff00db5e60b096bd1a1f6ca95764780167d3e23f6a9",
           "registration": "case(\"V1 rejects too many underscore parts\")",
           "assertions": [
@@ -8876,6 +8940,7 @@
           "line": 184,
           "end_line": 184,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2713eda9eb717ccb7367aac342761a48de01731743f459e5f897f47996ca02af",
           "registration": "case(\"V1 rejects non-numeric timestamp\")",
           "assertions": [
@@ -8957,6 +9022,7 @@
           "line": 185,
           "end_line": 188,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "dc4338c89c36797fe852d2a9ec6db1df1df5ece46b2907fcb5c132e6ad03b1fc",
           "registration": "case(\"V1 rejects non-numeric hash values\")",
           "assertions": [
@@ -9038,6 +9104,7 @@
           "line": 189,
           "end_line": 189,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e0b3f9e3895cda64e85e2b5fb28ba569993b28714d6f8bc117e5c1289e543cd4",
           "registration": "case(\"V1 rejects empty emoji\")",
           "assertions": [
@@ -9107,6 +9174,7 @@
           "line": 190,
           "end_line": 190,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1147dc6290f41d37a53fb1418f89ddfd25b07d4947c468b7dea08a4206707f3e",
           "registration": "case(\"V1 rejects channel format\")",
           "assertions": [
@@ -9176,6 +9244,7 @@
           "line": 191,
           "end_line": 191,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ac4d06c53610eb2b6afd03afe82a9da26adb0d50b60d11dd81333edca3fd5398",
           "registration": "case(\"V1 rejects empty string\")",
           "assertions": [
@@ -9245,6 +9314,7 @@
           "line": 192,
           "end_line": 195,
           "factory_method": "v1ParseTests",
+          "registration_identity_resolution": null,
           "body_sha256": "dd2b02659d484f8426a0f50205a84e41e5fee6172d57fc84029d8523a0f0cb97",
           "registration": "case(\"V1 timestamp converts millis to seconds correctly\")",
           "assertions": [
@@ -9332,6 +9402,7 @@
           "line": 200,
           "end_line": 204,
           "factory_method": "v1HashMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2b0181ed4a5c96f099f77e6dc9d17478a3f1cb6a0e33646216a55497f08cdf4a",
           "registration": "case(\"dartStringHash can verify v1 sender name hash\")",
           "assertions": [
@@ -9431,6 +9502,7 @@
           "line": 205,
           "end_line": 209,
           "factory_method": "v1HashMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "a58d880e3c319d105696d2f95861c169b24940f0129d97dbbc82b0aab9b899f4",
           "registration": "case(\"dartStringHash can verify v1 text hash\")",
           "assertions": [
@@ -9566,6 +9638,7 @@
           "line": 210,
           "end_line": 220,
           "factory_method": "v1HashMatchingTests",
+          "registration_identity_resolution": null,
           "body_sha256": "885779657d845ab4e0a4b1f6ca63e037cc9538801a3117621a5fe88b7f03eac9",
           "registration": "case(\"V1 round-trip: construct reaction and verify both hashes match\")",
           "assertions": [
@@ -9701,6 +9774,7 @@
           "line": 21,
           "end_line": 26,
           "factory_method": "validFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9de89099d8987104a889ac7582243fdd137226815cf8a184c99bd4b51ee5df33",
           "registration": "case(\"Parses simple reaction with thumbs up\")",
           "assertions": [
@@ -9806,6 +9880,7 @@
           "line": 27,
           "end_line": 32,
           "factory_method": "validFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2147241bfd8a529df604a646fa5d8c04b51ba4eae8590a48c0973cd7552c62c4",
           "registration": "case(\"Parses reaction with heart emoji\")",
           "assertions": [
@@ -9899,6 +9974,7 @@
           "line": 33,
           "end_line": 35,
           "factory_method": "validFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "93f81f747cea25ac7aaff8fc02dd6bb66aaf63bda8e8b8b18b0cd431997e2690",
           "registration": "case(\"Parses reaction with uppercase identifier and normalizes to lowercase\")",
           "assertions": [
@@ -9980,6 +10056,7 @@
           "line": 36,
           "end_line": 38,
           "factory_method": "validFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f97848c78f88ecb8a8ad66021fc502b5a81b8b93320b69aef4c3434c80dc93ff",
           "registration": "case(\"Parses reaction with mixed case identifier\")",
           "assertions": [
@@ -10073,6 +10150,7 @@
           "line": 39,
           "end_line": 44,
           "factory_method": "validFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "316d3c93bad14c25179e08db4d66231eaa4481f3f9a867ba4e034e8cf9033e10",
           "registration": "case(\"Parses emoji-first reaction with thumbs up\")",
           "assertions": [
@@ -10178,6 +10256,7 @@
           "line": 49,
           "end_line": 55,
           "factory_method": "crockfordIdentifierTests",
+          "registration_identity_resolution": null,
           "body_sha256": "0d42305040b570ed4b247ab22eac9a6fedae60db210dac3620fc5b9c24e05838",
           "registration": "case(\"Generates 8-character Crockford Base32 identifier\")",
           "assertions": [
@@ -10265,6 +10344,7 @@
           "line": 56,
           "end_line": 61,
           "factory_method": "crockfordIdentifierTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ceaac23701ceabb932f0d74db323d04e2ee702112c1865e404f3becd319dc52a",
           "registration": "case(\"Same input produces same identifier\")",
           "assertions": [
@@ -10346,6 +10426,7 @@
           "line": 62,
           "end_line": 67,
           "factory_method": "crockfordIdentifierTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3123699559ac52c31b5e3fb8c81404dbf4147d1a8bbf99a8e56f4ede8ed79276",
           "registration": "case(\"Different text produces different identifier\")",
           "assertions": [
@@ -10427,6 +10508,7 @@
           "line": 68,
           "end_line": 73,
           "factory_method": "crockfordIdentifierTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5daca9ba48d5e74b74151043d2c251e76fd1be787bc86b5784f09b5bf9a5b425",
           "registration": "case(\"Different timestamp produces different identifier\")",
           "assertions": [
@@ -10508,6 +10590,7 @@
           "line": 74,
           "end_line": 76,
           "factory_method": "crockfordIdentifierTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1b693d2b4509d37125d314572a21717e577f538f8443bae6fa4fcb9a246401dd",
           "registration": "case(\"Crockford O is decoded as 0\")",
           "assertions": [
@@ -10595,6 +10678,7 @@
           "line": 77,
           "end_line": 80,
           "factory_method": "crockfordIdentifierTests",
+          "registration_identity_resolution": null,
           "body_sha256": "27c6d0d294e8d626ca35494d5af68d0a186da199cec3731e6d37cef51813e4c9",
           "registration": "case(\"Crockford I/L are decoded as 1\")",
           "assertions": [
@@ -10682,6 +10766,7 @@
           "line": 85,
           "end_line": 87,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b2f7535bfb35929ecd0f3f23cfbb3df497e9c703575db045b3ed169dbcf1d729",
           "registration": "case(\"Parses sender name containing colon\")",
           "assertions": [
@@ -10757,6 +10842,7 @@
           "line": 88,
           "end_line": 88,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8c4f70aa7c96f2d17ab43d5766f1f48642844bde44883e359a76b222f2d466a1",
           "registration": "case(\"Returns nil for plain text message\")",
           "assertions": [
@@ -10826,6 +10912,7 @@
           "line": 89,
           "end_line": 89,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "e892ad02297272c3b7a2b0d82a7f2d13d5cec37dbc7e9bb31db33f6217176539",
           "registration": "case(\"Returns nil for missing identifier\")",
           "assertions": [
@@ -10895,6 +10982,7 @@
           "line": 90,
           "end_line": 90,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "24d4f6167158cd61b3d7847068f4978d415541eddbfd29a25ae8a40ca3db3e13",
           "registration": "case(\"Returns nil for missing @ symbol\")",
           "assertions": [
@@ -10964,6 +11052,7 @@
           "line": 91,
           "end_line": 91,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b494861fd2621e22edac1bddae0d1249e0a5e1d4d038aff5bbf0a982b2c1dce4",
           "registration": "case(\"Returns nil for missing brackets around sender\")",
           "assertions": [
@@ -11033,6 +11122,7 @@
           "line": 92,
           "end_line": 92,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f3ae3acaea7bc8aa75e5e79b5673d319f196efb1411ba24551487e9e20167e0f",
           "registration": "case(\"Returns nil for invalid identifier length\")",
           "assertions": [
@@ -11102,6 +11192,7 @@
           "line": 93,
           "end_line": 93,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "de8d851b6648f64bfb08d7829387b1f5410d82c49802d484533ea802793c9ee9",
           "registration": "case(\"Returns nil for invalid Crockford characters (U)\")",
           "assertions": [
@@ -11171,6 +11262,7 @@
           "line": 94,
           "end_line": 94,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3f35d489f6c8d9366b6ea779dc6867021586d120d6e5787799af42abf68b8e60",
           "registration": "case(\"Returns nil for empty sender\")",
           "assertions": [
@@ -11240,6 +11332,7 @@
           "line": 95,
           "end_line": 95,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "072de54a0ad1a0d85a49b85d512575502903dfe31b5943d0cc89ec51e8228dab",
           "registration": "case(\"Returns nil for mention-first without emoji\")",
           "assertions": [
@@ -11309,6 +11402,7 @@
           "line": 96,
           "end_line": 98,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d386ddf1249ec4af066dd3f7df4ab055b7d014a853ac285c2897a44194600c03",
           "registration": "case(\"Returns nil for mention-first remainder that merely starts with emoji\")",
           "assertions": [
@@ -11378,6 +11472,7 @@
           "line": 99,
           "end_line": 101,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "387e6fe24674221f78bd804ff6c7f694d8ebac28ee3570197259521431d29b1b",
           "registration": "case(\"Returns nil for emoji-first remainder that merely starts with emoji\")",
           "assertions": [
@@ -11447,6 +11542,7 @@
           "line": 102,
           "end_line": 104,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8a8d7b603f017cd0c356ed85eaae89c5cc94289cba2238ab15cdb41845ec84b9",
           "registration": "case(\"Returns nil for DM remainder that merely starts with emoji\")",
           "assertions": [
@@ -11528,6 +11624,7 @@
           "line": 105,
           "end_line": 111,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "0a2d097afac1c07e3361fa108d847e188dbadcd653ec75123f920beb82a45c27",
           "registration": "case(\"Parses mention-plus-single-emoji with Crockford last line as a reaction\")",
           "assertions": [
@@ -11609,6 +11706,7 @@
           "line": 112,
           "end_line": 112,
           "factory_method": "edgeAndInvalidFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "27d51e8271b045f0887950ad774645dab84add4f2c54d6ba0b421bb7870a931f",
           "registration": "case(\"Returns nil for emoji-first body not starting with emoji\")",
           "assertions": [
@@ -11684,6 +11782,7 @@
           "line": 117,
           "end_line": 119,
           "factory_method": "zwjEmojiTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ff8cc249e45f91d9aba65d06fe83a4927ca8f345d2c0ec01d6c6dfbb0cb9afd0",
           "registration": "case(\"Parses reaction with skin tone modifier\")",
           "assertions": [
@@ -11765,6 +11864,7 @@
           "line": 120,
           "end_line": 122,
           "factory_method": "zwjEmojiTests",
+          "registration_identity_resolution": null,
           "body_sha256": "d71c0600dce7908ec3703999c8e0fd18fb0b1dfebb5afa5b768a924f268742ae",
           "registration": "case(\"Parses reaction with family ZWJ emoji\")",
           "assertions": [
@@ -11846,6 +11946,7 @@
           "line": 123,
           "end_line": 125,
           "factory_method": "zwjEmojiTests",
+          "registration_identity_resolution": null,
           "body_sha256": "2ca0f30b3298bebb8a43528c2469fde561ca293373c0f5a2b35656252737ca39",
           "registration": "case(\"Parses reaction with flag emoji\")",
           "assertions": [
@@ -11921,6 +12022,7 @@
           "line": 130,
           "end_line": 133,
           "factory_method": "summaryCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "0ca0a61693ddca0a822d673755cfb9802a9846ad8081bc572a7f6f5b3a663cbe",
           "registration": "case(\"Builds summary from reactions\")",
           "assertions": [
@@ -12032,6 +12134,7 @@
           "line": 134,
           "end_line": 140,
           "factory_method": "summaryCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "6328b0e17ff6401b40a8666b8feaa3a6ea1f9a69e0bf70ed1419c6f4879e45ad",
           "registration": "case(\"Parses summary string\")",
           "assertions": [
@@ -12137,6 +12240,7 @@
           "line": 141,
           "end_line": 141,
           "factory_method": "summaryCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f603052556cbdfa731dcf364dcf0f1e191ccc5c733f46b9974e2dd688579d5f9",
           "registration": "case(\"Parses empty summary\")",
           "assertions": [
@@ -12212,6 +12316,7 @@
           "line": 142,
           "end_line": 145,
           "factory_method": "summaryCacheTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b21b124279ae5aedbaa01ce25fe8fe300f2c7ee5287cbea198f98a2aa1020fcd",
           "registration": "case(\"Sorts summary by count descending\")",
           "assertions": [
@@ -12329,6 +12434,7 @@
           "line": 150,
           "end_line": 163,
           "factory_method": "reactionDTOTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9938f3631e61a54b1025ac1e50dcf0e765eb87b3518d536c378c42bce8afd196",
           "registration": "case(\"ReactionDTO can be created with contactID for DMs\")",
           "assertions": [
@@ -12446,6 +12552,7 @@
           "line": 164,
           "end_line": 176,
           "factory_method": "reactionDTOTests",
+          "registration_identity_resolution": null,
           "body_sha256": "07a0044202a34f7f76403eda0ed679fb1580223aef35de46aa57e92fc159e79e",
           "registration": "case(\"ReactionDTO can be created with channelIndex for channels\")",
           "assertions": [
@@ -12557,6 +12664,7 @@
           "line": 181,
           "end_line": 183,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1d54fdc7477e33c27f65e2d3d82b6a74ad3dff5d2c6f8e360f146c74786cd220",
           "registration": "case(\"Parses DM reaction format without sender\")",
           "assertions": [
@@ -12638,6 +12746,7 @@
           "line": 184,
           "end_line": 186,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c3da68dc0a4aa4db6a4d230fa8c1768415fa090484bb90f42c22ea5cb7d41ed2",
           "registration": "case(\"Parses DM reaction with heart emoji\")",
           "assertions": [
@@ -12713,6 +12822,7 @@
           "line": 187,
           "end_line": 187,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "41926e50b6bcdaad65f134d2b46e7f25f685a9aabc698039b6756eca8ce36776",
           "registration": "case(\"Returns nil for DM format missing hash\")",
           "assertions": [
@@ -12782,6 +12892,7 @@
           "line": 188,
           "end_line": 188,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8a3a3a0a1df0f957fb45db35a57514c773b1651b23570fc04a426aef765eae17",
           "registration": "case(\"DM parser rejects channel format\")",
           "assertions": [
@@ -12875,6 +12986,7 @@
           "line": 189,
           "end_line": 194,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "b7c99ad1d1b9cbb863d05dd442bf396e8b0fc167495046a141f0544df4a3fe85",
           "registration": "case(\"Builds DM reaction text correctly\")",
           "assertions": [
@@ -12980,6 +13092,7 @@
           "line": 195,
           "end_line": 197,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "afa10295c8b38ddfdeff86b001a905f4673a810c98ccab9949e446fc161b7cab",
           "registration": "case(\"Parses DM reaction with uppercase hash and normalizes to lowercase\")",
           "assertions": [
@@ -13055,6 +13168,7 @@
           "line": 198,
           "end_line": 198,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "db44c2d87146d782719882c3d7fbaf38554b59d9465114665537d727df30c8ef",
           "registration": "case(\"DM parser rejects invalid Crockford characters\")",
           "assertions": [
@@ -13124,6 +13238,7 @@
           "line": 199,
           "end_line": 199,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c87c810811d8cb4a5314317954caddc400f6f4ee45258efad52c8a6e0c24ee37",
           "registration": "case(\"DM parser rejects non-emoji start\")",
           "assertions": [
@@ -13199,6 +13314,7 @@
           "line": 200,
           "end_line": 202,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "594a7c4e829d8b293909d5c272f301cd22143551421854e98bbcc6661d5b7e9d",
           "registration": "case(\"DM parser handles skin tone modifier emoji\")",
           "assertions": [
@@ -13298,6 +13414,7 @@
           "line": 203,
           "end_line": 208,
           "factory_method": "dmReactionFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "91ddd11dceafff16bfeac39fc4b7fa40e54bf167ce110cbb344e11996f2d2a77",
           "registration": "case(\"DM round-trip: build then parse produces same emoji and hash\")",
           "assertions": [
@@ -13421,6 +13538,7 @@
           "line": 27,
           "end_line": 33,
           "factory_method": "wireFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ae273020cab41ed11c1378aa855744cdd517268ec21339aafda9ea329ee50815",
           "registration": "case(\"Builds correct wire format with Crockford Base32 identifier\")",
           "assertions": [
@@ -13556,6 +13674,7 @@
           "line": 34,
           "end_line": 39,
           "factory_method": "wireFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "4db56d64691f509296d17613daa33270a8174427fadd662b7f020565fa94f415",
           "registration": "case(\"Builds wire format with short message\")",
           "assertions": [
@@ -13685,6 +13804,7 @@
           "line": 40,
           "end_line": 46,
           "factory_method": "wireFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "0cdfb60758ea991c7fe314195e2f30bcbb6bcd84d8ee1b7c3611ace1119e1318",
           "registration": "case(\"Generated identifier is consistent\")",
           "assertions": [
@@ -13778,6 +13898,7 @@
           "line": 47,
           "end_line": 53,
           "factory_method": "wireFormatTests",
+          "registration_identity_resolution": null,
           "body_sha256": "1eda1779a13481d82e23d91083660953b3c8680417621ddc91eb7b97b311b60d",
           "registration": "case(\"Different timestamps produce different identifiers\")",
           "assertions": [
@@ -13895,6 +14016,7 @@
           "line": 58,
           "end_line": 64,
           "factory_method": "disambiguationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "8e55332e4a29e49747830adef1baca1a8326cb9e0b813779d6899a715d0490f4",
           "registration": "case(\"Finds indexed message by hash and preview\")",
           "assertions": [
@@ -14012,6 +14134,7 @@
           "line": 65,
           "end_line": 67,
           "factory_method": "disambiguationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5fe601ddb2aad54165beb6a58526485043e18f642389e2f936f5bb8df39d47fc",
           "registration": "case(\"Returns nil when no candidates exist\")",
           "assertions": [
@@ -14153,6 +14276,7 @@
           "line": 68,
           "end_line": 78,
           "factory_method": "disambiguationTests",
+          "registration_identity_resolution": null,
           "body_sha256": "65b142c0670c9575c175c4f1e6c813d5f50701dab07f69ba76a76ccd16a5b1cf",
           "registration": "case(\"Returns most recently indexed when multiple candidates have same hash\")",
           "assertions": [
@@ -14324,6 +14448,7 @@
           "line": 83,
           "end_line": 94,
           "factory_method": "pendingQueueTests",
+          "registration_identity_resolution": null,
           "body_sha256": "6e2052bdf52b3406948981a3fec4557ecb38a260927d5b4f5688e97e37fc20ff",
           "registration": "case(\"Queued reaction matches when message indexed\")",
           "assertions": [
@@ -14519,6 +14644,7 @@
           "line": 95,
           "end_line": 105,
           "factory_method": "pendingQueueTests",
+          "registration_identity_resolution": null,
           "body_sha256": "c43c88e7fd109888d515ff99801cd82f511dcf17a29a0e0d3e22fe26d92fcd55",
           "registration": "case(\"Multiple reactions for same target all match\")",
           "assertions": [
@@ -14702,6 +14828,7 @@
           "line": 106,
           "end_line": 112,
           "factory_method": "pendingQueueTests",
+          "registration_identity_resolution": null,
           "body_sha256": "3f3a689ee8b28d3470c17ca8bd5e291db3ee0887573eff41c81eebacc343b938",
           "registration": "case(\"Hash mismatch prevents false match\")",
           "assertions": [
@@ -14867,6 +14994,7 @@
           "line": 113,
           "end_line": 119,
           "factory_method": "pendingQueueTests",
+          "registration_identity_resolution": null,
           "body_sha256": "105afd0f94aafbd23abb096c8edfb2e5736b0b5d30940a5f2b1d8c0c4da8b4f2",
           "registration": "case(\"Clear removes all pending reactions\")",
           "assertions": [
@@ -15044,6 +15172,7 @@
           "line": 120,
           "end_line": 129,
           "factory_method": "pendingQueueTests",
+          "registration_identity_resolution": null,
           "body_sha256": "5002fbae5bf225fe28d83040989b782a99f05a76b4eb39b9a4859fa6c5dd6ce9",
           "registration": "case(\"Pending reactions are scoped by channel\")",
           "assertions": [
@@ -15203,6 +15332,7 @@
           "line": 134,
           "end_line": 139,
           "factory_method": "dmReactionTests",
+          "registration_identity_resolution": null,
           "body_sha256": "746d5b4829ea34fb1a4b51838d3a68c5ad28b37a419e4eaac434ff8a528b1bbf",
           "registration": "case(\"Builds DM wire format\")",
           "assertions": [
@@ -15338,6 +15468,7 @@
           "line": 140,
           "end_line": 147,
           "factory_method": "dmReactionTests",
+          "registration_identity_resolution": null,
           "body_sha256": "244a8504a2018db3d89573fc491f24b6715cffd0a2d500e4f581ae3d95c51e14",
           "registration": "case(\"Indexes DM message and finds by hash\")",
           "assertions": [
@@ -15491,6 +15622,7 @@
           "line": 148,
           "end_line": 157,
           "factory_method": "dmReactionTests",
+          "registration_identity_resolution": null,
           "body_sha256": "74c46a45f27b368b46e95324a656d92b8a3cff8ccd1bde2906287f2f7f72104b",
           "registration": "case(\"DM pending reactions match when message indexed\")",
           "assertions": [
@@ -15686,6 +15818,7 @@
           "line": 158,
           "end_line": 171,
           "factory_method": "dmReactionTests",
+          "registration_identity_resolution": null,
           "body_sha256": "f02eafeff525c5ceb07e8fdaafe50f9a8dfeb5ebb3d6b91993624f4d287b0642",
           "registration": "case(\"DM reactions scoped by contact\")",
           "assertions": [
@@ -15839,6 +15972,7 @@
           "line": 172,
           "end_line": 174,
           "factory_method": "dmReactionTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9b43eb38edd69ebb56d547ceca89a9056df4d45532435878f7b607c76472addc",
           "registration": "case(\"DM returns nil when no candidates in cache\")",
           "assertions": [
@@ -15968,6 +16102,7 @@
           "line": 175,
           "end_line": 182,
           "factory_method": "dmReactionTests",
+          "registration_identity_resolution": null,
           "body_sha256": "ef2c60eff31083add5b450b8b64dd4d8b8bfc5f1a1920e82010d94dba6356256",
           "registration": "case(\"DM hash mismatch prevents false match\")",
           "assertions": [
@@ -16145,6 +16280,7 @@
           "line": 183,
           "end_line": 190,
           "factory_method": "dmReactionTests",
+          "registration_identity_resolution": null,
           "body_sha256": "9739afd8a1ebea64f46655cb74deac0b7c9a162a494bbd09e1048b95c9ca72b1",
           "registration": "case(\"Clear removes DM pending reactions\")",
           "assertions": [

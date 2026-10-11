@@ -64,6 +64,12 @@ WP501_ACCEPTANCE_CASES = {
      "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore"),
     ("com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
      "originalApplicationHexFamiliesUseProductionFormattingAndParsing"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalCommandsWaitForDelayedAcknowledgement"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalDeviceErrorsRemainTypedAfterDelayedResponse"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "noResponseRetainsSourceTenSecondTimeout"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

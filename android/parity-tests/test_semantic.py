@@ -50,6 +50,51 @@ class KotlinProposalTest(unittest.TestCase):
         calls = semantic.calls(syntax, text, families[0]["begin_token"], families[0]["end_token"])
         self.assertEqual("assertEquals(0, value)", calls[0]["expression"])
 
+    def test_suite_qualified_original_builder_binds_case_not_suite_label(self):
+        text = 'class Tests { @TestFactory fun cases() = listOf(original("Suite", "row") { assertTrue(value) }) }'
+        syntax, methods = self.units(text)
+        families = semantic.named_lambdas(syntax, text, methods)
+        self.assertEqual(1, len(families))
+        self.assertEqual("row", families[0]["name"])
+        self.assertEqual(["Suite::row()"], families[0]["explicit_original_case_ids"])
+        self.assertEqual("cases", families[0]["factory_method"])
+
+    def test_generic_named_builder_keeps_first_literal_as_name(self):
+        text = 'fun cases() = listOf(otherBuilder("row", "input") { assertTrue(value) })'
+        syntax, methods = self.units(text)
+        family = semantic.named_lambdas(syntax, text, methods)[0]
+        self.assertEqual("row", family["name"])
+        self.assertEqual([], family["explicit_original_case_ids"])
+
+    def test_original_file_reader_is_not_a_dynamic_test_builder(self):
+        text = 'fun cases() { val source = original("MeshCore/LICENSE"); assertTrue(source.isNotEmpty()) }'
+        syntax, methods = self.units(text)
+        self.assertEqual([], semantic.named_lambdas(syntax, text, methods))
+
+    def test_original_parameter_signature_and_row_are_retained(self):
+        text = ('fun cases() = listOf(original("Suite", "row", "(_ value : Int)", "[value: 3]") '
+                '{ assertEquals(3, value) })')
+        syntax, methods = self.units(text)
+        family = semantic.named_lambdas(syntax, text, methods)[0]
+        self.assertEqual("row", family["name"])
+        self.assertEqual(["Suite::row(_ value : Int)[value: 3]"], family["explicit_original_case_ids"])
+
+    def test_computed_original_parameter_row_is_preserved_as_unresolved_not_guessed(self):
+        text = 'fun cases() = listOf(original("Suite", "row", "(value : Int) [$value]") { assertTrue(value) })'
+        syntax, methods = self.units(text)
+        family = semantic.named_lambdas(syntax, text, methods)[0]
+        self.assertEqual("row", family["name"])
+        self.assertEqual([], family["explicit_original_case_ids"])
+        self.assertEqual("nonliteral-signature-or-row-requires-explicit-runner-review",
+                         family["registration_identity_resolution"])
+        self.assertIn("[$value]", family["registration"])
+
+    def test_original_builder_does_not_accept_nonliteral_case_name(self):
+        text = 'fun cases() = listOf(original("Suite", "$computed") { assertTrue(value) })'
+        syntax, methods = self.units(text)
+        with self.assertRaisesRegex(PortError, "literal suite and case"):
+            semantic.named_lambdas(syntax, text, methods)
+
     def test_named_builder_preserves_signature_and_parameter_arguments(self):
         text = 'fun sample() = listOf(advertParameterizedCase("heard", "(policy:)", listOf(0, 1)) { assertEquals(1, it) })'
         syntax, methods = self.units(text)
@@ -80,6 +125,44 @@ class KotlinProposalTest(unittest.TestCase):
         syntax, methods = self.units(text)
         self.assertEqual(["A::first()", "A::second()"],
                          semantic.annotated_cases(syntax, methods)[methods[0]["declaration_token"]])
+
+    def test_kotlin_unicode_escaped_original_identity_is_decoded(self):
+        syntax, methods = self.units(
+            r'class Tests { @OriginalCase("A::first \u2014 row()") fun checked() { assertTrue(true) } }')
+        self.assertEqual(["A::first \u2014 row()"],
+                         semantic.annotated_cases(syntax, methods)[methods[0]["declaration_token"]])
+
+    def test_kotlin_surrogate_pair_in_literal_identity_is_one_scalar(self):
+        syntax, methods = self.units(
+            r'class Tests { @OriginalCase("A::\uD83D\uDE80()") fun checked() { assertTrue(true) } }')
+        self.assertEqual(["A::\U0001F680()"],
+                         semantic.annotated_cases(syntax, methods)[methods[0]["declaration_token"]])
+
+    def test_kotlin_raw_literal_does_not_decode_backslash_escapes(self):
+        syntax = semantic.kotlin_syntax(r'val name = """A::\u2014()"""')
+        token = next(token for token in syntax.tokens if token.kind == "string")
+        self.assertEqual(r"A::\u2014()", semantic.literal(token))
+
+    def test_interpolated_original_id_cannot_become_literal_authority(self):
+        for text in ('"A::$name()"', '"A::${name}()"', '"""A::$name()"""',
+                     '"A::$\u00e9()"', '"A::$`name`()"'):
+            with self.subTest(text=text):
+                syntax, methods = self.units(
+                    f'class Tests {{ @OriginalCase({text}) fun checked() {{ assertTrue(true) }} }}')
+                with self.assertRaisesRegex(PortError, "literal case identities"):
+                    semantic.annotated_cases(syntax, methods)
+        syntax, methods = self.units(
+            r'class Tests { @OriginalCase("A::\$literal()") fun checked() { assertTrue(true) } }')
+        self.assertEqual(["A::$literal()"],
+                         semantic.annotated_cases(syntax, methods)[methods[0]["declaration_token"]])
+
+    def test_malformed_kotlin_unicode_identity_fails_closed(self):
+        for text in (r"\u12", r"\uGGGG", r"\uD800", r"\u{2014}", r"\q"):
+            with self.subTest(text=text):
+                syntax, methods = self.units(
+                    f'class Tests {{ @OriginalCase("A::{text}()") fun checked() {{ assertTrue(true) }} }}')
+                with self.assertRaisesRegex(PortError, "literal case identities"):
+                    semantic.annotated_cases(syntax, methods)
 
     def test_dynamic_labels_inside_a_previous_method_are_not_annotations_on_next(self):
         syntax, methods = self.units('fun first() { @SourceCase("A::first()") local() }; fun next() {}')
@@ -165,6 +248,21 @@ class SemanticBindingTest(unittest.TestCase):
         groups, value = self.fixture()
         value["groups"][0]["runner_class"] = "Unrelated"
         with patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "runner class"):
+            semantic.bind_reviews(groups)
+
+    def test_original_factory_suite_identity_cannot_bind_another_suite(self):
+        groups, value = self.fixture()
+        value["groups"][0]["runner_name"] = "original-case-id"
+        groups["WP-101"]["families"][0]["native_proposals"][0]["explicit_original_case_ids"] = ["Other::checked()"]
+        with patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "actual native assertions"):
+            semantic.bind_reviews(groups)
+
+    def test_unresolved_parameter_row_cannot_claim_literal_runner_identity(self):
+        groups, value = self.fixture()
+        value["groups"][0]["runner_name"] = "original-case-id"
+        groups["WP-101"]["families"][0]["native_proposals"][0]["registration_identity_resolution"] = \
+            "nonliteral-signature-or-row-requires-explicit-runner-review"
+        with patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "actual native assertions"):
             semantic.bind_reviews(groups)
 
     def test_zero_execution_requirement_fails_closed(self):

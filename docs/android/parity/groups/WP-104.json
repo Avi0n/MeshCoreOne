@@ -1385,6 +1385,7 @@
           "line": 81,
           "end_line": 86,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "3e6d677620d4d98d39128bffec429fcb849f93609ed3fd597fe3c8c8c3ba5598",
           "registration": null,
           "assertions": [
@@ -1498,6 +1499,7 @@
           "line": 89,
           "end_line": 90,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "53ea998734d353cfa50dbbf1771f68d4e3a90820617322c175c514f039c9fa74",
           "registration": null,
           "assertions": [
@@ -1617,6 +1619,7 @@
           "line": 15,
           "end_line": 18,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "5dafed9799c6b82fbd55f2a18718a141daadceee3c83e88450f4379f076ec602",
           "registration": null,
           "assertions": [
@@ -1724,6 +1727,7 @@
           "line": 21,
           "end_line": 22,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c7c966650c66c4af7bf424bb1c96cd121961237311eecb335d02b1e7ef02b728",
           "registration": null,
           "assertions": [
@@ -1855,6 +1859,7 @@
           "line": 25,
           "end_line": 28,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "032b9b97d3e2c79dc695fd15854016aefc7b5cdad262c174e900fc78ac3abf22",
           "registration": null,
           "assertions": [
@@ -1980,6 +1985,7 @@
           "line": 31,
           "end_line": 34,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "f2b51424c1060c5661760a69d4f307b59108f99696b0d59855189d4df0a44cb4",
           "registration": null,
           "assertions": [
@@ -2099,6 +2105,7 @@
           "line": 37,
           "end_line": 40,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b6c490248ce12752b8e39214abab8e462303cd60f6efe858f55179e2cc025e58",
           "registration": null,
           "assertions": [
@@ -2218,6 +2225,7 @@
           "line": 43,
           "end_line": 46,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "3fbd2a75795d183c74bc7e984e32e2fbced96650197bfb990082ce318224a912",
           "registration": null,
           "assertions": [
@@ -2337,6 +2345,7 @@
           "line": 49,
           "end_line": 52,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "81debaa79e1df2688b996b5d457e940a3333f8e69c92f6431ae518c733eaf58e",
           "registration": null,
           "assertions": [
@@ -2462,6 +2471,7 @@
           "line": 55,
           "end_line": 58,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b7157a51bf28e5688a0cf269a9bbc0a73989c1a3e0b7dc55e7ebf469210f4998",
           "registration": null,
           "assertions": [
@@ -2581,6 +2591,7 @@
           "line": 61,
           "end_line": 64,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "89ef9c10c3176d52aafc4df1cc6e6e2c844bc7e35653e05e4a3203deea2881e2",
           "registration": null,
           "assertions": [
@@ -2682,6 +2693,7 @@
           "line": 67,
           "end_line": 67,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "012d9fbe29fd1e3b920610fdab9a7e7f756bae13b74e06cbb153780052ba3885",
           "registration": null,
           "assertions": [
@@ -2836,6 +2848,7 @@
           "line": 77,
           "end_line": 78,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "0b93261201a93af4b66bac748b9397c49ff3bcd80f44e263639a07a3acc4c08b",
           "registration": null,
           "assertions": [
@@ -2949,6 +2962,7 @@
           "line": 21,
           "end_line": 21,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e4109d2d6dc98630d2c324f7b4c804fa50b86303a11ac5dbd162d8b6e4586510",
           "registration": null,
           "assertions": [
@@ -3169,6 +3183,7 @@
           "line": 24,
           "end_line": 30,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "ace965f945cd80f5fb7bd5833a74ca780a990772b8b255bc572e296b64ebc4bc",
           "registration": null,
           "assertions": [
@@ -3317,6 +3332,7 @@
           "line": 33,
           "end_line": 36,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c050bd1e5e515ef60738051b52e4dbee9f49aa54d11ff92d42f5437ce7700e75",
           "registration": null,
           "assertions": [
@@ -3510,8 +3526,186 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+          "method_or_family_name": "changeContactFlags with a NaN coordinate does not trap and clamps the frame",
+          "line": 169,
+          "end_line": 183,
+          "factory_method": "originalSeams",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "1ba9a3491b945a8d4904d524e70572767842bd528b9f3e5ecf6bbc181a45876f",
+          "registration": "original(\"LegacyUpdateContactHardeningTests\", \"changeContactFlags with a NaN coordinate does not trap and clamps the frame\")",
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 177,
+              "expression": "assertEquals(144, frame.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 178,
+              "expression": "assertEquals(raw(0x09, contact.publicKey + hex(\"0102ff\") + filled(0, 64) +\n                Bytes.utf8(\"N\").paddedOrTruncated(32) + little32(0) + little32(0) + little32(180_000_000)), frame)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 180,
+              "expression": "assertFalse(task.isCompleted)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "fixture",
+              "line": 170,
+              "expression": "fixture()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "start",
+              "line": 170,
+              "expression": "start(f)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "testContact",
+              "line": 171,
+              "expression": "testContact(filled(0xab, 32), 1u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 171,
+              "expression": "filled(0xab, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 171,
+              "expression": "copy(\n                advertisedName = \"N\", lastAdvertisement = Instant.ofEpochSecond(-1),\n                latitude = Double.NaN, longitude = 200.0,\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 172,
+              "expression": "Instant.ofEpochSecond(-1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.changeContactFlags",
+              "line": 175,
+              "expression": "f.session.changeContactFlags(contact, ContactFlags(2u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 175,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 175,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.sent.last",
+              "line": 176,
+              "expression": "f.transport.sent.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "raw",
+              "line": 178,
+              "expression": "raw(0x09, contact.publicKey + hex(\"0102ff\") + filled(0, 64) +\n                Bytes.utf8(\"N\").paddedOrTruncated(32) + little32(0) + little32(0) + little32(180_000_000))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 178,
+              "expression": "hex(\"0102ff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 178,
+              "expression": "filled(0, 64)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 179,
+              "expression": "Bytes.utf8(\"N\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "paddedOrTruncated",
+              "line": 179,
+              "expression": "paddedOrTruncated(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 179,
+              "expression": "little32(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 179,
+              "expression": "little32(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 179,
+              "expression": "little32(180_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.transport.ok",
+              "line": 181,
+              "expression": "f.transport.ok()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 181,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "task.await",
+              "line": 181,
+              "expression": "task.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "f.session.stop",
+              "line": 182,
+              "expression": "f.session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "LegacyUpdateContactHardeningTests::changeContactFlags with a NaN coordinate does not trap and clamps the frame()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
@@ -3561,6 +3755,7 @@
           "line": 31,
           "end_line": 31,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "9c179c0ccae2db014d1635c473726e041f16ad837bf6fd03a0d1d852f4649adf",
           "registration": "v112(\"contactDeleted response code exists\")",
           "assertions": [
@@ -3638,6 +3833,7 @@
           "line": 32,
           "end_line": 32,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "853509378dc1446042c64525a434e6b5102e167bb31b4fc16bb391b4f3e2f3e1",
           "registration": "v112(\"contactsFull response code exists\")",
           "assertions": [
@@ -3703,6 +3899,7 @@
           "line": 33,
           "end_line": 33,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "98498c97a3bb225c29520b71f438974a8aa4a91ea4540e0beeac42da0afebfe6",
           "registration": "v112(\"contactDeleted category is push\")",
           "assertions": [
@@ -3761,6 +3958,7 @@
           "line": 34,
           "end_line": 34,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "840b0ad43ad7570273522f4c0934c6acaae3e80bde8985349b046d607d287120",
           "registration": "v112(\"contactsFull category is push\")",
           "assertions": [
@@ -3843,6 +4041,7 @@
           "line": 35,
           "end_line": 35,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "83ab4b2b92efd9a00992593f12ffc5f7a0390d58d290a40accd6509a0ea0037b",
           "registration": "v112(\"contactDeleted parses valid payload\")",
           "assertions": [
@@ -3956,6 +4155,7 @@
           "line": 36,
           "end_line": 36,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "be4537e0a45893293ce905d9b88cc117a967137ea3f048d822e77cbfda39ad3a",
           "registration": "v112(\"contactDeleted parse failure for short payload\")",
           "assertions": [],
@@ -4068,6 +4268,7 @@
           "line": 37,
           "end_line": 37,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "2bfbcdc36b8c01ad770b46e78700c6d86ba15d8bb652a2d5106e9559d5eb7a0a",
           "registration": "v112(\"contactDeleted ignores extra bytes\")",
           "assertions": [
@@ -4169,6 +4370,7 @@
           "line": 38,
           "end_line": 38,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "5409d949308763e44cd72663ee0afce83ade4997f81e28b99c2db5dc117fbabd",
           "registration": "v112(\"contactsFull parses empty payload\")",
           "assertions": [
@@ -4246,6 +4448,7 @@
           "line": 39,
           "end_line": 39,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "b56c88390711753a38aa880a08b8b42014d4269e3d65725079bea807a17ce5e3",
           "registration": "v112(\"contactsFull parses any payload\")",
           "assertions": [
@@ -4359,6 +4562,7 @@
           "line": 40,
           "end_line": 40,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "dd00e995f9b8f64be3eb94afc9f2a7d93200ef4bddf981a3dc5735adac38fb0e",
           "registration": "v112(\"packetParser routes contactDeleted\")",
           "assertions": [
@@ -4454,6 +4658,7 @@
           "line": 41,
           "end_line": 41,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "8f2c7677368ede70d24ca3e14230c1c6e0fb442810abcc856696e5b0cfa444c5",
           "registration": "v112(\"packetParser routes contactsFull\")",
           "assertions": [
@@ -4567,6 +4772,7 @@
           "line": 42,
           "end_line": 42,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "f6d38ad592af14356f18af83ca42df26e974146edb4ef89ad28915788d649af6",
           "registration": "v112(\"packetParser contactDeleted parse failure for short payload\")",
           "assertions": [],
@@ -4712,8 +4918,126 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+          "method_or_family_name": "contactManager tracks contactDeleted",
+          "line": 126,
+          "end_line": 137,
+          "factory_method": "originalSeams",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "ed9c949ea219397b825bf4d7f21d851ed414bf0588742e5a8b29ffa5f2dc5a02",
+          "registration": "original(\"V112ProtocolTests\", \"contactManager tracks contactDeleted\")",
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 132,
+              "expression": "assertNotNull(manager.getByPublicKey(contact.publicKey))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 134,
+              "expression": "assertNull(manager.getByPublicKey(contact.publicKey))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 135,
+              "expression": "assertTrue(manager.cachedPendingContacts.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 136,
+              "expression": "assertTrue(manager.needsRefresh)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "ContactManager",
+              "line": 127,
+              "expression": "ContactManager()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "testContact",
+              "line": 128,
+              "expression": "testContact(filled(0x11, 32), 1u, 0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "filled",
+              "line": 128,
+              "expression": "filled(0x11, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.store",
+              "line": 129,
+              "expression": "manager.store(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.addPending",
+              "line": 130,
+              "expression": "manager.addPending(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.markClean",
+              "line": 131,
+              "expression": "manager.markClean(testEpoch)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.getByPublicKey",
+              "line": 132,
+              "expression": "manager.getByPublicKey(contact.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.trackChanges",
+              "line": 133,
+              "expression": "manager.trackChanges(MeshEvent.ContactDeleted(contact.publicKey))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshEvent.ContactDeleted",
+              "line": 133,
+              "expression": "MeshEvent.ContactDeleted(contact.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.getByPublicKey",
+              "line": 134,
+              "expression": "manager.getByPublicKey(contact.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.cachedPendingContacts.isEmpty",
+              "line": 135,
+              "expression": "manager.cachedPendingContacts.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "V112ProtocolTests::contactManager tracks contactDeleted()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
@@ -4754,8 +5078,66 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+          "sha256": "db48d4f4aacf899348680200ec1b5296e57f0c42b203701a81e5f0fa5c44eefb",
+          "class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+          "method_or_family_name": "contactManager tracks contactsFull",
+          "line": 138,
+          "end_line": 144,
+          "factory_method": "originalSeams",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "da9a415fa0fcfc1d1d0ac776f1f5b071cc8a739556ab5ffe174710a84f294fb0",
+          "registration": "original(\"V112ProtocolTests\", \"contactManager tracks contactsFull\")",
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 141,
+              "expression": "assertFalse(manager.needsRefresh)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 143,
+              "expression": "assertTrue(manager.needsRefresh)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "ContactManager",
+              "line": 139,
+              "expression": "ContactManager()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.markClean",
+              "line": 140,
+              "expression": "manager.markClean(testEpoch)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "manager.trackChanges",
+              "line": 142,
+              "expression": "manager.trackChanges(MeshEvent.ContactsFull)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "V112ProtocolTests::contactManager tracks contactsFull()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
@@ -4805,6 +5187,7 @@
           "line": 93,
           "end_line": 94,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "82c910720e41c07b27ebd958dd494fc0a5ab31ed8f0fde21872f023f7d45764a",
           "registration": null,
           "assertions": [
@@ -4894,6 +5277,7 @@
           "line": 97,
           "end_line": 99,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "050bfba936b5d5edb12ce1b3da8da0cecae632e530741a9a7d0c0123f5028201",
           "registration": null,
           "assertions": [
@@ -4989,6 +5373,7 @@
           "line": 102,
           "end_line": 104,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e19296824a6f1a942b107b675615e92b25d73f5254322fbf0ee04d6eb7b13704",
           "registration": null,
           "assertions": [
@@ -5084,6 +5469,7 @@
           "line": 107,
           "end_line": 108,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "f6011c5af73a3b17d1f2f44167365575f209e0759e3b607333da9120d5a9004e",
           "registration": null,
           "assertions": [
@@ -5179,6 +5565,7 @@
           "line": 111,
           "end_line": 113,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "ea11a9c719b63ac9aac269c0734009d0a62f081de68c542c83a66c0af49e7ef6",
           "registration": null,
           "assertions": [
@@ -5268,6 +5655,7 @@
           "line": 43,
           "end_line": 43,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "7c07aee4bd0f6b9a337f09f4620b078513131b5cb3eba813a173d49a114295cf",
           "registration": "v112(\"autoAddConfig response code exists\")",
           "assertions": [
@@ -5333,6 +5721,7 @@
           "line": 44,
           "end_line": 44,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "65ef5ba95db9cd7d7ee1741425e093bf158b64c2d1f99044ee444fedfbcd7375",
           "registration": "v112(\"autoAddConfig category is device\")",
           "assertions": [
@@ -5421,6 +5810,7 @@
           "line": 45,
           "end_line": 47,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "505b2433fcdccdbfd913d0b5102ba9c1558fc841535174b5a009737570028e09",
           "registration": "v112(\"autoAddConfig parses single-byte payload with default maxHops\")",
           "assertions": [
@@ -5540,6 +5930,7 @@
           "line": 48,
           "end_line": 50,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "dfb67060c67bc95ea8aa35a8968f8d407ede7fa6e55f58daaf70be7aaedeb005",
           "registration": "v112(\"autoAddConfig parses two-byte payload with maxHops\")",
           "assertions": [
@@ -5659,6 +6050,7 @@
           "line": 51,
           "end_line": 51,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "50b1c1e05da475ac66cb563e31cf9ab9a45a786675c966f16976c14bb2f27845",
           "registration": "v112(\"autoAddConfig parse failure for empty payload\")",
           "assertions": [],
@@ -5759,6 +6151,7 @@
           "line": 52,
           "end_line": 54,
           "factory_method": "v112ParserCases",
+          "registration_identity_resolution": null,
           "body_sha256": "36c416764016d4f0afda45ff7236afef699392121c4a6aca8fe8c798aa1fbbcb",
           "registration": "v112(\"autoAddConfig ignores extra bytes beyond maxHops\")",
           "assertions": [
@@ -6214,6 +6607,7 @@
           "line": 39,
           "end_line": 42,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "eb18e035ace53dea626a1fb790fe2b4bd684009c516d6df88703986ba6be1f65",
           "registration": null,
           "assertions": [
@@ -6325,6 +6719,7 @@
           "line": 45,
           "end_line": 48,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "fb1cf0338a11424208a208635c54dd7e08216217ec0abf9a2746d583b0c1dc84",
           "registration": null,
           "assertions": [
@@ -6460,6 +6855,7 @@
           "line": 51,
           "end_line": 54,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "199e64816b6f56fce623ff7b47b50d72adb134cb6635a06a8ed1004a35be39a5",
           "registration": null,
           "assertions": [
@@ -6571,6 +6967,7 @@
           "line": 57,
           "end_line": 58,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "dfee78b54286fb0156337758cced2bac40ae9c5575f164818c6bc5dced2f385d",
           "registration": null,
           "assertions": [
@@ -6688,6 +7085,7 @@
           "line": 61,
           "end_line": 64,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "fe5e31e4399922ff04a46082d37cae820442c86e275d85962e21a5d557196fac",
           "registration": null,
           "assertions": [
@@ -6817,6 +7215,7 @@
           "line": 67,
           "end_line": 70,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "83b83d651616ec4afa635ef7799b25f1328e880a555b479c7c216e2c9b7a096a",
           "registration": null,
           "assertions": [
@@ -6928,6 +7327,7 @@
           "line": 73,
           "end_line": 74,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "20ea37f0b2c6e7f84513bebdb71cca8feff83a9ab52200989be6ae15decf6fa6",
           "registration": null,
           "assertions": [
@@ -7045,6 +7445,7 @@
           "line": 77,
           "end_line": 80,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "fe13d5f6b0aacace87693e707d4a0236b352ece69826db75ac579fe20ca62b27",
           "registration": null,
           "assertions": [
@@ -7198,6 +7599,7 @@
           "line": 87,
           "end_line": 87,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "c3a98cbea5c585b3b86ab9d00f4da20e03e3af873dab6874a1fe6e70db623d63",
           "registration": null,
           "assertions": [
@@ -7519,6 +7921,7 @@
           "line": 59,
           "end_line": 65,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "aa83696a78549f589d94d7fbc1ee03a5a2292618561a6e17cf3746e5e4384b81",
           "registration": "roundTrip(\"Contact round trip\")",
           "assertions": [
@@ -7704,6 +8107,7 @@
           "line": 66,
           "end_line": 66,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "e5496cf7ab6f31d42525187bbc701576ac651b4b459c610b948fe40f6d45e877",
           "registration": "roundTrip(\"Contact rejects reserved path length encoding\")",
           "assertions": [],
@@ -8086,6 +8490,7 @@
           "line": 67,
           "end_line": 75,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "196fd382c2e3790a2f0378c6bf05240d55b4814085bc57cefc1f91bb012575c2",
           "registration": "roundTrip(\"SelfInfo round trip\")",
           "assertions": [
@@ -8529,6 +8934,7 @@
           "line": 76,
           "end_line": 82,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "b6e50613a92ee74cbab0f8814df1141119120816a9e5af06fc1faf50f32a899b",
           "registration": "roundTrip(\"SelfInfo negative TX power round trip\")",
           "assertions": [
@@ -8870,6 +9276,7 @@
           "line": 83,
           "end_line": 87,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "e200e9f804ea72578f54b8bb5be9cc7efd67d8ba40b6416d14271e56a8f15610",
           "registration": "roundTrip(\"SelfInfo parses minimum-length payload without device name\")",
           "assertions": [
@@ -9199,6 +9606,7 @@
           "line": 88,
           "end_line": 88,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "93490c349c2e2c502dfca1b5e3352bc90fa888c277b0d5b6427c4be80aa1752d",
           "registration": "roundTrip(\"SelfInfo rejects truncated fixed-width payload\")",
           "assertions": [],
@@ -9419,6 +9827,7 @@
           "line": 121,
           "end_line": 125,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "5e3abe2f3f644ab47fb8753852f423ffd698a859af2148e292a97628c14fbf51",
           "registration": "roundTrip(\"ContactMessage v3 round trip\")",
           "assertions": [
@@ -9670,6 +10079,7 @@
           "line": 126,
           "end_line": 128,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "6d267a62db53dd7fc497c615b7c147668b5b989fb2f2ae7a10409832a3036928",
           "registration": "roundTrip(\"ContactMessage rejects truncated signature payload\")",
           "assertions": [],
@@ -9878,6 +10288,7 @@
           "line": 129,
           "end_line": 133,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "10f93598041c9dc8260361cec18c398148b5ebc28fb720d807a38b7c6c3adf1f",
           "registration": "roundTrip(\"ChannelMessage v3 round trip\")",
           "assertions": [
@@ -10501,6 +10912,7 @@
           "line": 163,
           "end_line": 167,
           "factory_method": "statusStatsAndVariables",
+          "registration_identity_resolution": null,
           "body_sha256": "ece9d084d081c8a5f95889c6a3e0aa7d82ec1d12d6987b00e4ea22cc513c1b30",
           "registration": "roundTrip(\"StatusResponse round trip\")",
           "assertions": [
@@ -10710,6 +11122,7 @@
           "line": 168,
           "end_line": 171,
           "factory_method": "statusStatsAndVariables",
+          "registration_identity_resolution": null,
           "body_sha256": "797388697d73994346a96f569f71f4738674a3f79312fbce628ea533e81ccb9f",
           "registration": "roundTrip(\"CoreStats round trip\")",
           "assertions": [
@@ -10985,6 +11398,7 @@
           "line": 172,
           "end_line": 176,
           "factory_method": "statusStatsAndVariables",
+          "registration_identity_resolution": null,
           "body_sha256": "0c12e8d7eed1af2f41089771183f2882bccf2b02189e1b05fcfe79f1b01f3f7a",
           "registration": "roundTrip(\"RadioStats round trip\")",
           "assertions": [
@@ -11302,6 +11716,7 @@
           "line": 177,
           "end_line": 177,
           "factory_method": "statusStatsAndVariables",
+          "registration_identity_resolution": null,
           "body_sha256": "66cf6d34b38df0aebfb5395f29255761e13902dfa75decb34db643ed457a89a1",
           "registration": "roundTrip(\"PacketStats round trip (legacy 24-byte format)\")",
           "assertions": [],
@@ -11546,6 +11961,7 @@
           "line": 178,
           "end_line": 178,
           "factory_method": "statusStatsAndVariables",
+          "registration_identity_resolution": null,
           "body_sha256": "7e8c4d497d8b0853b1057c1eb16a94f9a79a54216e43f896d81f3771e60c83e8",
           "registration": "roundTrip(\"PacketStats round trip (28-byte format with receiveErrors)\")",
           "assertions": [],
@@ -11688,6 +12104,7 @@
           "line": 134,
           "end_line": 138,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "3de34d4d4ac27a88507ec9cb7f4c691747b4e8bca85af189506a304acaf319c4",
           "registration": "roundTrip(\"ChannelInfo round trip\")",
           "assertions": [
@@ -11915,6 +12332,7 @@
           "line": 139,
           "end_line": 143,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "8cf0805c1d3660a1dbc165bbe844f1f0e78ddd1274bf309e6f75864b3ca31789",
           "registration": "roundTrip(\"ChannelInfo handles garbage bytes after null\")",
           "assertions": [
@@ -12148,6 +12566,7 @@
           "line": 144,
           "end_line": 148,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "a626a9443287e8f416dd5df5c294f3ce54c1fae617f880f5a918c7a616e38c4f",
           "registration": "roundTrip(\"ChannelInfo lossy decodes invalid UTF-8 before null\")",
           "assertions": [
@@ -12483,6 +12902,7 @@
           "line": 89,
           "end_line": 94,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "b75d18fafc6a2864019bce98703a6376802ae8ccdb2e2508fa4c98f30ef535cf",
           "registration": "roundTrip(\"DeviceInfo v9 client repeat round trip\")",
           "assertions": [
@@ -12818,6 +13238,7 @@
           "line": 95,
           "end_line": 100,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "2678185cd1a40f22f7382594eeb20886895cac815bd3d9209315078b088e5d7f",
           "registration": "roundTrip(\"DeviceInfo v10 pathHashMode round trip\")",
           "assertions": [
@@ -13051,6 +13472,7 @@
           "line": 101,
           "end_line": 104,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "4b7b72a10c547dec9d5ac69d813107d7d507e77ba400267a57861beec3498c47",
           "registration": "roundTrip(\"DeviceInfo v10 tolerates missing pathHashMode byte\")",
           "assertions": [
@@ -13278,6 +13700,7 @@
           "line": 105,
           "end_line": 108,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "f5343087f795f58c7d053d74459cd6e54eb0de49b2fdbd0b31bc1d3af854c40b",
           "registration": "roundTrip(\"DeviceInfo v9 defaults pathHashMode to 0\")",
           "assertions": [
@@ -13487,6 +13910,7 @@
           "line": 109,
           "end_line": 113,
           "factory_method": "deviceAndContactRoundTrips",
+          "registration_identity_resolution": null,
           "body_sha256": "a42efe2b3499b5a7852504722b8284a2ca867ed6e75775f96d6ed693bb46b1a5",
           "registration": "roundTrip(\"DeviceInfo v8 no client repeat round trip\")",
           "assertions": [
@@ -13672,6 +14096,7 @@
           "line": 179,
           "end_line": 184,
           "factory_method": "statusStatsAndVariables",
+          "registration_identity_resolution": null,
           "body_sha256": "0b6ef502f3e5c79aa158daaea735e13a0ddd0f90569bff0f67536a45b6010af9",
           "registration": "roundTrip(\"AllowedRepeatFreq round trip\")",
           "assertions": [
@@ -13815,6 +14240,7 @@
           "line": 51,
           "end_line": 54,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a43827751ff4da18cf1897bd416173e239094a8a9435b282e066770b49e372fd",
           "registration": null,
           "assertions": [
@@ -13891,6 +14317,7 @@
           "line": 57,
           "end_line": 60,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "3776bc5cbe63d0523bf13a6e8fc25229b69612ce51f772dd48e953731918bde0",
           "registration": null,
           "assertions": [
@@ -14057,6 +14484,7 @@
           "line": 67,
           "end_line": 74,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b87eda4e7186a7c8c1c12a0148872f404bef22ce7a4b39a03da8a957abe7fd88",
           "registration": null,
           "assertions": [
@@ -14217,6 +14645,7 @@
           "line": 77,
           "end_line": 85,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9f2ef8eda0bea825fc182db411bcba6204201ccaf6d61daa2d3a4afbae3cf521",
           "registration": null,
           "assertions": [
@@ -14335,6 +14764,7 @@
           "line": 88,
           "end_line": 89,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "82eb034330daeab201c62d793f52ee0f80000218e9c37dc56017fbf97d8cdbd0",
           "registration": null,
           "assertions": [
@@ -14417,6 +14847,7 @@
           "line": 92,
           "end_line": 93,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "64a6f24066748d221b9d03f7b1c44f9d840337046d1e962ea87f7ce8a5ee63a6",
           "registration": null,
           "assertions": [
@@ -14499,6 +14930,7 @@
           "line": 96,
           "end_line": 96,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "67b3f131960a9eb34f35b2c3af1740c80ac48335c1633b41ba8227efc561acf0",
           "registration": null,
           "assertions": [
@@ -14611,6 +15043,7 @@
           "line": 185,
           "end_line": 188,
           "factory_method": "statusStatsAndVariables",
+          "registration_identity_resolution": null,
           "body_sha256": "ccb9ec6928993fa7a5caee8a5a6b8b4f571ad56d49cb4c24d3ac7ecc8b0c5cf3",
           "registration": "roundTrip(\"CustomVars round trip\")",
           "assertions": [
@@ -14760,6 +15193,7 @@
           "line": 202,
           "end_line": 207,
           "factory_method": "originalLppSeams",
+          "registration_identity_resolution": null,
           "body_sha256": "aa37f525fe9df14db5ed10403923eb273be43d68e710b0f7778d6702f1a2c1f5",
           "registration": "roundTrip(\"LPP encoder/decoder temperature round trip\")",
           "assertions": [
@@ -14963,6 +15397,7 @@
           "line": 208,
           "end_line": 214,
           "factory_method": "originalLppSeams",
+          "registration_identity_resolution": null,
           "body_sha256": "949d6dddd009b73e0c5669b010d5ffa617636fd32b89a3e420ae72579ef05c1a",
           "registration": "roundTrip(\"LPP encoder/decoder GPS round trip\")",
           "assertions": [
@@ -15220,6 +15655,7 @@
           "line": 215,
           "end_line": 223,
           "factory_method": "originalLppSeams",
+          "registration_identity_resolution": null,
           "body_sha256": "2844e6034cfb0fa68c79f3dd2f83f8cbf6830deac90bf206b9eb0bfcb908ce5c",
           "registration": "roundTrip(\"LPP encoder/decoder multi-sensor round trip\")",
           "assertions": [
@@ -15435,6 +15871,7 @@
           "line": 224,
           "end_line": 228,
           "factory_method": "originalLppSeams",
+          "registration_identity_resolution": null,
           "body_sha256": "17ae4d660c2e9ba1e0c261382b48e2a4deef2516e1c32860e7db2cc0d15000dd",
           "registration": "roundTrip(\"LPP encoder/decoder negative temperature round trip\")",
           "assertions": [
@@ -15614,6 +16051,7 @@
           "line": 229,
           "end_line": 235,
           "factory_method": "originalLppSeams",
+          "registration_identity_resolution": null,
           "body_sha256": "427aaceb8b4397f2ca1ea566cbc453a023cafb581ad09d40ee7c1edf2c5d3fbb",
           "registration": "roundTrip(\"LPP encoder/decoder accelerometer round trip\")",
           "assertions": [
@@ -15841,6 +16279,7 @@
           "line": 149,
           "end_line": 153,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "5eb8c60b313f512353b0d6ce0168a3535a432e8b77447997f3d41f39137082f9",
           "registration": "roundTrip(\"ChannelMessage v3 empty-text broadcast parses at firmware-minimum size\")",
           "assertions": [
@@ -16038,6 +16477,7 @@
           "line": 154,
           "end_line": 158,
           "factory_method": "messagesAndChannels",
+          "registration_identity_resolution": null,
           "body_sha256": "7e8f3e799517baa55a74e17c499fad66b5712370594b016812b0cd19bab62902",
           "registration": "roundTrip(\"ChannelMessage v1 empty-text broadcast parses at firmware-minimum size\")",
           "assertions": [

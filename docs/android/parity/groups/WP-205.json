@@ -3406,6 +3406,7 @@
           "line": 18,
           "end_line": 18,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "6e32627f108a0fa73e1dbe713e07b8e3c51bb3a90d460ea75491d5c7faf1dcf5",
           "registration": null,
           "assertions": [
@@ -3463,6 +3464,7 @@
           "line": 19,
           "end_line": 19,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "bf8b231d83840ea2e675bdddbcbc6f1892095958ad9ca1c04a58905e8d0f4303",
           "registration": null,
           "assertions": [
@@ -3520,6 +3522,7 @@
           "line": 20,
           "end_line": 20,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "2239644733c5a3efcad169fe65e88aa3483b732746f47de8586e3ac1dc86ea05",
           "registration": null,
           "assertions": [
@@ -3577,6 +3580,7 @@
           "line": 21,
           "end_line": 21,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a7bb5a9dcbe9c51021447f2f7dd07e3c232a7074d92c830e01ad7271eabb54cc",
           "registration": null,
           "assertions": [
@@ -3641,6 +3645,7 @@
           "line": 22,
           "end_line": 22,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a7bb5a9dcbe9c51021447f2f7dd07e3c232a7074d92c830e01ad7271eabb54cc",
           "registration": null,
           "assertions": [
@@ -6250,8 +6255,68 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/runtime/src/test/kotlin/com/meshcoreone/android/core/runtime/SourceReconnectPolicyTest.kt",
+          "sha256": "4a4243ad6e3ec2b67b76f93bae2e0afbc06cf66d5795764ec229288ba0e76893",
+          "class": "com.meshcoreone.android.core.runtime.SourceReconnectPolicyTest",
+          "method_or_family_name": "a definitive bond error escalates immediately even with a recent verification",
+          "line": 95,
+          "end_line": 103,
+          "factory_method": "sourceCases",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "05be1590dddbc519f258668ba63efd3106450d627a2ce913a825c6c004e9516d",
+          "registration": "original(\"ReconnectPolicyConnectFailureTests\", \"a definitive bond error escalates immediately even with a recent verification\")",
+          "assertions": [
+            {
+              "name": "assertIs",
+              "line": 97,
+              "expression": "assertIs<ReconnectPolicy.ConnectFailureDecision.TearDown>(\n                policy.resolveConnectFailure(deviceId, definitive, epochTime, true),\n            )",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 100,
+              "expression": "assertIs<LinkFailure.AuthenticationFailed>(result.error)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 101,
+              "expression": "assertEquals(ReconnectPolicy.TeardownReason.DefinitiveBondFailure, result.reason)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 102,
+              "expression": "assertEquals(0L, policy.autoReconnectConnectFailures)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "freshVerified",
+              "line": 96,
+              "expression": "freshVerified(60)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "policy.resolveConnectFailure",
+              "line": 98,
+              "expression": "policy.resolveConnectFailure(deviceId, definitive, epochTime, true)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Transport/ReconnectPolicyTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "ReconnectPolicyConnectFailureTests::a definitive bond error escalates immediately even with a recent verification()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineFringeEncryptionGraceTests.swift",
@@ -6328,8 +6393,62 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/core/runtime/src/test/kotlin/com/meshcoreone/android/core/runtime/SourceReconnectPolicyTest.kt",
+          "sha256": "4a4243ad6e3ec2b67b76f93bae2e0afbc06cf66d5795764ec229288ba0e76893",
+          "class": "com.meshcoreone.android.core.runtime.SourceReconnectPolicyTest",
+          "method_or_family_name": "a definitive bond error escalates immediately while inactive",
+          "line": 165,
+          "end_line": 171,
+          "factory_method": "sourceCases",
+          "registration_identity_resolution": "exact-literal-display",
+          "body_sha256": "e9e774c64422c27fe1dca895bc4991938792f1594ef86a1260ee46cad111d64f",
+          "registration": "original(\"ReconnectPolicyConnectFailureTests\", \"a definitive bond error escalates immediately while inactive\")",
+          "assertions": [
+            {
+              "name": "assertIs",
+              "line": 166,
+              "expression": "assertIs<ReconnectPolicy.ConnectFailureDecision.TearDown>(\n                freshVerified(0).resolveConnectFailure(deviceId, definitive, epochTime, false),\n            )",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertIs",
+              "line": 169,
+              "expression": "assertIs<LinkFailure.AuthenticationFailed>(result.error)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 170,
+              "expression": "assertEquals(ReconnectPolicy.TeardownReason.DefinitiveBondFailure, result.reason)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "freshVerified",
+              "line": 167,
+              "expression": "freshVerified(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "resolveConnectFailure",
+              "line": 167,
+              "expression": "resolveConnectFailure(deviceId, definitive, epochTime, false)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/Transport/ReconnectPolicyTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "ReconnectPolicyConnectFailureTests::a definitive bond error escalates immediately while inactive()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MC1Services/Tests/MC1ServicesTests/Transport/BLEStateMachineRestorationAndTeardownTests.swift",
@@ -7099,6 +7218,7 @@
           "line": 24,
           "end_line": 24,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d1e796d65d62cfe6a3fcc3134eccd3c3aba5e5e2036a7f5f15c67138a466ed87",
           "registration": null,
           "assertions": [
@@ -7169,6 +7289,7 @@
           "line": 25,
           "end_line": 25,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d883156948e81d1de2f9fd155c6c62bcc9ade8135a9585969cc840c3622e791c",
           "registration": null,
           "assertions": [
@@ -7245,6 +7366,7 @@
           "line": 26,
           "end_line": 26,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "a7bb5a9dcbe9c51021447f2f7dd07e3c232a7074d92c830e01ad7271eabb54cc",
           "registration": null,
           "assertions": [
@@ -7315,6 +7437,7 @@
           "line": 27,
           "end_line": 29,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "47c0dc8323d08c3ca22187294088d3f48ac61d94117748e2ba9d6a362ef2c3f3",
           "registration": null,
           "assertions": [
@@ -7391,6 +7514,7 @@
           "line": 30,
           "end_line": 35,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "e69f0a174302c2439126f786d8a73d76f14eb23a58c78cdfce1af1a3df61f1f2",
           "registration": null,
           "assertions": [
@@ -7485,6 +7609,7 @@
           "line": 36,
           "end_line": 41,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "d557696f10b8ce4d2df71081b9fa9cb28e6233e5d20f978c682a9ee2f305f40f",
           "registration": null,
           "assertions": [
@@ -7645,6 +7770,7 @@
           "line": 42,
           "end_line": 45,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "95d89322e67b7ad6c5734f049e7ead0db720415e5c0670383296e5dad5137cee",
           "registration": null,
           "assertions": [
@@ -7751,6 +7877,7 @@
           "line": 46,
           "end_line": 51,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "b36f9b15e45c95a7395594a21d7f1e450952ce22e37b5015aae772c048a4c9e8",
           "registration": null,
           "assertions": [
@@ -7899,6 +8026,7 @@
           "line": 52,
           "end_line": 52,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "28e7af4fa6a34264f295feacac4062c6489f8d6dd9e01a7533c0dda300f6dbed",
           "registration": null,
           "assertions": [
@@ -9061,6 +9189,7 @@
           "line": 30,
           "end_line": 37,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "9d8e45d7f8de4ae4fd6851fe37a72e7495e8feb668b88772d9f2f564845e2f3a",
           "registration": null,
           "assertions": [
@@ -9220,6 +9349,7 @@
           "line": 39,
           "end_line": 47,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "6cec35f63fc1fe6a4b3ff01e9602f0626b4bf5a02c300f676e623dfb8f9f5270",
           "registration": null,
           "assertions": [
@@ -9607,6 +9737,7 @@
           "line": 76,
           "end_line": 82,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "7e174246792d8ac32772e042e38ca6617b3f9b551298b7011adb40829d0f6cf4",
           "registration": null,
           "assertions": [
@@ -9778,6 +9909,7 @@
           "line": 84,
           "end_line": 95,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "02c3d05787418b29845cce8dc36583da71bd8225300ca53c3e9bf6e237abdd18",
           "registration": null,
           "assertions": [
@@ -10399,6 +10531,7 @@
           "line": 129,
           "end_line": 140,
           "factory_method": null,
+          "registration_identity_resolution": null,
           "body_sha256": "bedceb1b7551234aa9f6de55cf44c089d5e3a6791ca301aae2782e245cdaff00",
           "registration": null,
           "assertions": [

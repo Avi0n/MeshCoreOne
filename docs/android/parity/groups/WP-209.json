@@ -3041,6 +3041,7 @@
           "line": 25,
           "end_line": 53,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "100637d6a2f3b162d9c0e5f381a8670959de2ee68dd3563c8d040a5fc8a0c74f",
           "registration": "advertCase(\"pathUpdate cancel after save does not cascade-delete messages\")",
           "assertions": [
@@ -3416,6 +3417,7 @@
           "line": 56,
           "end_line": 89,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c46f4a331ef46887a19759382139f8ac118d04b563e08aaf51cc3f5e513db874",
           "registration": "advertCase(\"burst of adverts coalesces to one handler call\")",
           "assertions": [
@@ -3809,6 +3811,7 @@
           "line": 92,
           "end_line": 114,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "59a3353799e55b92c2e81e33d21b33de655d96c2bc363af095ce50ad4ccf7f9c",
           "registration": "advertCase(\"known contact advert bumps lastHeard without getContact\")",
           "assertions": [
@@ -4190,6 +4193,7 @@
           "line": 117,
           "end_line": 141,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "33e1d5e1fba1ec24fe6abbfb9a652771540b00da497f194cb9b4e1595b6d8443",
           "registration": "advertCase(\"unknown key advert yields newContactDiscovered once after handler persists\")",
           "assertions": [
@@ -4547,6 +4551,7 @@
           "line": 144,
           "end_line": 170,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "dbffb4743a63366114ab6d2050cdba1d62fe83fb6d4675549a8f466ee12fc6f3",
           "registration": "advertCase(\"0x8A then 0x80 for same key notifies from each path\")",
           "assertions": [
@@ -4850,6 +4855,7 @@
           "line": 173,
           "end_line": 191,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "dc89cbbbac989c8e9cc99abd1aec9d45de1075211f6a0bb066e80d62fd6e4d61",
           "registration": "advertCase(\"pathUpdate only triggers handler without Discover row\")",
           "assertions": [
@@ -5177,6 +5183,7 @@
           "line": 193,
           "end_line": 239,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "d461d95d8fa0039aafe86870fd05760f020c9c715b6e9ab9beb52889c42b22b3",
           "registration": "advertCase(\"pathUpdate for known contact escalates when incremental leaves lastModified unchanged\")",
           "assertions": [
@@ -5540,6 +5547,7 @@
           "line": 241,
           "end_line": 278,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "942de5ce47338cbdb65dcb71c46220d00b4b6601d4930fc3308f9d43f0dc285c",
           "registration": "advertCase(\"pathUpdate for known contact does not escalate when incremental refreshes lastModified\")",
           "assertions": [
@@ -5891,6 +5899,7 @@
           "line": 281,
           "end_line": 303,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "b08a68fbdb78a5d1e6ef2b751d7463d8979440dc098c43e000acdfd30fdae5d6",
           "registration": "advertCase(\"handler failure remerges keys and retries\")",
           "assertions": [
@@ -6188,6 +6197,7 @@
           "line": 306,
           "end_line": 326,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "347a817ca232a3247c3de36c6daa7fe4d192e9e94abf9650adda39c7098009a8",
           "registration": "advertCase(\"isSyncingContacts defers handler until cleared\")",
           "assertions": [
@@ -6545,6 +6555,7 @@
           "line": 329,
           "end_line": 363,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "b35a426a51cd469d6020a2468e13b015c499694bcdd775848b88905045ae107c",
           "registration": "advertCase(\"teardown mid-handler prevents reconcile writes\")",
           "assertions": [
@@ -6908,6 +6919,7 @@
           "line": 366,
           "end_line": 392,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "e4123636855c4be380d673e131e082a72d94249e5077d574d84aa207a62caa9e",
           "registration": "advertCase(\"unknown key missing after success escalates to fullRefetch once\")",
           "assertions": [
@@ -7175,6 +7187,7 @@
           "line": 395,
           "end_line": 413,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "579f0d2de86bd3dfc1cd726e51a44a026ed664e488b6c50cdf7183e03bb65379",
           "registration": "advertCase(\"nil handler leaves keys pending for later install\")",
           "assertions": [
@@ -7472,6 +7485,7 @@
           "line": 416,
           "end_line": 442,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "ae565ced3febc7e991f82fe543c3c6e69b7df944046bdc80f4493493ccf4ad51",
           "registration": "advertCase(\"min interval delays second delta sync after success\")",
           "assertions": [
@@ -7847,6 +7861,7 @@
           "line": 445,
           "end_line": 477,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "8aecf7f528e7929a8e7a67c62f1584bfd83209e5328b352c1529e2ebc8aa7084",
           "registration": "advertCase(\"contactDeleted removes pending key before sync runs\")",
           "assertions": [
@@ -8198,6 +8213,7 @@
           "line": 479,
           "end_line": 505,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "1321792f509832bc25a1dd4cb6d5789a31146d2208d8f3922db71a2b7c845b39",
           "registration": "advertCase(\"reconcile skips deleted contact after mid-handler 0x8F\")",
           "assertions": [
@@ -8555,6 +8571,7 @@
           "line": 507,
           "end_line": 538,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c0cf139dd49ecda98cf3233ec6103a3343aa77befe9204e273ab0825f4cfeed5",
           "registration": "advertCase(\"contactDeleted during commit rolls back the resurrected contact\")",
           "assertions": [
@@ -8996,6 +9013,7 @@
           "line": 540,
           "end_line": 580,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "55eb0a9361f24b971f10aadbc25cd6c7f5e2eebd0032671a7408edff0b3f00a8",
           "registration": "advertCase(\"rollback keeps contact the radio deleted then re-added mid-round\")",
           "assertions": [
@@ -9359,6 +9377,7 @@
           "line": 582,
           "end_line": 605,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "558aa8f1183d1564ea82c875477144729d67c32f7a88820a87003c7d2db8a695",
           "registration": "advertCase(\"contactDeleted during failed commit rolls back and does not re-queue\")",
           "assertions": [
@@ -9698,6 +9717,7 @@
           "line": 607,
           "end_line": 632,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "69bc285df4be7aaaccd990bc544cc4fca4e87a9d9e7455239b95d9ae6022e47b",
           "registration": "advertCase(\"rollback still runs when teardown cancels the sync mid-commit\")",
           "assertions": [
@@ -10019,6 +10039,7 @@
           "line": 634,
           "end_line": 651,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "2a52c4d54779e0723d41c99a8d7a754f6f6af3bd3f4bc013fb8664b03696bf8b",
           "registration": "advertCase(\"contact deleted after the commit returns stays tracked for the round\")",
           "assertions": [
@@ -10328,6 +10349,7 @@
           "line": 653,
           "end_line": 675,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "363edb8b9ab480a58243a3da635827c2500a8849377e4edc6e6bbf831df64ea9",
           "registration": "advertCase(\"reconcile skips a contact the radio deleted this round\")",
           "assertions": [
@@ -10679,6 +10701,7 @@
           "line": 677,
           "end_line": 705,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "391a58e029e0028375b6b537693abac7bdd9eaf9875c7f9597fb0db95da4317c",
           "registration": "advertCase(\"rolled back key does not escalate to a full refetch\")",
           "assertions": [
@@ -11006,6 +11029,7 @@
           "line": 22,
           "end_line": 43,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "69c9d2f7cc5125b27237a6d7d2eeaf162a3052cba8eb496ff1cd6343f932d61d",
           "registration": "advertCase(\"notReady outcome drops drained keys without reschedule or budget spend\")",
           "assertions": [
@@ -11427,6 +11451,7 @@
           "line": 49,
           "end_line": 81,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "f9570d127da11dee5495974ccb2d074924e5a7a418e9d43f375f84677c58307e",
           "registration": "advertParameterizedCase(\n            \"dropped background adverts retain phone recency\", \"(outcome : AdvertContactSyncOutcome)\",\n            listOf(AdvertContactSyncOutcome.NOT_READY, AdvertContactSyncOutcome.FAILED),\n        )",
           "assertions": [
@@ -11826,6 +11851,7 @@
           "line": 83,
           "end_line": 101,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "a4ca60b2693ae00823584a39f854cc318e4f89913e2ab561c69c17307cfd60ef",
           "registration": "advertCase(\"repeated failures stop the retry loop\")",
           "assertions": [
@@ -12105,6 +12131,7 @@
           "line": 103,
           "end_line": 125,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "e4da59e6999101ad26022aba86b2687b6422ca6c7e12ed7f1306c20c8cd06929",
           "registration": "advertCase(\"busy rounds keep their keys past the failure cap\")",
           "assertions": [
@@ -12360,6 +12387,7 @@
           "line": 128,
           "end_line": 145,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "866a73407ce8af831a710c9f87e9b56c4feb6e7cf9de9957ca30141d4fafba9d",
           "registration": "advertCase(\"pathUpdate deferred by contact sync still runs\")",
           "assertions": [
@@ -12645,6 +12673,7 @@
           "line": 148,
           "end_line": 172,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "1adc1e0d15011fbf89036fd73d6f772cf5ca47cec7c5dc93cb420923a9652cf1",
           "registration": "advertCase(\"re-created contact with a surviving Discover row notifies again\")",
           "assertions": [
@@ -12918,6 +12947,7 @@
           "line": 175,
           "end_line": 191,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "1de6659d133c0609c98186f6be61026d992252b8c2c688d7ca966c3628dbbb9f",
           "registration": "advertCase(\"advert retries touch once then drops key when both fail\")",
           "assertions": [
@@ -13197,6 +13227,7 @@
           "line": 193,
           "end_line": 214,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "2c2d9be97d7dbcc5b39ac8024946a951eb6a544cd55a0d6598b8696340db7efd",
           "registration": "advertCase(\"capped failure round restores pathSyncPending\")",
           "assertions": [
@@ -13500,6 +13531,7 @@
           "line": 216,
           "end_line": 236,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "8f8c977eac6738b262fba166f948213cd128ef5c152cc299297640c75312207b",
           "registration": "advertCase(\"capped failure round restores escalateToFullRefetch\")",
           "assertions": [
@@ -13761,6 +13793,7 @@
           "line": 238,
           "end_line": 254,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c9ba4bccb56a1e0fcc16c72cdaad6ccc58b47a5108f618dd62b18b56a834a533",
           "registration": "advertCase(\"fresh advert during the capped failing round re-arms and drains\")",
           "assertions": [
@@ -14046,6 +14079,7 @@
           "line": 256,
           "end_line": 281,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "9b24e1be425b12167c63a30960457e1ed95f9a46885c21e11f0ea05c3de348f1",
           "registration": "advertCase(\"setSyncingContacts false re-arms owed full refetch with empty pending keys\")",
           "assertions": [
@@ -14367,6 +14401,7 @@
           "line": 283,
           "end_line": 306,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "ace37b8783eb4143316359190d01522aa3e4561f593e253de1d1a088fc9963c4",
           "registration": "advertCase(\"setDeltaSyncHandler re-arms owed full refetch with empty pending keys\")",
           "assertions": [
@@ -14658,6 +14693,7 @@
           "line": 308,
           "end_line": 328,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "939688545fb7695175f3bb2898aa1ce32df8d00fc6204dea7d6678d549c39953",
           "registration": "advertCase(\"finishRound with stale generation leaves the new task registered\")",
           "assertions": [
@@ -14931,6 +14967,7 @@
           "line": 330,
           "end_line": 346,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "95de6d3f584ba96fdbf0b4ba4416f3e89054cb5b9961a7e68e0d29e74f8b69ab",
           "registration": "advertCase(\"setDeltaSyncHandler nil then reinstall still syncs pending keys\")",
           "assertions": [
@@ -15210,6 +15247,7 @@
           "line": 43,
           "end_line": 68,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "00eea941048828383c2bb8710b5487263ede0dc38f7c02d40ddb49f926177e2a",
           "registration": "advertCase(\"snapshot fetch failure does not invent new-contact notifications\")",
           "assertions": [
@@ -15537,6 +15575,7 @@
           "line": 70,
           "end_line": 92,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "3bd4ff6e43888481e3edcde0f142e00be1d06e899108c3db50f6ad555b83359a",
           "registration": "advertCase(\"snapshot fetch failure still adopts orphaned DMs for drained keys\")",
           "assertions": [
@@ -15912,6 +15951,7 @@
           "line": 94,
           "end_line": 120,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "b8b14ddd50f2fad4d1e8402c2c5b9d010a0a2b48b34b964661e4d61cb9b9c2c1",
           "registration": "advertCase(\"adopting orphaned DMs emits conversationsChanged\")",
           "assertions": [
@@ -16287,6 +16327,7 @@
           "line": 122,
           "end_line": 146,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "792fb09b628fc0d2c44b141f63b658c721c2e5d91eb39affddd515d496944bca",
           "registration": "advertCase(\"adopting orphaned DMs emits orphanDirectMessagesAdopted with the contact\")",
           "assertions": [
@@ -16620,6 +16661,7 @@
           "line": 148,
           "end_line": 170,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "20a38d170a097c5142ad8c04cb09c1dcd20c9e22dd6c4e8d3a51500c6c4522cf",
           "registration": "advertCase(\"delta round with no adoption does not emit conversationsChanged\")",
           "assertions": [
@@ -16953,6 +16995,7 @@
           "line": 172,
           "end_line": 194,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "e7d69f07388c24f09fd6298552da29f09b5313b830b6a037f789df616198f68a",
           "registration": "advertCase(\"materializeContactForPendingAdvert creates contact for unique pending key\")",
           "assertions": [
@@ -17214,6 +17257,7 @@
           "line": 196,
           "end_line": 206,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "76ee66bf031cde5e1ad934b96efcf24868dca12d31155a532c62b97eaf40f5f3",
           "registration": "advertCase(\"materializeContactForPendingAdvert returns nil without pending match\")",
           "assertions": [
@@ -17403,6 +17447,7 @@
           "line": 208,
           "end_line": 220,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "4132cf474f92eccbd811d83d456de498d5e4df6b06fb70fd536ffdd31e8e45e8",
           "registration": "advertCase(\"materializeContactForPendingAdvert returns nil on multi-match prefix\")",
           "assertions": [
@@ -17634,6 +17679,7 @@
           "line": 222,
           "end_line": 234,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "90dc3ad16853de50271b6e28c2ffc1928b0bf754a3494b0517786ccfdc6a0db7",
           "registration": "advertCase(\"empty schedule with no pending work does not call the handler\")",
           "assertions": [
@@ -17859,6 +17905,7 @@
           "line": 236,
           "end_line": 255,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "8b2ce3d210ba0fc2090a47c8989e3828b690f364b328a6a9afb4563ba08f9700",
           "registration": "advertCase(\"busy outcome does not stamp min-interval when backoff is non-zero\")",
           "assertions": [
@@ -18162,6 +18209,7 @@
           "line": 257,
           "end_line": 279,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "4d8fe280d2aac7ebb3f90b8a0a9a202fed8965df4b0f5ab6e2e8897c1a400044",
           "registration": "advertCase(\"touch failure does not announce a known contact as new\")",
           "assertions": [
@@ -18435,6 +18483,7 @@
           "line": 281,
           "end_line": 296,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "b6be11968dcdf786fc9a37019f6b3b3f69e9d98af33d6e9b6dfe1c649c78f5e2",
           "registration": "advertCase(\"contact lookup failure does not escalate to full refetch\")",
           "assertions": [
@@ -18702,6 +18751,7 @@
           "line": 299,
           "end_line": 316,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "b1449f57e9e9b52ab5be6873f0373eb6af312fc5b30cd7cd49c121a8b473965d",
           "registration": "advertCase(\"fresh lastHeard protects contact with old lastModified from prune\")",
           "assertions": [
@@ -19083,6 +19133,7 @@
           "line": 318,
           "end_line": 345,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "e6fccae1a54bec9b238a1a7bd30e14c72e1313b833519445029b59f632ce709f",
           "registration": "advertCase(\"unknown advert contact stamped lastHeard survives stale-node prune\")",
           "assertions": [
@@ -19344,6 +19395,7 @@
           "line": 347,
           "end_line": 353,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c5e6a5e9a9960bbe11fe88775821a696e5e78aa11e156892b408a2255b875021",
           "registration": "advertCase(\"favorite contact with stale recency does not match stale-node prune\")",
           "assertions": [
@@ -19569,6 +19621,7 @@
           "line": 356,
           "end_line": 370,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "737cd6f36bc662a2f5f11b6f48fd0587fbc677c19e8732592764eac7989de008",
           "registration": "advertCase(\"pathResponse stamps lastHeard and preserves radio lastModified\")",
           "assertions": [
@@ -19824,6 +19877,7 @@
           "line": 372,
           "end_line": 386,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "08c9887c580db3b2ea3a70bf6ca527a60783619930f3cdd5fdfc39a9ca42f48c",
           "registration": "advertCase(\"pathUpdate does not stamp lastHeard\")",
           "assertions": [
@@ -20139,6 +20193,7 @@
           "line": 28,
           "end_line": 54,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "d220db927717d3da6e754d9ddd72797ef169f7a04b68122a2e92b00526b159a7",
           "registration": "advertCase(\"background 0x80 records key and does not invoke deltaSyncHandler\")",
           "assertions": [
@@ -20454,6 +20509,7 @@
           "line": 56,
           "end_line": 73,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "0fdc6248729ca17c4c0b11eed1e1cbbd8a8700ba79f9ead7d1ce05148848135d",
           "registration": "advertCase(\"handleReturnToForeground drains keys recorded while backgrounded\")",
           "assertions": [
@@ -20697,6 +20753,7 @@
           "line": 75,
           "end_line": 89,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c5d4759e44fece6a376d53f8a3be32e6f6b3fb3f8a90cb17e1f33b28933c96e9",
           "registration": "advertCase(\"background 0x81 records path key and does not invoke handler\")",
           "assertions": [
@@ -20964,6 +21021,7 @@
           "line": 91,
           "end_line": 111,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "742a9dfd51a6b3e9ce49cce61964e9e1c56744eeba7015f21a1c9b6c9aa62501",
           "registration": "advertCase(\"armed round that backgrounds before fire does not invoke handler\")",
           "assertions": [
@@ -21279,6 +21337,7 @@
           "line": 113,
           "end_line": 130,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "d560dddbf6c6097841d5502a635e74de6c2f5a3515c5d6331d446f183c96f216",
           "registration": "advertCase(\"materializeContactForPendingAdvert still works while backgrounded\")",
           "assertions": [
@@ -21558,6 +21617,7 @@
           "line": 132,
           "end_line": 149,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "55490e703dffc78ae981be6298acf84024cc1055e9d280a4b04a159da8370b4a",
           "registration": "advertCase(\"setSyncingContacts false while backgrounded does not invoke handler\")",
           "assertions": [
@@ -21897,6 +21957,7 @@
           "line": 151,
           "end_line": 176,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "baaedeaaad83b96dacdbdfcdfe3fb15bf3e7cd2d91868ccfc22c7db99e9bf683",
           "registration": "advertCase(\"background 0x8F queues key and does not deleteContact\")",
           "assertions": [
@@ -22320,6 +22381,7 @@
           "line": 178,
           "end_line": 206,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "157596a24d44533ae6347d278ce23995d5b4866775de01385177a19c1b3665e4",
           "registration": "advertCase(\"handleReturnToForeground flushes queued 0x8F deletes once\")",
           "assertions": [
@@ -22737,6 +22799,7 @@
           "line": 208,
           "end_line": 229,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "1d771e29868168dc6bf2b8761e8f744b4bc8e59a6d5bd162d18a67f1d881f167",
           "registration": "advertCase(\"re-advert after background 0x8F clears pendingDeletedKeys\")",
           "assertions": [
@@ -23028,6 +23091,7 @@
           "line": 231,
           "end_line": 247,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "668c11fa87599ee4bdac70ec7061d329d557a22bf13389fde77d5f1bc6055067",
           "registration": "advertCase(\"stopEventMonitoring flushes 0x8F parked on isInForeground hop\")",
           "assertions": [
@@ -23319,6 +23383,7 @@
           "line": 249,
           "end_line": 269,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "dd3582fdd6c3d786aca7956a40d4f7673db7976e57505cea79fd6bb2fcb8d198",
           "registration": "advertCase(\"stopEventMonitoring stamps lastHeard for background 0x80\")",
           "assertions": [
@@ -23640,6 +23705,7 @@
           "line": 271,
           "end_line": 296,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "74870b2eb97c8606e6d844fe21611a6873355c520b92f1982205f4db79546e36",
           "registration": "advertCase(\"stop during isInForeground hop does not invoke handler\")",
           "assertions": [
@@ -24015,6 +24081,7 @@
           "line": 298,
           "end_line": 327,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "22ce2280ca01c56f3272478c197984c8c3eeb1b58f5de3c400400393f2eef297",
           "registration": "advertCase(\"stop during handler still stamps drained lastHeard\")",
           "assertions": [
@@ -24420,6 +24487,7 @@
           "line": 329,
           "end_line": 359,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "84753027c91430af6bc39441ac3e30d7d01a7901401d98c911cb697390ad4ac5",
           "registration": "advertCase(\"0x80 during 0x8F flush hop does not delete the revived contact\")",
           "assertions": [
@@ -24849,6 +24917,7 @@
           "line": 361,
           "end_line": 389,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "15532737806b5ca1eeac3f95c1326167b11d15da4de16974c63567adf5e6b41c",
           "registration": "advertCase(\"flush does not clear skip set before deleteContacts\")",
           "assertions": [
@@ -25278,6 +25347,7 @@
           "line": 391,
           "end_line": 416,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "742f0c20e669d06d92f523abe733744b077bfa93e134bd7f37978863db8b4b24",
           "registration": "advertCase(\"background 0x80 then 0x8F flush still deletes the contact\")",
           "assertions": [
@@ -25701,6 +25771,7 @@
           "line": 418,
           "end_line": 447,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "0b49a7b19dcdf4a71493dea716397938db1e8c3d151a449de0891b9e6f509b68",
           "registration": "advertCase(\"failed 0x8F flush re-queues keys\")",
           "assertions": [
@@ -26170,6 +26241,7 @@
           "line": 449,
           "end_line": 494,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "08670db62a9f5fad7d8fafd2daf73afab2042f8056a9832a9d41745b75a93b3d",
           "registration": "advertParameterizedCase(\"stop joins foreground deletion flush before finishing events\", \"(storeFails : Bool)\", listOf(false, true))",
           "assertions": [
@@ -26747,6 +26819,7 @@
           "line": 496,
           "end_line": 541,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "0c702c62085a8eec5d6897638dcafbcce74ed074c53f4273d58914caad3e55fc",
           "registration": "advertParameterizedCase(\"stop drains deletions queued during a foreground flush\", \"(nextRevived : Bool)\", listOf(false, true))",
           "assertions": [
@@ -27272,6 +27345,7 @@
           "line": 543,
           "end_line": 567,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "123f7cdde726755c7fb9a0ce8eec89ff0ee4506dd441ea2962d78c4e210e1792",
           "registration": "advertCase(\"failed immediate 0x8F re-queues key for flush\")",
           "assertions": [
@@ -27635,6 +27709,7 @@
           "line": 569,
           "end_line": 594,
           "factory_method": "originalCases",
+          "registration_identity_resolution": null,
           "body_sha256": "32fe73267be806664473bbaf1ac1a37fd00d548854f977c1499474736151dba8",
           "registration": "advertCase(\"failed 0x8F flush does not re-queue a key revived during the hop\")",
           "assertions": [
@@ -27848,6 +27923,7 @@
           "line": 14,
           "end_line": 16,
           "factory_method": "resolution",
+          "registration_identity_resolution": null,
           "body_sha256": "f591b5d0c150f083b46ec9d08683f8374a5218c58aaf22a58ade78afb59195d2",
           "registration": "\"ChannelFloodScopeResolverTests\",\n        \".inherit with device default set resolves to .scope(.region(default))\" to",
           "assertions": [
@@ -27935,6 +28011,7 @@
           "line": 17,
           "end_line": 19,
           "factory_method": "resolution",
+          "registration_identity_resolution": null,
           "body_sha256": "8265c9d769d56ffe80103b79eac1afe82746a5d4bc30d34ffbd97a34566a0d5d",
           "registration": "},\n        \".inherit with no device default resolves to .scope(.disabled)\" to",
           "assertions": [
@@ -28016,6 +28093,7 @@
           "line": 20,
           "end_line": 22,
           "factory_method": "resolution",
+          "registration_identity_resolution": null,
           "body_sha256": "9c888305aacabc23f3f5333ee9478212ea970d8da2ea5c961d92e5aefb520bf3",
           "registration": "},\n        \".inherit with empty-string default treats it as no default\" to",
           "assertions": [
@@ -28103,6 +28181,7 @@
           "line": 23,
           "end_line": 26,
           "factory_method": "resolution",
+          "registration_identity_resolution": null,
           "body_sha256": "b9fd3d6890d30eb2594c726322fc6ce9f5b2c7f3aa872a0094ed9ec313b00574",
           "registration": "},\n        \".allRegions on firmware v12+ resolves to .unscoped (true override)\" to",
           "assertions": [
@@ -28208,6 +28287,7 @@
           "line": 27,
           "end_line": 30,
           "factory_method": "resolution",
+          "registration_identity_resolution": null,
           "body_sha256": "02fb60bc8b03a33818d2f3db3a099a7a437f2d55e28e689b6937a70bc5af299d",
           "registration": "},\n        \".allRegions on older firmware falls back to .scope(.disabled)\" to",
           "assertions": [
@@ -28349,6 +28429,7 @@
           "line": 31,
           "end_line": 34,
           "factory_method": "resolution",
+          "registration_identity_resolution": null,
           "body_sha256": "e345385b1d9a674416122a14fa7f2809fd547709d2b132b7424af6764135676b",
           "registration": "},\n        \".region(name) resolves to that region regardless of default or capability\" to",
           "assertions": [
@@ -28579,6 +28660,7 @@
           "line": 53,
           "end_line": 57,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "3dca417f44e48d8202965e359e56011215e95aa949c16dd19153423a300b2fec",
           "registration": "case(\"formatShare emits uppercase hex\")",
           "assertions": [
@@ -28678,6 +28760,7 @@
           "line": 58,
           "end_line": 61,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "20c03ebb32e2a2b3b8ab2953d66852f1250e70eac673729056bd052e62c331f2",
           "registration": "case(\"parseShare rejects a 63-char (short) public key\")",
           "assertions": [
@@ -28753,6 +28836,7 @@
           "line": 62,
           "end_line": 65,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "0060b8c67f65aaca7dbe302ca624af019d4294648c66a0bbdeb2397bf6cc24d0",
           "registration": "case(\"parseShare rejects non-hex characters in the public key\")",
           "assertions": [
@@ -28822,6 +28906,7 @@
           "line": 66,
           "end_line": 68,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "408017bef3a8194c5561363586f7eecf218a5c9a2421a519ecfe566768f84dff",
           "registration": "case(\"parseShare rejects a token missing the name field\")",
           "assertions": [
@@ -28891,6 +28976,7 @@
           "line": 69,
           "end_line": 71,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "f8dcb9edcfd589d42b364392ed162c9e9160d46d7314770b21b10dc090211e67",
           "registration": "case(\"parseShare rejects a token missing type and name\")",
           "assertions": [
@@ -28960,6 +29046,7 @@
           "line": 72,
           "end_line": 74,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c4ba88ad28cf504e1bdadc9740725f325ae35c4a8435e901b0b1d1ed645bd4e1",
           "registration": "case(\"parseShare rejects an empty name\")",
           "assertions": [
@@ -29132,6 +29219,7 @@
           "line": 75,
           "end_line": 81,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "cecd238ad36ba371243eb7d2acf4bda086563ef2f867c60bf0e57162d821bb37",
           "registration": "case(\"parseShare round-trips a name containing '>' to its stripped form\")",
           "assertions": [
@@ -29267,6 +29355,7 @@
           "line": 82,
           "end_line": 86,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "651511c8d31e0c4358d2d0a92b9fe2ae6f20c228e8d6aad01d84188e6a5deacb",
           "registration": "case(\"parseShare preserves a colon inside the name\")",
           "assertions": [
@@ -29378,6 +29467,7 @@
           "line": 87,
           "end_line": 91,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "b6539edb72d9aa23f4787d59f2f380f963c2eb3084ecd82df4bc42fa23389692",
           "registration": "case(\"parseShare preserves a newline inside the name\")",
           "assertions": [
@@ -29489,6 +29579,7 @@
           "line": 92,
           "end_line": 96,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "e4c018a30578ce694c929c0b89c919fa05dcc4c2168ca724d3d244dc23af481c",
           "registration": "case(\"parseShare preserves an RTL-override character in the name\")",
           "assertions": [
@@ -29606,6 +29697,7 @@
           "line": 97,
           "end_line": 101,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "e1f38888124554a8464a71345f6b55d21090d1492bf6b778b377b304754e653a",
           "registration": "case(\"parseShare round-trips a 1000-character name\")",
           "assertions": [
@@ -29747,6 +29839,7 @@
           "line": 102,
           "end_line": 113,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "af57431efb0d3abaef678862fa342332ab3fff04f72eb65262be467acf89c687",
           "registration": "case(\"extractShares finds multiple tokens amid plain text\")",
           "assertions": [
@@ -29864,6 +29957,7 @@
           "line": 114,
           "end_line": 116,
           "factory_method": "sourceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "5f4129c176da75160b2551d2bc583b7d173e3e1c648d7c1215720bb5a0636f64",
           "registration": "case(\"extractShares returns empty when there are no tokens\")",
           "assertions": [
@@ -30092,6 +30186,7 @@
           "line": 32,
           "end_line": 49,
           "factory_method": "pipelineGates",
+          "registration_identity_resolution": null,
           "body_sha256": "05d13bc86760abf59dcc7a474d52330b657408b1508bfb74fedc5e687a79c362",
           "registration": "SUITE,\n        \"pipelined sync persists non-contiguous configured channels to their own slots\" to",
           "assertions": [
@@ -30417,6 +30512,7 @@
           "line": 50,
           "end_line": 66,
           "factory_method": "pipelineGates",
+          "registration_identity_resolution": null,
           "body_sha256": "9e73d9cc800afcb4b4a4398cfff5682f63c6cb7353dafe67cceea1f4c0c15476",
           "registration": "},\n        \"a dropped write is reconciled with a serial read and persisted\" to",
           "assertions": [
@@ -30654,6 +30750,7 @@
           "line": 67,
           "end_line": 77,
           "factory_method": "pipelineGates",
+          "registration_identity_resolution": null,
           "body_sha256": "2d43fbd7ac6454294946e623c8950315b74f39b8852118e071abbf0d0b07a63e",
           "registration": "},\n        \"a transport send failure mid-pipeline throws and persists nothing\" to",
           "assertions": [
@@ -30906,6 +31003,7 @@
           "line": 78,
           "end_line": 95,
           "factory_method": "pipelineGates",
+          "registration_identity_resolution": null,
           "body_sha256": "f3dbee832098613cc7d243ee850d47d371dec5cd669f9df10900393edff7b4ee",
           "registration": "},\n        \"a mid-drain stall persists only read slots and never deletes an unread configured slot\" to",
           "assertions": [
@@ -31302,6 +31400,7 @@
           "line": 96,
           "end_line": 126,
           "factory_method": "pipelineGates",
+          "registration_identity_resolution": null,
           "body_sha256": "2db17a8b3c1f147c7752010b3eb946d2c73960790ace766f1219237cbe8b8585",
           "registration": "},\n        \"reconcile circuit breaker opens after consecutive failures and never deletes unread slots\" to",
           "assertions": [
@@ -31711,6 +31810,7 @@
           "line": 127,
           "end_line": 141,
           "factory_method": "pipelineGates",
+          "registration_identity_resolution": null,
           "body_sha256": "1d67604effdf245db2f7b5c7bb1d18bae368bf37e85eda90a839c3e92b50bf09",
           "registration": "},\n        \"serial path (usePipelinedRead: false) still syncs via acknowledged reads\" to",
           "assertions": [
@@ -31882,6 +31982,7 @@
           "line": 34,
           "end_line": 36,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "5dd926c3dd4d2009cef75f3ebbbdd5c3a600ee70d880a1848c6e5ef67e0e4b9f",
           "registration": "SUITE,\n        \"hashSecret produces 16-byte output\" to",
           "assertions": [
@@ -31957,6 +32058,7 @@
           "line": 37,
           "end_line": 39,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "15a724faaee3fedd1808c3e2422dae9b5d26f6bbb0fe5f4f8e8889e21ce630a0",
           "registration": "},\n        \"hashSecret is deterministic\" to",
           "assertions": [
@@ -32038,6 +32140,7 @@
           "line": 40,
           "end_line": 42,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "6c46d9366d92d883765729c6ea086da3ff32b42d6009ee68d72d9fc4446d9554",
           "registration": "},\n        \"hashSecret differs for different inputs\" to",
           "assertions": [
@@ -32125,6 +32228,7 @@
           "line": 43,
           "end_line": 47,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "fb75ffd278590dfdc9390539254fab25e6b3643a4a12de13d1b441f284c40226",
           "registration": "},\n        \"hashSecret handles empty string\" to",
           "assertions": [
@@ -32212,6 +32316,7 @@
           "line": 48,
           "end_line": 50,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "b4f63d8918b37f3d23fbda827102d141ef810ff88974d53d3770922a780d4d9d",
           "registration": "},\n        \"hashSecret handles unicode\" to",
           "assertions": [
@@ -32293,6 +32398,7 @@
           "line": 51,
           "end_line": 54,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "9139294d25af2447c7be3604b3223ccd65743b4b3de2e81156ee55e5ee9b0b38",
           "registration": "},\n        \"hashSecret matches golden hashtag channel vectors\" to",
           "assertions": [
@@ -32404,6 +32510,7 @@
           "line": 55,
           "end_line": 59,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "bd114634a66f89dbec89111722c4078ff47ecf3ead873a8dfde7dbc1e8b2e237",
           "registration": "},\n        \"exportChannelURI emits the well-known Public channel secret\" to",
           "assertions": [
@@ -32569,6 +32676,7 @@
           "line": 60,
           "end_line": 70,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "42cd58d73acb6834907ec207ac9c787b8dfd8e7afc17e17b3b652b543d8794a2",
           "registration": "},\n        \"exportChannelURI always emits name and secret via URLComponents\" to",
           "assertions": [
@@ -32782,6 +32890,7 @@
           "line": 71,
           "end_line": 77,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "6e100064c6877215a71b34a714f651af5cc840f7bfca70215d42b08212e654d3",
           "registration": "},\n        \"exportChannelURI emits region_scope only for region flood scope\" to",
           "assertions": [
@@ -32911,6 +33020,7 @@
           "line": 78,
           "end_line": 80,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "be8d2ff52c89cad73f493ca089280ead7cbb759cc534c6e5f8b85338a1799d95",
           "registration": "},\n        \"validateSecret accepts 16-byte secrets\" to",
           "assertions": [
@@ -33010,6 +33120,7 @@
           "line": 81,
           "end_line": 84,
           "factory_method": "secretsAndURIs",
+          "registration_identity_resolution": null,
           "body_sha256": "b87d055b13b6a8c29ce55e48d2942da48491ad9be5056903eb0deb5d9ebbf967",
           "registration": "},\n        \"validateSecret rejects wrong-sized secrets\" to",
           "assertions": [
@@ -33127,6 +33238,7 @@
           "line": 90,
           "end_line": 92,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "78a34f8a9462b0ed512d8d770cb19892263c1155fcfbcba43e6021589ff38106",
           "registration": "SUITE,\n        \"ChannelSyncError timeout is retryable\" to",
           "assertions": [
@@ -33214,6 +33326,7 @@
           "line": 93,
           "end_line": 99,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "3e1c5e08963f912176de75554dcd4a54621972995532b0cdcc659a55ab286afe",
           "registration": "},\n        \"ChannelSyncError send timeout is retryable and counted separately\" to",
           "assertions": [
@@ -33307,6 +33420,7 @@
           "line": 100,
           "end_line": 102,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "3129ac3660f3d1f6c5641387240b734b6efbeb8b7f54cf2e1cb45d18abd0e29c",
           "registration": "},\n        \"ChannelSyncError circuit breaker is not retryable\" to",
           "assertions": [
@@ -33382,6 +33496,7 @@
           "line": 103,
           "end_line": 105,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "34ff443898d404f89523a8dac23947f6b8f0e74156c7cc15efb668c03d94c408",
           "registration": "},\n        \"ChannelSyncError deviceError is not retryable\" to",
           "assertions": [
@@ -33457,6 +33572,7 @@
           "line": 106,
           "end_line": 108,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "a1c7f04b4a9ff8030d4ce1feffcfa95b0928c4d295680a904f1d00206c232a61",
           "registration": "},\n        \"ChannelSyncError databaseError is not retryable\" to",
           "assertions": [
@@ -33526,6 +33642,7 @@
           "line": 109,
           "end_line": 111,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "7a5e6af5ca0fcbc1d5467c6e01602ea60881d13203ac1d61828496e5916fc770",
           "registration": "},\n        \"ChannelSyncError unknown is not retryable\" to",
           "assertions": [
@@ -33595,6 +33712,7 @@
           "line": 112,
           "end_line": 114,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "8436c41c52c29401e0771afb616b6920e4ffe6db24596e23d9c8031e384f6607",
           "registration": "},\n        \"ChannelSyncResult isComplete when no errors\" to",
           "assertions": [
@@ -33676,6 +33794,7 @@
           "line": 115,
           "end_line": 117,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "62f8fa5e82a6d4cd176b1003f4ccd5b9cddaf5302659ef52adb6f55843a79827",
           "registration": "},\n        \"ChannelSyncResult is not complete with errors\" to",
           "assertions": [
@@ -33781,6 +33900,7 @@
           "line": 118,
           "end_line": 128,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "b60a6fe594984d759a5906da347609280ad56e3ea7867524df55189e243e0470",
           "registration": "},\n        \"ChannelSyncResult retryableIndices filters correctly\" to",
           "assertions": [
@@ -33940,6 +34060,7 @@
           "line": 129,
           "end_line": 148,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "2a627d7b63c1cdbf222623ff7a796c6fbef4ae4e578059d0f7d69760a563c0c2",
           "registration": "},\n        \"ChannelService aborts early when transport send timeouts cascade\" to",
           "assertions": [
@@ -34087,6 +34208,7 @@
           "line": 149,
           "end_line": 158,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "509c29271f96aa7741d149b9b89d3366e6cd4770d44d3541963ca1c80b947d3b",
           "registration": "},\n        \"ChannelSyncResult retryableIndices empty when no retryable errors\" to",
           "assertions": [
@@ -34192,6 +34314,7 @@
           "line": 159,
           "end_line": 161,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "bb875a1d82ec2062b532df36c28d3f06d57810056825b33e56f5797a8f46a52e",
           "registration": "},\n        \"isChannelConfigured returns true for empty name with non-zero secret\" to",
           "assertions": [
@@ -34273,6 +34396,7 @@
           "line": 162,
           "end_line": 164,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "eab7b770464eb97a1c1ead5e1d24c17758280ba17a87b40248f540a36d5e45de",
           "registration": "},\n        \"isChannelConfigured returns false for empty name with zero secret\" to",
           "assertions": [
@@ -34354,6 +34478,7 @@
           "line": 165,
           "end_line": 167,
           "factory_method": "syncErrorsAndResults",
+          "registration_identity_resolution": null,
           "body_sha256": "401446c646639fc443c7156eb8c399cb1058b50437a1c6bc7cc949b63279055f",
           "registration": "},\n        \"isChannelConfigured returns true for named zero-secret channel\" to",
           "assertions": [
@@ -34507,6 +34632,7 @@
           "line": 173,
           "end_line": 184,
           "factory_method": "slotOccupantHandler",
+          "registration_identity_resolution": null,
           "body_sha256": "3950cef5aabe0f4654e6b3a8e7207d0bec446c7801093e00c17768abd4b4a152",
           "registration": "SUITE,\n        \"clearChannel deletes the row and its messages, then fires the slot handler\" to",
           "assertions": [
@@ -34696,6 +34822,7 @@
           "line": 185,
           "end_line": 194,
           "factory_method": "slotOccupantHandler",
+          "registration_identity_resolution": null,
           "body_sha256": "cda2a4b5d31b69920e41c98bf327d8e4fb2377186ea7de0734f90ac23bbf07b0",
           "registration": "},\n        \"setChannel fires the slot handler on a new secret and not on a same-secret rename or first insert\" to",
           "assertions": [
@@ -34903,6 +35030,7 @@
           "line": 195,
           "end_line": 207,
           "factory_method": "slotOccupantHandler",
+          "registration_identity_resolution": null,
           "body_sha256": "b94f9909f62fb0372f4d2658e312e082443cb25edc6d5ba0aeee737f1cfeb72d",
           "registration": "},\n        \"syncChannels fires the slot handler for vacated and secret-changed slots, not first sightings\" to",
           "assertions": [
@@ -35944,6 +36072,7 @@
           "line": 87,
           "end_line": 92,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "9f6e2d769c8519782e174628b6aa9051b062072e90ba835523d7c87a89de148d",
           "registration": "case(\"ContactSyncResult initializes correctly\")",
           "assertions": [
@@ -36037,6 +36166,7 @@
           "line": 93,
           "end_line": 98,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "0ad894b2be8a94a57228e6d13d91f8d9d637b36a1386d7f2d178d0ddc1aed754",
           "registration": "case(\"ContactSyncResult handles zero contacts\")",
           "assertions": [
@@ -36130,6 +36260,7 @@
           "line": 99,
           "end_line": 104,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "523f9281fdf045ae83594c8e095518080956088d8bc90c635dfc7f36466d9df6",
           "registration": "case(\"ContactSyncResult handles maximum values\")",
           "assertions": [
@@ -36217,6 +36348,7 @@
           "line": 105,
           "end_line": 115,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "6466de28076d1d771e834f0a20834f3f502f9b7ad93bd693aeb5a326073c850f",
           "registration": "case(\"ContactServiceError cases are distinct\")",
           "assertions": [
@@ -36442,6 +36574,7 @@
           "line": 116,
           "end_line": 137,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "1683d6b2fe3dc8f7ada59c471de3cc9fb2405ee43d98c4f76abc9ea3cfbebb9d",
           "registration": "case(\"MeshContact converts to ContactFrame correctly\")",
           "assertions": [
@@ -36763,6 +36896,7 @@
           "line": 138,
           "end_line": 142,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "f09ff332be7c61c04ccfc59ccb847b5ecfc337c4a8679771d38137ec49c25168",
           "registration": "case(\"MeshContact handles all ContactType conversions\")",
           "assertions": [
@@ -36880,6 +37014,7 @@
           "line": 143,
           "end_line": 149,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "07b8cfa1cf6ec14a37bf77fcc3219365d5b50346007e201d41c09dc968bc2029",
           "registration": "case(\"Parser handles invalid ContactType by defaulting to .chat\")",
           "assertions": [
@@ -37015,6 +37150,7 @@
           "line": 150,
           "end_line": 154,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "2d8e230560a51b5067d3420949e443df5503475f639536ccc90cf610e0ffcd62",
           "registration": "case(\"MeshContact handles flood routing path\")",
           "assertions": [
@@ -37204,6 +37340,7 @@
           "line": 155,
           "end_line": 175,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "dea47013fecca3b49102711c13c5898c77c26de4cb93087e62f3d041604c98f3",
           "registration": "case(\"ContactFrame converts to MeshContact correctly\")",
           "assertions": [
@@ -37405,6 +37542,7 @@
           "line": 176,
           "end_line": 185,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "2c5e6f0f217a4571f4daa2a7442001136eab72cfe5a31bfe5765345312ebd4af",
           "registration": "case(\"ContactFrame ID generation from public key\")",
           "assertions": [
@@ -37564,6 +37702,7 @@
           "line": 186,
           "end_line": 190,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "26b50a3a0b6ba5f90a65ecc9aa029a914e7490edf361f0b51f7b3c6be5ce1952",
           "registration": "case(\"ContactFrame handles all ContactType conversions\")",
           "assertions": [
@@ -37783,6 +37922,7 @@
           "line": 191,
           "end_line": 210,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "e204df774811d5d57c250db6f306551fad988400d43c69aee3430f2670e7a757",
           "registration": "case(\"Round-trip conversion MeshContact -> ContactFrame -> MeshContact\")",
           "assertions": [
@@ -37978,6 +38118,7 @@
           "line": 211,
           "end_line": 218,
           "factory_method": "valueAndConversionCases",
+          "registration_identity_resolution": null,
           "body_sha256": "d058cf78b20c5a0b14238172d75360c2bed83d3ce6112386ecab59cbb1d9ff5b",
           "registration": "case(\"Round-trip conversion ContactFrame -> MeshContact -> ContactFrame\")",
           "assertions": [
@@ -38167,6 +38308,7 @@
           "line": 223,
           "end_line": 242,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "654e2efef38f975481b698c66bd8a29381a3f4cc68ccf38e3424f8e3aeef8ab4",
           "registration": "case(\"removeContact deletes messages and triggers cleanup\")",
           "assertions": [
@@ -38452,6 +38594,7 @@
           "line": 243,
           "end_line": 272,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "5a3b193c7df6e2655422c989a74f0955da4a1ffb1ce247458e3cce71e899d103",
           "registration": "case(\"clearContactMessages deletes messages and zeroes both unread counters while preserving lastMessageDate\")",
           "assertions": [
@@ -38737,6 +38880,7 @@
           "line": 273,
           "end_line": 286,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "1219a59f499f8cb05a14f3f183bbc53b7f62e31d29f71c762a6e56c786c2c528",
           "registration": "case(\"updateContactPreferences clears unread when blocking\")",
           "assertions": [
@@ -38920,6 +39064,7 @@
           "line": 287,
           "end_line": 297,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "3a76ea8146f190958fed0956c13b483cd3259b6b57ec704ee35edff292054060",
           "registration": "case(\"updateContactAvatar sets and clears avatarImageData\")",
           "assertions": [
@@ -39091,6 +39236,7 @@
           "line": 298,
           "end_line": 309,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "f5416ff0c164c7ea77d44ddaf35af1fecd177d09873efd8e8176f55b4d5ab229",
           "registration": "case(\"avatarImageData survives updateContactPreferences\")",
           "assertions": [
@@ -39262,6 +39408,7 @@
           "line": 310,
           "end_line": 321,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "05ca22a1b5aaa34e03494a925e75897db7e9a5029cb45e2cda4392b661d5e738",
           "registration": "case(\"avatarImageData survives setContactFavorite\")",
           "assertions": [
@@ -39439,6 +39586,7 @@
           "line": 322,
           "end_line": 333,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c12909d9a96c25180bb7eea8c3cc878556cd5c744f04c379eb529c8b5272111b",
           "registration": "case(\"updateContactPreferences does not trigger cleanup when not blocking\")",
           "assertions": [
@@ -39634,6 +39782,7 @@
           "line": 334,
           "end_line": 350,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c59ddeebefce6063a4efdf672c6465272633f0a35eac1c7b6f31010fdf2e6a71",
           "registration": "case(\"updateContactPreferences preserves fields when blocking\")",
           "assertions": [
@@ -39835,6 +39984,7 @@
           "line": 351,
           "end_line": 362,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "60cca10c6cd1001f327293af8600fdd38d3ee9b7107edf1bdb3c4e42de6d92a6",
           "registration": "case(\"unblocking contact triggers cleanup with unblocked reason\")",
           "assertions": [
@@ -40000,6 +40150,7 @@
           "line": 363,
           "end_line": 383,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "0ec5497100e0431424b087d29f25258b3cf64555f6f63df4d3de80392d60f381",
           "registration": "case(\"resetPath flood-routes the contact while preserving an unmodeled type byte\")",
           "assertions": [
@@ -40195,6 +40346,7 @@
           "line": 384,
           "end_line": 388,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "c495671523306fbfc19569b4e4b16c89338bb4c41149701dd04543664b7876b9",
           "registration": "case(\"updateContactPreferences clears nickname when passed empty string\")",
           "assertions": [
@@ -40330,6 +40482,7 @@
           "line": 389,
           "end_line": 393,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "81b36e3040343082e65658ca658fe397120b4667c975f6cf1c4584a07b6675ac",
           "registration": "case(\"updateContactPreferences clears nickname when passed whitespace only\")",
           "assertions": [
@@ -40465,6 +40618,7 @@
           "line": 394,
           "end_line": 398,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "a732ab9dcc13b3be2f005eba9ccf30293d4ca90cf94ad04d6c1994804deb0be2",
           "registration": "case(\"updateContactPreferences trims surrounding whitespace from nickname\")",
           "assertions": [
@@ -40618,6 +40772,7 @@
           "line": 399,
           "end_line": 411,
           "factory_method": "serviceCases",
+          "registration_identity_resolution": null,
           "body_sha256": "5845df4c0dd7fec2f950284b6bdbc1becd1aba6870d58e07e3fbd2ad679fc392",
           "registration": "case(\"updateContactPreferences keeps nickname when nickname arg is nil\")",
           "assertions": [
@@ -40864,6 +41019,7 @@
           "line": 31,
           "end_line": 33,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "4d49645c9655f9a14f0770961524292fa60857174233fe6e8d0f35b2af4e315f",
           "registration": "SUITE,\n        \"extractHashtags finds single hashtag\" to",
           "assertions": [
@@ -40945,6 +41101,7 @@
           "line": 34,
           "end_line": 36,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "27e32f898764d31f34aacd68c3e5eabb1298c276a76a3ab9ac2be2be4fe3db0f",
           "registration": "},\n        \"extractHashtags accepts uppercase hashtags\" to",
           "assertions": [
@@ -41032,6 +41189,7 @@
           "line": 37,
           "end_line": 39,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "3e6a2b694f6e0be473c5ce3a85c55daf0b4dfe344fd1ffb132e297157edca120",
           "registration": "},\n        \"extractHashtags finds multiple hashtags\" to",
           "assertions": [
@@ -41107,6 +41265,7 @@
           "line": 40,
           "end_line": 42,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "28bcfdf30734fbfa9500f60b4861160a42be1e88d621744f7d3261f38151f3bd",
           "registration": "},\n        \"extractHashtags returns empty for no hashtags\" to",
           "assertions": [
@@ -41188,6 +41347,7 @@
           "line": 43,
           "end_line": 45,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "969336305ce20b5fe82b9338104599e88552d990de8a7584fe29b2b595277337",
           "registration": "},\n        \"extractHashtags excludes hashtags inside URLs\" to",
           "assertions": [
@@ -41269,6 +41429,7 @@
           "line": 46,
           "end_line": 48,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "3c19625cd5e5e2157669ddbbac882f564dcf14326a13e30c0a81b861d747049d",
           "registration": "},\n        \"extractHashtags handles hashtag at end with punctuation\" to",
           "assertions": [
@@ -41344,6 +41505,7 @@
           "line": 49,
           "end_line": 51,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "7b81b85df79a62297e212f120adf887b9ca4b0cf33b1e27c1c2cb5ff847c6485",
           "registration": "},\n        \"extractHashtags handles adjacent hashtags\" to",
           "assertions": [
@@ -41473,6 +41635,7 @@
           "line": 52,
           "end_line": 54,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "047632493edb569cd36a8e938cad6c775e22ba2c7d32077119bcec9d84cccc1b",
           "registration": "},\n        \"isValidHashtagName accepts valid names\" to",
           "assertions": [
@@ -41596,6 +41759,7 @@
           "line": 55,
           "end_line": 57,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "126e8b69bbf11dee37baa75476d685e90e8b8cd82f3ddfbbcd82550bef81cf7b",
           "registration": "},\n        \"isValidHashtagName rejects invalid names\" to",
           "assertions": [
@@ -41695,6 +41859,7 @@
           "line": 58,
           "end_line": 62,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "faee47c070b17dd976e8fd375090d2bdb8dd72657e6f37e7be1ba0d7db51faf8",
           "registration": "},\n        \"normalizeHashtagName lowercases and strips prefix\" to",
           "assertions": [
@@ -41812,6 +41977,7 @@
           "line": 63,
           "end_line": 67,
           "factory_method": "extractionAndNames",
+          "registration_identity_resolution": null,
           "body_sha256": "6e5c4945756a00991bf52b677473590375bddc44ade7cf493956601c2566d241",
           "registration": "},\n        \"sanitizeHashtagNameInput lowercases and strips invalid characters\" to",
           "assertions": [
