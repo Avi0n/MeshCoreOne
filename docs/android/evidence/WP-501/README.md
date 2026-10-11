@@ -48,6 +48,33 @@ production signing or release certification.
 
 ## Local execution before candidate publication
 
+Exact6e98b6e4e73f7cff73c9a46b9d3a8bb066eca84a actual declared isolated
+Windows launcher under native/Gradle locks ran60chats/60passed, positively all
+57original required identities across five full suites plus3existing native
+supplemental tests;0failure/error/skip. Command:
+`:feature:chats:testDebugUnitTest --tests
+com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest --tests
+com.meshcoreone.android.feature.chats.composer.MessageTextTest
+--dependency-verification=strict --quiet`.
+Clean combined declaredPython command below passed363/363positive0failure/
+error/skip. Actual readiness passed/locks released. Whole-output regexguards
+and repaired all18source conditions actually executed, not proxy discovery.
+App/protocol not rerun at6e98; d4ed executed blobs unchanged:
+app `a0d237a8ff0e6588eb4588ddb902380db4130211`;
+protocol `90f3409e378ff837a0ab4533dcca371dee47fd07`.
+Executed6e98 chats blobs:
+MessageText `d93ab3dd122df17f3fabad79d6b795688728b270`;
+MessageLinkTokenizer `b42c38ed16bf86090d4a9075b6480de4ca26f23a`.
+
+Published266 primary38179450778 completed actualSUCCESS/all5scopes/all6jobs.
+Full authoritative hosted JSON read directly: controller363/Python96/app693/
+services2640/protocol4711/model166/chats360/data409/database45/l10n25
+positive0failure/error/skip. Real reference-codec/independentcrypto passed within
+its stated not-Kotlinrestore scope; actualSwiftData restore/export stage passed
+boundbasea19/head266/source db145/run38179450778/attempt1. Module/backup
+counts overlap; no secondCIresult bundle copied/committed/hashed/revalidated.
+This is neither new659candidate execution nor full501acceptance.
+
 Exactd4ed4fa4fe7bdc1dd1ae496899d8ae6294ca5284 actual declared isolated
 Windows launcher under native/Gradle locks ran68app/68passed including all64
 mandatory+4unchangedcallerrepair, and21exactoriginal parser identities/21passed
@@ -78,7 +105,7 @@ support only. Independently retrieved normativeUnicode17Bidi_Control/DI/Cc/Cf
 facts and notice are retained; no candidate sanitizer generatedexpecteddata.
 Added34completeoriginalcomparisons bring659/102groups; required57original
 identities plus existing3supplemental tests unchanged. Immutable chats execution
-pending; do not retroactively pass266weakened tests. Coordinator22crypto/
+is now recorded above at6e98; do not retroactively pass266weakened tests. Coordinator22crypto/
 10Discovery/52mention reads and consolidated57chats boundedsource review do
 not represent our independent fullsource/device acceptance.
 
@@ -103,7 +130,8 @@ unchanged. This is an original-input acceptance gap, not an observed parser
 failure. Same reservation15→16 automatically admits only the disjoint existing
 OriginalResponseCasesTest support path via trusted merge-integration operation,
 preserving source owner attribution/initial identities. New immutable native
-execution/independent review is pending; published266CI still runs.
+execution was initially pending; actuald4ed/6e98 and completed266CI are now
+recorded above. Newcandidate review/hosted acceptance remain required.
 
 Coordinator bounded266 six backup originals/four new full methods, route171
 and cadence correction found no blocking source mismatch. Additional bounded

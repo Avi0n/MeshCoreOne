@@ -24,7 +24,7 @@
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/list/MeshCoreLinkParser.kt"
       ],
       "consumer": "Actual source and native formatter normalize shrinkingmention/share passes before immutable snapshot/detection, then style same ranges. Maps require coordinate surviving overlap; these original bodies prove link generation/parse result, not mounted thumbnail. Coordinator-owned issue173 tracks actual absent mounted chatthumbnail/settings consumer separately; do not count formatter mapCoordinate success as feature completeness.",
-      "unresolved": ["Issue172 exact conditions require immutable actual feature/chats runner execution/independent review/persistent merge. Issue173 mounted mapthumbnail is a separate real product gap assigned coordinator; tests do not certify absent mount."],
+      "unresolved": ["Exact6e98b6e4 declared chats runner passed60/60 including all57required originals; independent issue172 review/current hosted candidate/persistent merge remain required. Issue173 mounted mapthumbnail is a separate real product gap assigned coordinator; tests do not certify absent mount."],
       "methods": ["URL-like text in mention should carry the mention link, not a parsed URL", "URL-like text in mention with IP address should carry the mention link, not a parsed URL", "Regular URL outside mention should still be parsed as link", "Message with both mention containing URL-like text and real URL", "A simple mention carries a meshcoreone://mention/<percent-encoded-name> link", "A decimal coordinate pair is linkified as a meshcore map link", "An integer pair is not linkified", "An out-of-range pair is not linkified", "A coordinate embedded in text linkifies only the coordinate substring", "Multiple coordinates in one message each linkify", "A three-number decimal list is treated as a list, not a coordinate", "A version-like string is not linkified", "A coordinate inside an existing link range keeps the original link", "A linkified coordinate round-trips through parseMapURL with dot-decimal values", "A coordinate ending a sentence is linkified, with the period left as plain text", "A coordinate followed by other trailing punctuation is linkified"]
     },
     {
@@ -52,7 +52,7 @@
         "docs/android/parity/unicode-data-notice.txt"
       ],
       "consumer": "Actual normalization excludes mention ranges inside raw contactchips, sanitizes once for both visible replacement and contactURI, preserves literal if nameempty, then tokenizer freezes ranges and chips winoverlowerprioritylinkdetectors. Selected malformedcases forbid allcontacthost links regardlessscheme/path, channelhost likewise; no strictURIhelper failure fallback or candidate sanitizer expected-data manufacture.",
-      "unresolved": ["Issue172 exact whole-output/negative-host predicates require current native original execution/rebinding/independent review/persistent merge. No generalUnicode/alllocales/TalkBack/hardware certification; source expectedURIwriter dependency remains an original helper contract, not independent URIoracle."],
+      "unresolved": ["Exact6e98b6e4 passed60/60 chats including all57required originals and actual whole-output/negative-host checks. Independent issue172 review/current hosted acceptance/persistent merge remain required. No generalUnicode/alllocales/TalkBack/hardware certification; source expectedURIwriter dependency remains an original helper contract, not independent URIoracle."],
       "methods": ["Valid contact share token renders the contact name as a tappable add-contact link", "Out-of-range contact type leaves the literal token untouched with no contact link", "Stray opening bracket is a no-op and does not crash", "Token adjacent to a URL styles both the contact link and the URL link", "Hashtag after a token is still linked, proving the replacing pass runs before the snapshot", "Bidi control in the name is stripped from both the chip and the add-contact link URL", "Zero-width, format, and control scalars are stripped from the chip name and link URL", "A contact token whose name sanitizes to empty leaves the literal token untouched", "A mention pattern inside a token name is not rewritten by the mention pass", "A hashtag inside a token name keeps the chip link instead of becoming a hashtag link", "A meshcore URL inside a token name is not re-linked by the meshcore pass"]
     },
     {
@@ -73,7 +73,7 @@
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/list/MeshCoreLinkParser.kt"
       ],
       "consumer": "Source UnifiedMessageBubble and native MessageBody derive actiondescriptors from same renderedformattedlinks, deduplicate and cap8. Native previewcards have separately accessible actions; absent MessageBodypreviewUrl alone is not a demonstrated productdefect. Bodies prove pure actionlist semantics, not TalkBack focus/invocation/device or all theme/colorbehavior.",
-      "unresolved": ["New seven-family binding and issue172 perkind repair need actual current feature/chats identities/independent review/persistent merge. TalkBack and rendered resource-specific behavior require separately declared device/flow evidence."],
+      "unresolved": ["Exact6e98b6e4 positively executed all57required chats originals,60/60total including all seven action cases/perkind repair. Independent issue172 review/current hosted acceptance/persistent merge remain required. TalkBack and rendered resource-specific behavior require separately declared device/flow evidence."],
       "methods": ["Each body-text link kind yields a distinctly-named action in document order", "A shared contact link is named from its parsed contact name", "A shared channel link is named from its parsed channel name", "The preview URL is surfaced before body-text links", "Duplicate URLs collapse to a single action", "The action count is capped", "No links yields no actions"]
     },
     {
@@ -97,7 +97,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
       ],
       "consumer": "Actual source/native PacketParser ACK branches consume first4code bytes and read unsignedLEtripTime only when4more available. Actual MessageService acknowledgement preserves nullabletriptime into updateMessageAck and receipt while verifying current radio/identity; inspected consumer contract is not automatically new executed service acceptance.",
-      "unresolved": ["New four-family comparison requires exact positive runner execution and independent bounded review/current hosted acceptance. Passing other ACK/session/service cases is not substitute for these original frames."],
+      "unresolved": ["Exactd4ed4fa4 positively executed21/21 selected originals including all four actual ACK families. Independent bounded review/current hosted candidate remain required; other ACK/session/service outcomes are not substituted for original frames."],
       "methods": ["4-byte ACK payload produces tripTime nil", "8-byte ACK payload parses trip time as UInt32 LE", "3-byte ACK payload produces parseFailure", "5-7 byte ACK payload produces tripTime nil (no partial read)"]
     },
     {
@@ -124,7 +124,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/ParserText.kt"
       ],
       "consumer": "Source/native parseContactData validates147 and path encoding, reads slot99..131 before firstnull, decodes longest valid prefix and trimscontrols, preserves raw type/flags/timestamps. Contact/NewContact parsers delegate same helper; selected source family executes direct parser, not discovery persistence or UI. Actual source-specific helper unique definition/body/assertions/invocation bound, no name-only equivalence.",
-      "unresolved": ["Four exact original-input corrections require immutable runner execution/independent review. Prior generic native passing name outcomes did not certify missing original zero fields; no product defect or historical passing promotion."],
+      "unresolved": ["Exactd4ed4fa4 positively executed all four source-name families including invoked independent147byte wholeframe/length assertions within21/21parser. Independent bounded review/current hosted candidate remain required. Prior generic native passing names did not certify missing original zero fields; no product defect or historical passing promotion."],
       "methods": ["Flag emoji split at the name boundary decodes to a readable prefix", "Lone regional indicator is kept when only half a flag survives", "A flag name that fits the buffer decodes unchanged", "Plain ASCII name still decodes"]
     },
     {
@@ -146,7 +146,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/remote/RemoteNodeService.kt"
       ],
       "consumer": "Actual frozen/native LoginSuccess parser uses byte0==1 authoritatively, nonadminACL2 only grants normalizedreadWrite, otherACLs guest; sourcelegacy0 grantsreadWrite. Actual RemoteNodeService receives normalizedinfo/publicprefix/serverTime into LoginResult and ownership-scoped login completion; parser originals do not prove password/login consumer UI/service success or physical server ACL enforcement.",
-      "unresolved": ["New thirteen-family comparison requires exact positive original runner execution and independent bounded review/current hosted acceptance; no whole remote service/hardware/admin privilege certification."],
+      "unresolved": ["Exactd4ed4fa4 positively executed all thirteen original login families within21/21parser. Independent bounded review/current hosted candidate remain required; no whole remote service/hardware/admin privilege certification."],
       "methods": ["C++ admin login (byte0=1, ACL=0x03) parses as admin on both repeater and room-server", "C++ repeater guest login (byte0=0, ACL=0x00) parses as guest", "C++ repeater read-write login (byte0=0, ACL=0x02) parses as read-write, not admin", "C++ room-server guest login (byte0=2, ACL=0x00) parses as non-admin guest", "C++ room-server read-only login (byte0=0, ACL=0x01) parses as non-posting guest", "pyMC admin login (ACL=0x02) parses as admin", "pyMC guest login (ACL=0x01) parses as non-admin guest", "Legacy 7-byte payload with companion-radio hardcoded 0 parses as non-admin", "Payload shorter than 7 bytes returns zero LoginInfo fallback", "Extended-format server timestamp parses as serverTime", "Zero server timestamp yields nil serverTime", "Legacy 7-byte payload yields nil serverTime", "Extended-format pubkey prefix is extracted from bytes 1..<7"]
     },
     {
@@ -179,7 +179,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt"
       ],
       "consumer": "Read complete frozen original/default helpers and source/native backup key outgoingUUID identity versus incoming content, real live MessageRepository save and restore knownIDs. Existing mounted ChatViewModel/container reads restore rows into process offline consumer; no auto-connect or preview call. Actual invoked unique fresh-database helper asserts distinct DB/empty tables, not merely helper-name metadata.",
-      "unresolved": ["New mandatory method requires immutable positive discovery/execution and independent bounded review. Existing604unique original families remain unchanged; this one family moves exclusively from component group. No new iOS/hardware or complete timeline acceptance inferred."],
+      "unresolved": ["Exactd4ed4fa4 actual68/68app contains all64mandatory+4repair including this method/fresh restore/offline bothIDs/source survival. Independent bounded review/current hosted candidate remain required. One original moved exclusively from component without denominator inflation; no new iOS/hardware or complete timeline acceptance inferred."],
       "methods": ["Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication"]
     },
     {
@@ -2579,7 +2579,7 @@
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ChatCoordinateDetector.kt"
       ],
       "consumer": "Map previews follow the first coordinate surviving token priority, never a hidden contact-chip coordinate. Contact and channel links remain actionable tokens only when they survive overlap; message formatter pre-pass supplies the actual mention/contact ranges.",
-      "unresolved": ["Issue172 covers six existing tokenizer families plus one accessibility family in the samefile, not new originals. New exact runner execution/rebinding/review and persistent merge required; selected current outputs agreeing is not a production failure or predecessor certification."],
+      "unresolved": ["Issue172 now18affectedoriginals across five suites/two files, not new runner identities. Exact6e98b6e4 actual60/60chats positively includes all57required originals and strict repaired conditions. Independent currentcandidate review/hosted acceptance/persistent merge remain required; current outputs agreeing is not a production failure or predecessor certification."],
       "methods": [
         "URL detector emits a url token",
         "Hashtag detector emits a bold, non-underlined token",

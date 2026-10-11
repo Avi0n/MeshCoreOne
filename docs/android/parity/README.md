@@ -51,6 +51,18 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Exact6e98b6e4 declared locked chats selection actually passed60/60 with all57
+original required identities plus3unchanged supplemental tests; all18issue172
+conditions and whole-output scalar guards execute. Clean combined363Python
+passed; readiness/locks passed/released. App68/parser21 remain exactd4ed
+execution, unchanged blobs, not rerun at6e98 or claimed as laterhead execution.
+Independent source review/current hosted candidate/persistent merge remain
+required. Published266 primary38179450778 completedSUCCESS/all5scopes/6jobs;
+fullhosted JSON read app693/services2640/protocol4711/chats360/model166/
+data409/db45/l10n25 positive0failure/error/skip, pinnedcodec+realSwiftData
+passed in declared scopes. This does not complete659/5133audit or certify173
+absent mount; no duplicate CIresultbundle.
+
 Issue172 is repaired in the existing two chats test files:18affected original
 families across7exactparsedURL/5strictcoordinate/4negativehost/2whole-output
 Unicode conditions. Literals, thresholds, both axes, production, existing57
@@ -77,7 +89,8 @@ DerivedGeneralCategory
 PropList `130dcddcaadaf071008bdfce1e7743e04fdfbc910886f017d9f9ac931d8c64dd`.
 Additional scalar guards validate non-vacuous predicates/allowed NBSP/Greek/
 emoji; these are supplemental, not new original families or Swift property/
-allUnicodeversion certification. Actual immutable chats execution pending.
+allUnicodeversion certification. Actual immutable chats execution is recorded
+above at6e98; newcandidate review/hosted acceptance remain required.
 
 Exactd4ed4fa4fe7bdc1dd1ae496899d8ae6294ca5284 ran declared locked68app
 (all64mandatory+4unchangedrepair)/21parser/363Python, positive0failure/error/
@@ -96,7 +109,9 @@ inherited unrelated flags/path/timestamps/coordinates; four rows now retain
 complete original zero fields and independently assert all147raw bytes. Generic
 helper/expected names/production remain unchanged. Same reservation evolves
 15→16 automatically for that bounded existing parser-test support path.
-New immutable execution/independent review is pending while published266CI runs.
+Initial execution/review was pending; actuald4ed/6e98 and completed266hosted
+evidence are now recorded above. Newcandidate review/hosted acceptance remain
+required.
 
 Coordinator bounded266 backup6/route171/cadence and unchanged22crypto/
 10Discovery source/helper/consumer reads found no blocking mismatch, not an
