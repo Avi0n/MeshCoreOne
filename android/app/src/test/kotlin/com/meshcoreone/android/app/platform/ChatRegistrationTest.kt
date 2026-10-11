@@ -9,10 +9,44 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.feature.chats.timeline.*
 import java.util.UUID
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import com.meshcoreone.android.app.state.MessageEvent
+import com.meshcoreone.android.feature.chats.rooms.RoomConversationEvent
 import org.junit.Assert.*
 import org.junit.Test
 
 class ChatRegistrationTest : RoomProcessTest() {
+    @Test fun roomEventsUsePersistedRadioAndSessionIdentityRatherThanForeignPayloads() = runTest {
+        val h = ContainerHarness(this, store)
+        try {
+            val radio = RadioId(UUID.randomUUID())
+            val room = RemoteNodeSessionDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 6 }),
+                name = "Synthetic room", role = RemoteNodeRole.ROOM_SERVER)
+            val foreignRoom = room.copy(radioId = RadioId(UUID.randomUUID()))
+            store.saveRemoteNodeSession(room)
+            store.saveRemoteNodeSession(foreignRoom)
+            val message = RoomMessageDTO(sessionID = room.id, authorKeyPrefix = Bytes(ByteArray(6) { 5 }),
+                text = "Persisted selected radio", timestamp = 1u)
+            val foreign = message.copy(text = "Must not render another radio's payload")
+            store.saveRoomMessage(radio, message)
+            store.saveRoomMessage(foreignRoom.radioId, foreign)
+            val seen = mutableListOf<RoomConversationEvent>()
+            backgroundScope.launch { h.container.chatsFeature.room(room).events.collect { seen += it } }
+            h.settle()
+            h.appState.messageEventStream.send(MessageEvent.RoomMessageReceived(foreign, room.id))
+            h.eventually("room message received from selected partition") {
+                seen.any { it is RoomConversationEvent.MessageReceived }
+            }
+            assertEquals(message, seen.filterIsInstance<RoomConversationEvent.MessageReceived>().single().message)
+            val unrelated = message.copy(id = UUID.randomUUID(), sessionID = UUID.randomUUID(), text = "Other room")
+            store.saveRoomMessage(radio, unrelated)
+            h.appState.messageEventStream.send(MessageEvent.RoomMessageStatusUpdated(unrelated.id))
+            h.settle()
+            assertTrue(seen.filterIsInstance<RoomConversationEvent.MessageChanged>().isEmpty())
+        } finally { h.container.close() }
+    }
+
     @Test fun offlineConversationMutationsUseTheCapturedRadioPartition() = runTest {
         val h = ContainerHarness(this, store)
         try {

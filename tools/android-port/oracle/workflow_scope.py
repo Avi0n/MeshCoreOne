@@ -59,10 +59,12 @@ RULES = {
             "docs/android/PORTING_PLAN.md",
             "docs/android/automation-policy.json",
             "tools/android-port/controller/requirements-ci.txt",
+            "tools/android-port/inventory_rules.py",
         },
         "prefix": (
             ".github/workflows/",
             "tools/android-port/controller/",
+            "tools/android-port/local/",
             "tools/android-port/tests/",
             "docs/android/adr/",
             "docs/android/build/",

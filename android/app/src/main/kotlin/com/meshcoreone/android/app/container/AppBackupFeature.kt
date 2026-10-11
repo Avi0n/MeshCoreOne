@@ -59,12 +59,12 @@ internal class AppBackupFeature(
         var completed: UiImport? = null
         var effectsApplied = false
         try {
-            withContext(Dispatchers.IO) {
-                service.importBackup(backup.envelope, store).forUi().also { result ->
-                    completed = result
-                    withContext(NonCancellable) { restored(result); effectsApplied = true }
-                }
-            }
+            // The store dispatches its own IO. An outer dispatcher hop can discard an already committed result.
+            val result = service.importBackup(backup.envelope, store).forUi()
+            completed = result
+            withContext(NonCancellable) { restored(result); effectsApplied = true }
+            currentCoroutineContext().ensureActive()
+            result
         } catch (failure: CommittedBackupPreferenceException) {
             val result = failure.result.forUi()
             mutableCommitted.value = CommittedAppBackup(result, failure, failure)

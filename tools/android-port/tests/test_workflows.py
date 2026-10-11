@@ -41,6 +41,17 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(steps[0]["with"]["persist-credentials"], "false")
         self.assertNotIn("secrets.", text)
 
+    def test_controller_runs_installed_runtime_regressions_with_positive_discovery(self):
+        workflow, _ = self.read("android-ci.yml")
+        runner = next(step for step in workflow["jobs"]["controller"]["steps"]
+                      if "controller/test_runner.py" in step.get("run", ""))
+        self.assertIn(
+            "python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local",
+            runner["run"],
+        )
+        self.assertNotIn("continue-on-error", runner)
+        self.assertEqual(runner["if"], "${{ needs.scope.outputs.controller == 'true' }}")
+
     def test_protocol_workflow_executes_the_real_nonzero_jvm_suite_on_linux(self):
         from controller.ci import TASKS
 

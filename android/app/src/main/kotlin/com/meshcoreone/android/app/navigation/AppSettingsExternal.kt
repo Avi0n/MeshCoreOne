@@ -104,10 +104,17 @@ internal fun AppSettingsExternal(feature: AppSettingsFeature, target: SettingsEx
                         Text(region)
                         TextButton(enabled = !busy, onClick = { run {
                             val current = live()
+                            if (container.appState.connectedDevice?.defaultFloodScopeName == region) {
+                                current.settingsService.setDefaultFloodScopeVerified(null)
+                                if (live() !== current) throw SettingsNotConnectedException()
+                            }
                             container.processStore.removeDeviceKnownRegion(current.token.radioId, region)
                             val updated = requireNotNull(container.processStore.fetchDevice(current.token.radioId))
                             if (live() !== current) throw SettingsNotConnectedException()
-                            container.deviceEditor.updateDevice(updated)
+                            val cleared = updated.takeIf { it.defaultFloodScopeName != region }
+                                ?: updated.copy(defaultFloodScopeName = null)
+                            if (cleared != updated) container.processStore.saveDevice(cleared)
+                            container.deviceEditor.updateDevice(cleared)
                         } }) {
                             Text(stringResource(L.commonDelete))
                         }

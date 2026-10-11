@@ -363,14 +363,17 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
         }
         override val events: Flow<RoomConversationEvent> get() = merge(
             this@AppChatsFeature.events().transform<MessageEvent, RoomConversationEvent> { event ->
-                when (event) {
-                    is MessageEvent.RoomMessageReceived ->
-                        emit(RoomConversationEvent.MessageReceived(event.sessionID, event.message))
-                    is MessageEvent.RoomMessageStatusUpdated ->
-                        emit(RoomConversationEvent.MessageChanged(room.id, event.messageID))
-                    is MessageEvent.RoomMessageFailed ->
-                        emit(RoomConversationEvent.MessageChanged(room.id, event.messageID))
-                    else -> Unit
+                val id = when (event) {
+                    is MessageEvent.RoomMessageReceived -> event.message.id
+                    is MessageEvent.RoomMessageStatusUpdated -> event.messageID
+                    is MessageEvent.RoomMessageFailed -> event.messageID
+                    else -> return@transform
+                }
+                val message = store.fetchRoomMessage(EntityKey(room.radioId, id)) ?: return@transform
+                if (message.sessionID == room.id) {
+                    emit(if (event is MessageEvent.RoomMessageReceived) {
+                        RoomConversationEvent.MessageReceived(room.id, message)
+                    } else RoomConversationEvent.MessageChanged(room.id, message.id))
                 }
             },
             changes.mapNotNull {

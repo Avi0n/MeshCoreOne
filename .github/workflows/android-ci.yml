@@ -69,7 +69,7 @@ jobs:
       - name: Run controller tests once
         if: ${{ needs.scope.outputs.controller == 'true' }}
         run: |
-          python tools/android-port/controller/test_runner.py
+          python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local
           python tools/android-port/controller/verification_config.py --check
           python tools/android-port/controller/validate.py
           python tools/android-port/portmap.py

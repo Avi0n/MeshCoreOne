@@ -259,13 +259,13 @@ object AndroidAppContainerFactory {
         holder.set(container)
         try {
             container.settingsFeature = AppSettingsFeature.create(container, storage)
+            notificationDelivery.retryPendingActions()
+            return container
         } catch (failure: Exception) {
             try { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { container.close() } }
             catch (cleanup: Exception) { failure.addSuppressed(cleanup) }
             throw failure
         }
-        notificationDelivery.retryPendingActions()
-        return container
         } catch (failure: Exception) {
             try { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { closeResources() } }
             catch (closing: Exception) { failure.addSuppressed(closing) }
