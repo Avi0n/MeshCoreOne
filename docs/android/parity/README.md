@@ -125,7 +125,7 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **585 actually inspected families in 84 groups**:
+`review-proposals.json` contains **604 actually inspected families in 91 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
@@ -389,6 +389,19 @@ normally. The prior431owned56/55/1failure remains retained. Four new methods
 bind13source families; the19remaining green component cases are not
 automatically inspected comparisons. Full audit/independent review/current
 hosted checks remain outstanding; publication is held until actual169merge.
+Seven additional methods now bind the remaining19original CommandCorrelation
+families, completing the source file's32actual declarations across11groups.
+Expanded/private key32/64, payload7/200ms, original export error8 (not component4),
+fresh44/Restored selfInfo, disabled request isolation, pretag errors10/11,
+dedicated ROOM counters, 500ms RTT/headroom2→1s resend, latest-tag80ms observation,
+500ms overall timeout, hello/error5 and keepAlive/error3, full50ms cross-request
+ownership/error release/tag isolation, canceled1111 orphan drain→2222 and parked
+cancel/no-write all execute through public session/parser paths. Fixed timestamps
+replace ambient Date explicitly; pending-after-stale-tag strengthens source's
+notCancelled-only assertion. Native first-messageSent resend gating/owned drain
+and correlation quarantine remain declared adaptations, not missing-tag proof.
+Mandatory owned identities52→59; new immutable execution/independent review
+remain required. Full604-family/source/resource acceptance remains unfinished.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native
@@ -410,7 +423,7 @@ mismatch in both original40/1/2 and0.05/null scalar families. Native status
 exchange remains supplemental to the original constructor-only assertions;
 the source disabled-resend title is not binary exchange coverage.
 
-The 585 proposals are a bounded reviewable implementation increment,
+The 604 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.

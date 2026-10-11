@@ -17,6 +17,7 @@ import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.protocol.event.MessageResult
 import com.meshcoreone.android.core.protocol.model.FloodScope
 import com.meshcoreone.android.core.protocol.model.AutoAddConfig
+import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.core.protocol.session.MeshCoreSession
 import com.meshcoreone.android.core.protocol.session.SessionClock
 import com.meshcoreone.android.core.protocol.transport.mock.MockTransport
@@ -832,6 +833,438 @@ class SessionResponseAcceptanceTest {
             }
         }
     }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::importPrivateKey ignores OK responses with payloads()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::importPrivateKey refreshes cached self info after OK()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::importPrivateKey rejects a key that is not the expanded private-key length()")
+    @Test fun originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity() = runTest {
+        val invalidTransport = MockTransport()
+        val invalidSession = MeshCoreSession(invalidTransport,
+            SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst"),
+            publicSessionClock(), backgroundScope.coroutineContext)
+        try {
+            try {
+                invalidSession.importPrivateKey(hex("33".repeat(32)))
+                fail("A public-key-length input cannot be imported as an expanded private key")
+            } catch (failure: MeshCoreException.InvalidInput) {
+                assertTrue(invalidTransport.sentData.isEmpty())
+                assertFalse(invalidTransport.isConnected())
+            }
+        } finally {
+            invalidSession.stop()
+        }
+        for (payloadOnly in listOf(true, false)) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport,
+                SessionConfiguration(defaultTimeout = if (payloadOnly) 0.2 else 10.0, clientIdentifier = "MCTst"),
+                sourceSelfInfo(915_000, 125_000, 7, if (payloadOnly) "Test" else "Temp"))
+            try {
+                assertEquals(hex("01".repeat(32)), session.currentSelfInfo?.publicKey)
+                val started = testScheduler.currentTime
+                val importing = backgroundScope.async {
+                    try {
+                        session.importPrivateKey(hex("33".repeat(64)))
+                        null
+                    } catch (failure: MeshCoreException.Timeout) {
+                        failure
+                    }
+                }
+                runCurrent()
+                assertEquals(listOf(hex("01032020202020204d43547374"), hex("18" + "33".repeat(64))),
+                    transport.sentData)
+                assertFalse(importing.isCompleted)
+                if (payloadOnly) {
+                    transport.simulateOK(7u)
+                    advanceTimeBy(199)
+                    runCurrent()
+                    assertFalse(importing.isCompleted)
+                    assertEquals(2, transport.sentData.size)
+                    advanceTimeBy(1)
+                    runCurrent()
+                    assertTrue(importing.await() is MeshCoreException.Timeout)
+                    assertEquals(200L, testScheduler.currentTime - started)
+                    assertEquals(2, transport.sentData.size)
+                } else {
+                    transport.simulateOK()
+                    runCurrent()
+                    assertEquals(3, transport.sentData.size)
+                    assertEquals(hex("01032020202020204d43547374"), transport.sentData.last())
+                    assertFalse(importing.isCompleted)
+                    assertEquals("Temp", session.currentSelfInfo?.name)
+                    assertEquals(hex("01".repeat(32)), session.currentSelfInfo?.publicKey)
+                    val restored = sourceSelfInfo(915_000, 125_000, 7, "Restored").toByteArray()
+                    restored.fill(0x44.toByte(), 4, 36)
+                    assertEquals(66, restored.size)
+                    transport.simulateReceive(Bytes(restored))
+                    runCurrent()
+                    assertNull(importing.await())
+                    assertEquals(hex("44".repeat(32)), session.currentSelfInfo?.publicKey)
+                    assertEquals("Restored", session.currentSelfInfo?.name)
+                    assertEquals(3, transport.sentData.size)
+                }
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::exportPrivateKey throws featureDisabled on disabled response()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::disabled responses do not break unrelated requests()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::exportPrivateKey fails fast on device error()")
+    @Test fun originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes() = runTest {
+        for (scenario in listOf("disabled-export", "disabled-battery", "error-export")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport, selfInfo = sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                if (scenario == "disabled-battery") {
+                    val battery = backgroundScope.async { session.getBattery() }
+                    runCurrent()
+                    assertEquals(hex("14"), transport.sentData.last())
+                    transport.simulateReceive(hex("0f"))
+                    runCurrent()
+                    assertFalse(battery.isCompleted)
+                    transport.simulateReceive(hex("0cb20f"))
+                    runCurrent()
+                    assertEquals(4018L, battery.await().level)
+                } else {
+                    val exporting = backgroundScope.async {
+                        try {
+                            session.exportPrivateKey()
+                            fail("Private-key rejection cannot become a successful key")
+                        } catch (failure: MeshCoreException.FeatureDisabled) {
+                            assertEquals("disabled-export", scenario)
+                            failure
+                        } catch (failure: MeshCoreException.DeviceError) {
+                            assertEquals("error-export", scenario)
+                            failure
+                        }
+                    }
+                    runCurrent()
+                    assertEquals(hex("17"), transport.sentData.last())
+                    assertFalse(exporting.isCompleted)
+                    if (scenario == "disabled-export") transport.simulateReceive(hex("0f"))
+                    else transport.simulateError(8u)
+                    runCurrent()
+                    val failure = exporting.await()
+                    if (scenario == "disabled-export") assertTrue(failure is MeshCoreException.FeatureDisabled)
+                    else {
+                        assertTrue(failure is MeshCoreException.DeviceError)
+                        assertEquals(8u.toUByte(), (failure as MeshCoreException.DeviceError).code)
+                    }
+                }
+                assertEquals(2, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::requestStatus fails fast on device error before messageSent()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::requestTelemetry fails fast on device error before messageSent()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::requestStatus uses dedicated status command and room layout for typed room targets()")
+    @Test fun originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames() = runTest {
+        val target = hex("31".repeat(32))
+        for (scenario in listOf("status-error", "telemetry-error", "room")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport, selfInfo = sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                if (scenario == "room") {
+                    val response = backgroundScope.async { session.requestStatus(target, ContactType.ROOM) }
+                    runCurrent()
+                    assertEquals(hex("1b") + target, transport.sentData.last())
+                    assertFalse(response.isCompleted)
+                    transport.simulateReceive(hex("0600aabbccdd88130000"))
+                    runCurrent()
+                    assertFalse(response.isCompleted)
+                    val statusFrame = sourceCorrelationStatus(1000, 17, 9)
+                    assertEquals(60, statusFrame.size)
+                    transport.simulateReceive(statusFrame)
+                    runCurrent()
+                    val status = response.await()
+                    assertEquals(1000L, status.battery)
+                    assertEquals(17u.toUShort(), status.roomServerPostedCount)
+                    assertEquals(9u.toUShort(), status.roomServerPostPushCount)
+                    assertEquals(0u, status.rxAirtime)
+                } else {
+                    val response = backgroundScope.async {
+                        try {
+                            if (scenario == "status-error") session.requestStatus(target) else session.requestTelemetry(target)
+                            fail("A pre-messageSent binary rejection cannot become success")
+                        } catch (failure: MeshCoreException.DeviceError) {
+                            failure
+                        }
+                    }
+                    runCurrent()
+                    assertEquals(if (scenario == "status-error") hex("1b") + target else hex("27000000") + target,
+                        transport.sentData.last())
+                    assertFalse(response.isCompleted)
+                    transport.simulateError(if (scenario == "status-error") 10u else 11u)
+                    runCurrent()
+                    assertEquals((if (scenario == "status-error") 10u else 11u).toUByte(), response.await().code)
+                }
+                assertEquals(2, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::requestStatus retransmits until a matching response arrives()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::binary response matches only the latest retransmit tag()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::requestStatus times out after the overall budget without a reply()")
+    @Test fun originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals() = runTest {
+        val target = hex("31".repeat(32))
+        for (scenario in listOf("routed", "latest-tag", "overall")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport,
+                SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                    binaryRequestOverallTimeout = if (scenario == "overall") 0.5 else 2.0,
+                    binaryRequestRetransmitInterval = 0.05),
+                sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                val started = testScheduler.currentTime
+                if (scenario == "overall") {
+                    val response = backgroundScope.async {
+                        try {
+                            session.requestStatus(target)
+                            fail("An unanswered binary request cannot become successful status")
+                        } catch (failure: MeshCoreException.Timeout) {
+                            failure
+                        }
+                    }
+                    runCurrent()
+                    assertEquals(hex("1b") + target, transport.sentData.last())
+                    transport.simulateReceive(hex("06000102030432000000"))
+                    runCurrent()
+                    advanceTimeBy(499)
+                    runCurrent()
+                    assertFalse(response.isCompleted)
+                    assertTrue(transport.sentData.drop(1).size >= 2)
+                    assertTrue(transport.sentData.drop(1).all { it == hex("1b") + target })
+                    advanceTimeBy(1)
+                    runCurrent()
+                    assertTrue(response.await() is MeshCoreException.Timeout)
+                    assertEquals(500L, testScheduler.currentTime - started)
+                } else {
+                    val status = if (scenario == "routed") backgroundScope.async { session.requestStatus(target) } else null
+                    val telemetry = if (scenario == "latest-tag") backgroundScope.async { session.requestTelemetry(target) } else null
+                    runCurrent()
+                    val request = if (scenario == "routed") hex("1b") + target else hex("27000000") + target
+                    assertEquals(request, transport.sentData.last())
+                    transport.simulateReceive(hex("060011223344f4010000"))
+                    runCurrent()
+                    advanceTimeBy(999)
+                    runCurrent()
+                    assertEquals(2, transport.sentData.size)
+                    advanceTimeBy(1)
+                    runCurrent()
+                    assertEquals(listOf(hex("01032020202020204d43547374"), request, request), transport.sentData)
+                    transport.simulateReceive(hex("060055667788f4010000"))
+                    runCurrent()
+                    if (scenario == "routed") {
+                        transport.simulateReceive(sourceCorrelationStatus(2200))
+                        runCurrent()
+                        assertEquals(2200L, checkNotNull(status).await().battery)
+                        assertTrue(transport.sentData.drop(1).size >= 2)
+                    } else {
+                        val response = checkNotNull(telemetry)
+                        transport.simulateReceive(hex("8c0011223344"))
+                        advanceTimeBy(80)
+                        runCurrent()
+                        assertFalse(response.isCancelled)
+                        assertFalse(response.isCompleted)
+                        assertEquals(1080L, testScheduler.currentTime - started)
+                        transport.simulateReceive(hex("8c0055667788"))
+                        runCurrent()
+                        assertTrue(response.await().dataPoints.isEmpty())
+                    }
+                    assertEquals(3, transport.sentData.size)
+                }
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::sendMessage fails fast on device error()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::sendKeepAlive fails fast on device error()")
+    @Test fun originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes() = runTest {
+        for (message in listOf(true, false)) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport, selfInfo = sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                val response = backgroundScope.async {
+                    try {
+                        if (message) session.sendMessage(hex("11".repeat(32)), "hello", Instant.ofEpochSecond(1_704_067_200))
+                        else session.sendKeepAlive(hex("22".repeat(32)), 0u)
+                        fail("Device rejection cannot return a successful messageSent")
+                    } catch (failure: MeshCoreException.DeviceError) {
+                        failure
+                    }
+                }
+                runCurrent()
+                assertEquals(if (message) hex("02000080009265" + "11".repeat(6) + "68656c6c6f")
+                    else hex("32" + "22".repeat(32) + "0200000000"), transport.sentData.last())
+                assertFalse(response.isCompleted)
+                transport.simulateError(if (message) 5u else 3u)
+                runCurrent()
+                assertEquals((if (message) 5u else 3u).toUByte(), response.await().code)
+                assertEquals(2, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::binary request serializes behind a concurrent text command()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::binary request errors release the serializer for following requests()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::concurrent unicast send and binary request do not share one messageSent()")
+    @Test fun originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags() = runTest {
+        for (scenario in listOf("text-first", "binary-first", "unicast")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport,
+                SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                    binaryRequestOverallTimeout = if (scenario == "binary-first") 2.0 else 40.0,
+                    binaryRequestRetransmitInterval = if (scenario == "binary-first") null else 1.0),
+                sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                val target = hex("31".repeat(32))
+                if (scenario == "unicast") {
+                    val status = backgroundScope.async { session.requestStatus(target, ContactType.ROOM) }
+                    runCurrent()
+                    assertEquals(hex("1b") + target, transport.sentData.last())
+                    val message = backgroundScope.async {
+                        session.sendMessage(hex("11".repeat(32)), "hi", Instant.ofEpochSecond(1_704_067_200))
+                    }
+                    advanceTimeBy(50)
+                    runCurrent()
+                    assertEquals(2, transport.sentData.size)
+                    assertFalse(status.isCompleted)
+                    assertFalse(message.isCompleted)
+                    transport.simulateReceive(hex("0600aabbccdd88130000"))
+                    transport.simulateReceive(sourceCorrelationStatus(1234, 5, 2))
+                    runCurrent()
+                    assertEquals(1234L, status.await().battery)
+                    assertEquals(3, transport.sentData.size)
+                    assertEquals(hex("02000080009265" + "11".repeat(6) + "6869"), transport.sentData.last())
+                    assertFalse(message.isCompleted)
+                    transport.simulateReceive(hex("06001122334488130000"))
+                    runCurrent()
+                    assertEquals(hex("11223344"), message.await().expectedAck)
+                } else {
+                    val first = backgroundScope.async {
+                        try {
+                            if (scenario == "text-first") session.sendKeepAlive(hex("22".repeat(32)), 0u)
+                            else session.requestStatus(target)
+                            fail("First request must preserve its own device error")
+                        } catch (failure: MeshCoreException.DeviceError) {
+                            failure
+                        }
+                    }
+                    runCurrent()
+                    assertEquals(if (scenario == "text-first") hex("32" + "22".repeat(32) + "0200000000")
+                        else hex("1b") + target, transport.sentData.last())
+                    val second = backgroundScope.async {
+                        try {
+                            if (scenario == "text-first") session.requestStatus(target)
+                            else session.requestTelemetry(hex("42".repeat(32)))
+                            fail("Second request must preserve its own device error")
+                        } catch (failure: MeshCoreException.DeviceError) {
+                            failure
+                        }
+                    }
+                    advanceTimeBy(50)
+                    runCurrent()
+                    assertEquals(2, transport.sentData.size)
+                    assertFalse(first.isCompleted)
+                    assertFalse(second.isCompleted)
+                    transport.simulateError(if (scenario == "text-first") 42u else 12u)
+                    runCurrent()
+                    assertEquals((if (scenario == "text-first") 42u else 12u).toUByte(), first.await().code)
+                    assertEquals(3, transport.sentData.size)
+                    assertEquals(if (scenario == "text-first") hex("1b") + target
+                        else hex("27000000" + "42".repeat(32)), transport.sentData.last())
+                    assertFalse(second.isCompleted)
+                    transport.simulateError(if (scenario == "text-first") 43u else 13u)
+                    runCurrent()
+                    assertEquals((if (scenario == "text-first") 43u else 13u).toUByte(), second.await().code)
+                }
+                assertEquals(3, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::a response orphaned by a cancelled command is not delivered to the next command()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::a command cancelled while waiting on the serializer never writes()")
+    @Test fun originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement() = runTest {
+        for (orphan in listOf(true, false)) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport, selfInfo = sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                if (orphan) {
+                    val first = backgroundScope.async { session.getBattery() }
+                    runCurrent()
+                    assertEquals(hex("14"), transport.sentData.last())
+                    first.cancel(CancellationException("source-first-battery-cancelled"))
+                    runCurrent()
+                    try {
+                        first.await()
+                        fail("Cancelled caller cannot receive a successful orphaned battery")
+                    } catch (failure: CancellationException) {
+                        assertEquals("source-first-battery-cancelled", failure.message)
+                    }
+                    val second = backgroundScope.async { session.getBattery() }
+                    advanceTimeBy(50)
+                    runCurrent()
+                    assertEquals(2, transport.sentData.size)
+                    assertFalse(second.isCompleted)
+                    transport.simulateReceive(hex("0c5704"))
+                    runCurrent()
+                    assertEquals(3, transport.sentData.size)
+                    assertEquals(hex("14"), transport.sentData.last())
+                    assertFalse(second.isCompleted)
+                    transport.simulateReceive(hex("0cae08"))
+                    runCurrent()
+                    assertEquals(2222L, second.await().level)
+                    assertEquals(3, transport.sentData.size)
+                } else {
+                    val first = backgroundScope.async { session.factoryReset() }
+                    runCurrent()
+                    assertEquals(hex("337265736574"), transport.sentData.last())
+                    val second = backgroundScope.async { session.sendAdvertisement(true) }
+                    advanceTimeBy(50)
+                    runCurrent()
+                    assertEquals(2, transport.sentData.size)
+                    assertFalse(first.isCompleted)
+                    assertFalse(second.isCompleted)
+                    second.cancel(CancellationException("source-parked-advertisement-cancelled"))
+                    transport.simulateOK()
+                    runCurrent()
+                    first.await()
+                    try {
+                        second.await()
+                        fail("Cancellation before admission cannot become a sent advertisement")
+                    } catch (failure: CancellationException) {
+                        assertEquals("source-parked-advertisement-cancelled", failure.message)
+                    }
+                    assertEquals(listOf(hex("01032020202020204d43547374"), hex("337265736574")),
+                        transport.sentData)
+                }
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    private fun sourceCorrelationStatus(battery: Short, posted: Short = 0, pushed: Short = 0): Bytes =
+        Bytes(ByteBuffer.allocate(60).order(ByteOrder.LITTLE_ENDIAN)
+            .put(0x87.toByte()).put(0).put(ByteArray(6) { 0x31 })
+            .putShort(battery).putShort(0).putShort(-110).putShort(-85)
+            .putInt(100).putInt(50).putInt(25).putInt(3600)
+            .putInt(5).putInt(10).putInt(15).putInt(20)
+            .putShort(0).putShort(0).putShort(0).putShort(0).putShort(posted).putShort(pushed).array())
 
     private fun sourceCorrelationContact(keyByte: Int, name: String): Bytes =
         Bytes.of(0x03) + Bytes(ByteArray(32) { keyByte.toByte() }) + hex("0100ff") +

@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-585 inspected family proposals in84groups, exact source/assertion/helper/runner
+604 inspected family proposals in91groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and forty-four Kotlin acceptance cases.
+The follow-up has92 Python regressions and59mandatory Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-570actually inspected proposals; native-body joins are only candidates.
+604actually inspected proposals; native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -552,6 +552,29 @@ families into inspected/approved source comparisons. Four app runners bind13
 originals once each, not13new executions. Full audit, independent source review,
 hosted current-head checks and actual169merge remain outstanding. PR165 stays
 at published990; no new APK or device/hardware/Swift/legal claim is inferred.
+Remaining19CommandCorrelation declarations have complete original bodies/local
+helpers/full owned consumer comparisons and7new required public-session methods,
+bringing candidate accounting to604families/91groups/59mandatory identities.
+All32originals are now proposed, not independently accepted or a full binary API
+audit. Added exact200ms import payload7, invalid33x32/no-write vs33x64 import,
+01/Temp→44/Restored actual cache refresh, typedexport error8, feature-disabled
+isolation, binary errors10/11/dedicated ROOM full60byte response/counters,
+500ms RTT/headroom2→1s resend/latest tag/full80ms,500ms overall/resends,
+hello5/keepAlive3, three50ms whole-operation ownership families, and two50ms
+orphan/parked-cancellation families. Expected frames are independently encoded
+frozen literals/fields. Source ambient message Date is fixed1704067200 explicitly;
+source latest-tag !isCancelled is retained and !isCompleted is supplemental.
+New exact execution remains required; no product path/timeout change or product
+failure inferred from this source-input gap fill.
+Coordinator bounded10984d6b/76cfab2d13-family review read complete four methods,
+all invoked checked helpers/actual fixture bodies and frozen/native consumers;
+no blocking source mismatch, including exact140ms-before-await fix. Acceptance
+blobbd98074c0dd0596b85fc5be2674fec34abc50c93 unchanged across109→76. Not
+independent56/32/363 execution/current-hosted/full acceptance/protected approval.
+Initial431failure remains retained. Denominator is32actual registered original
+families as parsed in pinned inventory-details and32unique selected identities;
+the source Suite container is not a33rd test family. Newly added19comparisons
+are not covered by that bounded13-family finding.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -589,7 +612,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the585families
+actual inspection. All1,786owned source dispositions require behavior review; only the604families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

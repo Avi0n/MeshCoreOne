@@ -5,6 +5,209 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "correlation-original-private-key-import-length-payload-and-refreshed-identity",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "importPrivateKey ignores OK responses with payloads": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
+        "importPrivateKey refreshes cached self info after OK": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
+        "importPrivateKey rejects a key that is not the expanded private-key length": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "Three originals retain unstarted33x32 invalid input/no writes; expanded33x64 import with unrelated OK7 and original200ms typedTimeout; initial01x32/Temp identity, bareOK, third actual appStart, fresh44x32/Restored selfInfo and final key/name. Native additionally proves invalid input never connects, import199ms pending/exact200ms, exact65byte180x33frame, fresh info required with old cache intact until its arrival, and exact no-extra-write totals. Invalid32byte and expanded64byte are separate inputs, not conflated.",
+      "inputs": "SourceMCTst10seconds or payload0.2seconds, selfInfo1/22/22/01x32/zero coords/options/915000/125000/SF7/CR5/Test orTemp retained. Fresh66byte info replaces only publickey4..35 with44 and exact nameRestored. Original privateKeySize64 and publicKeySize32 come from independent literals, not candidate builder constants/outputs. Actual startup+refresh MCTst13byte literal retained.",
+      "adaptations": "Swift Task/waitUntil/real timeout becomes actual public transport/parser/full-operation exchange with injected scheduler. Supplementary199ms pending/200ms expiry does not replace source budget. Native acknowledged identity refresh remains owned during post-write cancellation per existing WP107 adaptation, but these three families do not certify that cancellation branch or real identity-changing hardware. Fresh expected bytes are constructed directly from frozen helper fields, never desired-state cache mutation.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "MeshCore/Sources/MeshCore/Session/MeshCoreSession+DeviceConfig.swift",
+        "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
+      ],
+      "consumer": "Read entire three source declarations/shared start/selfInfo/polling and full frozen importPrivateKey, actual native validation/match/owned appStart plus receive cache update. Size guard precedes transport admission; only payloadlessOK succeeds; actual selfInfo ingress updates cached identity. Timeout is narrowly caught and asserted, all unexpected failures/cancellation propagate. No hardware command is executed.",
+      "unresolved": ["New exact method requires immutable execution and independent bounded source review. Historical component hasMCore/default1second and cannot prove original200ms/MCTst/refreshed startup bytes. Three originals are one discovered runner, not three independent executions."],
+      "methods": ["importPrivateKey ignores OK responses with payloads", "importPrivateKey refreshes cached self info after OK", "importPrivateKey rejects a key that is not the expanded private-key length"]
+    },
+    {
+      "id": "correlation-original-disabled-export-unrelated-battery-and-error-eight",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "exportPrivateKey throws featureDisabled on disabled response": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
+        "disabled responses do not break unrelated requests": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
+        "exportPrivateKey fails fast on device error": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "Three originals retain17export+0Fdisabled→FeatureDisabled;14battery ignores0F and receives4018 from0CB20F;17export+0108→DeviceError8. Native additionally processesdisabled battery alone and asserts pending before battery, checks each export call is initially pending and startup+request count2. Existing component's error4 is not promoted as original8 proof; it remains supplemental only.",
+      "inputs": "Original10seconds/MCTst/source62byte1/22/22/01x32/zeros/915000/125000/7/5/Test retained in separate fresh sessions. Literal17/14 requests, single-byte0F, raw error8 and battery4018 little-endian are direct frozen inputs, not candidate-derived expectations.",
+      "adaptations": "Actual parser/registered request-specific matcher replaces Swift actor polling. Export catches only expected typedFeatureDisabled/DeviceError and binds each to its scenario; other exceptions/cancellation cannot become a key or allowed failure. Battery matcher ignores the disabled event without granting feature capability. This is not an assertion of successful private-key export or device capability probing.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "MeshCore/Sources/MeshCore/Session/MeshCoreSession+DeviceConfig.swift"
+      ],
+      "consumer": "Read all three frozen bodies/local helpers, full source export matcher/getBattery and actual native query/deviceError/PacketParser paths. Feature-disabled affects only matching export; raw8 is preserved. No onSend response shortcut and no success-shaped nullable key.",
+      "unresolved": ["New exact method requires immutable execution and independent review. Component error4/default fixture does not supply original8/config proof. Three source families are one actual runner."],
+      "methods": ["exportPrivateKey throws featureDisabled on disabled response", "disabled responses do not break unrelated requests", "exportPrivateKey fails fast on device error"]
+    },
+    {
+      "id": "correlation-original-binary-pretag-errors-and-dedicated-room-layout",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "requestStatus fails fast on device error before messageSent": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
+        "requestTelemetry fails fast on device error before messageSent": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
+        "requestStatus uses dedicated status command and room layout for typed room targets": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "Three originals retain31x32 target: dedicated1Bstatus+Error10 beforemessageSent;27000000telemetry+Error11 beforemessageSent; ROOM status1B with tagAABBCCDD/default5000ms followed by dedicated87push containing battery1000/posted17/push9. Exact typed10/11 and final1000/17/9/rxAirtime0 retained. Native additionally asserts whole request bytes, genuine pending before replies/aftermessageSent,60byte original status frame and startup+request count2.",
+      "inputs": "Source10seconds/MCTst/sourceTest62byte selfInfo retained; default binary40seconds/floor1.0/headroom2 unchanged. Independent status helper matches entire frozen makeStatusResponsePacket: header8700/31x6;batteryLE1000/queue0/noise-110/RSSI-85/received100/sent50/airtime25/uptime3600/flood5/direct10/rxflood15/rxdirect20/full0/SNR0/dups0/packed17+9. No candidate parser/builder creates expected status or command.",
+      "adaptations": "Swift routed event/layout remap becomes public raw MockTransport/PacketParser and actual binary matcher. Learned tag comes only after actual write. Native default binary resends wait for firstMessageSent (existing WP107 adaptation); no missing-tag cadence guarantee is claimed by these immediate-response families. ROOM push mapping differs from generic binary fallback, which this source case does not invoke.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "MeshCore/Sources/MeshCore/Session/MeshCoreSession+BinaryProtocol.swift"
+      ],
+      "consumer": "Read complete selected source bodies/local status+messageSent helpers and entire binary exchange source/native consumer. Native requestStatus preserves fullkey/prefix/type layout; pretag errors fail own exchange; typed routed response remaps packed counters and zeroes rxAirtime as source. Raw ingress/parser is exercised without cached-room seeding or fabricated typed response.",
+      "unresolved": ["New exact method requires immutable execution/independent review. No generic binary-status fallback, no-tag retransmit, real repeater/room hardware or complete binary-protocol API audit is inferred."],
+      "methods": ["requestStatus fails fast on device error before messageSent", "requestTelemetry fails fast on device error before messageSent", "requestStatus uses dedicated status command and room layout for typed room targets"]
+    },
+    {
+      "id": "correlation-original-binary-cadence-latest-tag-and-overall-timeout",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "requestStatus retransmits until a matching response arrives": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
+        "binary response matches only the latest retransmit tag": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
+        "requestStatus times out after the overall budget without a reply": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "Three originals preserve31x32 target/0.05floor/2.0overall, tag11223344/500ms suggested→actual retransmit/tag55667788/500ms and routed battery2200 with >=2status writes; stale binary tag11223344 then original80ms observation/notCancelled followed by55667788 empty telemetry; separate0.5overall/01020304tag/50ms suggestion with typedTimeout and >=2status writes. Native additionally asserts999ms no resend/exact1000ms identical resend, latest-tag caller actually pending after full80ms and exact500ms budget/499pending. Source latest-tag only asserts notCancelled, not !completed; stronger pending assertion is disclosed rather than misattributed.",
+      "inputs": "Original10seconds/MCTst/sourceTest62byte info retained. Independent literal1B31x32 and2700000031x32,0600tags/f4010000 or32000000,8C00tag/noLPP and full source status2200 are exact helpers. Headroom2 makes500ms→1s and50ms→100ms, not floor50ms resends. Timer metrics are relative to each new scenario, not accumulated virtual time.",
+      "adaptations": "Injected monotonic scheduler replaces real source polling/sleeps; native resends start after first actualMessageSent versus Swift initial send cadence task, as existing WP107 adaptation. Selected families deliver firstmessageSent immediately and do not certify pretag silence/resend behavior. Latest-tag stale reply is delivered after second actual send/tag; pending strengthens original notCancelled. Source try?80ms sleep is an uncaught deterministic80ms interval. Timeout invalidates ambiguous response families per existing correlation safety; no fabricated successor is admitted.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+        "MeshCore/Sources/MeshCore/Session/MeshCoreSession+BinaryProtocol.swift"
+      ],
+      "consumer": "Read all selected source bodies/status+sent+binary helpers and complete source/native binary exchange: latest learned tag only, routed status prefix independent of tag, floor/headroom cadence and owned overall deadline. Actual requests/resends go through public transport. Retired tag/reused-tag/late-device-error/native quarantine extensions remain separate from selected original assertions.",
+      "unresolved": ["New exact method requires immutable execution and independent adaptation review. These three originals do not certify every binary consumer, real radio cadence, missing firstMessageSent or thread/wall-clock behavior."],
+      "methods": ["requestStatus retransmits until a matching response arrives", "binary response matches only the latest retransmit tag", "requestStatus times out after the overall budget without a reply"]
+    },
+    {
+      "id": "correlation-original-text-and-keepalive-device-errors",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "sendMessage fails fast on device error": "originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes",
+        "sendKeepAlive fails fast on device error": "originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "Two originals retain sendMessage11x32/texthello/Error5 and sendKeepAlive22x32/sync0/Error3 with exact typed codes after actual write. Native additionally asserts complete independently encoded defaultattempt0 frame and timestamp, pending before reply and startup+request count2. Neither successfulmessageSent nor remote delivery is manufactured from error.",
+      "inputs": "Original10seconds/MCTst/sourceTest62byte info/key and text retained. sendMessage source defaultDate() is explicitly adapted to fixed Unix1704067200 for deterministic wire bytes; this is not a claim that original dynamic timestamp was identical. Six-byte11prefix, hello UTF8, 32full22key/KEEP_ALIVEtype2/LEsync0 remain source fields. Expected packets are literals, not candidate builder output.",
+      "adaptations": "Fixed timestamp replaces ambient Date while preserving the original time-field encoding and device-error assertion. Actual public session/transport/parser/narrow DeviceError catch replaces Task/waitUntil. Cancellation/unexpected errors fail normally. This bounded two-family error proof does not pass retry/ACK routing or physical send behavior.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "MeshCore/Sources/MeshCore/Session/MeshCoreSession+Messaging.swift"
+      ],
+      "consumer": "Read complete two original declarations/shared startup helper plus frozen/native sendMessage/sendKeepAlive and messageSent matcher/full-operation serializer. Request-specific error reaches only owning caller with raw5/3 intact, and no onSend response shortcut is used.",
+      "unresolved": ["New exact method requires immutable execution and independent bounded review. Dynamic source Date adaptation is explicit; native timing/clock/physical radio proof is not inferred."],
+      "methods": ["sendMessage fails fast on device error", "sendKeepAlive fails fast on device error"]
+    },
+    {
+      "id": "correlation-original-text-binary-serialization-release-and-unicast-tags",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "binary request serializes behind a concurrent text command": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
+        "binary request errors release the serializer for following requests": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
+        "concurrent unicast send and binary request do not share one messageSent": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "Three originals retain first keepAlive22x32/sync0 holding full50ms before ownError42 then status31x32 onlyafterrelease/ownError43; binary status31x32 holding full50ms then ownError12, queuedtelemetry42x32/ownError13 under2s overall/nilresend; ROOMstatus31x32 first withAABBCCDDtag/1234battery/posted5/push2 then queued11x32/hi onlyafterstatus, own11223344tag. Exact original outcomes and postfirst count3 preserved; native adds first/second genuine pending/count2 during full50ms, exact full wire equality and second pending before its own reply.",
+      "inputs": "Original10seconds/MCTst/sourceTest62byte selfInfo/default40overall/floor1 preserved except source binary-first2overall/nilresend. Literalstatus/keepAlive/telemetry keys and error42/43/12/13 retained. Full source60byte status and default5000ms learned tags retained. Source message Date() is explicitly fixed to1704067200 while exacthi/11x32/attempt0 remain. No candidate builder or cache generates expected packet/tag.",
+      "adaptations": "Real50ms negative overlap observation becomes exact injected50ms with two actual suspended calls and whole-operation mutex. First request is positively written before follower launch as source requires, avoiding source's documented task-winning race. Native handles latelearned tags by retired-tag guards, not asserted general source equivalence here. Own received rawMessageSent is used, not shared syntheticsuccess.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/RequestContext.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "MeshCore/Sources/MeshCore/Session/RequestContext.swift"
+      ],
+      "consumer": "Read full three originals/local status+sent helpers and complete frozen/native RequestResponseSerializer and binary/messageSent exchanges. One owned request holds mutex across suspended replies; terminal device error releases slot, status consumes own tag+push before unicast admits, distinct message tag cannot be stolen. No product-path edits or fake completion.",
+      "unresolved": ["New exact method requires immutable execution and independent review. These3originals are one runner; fail-after-send/correlation quarantine/reused-tag or physical concurrency cases remain separate native extensions."],
+      "methods": ["binary request serializes behind a concurrent text command", "binary request errors release the serializer for following requests", "concurrent unicast send and binary request do not share one messageSent"]
+    },
+    {
+      "id": "correlation-original-orphan-drain-and-parked-cancellation-no-write",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "a response orphaned by a cancelled command is not delivered to the next command": "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement",
+        "a command cancelled while waiting on the serializer never writes": "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "Two originals retain firstbatterywritten then cancel+await, successor waiting50ms, late1111battery drained by original owner, onlythen successor write+own2222battery; factoryResetowner, parkedfloodtrueadvertisement waiting50ms/count2, cancelparked then bareOK resolvesfirst, typedCancellation and finalcount2/noadvertisement. Native adds exactCancellation messages, pending second, literal0C5704/0CAE08 and complete startup+reset/no-extra-write equality. Cancellation never returns originalorphan level or fakeOK.",
+      "inputs": "Original10seconds/MCTst/sourceTest62byte info; original50ms both branches, levels1111/2222, reset337265736574 and floodtrue retained. Source ignores first canceled result withtry?; native positively asserts the cancellation and its supplied identity. No source timeout/deadline reduced.",
+      "adaptations": "Swift continuation/detached request drain becomes generation-owned async full-operation coroutineMutex. Native parked caller cancellation can remove waiter promptly rather than waiting to reacquire; source consequence no committedwrite/typedCancellation is preserved. Post-write first caller cancels but its owned exchange remains subscribed until matching1111, then releases. Exact virtual50ms replaces realtry?sleep, not a physical scheduling/latency claim.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/RequestContext.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "MeshCore/Sources/MeshCore/Session/RequestContext.swift"
+      ],
+      "consumer": "Read complete source2families/localbattery+startup helper and full actual Swift continuation guard/owned drain plus native callercontext/beforeSend/cancelInProgressSend/withOwnedSerialization/match/subscription. Public receive/parser delivers orphan under still-heldslot; follower cannot send before drain. Only narrowCancellationException is caught, expected exactidentity asserted; unexpected typedfailure propagates.",
+      "unresolved": ["New exact method requires immutable execution and independent adaptation review. This success-path drain does not certify abandoned timeout/reconnect, in-progress socketwrite, processdeath or general cancellation-latency behavior."],
+      "methods": ["a response orphaned by a cancelled command is not delivered to the next command", "a command cancelled while waiting on the serializer never writes"]
+    },
+    {
       "id": "correlation-original-startup-unrelated-error-before-self-info",
       "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
       "partial_source_file": true,
@@ -25,7 +228,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete selected frozen declaration/startSession/makeSelfInfo and shared checked polling helper plus actual frozen/native startup/query/matcher/receive cache consumer. Registered selfInfo matcher ignores Error while received SelfInfo updates actual generation cache and resolves startup. No dispatchForTesting or preseeded cache bypass.",
-      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded source review and hosted exact execution remain required. This one selected family does not complete the remaining command-correlation file or represent physical startup proof."],
+      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Coordinator bounded109/76 entire method/source/helper/actual consumer found no blocking mismatch in this original, not independent execution or full/protected approval. Current-head hosted execution/full acceptance remain required. This one selected family does not complete the remaining command-correlation file or represent physical startup proof."],
       "methods": ["session start ignores unrelated errors until selfInfo arrives"]
     },
     {
@@ -55,7 +258,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete three frozen declarations/helpers and sendSimpleCommand/sendAndMatch/full serializer, plus actual native simple/query/match/deadline/registered subscriptions. Only payloadless Ok can complete simple; error42 reaches the typed matcher; first successful response releases entire operation before second write. Existing post-timeout ambiguous-reply quarantine is separate native adaptation and no fresh successor is fabricated.",
-      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded adaptation review and hosted exact execution remain required. Original-named component uses MCore/default1second and omits original50ms wait; its green result cannot substitute for these original inputs. Three families remain one native runner."],
+      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Coordinator bounded109/76 complete method/source3families/actual invoked helpers/full serializer found no blocking mismatch, not independent execution/full/protected approval. Current-head hosted execution/full adaptation review remain required. Original-named component uses MCore/default1second and omits original50ms wait; its green result cannot substitute for these original inputs. Three families remain one native runner."],
       "methods": ["simple commands serialize concurrent OK/ERROR waits", "simple commands ignore OK responses with payloads", "simple commands still fail on device errors"]
     },
     {
@@ -88,7 +291,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete selected declarations/shared helpers and frozen/native battery/getSelfTelemetry/getChannel/getContact/exportContact query/match/receive consumers. Actual parser ingress routes typed events; generation selfInfo determines telemetry prefix, actual index/fullkey/URI predicates reject unrelated payload before a matching response. Contact cache may still track unsolicited contacts but does not satisfy the request for another key. No onSend shortcut, synthetic typed event or fake transport result.",
-      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded source review and hosted exact execution remain required. Error-to-nil general contact behavior, malformed URI/Unicode names, other public persistence consumers and remaining command-correlation families are separate contracts, not approved from these five successes."],
+      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Coordinator bounded109/76 entire method/source5families/helpers/actual predicate/parser/cache consumers found no blocking mismatch, not independent execution/full/protected approval. Current-head hosted execution/full acceptance remain required. Error-to-nil general contact behavior, malformed URI/Unicode names, other public persistence consumers and remaining command-correlation families are separate contracts, not approved from these five successes."],
       "methods": ["getBattery ignores unrelated errors while waiting for a battery response", "getSelfTelemetry ignores telemetry for other nodes", "getChannel ignores responses for other channel indexes", "getContact ignores responses for other public keys", "exportContact ignores contact URIs for other public keys"]
     },
     {
@@ -120,7 +323,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete four frozen declarations/contact helpers/shared polling and full source fetchContacts/watchdog/post-exchange cache update, plus native real fetchContacts/StreamProgressTracker/watchdog/select/commitFetch/subscription and join cleanup. ContactsStart supplies reportedTotal independently of received count; no-header leaves it null. Progress cadence keeps idle watchdog alive; missing end and no progress produces typedTimeout, cancels/joins consumer/watchdog and leaves generation baseline dirty. No manufactured empty-success snapshot or synthetic contact cache.",
-      "unresolved": ["Initial43132243 app56discovered/55passed/1failed,0error/skip, at an owned supplemental elapsed assertion incorrectly placed after awaiting timeout: actual160ms versus expected140ms. Frozen source sleeps140ms then awaits, so watchdog phase can legitimately add20ms before returning. Exact140ms observation moves before await; source0.08idle/1hard budgets and typedTimeout remain unchanged, no product defect or weakened source assertion. Corrected10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded source review and hosted exact execution remain required. Full command-correlation/binary/after-write cancellation families remain separate; four originals are one runner and partial result is not full-cache equivalence."],
+      "unresolved": ["Initial43132243 app56discovered/55passed/1failed,0error/skip, at an owned supplemental elapsed assertion incorrectly placed after awaiting timeout: actual160ms versus expected140ms. Frozen source sleeps140ms then awaits, so watchdog phase can legitimately add20ms before returning. Exact140ms observation moves before await; source0.08idle/1hard budgets and typedTimeout remain unchanged, no product defect or weakened source assertion. Corrected10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Coordinator bounded109/76 complete method/source4families/actual helper/whole native contacts tracker/commit consumers found no blocking mismatch including source pre-await140 ordering, not independent execution/full/protected approval. Current-head hosted execution/full acceptance remain required. Full command-correlation/binary/after-write cancellation families remain separate; four originals are one runner and partial result is not full-cache equivalence."],
       "methods": ["getContacts succeeds when slow stream keeps making progress", "getContactsReportingTotal surfaces the contactsStart total, not the received count", "getContactsReportingTotal returns a nil total when contactsStart never arrives", "getContacts times out after inactivity before contactsEnd"]
     },
     {
