@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.meshcoreone.android.app.container.AppChatsFeature
 import com.meshcoreone.android.app.content.LocationManagerLocationProducing
 import com.meshcoreone.android.core.contracts.FeatureId
@@ -160,6 +161,8 @@ private fun AppChatConversation(
             }
         }
         val environment = remember(feature, target, scope) { feature.environment(target, scope, location) }
+        val mentionContacts by environment.mentionContacts.collectAsStateWithLifecycle()
+        val composerDevice by environment.device.collectAsStateWithLifecycle()
         val timeline = remember(feature, conversation) {
             ChatViewModel(conversation, feature.timeline(conversation), scope)
         }
@@ -190,8 +193,8 @@ private fun AppChatConversation(
             onDismissRequest = { pickContact = false },
             text = {
                 androidx.compose.foundation.lazy.LazyColumn {
-                    items(environment.mentionContacts.value.size) { index ->
-                        val contact = environment.mentionContacts.value[index]
+                    items(mentionContacts.size) { index ->
+                        val contact = mentionContacts[index]
                         androidx.compose.material3.TextButton(onClick = {
                             composer.insertShared(ContactShare.formatShare(contact.publicKey, contact.type, contact.name))
                             pickContact = false
@@ -225,7 +228,7 @@ private fun AppChatConversation(
         }
         AppChatConversationScreen(
             timeline, composer, stringResource(AppChatsStrings.chatsInputPlaceholderDirectMessage), links,
-            currentUserName = environment.device.value?.nodeName,
+            currentUserName = composerDevice?.nodeName,
             onPickContact = { pickContact = true },
             scrollTo = state.pendingScrollToMessageID,
             onScrollConsumed = { requested ->
