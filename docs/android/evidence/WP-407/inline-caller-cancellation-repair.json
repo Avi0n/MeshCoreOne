@@ -1,0 +1,83 @@
+{
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "issue": 166,
+  "repair_base": "250dd50ed259c5d9fe1006d4f45a637e4aea0aff",
+  "coordinator_session": "bcb17a74-5fa6-47d0-a4be-b6b595e20559",
+  "origin_claim_identity": {
+    "issue_number": null,
+    "task_id": null,
+    "session_id": "524fad60-7510-496b-8906-6e394c368f5e",
+    "pr_number": null
+  },
+  "origin_claim_revision": 15,
+  "origin_claim_binding": {
+    "repository": "cbattlegear/MeshCoreOne-Android",
+    "work_package": "WP-407",
+    "base_sha": "43553e16135ffbf6a9dd3864ca501becf87a11ef",
+    "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+    "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+    "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20"
+  },
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "admissions": [
+    {
+      "capability": "app-build-launcher",
+      "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatContent.kt",
+      "operation": "update-launcher-or-composition",
+      "invariants": [
+        "no-unrelated-feature-activation",
+        "process-and-connection-lifetimes",
+        "gms-independent-core",
+        "min-target-application-id"
+      ],
+      "validation": [
+        "affected compile and tests",
+        "manifest and navigation checks"
+      ]
+    },
+    {
+      "capability": "app-build-launcher",
+      "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/InlineContentCancellationTest.kt",
+      "operation": "add-direct-support-wiring",
+      "invariants": [
+        "no-unrelated-feature-activation",
+        "process-and-connection-lifetimes",
+        "gms-independent-core",
+        "min-target-application-id"
+      ],
+      "validation": [
+        "affected compile and tests",
+        "manifest and navigation checks"
+      ]
+    },
+    {
+      "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatContent.kt",
+      "capability": "app-build-launcher",
+      "origin": {
+        "wp": "WP-407",
+        "session": "524fad60-7510-496b-8906-6e394c368f5e",
+        "evidence": "https://github.com/cbattlegear/MeshCoreOne-Android/pull/164"
+      },
+      "producer": {
+        "wp": "WP-407",
+        "session": "bcb17a74-5fa6-47d0-a4be-b6b595e20559",
+        "evidence": "https://github.com/cbattlegear/MeshCoreOne-Android/issues/166"
+      },
+      "attributions": [
+        {
+          "wp": "WP-407",
+          "session": "524fad60-7510-496b-8906-6e394c368f5e",
+          "evidence": "https://github.com/cbattlegear/MeshCoreOne-Android/pull/164"
+        },
+        {
+          "wp": "WP-407",
+          "session": "bcb17a74-5fa6-47d0-a4be-b6b595e20559",
+          "evidence": "https://github.com/cbattlegear/MeshCoreOne-Android/issues/166"
+        }
+      ],
+      "advisory": true,
+      "file_edit_blocked": false
+    }
+  ],
+  "existing_claim_overwritten": false
+}

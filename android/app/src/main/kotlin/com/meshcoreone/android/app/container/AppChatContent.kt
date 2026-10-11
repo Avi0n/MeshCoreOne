@@ -103,18 +103,14 @@ class AppChatContent internal constructor(
         check(rendering.value[AppStorageKey.linkPreviewsEnabled]) { "Link content is disabled" }
         val resolved = ImageUrlClassifier.directImageUrl(URI(url)).toString()
         imageCache.decoded(resolved)?.let { return ChatImage.Decoded(it.handle) }
-        val fetch = try {
-            withTimeout(30_000) {
-                var result = imageCache.fetchImageData(resolved)
-                while (result == InlineImageResult.Loading) {
-                    delay(100)
-                    result = imageCache.fetchImageData(resolved)
-                }
-                result
+        val fetch = withTimeoutOrNull(30_000) {
+            var result = imageCache.fetchImageData(resolved)
+            while (result == InlineImageResult.Loading) {
+                delay(100)
+                result = imageCache.fetchImageData(resolved)
             }
-        } catch (timeout: TimeoutCancellationException) {
-            throw IllegalStateException("Inline image fetch timed out", timeout)
-        }
+            result
+        } ?: throw IllegalStateException("Inline image fetch timed out")
         return when (fetch) {
             is InlineImageResult.Loaded -> when (val decoded = decoder.decode(fetch.data, 900)) {
                 is ImageDecodeOutcome.Decoded -> {
