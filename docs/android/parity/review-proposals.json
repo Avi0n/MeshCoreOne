@@ -27,7 +27,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ConnectionState.kt"
       ],
       "consumer": "Read frozen lifecycle/stream and native start/connectionStates/endGeneration/receive/ownership bodies. Actual connect publishes Connected before selfInfo handshake, receiver registers before query write, parser caches actual SelfInfo and resolves pending reply, and startup readiness is set only after its query returns. Observer registration atomically enqueues current state before later transitions. These consumers are exercised, not merely enum equality.",
-      "unresolved": ["New exact method requires current-head positive execution and independent review. No Android BLE/reconnect/platform UI or physical transport claim follows from MockTransport."],
+      "unresolved": ["Exact method passed at a6f55b86 within43appcases (all39owned+4repair),0failure/error/skip. Hosted exact-head and independent review remain required. No Android BLE/reconnect/platform UI or physical transport claim follows from MockTransport."],
       "methods": ["initial start emits connecting then connected", "reconnect start emits reconnecting then connected"]
     },
     {
@@ -51,7 +51,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionTransportOwnership.kt"
       ],
       "consumer": "Actual startup failure unwinds active generation with original failure, publishes Failed, disconnects and cancels/joins receiver. Retry creates a fresh generation after preceding cleanup with state subscription still active. CurrentSelfInfo reads active generation, so stale handshake state cannot become readiness. Frozen isRunning reset and fresh appStart semantics are retained.",
-      "unresolved": ["New exact method requires current-head execution and independent semantic review. No new product defect is inferred from the prior native assertion/input gap."],
+      "unresolved": ["Exact method passed at a6f55b86 within43appcases (all39owned+4repair),0failure/error/skip. Hosted exact-head and independent semantic review remain required. No new product defect is inferred from the prior native assertion/input gap."],
       "methods": ["failed appStart unwinds start so it can be retried"]
     },
     {
@@ -76,7 +76,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt"
       ],
       "consumer": "Actual public getContact and requestStatus requireFullPublicKey before exchange/write; setPathHashMode rejects >MAX_PATH_HASH_MODE before simple packet construction/exchange. Error is observable at the caller without transport side effects or success-shaped absence.",
-      "unresolved": ["Current-head positive method execution and independent review remain required; this is not proof of every configuration/input boundary."],
+      "unresolved": ["Exact method passed at a6f55b86 within43appcases (all39owned+4repair),0failure/error/skip. Hosted exact-head and independent review remain required; this is not proof of every configuration/input boundary."],
       "methods": ["getContact rejects short public key before sending", "requestStatus rejects short public key before sending", "setPathHashMode rejects reserved mode before sending"]
     },
     {
@@ -100,7 +100,7 @@
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalLifecycleCasesTest.kt"
       ],
       "consumer": "Actual initial native generation can be stopped without startup. Default stop acquires appropriate transport ownership and closes it once; false stops generation without taking/disconnecting a caller's transport. Teardown receipt is awaited and stream/pending generation children finish. No Android OS reconnect ownership behavior is certified by this counter.",
-      "unresolved": ["New current-head method must execute positively and receive independent review. Physical reconnect/link ownership remains separately scoped."],
+      "unresolved": ["Exact method passed at a6f55b86 within43appcases (all39owned+4repair),0failure/error/skip. Hosted exact-head and independent review remain required. Physical reconnect/link ownership remains separately scoped."],
       "methods": ["stop with disconnectTransport false leaves the transport connected", "stop by default disconnects the transport"]
     },
     {
@@ -121,7 +121,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt"
       ],
       "consumer": "Read complete frozen/native configuration and actual binary exchange timeout/cadence blocks. Native withDeadline uses overall seconds, nullable floor disables retransmit launch entirely and firmware milliseconds update max floor/headroom cadence. These two original cases prove constructor/default meanings, not every binary timing/tag/cancellation family.",
-      "unresolved": ["Both exact original native runner identities require current-head execution and independent review. Other binary exchange families and the supplemental exchange's independent expected packet remain separately auditable."],
+      "unresolved": ["Both exact original identities passed at a6f55b86 within10protocolcases positively containing all6 ConnectionState,2 stop and2 binary originals,0failure/error/skip. Hosted exact-head and independent review remain required. Other binary exchange families and the supplemental exchange's independent expected packet remain separately auditable."],
       "methods": ["defaults use a 40 second overall budget and 1 second retransmit floor", "configuration accepts custom overall and nil retransmit disables in exchange resends"]
     },
     {

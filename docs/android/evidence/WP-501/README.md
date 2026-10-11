@@ -333,9 +333,29 @@ fixtures change original inputs and omit failed intermediate state assertions;
 these are admitted test gaps, not a new production defect. Both exact binary
 configuration native identities retain all40/1/2/default and0.05/null assertions;
 their real status-exchange supplement is not an original constructor action.
-New four methods and current39required identity set await actual-head native
-execution while coordinator owns supported native/Gradle locks for issue168.
-Frozen files remain unchanged; no product/RxLog edit or physical/UI claim.
+At exacta6f55b86dba7532d85db29fc6da6203da42563bc the same private-cache,
+credential-stripped locked launcher and app selector actually discovered/run/
+passed43/43 (all39owned+4inheritedrepair),0failure/error/skip.
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.session.OriginalLifecycleCasesTest --dependency-verification=strict`
+discovered/run/passed10/10,0failure/error/skip; strict actual XML positively
+contained all6 ConnectionState/2stop/2binary original display identities.
+`python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+at the same immutablea6f55b86 discovered/run/passed363/363,0failure/error/skip.
+Both supported native/Gradle locks released normally. Frozen files remain
+unchanged; no product/RxLog edit or physical/UI claim. This is not558 independently
+executed original families or a hosted current-head/full acceptance.
+
+Independent bounded source assessment of coordinator WP212repair at
+basec68f414098df1253bfccade171ae0f256790de8b/
+head2fe54b8efe351d04ec3523eaf6482066bf513ca0 found no blocking issue in the complete
+four-file diff, affected fake/harness and actual frozen/native start/stop/
+broadcaster/cancellation/attribution contract. PR169comment6113269176 records
+the actual review, not a privileged approval or independent native rerun.
+Exact169primary38171379720 selected no native execution; controller/android-ci
+success with Android/oracles skipped was immediately surfaced in6113271958.
+Coordinator owns the directly coupled services classifier omission repair in
+workflow_scope.py/test_workflow_scope.py; those paths are not edited here.
+No unselected job is promoted to44case hosted execution, nor2fe cherry-picked.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

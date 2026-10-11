@@ -294,8 +294,11 @@ fresh retry writes, exact31byteAA/BB and mode3 no-write validation, and initiall
 disconnected/unstarted stop0/1 invocations. Shared native fixture input and missing
 intermediate assertions were test-acceptance gaps, not established product defects.
 Both original binary configuration families are also inspected through actual
-timeout/cadence consumers. New39 required identities and both binary native runner
-identities await current-head execution; coordinator currently owns native locks.
+timeout/cadence consumers. At exacta6f55b86dba7532d85db29fc6da6203da42563bc all39
+required app identities plus4repair passed43/43; protocol10/10 positively contained
+all6 ConnectionState/2stop/2binary original identities; combined Python363/363
+passed,0failure/error/skip each. Both supported native locks released normally.
+These counts overlap earlier selections, not558 independently executed families.
 
 The 558 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
