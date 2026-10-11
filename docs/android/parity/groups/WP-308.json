@@ -2542,7 +2542,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "source_references": [
             "MC1Tests/Utilities/ChatCoordinateDetectorTests.swift",
             "MC1Tests/Views/Chats/Components/MessageTextContactShareTests.swift",
@@ -2551,223 +2551,233 @@
           "methods": [
             {
               "name": "fmt",
-              "line": 21,
-              "end_line": 21
-            },
-            {
-              "name": "token",
-              "line": 22,
-              "end_line": 22
-            },
-            {
-              "name": "contactUrl",
               "line": 23,
               "end_line": 23
             },
             {
-              "name": "hasContactLink",
+              "name": "token",
               "line": 24,
               "end_line": 24
             },
             {
-              "name": "linkedText",
+              "name": "contactUrl",
               "line": 25,
+              "end_line": 25
+            },
+            {
+              "name": "hasContactLink",
+              "line": 26,
               "end_line": 26
             },
             {
-              "name": "tokenFor",
+              "name": "linkedText",
               "line": 27,
-              "end_line": 30
+              "end_line": 28
+            },
+            {
+              "name": "tokenFor",
+              "line": 29,
+              "end_line": 32
             },
             {
               "name": "URL-like text in mention carries the mention link",
-              "line": 34,
-              "end_line": 39
+              "line": 36,
+              "end_line": 41
             },
             {
               "name": "IP address inside a mention carries the mention link",
-              "line": 43,
-              "end_line": 46
+              "line": 45,
+              "end_line": 48
             },
             {
               "name": "regular URL outside a mention is parsed as a link",
-              "line": 50,
-              "end_line": 52
+              "line": 52,
+              "end_line": 54
             },
             {
               "name": "mention containing URL-like text and a real URL",
-              "line": 56,
-              "end_line": 60
+              "line": 58,
+              "end_line": 62
             },
             {
               "name": "a simple mention carries a percent-encoded mention link",
-              "line": 64,
-              "end_line": 68
+              "line": 66,
+              "end_line": 70
             },
             {
               "name": "a decimal coordinate pair is a map link",
-              "line": 72,
-              "end_line": 74
-            },
-            {
-              "name": "an integer pair is not linkified",
-              "line": 78,
+              "line": 74,
               "end_line": 78
             },
             {
-              "name": "an out-of-range pair is not linkified",
+              "name": "an integer pair is not linkified",
               "line": 82,
               "end_line": 82
             },
             {
-              "name": "only the coordinate substring is linked",
+              "name": "an out-of-range pair is not linkified",
               "line": 86,
-              "end_line": 91
+              "end_line": 86
+            },
+            {
+              "name": "only the coordinate substring is linked",
+              "line": 90,
+              "end_line": 95
             },
             {
               "name": "multiple coordinates each linkify",
-              "line": 95,
-              "end_line": 99
-            },
-            {
-              "name": "a three-number list is not a coordinate",
-              "line": 103,
+              "line": 99,
               "end_line": 103
             },
             {
-              "name": "a version-like string is not linkified",
+              "name": "a three-number list is not a coordinate",
               "line": 107,
               "end_line": 107
             },
             {
-              "name": "a coordinate inside a contact chip keeps the chip link",
+              "name": "a version-like string is not linkified",
               "line": 111,
-              "end_line": 114
+              "end_line": 111
+            },
+            {
+              "name": "a coordinate inside a contact chip keeps the chip link",
+              "line": 115,
+              "end_line": 118
             },
             {
               "name": "a linkified coordinate round-trips through parseMapURL",
-              "line": 118,
-              "end_line": 124
+              "line": 122,
+              "end_line": 128
             },
             {
               "name": "a coordinate ending a sentence is linkified",
-              "line": 128,
-              "end_line": 129
+              "line": 132,
+              "end_line": 133
             },
             {
               "name": "a coordinate followed by trailing punctuation is linkified",
-              "line": 133,
-              "end_line": 134
+              "line": 137,
+              "end_line": 138
             },
             {
               "name": "valid token renders the name as an add-contact link",
-              "line": 140,
-              "end_line": 146
+              "line": 144,
+              "end_line": 150
             },
             {
               "name": "out-of-range type leaves the literal token",
-              "line": 150,
-              "end_line": 155
+              "line": 154,
+              "end_line": 159
             },
             {
               "name": "stray opening bracket is a no-op",
-              "line": 159,
-              "end_line": 163
+              "line": 163,
+              "end_line": 167
             },
             {
               "name": "token adjacent to a URL styles both links",
-              "line": 167,
-              "end_line": 171
+              "line": 171,
+              "end_line": 175
             },
             {
               "name": "hashtag after a token is still linked",
-              "line": 175,
-              "end_line": 179
+              "line": 179,
+              "end_line": 183
             },
             {
               "name": "bidi control is stripped from chip and URL",
-              "line": 183,
-              "end_line": 189
+              "line": 187,
+              "end_line": 193
             },
             {
               "name": "zero-width format and control scalars are stripped",
-              "line": 193,
-              "end_line": 198
+              "line": 197,
+              "end_line": 202
             },
             {
               "name": "a name that sanitizes to empty leaves the literal token",
-              "line": 202,
-              "end_line": 207
+              "line": 206,
+              "end_line": 211
             },
             {
               "name": "a mention pattern inside a token name is not rewritten",
-              "line": 211,
-              "end_line": 214
+              "line": 215,
+              "end_line": 218
             },
             {
               "name": "a hashtag inside a token name stays in the chip",
-              "line": 218,
-              "end_line": 220
+              "line": 222,
+              "end_line": 224
             },
             {
               "name": "a meshcore URL inside a token name is not re-linked",
-              "line": 224,
-              "end_line": 227
+              "line": 228,
+              "end_line": 231
             },
             {
               "name": "a valid decimal pair is detected",
-              "line": 233,
-              "end_line": 237
-            },
-            {
-              "name": "an integer pair is not detected",
-              "line": 241,
+              "line": 237,
               "end_line": 241
             },
             {
-              "name": "an out-of-range pair is rejected by the clamp",
+              "name": "an integer pair is not detected",
               "line": 245,
               "end_line": 245
             },
             {
-              "name": "a three-number decimal list is a list",
+              "name": "an out-of-range pair is rejected by the clamp",
               "line": 249,
               "end_line": 249
             },
             {
-              "name": "a version-like string is not detected",
+              "name": "a three-number decimal list is a list",
               "line": 253,
               "end_line": 253
             },
             {
-              "name": "firstCoordinate returns null without a coordinate",
+              "name": "a version-like string is not detected",
               "line": 257,
               "end_line": 257
             },
             {
-              "name": "firstCoordinate returns the first of several",
+              "name": "firstCoordinate returns null without a coordinate",
               "line": 261,
-              "end_line": 265
+              "end_line": 261
+            },
+            {
+              "name": "firstCoordinate returns the first of several",
+              "line": 265,
+              "end_line": 269
             },
             {
               "name": "matches returns every coordinate in document order",
-              "line": 269,
-              "end_line": 274
+              "line": 273,
+              "end_line": 278
             },
             {
               "name": "a coordinate ending a sentence is detected",
-              "line": 278,
-              "end_line": 283
+              "line": 282,
+              "end_line": 287
+            },
+            {
+              "name": "assertNoBidiControls",
+              "line": 290,
+              "end_line": 297
+            },
+            {
+              "name": "assertNoInvisibleScalars",
+              "line": 299,
+              "end_line": 316
             },
             {
               "name": "coordinate regex edge cases match the Swift oracle",
-              "line": 288,
-              "end_line": 301
+              "line": 321,
+              "end_line": 334
             },
             {
               "name": "found",
-              "line": 289,
-              "end_line": 289
+              "line": 322,
+              "end_line": 322
             }
           ]
         }
@@ -3547,7 +3557,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "source_references": [
             "MC1Tests/Utilities/ChatCoordinateDetectorTests.swift",
             "MC1Tests/Views/Chats/Components/MessageTextContactShareTests.swift",
@@ -3556,223 +3566,233 @@
           "methods": [
             {
               "name": "fmt",
-              "line": 21,
-              "end_line": 21
-            },
-            {
-              "name": "token",
-              "line": 22,
-              "end_line": 22
-            },
-            {
-              "name": "contactUrl",
               "line": 23,
               "end_line": 23
             },
             {
-              "name": "hasContactLink",
+              "name": "token",
               "line": 24,
               "end_line": 24
             },
             {
-              "name": "linkedText",
+              "name": "contactUrl",
               "line": 25,
+              "end_line": 25
+            },
+            {
+              "name": "hasContactLink",
+              "line": 26,
               "end_line": 26
             },
             {
-              "name": "tokenFor",
+              "name": "linkedText",
               "line": 27,
-              "end_line": 30
+              "end_line": 28
+            },
+            {
+              "name": "tokenFor",
+              "line": 29,
+              "end_line": 32
             },
             {
               "name": "URL-like text in mention carries the mention link",
-              "line": 34,
-              "end_line": 39
+              "line": 36,
+              "end_line": 41
             },
             {
               "name": "IP address inside a mention carries the mention link",
-              "line": 43,
-              "end_line": 46
+              "line": 45,
+              "end_line": 48
             },
             {
               "name": "regular URL outside a mention is parsed as a link",
-              "line": 50,
-              "end_line": 52
+              "line": 52,
+              "end_line": 54
             },
             {
               "name": "mention containing URL-like text and a real URL",
-              "line": 56,
-              "end_line": 60
+              "line": 58,
+              "end_line": 62
             },
             {
               "name": "a simple mention carries a percent-encoded mention link",
-              "line": 64,
-              "end_line": 68
+              "line": 66,
+              "end_line": 70
             },
             {
               "name": "a decimal coordinate pair is a map link",
-              "line": 72,
-              "end_line": 74
-            },
-            {
-              "name": "an integer pair is not linkified",
-              "line": 78,
+              "line": 74,
               "end_line": 78
             },
             {
-              "name": "an out-of-range pair is not linkified",
+              "name": "an integer pair is not linkified",
               "line": 82,
               "end_line": 82
             },
             {
-              "name": "only the coordinate substring is linked",
+              "name": "an out-of-range pair is not linkified",
               "line": 86,
-              "end_line": 91
+              "end_line": 86
+            },
+            {
+              "name": "only the coordinate substring is linked",
+              "line": 90,
+              "end_line": 95
             },
             {
               "name": "multiple coordinates each linkify",
-              "line": 95,
-              "end_line": 99
-            },
-            {
-              "name": "a three-number list is not a coordinate",
-              "line": 103,
+              "line": 99,
               "end_line": 103
             },
             {
-              "name": "a version-like string is not linkified",
+              "name": "a three-number list is not a coordinate",
               "line": 107,
               "end_line": 107
             },
             {
-              "name": "a coordinate inside a contact chip keeps the chip link",
+              "name": "a version-like string is not linkified",
               "line": 111,
-              "end_line": 114
+              "end_line": 111
+            },
+            {
+              "name": "a coordinate inside a contact chip keeps the chip link",
+              "line": 115,
+              "end_line": 118
             },
             {
               "name": "a linkified coordinate round-trips through parseMapURL",
-              "line": 118,
-              "end_line": 124
+              "line": 122,
+              "end_line": 128
             },
             {
               "name": "a coordinate ending a sentence is linkified",
-              "line": 128,
-              "end_line": 129
+              "line": 132,
+              "end_line": 133
             },
             {
               "name": "a coordinate followed by trailing punctuation is linkified",
-              "line": 133,
-              "end_line": 134
+              "line": 137,
+              "end_line": 138
             },
             {
               "name": "valid token renders the name as an add-contact link",
-              "line": 140,
-              "end_line": 146
+              "line": 144,
+              "end_line": 150
             },
             {
               "name": "out-of-range type leaves the literal token",
-              "line": 150,
-              "end_line": 155
+              "line": 154,
+              "end_line": 159
             },
             {
               "name": "stray opening bracket is a no-op",
-              "line": 159,
-              "end_line": 163
+              "line": 163,
+              "end_line": 167
             },
             {
               "name": "token adjacent to a URL styles both links",
-              "line": 167,
-              "end_line": 171
+              "line": 171,
+              "end_line": 175
             },
             {
               "name": "hashtag after a token is still linked",
-              "line": 175,
-              "end_line": 179
+              "line": 179,
+              "end_line": 183
             },
             {
               "name": "bidi control is stripped from chip and URL",
-              "line": 183,
-              "end_line": 189
+              "line": 187,
+              "end_line": 193
             },
             {
               "name": "zero-width format and control scalars are stripped",
-              "line": 193,
-              "end_line": 198
+              "line": 197,
+              "end_line": 202
             },
             {
               "name": "a name that sanitizes to empty leaves the literal token",
-              "line": 202,
-              "end_line": 207
+              "line": 206,
+              "end_line": 211
             },
             {
               "name": "a mention pattern inside a token name is not rewritten",
-              "line": 211,
-              "end_line": 214
+              "line": 215,
+              "end_line": 218
             },
             {
               "name": "a hashtag inside a token name stays in the chip",
-              "line": 218,
-              "end_line": 220
+              "line": 222,
+              "end_line": 224
             },
             {
               "name": "a meshcore URL inside a token name is not re-linked",
-              "line": 224,
-              "end_line": 227
+              "line": 228,
+              "end_line": 231
             },
             {
               "name": "a valid decimal pair is detected",
-              "line": 233,
-              "end_line": 237
-            },
-            {
-              "name": "an integer pair is not detected",
-              "line": 241,
+              "line": 237,
               "end_line": 241
             },
             {
-              "name": "an out-of-range pair is rejected by the clamp",
+              "name": "an integer pair is not detected",
               "line": 245,
               "end_line": 245
             },
             {
-              "name": "a three-number decimal list is a list",
+              "name": "an out-of-range pair is rejected by the clamp",
               "line": 249,
               "end_line": 249
             },
             {
-              "name": "a version-like string is not detected",
+              "name": "a three-number decimal list is a list",
               "line": 253,
               "end_line": 253
             },
             {
-              "name": "firstCoordinate returns null without a coordinate",
+              "name": "a version-like string is not detected",
               "line": 257,
               "end_line": 257
             },
             {
-              "name": "firstCoordinate returns the first of several",
+              "name": "firstCoordinate returns null without a coordinate",
               "line": 261,
-              "end_line": 265
+              "end_line": 261
+            },
+            {
+              "name": "firstCoordinate returns the first of several",
+              "line": 265,
+              "end_line": 269
             },
             {
               "name": "matches returns every coordinate in document order",
-              "line": 269,
-              "end_line": 274
+              "line": 273,
+              "end_line": 278
             },
             {
               "name": "a coordinate ending a sentence is detected",
-              "line": 278,
-              "end_line": 283
+              "line": 282,
+              "end_line": 287
+            },
+            {
+              "name": "assertNoBidiControls",
+              "line": 290,
+              "end_line": 297
+            },
+            {
+              "name": "assertNoInvisibleScalars",
+              "line": 299,
+              "end_line": 316
             },
             {
               "name": "coordinate regex edge cases match the Swift oracle",
-              "line": 288,
-              "end_line": 301
+              "line": 321,
+              "end_line": 334
             },
             {
               "name": "found",
-              "line": 289,
-              "end_line": 289
+              "line": 322,
+              "end_line": 322
             }
           ]
         }
@@ -3792,7 +3812,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "source_references": [
             "MC1Tests/Utilities/ChatCoordinateDetectorTests.swift",
             "MC1Tests/Views/Chats/Components/MessageTextContactShareTests.swift",
@@ -3801,223 +3821,233 @@
           "methods": [
             {
               "name": "fmt",
-              "line": 21,
-              "end_line": 21
-            },
-            {
-              "name": "token",
-              "line": 22,
-              "end_line": 22
-            },
-            {
-              "name": "contactUrl",
               "line": 23,
               "end_line": 23
             },
             {
-              "name": "hasContactLink",
+              "name": "token",
               "line": 24,
               "end_line": 24
             },
             {
-              "name": "linkedText",
+              "name": "contactUrl",
               "line": 25,
+              "end_line": 25
+            },
+            {
+              "name": "hasContactLink",
+              "line": 26,
               "end_line": 26
             },
             {
-              "name": "tokenFor",
+              "name": "linkedText",
               "line": 27,
-              "end_line": 30
+              "end_line": 28
+            },
+            {
+              "name": "tokenFor",
+              "line": 29,
+              "end_line": 32
             },
             {
               "name": "URL-like text in mention carries the mention link",
-              "line": 34,
-              "end_line": 39
+              "line": 36,
+              "end_line": 41
             },
             {
               "name": "IP address inside a mention carries the mention link",
-              "line": 43,
-              "end_line": 46
+              "line": 45,
+              "end_line": 48
             },
             {
               "name": "regular URL outside a mention is parsed as a link",
-              "line": 50,
-              "end_line": 52
+              "line": 52,
+              "end_line": 54
             },
             {
               "name": "mention containing URL-like text and a real URL",
-              "line": 56,
-              "end_line": 60
+              "line": 58,
+              "end_line": 62
             },
             {
               "name": "a simple mention carries a percent-encoded mention link",
-              "line": 64,
-              "end_line": 68
+              "line": 66,
+              "end_line": 70
             },
             {
               "name": "a decimal coordinate pair is a map link",
-              "line": 72,
-              "end_line": 74
-            },
-            {
-              "name": "an integer pair is not linkified",
-              "line": 78,
+              "line": 74,
               "end_line": 78
             },
             {
-              "name": "an out-of-range pair is not linkified",
+              "name": "an integer pair is not linkified",
               "line": 82,
               "end_line": 82
             },
             {
-              "name": "only the coordinate substring is linked",
+              "name": "an out-of-range pair is not linkified",
               "line": 86,
-              "end_line": 91
+              "end_line": 86
+            },
+            {
+              "name": "only the coordinate substring is linked",
+              "line": 90,
+              "end_line": 95
             },
             {
               "name": "multiple coordinates each linkify",
-              "line": 95,
-              "end_line": 99
-            },
-            {
-              "name": "a three-number list is not a coordinate",
-              "line": 103,
+              "line": 99,
               "end_line": 103
             },
             {
-              "name": "a version-like string is not linkified",
+              "name": "a three-number list is not a coordinate",
               "line": 107,
               "end_line": 107
             },
             {
-              "name": "a coordinate inside a contact chip keeps the chip link",
+              "name": "a version-like string is not linkified",
               "line": 111,
-              "end_line": 114
+              "end_line": 111
+            },
+            {
+              "name": "a coordinate inside a contact chip keeps the chip link",
+              "line": 115,
+              "end_line": 118
             },
             {
               "name": "a linkified coordinate round-trips through parseMapURL",
-              "line": 118,
-              "end_line": 124
+              "line": 122,
+              "end_line": 128
             },
             {
               "name": "a coordinate ending a sentence is linkified",
-              "line": 128,
-              "end_line": 129
+              "line": 132,
+              "end_line": 133
             },
             {
               "name": "a coordinate followed by trailing punctuation is linkified",
-              "line": 133,
-              "end_line": 134
+              "line": 137,
+              "end_line": 138
             },
             {
               "name": "valid token renders the name as an add-contact link",
-              "line": 140,
-              "end_line": 146
+              "line": 144,
+              "end_line": 150
             },
             {
               "name": "out-of-range type leaves the literal token",
-              "line": 150,
-              "end_line": 155
+              "line": 154,
+              "end_line": 159
             },
             {
               "name": "stray opening bracket is a no-op",
-              "line": 159,
-              "end_line": 163
+              "line": 163,
+              "end_line": 167
             },
             {
               "name": "token adjacent to a URL styles both links",
-              "line": 167,
-              "end_line": 171
+              "line": 171,
+              "end_line": 175
             },
             {
               "name": "hashtag after a token is still linked",
-              "line": 175,
-              "end_line": 179
+              "line": 179,
+              "end_line": 183
             },
             {
               "name": "bidi control is stripped from chip and URL",
-              "line": 183,
-              "end_line": 189
+              "line": 187,
+              "end_line": 193
             },
             {
               "name": "zero-width format and control scalars are stripped",
-              "line": 193,
-              "end_line": 198
+              "line": 197,
+              "end_line": 202
             },
             {
               "name": "a name that sanitizes to empty leaves the literal token",
-              "line": 202,
-              "end_line": 207
+              "line": 206,
+              "end_line": 211
             },
             {
               "name": "a mention pattern inside a token name is not rewritten",
-              "line": 211,
-              "end_line": 214
+              "line": 215,
+              "end_line": 218
             },
             {
               "name": "a hashtag inside a token name stays in the chip",
-              "line": 218,
-              "end_line": 220
+              "line": 222,
+              "end_line": 224
             },
             {
               "name": "a meshcore URL inside a token name is not re-linked",
-              "line": 224,
-              "end_line": 227
+              "line": 228,
+              "end_line": 231
             },
             {
               "name": "a valid decimal pair is detected",
-              "line": 233,
-              "end_line": 237
-            },
-            {
-              "name": "an integer pair is not detected",
-              "line": 241,
+              "line": 237,
               "end_line": 241
             },
             {
-              "name": "an out-of-range pair is rejected by the clamp",
+              "name": "an integer pair is not detected",
               "line": 245,
               "end_line": 245
             },
             {
-              "name": "a three-number decimal list is a list",
+              "name": "an out-of-range pair is rejected by the clamp",
               "line": 249,
               "end_line": 249
             },
             {
-              "name": "a version-like string is not detected",
+              "name": "a three-number decimal list is a list",
               "line": 253,
               "end_line": 253
             },
             {
-              "name": "firstCoordinate returns null without a coordinate",
+              "name": "a version-like string is not detected",
               "line": 257,
               "end_line": 257
             },
             {
-              "name": "firstCoordinate returns the first of several",
+              "name": "firstCoordinate returns null without a coordinate",
               "line": 261,
-              "end_line": 265
+              "end_line": 261
+            },
+            {
+              "name": "firstCoordinate returns the first of several",
+              "line": 265,
+              "end_line": 269
             },
             {
               "name": "matches returns every coordinate in document order",
-              "line": 269,
-              "end_line": 274
+              "line": 273,
+              "end_line": 278
             },
             {
               "name": "a coordinate ending a sentence is detected",
-              "line": 278,
-              "end_line": 283
+              "line": 282,
+              "end_line": 287
+            },
+            {
+              "name": "assertNoBidiControls",
+              "line": 290,
+              "end_line": 297
+            },
+            {
+              "name": "assertNoInvisibleScalars",
+              "line": 299,
+              "end_line": 316
             },
             {
               "name": "coordinate regex edge cases match the Swift oracle",
-              "line": 288,
-              "end_line": 301
+              "line": 321,
+              "end_line": 334
             },
             {
               "name": "found",
-              "line": 289,
-              "end_line": 289
+              "line": 322,
+              "end_line": 322
             }
           ]
         }
@@ -4126,7 +4156,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "source_references": [
             "MC1Tests/Views/Chats/Linkify/MessageLinkAccessibilityTests.swift",
             "MC1Tests/Views/Chats/Linkify/MessageLinkTokenizerTests.swift"
@@ -4134,173 +4164,173 @@
           "methods": [
             {
               "name": "openLink",
-              "line": 16,
-              "end_line": 16
-            },
-            {
-              "name": "openWebLink",
-              "line": 17,
-              "end_line": 17
-            },
-            {
-              "name": "openMapLink",
               "line": 18,
               "end_line": 18
             },
             {
-              "name": "addContact",
+              "name": "openWebLink",
               "line": 19,
               "end_line": 19
             },
             {
-              "name": "openChannel",
+              "name": "openMapLink",
               "line": 20,
               "end_line": 20
             },
             {
-              "name": "openMention",
+              "name": "addContact",
               "line": 21,
               "end_line": 21
             },
             {
-              "name": "openHashtag",
+              "name": "openChannel",
               "line": 22,
               "end_line": 22
             },
             {
+              "name": "openMention",
+              "line": 23,
+              "end_line": 23
+            },
+            {
+              "name": "openHashtag",
+              "line": 24,
+              "end_line": 24
+            },
+            {
               "name": "tokenize",
-              "line": 28,
-              "end_line": 28
+              "line": 30,
+              "end_line": 30
             },
             {
               "name": "covering",
-              "line": 29,
-              "end_line": 33
+              "line": 31,
+              "end_line": 35
             },
             {
               "name": "URL detector emits a url token",
-              "line": 37,
-              "end_line": 44
+              "line": 39,
+              "end_line": 46
             },
             {
               "name": "hashtag detector emits a bold non-underlined token",
-              "line": 48,
-              "end_line": 55
+              "line": 50,
+              "end_line": 57
             },
             {
               "name": "meshcore detector trims trailing punctuation",
-              "line": 59,
-              "end_line": 65
+              "line": 61,
+              "end_line": 67
             },
             {
               "name": "meshcore link with another host is ignored",
-              "line": 69,
-              "end_line": 69
+              "line": 71,
+              "end_line": 71
             },
             {
               "name": "coordinate detector emits a coordinate token",
-              "line": 73,
-              "end_line": 79
+              "line": 75,
+              "end_line": 81
             },
             {
               "name": "a pre-pass mention span outranks a URL over the same characters",
-              "line": 83,
-              "end_line": 91
+              "line": 85,
+              "end_line": 93
             },
             {
               "name": "merged stream is sorted and non-overlapping",
-              "line": 95,
-              "end_line": 102
+              "line": 97,
+              "end_line": 104
             },
             {
               "name": "a hashtag inside a URL is excluded",
-              "line": 106,
-              "end_line": 111
+              "line": 108,
+              "end_line": 113
             },
             {
               "name": "a hashtag inside a meshcore channel link wins",
-              "line": 115,
-              "end_line": 120
+              "line": 117,
+              "end_line": 122
             },
             {
               "name": "a hashtag inside a meshcore contact link wins",
-              "line": 124,
-              "end_line": 129
+              "line": 126,
+              "end_line": 131
             },
             {
               "name": "mapCoordinate is the first surviving coordinate",
-              "line": 133,
-              "end_line": 137
+              "line": 135,
+              "end_line": 139
             },
             {
               "name": "mapCoordinate skips a coordinate that lost to a higher-priority token",
-              "line": 141,
-              "end_line": 147
+              "line": 143,
+              "end_line": 149
             },
             {
               "name": "no coordinate yields a null mapCoordinate",
-              "line": 151,
-              "end_line": 151
+              "line": 153,
+              "end_line": 153
             },
             {
               "name": "a coordinate token URL round-trips through the link parser",
-              "line": 155,
-              "end_line": 162
+              "line": 157,
+              "end_line": 164
             },
             {
               "name": "linked",
-              "line": 166,
-              "end_line": 174
+              "line": 168,
+              "end_line": 176
             },
             {
               "name": "actions",
-              "line": 176,
-              "end_line": 177
+              "line": 178,
+              "end_line": 179
             },
             {
               "name": "each link kind yields a distinctly named action in document order",
-              "line": 181,
-              "end_line": 192
+              "line": 183,
+              "end_line": 194
             },
             {
               "name": "a shared contact link is named from its parsed name",
-              "line": 196,
-              "end_line": 201
+              "line": 198,
+              "end_line": 203
             },
             {
               "name": "a shared channel link is named from its parsed name",
-              "line": 205,
-              "end_line": 210
+              "line": 207,
+              "end_line": 212
             },
             {
               "name": "the preview URL comes before body links",
-              "line": 214,
-              "end_line": 217
+              "line": 216,
+              "end_line": 219
             },
             {
               "name": "duplicate URLs collapse",
-              "line": 221,
-              "end_line": 225
+              "line": 223,
+              "end_line": 227
             },
             {
               "name": "the action count is capped",
-              "line": 229,
-              "end_line": 232
+              "line": 231,
+              "end_line": 234
             },
             {
               "name": "no links yields no actions",
-              "line": 236,
-              "end_line": 239
+              "line": 238,
+              "end_line": 241
             },
             {
               "name": "unparseable meshcore and mention links fall back to the generic action",
-              "line": 244,
-              "end_line": 250
+              "line": 246,
+              "end_line": 252
             },
             {
               "name": "hashtag action decodes the percent-encoded channel",
-              "line": 253,
-              "end_line": 255
+              "line": 255,
+              "end_line": 257
             }
           ]
         }
@@ -4320,7 +4350,7 @@
       "native_contracts": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "source_references": [
             "MC1Tests/Views/Chats/Linkify/MessageLinkAccessibilityTests.swift",
             "MC1Tests/Views/Chats/Linkify/MessageLinkTokenizerTests.swift"
@@ -4328,173 +4358,173 @@
           "methods": [
             {
               "name": "openLink",
-              "line": 16,
-              "end_line": 16
-            },
-            {
-              "name": "openWebLink",
-              "line": 17,
-              "end_line": 17
-            },
-            {
-              "name": "openMapLink",
               "line": 18,
               "end_line": 18
             },
             {
-              "name": "addContact",
+              "name": "openWebLink",
               "line": 19,
               "end_line": 19
             },
             {
-              "name": "openChannel",
+              "name": "openMapLink",
               "line": 20,
               "end_line": 20
             },
             {
-              "name": "openMention",
+              "name": "addContact",
               "line": 21,
               "end_line": 21
             },
             {
-              "name": "openHashtag",
+              "name": "openChannel",
               "line": 22,
               "end_line": 22
             },
             {
+              "name": "openMention",
+              "line": 23,
+              "end_line": 23
+            },
+            {
+              "name": "openHashtag",
+              "line": 24,
+              "end_line": 24
+            },
+            {
               "name": "tokenize",
-              "line": 28,
-              "end_line": 28
+              "line": 30,
+              "end_line": 30
             },
             {
               "name": "covering",
-              "line": 29,
-              "end_line": 33
+              "line": 31,
+              "end_line": 35
             },
             {
               "name": "URL detector emits a url token",
-              "line": 37,
-              "end_line": 44
+              "line": 39,
+              "end_line": 46
             },
             {
               "name": "hashtag detector emits a bold non-underlined token",
-              "line": 48,
-              "end_line": 55
+              "line": 50,
+              "end_line": 57
             },
             {
               "name": "meshcore detector trims trailing punctuation",
-              "line": 59,
-              "end_line": 65
+              "line": 61,
+              "end_line": 67
             },
             {
               "name": "meshcore link with another host is ignored",
-              "line": 69,
-              "end_line": 69
+              "line": 71,
+              "end_line": 71
             },
             {
               "name": "coordinate detector emits a coordinate token",
-              "line": 73,
-              "end_line": 79
+              "line": 75,
+              "end_line": 81
             },
             {
               "name": "a pre-pass mention span outranks a URL over the same characters",
-              "line": 83,
-              "end_line": 91
+              "line": 85,
+              "end_line": 93
             },
             {
               "name": "merged stream is sorted and non-overlapping",
-              "line": 95,
-              "end_line": 102
+              "line": 97,
+              "end_line": 104
             },
             {
               "name": "a hashtag inside a URL is excluded",
-              "line": 106,
-              "end_line": 111
+              "line": 108,
+              "end_line": 113
             },
             {
               "name": "a hashtag inside a meshcore channel link wins",
-              "line": 115,
-              "end_line": 120
+              "line": 117,
+              "end_line": 122
             },
             {
               "name": "a hashtag inside a meshcore contact link wins",
-              "line": 124,
-              "end_line": 129
+              "line": 126,
+              "end_line": 131
             },
             {
               "name": "mapCoordinate is the first surviving coordinate",
-              "line": 133,
-              "end_line": 137
+              "line": 135,
+              "end_line": 139
             },
             {
               "name": "mapCoordinate skips a coordinate that lost to a higher-priority token",
-              "line": 141,
-              "end_line": 147
+              "line": 143,
+              "end_line": 149
             },
             {
               "name": "no coordinate yields a null mapCoordinate",
-              "line": 151,
-              "end_line": 151
+              "line": 153,
+              "end_line": 153
             },
             {
               "name": "a coordinate token URL round-trips through the link parser",
-              "line": 155,
-              "end_line": 162
+              "line": 157,
+              "end_line": 164
             },
             {
               "name": "linked",
-              "line": 166,
-              "end_line": 174
+              "line": 168,
+              "end_line": 176
             },
             {
               "name": "actions",
-              "line": 176,
-              "end_line": 177
+              "line": 178,
+              "end_line": 179
             },
             {
               "name": "each link kind yields a distinctly named action in document order",
-              "line": 181,
-              "end_line": 192
+              "line": 183,
+              "end_line": 194
             },
             {
               "name": "a shared contact link is named from its parsed name",
-              "line": 196,
-              "end_line": 201
+              "line": 198,
+              "end_line": 203
             },
             {
               "name": "a shared channel link is named from its parsed name",
-              "line": 205,
-              "end_line": 210
+              "line": 207,
+              "end_line": 212
             },
             {
               "name": "the preview URL comes before body links",
-              "line": 214,
-              "end_line": 217
+              "line": 216,
+              "end_line": 219
             },
             {
               "name": "duplicate URLs collapse",
-              "line": 221,
-              "end_line": 225
+              "line": 223,
+              "end_line": 227
             },
             {
               "name": "the action count is capped",
-              "line": 229,
-              "end_line": 232
+              "line": 231,
+              "end_line": 234
             },
             {
               "name": "no links yields no actions",
-              "line": 236,
-              "end_line": 239
+              "line": 238,
+              "end_line": 241
             },
             {
               "name": "unparseable meshcore and mention links fall back to the generic action",
-              "line": 244,
-              "end_line": 250
+              "line": 246,
+              "end_line": 252
             },
             {
               "name": "hashtag action decodes the percent-encoded channel",
-              "line": 253,
-              "end_line": 255
+              "line": 255,
+              "end_line": 257
             }
           ]
         }
@@ -4563,40 +4593,52 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a valid decimal pair is detected",
-          "line": 233,
-          "end_line": 237,
+          "line": 237,
+          "end_line": 241,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "89052ebc39f393850cf12f6f34cf18fd85d1b99586556d6138f733daf9e73ccf",
+          "body_sha256": "c37f3e2f3487b41b08279c8a927c73aa1a102370a502d2da20661ee2099797ae",
           "registration": null,
           "assertions": [
             {
               "name": "assertNotNull",
-              "line": 234,
+              "line": 238,
               "expression": "assertNotNull(ChatCoordinateDetector.firstCoordinate(\"Meet at 37.334900, -122.009020 tonight\"))",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertEquals",
-              "line": 235,
-              "expression": "assertEquals(37.3349, coordinate.latitude, 0.000001)",
+              "name": "assertTrue",
+              "line": 239,
+              "expression": "assertTrue(abs(coordinate.latitude - 37.3349) < 0.000001)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertEquals",
-              "line": 236,
-              "expression": "assertEquals(-122.00902, coordinate.longitude, 0.000001)",
+              "name": "assertTrue",
+              "line": 240,
+              "expression": "assertTrue(abs(coordinate.longitude - -122.00902) < 0.000001)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.firstCoordinate",
-              "line": 234,
+              "line": 238,
               "expression": "ChatCoordinateDetector.firstCoordinate(\"Meet at 37.334900, -122.009020 tonight\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 239,
+              "expression": "abs(coordinate.latitude - 37.3349)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 240,
+              "expression": "abs(coordinate.longitude - -122.00902)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -4649,11 +4691,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "an integer pair is not detected",
-          "line": 241,
-          "end_line": 241,
+          "line": 245,
+          "end_line": 245,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "74a1af959db7e39aa72649b3957dde1952dfbf908fd8e7b0a2ba3e6480711ab5",
@@ -4661,7 +4703,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 241,
+              "line": 245,
               "expression": "assertNull(ChatCoordinateDetector.firstCoordinate(\"ratio is 3, 4 today\"))",
               "assertion_or_checked_wait": true
             }
@@ -4669,7 +4711,7 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.firstCoordinate",
-              "line": 241,
+              "line": 245,
               "expression": "ChatCoordinateDetector.firstCoordinate(\"ratio is 3, 4 today\")",
               "assertion_or_checked_wait": false
             }
@@ -4723,11 +4765,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "an out-of-range pair is rejected by the clamp",
-          "line": 245,
-          "end_line": 245,
+          "line": 249,
+          "end_line": 249,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "7f39b270802c21704d5da080a46312e61beb35d8f5ecb463ac619df298cd07ef",
@@ -4735,7 +4777,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 245,
+              "line": 249,
               "expression": "assertNull(ChatCoordinateDetector.firstCoordinate(\"bad 200.0, 400.0 coord\"))",
               "assertion_or_checked_wait": true
             }
@@ -4743,7 +4785,7 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.firstCoordinate",
-              "line": 245,
+              "line": 249,
               "expression": "ChatCoordinateDetector.firstCoordinate(\"bad 200.0, 400.0 coord\")",
               "assertion_or_checked_wait": false
             }
@@ -4797,11 +4839,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a three-number decimal list is a list",
-          "line": 249,
-          "end_line": 249,
+          "line": 253,
+          "end_line": 253,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "206350c167773d959fea93721e3d7da727fe9c46931f34feb6b682f83aad9c04",
@@ -4809,7 +4851,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 249,
+              "line": 253,
               "expression": "assertNull(ChatCoordinateDetector.firstCoordinate(\"values 1.0, 2.0, 3.0 here\"))",
               "assertion_or_checked_wait": true
             }
@@ -4817,7 +4859,7 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.firstCoordinate",
-              "line": 249,
+              "line": 253,
               "expression": "ChatCoordinateDetector.firstCoordinate(\"values 1.0, 2.0, 3.0 here\")",
               "assertion_or_checked_wait": false
             }
@@ -4871,11 +4913,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a version-like string is not detected",
-          "line": 253,
-          "end_line": 253,
+          "line": 257,
+          "end_line": 257,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "e052eaace93291d875aedbc7d3a9ee9ec988744a96ef255e96231db0f9a5ca39",
@@ -4883,7 +4925,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 253,
+              "line": 257,
               "expression": "assertNull(ChatCoordinateDetector.firstCoordinate(\"v1.2, 3.4 release\"))",
               "assertion_or_checked_wait": true
             }
@@ -4891,7 +4933,7 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.firstCoordinate",
-              "line": 253,
+              "line": 257,
               "expression": "ChatCoordinateDetector.firstCoordinate(\"v1.2, 3.4 release\")",
               "assertion_or_checked_wait": false
             }
@@ -4945,11 +4987,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "firstCoordinate returns null without a coordinate",
-          "line": 257,
-          "end_line": 257,
+          "line": 261,
+          "end_line": 261,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "2f1d4938a9bd1d4f19b9a13fc61ec7a0b33a13351380721ca4ab5a4a4a38baaa",
@@ -4957,7 +4999,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 257,
+              "line": 261,
               "expression": "assertNull(ChatCoordinateDetector.firstCoordinate(\"no coordinates here\"))",
               "assertion_or_checked_wait": true
             }
@@ -4965,7 +5007,7 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.firstCoordinate",
-              "line": 257,
+              "line": 261,
               "expression": "ChatCoordinateDetector.firstCoordinate(\"no coordinates here\")",
               "assertion_or_checked_wait": false
             }
@@ -5025,11 +5067,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "firstCoordinate returns the first of several",
-          "line": 261,
-          "end_line": 265,
+          "line": 265,
+          "end_line": 269,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "01271a8f2c88a071c510f28465d703afaf9c3a599815c94f95cf92a5de7a8982",
@@ -5037,13 +5079,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 263,
+              "line": 267,
               "expression": "assertEquals(10.0, coordinate.latitude)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 264,
+              "line": 268,
               "expression": "assertEquals(20.0, coordinate.longitude)",
               "assertion_or_checked_wait": true
             }
@@ -5051,7 +5093,7 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.firstCoordinate",
-              "line": 262,
+              "line": 266,
               "expression": "ChatCoordinateDetector.firstCoordinate(\"A 10.0, 20.0 and B 30.0, 40.0\")",
               "assertion_or_checked_wait": false
             }
@@ -5117,11 +5159,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "matches returns every coordinate in document order",
-          "line": 269,
-          "end_line": 274,
+          "line": 273,
+          "end_line": 278,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "403b4f407df9d7297d664841f82c8a93186f7b689cf35161dfc192cecd9e58d4",
@@ -5129,19 +5171,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 271,
+              "line": 275,
               "expression": "assertEquals(2, matches.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 272,
+              "line": 276,
               "expression": "assertEquals(10.0, matches.first().coordinate.latitude)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 273,
+              "line": 277,
               "expression": "assertEquals(30.0, matches.last().coordinate.latitude)",
               "assertion_or_checked_wait": true
             }
@@ -5149,19 +5191,19 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.matches",
-              "line": 270,
+              "line": 274,
               "expression": "ChatCoordinateDetector.matches(\"A 10.0, 20.0 and B 30.0, 40.0\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "matches.first",
-              "line": 272,
+              "line": 276,
               "expression": "matches.first()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "matches.last",
-              "line": 273,
+              "line": 277,
               "expression": "matches.last()",
               "assertion_or_checked_wait": false
             }
@@ -5215,11 +5257,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a coordinate ending a sentence is detected",
-          "line": 278,
-          "end_line": 283,
+          "line": 282,
+          "end_line": 287,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "082dc44e83a9012950bec38dc39897d00e02b2e374d01cdaa7f8a4efd346daad",
@@ -5227,13 +5269,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 281,
+              "line": 285,
               "expression": "assertEquals(37.7749, match.coordinate.latitude)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 282,
+              "line": 286,
               "expression": "assertEquals(\"37.7749, -122.4194\", text.substring(match.start, match.end))",
               "assertion_or_checked_wait": true
             }
@@ -5241,19 +5283,19 @@
           "actions_and_helper_calls": [
             {
               "name": "ChatCoordinateDetector.matches",
-              "line": 280,
+              "line": 284,
               "expression": "ChatCoordinateDetector.matches(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "single",
-              "line": 280,
+              "line": 284,
               "expression": "single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "text.substring",
-              "line": 282,
+              "line": 286,
               "expression": "text.substring(match.start, match.end)",
               "assertion_or_checked_wait": false
             }
@@ -10515,11 +10557,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "valid token renders the name as an add-contact link",
-          "line": 140,
-          "end_line": 146,
+          "line": 144,
+          "end_line": 150,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "9de0f424974b95d906e9bf5b20fc2d9a277d281810dbfd96c230fda480e9a41f",
@@ -10527,19 +10569,19 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 143,
+              "line": 147,
               "expression": "assertTrue(formatted.text.contains(contactName))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 144,
+              "line": 148,
               "expression": "assertFalse(formatted.text.contains(token), \"raw share token should be replaced\")",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 145,
+              "line": 149,
               "expression": "assertEquals(contactName, formatted.linkedText(contactUrl(contactName)))",
               "assertion_or_checked_wait": true
             }
@@ -10547,37 +10589,37 @@
           "actions_and_helper_calls": [
             {
               "name": "token",
-              "line": 141,
+              "line": 145,
               "expression": "token(contactName)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "fmt",
-              "line": 142,
+              "line": 146,
               "expression": "fmt(\"Add $token now\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.text.contains",
-              "line": 143,
+              "line": 147,
               "expression": "formatted.text.contains(contactName)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.text.contains",
-              "line": 144,
+              "line": 148,
               "expression": "formatted.text.contains(token)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkedText",
-              "line": 145,
+              "line": 149,
               "expression": "formatted.linkedText(contactUrl(contactName))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactUrl",
-              "line": 145,
+              "line": 149,
               "expression": "contactUrl(contactName)",
               "assertion_or_checked_wait": false
             }
@@ -10649,11 +10691,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "out-of-range type leaves the literal token",
-          "line": 150,
-          "end_line": 155,
+          "line": 154,
+          "end_line": 159,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "d2953a27f21fc979b4b0d8befebc321846afe242ed8a1e1fc52e96cf745e3e94",
@@ -10661,13 +10703,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 153,
+              "line": 157,
               "expression": "assertTrue(formatted.text.contains(literal))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 154,
+              "line": 158,
               "expression": "assertFalse(formatted.hasContactLink())",
               "assertion_or_checked_wait": true
             }
@@ -10675,19 +10717,19 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 152,
+              "line": 156,
               "expression": "fmt(literal)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.text.contains",
-              "line": 153,
+              "line": 157,
               "expression": "formatted.text.contains(literal)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.hasContactLink",
-              "line": 154,
+              "line": 158,
               "expression": "formatted.hasContactLink()",
               "assertion_or_checked_wait": false
             }
@@ -10753,11 +10795,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "stray opening bracket is a no-op",
-          "line": 159,
-          "end_line": 163,
+          "line": 163,
+          "end_line": 167,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "cde02db79853b09eb7862f7d263f66e2459e77c7c14f04039c8f573ba8f255ac",
@@ -10765,13 +10807,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 161,
+              "line": 165,
               "expression": "assertEquals(\"a < b\", formatted.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 162,
+              "line": 166,
               "expression": "assertFalse(formatted.hasContactLink())",
               "assertion_or_checked_wait": true
             }
@@ -10779,13 +10821,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 160,
+              "line": 164,
               "expression": "fmt(\"a < b\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.hasContactLink",
-              "line": 162,
+              "line": 166,
               "expression": "formatted.hasContactLink()",
               "assertion_or_checked_wait": false
             }
@@ -10875,11 +10917,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "token adjacent to a URL styles both links",
-          "line": 167,
-          "end_line": 171,
+          "line": 171,
+          "end_line": 175,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "7e504c92cbebc2a1c3d09429ceaa152464731e686caf18867d33cd766294062a",
@@ -10887,13 +10929,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 169,
+              "line": 173,
               "expression": "assertTrue(formatted.tokens.any { it.url == contactUrl(contactName) })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 170,
+              "line": 174,
               "expression": "assertTrue(formatted.tokens.any { it.url == \"https://example.com\" })",
               "assertion_or_checked_wait": true
             }
@@ -10901,13 +10943,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 168,
+              "line": 172,
               "expression": "fmt(\"${token(contactName)} https://example.com\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactUrl",
-              "line": 169,
+              "line": 173,
               "expression": "contactUrl(contactName)",
               "assertion_or_checked_wait": false
             }
@@ -11003,11 +11045,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "hashtag after a token is still linked",
-          "line": 175,
-          "end_line": 179,
+          "line": 179,
+          "end_line": 183,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "48c08b8c709758ad5f690e98583669181745b1dd3efb52f3d4dda7131c158c1a",
@@ -11015,13 +11057,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 177,
+              "line": 181,
               "expression": "assertTrue(formatted.tokens.any { it.url == contactUrl(contactName) })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 178,
+              "line": 182,
               "expression": "assertTrue(formatted.tokens.any { it.url == \"meshcoreone://hashtag/general\" })",
               "assertion_or_checked_wait": true
             }
@@ -11029,13 +11071,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 176,
+              "line": 180,
               "expression": "fmt(\"${token(contactName)} #general\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactUrl",
-              "line": 177,
+              "line": 181,
               "expression": "contactUrl(contactName)",
               "assertion_or_checked_wait": false
             }
@@ -11149,31 +11191,31 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "bidi control is stripped from chip and URL",
-          "line": 183,
-          "end_line": 189,
+          "line": 187,
+          "end_line": 193,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "dd778ee06cb74e64abe12c1273092add5469fa94c2aea76a2934b1e962d592e9",
+          "body_sha256": "d5aad6e4edb004e7d5b88a95ba86f42a4af385792587578d1db81ea944eff2d4",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 186,
+              "line": 190,
               "expression": "assertEquals(\"evil\", formatted.linkedText(contactUrl(\"evil\")))",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertFalse",
-              "line": 187,
-              "expression": "assertFalse(formatted.text.contains('\u202e'))",
+              "name": "assertNoBidiControls",
+              "line": 191,
+              "expression": "assertNoBidiControls(formatted.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 188,
+              "line": 192,
               "expression": "assertFalse(formatted.tokens.any { it.url == contactUrl(raw) }, \"link must not carry the raw bidi-override name\")",
               "assertion_or_checked_wait": true
             }
@@ -11181,31 +11223,25 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 185,
+              "line": 189,
               "expression": "fmt(\"Add ${token(raw)}\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkedText",
-              "line": 186,
+              "line": 190,
               "expression": "formatted.linkedText(contactUrl(\"evil\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactUrl",
-              "line": 186,
+              "line": 190,
               "expression": "contactUrl(\"evil\")",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "formatted.text.contains",
-              "line": 187,
-              "expression": "formatted.text.contains('\u202e')",
-              "assertion_or_checked_wait": false
-            },
-            {
               "name": "contactUrl",
-              "line": 188,
+              "line": 192,
               "expression": "contactUrl(raw)",
               "assertion_or_checked_wait": false
             }
@@ -11307,45 +11343,45 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "zero-width format and control scalars are stripped",
-          "line": 193,
-          "end_line": 198,
+          "line": 197,
+          "end_line": 202,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "0f7d20d47015cce5d8c70608ad86c83a04fe1d0c1d3def3fb4cf70510dd3916d",
+          "body_sha256": "76f10c233d6973d483b4cf618805d03620a2e2c8625d5c846f6a75725b260340",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 196,
+              "line": 200,
               "expression": "assertEquals(\"Base\", formatted.linkedText(contactUrl(\"Base\")))",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertTrue",
-              "line": 197,
-              "expression": "assertTrue(formatted.text.none { it == '\u200b' || it == '\u200c' || it == '\u200d' || it == '\\n' || it == '\\t' })",
+              "name": "assertNoInvisibleScalars",
+              "line": 201,
+              "expression": "assertNoInvisibleScalars(formatted.text)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 195,
+              "line": 199,
               "expression": "fmt(\"Add ${token(raw)}\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkedText",
-              "line": 196,
+              "line": 200,
               "expression": "formatted.linkedText(contactUrl(\"Base\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactUrl",
-              "line": 196,
+              "line": 200,
               "expression": "contactUrl(\"Base\")",
               "assertion_or_checked_wait": false
             }
@@ -11441,11 +11477,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a name that sanitizes to empty leaves the literal token",
-          "line": 202,
-          "end_line": 207,
+          "line": 206,
+          "end_line": 211,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "8047553a3174dda282cd25381851903a6710b918e95a9b5cb35f2c024cd28759",
@@ -11453,13 +11489,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 205,
+              "line": 209,
               "expression": "assertEquals(token, formatted.text)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 206,
+              "line": 210,
               "expression": "assertFalse(formatted.hasContactLink())",
               "assertion_or_checked_wait": true
             }
@@ -11467,19 +11503,19 @@
           "actions_and_helper_calls": [
             {
               "name": "token",
-              "line": 203,
+              "line": 207,
               "expression": "token(\"\u202e\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "fmt",
-              "line": 204,
+              "line": 208,
               "expression": "fmt(token)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.hasContactLink",
-              "line": 206,
+              "line": 210,
               "expression": "formatted.hasContactLink()",
               "assertion_or_checked_wait": false
             }
@@ -11569,11 +11605,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a mention pattern inside a token name is not rewritten",
-          "line": 211,
-          "end_line": 214,
+          "line": 215,
+          "end_line": 218,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "0591b5ff9a9c9bcb445f91305c2a881dba8e2cba22b58ddb9ef42b34f5de7580",
@@ -11581,7 +11617,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 213,
+              "line": 217,
               "expression": "assertEquals(name, fmt(token(name)).linkedText(contactUrl(name)))",
               "assertion_or_checked_wait": true
             }
@@ -11589,25 +11625,25 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 213,
+              "line": 217,
               "expression": "fmt(token(name))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "token",
-              "line": 213,
+              "line": 217,
               "expression": "token(name)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkedText",
-              "line": 213,
+              "line": 217,
               "expression": "linkedText(contactUrl(name))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "contactUrl",
-              "line": 213,
+              "line": 217,
               "expression": "contactUrl(name)",
               "assertion_or_checked_wait": false
             }
@@ -11691,11 +11727,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a hashtag inside a token name stays in the chip",
-          "line": 218,
-          "end_line": 220,
+          "line": 222,
+          "end_line": 224,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "ad63ec1f936f8c134f6d7767ca8ec6039626664af03f7621ea7a8ee7d3a3dd9d",
@@ -11703,7 +11739,7 @@
           "assertions": [
             {
               "name": "assertFalse",
-              "line": 219,
+              "line": 223,
               "expression": "assertFalse(fmt(token(\"Base #general\")).tokens.any { it.url == \"meshcoreone://hashtag/general\" })",
               "assertion_or_checked_wait": true
             }
@@ -11711,13 +11747,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 219,
+              "line": 223,
               "expression": "fmt(token(\"Base #general\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "token",
-              "line": 219,
+              "line": 223,
               "expression": "token(\"Base #general\")",
               "assertion_or_checked_wait": false
             }
@@ -11801,40 +11837,40 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a meshcore URL inside a token name is not re-linked",
-          "line": 224,
-          "end_line": 227,
+          "line": 228,
+          "end_line": 231,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "2c8445d9c29151b6014e6040984d07d6677fcd756a3c97fce9f6151234ea931c",
+          "body_sha256": "615da45cdc4f613554bc8e59821f59701a33079b62988f06c644bc23ffa98892",
           "registration": null,
           "assertions": [
             {
               "name": "assertFalse",
-              "line": 226,
-              "expression": "assertFalse(formatted.tokens.any { it.url?.startsWith(\"meshcore://channel\") == true })",
+              "line": 230,
+              "expression": "assertFalse(formatted.tokens.any { it.url?.let { url -> URI(url).host } == \"channel\" })",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 225,
+              "line": 229,
               "expression": "fmt(token(\"join meshcore://channel/add?name=x&secret=00112233445566778899AABBCCDDEEFF\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "token",
-              "line": 225,
+              "line": 229,
               "expression": "token(\"join meshcore://channel/add?name=x&secret=00112233445566778899AABBCCDDEEFF\")",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "it.url?.startsWith",
-              "line": 226,
-              "expression": "it.url?.startsWith(\"meshcore://channel\")",
+              "name": "URI",
+              "line": 230,
+              "expression": "URI(url)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -11935,11 +11971,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "URL-like text in mention carries the mention link",
-          "line": 34,
-          "end_line": 39,
+          "line": 36,
+          "end_line": 41,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "c4413344a6dd9dc294e5dc9c4b0b72d4320010b09ff321e244f25cee633c8285",
@@ -11947,13 +11983,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 37,
+              "line": 39,
               "expression": "assertTrue(link.startsWith(\"meshcoreone://mention/\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 38,
+              "line": 40,
               "expression": "assertTrue(formatted.tokenFor(\"WCMesh.com\")!!.underline, \"WCMesh.com should have mention styling (underline)\")",
               "assertion_or_checked_wait": true
             }
@@ -11961,25 +11997,25 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 35,
+              "line": 37,
               "expression": "fmt(\"Hey @[Ferret PocketMesh WCMesh.com], check this out!\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkFor",
-              "line": 36,
+              "line": 38,
               "expression": "formatted.linkFor(\"WCMesh.com\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "link.startsWith",
-              "line": 37,
+              "line": 39,
               "expression": "link.startsWith(\"meshcoreone://mention/\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.tokenFor",
-              "line": 38,
+              "line": 40,
               "expression": "formatted.tokenFor(\"WCMesh.com\")",
               "assertion_or_checked_wait": false
             }
@@ -12075,11 +12111,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "IP address inside a mention carries the mention link",
-          "line": 43,
-          "end_line": 46,
+          "line": 45,
+          "end_line": 48,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "03070fdcfdeb612f5970320e07a012b296fa4a627d9e42d8cbfb6784b35ad0b6",
@@ -12087,7 +12123,7 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 45,
+              "line": 47,
               "expression": "assertTrue(link.startsWith(\"meshcoreone://mention/\"))",
               "assertion_or_checked_wait": true
             }
@@ -12095,19 +12131,19 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 44,
+              "line": 46,
               "expression": "fmt(\"Message from @[Node 192.168.1.100]\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 44,
+              "line": 46,
               "expression": "linkFor(\"192.168.1.100\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "link.startsWith",
-              "line": 45,
+              "line": 47,
               "expression": "link.startsWith(\"meshcoreone://mention/\")",
               "assertion_or_checked_wait": false
             }
@@ -12197,11 +12233,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "regular URL outside a mention is parsed as a link",
-          "line": 50,
-          "end_line": 52,
+          "line": 52,
+          "end_line": 54,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "831f7f978538d59032e4c7266b9b15ee01bc77e7ac2b4039b4f82610147149fe",
@@ -12209,7 +12245,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 51,
+              "line": 53,
               "expression": "assertEquals(\"https://example.com\", fmt(\"Check https://example.com for details\").linkFor(\"https://example.com\"))",
               "assertion_or_checked_wait": true
             }
@@ -12217,13 +12253,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 51,
+              "line": 53,
               "expression": "fmt(\"Check https://example.com for details\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 51,
+              "line": 53,
               "expression": "linkFor(\"https://example.com\")",
               "assertion_or_checked_wait": false
             }
@@ -12337,11 +12373,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "mention containing URL-like text and a real URL",
-          "line": 56,
-          "end_line": 60,
+          "line": 58,
+          "end_line": 62,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "8881ee3de1a82749771f0889737f3598d6200b1fadcf416e49f7d8ffb104669d",
@@ -12349,13 +12385,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 58,
+              "line": 60,
               "expression": "assertTrue(formatted.linkFor(\"node.example.com\")!!.startsWith(\"meshcoreone://mention/\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 59,
+              "line": 61,
               "expression": "assertEquals(\"https://docs.example.com\", formatted.linkFor(\"https://docs.example.com\"))",
               "assertion_or_checked_wait": true
             }
@@ -12363,25 +12399,25 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 57,
+              "line": 59,
               "expression": "fmt(\"@[Server node.example.com] says check https://docs.example.com\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkFor",
-              "line": 58,
+              "line": 60,
               "expression": "formatted.linkFor(\"node.example.com\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "startsWith",
-              "line": 58,
+              "line": 60,
               "expression": "startsWith(\"meshcoreone://mention/\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkFor",
-              "line": 59,
+              "line": 61,
               "expression": "formatted.linkFor(\"https://docs.example.com\")",
               "assertion_or_checked_wait": false
             }
@@ -12483,11 +12519,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a simple mention carries a percent-encoded mention link",
-          "line": 64,
-          "end_line": 68,
+          "line": 66,
+          "end_line": 70,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "7774d6323ac0ca748f6a6c56d39332fce68cccbb74f863b72c2a98eca6887540",
@@ -12495,13 +12531,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 66,
+              "line": 68,
               "expression": "assertEquals(\"meshcoreone://mention/Alice%20Smith\", link)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 67,
+              "line": 69,
               "expression": "assertEquals(\"Alice Smith\", MentionDeeplink.name(link))",
               "assertion_or_checked_wait": true
             }
@@ -12509,19 +12545,19 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 65,
+              "line": 67,
               "expression": "fmt(\"Hey @[Alice Smith], how are you?\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 65,
+              "line": 67,
               "expression": "linkFor(\"@Alice Smith\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MentionDeeplink.name",
-              "line": 67,
+              "line": 69,
               "expression": "MentionDeeplink.name(link)",
               "assertion_or_checked_wait": false
             }
@@ -12593,40 +12629,46 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a decimal coordinate pair is a map link",
-          "line": 72,
-          "end_line": 74,
+          "line": 74,
+          "end_line": 78,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "e842a802f38c7498cfa43694eb430987bd0394c8ec2ae6219dff4d21f2544a59",
+          "body_sha256": "2f5e7a738d3dd20ecde2fbe8c5666272785f34bc998e48ce3ac2f6438b513c59",
           "registration": null,
           "assertions": [
             {
-              "name": "assertTrue",
-              "line": 73,
-              "expression": "assertTrue(fmt(\"Meet at 37.334900, -122.009020 tonight\").linkFor(\"37.334900, -122.009020\")!!.startsWith(\"meshcore://map\"))",
+              "name": "assertEquals",
+              "line": 76,
+              "expression": "assertEquals(\"meshcore\", url.scheme)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 77,
+              "expression": "assertEquals(\"map\", url.host)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
+              "name": "URI",
+              "line": 75,
+              "expression": "URI(fmt(\"Meet at 37.334900, -122.009020 tonight\").linkFor(\"37.334900, -122.009020\")!!)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "fmt",
-              "line": 73,
+              "line": 75,
               "expression": "fmt(\"Meet at 37.334900, -122.009020 tonight\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 73,
+              "line": 75,
               "expression": "linkFor(\"37.334900, -122.009020\")",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "startsWith",
-              "line": 73,
-              "expression": "startsWith(\"meshcore://map\")",
               "assertion_or_checked_wait": false
             }
           ],
@@ -12685,11 +12727,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "an integer pair is not linkified",
-          "line": 78,
-          "end_line": 78,
+          "line": 82,
+          "end_line": 82,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "08d93605a3aa4e6229837fd96c688585ab550fe2019d9efc91ca98941938d5da",
@@ -12697,7 +12739,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 78,
+              "line": 82,
               "expression": "assertNull(fmt(\"ratio is 3, 4 today\").linkFor(\"3, 4\"))",
               "assertion_or_checked_wait": true
             }
@@ -12705,13 +12747,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 78,
+              "line": 82,
               "expression": "fmt(\"ratio is 3, 4 today\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 78,
+              "line": 82,
               "expression": "linkFor(\"3, 4\")",
               "assertion_or_checked_wait": false
             }
@@ -12771,11 +12813,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "an out-of-range pair is not linkified",
-          "line": 82,
-          "end_line": 82,
+          "line": 86,
+          "end_line": 86,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "bf8719190707d161bbe02c8bf5440cd8a43fcc043f0f7f361d2af43b542ff2e8",
@@ -12783,7 +12825,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 82,
+              "line": 86,
               "expression": "assertNull(fmt(\"bad 200.0, 400.0 coord\").linkFor(\"200.0, 400.0\"))",
               "assertion_or_checked_wait": true
             }
@@ -12791,13 +12833,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 82,
+              "line": 86,
               "expression": "fmt(\"bad 200.0, 400.0 coord\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 82,
+              "line": 86,
               "expression": "linkFor(\"200.0, 400.0\")",
               "assertion_or_checked_wait": false
             }
@@ -12887,31 +12929,31 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "only the coordinate substring is linked",
-          "line": 86,
-          "end_line": 91,
+          "line": 90,
+          "end_line": 95,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "5ddfa29b5a7a1fd60f9f0d8da10b80f40d1275b778e69f9773b965da880ab195",
+          "body_sha256": "71bb32ed71deff6169a071625427ece6baaf9e83e5c965813c35320c38e81d5e",
           "registration": null,
           "assertions": [
             {
-              "name": "assertTrue",
-              "line": 88,
-              "expression": "assertTrue(formatted.linkFor(\"37.7749, -122.4194\")!!.startsWith(\"meshcore://map\"))",
+              "name": "assertEquals",
+              "line": 92,
+              "expression": "assertEquals(\"map\", URI(formatted.linkFor(\"37.7749, -122.4194\")!!).host)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 89,
+              "line": 93,
               "expression": "assertNull(formatted.linkFor(\"here\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 90,
+              "line": 94,
               "expression": "assertNull(formatted.linkFor(\"ok\"))",
               "assertion_or_checked_wait": true
             }
@@ -12919,31 +12961,31 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 87,
+              "line": 91,
               "expression": "fmt(\"here: 37.7749, -122.4194 ok\")",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "URI",
+              "line": 92,
+              "expression": "URI(formatted.linkFor(\"37.7749, -122.4194\")!!)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "formatted.linkFor",
-              "line": 88,
+              "line": 92,
               "expression": "formatted.linkFor(\"37.7749, -122.4194\")",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "startsWith",
-              "line": 88,
-              "expression": "startsWith(\"meshcore://map\")",
-              "assertion_or_checked_wait": false
-            },
-            {
               "name": "formatted.linkFor",
-              "line": 89,
+              "line": 93,
               "expression": "formatted.linkFor(\"here\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkFor",
-              "line": 90,
+              "line": 94,
               "expression": "formatted.linkFor(\"ok\")",
               "assertion_or_checked_wait": false
             }
@@ -13027,58 +13069,58 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "multiple coordinates each linkify",
-          "line": 95,
-          "end_line": 99,
+          "line": 99,
+          "end_line": 103,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "a0a4e5d237d421744eef082cae01e2be9340116816269b0269820bd3d8414b61",
+          "body_sha256": "b4ecb75f86368f14ab65c940b2b6da6a4929caa83379e9131af1b3addef9e665",
           "registration": null,
           "assertions": [
             {
-              "name": "assertTrue",
-              "line": 97,
-              "expression": "assertTrue(formatted.linkFor(\"10.0, 20.0\")!!.startsWith(\"meshcore://map\"))",
+              "name": "assertEquals",
+              "line": 101,
+              "expression": "assertEquals(\"map\", URI(formatted.linkFor(\"10.0, 20.0\")!!).host)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertTrue",
-              "line": 98,
-              "expression": "assertTrue(formatted.linkFor(\"30.0, 40.0\")!!.startsWith(\"meshcore://map\"))",
+              "name": "assertEquals",
+              "line": 102,
+              "expression": "assertEquals(\"map\", URI(formatted.linkFor(\"30.0, 40.0\")!!).host)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 96,
+              "line": 100,
               "expression": "fmt(\"A 10.0, 20.0 and B 30.0, 40.0\")",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "URI",
+              "line": 101,
+              "expression": "URI(formatted.linkFor(\"10.0, 20.0\")!!)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "formatted.linkFor",
-              "line": 97,
+              "line": 101,
               "expression": "formatted.linkFor(\"10.0, 20.0\")",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "startsWith",
-              "line": 97,
-              "expression": "startsWith(\"meshcore://map\")",
+              "name": "URI",
+              "line": 102,
+              "expression": "URI(formatted.linkFor(\"30.0, 40.0\")!!)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkFor",
-              "line": 98,
+              "line": 102,
               "expression": "formatted.linkFor(\"30.0, 40.0\")",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "startsWith",
-              "line": 98,
-              "expression": "startsWith(\"meshcore://map\")",
               "assertion_or_checked_wait": false
             }
           ],
@@ -13137,11 +13179,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a three-number list is not a coordinate",
-          "line": 103,
-          "end_line": 103,
+          "line": 107,
+          "end_line": 107,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "3b89eb699eaa9b1572826e8d4e325e199b1982418b676483b023c072ec0544fb",
@@ -13149,7 +13191,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 103,
+              "line": 107,
               "expression": "assertNull(fmt(\"values 1.0, 2.0, 3.0 here\").linkFor(\"1.0, 2.0\"))",
               "assertion_or_checked_wait": true
             }
@@ -13157,13 +13199,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 103,
+              "line": 107,
               "expression": "fmt(\"values 1.0, 2.0, 3.0 here\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 103,
+              "line": 107,
               "expression": "linkFor(\"1.0, 2.0\")",
               "assertion_or_checked_wait": false
             }
@@ -13223,11 +13265,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a version-like string is not linkified",
-          "line": 107,
-          "end_line": 107,
+          "line": 111,
+          "end_line": 111,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "4ec836babeed0b6e844920dff4c7275382f5c9978095d841c2731cfe3ad31d64",
@@ -13235,7 +13277,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 107,
+              "line": 111,
               "expression": "assertNull(fmt(\"v1.2, 3.4 release\").linkFor(\"1.2, 3.4\"))",
               "assertion_or_checked_wait": true
             }
@@ -13243,13 +13285,13 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 107,
+              "line": 111,
               "expression": "fmt(\"v1.2, 3.4 release\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 107,
+              "line": 111,
               "expression": "linkFor(\"1.2, 3.4\")",
               "assertion_or_checked_wait": false
             }
@@ -13339,11 +13381,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a coordinate inside a contact chip keeps the chip link",
-          "line": 111,
-          "end_line": 114,
+          "line": 115,
+          "end_line": 118,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "90e53ac72b8b4e5e6270ea690ab65eae07224fdbc30493deec8cef22d3f60e7a",
@@ -13351,7 +13393,7 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 113,
+              "line": 117,
               "expression": "assertTrue(formatted.linkFor(\"37.7749, -122.4194\")!!.startsWith(\"meshcore://contact/\"))",
               "assertion_or_checked_wait": true
             }
@@ -13359,19 +13401,19 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 112,
+              "line": 116,
               "expression": "fmt(\"Add ${token(\"Base 37.7749, -122.4194\")}\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "formatted.linkFor",
-              "line": 113,
+              "line": 117,
               "expression": "formatted.linkFor(\"37.7749, -122.4194\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "startsWith",
-              "line": 113,
+              "line": 117,
               "expression": "startsWith(\"meshcore://contact/\")",
               "assertion_or_checked_wait": false
             }
@@ -13491,37 +13533,37 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a linkified coordinate round-trips through parseMapURL",
-          "line": 118,
-          "end_line": 124,
+          "line": 122,
+          "end_line": 128,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "d7b566c99191fa0cc856f76c512b9d70cfba2419604dd11d243d0cced99a23fa",
+          "body_sha256": "617c03669ff20a26af666c42f142bc5819e117a7ed8eb14756bed35a1c1afaec",
           "registration": null,
           "assertions": [
             {
               "name": "assertNotNull",
-              "line": 120,
+              "line": 124,
               "expression": "assertNotNull(MeshCoreLinkParser.parseMapURL(url))",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertEquals",
-              "line": 121,
-              "expression": "assertEquals(37.3349, parsed.latitude, 0.000001)",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertEquals",
-              "line": 122,
-              "expression": "assertEquals(-122.00902, parsed.longitude, 0.000001)",
+              "name": "assertTrue",
+              "line": 125,
+              "expression": "assertTrue(abs(parsed.latitude - 37.3349) < 0.000001)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 123,
+              "line": 126,
+              "expression": "assertTrue(abs(parsed.longitude - -122.00902) < 0.000001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 127,
               "expression": "assertTrue(url.contains(\"lat=37.334900\") && url.contains(\"lon=-122.009020\"))",
               "assertion_or_checked_wait": true
             }
@@ -13529,31 +13571,43 @@
           "actions_and_helper_calls": [
             {
               "name": "fmt",
-              "line": 119,
+              "line": 123,
               "expression": "fmt(\"37.334900, -122.009020\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 119,
+              "line": 123,
               "expression": "linkFor(\"37.334900, -122.009020\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MeshCoreLinkParser.parseMapURL",
-              "line": 120,
+              "line": 124,
               "expression": "MeshCoreLinkParser.parseMapURL(url)",
               "assertion_or_checked_wait": false
             },
             {
+              "name": "abs",
+              "line": 125,
+              "expression": "abs(parsed.latitude - 37.3349)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 126,
+              "expression": "abs(parsed.longitude - -122.00902)",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "url.contains",
-              "line": 123,
+              "line": 127,
               "expression": "url.contains(\"lat=37.334900\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "url.contains",
-              "line": 123,
+              "line": 127,
               "expression": "url.contains(\"lon=-122.009020\")",
               "assertion_or_checked_wait": false
             }
@@ -13619,11 +13673,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a coordinate ending a sentence is linkified",
-          "line": 128,
-          "end_line": 129,
+          "line": 132,
+          "end_line": 133,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "e5da582126e3f5d4750f12de4c8e3ff9c592522facb1d70361cf99d6fc25cae2",
@@ -13631,7 +13685,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 129,
+              "line": 133,
               "expression": "assertEquals(\"map\", java.net.URI(fmt(\"Meet at 37.7749, -122.4194.\").linkFor(\"37.7749, -122.4194\")!!).host)",
               "assertion_or_checked_wait": true
             }
@@ -13639,19 +13693,19 @@
           "actions_and_helper_calls": [
             {
               "name": "java.net.URI",
-              "line": 129,
+              "line": 133,
               "expression": "java.net.URI(fmt(\"Meet at 37.7749, -122.4194.\").linkFor(\"37.7749, -122.4194\")!!)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "fmt",
-              "line": 129,
+              "line": 133,
               "expression": "fmt(\"Meet at 37.7749, -122.4194.\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 129,
+              "line": 133,
               "expression": "linkFor(\"37.7749, -122.4194\")",
               "assertion_or_checked_wait": false
             }
@@ -13717,11 +13771,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
-          "sha256": "651252a489bb5289e741f06a30e84edca886e020dc78ef9d25193260977894d3",
+          "sha256": "c99c1c8adea41dd745aeb2fca7f36dec6edf05cee78304f7b62c126107aabfbe",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
           "method_or_family_name": "a coordinate followed by trailing punctuation is linkified",
-          "line": 133,
-          "end_line": 134,
+          "line": 137,
+          "end_line": 138,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "ccbfcb3fe1211ed9c26ba02717b1f594dea04cf1e3b3ba743389c2a384533bb2",
@@ -13729,7 +13783,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 134,
+              "line": 138,
               "expression": "assertEquals(\"map\", java.net.URI(fmt(\"Here: 37.7749, -122.4194!\").linkFor(\"37.7749, -122.4194\")!!).host)",
               "assertion_or_checked_wait": true
             }
@@ -13737,19 +13791,19 @@
           "actions_and_helper_calls": [
             {
               "name": "java.net.URI",
-              "line": 134,
+              "line": 138,
               "expression": "java.net.URI(fmt(\"Here: 37.7749, -122.4194!\").linkFor(\"37.7749, -122.4194\")!!)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "fmt",
-              "line": 134,
+              "line": 138,
               "expression": "fmt(\"Here: 37.7749, -122.4194!\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linkFor",
-              "line": 134,
+              "line": 138,
               "expression": "linkFor(\"37.7749, -122.4194\")",
               "assertion_or_checked_wait": false
             }
@@ -14341,67 +14395,67 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "each link kind yields a distinctly named action in document order",
-          "line": 181,
-          "end_line": 192,
+          "line": 183,
+          "end_line": 194,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "29854d6ea68dd3a3900f5d5f8fc047f35713dab7a8fec557a828cf86a5f472e3",
+          "body_sha256": "c5b1d22b12072b3ef5e0c24c4a9772b44b9919921440575aa794486a556b687e",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 183,
+              "line": 185,
               "expression": "assertEquals(4, actions.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 184,
+              "line": 186,
               "expression": "assertEquals(\"meshcoreone://mention/Bob\", actions[0].url)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 185,
-              "expression": "assertEquals(\"Mention: Bob\", actions[0].name)",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertTrue",
-              "line": 186,
-              "expression": "assertTrue(actions[1].url.startsWith(\"https\"))",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertEquals",
               "line": 187,
-              "expression": "assertEquals(\"Open Link: example.com\", actions[1].name)",
+              "expression": "assertEquals(\"Mention: Bob\", actions[0].name)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
               "line": 188,
-              "expression": "assertEquals(\"meshcoreone://hashtag/ops\", actions[2].url)",
+              "expression": "assertEquals(\"https\", URI(actions[1].url).scheme)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
               "line": 189,
-              "expression": "assertEquals(\"Open #ops\", actions[2].name)",
+              "expression": "assertEquals(\"Open Link: example.com\", actions[1].name)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertTrue",
+              "name": "assertEquals",
               "line": 190,
-              "expression": "assertTrue(actions[3].url.startsWith(\"meshcore://map\"))",
+              "expression": "assertEquals(\"meshcoreone://hashtag/ops\", actions[2].url)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
               "line": 191,
+              "expression": "assertEquals(\"Open #ops\", actions[2].name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 192,
+              "expression": "assertEquals(\"map\", URI(actions[3].url).host)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 193,
               "expression": "assertEquals(\"Open Map\", actions[3].name)",
               "assertion_or_checked_wait": true
             }
@@ -14409,26 +14463,26 @@
           "actions_and_helper_calls": [
             {
               "name": "actions",
-              "line": 182,
+              "line": 184,
               "expression": "actions(null, MessageTextFormatter.format(\"@[Bob] see https://example.com #ops at 37.7749, -122.4194\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MessageTextFormatter.format",
-              "line": 182,
+              "line": 184,
               "expression": "MessageTextFormatter.format(\"@[Bob] see https://example.com #ops at 37.7749, -122.4194\")",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "url.startsWith",
-              "line": 186,
-              "expression": "url.startsWith(\"https\")",
+              "name": "URI",
+              "line": 188,
+              "expression": "URI(actions[1].url)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "url.startsWith",
-              "line": 190,
-              "expression": "url.startsWith(\"meshcore://map\")",
+              "name": "URI",
+              "line": 192,
+              "expression": "URI(actions[3].url)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -14498,11 +14552,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "a shared contact link is named from its parsed name",
-          "line": 196,
-          "end_line": 201,
+          "line": 198,
+          "end_line": 203,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "d4cc3bfb724e21063c24130178c72d37d7ccb994013c776bcf1f4824d4b756a2",
@@ -14510,13 +14564,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 199,
+              "line": 201,
               "expression": "assertEquals(1, actions.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 200,
+              "line": 202,
               "expression": "assertEquals(\"Add Contact: Alice\", actions[0].name)",
               "assertion_or_checked_wait": true
             }
@@ -14524,13 +14578,13 @@
           "actions_and_helper_calls": [
             {
               "name": "actions",
-              "line": 198,
+              "line": 200,
               "expression": "actions(null, linked(\"Alice\" to uri))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linked",
-              "line": 198,
+              "line": 200,
               "expression": "linked(\"Alice\" to uri)",
               "assertion_or_checked_wait": false
             }
@@ -14601,11 +14655,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "a shared channel link is named from its parsed name",
-          "line": 205,
-          "end_line": 210,
+          "line": 207,
+          "end_line": 212,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "130b8dbe2acba7d2b07f2d4248cc28bea47fb29a099c19ec1ab5e65fe1b2e61a",
@@ -14613,13 +14667,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 208,
+              "line": 210,
               "expression": "assertEquals(1, actions.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 209,
+              "line": 211,
               "expression": "assertEquals(\"Open Channel: Ops\", actions[0].name)",
               "assertion_or_checked_wait": true
             }
@@ -14627,13 +14681,13 @@
           "actions_and_helper_calls": [
             {
               "name": "actions",
-              "line": 207,
+              "line": 209,
               "expression": "actions(null, linked(\"Ops\" to uri))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linked",
-              "line": 207,
+              "line": 209,
               "expression": "linked(\"Ops\" to uri)",
               "assertion_or_checked_wait": false
             }
@@ -14716,11 +14770,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "the preview URL comes before body links",
-          "line": 214,
-          "end_line": 217,
+          "line": 216,
+          "end_line": 219,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "fa341dc90608166868c4e7c7685c1d3c25152a474c802cbd0c1e67e590d005b6",
@@ -14728,7 +14782,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 216,
+              "line": 218,
               "expression": "assertEquals(listOf(\"https://preview.example\", \"https://body.example\"), actions.map { it.url })",
               "assertion_or_checked_wait": true
             }
@@ -14736,19 +14790,19 @@
           "actions_and_helper_calls": [
             {
               "name": "actions",
-              "line": 215,
+              "line": 217,
               "expression": "actions(\"https://preview.example\", linked(\"go \" to null, \"body\" to \"https://body.example\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linked",
-              "line": 215,
+              "line": 217,
               "expression": "linked(\"go \" to null, \"body\" to \"https://body.example\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 216,
+              "line": 218,
               "expression": "listOf(\"https://preview.example\", \"https://body.example\")",
               "assertion_or_checked_wait": false
             }
@@ -14819,11 +14873,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "duplicate URLs collapse",
-          "line": 221,
-          "end_line": 225,
+          "line": 223,
+          "end_line": 227,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "3831dbab98338097f41759bb96b5022034631d1f38a5dfc80a279b9e8414ab98",
@@ -14831,7 +14885,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 224,
+              "line": 226,
               "expression": "assertEquals(listOf(shared), actions.map { it.url })",
               "assertion_or_checked_wait": true
             }
@@ -14839,19 +14893,19 @@
           "actions_and_helper_calls": [
             {
               "name": "actions",
-              "line": 223,
+              "line": 225,
               "expression": "actions(shared, linked(\"a\" to shared, \" \" to null, \"b\" to shared))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linked",
-              "line": 223,
+              "line": 225,
               "expression": "linked(\"a\" to shared, \" \" to null, \"b\" to shared)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 224,
+              "line": 226,
               "expression": "listOf(shared)",
               "assertion_or_checked_wait": false
             }
@@ -14910,11 +14964,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "the action count is capped",
-          "line": 229,
-          "end_line": 232,
+          "line": 231,
+          "end_line": 234,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "c7ba68e0af9d38fca43f93848c37d98547219401491df191f4bb0486071444d8",
@@ -14922,7 +14976,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 231,
+              "line": 233,
               "expression": "assertEquals(MessageLinkAccessibility.MAX_ACTIONS, actions(null, linked(*segments.toTypedArray())).size)",
               "assertion_or_checked_wait": true
             }
@@ -14930,25 +14984,25 @@
           "actions_and_helper_calls": [
             {
               "name": "to",
-              "line": 230,
+              "line": 232,
               "expression": "to (\"https://e$it.example\" as String?)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "actions",
-              "line": 231,
+              "line": 233,
               "expression": "actions(null, linked(*segments.toTypedArray()))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linked",
-              "line": 231,
+              "line": 233,
               "expression": "linked(*segments.toTypedArray())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "segments.toTypedArray",
-              "line": 231,
+              "line": 233,
               "expression": "segments.toTypedArray()",
               "assertion_or_checked_wait": false
             }
@@ -15019,11 +15073,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "no links yields no actions",
-          "line": 236,
-          "end_line": 239,
+          "line": 238,
+          "end_line": 241,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "1aa11b7420c3f8d415f761cd26f0c73141b880cca5b791ff9aa54e3defd5a112",
@@ -15031,13 +15085,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 237,
+              "line": 239,
               "expression": "assertTrue(actions(null, linked(\"plain\" to null)).isEmpty())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 238,
+              "line": 240,
               "expression": "assertTrue(actions(null, null).isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -15045,31 +15099,31 @@
           "actions_and_helper_calls": [
             {
               "name": "actions",
-              "line": 237,
+              "line": 239,
               "expression": "actions(null, linked(\"plain\" to null))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "linked",
-              "line": 237,
+              "line": 239,
               "expression": "linked(\"plain\" to null)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "isEmpty",
-              "line": 237,
+              "line": 239,
               "expression": "isEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "actions",
-              "line": 238,
+              "line": 240,
               "expression": "actions(null, null)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "isEmpty",
-              "line": 238,
+              "line": 240,
               "expression": "isEmpty()",
               "assertion_or_checked_wait": false
             }
@@ -15146,37 +15200,37 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "URL detector emits a url token",
-          "line": 37,
-          "end_line": 44,
+          "line": 39,
+          "end_line": 46,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "2d26d34319a2a785e382fa7043937fe748806f1b2ed94e98703d3ad66ebc7425",
+          "body_sha256": "826c8d1f52c3ba1cc366246b62c4b0ea2dca65593248987a1ac914064f890234",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 40,
+              "line": 42,
               "expression": "assertEquals(LinkKind.URL, token.kind)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertTrue",
-              "line": 41,
-              "expression": "assertTrue(token.url!!.startsWith(\"https\"))",
+              "name": "assertEquals",
+              "line": 43,
+              "expression": "assertEquals(\"https\", URI(token.url!!).scheme)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 42,
+              "line": 44,
               "expression": "assertTrue(token.underline)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 43,
+              "line": 45,
               "expression": "assertFalse(token.bold)",
               "assertion_or_checked_wait": true
             }
@@ -15184,20 +15238,20 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 39,
+              "line": 41,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "covering",
-              "line": 39,
+              "line": 41,
               "expression": "covering(\"https://example.com\", text)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "startsWith",
-              "line": 41,
-              "expression": "startsWith(\"https\")",
+              "name": "URI",
+              "line": 43,
+              "expression": "URI(token.url!!)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -15273,11 +15327,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "hashtag detector emits a bold non-underlined token",
-          "line": 48,
-          "end_line": 55,
+          "line": 50,
+          "end_line": 57,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "65d5de5d2df565c2192a9881ac3b6e5e3f5fc267c83864ccd7b4e141d6a8447f",
@@ -15285,25 +15339,25 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 51,
+              "line": 53,
               "expression": "assertEquals(LinkKind.HASHTAG, token.kind)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 52,
+              "line": 54,
               "expression": "assertEquals(\"meshcoreone://hashtag/general\", token.url)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 53,
+              "line": 55,
               "expression": "assertTrue(token.bold)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 54,
+              "line": 56,
               "expression": "assertFalse(token.underline)",
               "assertion_or_checked_wait": true
             }
@@ -15311,13 +15365,13 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 50,
+              "line": 52,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "covering",
-              "line": 50,
+              "line": 52,
               "expression": "covering(\"#general\", text)",
               "assertion_or_checked_wait": false
             }
@@ -15394,31 +15448,31 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "meshcore detector trims trailing punctuation",
-          "line": 59,
-          "end_line": 65,
+          "line": 61,
+          "end_line": 67,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "aa08c4d534bfa27122eb760427f6564e777c1c327d5241e9fb7fd3fe1fde32d6",
+          "body_sha256": "1c40626ac236aca76b12bb5facae4b67df5481739b96d40404204a66513db0de",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 62,
+              "line": 64,
               "expression": "assertEquals(LinkKind.MESHCORE_LINK, token.kind)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertTrue",
-              "line": 63,
-              "expression": "assertTrue(token.url!!.startsWith(\"meshcore://contact\"))",
+              "name": "assertEquals",
+              "line": 65,
+              "expression": "assertEquals(\"contact\", URI(token.url!!).host)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 64,
+              "line": 66,
               "expression": "assertTrue(text.substring(token.start, token.end).last() != '.')",
               "assertion_or_checked_wait": true
             }
@@ -15426,31 +15480,31 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 61,
+              "line": 63,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "covering",
-              "line": 61,
+              "line": 63,
               "expression": "covering(\"meshcore://contact\", text)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "startsWith",
-              "line": 63,
-              "expression": "startsWith(\"meshcore://contact\")",
+              "name": "URI",
+              "line": 65,
+              "expression": "URI(token.url!!)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "text.substring",
-              "line": 64,
+              "line": 66,
               "expression": "text.substring(token.start, token.end)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "last",
-              "line": 64,
+              "line": 66,
               "expression": "last()",
               "assertion_or_checked_wait": false
             }
@@ -15503,11 +15557,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "meshcore link with another host is ignored",
-          "line": 69,
-          "end_line": 69,
+          "line": 71,
+          "end_line": 71,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "845ca0679c5e82d4f6f1c23b8d2a87f2d3b2bb4ce3959415f2afd5261ffa06f0",
@@ -15515,7 +15569,7 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 69,
+              "line": 71,
               "expression": "assertTrue(tokenize(\"open meshcore://other/path\").tokens.isEmpty())",
               "assertion_or_checked_wait": true
             }
@@ -15523,13 +15577,13 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 69,
+              "line": 71,
               "expression": "tokenize(\"open meshcore://other/path\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "tokens.isEmpty",
-              "line": 69,
+              "line": 71,
               "expression": "tokens.isEmpty()",
               "assertion_or_checked_wait": false
             }
@@ -15606,31 +15660,31 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "coordinate detector emits a coordinate token",
-          "line": 73,
-          "end_line": 79,
+          "line": 75,
+          "end_line": 81,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "65d48b39a38105f492cde02308c1436c70b5d7e8a2f85550b64263c3107e6d62",
+          "body_sha256": "3a56dfaf6fcea0aebc7bcb43e94639062b98e6757c80e2eba9f43cce74f32200",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 76,
+              "line": 78,
               "expression": "assertEquals(LinkKind.COORDINATE, token.kind)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertTrue",
-              "line": 77,
-              "expression": "assertTrue(token.url!!.startsWith(\"meshcore://map\"))",
+              "name": "assertEquals",
+              "line": 79,
+              "expression": "assertEquals(\"map\", URI(token.url!!).host)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 78,
+              "line": 80,
               "expression": "assertTrue(token.underline)",
               "assertion_or_checked_wait": true
             }
@@ -15638,20 +15692,20 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 75,
+              "line": 77,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "covering",
-              "line": 75,
+              "line": 77,
               "expression": "covering(\"37.7749, -122.4194\", text)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "startsWith",
-              "line": 77,
-              "expression": "startsWith(\"meshcore://map\")",
+              "name": "URI",
+              "line": 79,
+              "expression": "URI(token.url!!)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -15745,11 +15799,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "a pre-pass mention span outranks a URL over the same characters",
-          "line": 83,
-          "end_line": 91,
+          "line": 85,
+          "end_line": 93,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "311c3ccd2592d2c1ce6326c1c397dbc4a816db8d6f8bebd0cbedb96cd4c27d16",
@@ -15757,19 +15811,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 88,
+              "line": 90,
               "expression": "assertEquals(1, covering.size)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 89,
+              "line": 91,
               "expression": "assertEquals(LinkKind.MENTION, covering.single().kind)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 90,
+              "line": 92,
               "expression": "assertTrue(covering.single().url!!.startsWith(\"meshcoreone://\"))",
               "assertion_or_checked_wait": true
             }
@@ -15777,49 +15831,49 @@
           "actions_and_helper_calls": [
             {
               "name": "normalized.indexOf",
-              "line": 85,
+              "line": 87,
               "expression": "normalized.indexOf(\"@www.WCMesh.com\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "LinkToken",
-              "line": 86,
+              "line": 88,
               "expression": "LinkToken(start, start + \"@www.WCMesh.com\".length, LinkKind.MENTION, \"meshcoreone://mention/www.WCMesh.com\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "tokenize",
-              "line": 87,
+              "line": 89,
               "expression": "tokenize(normalized, listOf(span))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 87,
+              "line": 89,
               "expression": "listOf(span)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.overlaps",
-              "line": 87,
+              "line": 89,
               "expression": "it.overlaps(span)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "covering.single",
-              "line": 89,
+              "line": 91,
               "expression": "covering.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "covering.single",
-              "line": 90,
+              "line": 92,
               "expression": "covering.single()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "startsWith",
-              "line": 90,
+              "line": 92,
               "expression": "startsWith(\"meshcoreone://\")",
               "assertion_or_checked_wait": false
             }
@@ -15890,11 +15944,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "merged stream is sorted and non-overlapping",
-          "line": 95,
-          "end_line": 102,
+          "line": 97,
+          "end_line": 104,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "125bbd4c58491f62cc1e17af2f78fa09c90860deaee1aaf355aca81627d4bff4",
@@ -15902,19 +15956,19 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 97,
+              "line": 99,
               "expression": "assertTrue(tokens.size >= 3)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 99,
+              "line": 101,
               "expression": "assertTrue(tokens[index].start <= tokens[index + 1].start, \"tokens must be sorted\")",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 100,
+              "line": 102,
               "expression": "assertFalse(tokens[index].overlaps(tokens[index + 1]), \"tokens must not overlap\")",
               "assertion_or_checked_wait": true
             }
@@ -15922,19 +15976,19 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 96,
+              "line": 98,
               "expression": "tokenize(\"@x see https://a.com #ops at 37.7749, -122.4194 end\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "for",
-              "line": 98,
+              "line": 100,
               "expression": "for (index in 0 until tokens.size - 1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "overlaps",
-              "line": 100,
+              "line": 102,
               "expression": "overlaps(tokens[index + 1])",
               "assertion_or_checked_wait": false
             }
@@ -16005,11 +16059,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "a hashtag inside a URL is excluded",
-          "line": 106,
-          "end_line": 111,
+          "line": 108,
+          "end_line": 113,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "6c943770873c7e32e68f974e32a261e906a8b8134e8fdf7a00d2cddaf49ab7d7",
@@ -16017,13 +16071,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 109,
+              "line": 111,
               "expression": "assertEquals(LinkKind.URL, result.covering(\"#general\", text)!!.kind)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 110,
+              "line": 112,
               "expression": "assertEquals(LinkKind.HASHTAG, result.covering(\"#ops\", text)!!.kind)",
               "assertion_or_checked_wait": true
             }
@@ -16031,19 +16085,19 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 108,
+              "line": 110,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "result.covering",
-              "line": 109,
+              "line": 111,
               "expression": "result.covering(\"#general\", text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "result.covering",
-              "line": 110,
+              "line": 112,
               "expression": "result.covering(\"#ops\", text)",
               "assertion_or_checked_wait": false
             }
@@ -16108,11 +16162,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "a hashtag inside a meshcore channel link wins",
-          "line": 115,
-          "end_line": 120,
+          "line": 117,
+          "end_line": 122,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "68b29fb789b9d4bfb7950be24bba04ee8ac4a23fa685778fde104bcf772909b5",
@@ -16120,13 +16174,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 118,
+              "line": 120,
               "expression": "assertEquals(LinkKind.HASHTAG, result.covering(\"#general\", text)!!.kind)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 119,
+              "line": 121,
               "expression": "assertTrue(result.tokens.none { it.kind == LinkKind.MESHCORE_LINK })",
               "assertion_or_checked_wait": true
             }
@@ -16134,13 +16188,13 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 117,
+              "line": 119,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "result.covering",
-              "line": 118,
+              "line": 120,
               "expression": "result.covering(\"#general\", text)",
               "assertion_or_checked_wait": false
             }
@@ -16211,11 +16265,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "a hashtag inside a meshcore contact link wins",
-          "line": 124,
-          "end_line": 129,
+          "line": 126,
+          "end_line": 131,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "1afe5873b88407e4fd560ae9281dbff35ded76a7d472fbbf99eeba58981a1140",
@@ -16223,13 +16277,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 127,
+              "line": 129,
               "expression": "assertEquals(LinkKind.HASHTAG, result.covering(\"#ops\", text)!!.kind)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 128,
+              "line": 130,
               "expression": "assertTrue(result.tokens.none { it.kind == LinkKind.MESHCORE_LINK })",
               "assertion_or_checked_wait": true
             }
@@ -16237,13 +16291,13 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 126,
+              "line": 128,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "result.covering",
-              "line": 127,
+              "line": 129,
               "expression": "result.covering(\"#ops\", text)",
               "assertion_or_checked_wait": false
             }
@@ -16320,34 +16374,46 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "mapCoordinate is the first surviving coordinate",
-          "line": 133,
-          "end_line": 137,
+          "line": 135,
+          "end_line": 139,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "52ea3606f0ea662d13a04bc3e9008cc5b956b83189e86995c79212e649cb0e57",
+          "body_sha256": "f4d4e5500c09d719283e29a7525430018c10ed460417540640c07edcafa1a5d8",
           "registration": null,
           "assertions": [
             {
-              "name": "assertEquals",
-              "line": 135,
-              "expression": "assertEquals(37.7749, coordinate.latitude, 0.0001)",
+              "name": "assertTrue",
+              "line": 137,
+              "expression": "assertTrue(abs(coordinate.latitude - 37.7749) < 0.0001)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertEquals",
-              "line": 136,
-              "expression": "assertEquals(-122.4194, coordinate.longitude, 0.0001)",
+              "name": "assertTrue",
+              "line": 138,
+              "expression": "assertTrue(abs(coordinate.longitude - -122.4194) < 0.0001)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 134,
+              "line": 136,
               "expression": "tokenize(\"first 37.7749, -122.4194 then 10.0, 20.0\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 137,
+              "expression": "abs(coordinate.latitude - 37.7749)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 138,
+              "expression": "abs(coordinate.longitude - -122.4194)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -16447,46 +16513,58 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "mapCoordinate skips a coordinate that lost to a higher-priority token",
-          "line": 141,
-          "end_line": 147,
+          "line": 143,
+          "end_line": 149,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "677fa047e71dd3aa6f3e76ed2f9ea1fc2df15dc4e47ea16645242407b55f790a",
+          "body_sha256": "a7efc34eef3609a31ceb54c750fb429b30611502eb1b852b36479373551d8071",
           "registration": null,
           "assertions": [
             {
-              "name": "assertEquals",
-              "line": 145,
-              "expression": "assertEquals(3.5, coordinate.latitude, 0.0001)",
+              "name": "assertTrue",
+              "line": 147,
+              "expression": "assertTrue(abs(coordinate.latitude - 3.5) < 0.0001)",
               "assertion_or_checked_wait": true
             },
             {
-              "name": "assertEquals",
-              "line": 146,
-              "expression": "assertEquals(4.5, coordinate.longitude, 0.0001)",
+              "name": "assertTrue",
+              "line": 148,
+              "expression": "assertTrue(abs(coordinate.longitude - 4.5) < 0.0001)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
               "name": "LinkToken",
-              "line": 143,
+              "line": 145,
               "expression": "LinkToken(0, \"Base 1.0, 2.0\".length, LinkKind.CONTACT_SHARE, \"meshcore://contact/add?name=Base\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "tokenize",
-              "line": 144,
+              "line": 146,
               "expression": "tokenize(normalized, listOf(chip))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 144,
+              "line": 146,
               "expression": "listOf(chip)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 147,
+              "expression": "abs(coordinate.latitude - 3.5)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 148,
+              "expression": "abs(coordinate.longitude - 4.5)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -16538,11 +16616,11 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "no coordinate yields a null mapCoordinate",
-          "line": 151,
-          "end_line": 151,
+          "line": 153,
+          "end_line": 153,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "836c73debded113f54c6f46d752733e8ada9928d64f6e0ee419a4f6fddc0c530",
@@ -16550,7 +16628,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 151,
+              "line": 153,
               "expression": "assertNull(tokenize(\"no coordinates here at all\").mapCoordinate)",
               "assertion_or_checked_wait": true
             }
@@ -16558,7 +16636,7 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 151,
+              "line": 153,
               "expression": "tokenize(\"no coordinates here at all\")",
               "assertion_or_checked_wait": false
             }
@@ -16683,37 +16761,37 @@
       "native_proposals": [
         {
           "path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
-          "sha256": "af3e53e728ca7945a527ee25f8d7068fe24a06977ec2b3955e89ff4f0c9fe5a6",
+          "sha256": "483293f13a580f969add34f1916d09e4b29156ead402d8947d53ba7f510adf48",
           "class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
           "method_or_family_name": "a coordinate token URL round-trips through the link parser",
-          "line": 155,
-          "end_line": 162,
+          "line": 157,
+          "end_line": 164,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "5e622ccf505a827cc166fe9c60f4212c780d717c6a2fa00c40606c6316582d76",
+          "body_sha256": "db1e37859c0a91e9f30786a8c42d02de9d53d66f5218af8777bf552b182a6860",
           "registration": null,
           "assertions": [
             {
               "name": "assertNotNull",
-              "line": 158,
-              "expression": "assertNotNull(MeshCoreLinkParser.parseMapURL(url))",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertEquals",
-              "line": 159,
-              "expression": "assertEquals(37.3349, coordinate.latitude, 0.000001)",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertEquals",
               "line": 160,
-              "expression": "assertEquals(-122.00902, coordinate.longitude, 0.000001)",
+              "expression": "assertNotNull(MeshCoreLinkParser.parseMapURL(url))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
               "line": 161,
+              "expression": "assertTrue(abs(coordinate.latitude - 37.3349) < 0.000001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 162,
+              "expression": "assertTrue(abs(coordinate.longitude - -122.00902) < 0.000001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 163,
               "expression": "assertTrue(url.contains(\"lat=37.334900\") && url.contains(\"lon=-122.009020\"))",
               "assertion_or_checked_wait": true
             }
@@ -16721,31 +16799,43 @@
           "actions_and_helper_calls": [
             {
               "name": "tokenize",
-              "line": 157,
+              "line": 159,
               "expression": "tokenize(text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "covering",
-              "line": 157,
+              "line": 159,
               "expression": "covering(text, text)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "MeshCoreLinkParser.parseMapURL",
-              "line": 158,
+              "line": 160,
               "expression": "MeshCoreLinkParser.parseMapURL(url)",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "url.contains",
+              "name": "abs",
               "line": 161,
+              "expression": "abs(coordinate.latitude - 37.3349)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "abs",
+              "line": 162,
+              "expression": "abs(coordinate.longitude - -122.00902)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "url.contains",
+              "line": 163,
               "expression": "url.contains(\"lat=37.334900\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "url.contains",
-              "line": 161,
+              "line": 163,
               "expression": "url.contains(\"lon=-122.009020\")",
               "assertion_or_checked_wait": false
             }

@@ -51,6 +51,41 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Issue172 is repaired in the existing two chats test files:18affected original
+families across7exactparsedURL/5strictcoordinate/4negativehost/2whole-output
+Unicode conditions. Literals, thresholds, both axes, production, existing57
+identities and3supplemental tests remain unchanged. Mention/contact positive
+delimiter-bearing prefixes are not part of this repair. Same reservation
+16→17→18 admits only these same-owner disjoint support paths. Complete34
+additional original comparisons in MessageText16/contactshare11/accessibility7
+bring inspected659/102groups, not additional passing coverage.
+
+Whole-output Unicode predicates use independently read Unicode17data:
+`https://www.unicode.org/Public/17.0.0/ucd/PropList.txt` (Bidi_Control),
+`https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt`
+(Default_Ignorable_Code_Point), and
+`https://www.unicode.org/Public/17.0.0/ucd/extracted/DerivedGeneralCategory.txt`
+(Cc/Cf). Private test regexes include allnormativeranges, not candidate
+sanitizer-produced expectations or JDK-dependent generalcategory shortcuts.
+See `unicode-data-notice.txt` for Unicode License V3 copyright/permission.
+Actual independent comparison of every transcribed range against these
+normative inputs verified4271DI/Cc/Cf and12Bidi_Control scalars, missing0/
+extra0. InputSHA256: DerivedCoreProperties
+`24c7fed1195c482faaefd5c1e7eb821c5ee1fb6de07ecdbaa64b56a99da22c08`;
+DerivedGeneralCategory
+`d62e5bab70ca74f099343f71224fa051cb1fdd61a1ab45c0488c44cfc0b6102e`;
+PropList `130dcddcaadaf071008bdfce1e7743e04fdfbc910886f017d9f9ac931d8c64dd`.
+Additional scalar guards validate non-vacuous predicates/allowed NBSP/Greek/
+emoji; these are supplemental, not new original families or Swift property/
+allUnicodeversion certification. Actual immutable chats execution pending.
+
+Exactd4ed4fa4fe7bdc1dd1ae496899d8ae6294ca5284 ran declared locked68app
+(all64mandatory+4unchangedrepair)/21parser/363Python, positive0failure/error/
+skip; actual source-name wholeframe checks and intentional-send fresh/offline
+consumer ran. No new protocol/module counts are added to originals.
+Full acceptance still BLOCKED. Real mounted mapthumbnail/settings gap173 is
+coordinator-owned; do not edit App production or certify domain-success as mount.
+
 Original intentional outgoing sends now use exact TestContact/ok/1700001234/
 distinctUUIDs/public writers and genuine separate destination, with insert2/
 skip0/count2/identity assertions plus offline timeline consequence. One prior

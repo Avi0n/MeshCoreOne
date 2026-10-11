@@ -5,6 +5,78 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-text-source-formatting-and-exact-map-destinations",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageTextTests.swift",
+      "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
+      "runner_directory": "feature/chats/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
+      "runner_name": "annotated-method",
+      "comparison": "All sixteen complete originals preserve same defaultincoming/nullcurrentUser literal text and actual formatted substring link lookup. URL-likeWCMesh.com/IP192.168.1.100/node.example.com mentions retain mention scheme/host/non-http/https through delimitedprefix; real https URLs remain exact; AliceSmith percentencoded name decodes exactly. Mapdecimal/embedded/multiple coordinates retain exact parsedmaphost and firstcase meshcorescheme, integer/outside200/400/list/version nil, contactchip owns coordinate, strict bothaxes<1e-6 and exactsixdecimal URL fields, sentenceperiod/! leaves parsedmaphost. Source nonnil/Issue.record guards become mandatory!!/assertNotNull, not silent passes.",
+      "inputs": "Full source MessageText defaultincoming/baseprimary/currentUsernil/precomputednil, all source literal strings/AB32/CHAT1/Base37.7749,-122.4194 share helper read. fmt actualformatter/normalizedtokenizer/linkFor covering substring inspected. Exact37.334900/-122.009020,37.7749/-122.4194,10/20+30/40 fields unchanged. Native expected mention URL is literal; source simplecase onlydecoded name+scheme/host, native exactpercentencoding is extra.",
+      "adaptations": "Swift AttributedString link attributes become independent native span offsets and destinationstrings; source defaulttheme/highcontrast/gamut colors become Material token styles, no color screenshot assertion added. Positive meshcoreone://mention/ and meshcore://contact/ include scheme/host delimiters and already entail source properties. Issue172 corrects only three unsafepositive map-prefix families and strict both-axis<1e-6 roundtrip; no production/input/threshold change. JNI/locale/SwiftURL generic equivalence not claimed.",
+      "helpers": [
+        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
+        "MC1/Views/Chats/Components/MessageText.swift",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextFormatter.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextNormalizer.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizer.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/LinkToken.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/list/MeshCoreLinkParser.kt"
+      ],
+      "consumer": "Actual source and native formatter normalize shrinkingmention/share passes before immutable snapshot/detection, then style same ranges. Maps require coordinate surviving overlap; these original bodies prove link generation/parse result, not mounted thumbnail. Coordinator-owned issue173 tracks actual absent mounted chatthumbnail/settings consumer separately; do not count formatter mapCoordinate success as feature completeness.",
+      "unresolved": ["Issue172 exact conditions require immutable actual feature/chats runner execution/independent review/persistent merge. Issue173 mounted mapthumbnail is a separate real product gap assigned coordinator; tests do not certify absent mount."],
+      "methods": ["URL-like text in mention should carry the mention link, not a parsed URL", "URL-like text in mention with IP address should carry the mention link, not a parsed URL", "Regular URL outside mention should still be parsed as link", "Message with both mention containing URL-like text and real URL", "A simple mention carries a meshcoreone://mention/<percent-encoded-name> link", "A decimal coordinate pair is linkified as a meshcore map link", "An integer pair is not linkified", "An out-of-range pair is not linkified", "A coordinate embedded in text linkifies only the coordinate substring", "Multiple coordinates in one message each linkify", "A three-number decimal list is treated as a list, not a coordinate", "A version-like string is not linkified", "A coordinate inside an existing link range keeps the original link", "A linkified coordinate round-trips through parseMapURL with dot-decimal values", "A coordinate ending a sentence is linkified, with the period left as plain text", "A coordinate followed by other trailing punctuation is linkified"]
+    },
+    {
+      "id": "message-text-contact-share-whole-output-scalar-and-host-predicates",
+      "source_path": "MC1Tests/Views/Chats/Components/MessageTextContactShareTests.swift",
+      "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
+      "runner_directory": "feature/chats/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.chats.composer.MessageTextTest",
+      "runner_name": "annotated-method",
+      "checked_assertion_helpers": {
+        "assertNoBidiControls": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
+        "assertNoInvisibleScalars": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt"
+      },
+      "comparison": "All eleven complete originals retain AB32/CHAT1/FieldBase/helper formatShare+exportURI/actual formatting. Validcontact replacesrawtoken with exactlinkedname;type300,straybracket,emptycleanname preserve literal and prohibit ANY parsedcontacthost;adjacenthttps+hashtag remain linked after shrinkingpass;RLOevil→evil chip/exactcleanURI/noBidi_Control anywhere/rawnameURIabsent;Baseinterleaved200B/200C/200D/newline/tab→Base/no DI,Cc,Cf anywhere. LiteralOps@[Bob]base notrewritten, chip#general nothashtag, embeddedchannelURL no ANY parsedchannelhost.",
+      "inputs": "All source selectedliteralnames/inputscalars/type300/keyAB32/read helpers preserved. Both source expectedContactURL and native contactUrl use actual URIwriter as the original helper contract, not independent golden export proof; full source/native writer byte/queryencoding and uppercasekey/type defaults inspected. Whole-output expected scalar predicates are independent normative UCD17 ranges, not candidate displayName output/implementation; compiledregex scans every output scalar including supplementary planes and reservedDefaultIgnorable. Actual checkedhelper invocations/body/assertions bound.",
+      "adaptations": "AttributedString.runs become same normalizedtext/tokens/lastmatchinglinkedText, source zero-resultIssue.record becomes fail-closed assertion. Issue172 restores four whole parsedhost absence predicates and two full outputproperty predicates instead of fixture-only characters. Independent Unicode17 PropList Bidi_Control, DerivedCoreProperties DI and DerivedGeneralCategory Cc/Cf transcribed separately; propertyguards include all12bidi controls and Mn/Lo/Cn/Cf/Cc/supplementary/allowedNBSP+Greek+emoji, extra helper checks not new originals. Unicode data notice retained; version17data is a bounded independent normative mapping, not newly executed Swift properties/ICUallversion certification.",
+      "helpers": [
+        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",
+        "MC1/Views/Chats/Linkify/MessageTextNormalizer.swift",
+        "MC1Services/Sources/MC1Services/Services/ContactService.swift",
+        "MC1Services/Sources/MC1Services/Utilities/ContactShareUtilities.swift",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextNormalizer.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ContactShare.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextFormatter.kt",
+        "docs/android/parity/unicode-data-notice.txt"
+      ],
+      "consumer": "Actual normalization excludes mention ranges inside raw contactchips, sanitizes once for both visible replacement and contactURI, preserves literal if nameempty, then tokenizer freezes ranges and chips winoverlowerprioritylinkdetectors. Selected malformedcases forbid allcontacthost links regardlessscheme/path, channelhost likewise; no strictURIhelper failure fallback or candidate sanitizer expected-data manufacture.",
+      "unresolved": ["Issue172 exact whole-output/negative-host predicates require current native original execution/rebinding/independent review/persistent merge. No generalUnicode/alllocales/TalkBack/hardware certification; source expectedURIwriter dependency remains an original helper contract, not independent URIoracle."],
+      "methods": ["Valid contact share token renders the contact name as a tappable add-contact link", "Out-of-range contact type leaves the literal token untouched with no contact link", "Stray opening bracket is a no-op and does not crash", "Token adjacent to a URL styles both the contact link and the URL link", "Hashtag after a token is still linked, proving the replacing pass runs before the snapshot", "Bidi control in the name is stripped from both the chip and the add-contact link URL", "Zero-width, format, and control scalars are stripped from the chip name and link URL", "A contact token whose name sanitizes to empty leaves the literal token untouched", "A mention pattern inside a token name is not rewritten by the mention pass", "A hashtag inside a token name keeps the chip link instead of becoming a hashtag link", "A meshcore URL inside a token name is not re-linked by the meshcore pass"]
+    },
+    {
+      "id": "message-link-accessibility-distinct-target-order-dedup-and-cap",
+      "source_path": "MC1Tests/Views/Chats/Linkify/MessageLinkAccessibilityTests.swift",
+      "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
+      "runner_directory": "feature/chats/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
+      "runner_name": "annotated-method",
+      "comparison": "All seven full originals preserve realformatter fourlinkkind documentorder/Bob/https/ops/map and exact actionnames/destinations; contactAlice/AB32/CHAT1,channelOps/CD16 parserderivednames; previewhttps://preview.example beforebodyhttps://body.example;duphttps://dup.example oneaction;8cap with12sourceinputs;plain/nullformat noactions. Issue172 perkindhttpsscheme/maphost become parsedexact properties, not prefix success. Source explicitcount/first/second equality in previewcase becomes exact2-elementlist; duplicatecaseexact1-elementlist.",
+      "inputs": "Complete source attributed/ formatted helpers, IdentityGamut tenanchors18,25,44,77,120,180,215,255,307,343/saturation.45..70/luminances.2,.8/defaultincoming/nullname and source keys/CD16/cap8 copiedinputs read. Native linked manualspanbuilder supplies same piece/url tuples; realformatter perkindcase is actual normalization/tokenizer, not fabricatedexpectedactions. EnglishLinkActionNames exact sourcecatalogstrings copied and checked by actual names, not render screenshots.",
+      "adaptations": "Swift AttributedStringlinkedruns/manual tuplebuilder become native FormattedMessage spans/stringdestinations. Source gamut/colorstyle not evaluated by pure naming assertions; nativeMaterial/theming remains separate scope. Resource-backedproductionLinkActionNames supplies actual translations; test English names are exact source literals and not all12locale execution. Issue172 corrects only unsafepositivepropertyprefixes without changing originalnames/ordering/count8/sourceinputs.",
+      "helpers": [
+        "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizerTest.kt",
+        "MC1/Views/Chats/Linkify/MessageLinkAccessibility.swift",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkAccessibility.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextFormatter.kt",
+        "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/list/MeshCoreLinkParser.kt"
+      ],
+      "consumer": "Source UnifiedMessageBubble and native MessageBody derive actiondescriptors from same renderedformattedlinks, deduplicate and cap8. Native previewcards have separately accessible actions; absent MessageBodypreviewUrl alone is not a demonstrated productdefect. Bodies prove pure actionlist semantics, not TalkBack focus/invocation/device or all theme/colorbehavior.",
+      "unresolved": ["New seven-family binding and issue172 perkind repair need actual current feature/chats identities/independent review/persistent merge. TalkBack and rendered resource-specific behavior require separately declared device/flow evidence."],
+      "methods": ["Each body-text link kind yields a distinctly-named action in document order", "A shared contact link is named from its parsed contact name", "A shared channel link is named from its parsed channel name", "The preview URL is surfaced before body-text links", "Duplicate URLs collapse to a single action", "The action count is capped", "No links yields no actions"]
+    },
+    {
       "id": "parser-original-ack-partial-triptime-and-typed-outcome",
       "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/AckParsingTests.swift",
       "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalResponseCasesTest.kt",
@@ -2383,7 +2455,7 @@
       "runner_name": "annotated-method",
       "comparison": "All nine original declarations retain the exact input strings, decimal precision, validity clamps, integer/list/version rejection, null absence and document-order selection. The period case additionally asserts the exact detected substring excludes the period; document-order count/first/last latitude checks match the source, not just nonempty output.",
       "inputs": "37.334900/-122.009020 tolerance1e-6;3,4;200.0,400.0;1.0,2.0,3.0;v1.2,3.4;no coordinates;A10.0,20.0 and B30.0,40.0;37.7749,-122.4194 ending a sentence.",
-      "adaptations": "Kotlin UTF16 start/end offsets replace Swift String ranges, with actual substring assertions. Native independent Swift-oracle edge probes extend fullwidth digits, NBSP/newline, four-digit numbers and trailing punctuation; those extra probes are not counted as additional original declarations.",
+      "adaptations": "Kotlin UTF16 start/end offsets replace Swift String ranges, with actual substring assertions. Issue172 validdecimal family now explicitly preserves strict abs(delta)<1e-6 on both axes instead of inclusive delta without changing literal/threshold/production. Native independent Swift-oracle edge probes extend fullwidth digits, NBSP/newline, four-digit numbers and trailing punctuation; those extra probes are not counted as additional original declarations.",
       "helpers": [
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ChatCoordinateDetector.kt"
       ],
@@ -2500,14 +2572,14 @@
       "runner_name": "annotated-method",
       "comparison": "All fourteen declarations compare detector kind/style/destination, exact hashtag URL, trailing punctuation and unknown host, mention priority, nonoverlapping sorted tokens, HTTP fragment exclusion, hashtag wins over both contact/channel links, first surviving map coordinate, contact-chip occlusion, null map result and dot-decimal URL parse round trip with1e-6 tolerance. Helpers select the token actually covering the tested substring, not an arbitrary token of the expected kind.",
       "inputs": "Source literal URL/hashtag/contact/unknown host/coordinate strings;AB repeated32-byte contact key;37.7749/-122.4194 then10.0/20.0;Base1.0,2.0 chip then3.5,4.5;37.334900/-122.009020 exact six-decimal URL.",
-      "adaptations": "The overlapping mention fixture uses @www.WCMesh.com instead of @WCMesh.com to trigger the native URL detector; priority, covering characters and scheme remain asserted. Native merged stream requires at least3 tokens before the adjacency loop, eliminating the source's possible vacuous loop. Native token URLs check the exact prefix instead of Apple URL host/scheme properties. Material token colors replace SwiftUI Color; these logic bodies do not claim screenshot/color acceptance.",
+      "adaptations": "The overlapping mention fixture uses @www.WCMesh.com instead of @WCMesh.com to trigger the native URL detector; priority, covering characters and scheme-delimitedmeshcoreone:// remain asserted and are not issue172. Native merged stream requires at least3 tokens before the adjacency loop, eliminating the source's possible vacuous loop. Issue172 corrects exact parsed httpsscheme/contacthost/maphost through JVM URI and strict abs(delta)<original1e-4/1e-6 for both coordinate axes, replacing weakerprefix/inclusive checks without changing source literals/thresholds/production. Material token colors replace SwiftUI Color; these logic bodies do not claim screenshot/color acceptance.",
       "helpers": [
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/MessageLinkTokenizer.kt",
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/LinkToken.kt",
         "android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/composer/ChatCoordinateDetector.kt"
       ],
       "consumer": "Map previews follow the first coordinate surviving token priority, never a hidden contact-chip coordinate. Contact and channel links remain actionable tokens only when they survive overlap; message formatter pre-pass supplies the actual mention/contact ranges.",
-      "unresolved": [],
+      "unresolved": ["Issue172 covers six existing tokenizer families plus one accessibility family in the samefile, not new originals. New exact runner execution/rebinding/review and persistent merge required; selected current outputs agreeing is not a production failure or predecessor certification."],
       "methods": [
         "URL detector emits a url token",
         "Hashtag detector emits a bold, non-underlined token",

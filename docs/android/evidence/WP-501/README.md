@@ -30,7 +30,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-625 inspected family proposals in99groups, exact source/assertion/helper/runner
+659 inspected family proposals in102groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -47,6 +47,44 @@ radio, new Swift execution, screenshot/accessibility matrix, legal approval,
 production signing or release certification.
 
 ## Local execution before candidate publication
+
+Exactd4ed4fa4fe7bdc1dd1ae496899d8ae6294ca5284 actual declared isolated
+Windows launcher under native/Gradle locks ran68app/68passed including all64
+mandatory+4unchangedcallerrepair, and21exactoriginal parser identities/21passed
+using OriginalResponseCasesTest.ack/contactNames/loginSuccess selection.
+Complete clean combinedPython363/363passed. Allpositive0failure/error/skip;
+readinessJDK21.0.12.1/SDK37.2/buildtools37 passed and bothlocks released.
+Commands: existing session native driver `--head d4ed4fa4fe7bdc1dd1ae496899d8ae6294ca5284
+--parser-original` invoking declared `:app:testDebugUnitTest --tests
+com.meshcoreone.android.parity.* --tests
+com.meshcoreone.android.app.platform.InlineContentCancellationTest --tests
+com.meshcoreone.android.app.platform.PreviewPolicyTest --dependency-verification=strict --quiet`
+and `:core:protocol:test --tests
+com.meshcoreone.android.core.protocol.parser.OriginalResponseCasesTest.ack --tests
+com.meshcoreone.android.core.protocol.parser.OriginalResponseCasesTest.contactNames --tests
+com.meshcoreone.android.core.protocol.parser.OriginalResponseCasesTest.loginSuccess
+--dependency-verification=strict --quiet`; launcher remains
+`android/scaffold/invoke-gradle.ps1 -ConstrainedMemory -BuildHeap1024m
+-BuildMetaspace768m -TestHeap384m -TestMetaspace384m`.
+Python command unchanged:
+`python tools/android-port/controller/test_runner.py --include-tests tools/android-port/local
+--include-tests android/parity-tests --quiet`.
+
+Issue17218original-family assertion gaps repaired across only existing
+MessageLinkTokenizerTest/MessageTextTest: exactparsedURL/strictbothaxesdelta/
+wholeparsedhostabsence/wholeoutputUnicodeconditions restored unchangedinput/
+threshold/production. Reservation16→17→18 automatically admits same-owner
+support only. Independently retrieved normativeUnicode17Bidi_Control/DI/Cc/Cf
+facts and notice are retained; no candidate sanitizer generatedexpecteddata.
+Added34completeoriginalcomparisons bring659/102groups; required57original
+identities plus existing3supplemental tests unchanged. Immutable chats execution
+pending; do not retroactively pass266weakened tests. Coordinator22crypto/
+10Discovery/52mention reads and consolidated57chats boundedsource review do
+not represent our independent fullsource/device acceptance.
+
+Actual product gap173 firstsurvivingmapCoordinate mount/thumbnail/preference
+is assigned coordinator; worker does not overlap App production or invent UI
+success.170/171/172remain open through executed reviewed persistent merge.
 
 The next local increment fills the remaining intentional-send distinct-store
 route with original TestContact/ok/1700001234/two different outgoing actionUUIDs,
