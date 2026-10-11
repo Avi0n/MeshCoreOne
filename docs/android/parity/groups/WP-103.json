@@ -3883,7 +3883,7 @@
       "native_contracts": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -3938,7 +3938,7 @@
       "native_contracts": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -3993,7 +3993,7 @@
       "native_contracts": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -11763,7 +11763,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse empty payload returns nil",
           "line": 22,
@@ -11891,7 +11891,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse FLOOD GROUP_TEXT packet",
           "line": 23,
@@ -12091,7 +12091,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse TC_FLOOD with transport code and path",
           "line": 29,
@@ -12285,7 +12285,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse DIRECT packet (no transport code)",
           "line": 35,
@@ -12473,7 +12473,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse TC_DIRECT with transport code",
           "line": 41,
@@ -12625,7 +12625,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse packet with unknown payload type",
           "line": 47,
@@ -12741,7 +12741,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse DIRECT TEXT_MSG extracts sender and recipient pubkey hashes",
           "line": 48,
@@ -12869,7 +12869,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse TC_DIRECT TEXT_MSG extracts sender and recipient pubkey hashes",
           "line": 51,
@@ -12997,7 +12997,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse DIRECT TEXT_MSG with hashSize > 1 path still extracts 1-byte payload hashes",
           "line": 54,
@@ -13107,7 +13107,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse FLOOD GROUP_TEXT has nil sender pubkey prefix",
           "line": 57,
@@ -13223,7 +13223,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "MeshEvent.rxLogData holds ParsedRxLogData",
           "line": 58,
@@ -13333,7 +13333,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse rejects reserved (mode 3) path length encoding",
           "line": 63,
@@ -13461,7 +13461,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse FLOOD TEXT_MSG extracts sender and recipient pubkey hashes",
           "line": 64,
@@ -13583,7 +13583,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "RouteType raw values match protocol spec",
           "line": 72,
@@ -13675,7 +13675,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "RouteType hasTransportCode",
           "line": 73,
@@ -13761,7 +13761,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType raw values match protocol spec",
           "line": 74,
@@ -13895,7 +13895,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Reserved PayloadType values 12-14 map to unknown via fromBits",
           "line": 78,
@@ -13981,7 +13981,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType value 15 maps to rawCustom via fromBits",
           "line": 79,
@@ -14067,7 +14067,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType rawValue initializer returns nil for undefined values",
           "line": 80,
@@ -14177,7 +14177,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType fromBits with valid values",
           "line": 83,
@@ -14287,7 +14287,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "RouteType displayName",
           "line": 86,
@@ -14367,7 +14367,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType displayName",
           "line": 87,
@@ -14506,7 +14506,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "ParsedRxLogData initializes with all fields",
           "line": 90,
@@ -14706,7 +14706,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "ParsedRxLogData packetHash is stable",
           "line": 96,
@@ -14870,7 +14870,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Scope key is SHA-256 of #-prefixed name truncated to 16 bytes",
           "line": 111,
@@ -14974,20 +14974,32 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Names with and without # produce identical scope keys",
           "line": 114,
           "end_line": 116,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "249306f429b009867e881e039eb4ab718b3b00cfe9a5811501f5bb788d88254f",
+          "body_sha256": "09eb84e748fd0bc35783efaf346c4f6350002cb7eaaaa557af91b9f54b8025ec",
           "registration": "original(\"TransportCodeRegionResolverTests\", \"Names with and without # produce identical scope keys\")",
           "assertions": [
             {
               "name": "assertEquals",
               "line": 115,
-              "expression": "assertEquals(TransportCodeRegionResolver.deriveScopeKey(\"Germany\"), TransportCodeRegionResolver.deriveScopeKey(\"#Germany\"))",
+              "expression": "assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"#Germany\")))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 115,
+              "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 115,
+              "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"#Germany\"))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -15072,20 +15084,32 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Whitespace around region name is trimmed before normalization",
           "line": 117,
           "end_line": 119,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "1f6f3afe83fc86ee4dd1caf60a2b3eacd5774ab6de375db862a71f2e4164a018",
+          "body_sha256": "0e86999932462a452a374962c9393c1c06bcec360aae564203ecd8a86bb6dea4",
           "registration": "original(\"TransportCodeRegionResolverTests\", \"Whitespace around region name is trimmed before normalization\")",
           "assertions": [
             {
               "name": "assertEquals",
               "line": 118,
-              "expression": "assertEquals(TransportCodeRegionResolver.deriveScopeKey(\"Germany\"), TransportCodeRegionResolver.deriveScopeKey(\"  Germany  \"))",
+              "expression": "assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"  Germany  \")))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 118,
+              "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 118,
+              "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"  Germany  \"))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -15164,7 +15188,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Dollar-prefixed (private) region returns nil scope key",
           "line": 120,
@@ -15274,7 +15298,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Empty or whitespace-only region name returns nil",
           "line": 123,
@@ -15372,20 +15396,32 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Repeated derivation of the same name yields identical keys",
           "line": 126,
           "end_line": 128,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "2cb24636754325b2261da63299e74cdffe81a567d20ce6bea9ddd759a098d12d",
+          "body_sha256": "98f4209598e6e8b639cd6e1be3daa7e1073194ee138bd438331aef22f31e4581",
           "registration": "original(\"TransportCodeRegionResolverTests\", \"Repeated derivation of the same name yields identical keys\")",
           "assertions": [
             {
               "name": "assertEquals",
               "line": 127,
-              "expression": "assertEquals(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\"), TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\"))",
+              "expression": "assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\")))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 127,
+              "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 127,
+              "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\"))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -15452,7 +15488,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "rewriteReservedCode maps 0 to 1",
           "line": 129,
@@ -15532,7 +15568,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "rewriteReservedCode maps 0xFFFF to 0xFFFE",
           "line": 130,
@@ -15648,7 +15684,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "rewriteReservedCode passes through non-reserved values",
           "line": 131,
@@ -15812,7 +15848,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "calcTransportCode reads first two HMAC bytes as little-endian UInt16",
           "line": 134,
@@ -15910,7 +15946,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "calcTransportCode masks payload type bits to low nibble",
           "line": 135,
@@ -16008,7 +16044,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "calcTransportCode is deterministic for the same inputs",
           "line": 136,
@@ -16124,7 +16160,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Round-trip: compute code then resolve back to unique region name",
           "line": 139,
@@ -16222,7 +16258,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Empty scopeKeys returns none",
           "line": 142,
@@ -16332,7 +16368,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "No matching region returns none",
           "line": 143,
@@ -16478,7 +16514,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Ambiguous match returns all names sorted independent of input order",
           "line": 146,
@@ -16612,7 +16648,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "b89c6394dbdeea4b97e8d31e5455247026dedb9a7c5ce1326c34e74a54c638c4",
+          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Dollar-prefixed private regions never match via empty scope key",
           "line": 151,

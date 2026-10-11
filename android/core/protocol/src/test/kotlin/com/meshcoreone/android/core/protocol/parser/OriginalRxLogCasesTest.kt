@@ -112,10 +112,10 @@ class OriginalRxLogCasesTest {
             val key = assertNotNull(TransportCodeRegionResolver.deriveScopeKey("Germany")); assertEquals(germany, key); assertEquals(16, key.size)
         },
         original("TransportCodeRegionResolverTests", "Names with and without # produce identical scope keys") {
-            assertEquals(TransportCodeRegionResolver.deriveScopeKey("Germany"), TransportCodeRegionResolver.deriveScopeKey("#Germany"))
+            assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey("Germany")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey("#Germany")))
         },
         original("TransportCodeRegionResolverTests", "Whitespace around region name is trimmed before normalization") {
-            assertEquals(TransportCodeRegionResolver.deriveScopeKey("Germany"), TransportCodeRegionResolver.deriveScopeKey("  Germany  "))
+            assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey("Germany")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey("  Germany  ")))
         },
         original("TransportCodeRegionResolverTests", "Dollar-prefixed (private) region returns nil scope key") {
             assertNull(TransportCodeRegionResolver.deriveScopeKey("\$secret")); assertNull(TransportCodeRegionResolver.deriveScopeKey("\$"))
@@ -124,7 +124,7 @@ class OriginalRxLogCasesTest {
             listOf("", "   ", "\t\n").forEach { assertNull(TransportCodeRegionResolver.deriveScopeKey(it)) }
         },
         original("TransportCodeRegionResolverTests", "Repeated derivation of the same name yields identical keys") {
-            assertEquals(TransportCodeRegionResolver.deriveScopeKey("Bavaria"), TransportCodeRegionResolver.deriveScopeKey("Bavaria"))
+            assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey("Bavaria")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey("Bavaria")))
         },
         original("TransportCodeRegionResolverTests", "rewriteReservedCode maps 0 to 1") { assertEquals(1u.toUShort(), TransportCodeRegionResolver.rewriteReservedCode(0u)) },
         original("TransportCodeRegionResolverTests", "rewriteReservedCode maps 0xFFFF to 0xFFFE") { assertEquals(0xfffeu.toUShort(), TransportCodeRegionResolver.rewriteReservedCode(0xffffu)) },

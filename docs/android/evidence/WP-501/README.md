@@ -30,7 +30,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-712 inspected family proposals in110groups, exact source/assertion/helper/runner
+750 inspected family proposals in115groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -47,6 +47,32 @@ radio, new Swift execution, screenshot/accessibility matrix, legal approval,
 production signing or release certification.
 
 ## Local execution before candidate publication
+
+Exactde014cdeaa5c5ad164b43f207594c6cfe6b81af1 actual declared isolated
+`python <session-files>\wp501-native-check.py --head de014cdeaa5c5ad164b43f207594c6cfe6b81af1 --responses-only`
+executes `:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalResponseCasesTest --dependency-verification=strict --quiet`
+via unchanged scaffoldlauncher/constrainedmemory/privatecache and supported
+native+Gradle locks. Actual required/discovered/run/passed74/74/74/74,
+failure0/error0/skip0, readinesspassed/locksreleased. Includes all53new
+source families+21prior ACK/login/name families. Clean immutable combined
+`python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+actual363/363passed,0failure/error/skip.712/110group comparison at thishead,
+not newlyexecutedSwift/firmware/full501 or later candidate execution.
+
+Next38originals/fivegroups compare full FloodScopeMapping4, regionKeys4,
+anonRequests3, regionResponses10, TransportCodeRegionResolver17 and actual
+helpers/builders/parsers/key derivation/HMAC/cache consumers. Issue174 found
+three missing source non-null prerequisites, repaired with assertNotNull on
+both derivations; literals/identities/production unchanged. Same trusted
+reservation18→19 preserves initial authorization/identities/base250.
+https://github.com/cbattlegear/MeshCoreOne-Android/issues/174 remainsopen
+until executed reviewed persistent merge.750/115inspected; current38runner
+execution pending. Five separate region session originals still inherit
+component startup/config/fixture inputs and are not original-input acceptance.
+Coordinator reports bounded a27issue172all18conditionreview matches and
+independent normative12Bidi/4271DI/Cc/Cf sets/digests match without edits;
+this is not independent native rerun or full acceptance.173production
+coremaps23pass, mountedUIregressions under investigation; no merge claim.
 
 Publisheda27ca4032b6b2f5ab8f7002fa0eea6857fcf53b3 exact primary38181356057
 is running;38181356063 separate setup. Normal installedprepush92parity/

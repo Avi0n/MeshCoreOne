@@ -51,6 +51,16 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Exactde014cdea executed74/74 original response identities and clean363/363
+controller/local/parity checks,0failure/error/skip with supported locks.
+Next38originals/fivegroups compare full mapping4/regionkeys4/anon3/parser10/
+resolver17; issue174 repairs missing non-null prerequisites on both values
+in three original nullable equality families without product/literal edits.
+750/115inspected,38selected execution pending; same reservation19.
+Five separate region session families retain component-input gaps and are
+not counted as this bounded original comparison. Issue174open;173producer
+exclusive; a27primary38181356057stillrunning.
+
 The next local read-only response batch compares all53remaining originals/
 eight full frozen suites in OriginalResponseCasesTest: DeviceInfo7,NewResponse7,
 PathDiscovery10,Discover4,Raw3,Telemetry3,Trace11,V1158. Complete actualbody/
