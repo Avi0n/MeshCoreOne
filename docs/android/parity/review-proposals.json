@@ -23,7 +23,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
       ],
       "consumer": "Actual session simple exchange must write once and await OK or typed DeviceError; getDefaultFloodScope errors cannot become nil absence. The predecessor component command helper replied inside onSend, so it did not independently assert the already-written suspension state. New assertions fill that measurable acceptance gap; no proven production failure or physical/admin command is inferred.",
-      "unresolved": ["The three new exact required methods await execution on the current committed candidate; later full independent semantic review remains required."],
+      "unresolved": ["The three new exact required methods passed at b501548b within28app cases; exact hosted candidate execution and later independent semantic review remain required."],
       "methods": [
         "sendChannelData emits correct frame and awaits OK",
         "sendChannelData throws deviceError on error response",

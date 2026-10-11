@@ -167,6 +167,10 @@ delayed OK or on an unrelated event; two device-error families retain their
 raw typed codes; a supplemental deadline measures9,999/10,000ms. The previous
 component helper replied synchronously inside `onSend`, so these are additional
 consumer assertions rather than a claim that its title proved suspension.
+At b501548b all24 required app identities plus4 repair regressions passed28/28;
+the scoped protocol run passed118/118 and contained all71 required original
+runner identities for the selected primitive/modern command/session groups.
+These bounded executions do not complete the remaining source/family audit.
 
 Kotlin labels use their own Unicode/escape/interpolation rules, not the Swift
 string decoder. Suite-qualified `original` builders retain actual case,

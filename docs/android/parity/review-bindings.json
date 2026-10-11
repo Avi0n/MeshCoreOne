@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "f1325128b7f87cfa2aa01ed082ead03fabfd965fed9c277059471f99d1455905",
+  "proposal_sha256": "bfe394cf6990bf469cf730eb55eb8010933bb179aedf1d728969a067a06e9e9d",
   "families": [
     {
       "group": "backup-envelope",
@@ -62142,7 +62142,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -62549,7 +62549,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -62800,7 +62800,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -63057,7 +63057,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -63422,7 +63422,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -63667,7 +63667,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -63894,7 +63894,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -64121,7 +64121,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "ade815b3fde958644ebf493216be879e18e1051b85a0ba5e0afa638534e044a1",
+      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,

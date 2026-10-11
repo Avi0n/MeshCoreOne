@@ -140,7 +140,7 @@ The additional40 inspected families compare all28 modern command/scope/reset
 literal packer declarations and all12 modern session consumer declarations.
 Three new required methods add delayed-OK/unrelated-event suspension, delayed
 typed device errors and exact9,999/10,000ms timeout with original10-second/MCTst
-setup. They have no native result yet. Existing immediate `onSend` reply helpers
+setup. Their actual b501548b execution is recorded below. Existing immediate `onSend` reply helpers
 are not promoted as independent already-written suspension evidence.
 Kotlin literal Unicode/surrogate/interpolation decoding and suite/case/signature/
 row registration now have13additional Python regressions,85/85passed. Computed
@@ -154,6 +154,16 @@ helpers/consumers and original contact CHAT/null-heard defaults. This bounded
 read assessment does not approve all422 comparisons, full WP501, platform Unicode
 tables, physical transport, UI or a privileged gate. Actual main38162783204 is
 SUCCESS atc68f4140, separately from candidate execution.
+
+At exactb501548b72f34241aef1e43985c88619361386db, the same supported private-cache,
+credential-stripped locked launcher executed the app selector above plus
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.primitives.BytesTest --tests com.meshcoreone.android.core.protocol.primitives.PathEncodingTest --tests com.meshcoreone.android.core.protocol.primitives.TransportDefaultsTest --tests com.meshcoreone.android.core.protocol.command.NewCommandsTest --tests com.meshcoreone.android.core.protocol.command.V115CommandsTest --tests com.meshcoreone.android.core.protocol.session.OriginalChannelCasesTest --dependency-verification=strict`.
+Actual strict identity reads discovered/run/passed28app and118protocol cases,
+0failure/error/skip in each: all24 required app identities plus4 repair methods,
+and all71 required original identities for these selected protocol groups.
+The new delayed-response/typed-error/10-second assertions passed, not just compiled.
+Combined controller/local/parity at immutableb501548b ran356/356passed,0failure/
+error/skip. No unselected family, full semantic acceptance or CI result is inferred.
 
 Baseline [run38155192945](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38155192945)
 is SUCCESS at exact250dd50e. Initial WP-501
