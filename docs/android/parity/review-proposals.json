@@ -5,6 +5,109 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "contact-share",
+      "source_path": "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
+      "native_path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+      "runner_name": "annotated-method",
+      "native_target_overrides": {
+        "uri is meshcore contact/add and round-trips": {
+          "native_path": "android/app/src/test/kotlin/com/meshcoreone/android/app/deeplinks/MeshCoreUriParserTest.kt",
+          "runner_directory": "app/build/test-results/testDebugUnitTest",
+          "runner_class": "com.meshcoreone.android.app.deeplinks.MeshCoreUriParserTest"
+        },
+        "uri preserves contact type": {
+          "native_path": "android/app/src/test/kotlin/com/meshcoreone/android/app/deeplinks/MeshCoreUriParserTest.kt",
+          "runner_directory": "app/build/test-results/testDebugUnitTest",
+          "runner_class": "com.meshcoreone.android.app.deeplinks.MeshCoreUriParserTest"
+        }
+      },
+      "comparison": "All three original declarations retain compact uppercase hex, no whitespace, URI prefix, actual contact encoder/parser and round-tripped name/key/type. The two URI declarations bind the same actual combined app assertion body, not the feature test's fake URI codec. A new WP-501 assertion restores exact Alice/Relay and AB key inputs plus the omitted URI-whitespace assertion.",
+      "inputs": "Compact AABBCCDD; source AB repeated32-byte key with Alice/chat and Relay/repeater; native app B7 repeated32-byte key with Alice Repeater and every raw contact type.",
+      "adaptations": "App-layer service/parser assertions replace the feature-only codec fake, respecting the feature-to-services dependency boundary. Native all-type loop strengthens type coverage but changes name/key; source-literal inputs are therefore asserted separately rather than silently equated. The combined method executes once for two original declarations, not two native executions.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactShareAcceptanceTest.kt"
+      ],
+      "consumer": "The actual app Nodes ContactUriCodec delegates to the same ContactService.exportContactURI and MeshCoreUriParser.parseContact. QR payload and share text use the encoded URI, not a URL-shaped Android share extra.",
+      "unresolved": ["New exact-source-literal WP-501 acceptance assertion awaits current native execution; no pass is inferred."],
+      "methods": [
+        "compact public key hex has no whitespace",
+        "uri is meshcore contact/add and round-trips",
+        "uri preserves contact type"
+      ]
+    },
+    {
+      "id": "contact-share-platform",
+      "source_path": "MC1Tests/Views/Contacts/ContactURIActivityItemTests.swift",
+      "native_path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+      "runner_name": "annotated-method",
+      "comparison": "Both original declarations preserve text rather than URL sharing and the exact URI string for copy. Native payload asserts text/plain MIME, URI-shaped plain String and original subject; copy asserts the exact original URI.",
+      "inputs": "meshcore://contact/add?name=Alice&public_key=AB&type=1; subject MeshCore One Contact.",
+      "adaptations": "UIKit activity-item placeholder type becomes Android text/plain EXTRA_TEXT rather than an iOS controller execution. A two-character public-key literal is intentionally retained as the share-payload fixture, not accepted as a parseable32-byte contact identity.",
+      "helpers": [],
+      "consumer": "QR/share state produces the same URI for QRSpec, copyText and sharePayload; actual native chooser/provider behavior belongs platform device evidence, not these model assertions.",
+      "unresolved": [],
+      "methods": [
+        "placeholder is a String not a URL",
+        "copy activity returns the uri string"
+      ]
+    },
+    {
+      "id": "contact-qr-feedback",
+      "source_path": "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift",
+      "native_path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/add/ScanContactQRFeedbackTest.kt",
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+      "runner_name": "annotated-method",
+      "comparison": "All five original declarations preserve Add/Importing/View accessibility identity and negative AlreadyAdded/Add assertions, hidden type glyph, complete spaced AA key, scan-again presence, nil scanned caption on matching identity, saved displayName precedence and exact scanned-as argument.",
+      "inputs": "AA repeated32-byte repeater key; Example Repeater; Saved Repeater versus Claimed Name; idle/importing and optional scan-again callback.",
+      "adaptations": "Typed NodesMessage resource id/arguments replace resolved L10n strings, keeping current-locale resolution in Compose. Callback presence becomes canScanAgain Boolean; these cases compare feedback policy, not camera execution or TalkBack traversal.",
+      "helpers": [
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt"
+      ],
+      "consumer": "ContactAddConfirmation provides the actual displayedName, caption and primary accessibility label consumed by the native add/scan confirmation. Denied-camera manual fallback was integrated by WP-407 and remains distinct from these five feedback cases.",
+      "unresolved": [],
+      "methods": [
+        "idle add button uses add and hides the type glyph",
+        "importing add button uses importing not add",
+        "scan again appears when provided",
+        "existing contact uses view not add",
+        "name mismatch shows scanned as caption"
+      ]
+    },
+    {
+      "id": "discovery-filter-store",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "native_path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+      "runner_name": "annotated-method",
+      "comparison": "All ten original declarations retain exact source inputs and expected ordered/set node names for name/three hex-prefix casings, search overriding segment, all three no-query segments, receiver-time versus future sender clock, alphabetical order, nearer/farther/unlocated order, hop-first/distance-second order, stored visible filter changes and deletion without a second filter invocation. Original SwiftData deletion is not equated to the predecessor's fake store: WP-501 adds real Room plus the actual mounted AppNodesSession/AppNodesDataStore consumer and radio isolation.",
+      "inputs": "00AA/00aa/00Aa key prefix; Alpha Repeater/Beta Chat; ChatOne/RepeaterOne search One; chat/repeater/room; receiver1000000/2000000 versus sender4000000000/1000000; user37/-122, near37.01/far38/unlocated0; hops3/1/1 and exact path bytes; alp/bet; Keep11/Drop22 keys.",
+      "adaptations": "Instant and immutable DTO snapshots replace Date/value arrays. Native spatial ordering uses the declared haversine adaptation; cases compare ordering, not CoreLocation bitwise distance. The predecessor deletion test uses a store double, so it alone cannot establish the source's real persistence assertion. New actual Room/app assertion also proves another radio's same-public-key node is retained and a subsequent reload sees deletion.",
+      "helpers": [
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt"
+      ],
+      "consumer": "Actual AppNodesSession supplies the process store and current device identity; AppNodesDataStore delegates deletion using EntityKey radio/id. The new test uses the real graph with synthetic radio transport, not unavailable hardware and not a product reimplementation.",
+      "unresolved": ["New actual Room/mounted-consumer deletion assertion awaits current native execution; the old fake-store pass is not promoted."],
+      "methods": [
+        "filteredNodes matches name case-insensitively via localizedStandardContains",
+        "filteredNodes matches hex prefix case-insensitively",
+        "filteredNodes ignores segment while searching",
+        "filteredNodes applies segment filter when not searching",
+        "lastHeard sort uses receiver lastHeard not lastAdvertTimestamp",
+        "name sort is locale ascending",
+        "distance sort places nearer located nodes first",
+        "hops sort orders by hop count then distance",
+        "updateVisibleNodes stores result in visibleNodes",
+        "deleteDiscoveredNode reapplies visibleNodes without re-calling updateVisibleNodes"
+      ]
+    },
+    {
       "id": "chat-coordinates",
       "source_path": "MC1Tests/Utilities/ChatCoordinateDetectorTests.swift",
       "native_path": "android/feature/chats/src/test/kotlin/com/meshcoreone/android/feature/chats/composer/MessageTextTest.kt",

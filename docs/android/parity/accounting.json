@@ -16558,7 +16558,8 @@
       "owner": "WP-311",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt"
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -17480,7 +17481,8 @@
       "owner": "WP-311",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt"
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactShareAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "2939c23316a129f3da897f6dee1c773334c1ceb497e12846e2d81aa68365fb6c",
+  "proposal_sha256": "d1b186aae79d5528aa538a593d6661a22b4ca111b517bf1eb1bb2a8a6252589e",
   "families": [
     {
       "group": "backup-envelope",
@@ -16428,6 +16428,1377 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::deleteDiscoveredNode reapplies visibleNodes without re-calling updateVisibleNodes()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2916e0c48b62584cfa9032aaf5f29b9d3eec49081cba92a90ba54479cc877c20",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 327,
+          "expression": "#expect(viewModel.visibleNodes.count == 2)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 332,
+          "expression": "#expect(viewModel.discoveredNodes.map(\\.name) == [\"Keep\"])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 333,
+          "expression": "#expect(viewModel.visibleNodes.map(\\.name) == [\"Keep\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "deleteDiscoveredNode reapplies visibleNodes without re-calling updateVisibleNodes",
+        "line": 122,
+        "end_line": 138,
+        "factory_method": null,
+        "body_sha256": "49365fb2c97d52416f982bea1dfa479700540b1fb31d38ff2c62b534e4d1d7f8",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 132,
+            "expression": "assertEquals(2, holder.state.value.visibleNodes.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 136,
+            "expression": "assertEquals(listOf(\"Keep\"), holder.state.value.discoveredNodes.map { it.name })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 137,
+            "expression": "assertEquals(listOf(\"Keep\"), holder.state.value.visibleNodes.map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Harness",
+            "line": 124,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "connect",
+            "line": 124,
+            "expression": "connect()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "checkNotNull",
+            "line": 125,
+            "expression": "checkNotNull(harness.session.radioId)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 126,
+            "expression": "node(radioId = radio, publicKey = Fixtures.repeated(0x11), name = \"Keep\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Fixtures.repeated",
+            "line": 126,
+            "expression": "Fixtures.repeated(0x11)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 127,
+            "expression": "node(radioId = radio, publicKey = Fixtures.repeated(0x22), name = \"Drop\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Fixtures.repeated",
+            "line": 127,
+            "expression": "Fixtures.repeated(0x22)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 129,
+            "expression": "DiscoveryStateHolder(harness.dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.loadDiscoveredNodes",
+            "line": 130,
+            "expression": "holder.loadDiscoveredNodes()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.updateVisibleNodes",
+            "line": 131,
+            "expression": "holder.updateVisibleNodes(\"\", DiscoverSegment.ALL, NodeSortOrder.NAME, null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.deleteDiscoveredNode",
+            "line": 135,
+            "expression": "holder.deleteDiscoveredNode(dropNode)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 136,
+            "expression": "listOf(\"Keep\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 137,
+            "expression": "listOf(\"Keep\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::deleteDiscoveredNode reapplies visibleNodes without re-calling updateVisibleNodes()",
+          "native-equivalent"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "deleteDiscoveredNode reapplies visibleNodes without re-calling updateVisibleNodes"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::distance sort places nearer located nodes first()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "6fdf12f78a7761a273ef96bd917f9d33f7e2a73490c84b7ce213c6c038a2bcd1",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 229,
+          "expression": "#expect(result.map(\\.name) == [\"Near\", \"Far\", \"Unlocated\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "distance sort places nearer located nodes first",
+        "line": 80,
+        "end_line": 93,
+        "factory_method": null,
+        "body_sha256": "a9b82b6d4fb63155a1239b324b12f3d8aae0d853c7af7416ac3336d5b05d157e",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 92,
+            "expression": "assertEquals(listOf(\"Near\", \"Far\", \"Unlocated\"), result.map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 81,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 81,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 83,
+            "expression": "it.copy(\n                discoveredNodes = listOf(\n                    node(name = \"Far\", latitude = 38.0, longitude = -122.0),\n                    node(name = \"Near\", latitude = 37.01, longitude = -122.0),\n                    node(name = \"Unlocated\"),\n                ),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 84,
+            "expression": "listOf(\n                    node(name = \"Far\", latitude = 38.0, longitude = -122.0),\n                    node(name = \"Near\", latitude = 37.01, longitude = -122.0),\n                    node(name = \"Unlocated\"),\n                )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 85,
+            "expression": "node(name = \"Far\", latitude = 38.0, longitude = -122.0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 86,
+            "expression": "node(name = \"Near\", latitude = 37.01, longitude = -122.0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 87,
+            "expression": "node(name = \"Unlocated\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 91,
+            "expression": "holder.filtered(sortOrder = NodeSortOrder.DISTANCE, userLocation = Coordinate(37.0, -122.0))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Coordinate",
+            "line": 91,
+            "expression": "Coordinate(37.0, -122.0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 92,
+            "expression": "listOf(\"Near\", \"Far\", \"Unlocated\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::distance sort places nearer located nodes first()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "distance sort places nearer located nodes first"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::filteredNodes applies segment filter when not searching()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "09045c8845213fdd059c47274a09cf46e87b5b3a0964c264f0f9903c12e48da3",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 155,
+          "expression": "#expect(contacts.map(\\.name) == [\"Chat\"])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 156,
+          "expression": "#expect(repeaters.map(\\.name) == [\"Repeater\"])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 157,
+          "expression": "#expect(rooms.map(\\.name) == [\"Room\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "filteredNodes applies segment filter when not searching",
+        "line": 52,
+        "end_line": 60,
+        "factory_method": null,
+        "body_sha256": "7348254186c881844a4deaf7683a1bfc17b7392129963c5d41fc5b60ecb20d2c",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 57,
+            "expression": "assertEquals(listOf(\"Chat\"), holder.filtered(segment = DiscoverSegment.CONTACTS).map { it.name })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 58,
+            "expression": "assertEquals(listOf(\"Repeater\"), holder.filtered(segment = DiscoverSegment.REPEATERS).map { it.name })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 59,
+            "expression": "assertEquals(listOf(\"Room\"), holder.filtered(segment = DiscoverSegment.ROOMS).map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 53,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 53,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 55,
+            "expression": "it.copy(discoveredNodes = listOf(node(name = \"Chat\"), node(name = \"Repeater\", type = ContactType.REPEATER), node(name = \"Room\", type = ContactType.ROOM)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 55,
+            "expression": "listOf(node(name = \"Chat\"), node(name = \"Repeater\", type = ContactType.REPEATER), node(name = \"Room\", type = ContactType.ROOM))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 55,
+            "expression": "node(name = \"Chat\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 55,
+            "expression": "node(name = \"Repeater\", type = ContactType.REPEATER)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 55,
+            "expression": "node(name = \"Room\", type = ContactType.ROOM)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 57,
+            "expression": "listOf(\"Chat\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 57,
+            "expression": "holder.filtered(segment = DiscoverSegment.CONTACTS)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 58,
+            "expression": "listOf(\"Repeater\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 58,
+            "expression": "holder.filtered(segment = DiscoverSegment.REPEATERS)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 59,
+            "expression": "listOf(\"Room\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 59,
+            "expression": "holder.filtered(segment = DiscoverSegment.ROOMS)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::filteredNodes applies segment filter when not searching()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "filteredNodes applies segment filter when not searching"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::filteredNodes ignores segment while searching()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f7b8e31b1d171baa9cd08969df16138a7b3f080b3a85e750152961bac2f56d76",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 122,
+          "expression": "#expect(Set(result.map(\\.name)) == Set([\"ChatOne\", \"RepeaterOne\"]))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "filteredNodes ignores segment while searching",
+        "line": 44,
+        "end_line": 49,
+        "factory_method": null,
+        "body_sha256": "540ebfb788f26842c98d538bea5a0bef2bf5620f42ef41a142f768c62fb620a7",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 48,
+            "expression": "assertEquals(setOf(\"ChatOne\", \"RepeaterOne\"), result.map { it.name }.toSet())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 45,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 45,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 46,
+            "expression": "it.copy(discoveredNodes = listOf(node(name = \"ChatOne\"), node(name = \"RepeaterOne\", type = ContactType.REPEATER)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 46,
+            "expression": "listOf(node(name = \"ChatOne\"), node(name = \"RepeaterOne\", type = ContactType.REPEATER))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 46,
+            "expression": "node(name = \"ChatOne\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 46,
+            "expression": "node(name = \"RepeaterOne\", type = ContactType.REPEATER)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 47,
+            "expression": "holder.filtered(searchText = \"One\", segment = DiscoverSegment.CONTACTS)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "setOf",
+            "line": 48,
+            "expression": "setOf(\"ChatOne\", \"RepeaterOne\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toSet",
+            "line": 48,
+            "expression": "toSet()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::filteredNodes ignores segment while searching()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "filteredNodes ignores segment while searching"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::filteredNodes matches hex prefix case-insensitively()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "6fa54f4c1ed105db2c76e057dede2021137fae38ed5c5a1ff1ee4efd9424c900",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 102,
+          "expression": "#expect(upper.map(\\.name) == [\"HexNode\"])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 103,
+          "expression": "#expect(lower.map(\\.name) == [\"HexNode\"])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 104,
+          "expression": "#expect(mixed.map(\\.name) == [\"HexNode\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "filteredNodes matches hex prefix case-insensitively",
+        "line": 34,
+        "end_line": 41,
+        "factory_method": null,
+        "body_sha256": "5a68229a9d7e006ae9efa784e206853493080af99bf591e0bfe0e78eb60e0c86",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 38,
+            "expression": "assertEquals(listOf(\"HexNode\"), holder.filtered(searchText = \"00AA\").map { it.name })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 39,
+            "expression": "assertEquals(listOf(\"HexNode\"), holder.filtered(searchText = \"00aa\").map { it.name })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 40,
+            "expression": "assertEquals(listOf(\"HexNode\"), holder.filtered(searchText = \"00Aa\").map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes",
+            "line": 35,
+            "expression": "Bytes(ByteArray(32).also { it[0] = 0x00; it[1] = 0xAA.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 35,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 35,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 36,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 36,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 37,
+            "expression": "it.copy(discoveredNodes = listOf(node(publicKey = key, name = \"HexNode\"), node(publicKey = Fixtures.repeated(0xFF), name = \"Other\")))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 37,
+            "expression": "listOf(node(publicKey = key, name = \"HexNode\"), node(publicKey = Fixtures.repeated(0xFF), name = \"Other\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 37,
+            "expression": "node(publicKey = key, name = \"HexNode\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 37,
+            "expression": "node(publicKey = Fixtures.repeated(0xFF), name = \"Other\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Fixtures.repeated",
+            "line": 37,
+            "expression": "Fixtures.repeated(0xFF)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 38,
+            "expression": "listOf(\"HexNode\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 38,
+            "expression": "holder.filtered(searchText = \"00AA\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 39,
+            "expression": "listOf(\"HexNode\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 39,
+            "expression": "holder.filtered(searchText = \"00aa\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 40,
+            "expression": "listOf(\"HexNode\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 40,
+            "expression": "holder.filtered(searchText = \"00Aa\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::filteredNodes matches hex prefix case-insensitively()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "filteredNodes matches hex prefix case-insensitively"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::filteredNodes matches name case-insensitively via localizedStandardContains()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f0dba9ef982c2ae2ebd952bda4ad2df222d48cdfdaa2b933c4674aaa05e6b4e1",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 67,
+          "expression": "#expect(result.map(\\.name) == [\"Alpha Repeater\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "filteredNodes matches name case-insensitively via localizedStandardContains",
+        "line": 27,
+        "end_line": 31,
+        "factory_method": null,
+        "body_sha256": "15dc3a6a86b968ce19d43c8af46d4b44ffbfb32228d6f38b78e756086257ba5e",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 30,
+            "expression": "assertEquals(listOf(\"Alpha Repeater\"), holder.filtered(searchText = \"alpha\").map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 28,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 28,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 29,
+            "expression": "it.copy(discoveredNodes = listOf(node(name = \"Alpha Repeater\"), node(name = \"Beta Chat\")))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 29,
+            "expression": "listOf(node(name = \"Alpha Repeater\"), node(name = \"Beta Chat\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 29,
+            "expression": "node(name = \"Alpha Repeater\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 29,
+            "expression": "node(name = \"Beta Chat\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 30,
+            "expression": "listOf(\"Alpha Repeater\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 30,
+            "expression": "holder.filtered(searchText = \"alpha\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::filteredNodes matches name case-insensitively via localizedStandardContains()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "filteredNodes matches name case-insensitively via localizedStandardContains"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::hops sort orders by hop count then distance()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "f3cce3f6231a30048a45a7071fb9b2476f53949ac18c2d2f8a3e7c2c56543aba",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 250,
+          "expression": "#expect(result.map(\\.name) == [\"OneHopNear\", \"OneHopFar\", \"ThreeHop\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "hops sort orders by hop count then distance",
+        "line": 96,
+        "end_line": 109,
+        "factory_method": null,
+        "body_sha256": "e0dfa6fdd6f0021c7d7e9e5ca99a4c47c9b7e90bb7718f87685e52c0ba17709b",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 108,
+            "expression": "assertEquals(listOf(\"OneHopNear\", \"OneHopFar\", \"ThreeHop\"), result.map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 97,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 97,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 99,
+            "expression": "it.copy(\n                discoveredNodes = listOf(\n                    node(name = \"ThreeHop\", latitude = 37.01, longitude = -122.0, outPathLength = 3u, outPath = Bytes.of(1, 2, 3)),\n                    node(name = \"OneHopNear\", latitude = 37.01, longitude = -122.0, outPathLength = 1u, outPath = Bytes.of(1)),\n                    node(name = \"OneHopFar\", latitude = 38.0, longitude = -122.0, outPathLength = 1u, outPath = Bytes.of(1)),\n                ),\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 100,
+            "expression": "listOf(\n                    node(name = \"ThreeHop\", latitude = 37.01, longitude = -122.0, outPathLength = 3u, outPath = Bytes.of(1, 2, 3)),\n                    node(name = \"OneHopNear\", latitude = 37.01, longitude = -122.0, outPathLength = 1u, outPath = Bytes.of(1)),\n                    node(name = \"OneHopFar\", latitude = 38.0, longitude = -122.0, outPathLength = 1u, outPath = Bytes.of(1)),\n                )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 101,
+            "expression": "node(name = \"ThreeHop\", latitude = 37.01, longitude = -122.0, outPathLength = 3u, outPath = Bytes.of(1, 2, 3))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 101,
+            "expression": "Bytes.of(1, 2, 3)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 102,
+            "expression": "node(name = \"OneHopNear\", latitude = 37.01, longitude = -122.0, outPathLength = 1u, outPath = Bytes.of(1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 102,
+            "expression": "Bytes.of(1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 103,
+            "expression": "node(name = \"OneHopFar\", latitude = 38.0, longitude = -122.0, outPathLength = 1u, outPath = Bytes.of(1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 103,
+            "expression": "Bytes.of(1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 107,
+            "expression": "holder.filtered(sortOrder = NodeSortOrder.HOPS, userLocation = Coordinate(37.0, -122.0))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Coordinate",
+            "line": 107,
+            "expression": "Coordinate(37.0, -122.0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 108,
+            "expression": "listOf(\"OneHopNear\", \"OneHopFar\", \"ThreeHop\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::hops sort orders by hop count then distance()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "hops sort orders by hop count then distance"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::lastHeard sort uses receiver lastHeard not lastAdvertTimestamp()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ae4a970fbebdc6f4eff13fbc05a5414c51cf2b309dfbfdfdb58c2f4f45b1f1d3",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 190,
+          "expression": "#expect(result.map(\\.name) == [\"RecentlyHeard\", \"FutureSender\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "lastHeard sort uses receiver lastHeard not lastAdvertTimestamp",
+        "line": 63,
+        "end_line": 70,
+        "factory_method": null,
+        "body_sha256": "1bfc205bb7009ec0f46c8d1d1dab09f903c772fc9d9deeab15af4ebfbe627ea1",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 69,
+            "expression": "assertEquals(listOf(\"RecentlyHeard\", \"FutureSender\"), holder.filtered(sortOrder = NodeSortOrder.LAST_HEARD).map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 64,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 64,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 66,
+            "expression": "node(name = \"FutureSender\", lastHeard = Instant.ofEpochSecond(1_000_000), lastAdvertTimestamp = 4_000_000_000u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 66,
+            "expression": "Instant.ofEpochSecond(1_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 67,
+            "expression": "node(name = \"RecentlyHeard\", lastHeard = Instant.ofEpochSecond(2_000_000), lastAdvertTimestamp = 1_000_000u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 67,
+            "expression": "Instant.ofEpochSecond(2_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 68,
+            "expression": "it.copy(discoveredNodes = listOf(futureSender, recentlyHeard))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 68,
+            "expression": "listOf(futureSender, recentlyHeard)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 69,
+            "expression": "listOf(\"RecentlyHeard\", \"FutureSender\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 69,
+            "expression": "holder.filtered(sortOrder = NodeSortOrder.LAST_HEARD)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::lastHeard sort uses receiver lastHeard not lastAdvertTimestamp()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "lastHeard sort uses receiver lastHeard not lastAdvertTimestamp"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::name sort is locale ascending()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2bf4f4349285c5e9601ac141abc2ac86d3a0792da5fce614c05efe269faf9096",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 209,
+          "expression": "#expect(result.map(\\.name) == [\"Alice\", \"Bob\", \"Charlie\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "name sort is locale ascending",
+        "line": 73,
+        "end_line": 77,
+        "factory_method": null,
+        "body_sha256": "6a68f1c92d9ecc69b321d750ed4d796a02ed1c6463b1ece07dd1b63b05f63c91",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 76,
+            "expression": "assertEquals(listOf(\"Alice\", \"Bob\", \"Charlie\"), holder.filtered().map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 74,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 74,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 75,
+            "expression": "it.copy(discoveredNodes = listOf(node(name = \"Charlie\"), node(name = \"Alice\"), node(name = \"Bob\")))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 75,
+            "expression": "listOf(node(name = \"Charlie\"), node(name = \"Alice\"), node(name = \"Bob\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 75,
+            "expression": "node(name = \"Charlie\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 75,
+            "expression": "node(name = \"Alice\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 75,
+            "expression": "node(name = \"Bob\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 76,
+            "expression": "listOf(\"Alice\", \"Bob\", \"Charlie\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.filtered",
+            "line": 76,
+            "expression": "holder.filtered()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::name sort is locale ascending()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "name sort is locale ascending"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "discovery-filter-store",
+      "comparison_sha256": "db0163366cd7aafcc5ecf7369af38735beda738f2e8010d2a2d2c4c52b52ffc2",
+      "source_path": "MC1Tests/ViewModels/DiscoveryViewModelTests.swift",
+      "source_blob_sha": "70020dbc4a7747b86dd5887870523c494a67ac9c",
+      "case_id": "DiscoveryViewModelTests::updateVisibleNodes stores result in visibleNodes()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "6c9dca3d034f71053cb7d1aeb2817f87d4cae010c153c476dea29cc73c3dbaf4",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 270,
+          "expression": "#expect(viewModel.visibleNodes.map(\\.name) == [\"Alpha\"])",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 279,
+          "expression": "#expect(viewModel.visibleNodes.map(\\.name) == [\"Beta\"])",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "sha256": "e63693fb93b17d30f001ff431e143e337818c91de93b493f8fd62c03d1ce1730",
+        "class": "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "method_or_family_name": "updateVisibleNodes stores result in visibleNodes",
+        "line": 112,
+        "end_line": 119,
+        "factory_method": null,
+        "body_sha256": "8187959e6ac3156141b95b0109ba02e4bafca5ca3538226c71efc3f9e214dccc",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 116,
+            "expression": "assertEquals(listOf(\"Alpha\"), holder.state.value.visibleNodes.map { it.name })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 118,
+            "expression": "assertEquals(listOf(\"Beta\"), holder.state.value.visibleNodes.map { it.name })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "DiscoveryStateHolder",
+            "line": 113,
+            "expression": "DiscoveryStateHolder(Harness(clock).dependencies, scope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Harness",
+            "line": 113,
+            "expression": "Harness(clock)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.copy",
+            "line": 114,
+            "expression": "it.copy(discoveredNodes = listOf(node(name = \"Alpha\"), node(name = \"Beta\")))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 114,
+            "expression": "listOf(node(name = \"Alpha\"), node(name = \"Beta\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 114,
+            "expression": "node(name = \"Alpha\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "node",
+            "line": 114,
+            "expression": "node(name = \"Beta\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.updateVisibleNodes",
+            "line": 115,
+            "expression": "holder.updateVisibleNodes(\"alp\", DiscoverSegment.ALL, NodeSortOrder.NAME, null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 116,
+            "expression": "listOf(\"Alpha\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "holder.updateVisibleNodes",
+            "line": 117,
+            "expression": "holder.updateVisibleNodes(\"bet\", DiscoverSegment.ALL, NodeSortOrder.NAME, null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 118,
+            "expression": "listOf(\"Beta\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "DiscoveryViewModelTests::updateVisibleNodes stores result in visibleNodes()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.discovery.DiscoveryViewModelTest",
+        "updateVisibleNodes stores result in visibleNodes"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "message-link-tokenizer",
       "comparison_sha256": "6c249e8ed9973993bcc8e36dc4d1bbe7ae75938535ddbb6fe7721c2948d7c3b3",
       "source_path": "MC1Tests/Views/Chats/Linkify/MessageLinkTokenizerTests.swift",
@@ -17920,6 +19291,973 @@
       "runner_identity": [
         "com.meshcoreone.android.feature.chats.composer.MessageLinkTokenizerTest",
         "mapCoordinate skips a coordinate that lost to a higher-priority token"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-share",
+      "comparison_sha256": "fbaafd446ce69a415850a5074c5c753895ecd008d377138721630e29b6b30851",
+      "source_path": "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
+      "source_blob_sha": "3cb076c077ca14f1ea9c2ab338e37fc0d7542450",
+      "case_id": "ContactShareContentTests::compact public key hex has no whitespace()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "ffbd61d7542492bbd0df3138a8b0d5f5ffcdb34ebad8fa63a771a0a33b1d7563",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 14,
+          "expression": "#expect(hex == \"AABBCCDD\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 15,
+          "expression": "#expect(hex.contains { $0.isWhitespace } == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",
+        "sha256": "9a6d16eb7fdc9f8e68ccab2abe42b03740833f8c3715d3194724379d128b95af",
+        "class": "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+        "method_or_family_name": "compact public key hex has no whitespace",
+        "line": 23,
+        "end_line": 27,
+        "factory_method": null,
+        "body_sha256": "00104357c9cb80dd10c34f303efb0c38eb8b32e04446e505403d45ee7c49b43b",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 25,
+            "expression": "assertEquals(\"AABBCCDD\", hex)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 26,
+            "expression": "assertFalse(hex.any { it.isWhitespace() })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "ContactShareContent.compactPublicKeyHex",
+            "line": 24,
+            "expression": "ContactShareContent.compactPublicKeyHex(Bytes.of(0xAA, 0xBB, 0xCC, 0xDD))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 24,
+            "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "it.isWhitespace",
+            "line": 26,
+            "expression": "it.isWhitespace()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
+          "MC1Tests/Views/Contacts/ContactURIActivityItemTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ContactShareContentTests::compact public key hex has no whitespace()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactShareAcceptanceTest.kt",
+          "sha256": "fd8124b32a7dd4aca5010e1ad54386da955611e5a6b59b38e096823fc7c08c3f"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+        "compact public key hex has no whitespace"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-share",
+      "comparison_sha256": "fbaafd446ce69a415850a5074c5c753895ecd008d377138721630e29b6b30851",
+      "source_path": "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
+      "source_blob_sha": "3cb076c077ca14f1ea9c2ab338e37fc0d7542450",
+      "case_id": "ContactShareContentTests::uri is meshcore contact/add and round-trips()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "314aed0fe10e30e58afb3ab4c65846e6f08f93b0470588aa2b3e775b7b244116",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 20,
+          "expression": "#require(Data(hexString: Self.keyHex))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(uri.hasPrefix(\"meshcore://contact/add?\"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 23,
+          "expression": "#expect(!uri.contains(\" \"))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 24,
+          "expression": "#require(MeshCoreURLParser.parseContactURL(uri))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 25,
+          "expression": "#expect(parsed.name == \"Alice\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 26,
+          "expression": "#expect(parsed.publicKey == key)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(parsed.contactType == .chat)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/deeplinks/MeshCoreUriParserTest.kt",
+        "sha256": "98461882968f13a6ad620b4267600128dce367b3b93124a1620ef88df826b496",
+        "class": "com.meshcoreone.android.app.deeplinks.MeshCoreUriParserTest",
+        "method_or_family_name": "contactShareContentUsesRealEncoderAndParser",
+        "line": 29,
+        "end_line": 39,
+        "factory_method": null,
+        "body_sha256": "c66ca25adf6697309f990165c7acc5c932acd41418410ebf6fbacd8fbdf33e2c",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertContact",
+            "line": 33,
+            "expression": "assertContact(uri)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 34,
+            "expression": "assertTrue(uri.startsWith(\"meshcore://contact/add?\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 35,
+            "expression": "assertEquals(\"Alice Repeater\", parsed.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 36,
+            "expression": "assertEquals(key, parsed.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 37,
+            "expression": "assertEquals(type, parsed.contactType)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes.parseHex",
+            "line": 30,
+            "expression": "Bytes.parseHex(\"B7\".repeat(32))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 30,
+            "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactService.exportContactURI",
+            "line": 32,
+            "expression": "ContactService.exportContactURI(\"Alice Repeater\", key, type)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "uri.startsWith",
+            "line": 34,
+            "expression": "uri.startsWith(\"meshcore://contact/add?\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Utilities/MeshCoreURLParserTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ContactShareContentTests::uri is meshcore contact/add and round-trips()",
+          "ContactShareContentTests::uri preserves contact type()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactShareAcceptanceTest.kt",
+          "sha256": "fd8124b32a7dd4aca5010e1ad54386da955611e5a6b59b38e096823fc7c08c3f"
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.app.deeplinks.MeshCoreUriParserTest",
+        "contactShareContentUsesRealEncoderAndParser"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-share",
+      "comparison_sha256": "fbaafd446ce69a415850a5074c5c753895ecd008d377138721630e29b6b30851",
+      "source_path": "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
+      "source_blob_sha": "3cb076c077ca14f1ea9c2ab338e37fc0d7542450",
+      "case_id": "ContactShareContentTests::uri preserves contact type()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "5a164ef83f05461e21f9e13e89a9096eda9b69bd7affd9d792f6b68d37c37fab",
+      "original_assertions": [
+        {
+          "name": "#require",
+          "line": 32,
+          "expression": "#require(Data(hexString: Self.keyHex))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 34,
+          "expression": "#require(MeshCoreURLParser.parseContactURL(uri))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 35,
+          "expression": "#expect(parsed.contactType == .repeater)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/deeplinks/MeshCoreUriParserTest.kt",
+        "sha256": "98461882968f13a6ad620b4267600128dce367b3b93124a1620ef88df826b496",
+        "class": "com.meshcoreone.android.app.deeplinks.MeshCoreUriParserTest",
+        "method_or_family_name": "contactShareContentUsesRealEncoderAndParser",
+        "line": 29,
+        "end_line": 39,
+        "factory_method": null,
+        "body_sha256": "c66ca25adf6697309f990165c7acc5c932acd41418410ebf6fbacd8fbdf33e2c",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertContact",
+            "line": 33,
+            "expression": "assertContact(uri)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 34,
+            "expression": "assertTrue(uri.startsWith(\"meshcore://contact/add?\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 35,
+            "expression": "assertEquals(\"Alice Repeater\", parsed.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 36,
+            "expression": "assertEquals(key, parsed.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 37,
+            "expression": "assertEquals(type, parsed.contactType)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes.parseHex",
+            "line": 30,
+            "expression": "Bytes.parseHex(\"B7\".repeat(32))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 30,
+            "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactService.exportContactURI",
+            "line": 32,
+            "expression": "ContactService.exportContactURI(\"Alice Repeater\", key, type)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "uri.startsWith",
+            "line": 34,
+            "expression": "uri.startsWith(\"meshcore://contact/add?\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Utilities/MeshCoreURLParserTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ContactShareContentTests::uri is meshcore contact/add and round-trips()",
+          "ContactShareContentTests::uri preserves contact type()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactShareAcceptanceTest.kt",
+          "sha256": "fd8124b32a7dd4aca5010e1ad54386da955611e5a6b59b38e096823fc7c08c3f"
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.app.deeplinks.MeshCoreUriParserTest",
+        "contactShareContentUsesRealEncoderAndParser"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-share-platform",
+      "comparison_sha256": "2626ceee6e9026a2249e0251bbdae0ba13cc12ee8340f3cd8ec0ba60078ba84a",
+      "source_path": "MC1Tests/Views/Contacts/ContactURIActivityItemTests.swift",
+      "source_blob_sha": "d7aabdd38f8325c3da58bb4b7080fa463e213b7b",
+      "case_id": "ContactURIActivityItemTests::copy activity returns the uri string()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "1c9814b35d8142eb29f00aa475992db8f48d4589efeaa671b9caeb87392905d7",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 25,
+          "expression": "#expect(value == Self.uri)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",
+        "sha256": "9a6d16eb7fdc9f8e68ccab2abe42b03740833f8c3715d3194724379d128b95af",
+        "class": "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+        "method_or_family_name": "copy target receives the uri string",
+        "line": 39,
+        "end_line": 41,
+        "factory_method": null,
+        "body_sha256": "72fef6f5a6c60e77a63ccd1c85fcd2f45716292d2522734975d2bcbf2ceab599",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 40,
+            "expression": "assertEquals(uri, ContactShareTextPayload(uri, subject).copyText)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "ContactShareTextPayload",
+            "line": 40,
+            "expression": "ContactShareTextPayload(uri, subject)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
+          "MC1Tests/Views/Contacts/ContactURIActivityItemTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ContactURIActivityItemTests::copy activity returns the uri string()",
+          "platform-adaptation"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+        "copy target receives the uri string"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-share-platform",
+      "comparison_sha256": "2626ceee6e9026a2249e0251bbdae0ba13cc12ee8340f3cd8ec0ba60078ba84a",
+      "source_path": "MC1Tests/Views/Contacts/ContactURIActivityItemTests.swift",
+      "source_blob_sha": "d7aabdd38f8325c3da58bb4b7080fa463e213b7b",
+      "case_id": "ContactURIActivityItemTests::placeholder is a String not a URL()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "18aa138a7e11c03e66b54ffc25913c1d82e2eb7b5f8343868713993c29bd2af7",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 16,
+          "expression": "#expect(placeholder is String)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(placeholder is URL == false)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",
+        "sha256": "9a6d16eb7fdc9f8e68ccab2abe42b03740833f8c3715d3194724379d128b95af",
+        "class": "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+        "method_or_family_name": "share payload is plain text not a URI",
+        "line": 30,
+        "end_line": 36,
+        "factory_method": null,
+        "body_sha256": "afa6f82edea4fe528c39e1669c254b17138df2ba965c8ca6d50a9b9b531112ec",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 33,
+            "expression": "assertEquals(\"text/plain\", payload.mimeType)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 34,
+            "expression": "assertTrue(payload.text.startsWith(\"meshcore://\"))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 35,
+            "expression": "assertEquals(subject, payload.subject)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "ContactShareTextPayload",
+            "line": 32,
+            "expression": "ContactShareTextPayload(uri, subject)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "payload.text.startsWith",
+            "line": 34,
+            "expression": "payload.text.startsWith(\"meshcore://\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
+          "MC1Tests/Views/Contacts/ContactURIActivityItemTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ContactURIActivityItemTests::placeholder is a String not a URL()",
+          "platform-adaptation"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.share.ContactShareContentTest",
+        "share payload is plain text not a URI"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-qr-feedback",
+      "comparison_sha256": "9bdcb68a914bc68b5f79091680482a51979ebebdf923bd62635e86e59fcb7d03",
+      "source_path": "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift",
+      "source_blob_sha": "cf93e954c0a8738a9da8271337d0ad13560b5221",
+      "case_id": "ScanContactQRFeedbackTests::existing contact uses view not add()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "b8f934393bfe02f48f2cfea514062f28964f9dabf0542db990f2102f935b3503",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 43,
+          "expression": "#expect(content.primaryAccessibilityLabel == L10n.Contacts.Contacts.Add.viewAccessibility(existing.displayName))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 44,
+          "expression": "#expect(content.primaryAccessibilityLabel != L10n.Contacts.Contacts.Add.alreadyAdded)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 45,
+          "expression": "#expect(content.primaryAccessibilityLabel != L10n.Contacts.Contacts.Add.add)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 46,
+          "expression": "#expect(content.scannedAsText == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/add/ScanContactQRFeedbackTest.kt",
+        "sha256": "281af3e8f163e527a6b4e990a7fadd04b6d4fe83a0da11f8081681aa0ac51050",
+        "class": "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "method_or_family_name": "existing contact uses view not add",
+        "line": 59,
+        "end_line": 66,
+        "factory_method": null,
+        "body_sha256": "9d8ad2d38406a8d35b8b81591337862edcc35aee3d203387afda2a882a00a5ff",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 62,
+            "expression": "assertEquals(NodesMessage.res(R.string.l10n_app_contacts_contacts_add_viewaccessibility, existing.displayName), content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotEquals",
+            "line": 63,
+            "expression": "assertNotEquals(alreadyAdded, content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotEquals",
+            "line": 64,
+            "expression": "assertNotEquals(add, content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 65,
+            "expression": "assertNull(content.scannedAsText)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "sampleContact",
+            "line": 60,
+            "expression": "sampleContact(\"Example Repeater\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "content",
+            "line": 61,
+            "expression": "content(existingContact = existing)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "NodesMessage.res",
+            "line": 62,
+            "expression": "NodesMessage.res(R.string.l10n_app_contacts_contacts_add_viewaccessibility, existing.displayName)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ScanContactQRFeedbackTests::existing contact uses view not add()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "existing contact uses view not add"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-qr-feedback",
+      "comparison_sha256": "9bdcb68a914bc68b5f79091680482a51979ebebdf923bd62635e86e59fcb7d03",
+      "source_path": "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift",
+      "source_blob_sha": "cf93e954c0a8738a9da8271337d0ad13560b5221",
+      "case_id": "ScanContactQRFeedbackTests::idle add button uses add and hides the type glyph()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "cf1cc1b6ce0afe1bbe263d1ca0d17f646d2e86a2bf40efb68de7d7d1fab723b2",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 15,
+          "expression": "#expect(content.primaryAccessibilityLabel == L10n.Contacts.Contacts.Add.add)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 16,
+          "expression": "#expect(content.primaryAccessibilityLabel != L10n.Contacts.Contacts.Scan.importing)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(content.primaryAccessibilityLabel != L10n.Contacts.Contacts.Add.alreadyAdded)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 18,
+          "expression": "#expect(content.hidesIdentityGlyph)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 19,
+          "expression": "#expect(content.publicKeyText.contains(hex))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 20,
+          "expression": "#expect(!content.showsScanAgain)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/add/ScanContactQRFeedbackTest.kt",
+        "sha256": "281af3e8f163e527a6b4e990a7fadd04b6d4fe83a0da11f8081681aa0ac51050",
+        "class": "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "method_or_family_name": "idle add button uses add and hides the type glyph",
+        "line": 36,
+        "end_line": 44,
+        "factory_method": null,
+        "body_sha256": "d42a854258daf22d4ecbafa0afc05ca79179834d2e41a4606b93aa9307cae7f9",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 38,
+            "expression": "assertEquals(add, content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotEquals",
+            "line": 39,
+            "expression": "assertNotEquals(importing, content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotEquals",
+            "line": 40,
+            "expression": "assertNotEquals(alreadyAdded, content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 41,
+            "expression": "assertTrue(content.hidesIdentityGlyph)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 42,
+            "expression": "assertTrue(samplePublicKey.uppercaseHexString(\" \") in content.publicKeyText)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 43,
+            "expression": "assertFalse(content.showsScanAgain)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "content",
+            "line": 37,
+            "expression": "content(isAdding = false)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "samplePublicKey.uppercaseHexString",
+            "line": 42,
+            "expression": "samplePublicKey.uppercaseHexString(\" \")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ScanContactQRFeedbackTests::idle add button uses add and hides the type glyph()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "idle add button uses add and hides the type glyph"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-qr-feedback",
+      "comparison_sha256": "9bdcb68a914bc68b5f79091680482a51979ebebdf923bd62635e86e59fcb7d03",
+      "source_path": "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift",
+      "source_blob_sha": "cf93e954c0a8738a9da8271337d0ad13560b5221",
+      "case_id": "ScanContactQRFeedbackTests::importing add button uses importing not add()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "c9e0f44e6eaf4dd8394c5e4668bd0892fbf6875dbf03665218441f9870a47282",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(content.primaryAccessibilityLabel == L10n.Contacts.Contacts.Scan.importing)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 28,
+          "expression": "#expect(content.primaryAccessibilityLabel != L10n.Contacts.Contacts.Add.add)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/add/ScanContactQRFeedbackTest.kt",
+        "sha256": "281af3e8f163e527a6b4e990a7fadd04b6d4fe83a0da11f8081681aa0ac51050",
+        "class": "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "method_or_family_name": "importing add button uses importing not add",
+        "line": 47,
+        "end_line": 51,
+        "factory_method": null,
+        "body_sha256": "67b7a695553e8be74f6bc4404f7b414836ba7db26aa2c1439e42097d655b0289",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 49,
+            "expression": "assertEquals(importing, content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotEquals",
+            "line": 50,
+            "expression": "assertNotEquals(add, content.primaryAccessibilityLabel)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "content",
+            "line": 48,
+            "expression": "content(isAdding = true)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ScanContactQRFeedbackTests::importing add button uses importing not add()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "importing add button uses importing not add"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-qr-feedback",
+      "comparison_sha256": "9bdcb68a914bc68b5f79091680482a51979ebebdf923bd62635e86e59fcb7d03",
+      "source_path": "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift",
+      "source_blob_sha": "cf93e954c0a8738a9da8271337d0ad13560b5221",
+      "case_id": "ScanContactQRFeedbackTests::name mismatch shows scanned as caption()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "867cc14b224820e5497472c9f8cfa6fc13e8f3c98ecb2dfb549b2f32e8052b82",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 54,
+          "expression": "#expect(content.displayedName == existing.displayName)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 55,
+          "expression": "#expect(content.scannedAsText == L10n.Contacts.Contacts.Add.scannedAs(\"Claimed Name\"))",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/add/ScanContactQRFeedbackTest.kt",
+        "sha256": "281af3e8f163e527a6b4e990a7fadd04b6d4fe83a0da11f8081681aa0ac51050",
+        "class": "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "method_or_family_name": "name mismatch shows scanned as caption",
+        "line": 69,
+        "end_line": 74,
+        "factory_method": null,
+        "body_sha256": "c28d074b06197b04082da9db57c6d27f3edf4578709335ea6973e390e4329b04",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 72,
+            "expression": "assertEquals(existing.displayName, content.displayedName)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 73,
+            "expression": "assertEquals(NodesMessage.res(R.string.l10n_app_contacts_contacts_add_scannedas, \"Claimed Name\"), content.scannedAsText)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "sampleContact",
+            "line": 70,
+            "expression": "sampleContact(\"Saved Repeater\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "content",
+            "line": 71,
+            "expression": "content(qrName = \"Claimed Name\", existingContact = existing)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "NodesMessage.res",
+            "line": 73,
+            "expression": "NodesMessage.res(R.string.l10n_app_contacts_contacts_add_scannedas, \"Claimed Name\")",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ScanContactQRFeedbackTests::name mismatch shows scanned as caption()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "name mismatch shows scanned as caption"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "contact-qr-feedback",
+      "comparison_sha256": "9bdcb68a914bc68b5f79091680482a51979ebebdf923bd62635e86e59fcb7d03",
+      "source_path": "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift",
+      "source_blob_sha": "cf93e954c0a8738a9da8271337d0ad13560b5221",
+      "case_id": "ScanContactQRFeedbackTests::scan again appears when provided()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "d4da58b461c636ce218a84179aa1f98dc5c7b751551aae77637c4107bce1cb87",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 35,
+          "expression": "#expect(content.showsScanAgain)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/add/ScanContactQRFeedbackTest.kt",
+        "sha256": "281af3e8f163e527a6b4e990a7fadd04b6d4fe83a0da11f8081681aa0ac51050",
+        "class": "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "method_or_family_name": "scan again appears when provided",
+        "line": 54,
+        "end_line": 56,
+        "factory_method": null,
+        "body_sha256": "f140f6dd5beaa048d68b7543cc040ce378bf4658d1ee003f1d841b469a03a7cd",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertTrue",
+            "line": 55,
+            "expression": "assertTrue(content(canScanAgain = true).showsScanAgain)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "content",
+            "line": 55,
+            "expression": "content(canScanAgain = true)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Tests/Views/Contacts/ScanContactQRFeedbackTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ScanContactQRFeedbackTests::scan again appears when provided()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/support/Fixtures.kt",
+          "sha256": "a72b6bae9ebf0a7b5d1e1d6508d494e8473b37174fbc4292485dbc666b6912f0"
+        }
+      ],
+      "runner_directory": "feature/nodes/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.feature.nodes.add.ScanContactQRFeedbackTest",
+        "scan again appears when provided"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },

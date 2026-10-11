@@ -187,6 +187,26 @@ class SemanticBindingTest(unittest.TestCase):
         with patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "actual native assertions"):
             semantic.bind_reviews(groups)
 
+    def test_many_to_many_target_keeps_the_actual_native_class_and_runner(self):
+        groups, value = self.fixture()
+        native = groups["WP-101"]["families"][0]["native_proposals"][0]
+        native.update(path="android/app/native.kt", **{"class": "AppNative"})
+        value["groups"][0]["native_target_overrides"] = {"checked": {
+            "native_path": "android/app/native.kt", "runner_class": "AppNative",
+            "runner_directory": "app/build/test-results/testDebugUnitTest",
+        }}
+        with patch.object(semantic, "load_json", return_value=value):
+            family = semantic.bind_reviews(groups)["families"][0]
+        self.assertEqual(["AppNative", "checked()"], family["runner_identity"])
+        self.assertEqual("app/build/test-results/testDebugUnitTest", family["runner_directory"])
+
+    def test_unknown_or_partial_target_override_fails_closed(self):
+        for target in ({"unknown": {}}, {"checked": {"native_path": "android/app.kt"}}):
+            groups, value = self.fixture()
+            value["groups"][0]["native_target_overrides"] = target
+            with self.subTest(target=target), patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "target adaptation"):
+                semantic.bind_reviews(groups)
+
 
 if __name__ == "__main__":
     unittest.main()

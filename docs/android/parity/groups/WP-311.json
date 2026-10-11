@@ -3435,7 +3435,8 @@
       "owner": "WP-311",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt"
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/discovery/DiscoveryViewModelTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -3500,6 +3501,25 @@
               "name": "deleteDiscoveredNode reapplies visibleNodes without re-calling updateVisibleNodes",
               "line": 122,
               "end_line": 138
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/DiscoveryStoreAcceptanceTest.kt",
+          "sha256": "35463dd4126e7c62293f61e19a85f069bfc740b05785f1758c57f628d58be649",
+          "source_references": [
+            "MC1Tests/ViewModels/DiscoveryViewModelTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "deletingDiscoveredNodeUpdatesRealRoomAndMountedFilterWithoutTouchingAnotherRadio",
+              "line": 22,
+              "end_line": 58
+            },
+            {
+              "name": "frame",
+              "line": 30,
+              "end_line": 35
             }
           ]
         }
@@ -3814,7 +3834,8 @@
       "owner": "WP-311",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt"
+        "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactShareAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -3850,6 +3871,20 @@
               "name": "copy public key returns compact hex and shows feedback for two seconds",
               "line": 56,
               "end_line": 66
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactShareAcceptanceTest.kt",
+          "sha256": "fd8124b32a7dd4aca5010e1ad54386da955611e5a6b59b38e096823fc7c08c3f",
+          "source_references": [
+            "MC1Tests/Views/Contacts/ContactShareContentTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalContactShareFieldsRoundTripWithoutWhitespace",
+              "line": 17,
+              "end_line": 28
             }
           ]
         }

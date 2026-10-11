@@ -46,6 +46,10 @@ WP501_ACCEPTANCE_CASES = {
      "callerTimeoutRemainsCancellationAndDoesNotPoisonInlineRetry"),
     ("com.meshcoreone.android.parity.DeviceRepeatAcceptanceTest",
      "sourcePreRepeatParametersSurviveSelfInfoWithoutMutatingTheOriginal"),
+    ("com.meshcoreone.android.parity.DiscoveryStoreAcceptanceTest",
+     "deletingDiscoveredNodeUpdatesRealRoomAndMountedFilterWithoutTouchingAnotherRadio"),
+    ("com.meshcoreone.android.parity.ContactShareAcceptanceTest",
+     "originalContactShareFieldsRoundTripWithoutWhitespace"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

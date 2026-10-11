@@ -413,6 +413,13 @@ def bind_reviews(groups, repo=audit.REPO):
         overrides = group.get("native_method_overrides", {})
         if not overrides.keys() <= methods:
             raise PortError("Native method adaptation names an unknown original")
+        targets = group.get("native_target_overrides", {})
+        if not isinstance(targets, dict) or not targets.keys() <= methods or any(
+            not isinstance(target, dict) or set(target) != {"native_path", "runner_class", "runner_directory"}
+            or any(not isinstance(field, str) or not field for field in target.values())
+            for target in targets.values()
+        ):
+            raise PortError("Malformed or unknown original native target adaptation")
         helpers = []
         for path in group["helpers"]:
             helper = repo_path(repo, path)
@@ -422,8 +429,9 @@ def bind_reviews(groups, repo=audit.REPO):
         for family in families:
             method = family["case_id"].split("::", 1)[1].rsplit("(", 1)[0]
             native_name = overrides.get(method, method)
+            target = targets.get(method, group)
             candidates = [candidate for candidate in family["native_proposals"]
-                          if candidate["path"] == group["native_path"] and
+                          if candidate["path"] == target["native_path"] and
                           (family["case_id"] in candidate.get("explicit_original_case_ids", [])
                            if group["runner_name"] == "annotated-method" else candidate["method_or_family_name"] == native_name)
                           and candidate["factory_method"] == group.get("native_factory")]
@@ -432,12 +440,12 @@ def bind_reviews(groups, repo=audit.REPO):
                 # not silently accepted by the candidate's prose.
                 native, _ = native_units(repo)
                 candidates = [candidate for candidate in native[native_name]
-                              if candidate["path"] == group["native_path"] and
+                              if candidate["path"] == target["native_path"] and
                               group["source_path"] in candidate["source_references"]]
             if len(candidates) != 1 or not candidates[0]["assertions"]:
                 raise PortError(f"Missing/ambiguous actual native assertions: {group['id']}: {method}")
             native = candidates[0]
-            if native["class"] != group["runner_class"]:
+            if native["class"] != target["runner_class"]:
                 raise PortError("Native assertion owner disagrees with expected runner class")
             if group["runner_name"] not in ("method()", "original-case-id", "annotated-method"):
                 raise PortError("Unknown native test registration shape")
@@ -450,8 +458,8 @@ def bind_reviews(groups, repo=audit.REPO):
                 "original_declaration_sha256": family["declaration_sha256"],
                 "original_assertions": family["assertions"], "original_inputs": family["inputs"],
                 "native": native, "assertion_helper_inputs": helpers,
-                "runner_directory": group["runner_directory"],
-                "runner_identity": [group["runner_class"], runner_name],
+                "runner_directory": target["runner_directory"],
+                "runner_identity": [target["runner_class"], runner_name],
                 "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution",
             })
     if not result:
