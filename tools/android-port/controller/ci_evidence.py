@@ -152,6 +152,8 @@ WP501_ACCEPTANCE_CASES = {
      "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement"),
     ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
      "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalStatusErrorAndUnstartedShortNeighbourKeyKeepSourceInputs"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

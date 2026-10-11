@@ -19709,7 +19709,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalBugFixCasesTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -98252,6 +98253,10 @@
       "assertion_status": "direct",
       "candidate_mappings": [
         {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+        },
+        {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
           "record": 172
@@ -98279,6 +98284,10 @@
       "original_detail_sha256": "c2f7a3fe53b31f14d473f846f2a3d908e6090b1b3f9c65b6102379e1d2008fae",
       "assertion_status": "direct",
       "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+        },
         {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",

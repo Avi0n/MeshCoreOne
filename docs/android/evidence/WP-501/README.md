@@ -12,7 +12,13 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-Latest completed hosted candidate: [368c6957 primary38177276628](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38177276628),
+Latest completed hosted candidate: [a27ca4032 primary38181356057](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38181356057),
+actual SUCCESS/all five scopes/all six jobs on basea19. Full officiallog/actual
+JSON read directly; declared native/controller/codec/realSwiftData scopespassed,
+positive0failure/error/skip, no duplicatebundle. Currentpublishedaf2f6f597
+primary38183893582stillrunning; not a result of the local175changes.
+
+Earlier completed hosted candidate: [368c6957 primary38177276628](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38177276628),
 actual SUCCESS/all five scopes/all six jobs, on basea19. Authoritative full log
 was read: controller363/Python96/app689/services2640/protocol4711/data409/
 database45/l10n25/model166 all positive,0failure/error/skip; real pinned Swift
@@ -30,7 +36,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-755 inspected family proposals in116groups, exact source/assertion/helper/runner
+791 inspected family proposals in119groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -47,6 +53,31 @@ radio, new Swift execution, screenshot/accessibility matrix, legal approval,
 production signing or release certification.
 
 ## Local execution before candidate publication
+
+Next owned175repair: same typedreservation19->20 admits existing
+OriginalBugFixCasesTest throughtrustedmerge-integration; only five literal
+112233445566prefix inputs restored, genericAABBdefault retained for actual
+sourceAABBcases. Full36ProtocolBugFix sourcebodies/helpers/two nativefactories/
+typedDTOs/status/neighbor/ACL/MMA/LPP/pagination and actualsession/service
+consumers compared. Two genericcomponent startup/key families now bind exact
+originalpublicsession Test10s/zero-power62bytes/31x32/error10 and separate
+unstarted31x6/typedInvalidInput/no writes.791/119inspected,66mandatory;
+actual34protocol/70app immutablepositive discovery pending.
+SourceMMA inclusive.001 unchanged, exact representableSNR DTO equality
+strengthens source. Native malformedlive-neighbor errors/wholetableowner/
+explicitcancellation are disclosed limits, not general consumer/hardware proof.
+No production/173surface/dependency/golden/threshold changes.
+
+Normalinstalledpush af2f6f597a5a895b80cdd88050d2c1297b7347bb succeeded
+as explicitlyUNVERIFIED:92parity/21local/15scaffoldPython and preflightpassed;
+unchangedLinuxscaffold Expected3/found0contracts/model/protocoltransformlocks
+failed beforeappdiscovery. No hook/lock/cache/checksum bypass/force/cleanup.
+Existing draft165template/bodyupdated and boundedreviewhandoff6115044833.
+Exactprimary38183893582running;38183893563is separate setup, no new fullpass.
+
+Accounting generation passed; an attempted semantic.py --generate invocation
+failed its CLIusage check because that flag does not exist. No binding/test
+validation changed; use the documented argument-free generator beforechecks.
 
 Corrected exact0191e61ca71c4f49b48e27afc5c8cbd9b49d78d3 actual declared
 `python <session-files>\wp501-native-check.py --head 0191e61ca71c4f49b48e27afc5c8cbd9b49d78d3 --app-only`

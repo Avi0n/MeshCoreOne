@@ -51,6 +51,27 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Published accumulatedaf2f6f597/basea19, existingdraftPR165. Exactprimary
+38183893582running,38183893563separate setup; no completed newhostedclaim.
+Normalinstalled prepush Python92parity/21local/15scaffold and preflightpassed,
+Linuxscaffold againfailed unchangedtransformlockExpected3/found0 beforeapp
+discovery. Normalpush explicitlyUNVERIFIED; no hook/cache/checksum bypass.
+
+Continuing ownedrepair175 restores only five explicit binary-status input
+prefixes112233445566, preserving sharedAABBCCDDEEFFdefault and every original
+payload/layout/assertion. Same reservation20admittedexistingtestpath.
+Full36ProtocolBugFix bodies/helpers plus actualstatus/neighbor/ACL/MMA/LPP/
+pagination/session/service consumers now compared,34parser identities and
+two original public-session families bound. ExactTest10s/zero-power62byte
+startup/error10 and separateunstarted31x6/no-write guard replace component
+defaults for those two originals.791families/119groups/66mandatoryappmethods;
+actual34protocol/70app positive immutableexecution stillpending.
+Sourceinclusive.001 MMA unchanged; exactDTO SNR equality is stronger for the
+selected representable samples. Native malformed live-neighbor diagnostics,
+whole-table serialization and cancellation checks remain bounded adaptations,
+not falsely certified by valid/short directparser or clock-free pagination
+cases. No production edits/173overlap/fullacceptance.
+
 Corrected immutable0191e61ca actualapp69/69 (all65mandatory+4repair) and
 cleanPython363/363passed,0failure/error/skip. Native originalresponse74at
 de014/region38at9fc bytebindings unchangedthrough0191. Initial2b90negative

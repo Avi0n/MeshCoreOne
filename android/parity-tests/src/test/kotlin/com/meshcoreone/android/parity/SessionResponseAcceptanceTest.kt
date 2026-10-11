@@ -9,6 +9,7 @@
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.OriginalCase
@@ -1366,6 +1367,52 @@ class SessionResponseAcceptanceTest {
             } finally {
                 session.stop()
             }
+        }
+    }
+
+    @OriginalCase("ProtocolBugFixTests::requestStatus throws device error when error response received()")
+    @OriginalCase("ProtocolBugFixTests::requestNeighbours rejects a short public key before sending()")
+    @Test fun originalStatusErrorAndUnstartedShortNeighbourKeyKeepSourceInputs() = runTest {
+        val configuration = SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test")
+        val transport = MockTransport()
+        val session = startSourceSession(transport, configuration, sourceRegionSelfInfo())
+        try {
+            assertEquals(hex("010320202020202054657374"), transport.sentData.single())
+            val key = Bytes(ByteArray(32) { 0x31 })
+            val call = backgroundScope.async {
+                try {
+                    session.requestStatus(key)
+                    fail("An original status device error cannot become a successful response")
+                    null
+                } catch (failure: MeshCoreException.DeviceError) {
+                    failure
+                }
+            }
+            runCurrent()
+            assertEquals(listOf(hex("010320202020202054657374"), hex("1b") + key), transport.sentData)
+            assertFalse(call.isCompleted)
+            transport.simulateError(10u)
+            runCurrent()
+            assertEquals(10u.toUByte(), call.await()?.code)
+            assertEquals(2, transport.sentData.size)
+        } finally {
+            session.stop()
+        }
+
+        val unstartedTransport = MockTransport()
+        val unstarted = MeshCoreSession(
+            unstartedTransport, configuration, publicSessionClock(), backgroundScope.coroutineContext,
+        )
+        try {
+            try {
+                unstarted.requestNeighbours(Bytes(ByteArray(6) { 0x31 }))
+                fail("The original short key must fail before connection admission or any send")
+            } catch (_: MeshCoreException.InvalidInput) {
+                assertTrue(unstartedTransport.sentData.isEmpty())
+            }
+            assertTrue(unstartedTransport.sentData.isEmpty())
+        } finally {
+            unstarted.stop()
         }
     }
 
