@@ -112,7 +112,7 @@ relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
 The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely twenty-seven arbitrary passing tests. All existing module/primary suite
+not merely twenty-nine arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -125,11 +125,12 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **427 actually inspected families in 46 groups**:
+`review-proposals.json` contains **474 actually inspected families in 51 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
-modern session acknowledgment/error/scope/trace12 and channel pipeline5.
+modern session acknowledgment/error/scope/trace12, channel pipeline5,
+LPP18, distinct contact-packet/public-flags4 and V112 parser/command/cache25.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -197,7 +198,33 @@ in all12 modern session families and the Kotlin registration/13negative-test
 delta. That read and the verified b501-to-b2 execution-input equality are retained
 as bounded review evidence, not candidate self-approval or full acceptance.
 
-The 427 proposals are a bounded reviewable implementation increment,
+The coordinator's bounded76ddc835 read likewise found no blocking mismatch in
+all five channel-pipeline families, their exact setup/helpers and actual
+SessionChannelOperations. Only short ASCII channel names are claimed for the
+sourceChannel helper. Actual4dfc-to76 changes were proposal/evidence/bindings,
+not execution inputs. Neither read is full WP501 approval.
+
+Eighteen original LPP families retain all six actual pinned Python-byte fixtures,
+signed16/24-bit fields, unsigned high-bit generic sensor, ordered sensor values
+and source tolerances. Two JVM decimal-name adaptations bind exact methods.
+The real TelemetryResponse retains both a partial prefix and typed malformed
+suffix/raw bytes; it does not equate malformed-only empty with genuine empty.
+Twenty-five V112 families retain push routing/short-payload errors, AutoAdd raw
+bitmask/optional maxHops and fullkey deletion/clean-to-dirty cache transitions.
+An explicitly bound checked assertion helper carries its actual invocation,
+definition/assertions and byte digests. An uncalled, missing, ambiguous or empty
+helper cannot supply proof by its name; seven new regressions cover this path.
+This is source-backed lexical evidence, not a compiler or automatic equivalence.
+
+Two new `ContactPacketAcceptanceTest` methods preserve all four original inputs:
+the original CHAT/TestNode/date/coordinates size case, exact ROOM layout, all-zero
+CHAT flood case, and actual144-byte public flags seam with10-second/Test/zero-power
+self-info setup. They distinguish that seam from the147-byte builder, retain
+NaN/negative-date/longitude saturation and require delayedOK before success.
+Fixed lastModified is not an emitted wire field. These new methods and the scoped
+LPP/V112 identities await current-candidate execution.
+
+The 474 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -222,7 +249,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-seven
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-nine
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new

@@ -441,6 +441,38 @@ def joined_candidates(native, method, identity):
     return list(result.values())
 
 
+def checked_assertion_helpers(group, repo):
+    configured = group.get("checked_assertion_helpers", {})
+    if not isinstance(configured, dict) or any(
+        not isinstance(name, str) or not IDENTIFIER.fullmatch(name)
+        or not isinstance(path, str) or path not in group["helpers"]
+        or not path.startswith("android/") or "/src/test/" not in path
+        for name, path in configured.items()
+    ):
+        raise PortError("Malformed or unbound checked assertion helper")
+    result = {}
+    for name, path in configured.items():
+        helper = repo_path(repo, path)
+        if not helper.is_file() or helper.is_symlink():
+            raise PortError(f"Missing or unsafe checked assertion helper: {path}")
+        text = helper.read_text(encoding="utf-8").replace("\r\n", "\n")
+        syntax = kotlin_syntax(text)
+        methods = [method for method in kotlin_methods(syntax, text) if method["name"] == name]
+        if len(methods) != 1:
+            raise PortError(f"Missing or ambiguous checked assertion helper definition: {name}")
+        method = methods[0]
+        assertions = [call for call in calls(syntax, text, method["begin_token"], method["end_token"])
+                      if call["assertion_or_checked_wait"]]
+        if not assertions:
+            raise PortError(f"Checked helper has no actual assertions: {name}")
+        result[name] = {
+            "path": path, "sha256": text_digest(text), "method": name,
+            "line": method["line"], "end_line": method["end_line"],
+            "body_sha256": method["body_sha256"], "assertions": assertions,
+        }
+    return result
+
+
 def bind_reviews(groups, repo=audit.REPO):
     value = load_json(repo_path(repo, REVIEW_PROPOSALS))
     if value.get("schema_version") != 1 or value.get("source_sha") != SOURCE_SHA:
@@ -488,6 +520,7 @@ def bind_reviews(groups, repo=audit.REPO):
             if not helper.is_file() or helper.is_symlink():
                 raise PortError(f"Missing or unsafe reviewed assertion helper/input: {path}")
             helpers.append({"path": path, "sha256": text_digest(helper.read_text(encoding="utf-8").replace("\r\n", "\n"))})
+        checked_helpers = checked_assertion_helpers(group, repo)
         for family in families:
             method = family["case_id"].split("::", 1)[1].rsplit("(", 1)[0]
             native_name = overrides.get(method, method)
@@ -511,9 +544,16 @@ def bind_reviews(groups, repo=audit.REPO):
                               if candidate["path"] == target["native_path"] and
                               group["source_path"] in candidate["source_references"] and
                               candidate["factory_method"] == group.get("native_factory")]
-            if len(candidates) != 1 or not candidates[0]["assertions"]:
+            if len(candidates) != 1:
                 raise PortError(f"Missing/ambiguous actual native assertions: {group['id']}: {method}")
             native = candidates[0]
+            helper_assertions = [
+                {"invocation": call, "definition": checked_helpers[call["name"]]}
+                for call in native.get("actions_and_helper_calls", [])
+                if call["name"] in checked_helpers
+            ]
+            if not native["assertions"] and not helper_assertions:
+                raise PortError(f"Missing/ambiguous actual native assertions: {group['id']}: {method}")
             if group["runner_name"] == "original-case-id" and (
                 native.get("registration_identity_resolution") ==
                     "nonliteral-signature-or-row-requires-explicit-runner-review" or
@@ -541,6 +581,7 @@ def bind_reviews(groups, repo=audit.REPO):
                 "original_declaration_sha256": family["declaration_sha256"],
                 "original_assertions": family["assertions"], "original_inputs": family["inputs"],
                 "native": native, "assertion_helper_inputs": helpers,
+                "native_checked_helper_assertions": helper_assertions,
                 "runner_directory": target["runner_directory"],
                 "runner_identity": [target["runner_class"], runner_name],
                 "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution",

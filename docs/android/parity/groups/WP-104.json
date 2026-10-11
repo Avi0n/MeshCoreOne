@@ -767,7 +767,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/ContactAndRadioCommandsTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -861,6 +862,40 @@
               "name": "originalSeams",
               "line": 34,
               "end_line": 184
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
+          "sha256": "d3f48bb2785c00a0bbeada81c03a8e04fcc42db9c9045d9686d550dd49233da7",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalContactPacketFamiliesKeepTheirDistinctInputs",
+              "line": 35,
+              "end_line": 62
+            },
+            {
+              "name": "originalPublicFlagsSeamSaturatesAndWaitsForAcknowledgement",
+              "line": 65,
+              "end_line": 113
+            },
+            {
+              "name": "sleepFor",
+              "line": 69,
+              "end_line": 69
+            },
+            {
+              "name": "repeated",
+              "line": 115,
+              "end_line": 115
+            },
+            {
+              "name": "little32",
+              "line": 116,
+              "end_line": 117
             }
           ]
         }
@@ -2987,6 +3022,319 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
+          "sha256": "d3f48bb2785c00a0bbeada81c03a8e04fcc42db9c9045d9686d550dd49233da7",
+          "class": "com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
+          "method_or_family_name": "originalContactPacketFamiliesKeepTheirDistinctInputs",
+          "line": 35,
+          "end_line": 62,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "34c22e963ed673ab54ac052d732ad94ff1d50b4ff8d8eb8707025933d6cd4de5",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(147, packet.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0xAA, 32) + Bytes.of(1, 2, 3) +\n            Bytes.of(0x11, 0x22, 0x33) + repeated(0, 61) +\n            Bytes.utf8(\"TestNode\") + repeated(0, 24) +\n            little32(1_704_067_200) + little32(37_774_900) + little32(-122_419_400) +\n            repeated(0, 3), packet)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 50,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0xAA, 32) + Bytes.of(3, 3, 3) +\n            Bytes.of(0x11, 0x22, 0x33) + repeated(0, 61) +\n            Bytes.utf8(\"Node\") + repeated(0, 28) +\n            little32(1_000) + little32(10_000_000) + little32(-20_000_000) +\n            repeated(0, 3), PacketBuilder.updateContact(room))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(0xFFu.toUByte(), flooded[35])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0, 32) + Bytes.of(1, 0, 0xFF) +\n            repeated(0, 111), flooded)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshContact",
+              "line": 36,
+              "expression": "MeshContact(\"test\", repeated(0xAA, 32), ContactType.CHAT, ContactFlags(2u),\n            3u, Bytes.of(0x11, 0x22, 0x33), \"TestNode\", Instant.ofEpochSecond(1_704_067_200),\n            37.7749, -122.4194, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 36,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 36,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 37,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 37,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 39,
+              "expression": "PacketBuilder.updateContact(chat)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 41,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(1, 2, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 42,
+              "expression": "repeated(0, 61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 43,
+              "expression": "Bytes.utf8(\"TestNode\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 43,
+              "expression": "repeated(0, 24)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(37_774_900)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(-122_419_400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 45,
+              "expression": "repeated(0, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 47,
+              "expression": "MeshContact(\"test\", repeated(0xAA, 32), ContactType.ROOM, ContactFlags(3u),\n            3u, Bytes.of(0x11, 0x22, 0x33), \"Node\", Instant.ofEpochSecond(1_000),\n            10.0, -20.0, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 47,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 47,
+              "expression": "ContactFlags(3u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 48,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 48,
+              "expression": "Instant.ofEpochSecond(1_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 50,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 50,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 50,
+              "expression": "Bytes.of(3, 3, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 51,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 51,
+              "expression": "repeated(0, 61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 52,
+              "expression": "Bytes.utf8(\"Node\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 52,
+              "expression": "repeated(0, 28)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(1_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(10_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(-20_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 54,
+              "expression": "repeated(0, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 54,
+              "expression": "PacketBuilder.updateContact(room)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 56,
+              "expression": "MeshContact(\"test\", repeated(0, 32), ContactType.CHAT, ContactFlags(0u),\n            0xFFu, Bytes.EMPTY, \"\", Instant.EPOCH, 0.0, 0.0, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 56,
+              "expression": "repeated(0, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 56,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 58,
+              "expression": "PacketBuilder.updateContact(flood)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 59,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 60,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 60,
+              "expression": "repeated(0, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 60,
+              "expression": "Bytes.of(1, 0, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 61,
+              "expression": "repeated(0, 111)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "UpdateContactTests::updateContact produces 147 bytes()",
+            "UpdateContactTests::updateContact correct layout()",
+            "UpdateContactTests::updateContact signed path length()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -3256,6 +3604,319 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
+          "sha256": "d3f48bb2785c00a0bbeada81c03a8e04fcc42db9c9045d9686d550dd49233da7",
+          "class": "com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
+          "method_or_family_name": "originalContactPacketFamiliesKeepTheirDistinctInputs",
+          "line": 35,
+          "end_line": 62,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "34c22e963ed673ab54ac052d732ad94ff1d50b4ff8d8eb8707025933d6cd4de5",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(147, packet.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0xAA, 32) + Bytes.of(1, 2, 3) +\n            Bytes.of(0x11, 0x22, 0x33) + repeated(0, 61) +\n            Bytes.utf8(\"TestNode\") + repeated(0, 24) +\n            little32(1_704_067_200) + little32(37_774_900) + little32(-122_419_400) +\n            repeated(0, 3), packet)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 50,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0xAA, 32) + Bytes.of(3, 3, 3) +\n            Bytes.of(0x11, 0x22, 0x33) + repeated(0, 61) +\n            Bytes.utf8(\"Node\") + repeated(0, 28) +\n            little32(1_000) + little32(10_000_000) + little32(-20_000_000) +\n            repeated(0, 3), PacketBuilder.updateContact(room))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(0xFFu.toUByte(), flooded[35])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0, 32) + Bytes.of(1, 0, 0xFF) +\n            repeated(0, 111), flooded)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshContact",
+              "line": 36,
+              "expression": "MeshContact(\"test\", repeated(0xAA, 32), ContactType.CHAT, ContactFlags(2u),\n            3u, Bytes.of(0x11, 0x22, 0x33), \"TestNode\", Instant.ofEpochSecond(1_704_067_200),\n            37.7749, -122.4194, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 36,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 36,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 37,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 37,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 39,
+              "expression": "PacketBuilder.updateContact(chat)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 41,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(1, 2, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 42,
+              "expression": "repeated(0, 61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 43,
+              "expression": "Bytes.utf8(\"TestNode\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 43,
+              "expression": "repeated(0, 24)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(37_774_900)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(-122_419_400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 45,
+              "expression": "repeated(0, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 47,
+              "expression": "MeshContact(\"test\", repeated(0xAA, 32), ContactType.ROOM, ContactFlags(3u),\n            3u, Bytes.of(0x11, 0x22, 0x33), \"Node\", Instant.ofEpochSecond(1_000),\n            10.0, -20.0, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 47,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 47,
+              "expression": "ContactFlags(3u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 48,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 48,
+              "expression": "Instant.ofEpochSecond(1_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 50,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 50,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 50,
+              "expression": "Bytes.of(3, 3, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 51,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 51,
+              "expression": "repeated(0, 61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 52,
+              "expression": "Bytes.utf8(\"Node\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 52,
+              "expression": "repeated(0, 28)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(1_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(10_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(-20_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 54,
+              "expression": "repeated(0, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 54,
+              "expression": "PacketBuilder.updateContact(room)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 56,
+              "expression": "MeshContact(\"test\", repeated(0, 32), ContactType.CHAT, ContactFlags(0u),\n            0xFFu, Bytes.EMPTY, \"\", Instant.EPOCH, 0.0, 0.0, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 56,
+              "expression": "repeated(0, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 56,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 58,
+              "expression": "PacketBuilder.updateContact(flood)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 59,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 60,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 60,
+              "expression": "repeated(0, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 60,
+              "expression": "Bytes.of(1, 0, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 61,
+              "expression": "repeated(0, 111)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "UpdateContactTests::updateContact produces 147 bytes()",
+            "UpdateContactTests::updateContact correct layout()",
+            "UpdateContactTests::updateContact signed path length()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -3368,6 +4029,319 @@
             "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
+          "sha256": "d3f48bb2785c00a0bbeada81c03a8e04fcc42db9c9045d9686d550dd49233da7",
+          "class": "com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
+          "method_or_family_name": "originalContactPacketFamiliesKeepTheirDistinctInputs",
+          "line": 35,
+          "end_line": 62,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "34c22e963ed673ab54ac052d732ad94ff1d50b4ff8d8eb8707025933d6cd4de5",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(147, packet.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0xAA, 32) + Bytes.of(1, 2, 3) +\n            Bytes.of(0x11, 0x22, 0x33) + repeated(0, 61) +\n            Bytes.utf8(\"TestNode\") + repeated(0, 24) +\n            little32(1_704_067_200) + little32(37_774_900) + little32(-122_419_400) +\n            repeated(0, 3), packet)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 50,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0xAA, 32) + Bytes.of(3, 3, 3) +\n            Bytes.of(0x11, 0x22, 0x33) + repeated(0, 61) +\n            Bytes.utf8(\"Node\") + repeated(0, 28) +\n            little32(1_000) + little32(10_000_000) + little32(-20_000_000) +\n            repeated(0, 3), PacketBuilder.updateContact(room))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(0xFFu.toUByte(), flooded[35])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0, 32) + Bytes.of(1, 0, 0xFF) +\n            repeated(0, 111), flooded)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshContact",
+              "line": 36,
+              "expression": "MeshContact(\"test\", repeated(0xAA, 32), ContactType.CHAT, ContactFlags(2u),\n            3u, Bytes.of(0x11, 0x22, 0x33), \"TestNode\", Instant.ofEpochSecond(1_704_067_200),\n            37.7749, -122.4194, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 36,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 36,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 37,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 37,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 39,
+              "expression": "PacketBuilder.updateContact(chat)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 41,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(1, 2, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 42,
+              "expression": "repeated(0, 61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 43,
+              "expression": "Bytes.utf8(\"TestNode\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 43,
+              "expression": "repeated(0, 24)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(37_774_900)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 44,
+              "expression": "little32(-122_419_400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 45,
+              "expression": "repeated(0, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 47,
+              "expression": "MeshContact(\"test\", repeated(0xAA, 32), ContactType.ROOM, ContactFlags(3u),\n            3u, Bytes.of(0x11, 0x22, 0x33), \"Node\", Instant.ofEpochSecond(1_000),\n            10.0, -20.0, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 47,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 47,
+              "expression": "ContactFlags(3u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 48,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 48,
+              "expression": "Instant.ofEpochSecond(1_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 50,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 50,
+              "expression": "repeated(0xAA, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 50,
+              "expression": "Bytes.of(3, 3, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 51,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 51,
+              "expression": "repeated(0, 61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 52,
+              "expression": "Bytes.utf8(\"Node\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 52,
+              "expression": "repeated(0, 28)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(1_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(10_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 53,
+              "expression": "little32(-20_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 54,
+              "expression": "repeated(0, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 54,
+              "expression": "PacketBuilder.updateContact(room)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 56,
+              "expression": "MeshContact(\"test\", repeated(0, 32), ContactType.CHAT, ContactFlags(0u),\n            0xFFu, Bytes.EMPTY, \"\", Instant.EPOCH, 0.0, 0.0, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 56,
+              "expression": "repeated(0, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 56,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "PacketBuilder.updateContact",
+              "line": 58,
+              "expression": "PacketBuilder.updateContact(flood)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 59,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 60,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 60,
+              "expression": "repeated(0, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 60,
+              "expression": "Bytes.of(1, 0, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 61,
+              "expression": "repeated(0, 111)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "UpdateContactTests::updateContact produces 147 bytes()",
+            "UpdateContactTests::updateContact correct layout()",
+            "UpdateContactTests::updateContact signed path length()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -3698,6 +4672,461 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
             "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
             "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "LegacyUpdateContactHardeningTests::changeContactFlags with a NaN coordinate does not trap and clamps the frame()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
+          "sha256": "d3f48bb2785c00a0bbeada81c03a8e04fcc42db9c9045d9686d550dd49233da7",
+          "class": "com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
+          "method_or_family_name": "originalPublicFlagsSeamSaturatesAndWaitsForAcknowledgement",
+          "line": 65,
+          "end_line": 113,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6481c1456180c2db1fde95b2f6c0dad04ab4a3b06b8aabd110c65a511e8322da",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 78,
+              "expression": "assertEquals(listOf(Bytes.fromHex(\"010320202020202054657374\")), transport.sentData)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 79,
+              "expression": "assertFalse(starting.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(144, frame.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 95,
+              "expression": "assertEquals(Bytes.of(0x09) + repeated(0xAB, 32) + Bytes.of(1, 2, 0xFF) +\n                repeated(0, 64) + Bytes.utf8(\"N\") + repeated(0, 31) +\n                little32(0) + little32(0) + little32(180_000_000), frame)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 98,
+              "expression": "assertEquals(0u, frame.readUInt32LE(132))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 99,
+              "expression": "assertEquals(0, frame.readInt32LE(136))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 100,
+              "expression": "assertEquals(180_000_000, frame.readInt32LE(140))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 101,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 104,
+              "expression": "assertFalse(\"The public flags seam cannot succeed before OK\", call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 108,
+              "expression": "assertEquals(1, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 109,
+              "expression": "assertEquals(ContactFlags(0u), contact.flags)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "get",
+              "line": 67,
+              "expression": "get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Clock.fixed",
+              "line": 68,
+              "expression": "Clock.fixed(Instant.EPOCH, ZoneOffset.UTC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sleepFor",
+              "line": 69,
+              "expression": "sleepFor(duration: Duration)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "delay",
+              "line": 69,
+              "expression": "delay(duration)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockTransport",
+              "line": 71,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshCoreSession",
+              "line": 72,
+              "expression": "MeshCoreSession(transport,\n            SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\"),\n            clock, backgroundScope.coroutineContext)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 73,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.start",
+              "line": 76,
+              "expression": "session.start()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 77,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 78,
+              "expression": "listOf(Bytes.fromHex(\"010320202020202054657374\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 78,
+              "expression": "Bytes.fromHex(\"010320202020202054657374\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 80,
+              "expression": "transport.simulateReceive(Bytes(ByteBuffer.allocate(62).order(ByteOrder.LITTLE_ENDIAN)\n                .put(0x05).put(ByteArray(3)).put(ByteArray(32) { 1 })\n                .putInt(0).putInt(0).put(ByteArray(4))\n                .putInt(915_000).putInt(125_000).put(7).put(5)\n                .put(\"Test\".toByteArray(Charsets.UTF_8)).array()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 80,
+              "expression": "Bytes(ByteBuffer.allocate(62).order(ByteOrder.LITTLE_ENDIAN)\n                .put(0x05).put(ByteArray(3)).put(ByteArray(32) { 1 })\n                .putInt(0).putInt(0).put(ByteArray(4))\n                .putInt(915_000).putInt(125_000).put(7).put(5)\n                .put(\"Test\".toByteArray(Charsets.UTF_8)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 80,
+              "expression": "ByteBuffer.allocate(62)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 80,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 81,
+              "expression": "put(0x05)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 81,
+              "expression": "put(ByteArray(3))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 81,
+              "expression": "ByteArray(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 81,
+              "expression": "put(ByteArray(32) { 1 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 81,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 82,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 82,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 82,
+              "expression": "put(ByteArray(4))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 82,
+              "expression": "ByteArray(4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 83,
+              "expression": "putInt(915_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 83,
+              "expression": "putInt(125_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 83,
+              "expression": "put(7)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 83,
+              "expression": "put(5)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 84,
+              "expression": "put(\"Test\".toByteArray(Charsets.UTF_8))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 84,
+              "expression": "toByteArray(Charsets.UTF_8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 84,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 85,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "starting.await",
+              "line": 86,
+              "expression": "starting.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.clearSentData",
+              "line": 87,
+              "expression": "transport.clearSentData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 88,
+              "expression": "MeshContact(\"x\", repeated(0xAB, 32), ContactType.CHAT, ContactFlags(0u),\n                0xFFu, Bytes.EMPTY, \"N\", Instant.ofEpochSecond(-1),\n                Double.NaN, 200.0, Instant.EPOCH)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 88,
+              "expression": "repeated(0xAB, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 88,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 89,
+              "expression": "Instant.ofEpochSecond(-1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.changeContactFlags",
+              "line": 91,
+              "expression": "session.changeContactFlags(contact, ContactFlags(2u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 91,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 92,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 93,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 95,
+              "expression": "Bytes.of(0x09)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 95,
+              "expression": "repeated(0xAB, 32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 95,
+              "expression": "Bytes.of(1, 2, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 96,
+              "expression": "repeated(0, 64)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 96,
+              "expression": "Bytes.utf8(\"N\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "repeated",
+              "line": 96,
+              "expression": "repeated(0, 31)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 97,
+              "expression": "little32(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 97,
+              "expression": "little32(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "little32",
+              "line": 97,
+              "expression": "little32(180_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.readUInt32LE",
+              "line": 98,
+              "expression": "frame.readUInt32LE(132)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.readInt32LE",
+              "line": 99,
+              "expression": "frame.readInt32LE(136)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame.readInt32LE",
+              "line": 100,
+              "expression": "frame.readInt32LE(140)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 102,
+              "expression": "advanceTimeBy(100)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 103,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 105,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 106,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 107,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 109,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 111,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift"
           ],
           "explicit_original_case_ids": [
             "LegacyUpdateContactHardeningTests::changeContactFlags with a NaN coordinate does not trap and clamps the frame()"

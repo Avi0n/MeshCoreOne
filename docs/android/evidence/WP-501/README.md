@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-427 inspected family proposals in46groups, exact source/assertion/helper/runner
+474 inspected family proposals in51groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has85 Python regressions and twenty-seven Kotlin acceptance cases.
+The follow-up has92 Python regressions and twenty-nine Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-427actually inspected proposals;3,959native-body joins are only candidates.
+474actually inspected proposals;3,959native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -186,8 +186,35 @@ MockTransport and the complete Kotlin literal/registration/binder delta plus
 13negative regressions. It found no blocking source/input/assertion/consumer
 mismatch; b501-to-b2 changed only proposal/evidence/generated bindings.
 This source read is not full422-family execution, full WP501 or privileged
-approval. Exactb2 hosted38165231665 was stillin_progress at the latest check;
-classifier/controller/Swiftcodec completedSUCCESS, LinuxAndroid wasin_progress.
+approval. Exactb2 hosted38165231665 subsequently completedCANCELLED after publication:
+classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
+android-ciFAILURE. It is not a passing exact-head gate.
+
+The coordinator's bounded76ddc835 read found no blocking mismatch in all five
+getChannels original families/helpers, new three methods and actual unchanged
+SessionChannelOperations. Exact input/50ms/window/missing/index/serial assertions
+and4dfc-to76 execution-input equality were confirmed; the short ASCII channel
+helper is not general Unicode evidence and no full WP501 gate was approved.
+Current76ddc835 primary38166202193 is stillin_progress at the latest check.
+The next independent increment is accumulated locally without another push
+interrupting it, as directed; semantic implementation is not paused.
+
+The additional47 inspected originals cover all18 LPP Python-byte/signed-width/
+value families, all25 V112 parser/command/cache families and all4 contact packet/
+public flags hardening families. Two additional required owned methods retain
+the original distinct CHAT/ROOM/all-zero flood objects and public144-byte legacy
+path with exact10-second/Test/zero-power self-info setup and delayedOK.
+Existing predecessor room-copy/builder variants are not promoted as exact inputs.
+They await current immutable-candidate native execution.
+
+V112 short-packet cases invoke the actual ParserTestSupport.expectFailure helper.
+The binder now retains explicit helper invocation and actual byte-bound function
+assertions instead of rejecting these meaningful cases or trusting the helper's
+name. Seven new positives/negatives require a unique called definition containing
+actual assertions in an explicitly listed test input; missing/uncalled/empty/
+ambiguous definitions fail. The expanded declared parity Python suite passed
+92discovered/run/passed,0failure/error/skip before commit; the exact committed
+combined suite and scoped native identities remain required.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

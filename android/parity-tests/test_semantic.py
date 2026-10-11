@@ -1,6 +1,8 @@
 """AndroidOnly: WP-501 Test assertion/input proposal extraction, including real Kotlin string/lambda syntax."""
 
 import unittest
+import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
 from controller.errors import PortError
@@ -224,6 +226,70 @@ class SemanticBindingTest(unittest.TestCase):
         groups, value = self.fixture()
         groups["WP-101"]["families"][0]["native_proposals"][0]["assertions"] = []
         with patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "actual native assertions"):
+            semantic.bind_reviews(groups)
+
+    def helper_definition(self, text, name="expectFailure"):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        repo = Path(directory.name)
+        path = "android/core/protocol/src/test/kotlin/Helper.kt"
+        helper = repo.joinpath(*path.split("/"))
+        helper.parent.mkdir(parents=True)
+        helper.write_text(text, encoding="utf-8")
+        group = {"helpers": [path], "checked_assertion_helpers": {name: path}}
+        return semantic.checked_assertion_helpers(group, repo)
+
+    def test_checked_helper_binds_actual_definition_assertions_and_bytes(self):
+        text = 'fun expectFailure(event: Event) { val failure = assertIs<Failure>(event); assertTrue(failure.reason.contains("short")) }'
+        definition = self.helper_definition(text)["expectFailure"]
+        self.assertEqual(semantic.text_digest(text), definition["sha256"])
+        self.assertEqual(["assertIs", "assertTrue"], [call["name"] for call in definition["assertions"]])
+        self.assertIn('contains("short")', definition["assertions"][1]["expression"])
+
+    def test_checked_helper_without_assertions_cannot_supply_proof_by_name(self):
+        with self.assertRaisesRegex(PortError, "no actual assertions"):
+            self.helper_definition("fun expectFailure(event: Event) = event")
+
+    def test_missing_checked_helper_definition_fails_closed(self):
+        with self.assertRaisesRegex(PortError, "helper definition"):
+            self.helper_definition("fun other(event: Event) { assertTrue(true) }")
+
+    def test_overloaded_checked_helper_definition_is_not_guessed(self):
+        with self.assertRaisesRegex(PortError, "ambiguous"):
+            self.helper_definition("fun expectFailure(event: Event) { assertTrue(true) }\n"
+                                   "fun expectFailure(text: String) { assertTrue(true) }")
+
+    def test_checked_helper_must_be_explicitly_bound_test_input(self):
+        for mapping in ([], {"expectFailure": "android/production.kt"},
+                        {"unknown": "android/core/protocol/src/test/kotlin/Unlisted.kt"}):
+            with self.subTest(mapping=mapping), self.assertRaisesRegex(PortError, "unbound"):
+                semantic.checked_assertion_helpers(
+                    {"helpers": [], "checked_assertion_helpers": mapping}, semantic.audit.REPO)
+
+    def test_invoked_checked_helper_keeps_exact_case_and_unapproved_status(self):
+        groups, value = self.fixture()
+        native = groups["WP-101"]["families"][0]["native_proposals"][0]
+        native.update(assertions=[], actions_and_helper_calls=[
+            {"name": "expectFailure", "expression": "expectFailure(actual, reason = \"short\")"}])
+        definitions = self.helper_definition("fun expectFailure(event: Event) { assertIs<Failure>(event) }")
+        with patch.object(semantic, "load_json", return_value=value), \
+                patch.object(semantic, "checked_assertion_helpers", return_value=definitions):
+            family = semantic.bind_reviews(groups)["families"][0]
+        self.assertEqual(["Native", "checked()"], family["runner_identity"])
+        self.assertEqual([], family["native"]["assertions"])
+        checked = family["native_checked_helper_assertions"][0]
+        self.assertEqual('expectFailure(actual, reason = "short")', checked["invocation"]["expression"])
+        self.assertEqual("assertIs", checked["definition"]["assertions"][0]["name"])
+        self.assertIn("awaiting-independent-review", family["status"])
+
+    def test_uninvoked_checked_helper_does_not_make_empty_case_a_proposal(self):
+        groups, value = self.fixture()
+        groups["WP-101"]["families"][0]["native_proposals"][0].update(
+            assertions=[], actions_and_helper_calls=[{"name": "unrelated", "expression": "unrelated()"}])
+        definitions = self.helper_definition("fun expectFailure(event: Event) { assertIs<Failure>(event) }")
+        with patch.object(semantic, "load_json", return_value=value), \
+                patch.object(semantic, "checked_assertion_helpers", return_value=definitions), \
+                self.assertRaisesRegex(PortError, "actual native assertions"):
             semantic.bind_reviews(groups)
 
     def test_ambiguous_same_named_lambdas_fail_without_factory_qualification(self):

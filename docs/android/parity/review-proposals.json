@@ -5,6 +5,174 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "v112-push-routing-autoadd-defaults-and-explicit-parse-errors",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
+      "native_factory": "v112ParserCases",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest",
+      "runner_name": "original-case-id",
+      "checked_assertion_helpers": {
+        "expectFailure": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/ParserTestSupport.kt"
+      },
+      "comparison": "All18 parser/enum originals preserve exact literal inputs and typed results: 8F/90 exist as push,19 exists as device; ContactDeleted AB32 is intact, AB31 fails with ContactDeleted too short, CD32/FFFFFF retains exactly32bytes; ContactsFull accepts empty and010203; full8F/EF32 and90 route,8F/AB20 retains the explicit short reason. AutoAdd190F defaults maxHops0,190F05 retains5, lone19 fails with AutoAddConfig response too short,190E03FFFF retains bitmask0E/maxHops3 and ignores the suffix.",
+      "inputs": "All original keys, widths, extra bytes and payload/default/error literals retained. ParserTestSupport filled/hex/rawFrame only build independent literal test input; original helper supplies actual suite-qualified display and expectFailure asserts typed ParseFailure plus required reason text. Equality with an exact32byte expected key also proves source count assertion. No candidate parser produces an expected frame.",
+      "adaptations": "Swift conditional enum-pattern plus Issue.record becomes unconditional assertIs/assertEquals, so a wrong event case cannot bypass value assertions. Defensive content-equal Bytes/UByte preserve Data/UInt8. Native dynamic factories have actual V112ProtocolTests-qualified display identities; eighteen declarations are eighteen runners, not class-file counts. Typed failure includes original required reason substrings and preserves payload; no short packet becomes nullable success.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/ParserTestSupport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/Parsers.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/AutoAddConfig.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/ContactManager.kt"
+      ],
+      "consumer": "Read actual source declarations and native PacketParser branch/category/raw-ID lookup/Parsers.ContactDeleted and ContactsFull. PacketParser routes after removing only the response code; AutoAdd bitmask firstbyte/maxHops optional secondbyte remain distinct from missing firstbyte. Actual connection ContactManager handles deletion by fullkey and ContactsFull by dirty invalidation; those two original consumer assertions are bound separately, not passed from routing alone.",
+      "unresolved": ["Current exact18 native identities await scoped execution; real transport/storage/UI deletion delivery and malformed cases beyond these original inputs are not inferred."],
+      "methods": [
+        "contactDeleted response code exists",
+        "contactsFull response code exists",
+        "contactDeleted category is push",
+        "contactsFull category is push",
+        "contactDeleted parses valid payload",
+        "contactDeleted parse failure for short payload",
+        "contactDeleted ignores extra bytes",
+        "contactsFull parses empty payload",
+        "contactsFull parses any payload",
+        "packetParser routes contactDeleted",
+        "packetParser routes contactsFull",
+        "packetParser contactDeleted parse failure for short payload",
+        "autoAddConfig response code exists",
+        "autoAddConfig category is device",
+        "autoAddConfig parses single-byte payload with default maxHops",
+        "autoAddConfig parses two-byte payload with maxHops",
+        "autoAddConfig parse failure for empty payload",
+        "autoAddConfig ignores extra bytes beyond maxHops"
+      ]
+    },
+    {
+      "id": "v112-autoadd-command-bitmask-and-maxhop-packets",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/NewCommandsTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.command.NewCommandsTest",
+      "runner_name": "method()",
+      "comparison": "All5 source builder declarations preserve complete independent packet equality: get3B, default0F emits3A0F00, allbitsFF emits3AFF00, zero emits3A0000, explicitmaxHops3 emits3A0F03. Model bitmask and maxHops rawUInt8 values are not enum ordinals or feature flag guesses.",
+      "inputs": "Every original byte and omitted/explicit maxHops input retained. Native AutoAddConfig default0 exactly matches the source initializer. Literal Bytes.of expectations are independent of PacketBuilder and model constants.",
+      "adaptations": "Exact source method names retain Jupiter method() identities. Complete packets preserve byte count/order as well as contents; no additional parameter family is inferred from allbits/zero branches.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/AutoAddConfig.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/command/PacketBuilder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt"
+      ],
+      "consumer": "Actual native getAutoAddConfig exchanges3B for MeshEvent.AutoAddConfig and setter delegates3A through awaited simple exchange. Builder assertions do not alone prove command ACK/error/cancellation or current-radio settings persistence. No physical reconfiguration occurs in these literal packet tests.",
+      "unresolved": ["Current exact5 native identities await scoped execution; high-level AutoAdd command-consumer families remain separately inventoried."],
+      "methods": [
+        "getAutoAddConfig packet builder",
+        "setAutoAddConfig packet builder",
+        "setAutoAddConfig all bits set",
+        "setAutoAddConfig zero bits",
+        "setAutoAddConfig with maxHops"
+      ]
+    },
+    {
+      "id": "v112-fullkey-cache-deletion-and-contactsfull-dirty-transition",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/V112ProtocolTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+      "native_factory": "originalSeams",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both original consumers execute actual internal ContactManager. Key1132/CHAT/flags0/path0/emptycoordinates contact is stored and found by fullkey; ContactDeleted removes it and requires refresh. Native additionally places the same contact in pending cache, marks a clean baseline and asserts both pending removal and clean-to-dirty transition. ContactsFull likewise transitions an explicitly clean manager to dirty, strengthening the original initially-dirty assertion.",
+      "inputs": "Exact original1132 key/type/flags/path0/empty path/zero coordinates retained. Existing testContact helper uses TestRepeater and fixed1000/testEpoch dates instead of sourceTest/Date(); deletion and ContactsFull depend only on publickey/dirty state, not name/date. These non-asserted field adaptations are disclosed, not exact-input claims or evidence for name/date consumers.",
+      "adaptations": "Swift actor-owned struct becomes an internal synchronously locked manager with immutable snapshots. Native linked maps do not establish portable original Dictionary order. markClean/addPending supplement the original sequence to prove a real transition and pending deletion, without changing the original getByPublicKey-null/needsRefresh assertions.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/ContactManager.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/SessionTestSupport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt"
+      ],
+      "consumer": "Read complete frozen ContactManager and actual native cache/trackChanges. Both delete fullkey from active/pending and dirty ContactsFull; native invalidation-generation/complete-baseline semantics prevent unsolicited end markers from certifying a lost contact stream, an existing WP107 adaptation outside these two original assertions. In-memory session cache is not process Room persistence; WP501 DiscoveryStoreAcceptanceTest independently covers actual radio-partitioned durable discovery deletion, not inferred here.",
+      "unresolved": ["Current exact2 native identities await scoped execution and independent adaptation review; cache name/search/order/baseline and persistence families remain separate."],
+      "methods": ["contactManager tracks contactDeleted", "contactManager tracks contactsFull"]
+    },
+    {
+      "id": "lpp-independent-python-bytes-signed-widths-and-decoder-values",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Validation/LPPPythonReferenceTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPPythonReferenceTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest",
+      "runner_name": "method()",
+      "comparison": "All18 originals retain exact input/expected bytes and associated-value assertions. Six cayennelpp fixtures match temperature1/25.5, humidity2/65, analog3/3.3, GPS4/37.7749/-122.4194/10, barometer5/1013.2 and accelerometer6/0/0/1. Negative temperature FF97, GPS count/channel/type/tolerances, signed accelerometer0.5/-0.5/1, ordered multisensor25.5/65/1013.2, MeshCore-specific voltage0174/017C, illuminance1000/03E8, digital1/0 and gyrometer10.5/-5.25/0 retain full bytes and source tolerances. Raw load003039/FFFA24/0003E8 plus temperature preserves 24-bit sign extension and next-record alignment. Generic sensor80000000 remains positive2147483648, not signedInt32.",
+      "inputs": "PythonLPPReferenceBytes copies all six actual pinned PythonReferenceBytes Data literals verbatim; PinnedLPPInputsTest independently reads their Git object and asserts nonzero six-name discovery and byte equality. Other expected packets are exact source literals, not candidate encoder outputs. Every original count/channel/type/asserted value and axis tolerance is preserved. Supplemental six decoder dynamic cases consume the independent Python frames without Kotlin encoding; they are not six extra original families.",
+      "adaptations": "Two decimal test names replace25.5/3.3 with25_5/3_3 for JVM method names; actual method identities are explicitly bound. decodeStrict asserts successful complete payloads instead of silently accepting a valid prefix. Associated-value assertIs strengthens source conditional patterns which otherwise omit value assertions on wrong cases. Native Long preserves Swift64-bit Int for generic sensor. Existing WP105 explicitly approved checked atomic encoding and typed partial diagnostics; no expectation or source scope changes.",
+      "native_method_overrides": {
+        "Temperature 25.5 matches Python": "Temperature 25_5 matches Python",
+        "Analog input 3.3 matches Python": "Analog input 3_3 matches Python"
+      },
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/PythonLPPReferenceBytes.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/lpp/PinnedLPPInputsTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPEncoder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPDecoder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/lpp/LPPDecodeResult.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventPayloadTest.kt"
+      ],
+      "consumer": "Read complete frozen encoder/decoder and actual native helpers. Both multiply IEEE doubles then truncate towardzero and use BE16/24/32; voltage0x74 differs deliberately from Python analog0x02. Native readSignedBE sign-extends24bits, readUnsignedBE widens high bits before shifting. Actual TelemetryResponse retains rawData, prefix dataPoints and lazy typed incomplete diagnostic; EventPayloadTest distinguishes genuine empty telemetry from malformed-only empty and checks complete prefix/remaining bytes. Original suite's valid payloads do not prove every malformed suffix, all27 sensor metadata, transport delivery or UI formatting; these remain separate families.",
+      "unresolved": ["Current-candidate exact18 method identities and supplemental independent-fixture/telemetry consumer assertions must execute; predecessor337-case aggregate is not promoted as current evidence. No new Python package/reference execution or physical telemetry result is claimed."],
+      "methods": [
+        "Temperature 25.5 matches Python",
+        "Temperature negative round trip",
+        "Humidity 65 matches Python",
+        "Analog input 3.3 matches Python",
+        "GPS SF matches Python",
+        "GPS decode round trip",
+        "Barometer 1013 matches Python",
+        "Accelerometer 1g matches Python",
+        "Accelerometer decode round trip",
+        "Multi-sensor payload",
+        "Voltage encoding",
+        "Illuminance encoding",
+        "Digital IO encoding",
+        "Gyrometer encoding",
+        "Load positive decodes as 3-byte signed divided by 1000",
+        "Load negative round trips through 24-bit sign extension",
+        "Load consumes three bytes so the next datum stays aligned",
+        "Generic sensor decodes high bit set as a large positive integer"
+      ]
+    },
+    {
+      "id": "contact-packet-distinct-source-inputs-and-public-flags-hardening",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/UpdateContactTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "All4 original families retain their distinct input objects and actual production seam. First size input is CHAT/flags2/AA32/path3/112233/TestNode/1704067200/37.7749/-122.4194, not the predecessor room fixture. Layout input remains ROOM/flags3/AA32/Node/1000/10/-20; full147-byte equality covers command/key/type/flags/path/zeros/name/padding/LEtimestamp/signedcoordinates and3reserved bytes. Flood input is original CHAT/key00/flags0/FF/emptyname/path/zero dates/coordinates, not a room copy. Public legacy flags input is x/AB32/CHAT/flags0/FF/N/-1/NaN/200, emits144bytes withnewflags2/time0/lat0/lon180000000 and remains suspended until actual delayedOK.",
+      "inputs": "All observable original bytes, names, flags, routes, timestamps and coordinates retained. JDK ByteBuffer with independently specified integer literals constructs expected LE fields, never candidate PacketBuilder output. Original unencoded lastModified Date() is fixed to Instant.EPOCH because neither packet overload emits that property. Original public setup10seconds/clientTest and selfInfoadv0/tx0/max0/key01/915000/125000/SF7/CR5/Test retained exactly; independent62byte frame initializes the real session. Stored original flags remain unchanged after sending new flags.",
+      "adaptations": "Source wall-clock Task/poll becomes injected testScheduler/SessionClock with explicit100ms post-write pending state then realOK. Three packet originals share one discovered method; public legacy seam has one separate method, so four declarations bind two runner identities. Predecessor ContactAndRadioCommandsTest used ROOM instead of first/third source inputs and tested hardening via147byte builder; actual CrossComponentSessionCasesTest already exercised144byte public legacy path with shorter shared setup. New owned assertions preserve exact source inputs/setup rather than promoting those variants.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ContactPacketAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/command/PacketBuilder.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/MeshContact.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
+      ],
+      "consumer": "Read frozen PacketBuilder updateContact, saturation helpers, MeshCoreSession+Contacts publicupdate/changeFlags/addContact and actual native builder/legacyContactFrame/simple exchange. Full-contact add uses147bytes/threezero reserved bytes; legacy change flags retains144bytes and no lastModified in both, so wire shape is not conflated. NaN coordinates clamp0, longitude200 clamps180 and negative date clamps0. Test-only MockTransport does not authorize or certify remote radio reconfiguration.",
+      "unresolved": ["Two new required methods await actual current-candidate execution and independent source/assertion review; predecessor input omissions are acceptance gaps, not an established product defect."],
+      "methods": [
+        "updateContact produces 147 bytes",
+        "updateContact correct layout",
+        "updateContact signed path length",
+        "changeContactFlags with a NaN coordinate does not trap and clamps the frame"
+      ]
+    },
+    {
       "id": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
       "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
       "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
@@ -23,7 +191,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
       ],
       "consumer": "Inspected actual window/outstanding-index collector, progress watchdog, sorted partial receipt, whole-exchange ownership and exact getChannel index predicate. Public consumer distinguishes partial missing from complete snapshots and never mistakes an old same-index response for its successor. Native unresolved-index quarantine is the explicit WP107 adaptation; this source scenario's delivered late0 allows fresh0, not proof that arbitrarily late unanswered index1 is safe. Mock capability dispatch and deterministic ingestion are not physical BLE/WiFi delivery.",
-      "unresolved": ["All three new methods passed at exact4dfc797ceb19b32ffb7039b7c5f18d135ebd0954 within31app cases (all27 required identities plus4 repair regressions); hosted exact-candidate execution and independent source/assertion review remain required. No production defect is inferred solely from predecessor acceptance gaps."],
+      "unresolved": ["All three new methods passed at exact4dfc797ceb19b32ffb7039b7c5f18d135ebd0954 within31app cases (all27 required identities plus4 repair regressions). Coordinator's actual bounded76ddc835 source read found no blocking input/assertion/helper/consumer mismatch in all5 original families and confirmed4dfc-to76 execution-input equality; it is not full WP501 or privileged approval. Hosted exact-candidate execution remains required. No production defect is inferred solely from predecessor acceptance gaps."],
       "methods": [
         "each requested index lands in its own slot and unrequested indexes are ignored",
         "dropped writes surface as missing indexes after the idle timeout",

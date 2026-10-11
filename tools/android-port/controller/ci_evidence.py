@@ -76,6 +76,10 @@ WP501_ACCEPTANCE_CASES = {
      "originalCancelledPipelineKeepsTheSuccessorsIndexAndFreshName"),
     ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
      "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs"),
+    ("com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
+     "originalContactPacketFamiliesKeepTheirDistinctInputs"),
+    ("com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
+     "originalPublicFlagsSeamSaturatesAndWaitsForAcknowledgement"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",
