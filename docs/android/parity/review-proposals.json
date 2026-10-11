@@ -1713,7 +1713,7 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt"
       ],
       "consumer": "Inspected business-key dedup, immutable committed rows, per-radio remaining capacity, explicit skipped/dropped receipts, fresh surrogate ids and protocol-safe UTF8/path limits govern real repository data, not a map marker or fake import count.",
-      "unresolved": ["Original discovered ContactFrame/targeted-hop writer/fresh-container family is now assigned exclusively to backup-original-discovery-frame-hop-writer-and-distinct-room; its new runner requires immutable execution/review. This remaining component group does not receive that acceptance by association."],
+      "unresolved": ["Original discovered ContactFrame/targeted-hop writer/fresh-container family is assigned exclusively to backup-original-discovery-frame-hop-writer-and-distinct-room, with exact04968a00 app execution. Independent review/current hosted acceptance remain required; this component group does not receive acceptance by association."],
       "methods": [
         "Import preserves distinct node snapshots recorded within the same second",
         "Discovered nodes import into fresh store, dedup on re-import",
@@ -1741,7 +1741,7 @@
       "adaptations": "Swift DTO-to-SwiftData model construction becomes actual Room import and column reads. Full region/matches/live-save pipelines clear source rows, not distinct destination containers; codec/column values are compared but fresh-container behavior for those extra fields remains an explicit adaptation. Native altitude-only wire test omits location where source supplied it; separate omitted-altitude case includes both source location values. DTO equality is not an independent golden or raw-text oracle; separate WP501 UTF8 and genuine Swift fixture cases assert bytes.",
       "helpers": ["android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt"],
       "consumer": "Actual field codecs, repository save and Room restore/warmUp retain opaque region choices, failure acknowledgement, sort/create distinction and send/preview metadata. These do not certify resend UI/navigation or active translation.",
-      "unresolved": ["Three fresh-container region/matches/live-save families are assigned exclusively to the new backup-original region and metadata groups; new runners require immutable execution/review. Remaining component codecs/model-field assertions are not independent iOS interoperability."],
+      "unresolved": ["Three fresh-container region/matches/live-save families are assigned exclusively to the new backup-original region and metadata groups, with exact04968a00 app execution. Independent review/current hosted acceptance remain required; component codecs/model-field assertions are not independent iOS interoperability."],
       "methods": [
         "Node status packet-type counters survive DTO encode → decode round-trip",
         "Legacy snapshot envelope without packet-type counters decodes them as nil",
@@ -1841,7 +1841,7 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt"
       ],
       "consumer": "Inspected messageBackupKey distinguishes outgoing actions from incoming wire packets; path arrival/canonical adoption and actual child insertion recalculate real heard counts. Native UTF8/offline timeline tests independently retain original text without translation.",
-      "unresolved": ["Both same42path repeat families are now assigned exclusively to backup-original-same-path-hearings-fresh-restore-and-merge; its new runner requires immutable execution/review. Intentional outgoing action distinct-container route remains separate; existing clear-source result is not a new iOS oracle."],
+      "unresolved": ["Both same42path repeat families are assigned exclusively to backup-original-same-path-hearings-fresh-restore-and-merge, with exact04968a00 app execution. Independent review/current hosted acceptance remain required. Intentional outgoing action distinct-container route remains separate; existing clear-source result is not a new iOS oracle."],
       "methods": [
         "Export assigns content-based dedup keys to incoming messages with nil deduplicationKey",
         "Export preserves existing content-based dedup keys unchanged",
@@ -2601,7 +2601,7 @@
         "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt"
       ],
       "consumer": "displayedHopCount is the node-detail path summary contract; pathNodesHex delegates to the same pathHops byte chunks. UI actions remain separately reviewed.",
-      "unresolved": ["Coordinator bounded complete9contact+4message original/helper/model/route comparison found only missing1A2B3C in this displayed-hop source-input family; native owned one-line correction requires immutable module execution/review. No observed production defect or changed expected3/inbound5; other bounded families matched. Source-only review is not independent runner execution/full acceptance."],
+      "unresolved": ["Issue171 exact7a98f99dc model13/13 passed, positively all9contact+4message path runner identities, combinedPython363/363passed,0failure/error/skip; corrected1A2B3C fixture actually executes with unchanged expected3/inbound5. Coordinator prior bounded original/helper/model/route comparison found only that missing input; no production defect. Corrected-candidate independent review/publication/merge remain required; issue stays open. Prior source-only review is not independent runner execution/full acceptance."],
       "methods": [
         "Single-byte hops chunk into one (data, hex) pair each",
         "Multi-byte hops chunk by the encoded hash size",

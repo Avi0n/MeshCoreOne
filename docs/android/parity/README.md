@@ -443,6 +443,17 @@ beside original encoded3/inbound5. Same-owner reservation14→15 automatically
 admits that single disjoint existing model-test path, retaining owner attribution
 and original authorization. Exact model runner discovery/review remains pending.
 
+Subsequent exact7a98f99dc scoped model13/13passed, positively all9contact+
+4message path identities; clean combinedPython363/363passed,0failure/error/skip.
+The corrected populated-route family actually executes; independent corrected
+candidate review/published merge remains required and issue171 stays open.
+App67/67 remains bound to04968a00; no new app/protocol execution at7a inferred.
+Published368 primary38177276628 has now completed actual SUCCESS/all5scopes/
+all6jobs. Full hosted log read verifies app689/services2640/protocol4711/
+data409/database45/l10n25/model166 positive0failure/error/skip plus actual
+pinned codec/SwiftData restore-export in scope. These totals are overlapping
+execution sets, not604-family independent acceptance or the new local repair.
+
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native
 consumer:192.0.2.1:9, virtual0/200ms, source10second connect and actual monotonic

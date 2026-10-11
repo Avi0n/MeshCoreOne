@@ -12,6 +12,14 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+Latest completed hosted candidate: [368c6957 primary38177276628](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38177276628),
+actual SUCCESS/all five scopes/all six jobs, on basea19. Authoritative full log
+was read: controller363/Python96/app689/services2640/protocol4711/data409/
+database45/l10n25/model166 all positive,0failure/error/skip; real pinned Swift
+codec and real SwiftData restore/export passed in their declared scopes.
+Backup/data/database counts overlap module summaries, not extra case sets.
+This does not certify the newly corrected local route or full WP-501.
+
 The actual prerequisite merges for WP-109 (`064f091c`), WP-203 (`8f9b8425`)
 and WP-407 (`250dd50e`) are ancestors of this base. Issue closure alone was
 not used as dependency evidence. The automatically acquired/evolved durable
@@ -78,6 +86,23 @@ WP-201 attributions remain intact; this is not product behavior/timeout change.
 New exact model-path execution is pending. Coordinator bounded nine contact/
 four message/19protocol byte families is source comparison, not an independent
 rerun, generic Unicode/hardware or full WP-501 approval.
+
+Issue [#171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171)
+correction actually executed at `7a98f99dc4dae140a20a04adf6dfc9e1411aef4b`:
+`:core:model:test --tests
+com.meshcoreone.android.core.model.SourceModelCasesTest.contactPaths --tests
+com.meshcoreone.android.core.model.SourceModelCasesTest.messagePaths
+--dependency-verification=strict --quiet` through the declared isolated launcher/
+supported locks,13discovered/run/passed, all nine original contact/four message
+identities,0failure/error/skip. Exact populated route1A2B3C/hash1/count3/
+inbound5/expected3 preserved; model assertion blob
+`dc3962ea8d0270181ea480d9bd513eb83e3dd7d0`. `audit.py --check`,
+`semantic.py --check` and clean immutable combinedPython363/363 passed,
+0failure/error/skip; locks released normally. No app/protocol rerun claimed
+at7a: app67/67 is bound to04968a00 unchanged app blob
+`d4b6092ff78cac9f04355ba5987c343d1990fc3b`. Issues170/171 remain open until
+persistent published/executed/independently reviewed merge; full acceptance
+remains unfinished. Evidence-only followup does not change executed Kotlin.
 
 | Exact command | Observed outcome |
 | --- | --- |
