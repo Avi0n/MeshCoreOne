@@ -256,7 +256,7 @@ private fun AppChatConversation(
                 }
             },
             attachments = { message, outgoing ->
-                feature.content?.let { AppMessageContent(it, message, feature::report) }
+                feature.content?.let { AppMessageContent(it, message, feature::report, onMap = { url -> links.route(url) }) }
                 androidx.compose.material3.TextButton(onClick = { actionMessage = message }) {
                     androidx.compose.material3.Text(stringResource(AppChatsStrings.chatsMessageActionDetails))
                 }

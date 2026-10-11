@@ -3,6 +3,7 @@
 package com.meshcoreone.android.core.maps
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import kotlin.math.round
+import kotlin.math.abs
+import kotlin.math.floor
 
 data class MapSnapshotRequest private constructor(
     val latitude: Double,
@@ -30,7 +32,11 @@ data class MapSnapshotRequest private constructor(
             isOffline: Boolean,
         ): MapSnapshotRequest {
             fun normalized(value: Double): Double {
-                val rounded = round(value * 100_000.0) / 100_000.0
+                // Swift's default rounded() breaks exact ties away from zero, not to even.
+                val scaled = abs(value * 100_000.0)
+                val integral = floor(scaled)
+                val magnitude = integral + if (scaled - integral >= 0.5) 1.0 else 0.0
+                val rounded = (if (value < 0.0) -magnitude else magnitude) / 100_000.0
                 return if (rounded == 0.0) 0.0 else rounded
             }
             return MapSnapshotRequest(
@@ -60,11 +66,12 @@ class MapSnapshotStore<T : Any>(
     private val lock = Any()
     private val semaphore = Semaphore(1)
     private val entries = linkedMapOf<MapSnapshotRequest, Entry<T>>()
-    private val inFlight = mutableSetOf<MapSnapshotRequest>()
+    private val inFlight = mutableMapOf<MapSnapshotRequest, Long>()
     private val failed = linkedSetOf<MapSnapshotRequest>()
     private val jobs = mutableSetOf<Job>()
     private var totalCost = 0L
     private var generation = 0L
+    private var closed = false
 
     private val _resolutions = MutableSharedFlow<MapSnapshotRequest>(
         extraBufferCapacity = 64,
@@ -79,10 +86,12 @@ class MapSnapshotStore<T : Any>(
 
     fun request(request: MapSnapshotRequest) {
         val generationAtStart = synchronized(lock) {
-            if (request in entries || request in failed || !inFlight.add(request)) return
+            check(!closed) { "Map snapshot store is closed" }
+            if (request in entries || request in failed || request in inFlight) return
+            inFlight[request] = generation
             generation
         }
-        val job = scope.launch {
+        val job = scope.launch(start = CoroutineStart.LAZY) {
             try {
                 semaphore.withPermit {
                     val rendered = renderer.render(request)
@@ -94,13 +103,17 @@ class MapSnapshotStore<T : Any>(
                     }
                 }
             } finally {
-                synchronized(lock) { inFlight.remove(request) }
+                synchronized(lock) {
+                    if (inFlight[request] == generationAtStart) inFlight.remove(request)
+                }
             }
         }
         synchronized(lock) {
             jobs += job
             job.invokeOnCompletion { synchronized(lock) { jobs.remove(job) } }
+            if (closed) job.cancel()
         }
+        job.start()
     }
 
     fun retry(request: MapSnapshotRequest) {
@@ -120,8 +133,9 @@ class MapSnapshotStore<T : Any>(
 
     fun clear() {
         synchronized(lock) {
+            if (closed) return
             generation += 1
-            val invalidated = (entries.keys + failed).distinct()
+            val invalidated = (entries.keys + failed + inFlight.keys).distinct()
             entries.clear()
             failed.clear()
             inFlight.clear()
@@ -132,10 +146,15 @@ class MapSnapshotStore<T : Any>(
 
     override fun close() {
         val active = synchronized(lock) {
+            if (closed) return
+            closed = true
             generation += 1
             jobs.toList().also {
                 jobs.clear()
                 inFlight.clear()
+                entries.clear()
+                failed.clear()
+                totalCost = 0
             }
         }
         active.forEach { it.cancel() }

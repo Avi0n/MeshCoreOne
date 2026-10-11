@@ -32,6 +32,8 @@ class AppChatContent internal constructor(
     private val preferenceStore: PreferenceStore,
     initialPreferences: PreferenceSnapshot,
     scope: CoroutineScope,
+    internal val mapPreviews: AppChatMapPreviews = AppChatMapPreviews(context, scope,
+        enabled = { preferenceStore.get(AppStorageKey.showMapPreviewThumbnails) }),
 ) : AutoCloseable {
     val rendering = preferenceStore.snapshots.catch { failure ->
         java.util.logging.Logger.getLogger("com.mc1.ChatContent").log(java.util.logging.Level.WARNING, "Chat rendering preferences unavailable", failure)
@@ -44,6 +46,13 @@ class AppChatContent internal constructor(
     private val thumbnails = BitmapImageDecoder()
     private val emojiCatalog = AppEmojiCatalog(context.assets)
     internal val emojiPreferences = AppEmojiPreferences(preferenceStore, scope)
+    init {
+        scope.launch {
+            rendering.map { it[AppStorageKey.showMapPreviewThumbnails] }.distinctUntilChanged().collect {
+                if (it) mapPreviews.snapshots.clearFailures()
+            }
+        }
+    }
     internal fun emojiPicker(screenScope: CoroutineScope) =
         com.meshcoreone.android.feature.chats.composer.EmojiPickerStateHolder(
             com.meshcoreone.android.feature.chats.composer.EmojiCatalogSource {
@@ -139,8 +148,17 @@ class AppChatContent internal constructor(
         LinkPreviewResult.Disabled -> LinkPreviewOutcome.Disabled
         LinkPreviewResult.Failed -> LinkPreviewOutcome.Failed
     }
-    fun trimMemory() { imageCache.clearDecodedMirror(); imageCache.clearRawMemory() }
-    override fun close() { previewCache.close(); malware.close(); trimMemory() }
+    fun trimMemory() {
+        imageCache.clearDecodedMirror()
+        imageCache.clearRawMemory()
+        mapPreviews.snapshots.clear()
+    }
+    override fun close() {
+        mapPreviews.close()
+        previewCache.close()
+        malware.close()
+        trimMemory()
+    }
     companion object {
         private const val HERO = "mc1-preview-hero:"
         private const val ICON = "mc1-preview-icon:"
