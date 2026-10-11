@@ -2699,30 +2699,45 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "613f48caad55b28b6343590c3402b3516e6daefeb242e779e18ace8a449adc6e",
+          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
           ],
           "methods": [
             {
               "name": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
-              "line": 26,
-              "end_line": 92
+              "line": 27,
+              "end_line": 93
             },
             {
               "name": "channelRepeatExportRestoresFreshParentAndCascadeWithoutDeletingSource",
-              "line": 94,
-              "end_line": 127
+              "line": 95,
+              "end_line": 128
             },
             {
               "name": "original32ByteSecretAndFloodScopesSurviveDistinctStoreExportImport",
-              "line": 129,
-              "end_line": 156
+              "line": 130,
+              "end_line": 157
+            },
+            {
+              "name": "original32ByteStaleSecretCannotOverwriteReconfiguredLiveChannel",
+              "line": 160,
+              "end_line": 188
+            },
+            {
+              "name": "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy",
+              "line": 191,
+              "end_line": 232
+            },
+            {
+              "name": "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore",
+              "line": 235,
+              "end_line": 308
             },
             {
               "name": "withFreshDestination",
-              "line": 158,
-              "end_line": 170
+              "line": 310,
+              "end_line": 322
             }
           ]
         },
@@ -18312,6 +18327,754 @@
             "BackupIntegrationTests::Export preserves orphaned radio-scoped data after device-only delete()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore",
+          "line": 235,
+          "end_line": 308,
+          "factory_method": null,
+          "body_sha256": "b1657b29596c64ab083a4e8d4c8d41ff2a0ca3ad75f191b54a31fa262e11216f",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 263,
+              "expression": "assertNull(store.fetchDevice(radio))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 269,
+              "expression": "assertTrue(parsed.devices.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 270,
+              "expression": "assertTrue(parsed.manifest.validate(parsed))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 271,
+              "expression": "assertEquals(1L, parsed.manifest.count(kind))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 274,
+              "expression": "assertEquals(0L, first.counts.getValue(BackupModelKind.DEVICES).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 275,
+              "expression": "assertEquals(1L, first.counts.getValue(kind).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 276,
+              "expression": "assertTrue(destination.fetchDevices().isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 277,
+              "expression": "assertEquals(\"Orphaned Contact\", destination.fetchContacts(radio).single().name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 279,
+              "expression": "assertEquals(\"Orphaned Channel\", restoredChannel.name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 280,
+              "expression": "assertEquals(3L, restoredChannel.unreadCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 281,
+              "expression": "assertEquals(NotificationLevel.MENTIONS_ONLY, restoredChannel.notificationLevel)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 282,
+              "expression": "assertTrue(restoredChannel.isFavorite)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 283,
+              "expression": "assertEquals(\"Preserve me\", destination.fetchMessages(EntityKey(radio, contact.id)).single().text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 285,
+              "expression": "assertEquals(session.id, restoredSession.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 286,
+              "expression": "assertEquals(\"Hello from the room\", destination.fetchRoomMessages(EntityKey(radio, session.id)).single().text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 288,
+              "expression": "assertEquals(path.id, restoredPath.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 289,
+              "expression": "assertEquals(Bytes.of(0x31, 0xA7), restoredPath.pathBytes)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 290,
+              "expression": "assertEquals(1L, restoredPath.hashSize)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 291,
+              "expression": "assertTrue(restoredPath.runs.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 292,
+              "expression": "assertEquals(\"SpammerNode\", destination.fetchBlockedChannelSenders(radio).single().name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 294,
+              "expression": "assertEquals(0L, second.totalInserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 295,
+              "expression": "assertEquals(1L, second.counts.getValue(kind).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 297,
+              "expression": "assertNull(store.fetchDevice(radio))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 298,
+              "expression": "assertEquals(contact.id, store.fetchContacts(radio).single().id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 299,
+              "expression": "assertEquals(channel.id, store.fetchChannels(radio).single().id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 300,
+              "expression": "assertEquals(message.id, store.fetchMessages(EntityKey(radio, contact.id)).single().id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 301,
+              "expression": "assertEquals(session.id, store.fetchRemoteNodeSessions(radio).single().id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 302,
+              "expression": "assertEquals(roomMessage.id, store.fetchRoomMessages(EntityKey(radio, session.id)).single().id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 303,
+              "expression": "assertEquals(path.id, store.fetchSavedTracePaths(radio).single().id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 304,
+              "expression": "assertEquals(blocked.id, store.fetchBlockedChannelSenders(radio).single().id)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 236,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 236,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 238,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 238,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 239,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DeviceDTO",
+              "line": 240,
+              "expression": "DeviceDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                nodeName = \"TestDevice\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 240,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 240,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 240,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 242,
+              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xD1.toByte() }),\n                name = \"Orphaned Contact\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 242,
+              "expression": "Bytes(ByteArray(32) { 0xD1.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 242,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 242,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelDTO",
+              "line": 244,
+              "expression": "ChannelDTO(radioId = radio, index = 1u, name = \"Orphaned Channel\",\n                secret = Bytes(ByteArray(16)), unreadCount = 3, notificationLevel = NotificationLevel.MENTIONS_ONLY,\n                isFavorite = true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 245,
+              "expression": "Bytes(ByteArray(16))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 245,
+              "expression": "ByteArray(16)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 247,
+              "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"Preserve me\",\n                timestamp = 1_700_000_000u, createdAt = at, deduplicationKey = \"orphaned-message-source\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RemoteNodeSessionDTO",
+              "line": 249,
+              "expression": "RemoteNodeSessionDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xCC.toByte() }),\n                name = \"TestNode\", role = RemoteNodeRole.ROOM_SERVER)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 249,
+              "expression": "Bytes(ByteArray(32) { 0xCC.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 249,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 249,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RoomMessageDTO",
+              "line": 251,
+              "expression": "RoomMessageDTO(sessionID = session.id, authorKeyPrefix = Bytes.of(0xAB, 0xCD, 0xEF, 1),\n                authorName = \"TestAuthor\", text = \"Hello from the room\", timestamp = 1_700_000_000u, createdAt = at)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 251,
+              "expression": "Bytes.of(0xAB, 0xCD, 0xEF, 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "BlockedChannelSenderDTO",
+              "line": 253,
+              "expression": "BlockedChannelSenderDTO(UUID.randomUUID(), \"SpammerNode\", radio, at)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 253,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 254,
+              "expression": "store.saveDevice(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 255,
+              "expression": "store.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveChannel",
+              "line": 256,
+              "expression": "store.saveChannel(channel)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 257,
+              "expression": "store.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRemoteNodeSessionDTO",
+              "line": 258,
+              "expression": "store.saveRemoteNodeSessionDTO(session)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRoomMessage",
+              "line": 259,
+              "expression": "store.saveRoomMessage(radio, roomMessage)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveBlockedChannelSender",
+              "line": 260,
+              "expression": "store.saveBlockedChannelSender(blocked)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.createSavedTracePath",
+              "line": 261,
+              "expression": "store.createSavedTracePath(radio, \"Test Path\", Bytes.of(0x31, 0xA7), 1, null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 261,
+              "expression": "Bytes.of(0x31, 0xA7)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.deleteDevice",
+              "line": 262,
+              "expression": "store.deleteDevice(device.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 263,
+              "expression": "store.fetchDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 264,
+              "expression": "listOf(BackupModelKind.CONTACTS, BackupModelKind.CHANNELS, BackupModelKind.MESSAGES,\n                BackupModelKind.REMOTE_NODE_SESSIONS, BackupModelKind.ROOM_MESSAGES,\n                BackupModelKind.SAVED_TRACE_PATHS, BackupModelKind.BLOCKED_CHANNEL_SENDERS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 267,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 268,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 268,
+              "expression": "parseBackup(service.export(store).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 268,
+              "expression": "service.export(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parsed.devices.isEmpty",
+              "line": 269,
+              "expression": "parsed.devices.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parsed.manifest.validate",
+              "line": 270,
+              "expression": "parsed.manifest.validate(parsed)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 271,
+              "expression": "for (kind in kinds)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parsed.manifest.count",
+              "line": 271,
+              "expression": "parsed.manifest.count(kind)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 272,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 273,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first.counts.getValue",
+              "line": 274,
+              "expression": "first.counts.getValue(BackupModelKind.DEVICES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 275,
+              "expression": "for (kind in kinds)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first.counts.getValue",
+              "line": 275,
+              "expression": "first.counts.getValue(kind)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchDevices",
+              "line": 276,
+              "expression": "destination.fetchDevices()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 276,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchContacts",
+              "line": 277,
+              "expression": "destination.fetchContacts(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 277,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchChannels",
+              "line": 278,
+              "expression": "destination.fetchChannels(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 278,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessages",
+              "line": 283,
+              "expression": "destination.fetchMessages(EntityKey(radio, contact.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 283,
+              "expression": "EntityKey(radio, contact.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 283,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchRemoteNodeSessions",
+              "line": 284,
+              "expression": "destination.fetchRemoteNodeSessions(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 284,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchRoomMessages",
+              "line": 286,
+              "expression": "destination.fetchRoomMessages(EntityKey(radio, session.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 286,
+              "expression": "EntityKey(radio, session.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 286,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchSavedTracePaths",
+              "line": 287,
+              "expression": "destination.fetchSavedTracePaths(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 287,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 289,
+              "expression": "Bytes.of(0x31, 0xA7)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "restoredPath.runs.isEmpty",
+              "line": 291,
+              "expression": "restoredPath.runs.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchBlockedChannelSenders",
+              "line": 292,
+              "expression": "destination.fetchBlockedChannelSenders(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 292,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 293,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 295,
+              "expression": "for (kind in kinds)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "second.counts.getValue",
+              "line": 295,
+              "expression": "second.counts.getValue(kind)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 297,
+              "expression": "store.fetchDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContacts",
+              "line": 298,
+              "expression": "store.fetchContacts(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 298,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchChannels",
+              "line": 299,
+              "expression": "store.fetchChannels(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 299,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 300,
+              "expression": "store.fetchMessages(EntityKey(radio, contact.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 300,
+              "expression": "EntityKey(radio, contact.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 300,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRemoteNodeSessions",
+              "line": 301,
+              "expression": "store.fetchRemoteNodeSessions(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 301,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRoomMessages",
+              "line": 302,
+              "expression": "store.fetchRoomMessages(EntityKey(radio, session.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 302,
+              "expression": "EntityKey(radio, session.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 302,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchSavedTracePaths",
+              "line": 303,
+              "expression": "store.fetchSavedTracePaths(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 303,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchBlockedChannelSenders",
+              "line": 304,
+              "expression": "store.fetchBlockedChannelSenders(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 304,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 306,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Export preserves orphaned radio-scoped data after device-only delete()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -22276,6 +23039,286 @@
             "BackupIntegrationTests::Re-importing a stale backup never upserts a reconfigured live channel()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "original32ByteStaleSecretCannotOverwriteReconfiguredLiveChannel",
+          "line": 160,
+          "end_line": 188,
+          "factory_method": null,
+          "body_sha256": "76936348bda884963013be254e8224b5b43894782200e94056d9a613cb345d29",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 175,
+              "expression": "assertEquals(1L, result.counts.getValue(BackupModelKind.CHANNELS).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 176,
+              "expression": "assertEquals(0L, result.counts.getValue(BackupModelKind.CHANNELS).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 178,
+              "expression": "assertEquals(2, channels.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 179,
+              "expression": "assertEquals(live, channels.single { it.secret == Bytes(ByteArray(32) { 0xB2.toByte() }) })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 181,
+              "expression": "assertEquals(\"Stale Net\", restored.name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotEquals",
+              "line": 182,
+              "expression": "assertNotEquals(live.id, restored.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotEquals",
+              "line": 183,
+              "expression": "assertNotEquals(3.toUByte(), restored.index)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 184,
+              "expression": "assertEquals(32, restored.secret.size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 161,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 161,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 163,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 163,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelDTO",
+              "line": 164,
+              "expression": "ChannelDTO(radioId = radio, index = 3u, name = \"Live Net\",\n                secret = Bytes(ByteArray(32) { 0xB2.toByte() }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 165,
+              "expression": "Bytes(ByteArray(32) { 0xB2.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 165,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 165,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveChannel",
+              "line": 166,
+              "expression": "store.saveChannel(live)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "live.copy",
+              "line": 167,
+              "expression": "live.copy(name = \"Stale Net\", secret = Bytes(ByteArray(32) { 0xA1.toByte() }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 167,
+              "expression": "Bytes(ByteArray(32) { 0xA1.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 167,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 167,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupEnvelope",
+              "line": 168,
+              "expression": "AppBackupEnvelope(exportDate = Instant.ofEpochSecond(1_700_000_000),\n                appVersion = \"1\", appBuild = \"1\",\n                devices = SnapshotList.of(DeviceDTO(radioId = radio,\n                    publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = \"TestDevice\", maxChannels = 8u)),\n                channels = SnapshotList.of(stale))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 168,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 170,
+              "expression": "SnapshotList.of(DeviceDTO(radioId = radio,\n                    publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = \"TestDevice\", maxChannels = 8u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DeviceDTO",
+              "line": 170,
+              "expression": "DeviceDTO(radioId = radio,\n                    publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = \"TestDevice\", maxChannels = 8u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 171,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 171,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 171,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 172,
+              "expression": "SnapshotList.of(stale)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withActualManifest",
+              "line": 172,
+              "expression": "withActualManifest()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 173,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 174,
+              "expression": "service.importBackup(envelope, store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 175,
+              "expression": "result.counts.getValue(BackupModelKind.CHANNELS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 176,
+              "expression": "result.counts.getValue(BackupModelKind.CHANNELS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchChannels",
+              "line": 177,
+              "expression": "store.fetchChannels(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 179,
+              "expression": "Bytes(ByteArray(32) { 0xB2.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 179,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 179,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 180,
+              "expression": "Bytes(ByteArray(32) { 0xA1.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 180,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 180,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 183,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 186,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Re-importing a stale backup never upserts a reconfigured live channel()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -22757,6 +23800,466 @@
               "name": "result.count",
               "line": 75,
               "expression": "result.count(BackupModelKind.CHANNELS)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::batchInsertChannels reports newly-occupied local slots for draft clearing, excluding merges()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy",
+          "line": 191,
+          "end_line": 232,
+          "factory_method": null,
+          "body_sha256": "6ff36bc91fc27c894a54d8a5f6114992a816f0cecd58353f9371497d9e841528",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 213,
+              "expression": "assertEquals(2L, result.counts.getValue(BackupModelKind.CHANNELS).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 214,
+              "expression": "assertEquals(1L, result.counts.getValue(BackupModelKind.CHANNELS).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 216,
+              "expression": "assertEquals(4, channels.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 217,
+              "expression": "assertEquals(keep, channels.single { it.secret == Bytes(ByteArray(32) { 0xC1.toByte() }) })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 218,
+              "expression": "assertEquals(occupied, channels.single { it.secret == Bytes(ByteArray(32) { 0xC4.toByte() }) })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 221,
+              "expression": "assertEquals(5.toUByte(), restoredFresh.index)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 222,
+              "expression": "assertEquals(\"Fresh\", restoredFresh.name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 223,
+              "expression": "assertEquals(\"Collide\", relocated.name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotEquals",
+              "line": 224,
+              "expression": "assertNotEquals(4.toUByte(), relocated.index)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 226,
+              "expression": "assertEquals(setOf(5.toUByte(), relocated.index), affected)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 227,
+              "expression": "assertFalse(affected.contains(slot.toUByte()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 228,
+              "expression": "assertTrue(channels.all { it.secret.size == 32 })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 192,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 192,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 194,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 194,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelDTO",
+              "line": 195,
+              "expression": "ChannelDTO(radioId = radio, index = 2u, name = \"Keep\",\n                secret = Bytes(ByteArray(32) { 0xC1.toByte() }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 196,
+              "expression": "Bytes(ByteArray(32) { 0xC1.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 196,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 196,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelDTO",
+              "line": 197,
+              "expression": "ChannelDTO(radioId = radio, index = 4u, name = \"Occupied\",\n                secret = Bytes(ByteArray(32) { 0xC4.toByte() }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 198,
+              "expression": "Bytes(ByteArray(32) { 0xC4.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 198,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 198,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveChannel",
+              "line": 199,
+              "expression": "store.saveChannel(keep)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveChannel",
+              "line": 200,
+              "expression": "store.saveChannel(occupied)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "keep.copy",
+              "line": 201,
+              "expression": "keep.copy(id = UUID.randomUUID(), index = 6u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 201,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelDTO",
+              "line": 202,
+              "expression": "ChannelDTO(radioId = radio, index = 5u, name = \"Fresh\",\n                secret = Bytes(ByteArray(32) { 0xD5.toByte() }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 203,
+              "expression": "Bytes(ByteArray(32) { 0xD5.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 203,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 203,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelDTO",
+              "line": 204,
+              "expression": "ChannelDTO(radioId = radio, index = 4u, name = \"Collide\",\n                secret = Bytes(ByteArray(32) { 0xD4.toByte() }))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 205,
+              "expression": "Bytes(ByteArray(32) { 0xD4.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 205,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 205,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupEnvelope",
+              "line": 206,
+              "expression": "AppBackupEnvelope(exportDate = Instant.ofEpochSecond(1_700_000_000),\n                appVersion = \"1\", appBuild = \"1\",\n                devices = SnapshotList.of(DeviceDTO(radioId = radio,\n                    publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = \"TestDevice\", maxChannels = 8u)),\n                channels = SnapshotList.of(merge, fresh, collide))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 206,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 208,
+              "expression": "SnapshotList.of(DeviceDTO(radioId = radio,\n                    publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = \"TestDevice\", maxChannels = 8u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DeviceDTO",
+              "line": 208,
+              "expression": "DeviceDTO(radioId = radio,\n                    publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = \"TestDevice\", maxChannels = 8u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 209,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 209,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 209,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 210,
+              "expression": "SnapshotList.of(merge, fresh, collide)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withActualManifest",
+              "line": 210,
+              "expression": "withActualManifest()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 211,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 212,
+              "expression": "service.importBackup(envelope, store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 213,
+              "expression": "result.counts.getValue(BackupModelKind.CHANNELS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 214,
+              "expression": "result.counts.getValue(BackupModelKind.CHANNELS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchChannels",
+              "line": 215,
+              "expression": "store.fetchChannels(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 217,
+              "expression": "Bytes(ByteArray(32) { 0xC1.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 217,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 217,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 218,
+              "expression": "Bytes(ByteArray(32) { 0xC4.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 218,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 218,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 219,
+              "expression": "Bytes(ByteArray(32) { 0xD5.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 219,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 219,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 220,
+              "expression": "Bytes(ByteArray(32) { 0xD4.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 220,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 220,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 221,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 224,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.channelSlotsAffectedByImport.getValue",
+              "line": 225,
+              "expression": "result.channelSlotsAffectedByImport.getValue(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 225,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 226,
+              "expression": "setOf(5.toUByte(), relocated.index)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toUByte",
+              "line": 226,
+              "expression": "toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 227,
+              "expression": "for (slot in listOf(2u, 6u, 4u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 227,
+              "expression": "listOf(2u, 6u, 4u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "affected.contains",
+              "line": 227,
+              "expression": "affected.contains(slot.toUByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "slot.toUByte",
+              "line": 227,
+              "expression": "slot.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 230,
+              "expression": "storage.close()",
               "assertion_or_checked_wait": false
             }
           ],

@@ -21,7 +21,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-242 inspected family proposals in29groups, exact source/assertion/helper/runner
+328 inspected family proposals in36groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished and a mounted content cancellation defect is proven**;
 independent full behavioral acceptance remains BLOCKED. All 1,866 inputs and 5,133 declarations
@@ -54,12 +54,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has72 Python regressions and seventeen Kotlin acceptance cases.
-The current Python suite passes72/72 without failure/error/skip.
+The follow-up has72 Python regressions and twenty Kotlin acceptance cases.
+The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-242actually inspected proposals;3,344native-body joins are only candidates.
+328actually inspected proposals;3,344native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -73,7 +73,24 @@ the new helper called nonexistent `MessageDao.backupAll`. It now uses the actual
 global `backupRadioIds` query to assert destination emptiness. No new test
 execution, product failure or swallowed error is claimed from that compiler result.
 New semantic runner bindings have not
-yet been verified by the new candidate's full hosted stage.
+yet been verified by the new candidate's full hosted stage. The c3c2608d retry
+failed before JUnit discovery while reading a compiler JAR: the root IOException
+reported insufficient system resources. The bounded host probe measured780MiB
+free physical/183MiB free virtual memory. No dependency install, shared-cache
+change or unrelated process termination occurred. Normal supported publication
+reported UNVERIFIED after snapshot Git pack-objects failed and allowed push.
+The exact c3c2608d hosted run38161221673 remains a separate candidate outcome;
+its result must be read from GitHub, not inferred from baseline or local failures.
+
+The next source-backed increment compares all127 original BackupIntegration
+declarations, including transaction faults/cancellation, nil/empty path arrivals,
+radio-scoped dedup/reply parents, legacy fields and committed discovery capacity.
+Three additional assertions fill exact32-byte stale-secret/draft-slot and
+all-seven-kind distinct-store orphan gaps; they have no native result yet.
+The precommit combined Python command discovered343/run343:341passed/0failures/
+2errors/0skips. Both errors correctly rejected edited runtime-required inputs
+that differed from immutable HEAD. Commit-bound rerun is required, not a waived
+checkout-integrity check or acceptance pass.
 
 Baseline [run38155192945](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38155192945)
 is SUCCESS at exact250dd50e. Initial WP-501
@@ -108,7 +125,7 @@ The generated worklist has 2,341 recognized historical/marker family candidates,
 2,681 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the242families
+actual inspection. All1,786owned source dispositions require behavior review; only the328families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

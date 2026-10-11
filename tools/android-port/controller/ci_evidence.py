@@ -56,6 +56,12 @@ WP501_ACCEPTANCE_CASES = {
      "channelRepeatExportRestoresFreshParentAndCascadeWithoutDeletingSource"),
     ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
      "original32ByteSecretAndFloodScopesSurviveDistinctStoreExportImport"),
+    ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+     "original32ByteStaleSecretCannotOverwriteReconfiguredLiveChannel"),
+    ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+     "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy"),
+    ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+     "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",
