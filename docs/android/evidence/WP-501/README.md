@@ -30,7 +30,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-750 inspected family proposals in115groups, exact source/assertion/helper/runner
+755 inspected family proposals in116groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -47,6 +47,25 @@ radio, new Swift execution, screenshot/accessibility matrix, legal approval,
 production signing or release certification.
 
 ## Local execution before candidate publication
+
+Exact9fc6e33c4fc46d9998a649c999d58a5a67bf8b33 executed declared isolated
+`python <session-files>\wp501-native-check.py --head 9fc6e33c4fc46d9998a649c999d58a5a67bf8b33 --regions-only`
+selecting `:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalRegionsCasesTest --tests com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest.transportCodes --dependency-verification=strict --quiet`.
+Actual38required/discovered/run/passed,0failure/error/skip; unchanged
+scaffoldlauncher/privatecache/readinesspassed/supportednative+Gradlelocks
+released. Includes all21mapping/key/anon/parser+17resolver cases, exact
+issue174threeguardrepair. Clean combineddeclaredPython363/363passed,
+0failure/error/skip.750/115at9fc; no later byte/native Swift claim.
+
+Next canonicalowned source-gap fill ports allfive original region-session
+families to one mandatory actual method using exact Test10s/source62byte
+05zero-advert/zero-power/01x32/915000/125000/7/5/Test startup, original
+tags/timeout100ms/200msoverall/nilretransmit/error10/DD32orCD32/raw04/
+nameRepeater/advert1000 and actual awaited reset. Common generic selfInfo
+1/22/22/componentMCore/defaulttags are not substituted. FixedDate is an
+explicit clock adaptation;199pending/200elapsed/stricttypedtimeouts for two
+frame-inspection cases are supplementalnative checks, not invented originals.
+755/116inspected,65mandatorycases; actual newappexecution pending.
 
 Exactde014cdeaa5c5ad164b43f207594c6cfe6b81af1 actual declared isolated
 `python <session-files>\wp501-native-check.py --head de014cdeaa5c5ad164b43f207594c6cfe6b81af1 --responses-only`

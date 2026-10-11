@@ -19392,7 +19392,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRegionsCasesTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -92555,6 +92556,10 @@
       "assertion_status": "direct",
       "candidate_mappings": [
         {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+        },
+        {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
           "record": 45
@@ -92582,6 +92587,10 @@
       "original_detail_sha256": "eb03cae179299b933904519baca47977e97feef193a46774e6a6a3502cdab1d0",
       "assertion_status": "direct",
       "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+        },
         {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
@@ -92611,6 +92620,10 @@
       "assertion_status": "direct",
       "candidate_mappings": [
         {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+        },
+        {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
           "record": 47
@@ -92639,6 +92652,10 @@
       "assertion_status": "direct",
       "candidate_mappings": [
         {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+        },
+        {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
           "record": 46
@@ -92666,6 +92683,10 @@
       "original_detail_sha256": "a7e1bf8e9ad7eff203c669bc0522db71d9059d146d289ee10a206e535df279a1",
       "assertion_status": "direct",
       "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+        },
         {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",

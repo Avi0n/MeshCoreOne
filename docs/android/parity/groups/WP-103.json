@@ -3805,7 +3805,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRegionsCasesTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/CrossComponentSessionCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -3864,6 +3865,215 @@
               "name": "originalSeams",
               "line": 34,
               "end_line": 184
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalCommandsWaitForDelayedAcknowledgement",
+              "line": 55,
+              "end_line": 77
+            },
+            {
+              "name": "originalDeviceErrorsRemainTypedAfterDelayedResponse",
+              "line": 81,
+              "end_line": 93
+            },
+            {
+              "name": "noResponseRetainsSourceTenSecondTimeout",
+              "line": 95,
+              "end_line": 119
+            },
+            {
+              "name": "originalWindowHoldsForFiftyMillisecondsAndRefillsWithoutMissingSlots",
+              "line": 122,
+              "end_line": 155
+            },
+            {
+              "name": "originalCancelledPipelineKeepsTheSuccessorsIndexAndFreshName",
+              "line": 158,
+              "end_line": 188
+            },
+            {
+              "name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
+              "line": 193,
+              "end_line": 259
+            },
+            {
+              "name": "originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError",
+              "line": 262,
+              "end_line": 298
+            },
+            {
+              "name": "originalDatagramFrameReachesThePublicMessageResultAfterItsWrite",
+              "line": 301,
+              "end_line": 325
+            },
+            {
+              "name": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
+              "line": 330,
+              "end_line": 389
+            },
+            {
+              "name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
+              "line": 395,
+              "end_line": 473
+            },
+            {
+              "name": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
+              "line": 478,
+              "end_line": 502
+            },
+            {
+              "name": "originalContactInvalidationsRetainSourceSelfInfoHistoryAndFiftyMillisecondObservation",
+              "line": 505,
+              "end_line": 535
+            },
+            {
+              "name": "originalConcurrentSettingsWaitForEachFreshSelfInfoBeforeTheNextWrite",
+              "line": 538,
+              "end_line": 589
+            },
+            {
+              "name": "originalStartupIgnoresErrorNinetyNineBeforeItsExactSelfInfo",
+              "line": 592,
+              "end_line": 616
+            },
+            {
+              "name": "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo",
+              "line": 621,
+              "end_line": 680
+            },
+            {
+              "name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
+              "line": 687,
+              "end_line": 764
+            },
+            {
+              "name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
+              "line": 770,
+              "end_line": 838
+            },
+            {
+              "name": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
+              "line": 843,
+              "end_line": 912
+            },
+            {
+              "name": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
+              "line": 917,
+              "end_line": 963
+            },
+            {
+              "name": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
+              "line": 968,
+              "end_line": 1013
+            },
+            {
+              "name": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
+              "line": 1018,
+              "end_line": 1090
+            },
+            {
+              "name": "originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes",
+              "line": 1094,
+              "end_line": 1120
+            },
+            {
+              "name": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
+              "line": 1125,
+              "end_line": 1200
+            },
+            {
+              "name": "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement",
+              "line": 1204,
+              "end_line": 1262
+            },
+            {
+              "name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+              "line": 1269,
+              "end_line": 1366
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1368,
+              "end_line": 1372
+            },
+            {
+              "name": "sourceCorrelationStatus",
+              "line": 1374,
+              "end_line": 1380
+            },
+            {
+              "name": "sourceCorrelationContact",
+              "line": 1382,
+              "end_line": 1383
+            },
+            {
+              "name": "sourceAutomaticSelfInfo",
+              "line": 1386,
+              "end_line": 1388
+            },
+            {
+              "name": "sourcePipelineConfiguration",
+              "line": 1390,
+              "end_line": 1393
+            },
+            {
+              "name": "startSourceSession",
+              "line": 1395,
+              "end_line": 1410
+            },
+            {
+              "name": "sourceSelfInfo",
+              "line": 1412,
+              "end_line": 1418
+            },
+            {
+              "name": "sourceChannel",
+              "line": 1420,
+              "end_line": 1421
+            },
+            {
+              "name": "delayedOk",
+              "line": 1424,
+              "end_line": 1438
+            },
+            {
+              "name": "delayedError",
+              "line": 1440,
+              "end_line": 1459
+            },
+            {
+              "name": "hex",
+              "line": 1461,
+              "end_line": 1461
+            },
+            {
+              "name": "publicSessionClock",
+              "line": 1465,
+              "end_line": 1465
+            },
+            {
+              "name": "sleepFor",
+              "line": 1468,
+              "end_line": 1468
             }
           ]
         }
@@ -10315,6 +10525,745 @@
             "RequestRegionsIntegrationTests::full two-phase flow returns parsed regions()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+          "method_or_family_name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+          "line": 1269,
+          "end_line": 1366,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ded0245f21662266f2fd6a4f8dec6ed6b2de10728576e3dfa149bbb3e7d18b0b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 1279,
+              "expression": "assertEquals(hex(\"010320202020202054657374\"), transport.sentData.single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1280,
+              "expression": "assertEquals(62, sourceRegionSelfInfo().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1281,
+              "expression": "assertEquals(hex(\"05000000\"), sourceRegionSelfInfo().prefix(4))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1298,
+              "expression": "assertEquals(147, temporary.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1299,
+              "expression": "assertEquals(9, temporary[0].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1300,
+              "expression": "assertEquals(key, temporary.slice(1, 33))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1301,
+              "expression": "assertEquals(contact.typeRawValue, temporary[33])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1302,
+              "expression": "assertEquals(0, temporary[35].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1306,
+              "expression": "assertEquals(hex(\"09\") + key + Bytes.of(contact.typeRawValue.toInt(), 0, 0) +\n                    Bytes(ByteArray(64)) + name + Bytes(ByteArray(32 - name.size)) + tail, temporary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1308,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1311,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1312,
+              "expression": "assertEquals(hex(\"39\") + key + hex(\"0100\"), transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1313,
+              "expression": "assertEquals(35, transport.sentData.last().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1314,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1331,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1332,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1337,
+              "expression": "assertEquals(3, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1338,
+              "expression": "assertEquals(hex(\"0d\") + key, transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1339,
+              "expression": "assertFalse(\"Restore acknowledgment is still outstanding\", call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1343,
+              "expression": "assertEquals(listOf(\"Europe\", \"UK\", \"France\"), call.await())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1347,
+              "expression": "fail(\"Region error must remain a typed device error\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1349,
+              "expression": "assertEquals(10u.toUByte(), failure.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1355,
+              "expression": "fail(\"Missing region response cannot become an empty successful list\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1357,
+              "expression": "assertEquals(200L, testScheduler.currentTime - startedAt)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1361,
+              "expression": "assertEquals(listOf(9, 0x39, 0x0d), transport.sentData.map { it[0].toInt() })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "for",
+              "line": 1270,
+              "expression": "for (scenario in listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1270,
+              "expression": "listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1272,
+              "expression": "if (shortBudget)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1273,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\",\n                    binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1275,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockTransport",
+              "line": 1276,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "startSourceSession",
+              "line": 1277,
+              "expression": "startSourceSession(transport, configuration, sourceRegionSelfInfo())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1277,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1279,
+              "expression": "hex(\"010320202020202054657374\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1279,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1280,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1281,
+              "expression": "hex(\"05000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1281,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "prefix",
+              "line": 1281,
+              "expression": "prefix(4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.clearSentData",
+              "line": 1282,
+              "expression": "transport.clearSentData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1284,
+              "expression": "Bytes(ByteArray(32) { (if (rawType) 0xcd else 0xdd).toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1284,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1284,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 1284,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 1285,
+              "expression": "MeshContact(\n                    id = if (rawType) \"r\" else key.hexString, publicKey = key,\n                    type = if (rawType) ContactType.CHAT else ContactType.REPEATER,\n                    flags = ContactFlags(0u), outPathLength = 0xffu, outPath = Bytes.EMPTY,\n                    advertisedName = if (rawType) \"Repeater\" else \"TestRepeater\",\n                    lastAdvertisement = if (rawType) Instant.ofEpochSecond(1000) else Instant.EPOCH,\n                    latitude = 0.0, longitude = 0.0, lastModified = Instant.EPOCH,\n                    typeRawValue = if (rawType) 4u else 2u,\n                )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1286,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1287,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 1288,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1289,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1290,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 1290,
+              "expression": "Instant.ofEpochSecond(1000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1292,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.requestRegions",
+              "line": 1295,
+              "expression": "session.requestRegions(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1296,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1297,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1299,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "temporary.slice",
+              "line": 1300,
+              "expression": "temporary.slice(1, 33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1302,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1303,
+              "expression": "Bytes.utf8(contact.advertisedName)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1304,
+              "expression": "Bytes(ByteBuffer.allocate(15).order(ByteOrder.LITTLE_ENDIAN)\n                    .putInt(if (rawType) 1000 else 0).putInt(0).putInt(0).put(ByteArray(3)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 1304,
+              "expression": "ByteBuffer.allocate(15)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 1304,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(if (rawType) 1000 else 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1305,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 1305,
+              "expression": "put(ByteArray(3))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1305,
+              "expression": "ByteArray(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 1305,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1306,
+              "expression": "hex(\"09\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 1306,
+              "expression": "Bytes.of(contact.typeRawValue.toInt(), 0, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contact.typeRawValue.toInt",
+              "line": 1306,
+              "expression": "contact.typeRawValue.toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(64))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(64)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(32 - name.size))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(32 - name.size)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1309,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1310,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"39\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"0100\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1312,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1313,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1315,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateError",
+              "line": 1317,
+              "expression": "transport.simulateError(10u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1318,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1321,
+              "expression": "transport.simulateReceive(hex(\"06000102030488130000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1321,
+              "expression": "hex(\"06000102030488130000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1322,
+              "expression": "transport.simulateReceive(hex(\"8c0001020304ddccbbaa\") + Bytes.utf8(\"Europe,UK,France\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1322,
+              "expression": "hex(\"8c0001020304ddccbbaa\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1322,
+              "expression": "Bytes.utf8(\"Europe,UK,France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1323,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1326,
+              "expression": "if (scenario == \"timeout\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"deadbeef\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"aabbccdd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1327,
+              "expression": "transport.simulateReceive(hex(\"0600\") + tag + hex(\"64000000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"0600\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"64000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1328,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1329,
+              "expression": "advanceTimeBy(199)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1330,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1333,
+              "expression": "advanceTimeBy(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1334,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1338,
+              "expression": "hex(\"0d\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1338,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1340,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1341,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1342,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1343,
+              "expression": "listOf(\"Europe\", \"UK\", \"France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1343,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1346,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1348,
+              "expression": "catch (failure: MeshCoreException.DeviceError)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 1349,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1354,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1356,
+              "expression": "catch (failure: MeshCoreException.Timeout)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1361,
+              "expression": "listOf(9, 0x39, 0x0d)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1361,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 1363,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RequestRegionsIntegrationTests::full two-phase flow returns parsed regions()",
+            "RequestRegionsIntegrationTests::timeout when no binaryResponse arrives()",
+            "RequestRegionsIntegrationTests::device error propagates correctly()",
+            "RequestRegionsIntegrationTests::temporarily sets zero-hop before sending for flood-routed contact()",
+            "RequestRegionsIntegrationTests::requestRegions preserves an unmodeled raw type byte in the temp write()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -10616,6 +11565,745 @@
             "RequestRegionsIntegrationTests::timeout when no binaryResponse arrives()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+          "method_or_family_name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+          "line": 1269,
+          "end_line": 1366,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ded0245f21662266f2fd6a4f8dec6ed6b2de10728576e3dfa149bbb3e7d18b0b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 1279,
+              "expression": "assertEquals(hex(\"010320202020202054657374\"), transport.sentData.single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1280,
+              "expression": "assertEquals(62, sourceRegionSelfInfo().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1281,
+              "expression": "assertEquals(hex(\"05000000\"), sourceRegionSelfInfo().prefix(4))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1298,
+              "expression": "assertEquals(147, temporary.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1299,
+              "expression": "assertEquals(9, temporary[0].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1300,
+              "expression": "assertEquals(key, temporary.slice(1, 33))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1301,
+              "expression": "assertEquals(contact.typeRawValue, temporary[33])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1302,
+              "expression": "assertEquals(0, temporary[35].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1306,
+              "expression": "assertEquals(hex(\"09\") + key + Bytes.of(contact.typeRawValue.toInt(), 0, 0) +\n                    Bytes(ByteArray(64)) + name + Bytes(ByteArray(32 - name.size)) + tail, temporary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1308,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1311,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1312,
+              "expression": "assertEquals(hex(\"39\") + key + hex(\"0100\"), transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1313,
+              "expression": "assertEquals(35, transport.sentData.last().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1314,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1331,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1332,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1337,
+              "expression": "assertEquals(3, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1338,
+              "expression": "assertEquals(hex(\"0d\") + key, transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1339,
+              "expression": "assertFalse(\"Restore acknowledgment is still outstanding\", call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1343,
+              "expression": "assertEquals(listOf(\"Europe\", \"UK\", \"France\"), call.await())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1347,
+              "expression": "fail(\"Region error must remain a typed device error\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1349,
+              "expression": "assertEquals(10u.toUByte(), failure.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1355,
+              "expression": "fail(\"Missing region response cannot become an empty successful list\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1357,
+              "expression": "assertEquals(200L, testScheduler.currentTime - startedAt)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1361,
+              "expression": "assertEquals(listOf(9, 0x39, 0x0d), transport.sentData.map { it[0].toInt() })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "for",
+              "line": 1270,
+              "expression": "for (scenario in listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1270,
+              "expression": "listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1272,
+              "expression": "if (shortBudget)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1273,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\",\n                    binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1275,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockTransport",
+              "line": 1276,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "startSourceSession",
+              "line": 1277,
+              "expression": "startSourceSession(transport, configuration, sourceRegionSelfInfo())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1277,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1279,
+              "expression": "hex(\"010320202020202054657374\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1279,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1280,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1281,
+              "expression": "hex(\"05000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1281,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "prefix",
+              "line": 1281,
+              "expression": "prefix(4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.clearSentData",
+              "line": 1282,
+              "expression": "transport.clearSentData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1284,
+              "expression": "Bytes(ByteArray(32) { (if (rawType) 0xcd else 0xdd).toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1284,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1284,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 1284,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 1285,
+              "expression": "MeshContact(\n                    id = if (rawType) \"r\" else key.hexString, publicKey = key,\n                    type = if (rawType) ContactType.CHAT else ContactType.REPEATER,\n                    flags = ContactFlags(0u), outPathLength = 0xffu, outPath = Bytes.EMPTY,\n                    advertisedName = if (rawType) \"Repeater\" else \"TestRepeater\",\n                    lastAdvertisement = if (rawType) Instant.ofEpochSecond(1000) else Instant.EPOCH,\n                    latitude = 0.0, longitude = 0.0, lastModified = Instant.EPOCH,\n                    typeRawValue = if (rawType) 4u else 2u,\n                )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1286,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1287,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 1288,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1289,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1290,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 1290,
+              "expression": "Instant.ofEpochSecond(1000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1292,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.requestRegions",
+              "line": 1295,
+              "expression": "session.requestRegions(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1296,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1297,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1299,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "temporary.slice",
+              "line": 1300,
+              "expression": "temporary.slice(1, 33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1302,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1303,
+              "expression": "Bytes.utf8(contact.advertisedName)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1304,
+              "expression": "Bytes(ByteBuffer.allocate(15).order(ByteOrder.LITTLE_ENDIAN)\n                    .putInt(if (rawType) 1000 else 0).putInt(0).putInt(0).put(ByteArray(3)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 1304,
+              "expression": "ByteBuffer.allocate(15)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 1304,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(if (rawType) 1000 else 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1305,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 1305,
+              "expression": "put(ByteArray(3))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1305,
+              "expression": "ByteArray(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 1305,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1306,
+              "expression": "hex(\"09\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 1306,
+              "expression": "Bytes.of(contact.typeRawValue.toInt(), 0, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contact.typeRawValue.toInt",
+              "line": 1306,
+              "expression": "contact.typeRawValue.toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(64))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(64)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(32 - name.size))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(32 - name.size)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1309,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1310,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"39\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"0100\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1312,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1313,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1315,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateError",
+              "line": 1317,
+              "expression": "transport.simulateError(10u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1318,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1321,
+              "expression": "transport.simulateReceive(hex(\"06000102030488130000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1321,
+              "expression": "hex(\"06000102030488130000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1322,
+              "expression": "transport.simulateReceive(hex(\"8c0001020304ddccbbaa\") + Bytes.utf8(\"Europe,UK,France\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1322,
+              "expression": "hex(\"8c0001020304ddccbbaa\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1322,
+              "expression": "Bytes.utf8(\"Europe,UK,France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1323,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1326,
+              "expression": "if (scenario == \"timeout\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"deadbeef\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"aabbccdd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1327,
+              "expression": "transport.simulateReceive(hex(\"0600\") + tag + hex(\"64000000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"0600\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"64000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1328,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1329,
+              "expression": "advanceTimeBy(199)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1330,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1333,
+              "expression": "advanceTimeBy(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1334,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1338,
+              "expression": "hex(\"0d\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1338,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1340,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1341,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1342,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1343,
+              "expression": "listOf(\"Europe\", \"UK\", \"France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1343,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1346,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1348,
+              "expression": "catch (failure: MeshCoreException.DeviceError)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 1349,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1354,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1356,
+              "expression": "catch (failure: MeshCoreException.Timeout)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1361,
+              "expression": "listOf(9, 0x39, 0x0d)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1361,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 1363,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RequestRegionsIntegrationTests::full two-phase flow returns parsed regions()",
+            "RequestRegionsIntegrationTests::timeout when no binaryResponse arrives()",
+            "RequestRegionsIntegrationTests::device error propagates correctly()",
+            "RequestRegionsIntegrationTests::temporarily sets zero-hop before sending for flood-routed contact()",
+            "RequestRegionsIntegrationTests::requestRegions preserves an unmodeled raw type byte in the temp write()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -10891,6 +12579,745 @@
           ],
           "explicit_original_case_ids": [
             "RequestRegionsIntegrationTests::device error propagates correctly()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+          "method_or_family_name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+          "line": 1269,
+          "end_line": 1366,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ded0245f21662266f2fd6a4f8dec6ed6b2de10728576e3dfa149bbb3e7d18b0b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 1279,
+              "expression": "assertEquals(hex(\"010320202020202054657374\"), transport.sentData.single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1280,
+              "expression": "assertEquals(62, sourceRegionSelfInfo().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1281,
+              "expression": "assertEquals(hex(\"05000000\"), sourceRegionSelfInfo().prefix(4))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1298,
+              "expression": "assertEquals(147, temporary.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1299,
+              "expression": "assertEquals(9, temporary[0].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1300,
+              "expression": "assertEquals(key, temporary.slice(1, 33))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1301,
+              "expression": "assertEquals(contact.typeRawValue, temporary[33])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1302,
+              "expression": "assertEquals(0, temporary[35].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1306,
+              "expression": "assertEquals(hex(\"09\") + key + Bytes.of(contact.typeRawValue.toInt(), 0, 0) +\n                    Bytes(ByteArray(64)) + name + Bytes(ByteArray(32 - name.size)) + tail, temporary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1308,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1311,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1312,
+              "expression": "assertEquals(hex(\"39\") + key + hex(\"0100\"), transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1313,
+              "expression": "assertEquals(35, transport.sentData.last().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1314,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1331,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1332,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1337,
+              "expression": "assertEquals(3, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1338,
+              "expression": "assertEquals(hex(\"0d\") + key, transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1339,
+              "expression": "assertFalse(\"Restore acknowledgment is still outstanding\", call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1343,
+              "expression": "assertEquals(listOf(\"Europe\", \"UK\", \"France\"), call.await())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1347,
+              "expression": "fail(\"Region error must remain a typed device error\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1349,
+              "expression": "assertEquals(10u.toUByte(), failure.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1355,
+              "expression": "fail(\"Missing region response cannot become an empty successful list\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1357,
+              "expression": "assertEquals(200L, testScheduler.currentTime - startedAt)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1361,
+              "expression": "assertEquals(listOf(9, 0x39, 0x0d), transport.sentData.map { it[0].toInt() })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "for",
+              "line": 1270,
+              "expression": "for (scenario in listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1270,
+              "expression": "listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1272,
+              "expression": "if (shortBudget)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1273,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\",\n                    binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1275,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockTransport",
+              "line": 1276,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "startSourceSession",
+              "line": 1277,
+              "expression": "startSourceSession(transport, configuration, sourceRegionSelfInfo())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1277,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1279,
+              "expression": "hex(\"010320202020202054657374\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1279,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1280,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1281,
+              "expression": "hex(\"05000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1281,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "prefix",
+              "line": 1281,
+              "expression": "prefix(4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.clearSentData",
+              "line": 1282,
+              "expression": "transport.clearSentData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1284,
+              "expression": "Bytes(ByteArray(32) { (if (rawType) 0xcd else 0xdd).toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1284,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1284,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 1284,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 1285,
+              "expression": "MeshContact(\n                    id = if (rawType) \"r\" else key.hexString, publicKey = key,\n                    type = if (rawType) ContactType.CHAT else ContactType.REPEATER,\n                    flags = ContactFlags(0u), outPathLength = 0xffu, outPath = Bytes.EMPTY,\n                    advertisedName = if (rawType) \"Repeater\" else \"TestRepeater\",\n                    lastAdvertisement = if (rawType) Instant.ofEpochSecond(1000) else Instant.EPOCH,\n                    latitude = 0.0, longitude = 0.0, lastModified = Instant.EPOCH,\n                    typeRawValue = if (rawType) 4u else 2u,\n                )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1286,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1287,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 1288,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1289,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1290,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 1290,
+              "expression": "Instant.ofEpochSecond(1000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1292,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.requestRegions",
+              "line": 1295,
+              "expression": "session.requestRegions(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1296,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1297,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1299,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "temporary.slice",
+              "line": 1300,
+              "expression": "temporary.slice(1, 33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1302,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1303,
+              "expression": "Bytes.utf8(contact.advertisedName)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1304,
+              "expression": "Bytes(ByteBuffer.allocate(15).order(ByteOrder.LITTLE_ENDIAN)\n                    .putInt(if (rawType) 1000 else 0).putInt(0).putInt(0).put(ByteArray(3)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 1304,
+              "expression": "ByteBuffer.allocate(15)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 1304,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(if (rawType) 1000 else 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1305,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 1305,
+              "expression": "put(ByteArray(3))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1305,
+              "expression": "ByteArray(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 1305,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1306,
+              "expression": "hex(\"09\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 1306,
+              "expression": "Bytes.of(contact.typeRawValue.toInt(), 0, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contact.typeRawValue.toInt",
+              "line": 1306,
+              "expression": "contact.typeRawValue.toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(64))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(64)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(32 - name.size))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(32 - name.size)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1309,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1310,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"39\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"0100\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1312,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1313,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1315,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateError",
+              "line": 1317,
+              "expression": "transport.simulateError(10u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1318,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1321,
+              "expression": "transport.simulateReceive(hex(\"06000102030488130000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1321,
+              "expression": "hex(\"06000102030488130000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1322,
+              "expression": "transport.simulateReceive(hex(\"8c0001020304ddccbbaa\") + Bytes.utf8(\"Europe,UK,France\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1322,
+              "expression": "hex(\"8c0001020304ddccbbaa\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1322,
+              "expression": "Bytes.utf8(\"Europe,UK,France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1323,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1326,
+              "expression": "if (scenario == \"timeout\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"deadbeef\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"aabbccdd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1327,
+              "expression": "transport.simulateReceive(hex(\"0600\") + tag + hex(\"64000000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"0600\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"64000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1328,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1329,
+              "expression": "advanceTimeBy(199)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1330,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1333,
+              "expression": "advanceTimeBy(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1334,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1338,
+              "expression": "hex(\"0d\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1338,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1340,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1341,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1342,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1343,
+              "expression": "listOf(\"Europe\", \"UK\", \"France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1343,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1346,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1348,
+              "expression": "catch (failure: MeshCoreException.DeviceError)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 1349,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1354,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1356,
+              "expression": "catch (failure: MeshCoreException.Timeout)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1361,
+              "expression": "listOf(9, 0x39, 0x0d)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1361,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 1363,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RequestRegionsIntegrationTests::full two-phase flow returns parsed regions()",
+            "RequestRegionsIntegrationTests::timeout when no binaryResponse arrives()",
+            "RequestRegionsIntegrationTests::device error propagates correctly()",
+            "RequestRegionsIntegrationTests::temporarily sets zero-hop before sending for flood-routed contact()",
+            "RequestRegionsIntegrationTests::requestRegions preserves an unmodeled raw type byte in the temp write()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -11350,6 +13777,745 @@
             "RequestRegionsIntegrationTests::temporarily sets zero-hop before sending for flood-routed contact()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+          "method_or_family_name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+          "line": 1269,
+          "end_line": 1366,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ded0245f21662266f2fd6a4f8dec6ed6b2de10728576e3dfa149bbb3e7d18b0b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 1279,
+              "expression": "assertEquals(hex(\"010320202020202054657374\"), transport.sentData.single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1280,
+              "expression": "assertEquals(62, sourceRegionSelfInfo().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1281,
+              "expression": "assertEquals(hex(\"05000000\"), sourceRegionSelfInfo().prefix(4))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1298,
+              "expression": "assertEquals(147, temporary.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1299,
+              "expression": "assertEquals(9, temporary[0].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1300,
+              "expression": "assertEquals(key, temporary.slice(1, 33))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1301,
+              "expression": "assertEquals(contact.typeRawValue, temporary[33])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1302,
+              "expression": "assertEquals(0, temporary[35].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1306,
+              "expression": "assertEquals(hex(\"09\") + key + Bytes.of(contact.typeRawValue.toInt(), 0, 0) +\n                    Bytes(ByteArray(64)) + name + Bytes(ByteArray(32 - name.size)) + tail, temporary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1308,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1311,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1312,
+              "expression": "assertEquals(hex(\"39\") + key + hex(\"0100\"), transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1313,
+              "expression": "assertEquals(35, transport.sentData.last().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1314,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1331,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1332,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1337,
+              "expression": "assertEquals(3, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1338,
+              "expression": "assertEquals(hex(\"0d\") + key, transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1339,
+              "expression": "assertFalse(\"Restore acknowledgment is still outstanding\", call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1343,
+              "expression": "assertEquals(listOf(\"Europe\", \"UK\", \"France\"), call.await())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1347,
+              "expression": "fail(\"Region error must remain a typed device error\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1349,
+              "expression": "assertEquals(10u.toUByte(), failure.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1355,
+              "expression": "fail(\"Missing region response cannot become an empty successful list\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1357,
+              "expression": "assertEquals(200L, testScheduler.currentTime - startedAt)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1361,
+              "expression": "assertEquals(listOf(9, 0x39, 0x0d), transport.sentData.map { it[0].toInt() })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "for",
+              "line": 1270,
+              "expression": "for (scenario in listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1270,
+              "expression": "listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1272,
+              "expression": "if (shortBudget)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1273,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\",\n                    binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1275,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockTransport",
+              "line": 1276,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "startSourceSession",
+              "line": 1277,
+              "expression": "startSourceSession(transport, configuration, sourceRegionSelfInfo())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1277,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1279,
+              "expression": "hex(\"010320202020202054657374\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1279,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1280,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1281,
+              "expression": "hex(\"05000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1281,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "prefix",
+              "line": 1281,
+              "expression": "prefix(4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.clearSentData",
+              "line": 1282,
+              "expression": "transport.clearSentData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1284,
+              "expression": "Bytes(ByteArray(32) { (if (rawType) 0xcd else 0xdd).toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1284,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1284,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 1284,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 1285,
+              "expression": "MeshContact(\n                    id = if (rawType) \"r\" else key.hexString, publicKey = key,\n                    type = if (rawType) ContactType.CHAT else ContactType.REPEATER,\n                    flags = ContactFlags(0u), outPathLength = 0xffu, outPath = Bytes.EMPTY,\n                    advertisedName = if (rawType) \"Repeater\" else \"TestRepeater\",\n                    lastAdvertisement = if (rawType) Instant.ofEpochSecond(1000) else Instant.EPOCH,\n                    latitude = 0.0, longitude = 0.0, lastModified = Instant.EPOCH,\n                    typeRawValue = if (rawType) 4u else 2u,\n                )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1286,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1287,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 1288,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1289,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1290,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 1290,
+              "expression": "Instant.ofEpochSecond(1000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1292,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.requestRegions",
+              "line": 1295,
+              "expression": "session.requestRegions(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1296,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1297,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1299,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "temporary.slice",
+              "line": 1300,
+              "expression": "temporary.slice(1, 33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1302,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1303,
+              "expression": "Bytes.utf8(contact.advertisedName)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1304,
+              "expression": "Bytes(ByteBuffer.allocate(15).order(ByteOrder.LITTLE_ENDIAN)\n                    .putInt(if (rawType) 1000 else 0).putInt(0).putInt(0).put(ByteArray(3)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 1304,
+              "expression": "ByteBuffer.allocate(15)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 1304,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(if (rawType) 1000 else 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1305,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 1305,
+              "expression": "put(ByteArray(3))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1305,
+              "expression": "ByteArray(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 1305,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1306,
+              "expression": "hex(\"09\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 1306,
+              "expression": "Bytes.of(contact.typeRawValue.toInt(), 0, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contact.typeRawValue.toInt",
+              "line": 1306,
+              "expression": "contact.typeRawValue.toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(64))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(64)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(32 - name.size))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(32 - name.size)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1309,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1310,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"39\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"0100\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1312,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1313,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1315,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateError",
+              "line": 1317,
+              "expression": "transport.simulateError(10u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1318,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1321,
+              "expression": "transport.simulateReceive(hex(\"06000102030488130000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1321,
+              "expression": "hex(\"06000102030488130000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1322,
+              "expression": "transport.simulateReceive(hex(\"8c0001020304ddccbbaa\") + Bytes.utf8(\"Europe,UK,France\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1322,
+              "expression": "hex(\"8c0001020304ddccbbaa\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1322,
+              "expression": "Bytes.utf8(\"Europe,UK,France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1323,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1326,
+              "expression": "if (scenario == \"timeout\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"deadbeef\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"aabbccdd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1327,
+              "expression": "transport.simulateReceive(hex(\"0600\") + tag + hex(\"64000000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"0600\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"64000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1328,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1329,
+              "expression": "advanceTimeBy(199)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1330,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1333,
+              "expression": "advanceTimeBy(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1334,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1338,
+              "expression": "hex(\"0d\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1338,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1340,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1341,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1342,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1343,
+              "expression": "listOf(\"Europe\", \"UK\", \"France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1343,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1346,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1348,
+              "expression": "catch (failure: MeshCoreException.DeviceError)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 1349,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1354,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1356,
+              "expression": "catch (failure: MeshCoreException.Timeout)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1361,
+              "expression": "listOf(9, 0x39, 0x0d)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1361,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 1363,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RequestRegionsIntegrationTests::full two-phase flow returns parsed regions()",
+            "RequestRegionsIntegrationTests::timeout when no binaryResponse arrives()",
+            "RequestRegionsIntegrationTests::device error propagates correctly()",
+            "RequestRegionsIntegrationTests::temporarily sets zero-hop before sending for flood-routed contact()",
+            "RequestRegionsIntegrationTests::requestRegions preserves an unmodeled raw type byte in the temp write()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -11714,6 +14880,745 @@
             "MeshCore/Tests/MeshCoreTests/Validation/ProtocolBugFixTests.swift"
           ],
           "explicit_original_case_ids": [
+            "RequestRegionsIntegrationTests::requestRegions preserves an unmodeled raw type byte in the temp write()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "951bbad7f5fa0811635273588c505908982f89d841f8820b9439800229dd4a37",
+          "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+          "method_or_family_name": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+          "line": 1269,
+          "end_line": 1366,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ded0245f21662266f2fd6a4f8dec6ed6b2de10728576e3dfa149bbb3e7d18b0b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 1279,
+              "expression": "assertEquals(hex(\"010320202020202054657374\"), transport.sentData.single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1280,
+              "expression": "assertEquals(62, sourceRegionSelfInfo().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1281,
+              "expression": "assertEquals(hex(\"05000000\"), sourceRegionSelfInfo().prefix(4))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1298,
+              "expression": "assertEquals(147, temporary.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1299,
+              "expression": "assertEquals(9, temporary[0].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1300,
+              "expression": "assertEquals(key, temporary.slice(1, 33))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1301,
+              "expression": "assertEquals(contact.typeRawValue, temporary[33])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1302,
+              "expression": "assertEquals(0, temporary[35].toInt())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1306,
+              "expression": "assertEquals(hex(\"09\") + key + Bytes.of(contact.typeRawValue.toInt(), 0, 0) +\n                    Bytes(ByteArray(64)) + name + Bytes(ByteArray(32 - name.size)) + tail, temporary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1308,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1311,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1312,
+              "expression": "assertEquals(hex(\"39\") + key + hex(\"0100\"), transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1313,
+              "expression": "assertEquals(35, transport.sentData.last().size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1314,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1331,
+              "expression": "assertEquals(2, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1332,
+              "expression": "assertFalse(call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1337,
+              "expression": "assertEquals(3, transport.sentData.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1338,
+              "expression": "assertEquals(hex(\"0d\") + key, transport.sentData.last())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 1339,
+              "expression": "assertFalse(\"Restore acknowledgment is still outstanding\", call.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1343,
+              "expression": "assertEquals(listOf(\"Europe\", \"UK\", \"France\"), call.await())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1347,
+              "expression": "fail(\"Region error must remain a typed device error\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1349,
+              "expression": "assertEquals(10u.toUByte(), failure.code)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 1355,
+              "expression": "fail(\"Missing region response cannot become an empty successful list\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1357,
+              "expression": "assertEquals(200L, testScheduler.currentTime - startedAt)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 1361,
+              "expression": "assertEquals(listOf(9, 0x39, 0x0d), transport.sentData.map { it[0].toInt() })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "for",
+              "line": 1270,
+              "expression": "for (scenario in listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1270,
+              "expression": "listOf(\"full\", \"timeout\", \"error\", \"zero-hop\", \"raw-type\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1272,
+              "expression": "if (shortBudget)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1273,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\",\n                    binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SessionConfiguration",
+              "line": 1275,
+              "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MockTransport",
+              "line": 1276,
+              "expression": "MockTransport()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "startSourceSession",
+              "line": 1277,
+              "expression": "startSourceSession(transport, configuration, sourceRegionSelfInfo())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1277,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1279,
+              "expression": "hex(\"010320202020202054657374\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1279,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1280,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1281,
+              "expression": "hex(\"05000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceRegionSelfInfo",
+              "line": 1281,
+              "expression": "sourceRegionSelfInfo()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "prefix",
+              "line": 1281,
+              "expression": "prefix(4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.clearSentData",
+              "line": 1282,
+              "expression": "transport.clearSentData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1284,
+              "expression": "Bytes(ByteArray(32) { (if (rawType) 0xcd else 0xdd).toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1284,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1284,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 1284,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MeshContact",
+              "line": 1285,
+              "expression": "MeshContact(\n                    id = if (rawType) \"r\" else key.hexString, publicKey = key,\n                    type = if (rawType) ContactType.CHAT else ContactType.REPEATER,\n                    flags = ContactFlags(0u), outPathLength = 0xffu, outPath = Bytes.EMPTY,\n                    advertisedName = if (rawType) \"Repeater\" else \"TestRepeater\",\n                    lastAdvertisement = if (rawType) Instant.ofEpochSecond(1000) else Instant.EPOCH,\n                    latitude = 0.0, longitude = 0.0, lastModified = Instant.EPOCH,\n                    typeRawValue = if (rawType) 4u else 2u,\n                )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1286,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1287,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 1288,
+              "expression": "ContactFlags(0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1289,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1290,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 1290,
+              "expression": "Instant.ofEpochSecond(1000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1292,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.requestRegions",
+              "line": 1295,
+              "expression": "session.requestRegions(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1296,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.single",
+              "line": 1297,
+              "expression": "transport.sentData.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1299,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "temporary.slice",
+              "line": 1300,
+              "expression": "temporary.slice(1, 33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1302,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1303,
+              "expression": "Bytes.utf8(contact.advertisedName)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1304,
+              "expression": "Bytes(ByteBuffer.allocate(15).order(ByteOrder.LITTLE_ENDIAN)\n                    .putInt(if (rawType) 1000 else 0).putInt(0).putInt(0).put(ByteArray(3)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 1304,
+              "expression": "ByteBuffer.allocate(15)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 1304,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(if (rawType) 1000 else 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1305,
+              "expression": "if (rawType)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 1305,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 1305,
+              "expression": "put(ByteArray(3))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1305,
+              "expression": "ByteArray(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 1305,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1306,
+              "expression": "hex(\"09\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 1306,
+              "expression": "Bytes.of(contact.typeRawValue.toInt(), 0, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contact.typeRawValue.toInt",
+              "line": 1306,
+              "expression": "contact.typeRawValue.toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(64))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(64)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 1307,
+              "expression": "Bytes(ByteArray(32 - name.size))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 1307,
+              "expression": "ByteArray(32 - name.size)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1309,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1310,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"39\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1312,
+              "expression": "hex(\"0100\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1312,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1313,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1315,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateError",
+              "line": 1317,
+              "expression": "transport.simulateError(10u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1318,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1321,
+              "expression": "transport.simulateReceive(hex(\"06000102030488130000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1321,
+              "expression": "hex(\"06000102030488130000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1322,
+              "expression": "transport.simulateReceive(hex(\"8c0001020304ddccbbaa\") + Bytes.utf8(\"Europe,UK,France\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1322,
+              "expression": "hex(\"8c0001020304ddccbbaa\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.utf8",
+              "line": 1322,
+              "expression": "Bytes.utf8(\"Europe,UK,France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1323,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 1326,
+              "expression": "if (scenario == \"timeout\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"deadbeef\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1326,
+              "expression": "hex(\"aabbccdd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateReceive",
+              "line": 1327,
+              "expression": "transport.simulateReceive(hex(\"0600\") + tag + hex(\"64000000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"0600\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1327,
+              "expression": "hex(\"64000000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1328,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1329,
+              "expression": "advanceTimeBy(199)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1330,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 1333,
+              "expression": "advanceTimeBy(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1334,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "hex",
+              "line": 1338,
+              "expression": "hex(\"0d\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.sentData.last",
+              "line": 1338,
+              "expression": "transport.sentData.last()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.simulateOK",
+              "line": 1340,
+              "expression": "transport.simulateOK()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 1341,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 1342,
+              "expression": "when (scenario)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1343,
+              "expression": "listOf(\"Europe\", \"UK\", \"France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1343,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1346,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1348,
+              "expression": "catch (failure: MeshCoreException.DeviceError)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 1349,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "call.await",
+              "line": 1354,
+              "expression": "call.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 1356,
+              "expression": "catch (failure: MeshCoreException.Timeout)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 1361,
+              "expression": "listOf(9, 0x39, 0x0d)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toInt",
+              "line": 1361,
+              "expression": "toInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "session.stop",
+              "line": 1363,
+              "expression": "session.stop()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift",
+            "MeshCore/Tests/MeshCoreTests/Session/V115SessionMethodsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RequestRegionsIntegrationTests::full two-phase flow returns parsed regions()",
+            "RequestRegionsIntegrationTests::timeout when no binaryResponse arrives()",
+            "RequestRegionsIntegrationTests::device error propagates correctly()",
+            "RequestRegionsIntegrationTests::temporarily sets zero-hop before sending for flood-routed contact()",
             "RequestRegionsIntegrationTests::requestRegions preserves an unmodeled raw type byte in the temp write()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"

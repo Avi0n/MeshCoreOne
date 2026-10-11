@@ -8,6 +8,7 @@
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.OriginalCase
@@ -18,6 +19,8 @@ import com.meshcoreone.android.core.protocol.event.MessageResult
 import com.meshcoreone.android.core.protocol.model.FloodScope
 import com.meshcoreone.android.core.protocol.model.AutoAddConfig
 import com.meshcoreone.android.core.protocol.model.ContactType
+import com.meshcoreone.android.core.protocol.model.ContactFlags
+import com.meshcoreone.android.core.protocol.model.MeshContact
 import com.meshcoreone.android.core.protocol.session.MeshCoreSession
 import com.meshcoreone.android.core.protocol.session.SessionClock
 import com.meshcoreone.android.core.protocol.transport.mock.MockTransport
@@ -1257,6 +1260,116 @@ class SessionResponseAcceptanceTest {
             }
         }
     }
+
+    @OriginalCase("RequestRegionsIntegrationTests::full two-phase flow returns parsed regions()")
+    @OriginalCase("RequestRegionsIntegrationTests::timeout when no binaryResponse arrives()")
+    @OriginalCase("RequestRegionsIntegrationTests::device error propagates correctly()")
+    @OriginalCase("RequestRegionsIntegrationTests::temporarily sets zero-hop before sending for flood-routed contact()")
+    @OriginalCase("RequestRegionsIntegrationTests::requestRegions preserves an unmodeled raw type byte in the temp write()")
+    @Test fun originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures() = runTest {
+        for (scenario in listOf("full", "timeout", "error", "zero-hop", "raw-type")) {
+            val shortBudget = scenario != "full" && scenario != "error"
+            val configuration = if (shortBudget) {
+                SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test",
+                    binaryRequestOverallTimeout = 0.2, binaryRequestRetransmitInterval = null)
+            } else SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "Test")
+            val transport = MockTransport()
+            val session = startSourceSession(transport, configuration, sourceRegionSelfInfo())
+            try {
+                assertEquals(hex("010320202020202054657374"), transport.sentData.single())
+                assertEquals(62, sourceRegionSelfInfo().size)
+                assertEquals(hex("05000000"), sourceRegionSelfInfo().prefix(4))
+                transport.clearSentData()
+                val rawType = scenario == "raw-type"
+                val key = Bytes(ByteArray(32) { (if (rawType) 0xcd else 0xdd).toByte() })
+                val contact = MeshContact(
+                    id = if (rawType) "r" else key.hexString, publicKey = key,
+                    type = if (rawType) ContactType.CHAT else ContactType.REPEATER,
+                    flags = ContactFlags(0u), outPathLength = 0xffu, outPath = Bytes.EMPTY,
+                    advertisedName = if (rawType) "Repeater" else "TestRepeater",
+                    lastAdvertisement = if (rawType) Instant.ofEpochSecond(1000) else Instant.EPOCH,
+                    latitude = 0.0, longitude = 0.0, lastModified = Instant.EPOCH,
+                    typeRawValue = if (rawType) 4u else 2u,
+                )
+                val startedAt = testScheduler.currentTime
+                val call = backgroundScope.async { session.requestRegions(contact) }
+                runCurrent()
+                val temporary = transport.sentData.single()
+                assertEquals(147, temporary.size)
+                assertEquals(9, temporary[0].toInt())
+                assertEquals(key, temporary.slice(1, 33))
+                assertEquals(contact.typeRawValue, temporary[33])
+                assertEquals(0, temporary[35].toInt())
+                val name = Bytes.utf8(contact.advertisedName)
+                val tail = Bytes(ByteBuffer.allocate(15).order(ByteOrder.LITTLE_ENDIAN)
+                    .putInt(if (rawType) 1000 else 0).putInt(0).putInt(0).put(ByteArray(3)).array())
+                assertEquals(hex("09") + key + Bytes.of(contact.typeRawValue.toInt(), 0, 0) +
+                    Bytes(ByteArray(64)) + name + Bytes(ByteArray(32 - name.size)) + tail, temporary)
+                assertFalse(call.isCompleted)
+                transport.simulateOK()
+                runCurrent()
+                assertEquals(2, transport.sentData.size)
+                assertEquals(hex("39") + key + hex("0100"), transport.sentData.last())
+                assertEquals(35, transport.sentData.last().size)
+                assertFalse(call.isCompleted)
+                when (scenario) {
+                    "error" -> {
+                        transport.simulateError(10u)
+                        runCurrent()
+                    }
+                    "full" -> {
+                        transport.simulateReceive(hex("06000102030488130000"))
+                        transport.simulateReceive(hex("8c0001020304ddccbbaa") + Bytes.utf8("Europe,UK,France"))
+                        runCurrent()
+                    }
+                    else -> {
+                        val tag = if (scenario == "timeout") hex("deadbeef") else hex("aabbccdd")
+                        transport.simulateReceive(hex("0600") + tag + hex("64000000"))
+                        runCurrent()
+                        advanceTimeBy(199)
+                        runCurrent()
+                        assertEquals(2, transport.sentData.size)
+                        assertFalse(call.isCompleted)
+                        advanceTimeBy(1)
+                        runCurrent()
+                    }
+                }
+                assertEquals(3, transport.sentData.size)
+                assertEquals(hex("0d") + key, transport.sentData.last())
+                assertFalse("Restore acknowledgment is still outstanding", call.isCompleted)
+                transport.simulateOK()
+                runCurrent()
+                when (scenario) {
+                    "full" -> assertEquals(listOf("Europe", "UK", "France"), call.await())
+                    "error" -> {
+                        try {
+                            call.await()
+                            fail("Region error must remain a typed device error")
+                        } catch (failure: MeshCoreException.DeviceError) {
+                            assertEquals(10u.toUByte(), failure.code)
+                        }
+                    }
+                    else -> {
+                        try {
+                            call.await()
+                            fail("Missing region response cannot become an empty successful list")
+                        } catch (failure: MeshCoreException.Timeout) {
+                            assertEquals(200L, testScheduler.currentTime - startedAt)
+                        }
+                    }
+                }
+                assertEquals(listOf(9, 0x39, 0x0d), transport.sentData.map { it[0].toInt() })
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    private fun sourceRegionSelfInfo(): Bytes =
+        Bytes(ByteBuffer.allocate(62).order(ByteOrder.LITTLE_ENDIAN)
+            .put(0x05).put(0).put(0).put(0).put(ByteArray(32) { 1 })
+            .putInt(0).putInt(0).put(ByteArray(4)).putInt(915_000).putInt(125_000)
+            .put(7).put(5).put("Test".toByteArray(Charsets.UTF_8)).array())
 
     private fun sourceCorrelationStatus(battery: Short, posted: Short = 0, pushed: Short = 0): Bytes =
         Bytes(ByteBuffer.allocate(60).order(ByteOrder.LITTLE_ENDIAN)

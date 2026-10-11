@@ -5,6 +5,50 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "region-session-original-source-handshake-two-phase-restore-and-raw-type",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/RegionTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "full two-phase flow returns parsed regions": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+        "timeout when no binaryResponse arrives": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+        "device error propagates correctly": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+        "temporarily sets zero-hop before sending for flood-routed contact": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures",
+        "requestRegions preserves an unmodeled raw type byte in the temp write": "originalRegionRequestsKeepSourceHandshakeTagsRoutesAndTypedFailures"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "All five complete RequestRegionsIntegrationTests now exercise live public session/transport with original Test/default10s startup and exact source zero-advert/zero-power62byte selfInfo01x32/915000/125000/7/5/Test, cleared startup history. Fullflow uses DD32/repeater2/FF/empty/TestRepeater, tag01020304/messageSenttype0/5000/binary8Crequesttype00/tag01020304/repeaterAABBCCDD/Europe,UK,France; restores0D+DD32before success. Timeout original DEAD BEEF/messageSent100/overall200ms/retransmitnil retains typedTimeout. Device error10 remains typed after acknowledged reset. Zero-hop inspection preserves09/key/type2/00path and39/key/type01/path00/size35/reset0D. Unmodeled CD32/id r/chatfallback/raw04/nameRepeater/advert1000/FF/empty retained in actual temporarywrite type04 without coercion.",
+      "inputs": "Entire frozen makeSelfInfoPacket/startSession/makeTestContact/makeMessageSentPacket/makeBinaryResponsePacket/acknowledgeNextCommand/TestPolling read, compared to complete actual method/sourceRegionSelfInfo/startSourceSession/publicSessionClock. Independent raw literal frames and independently serialized147byte tempframe assert key/type/flags/route/name/date/coordinates/footer, not PacketBuilder-generated expected bytes. Existing generic sourceSelfInfo1/22/22 and component MCore/other tag defaults are not substituted.",
+      "adaptations": "Source Date() becomes injected fixed wallclock Instant.EPOCH for otherwise-unasserted current contact timestamps; raw case original explicit1000retained. Swift10ms poll is replaced by scheduler runCurrent with actual positive send counts/pending callers; no readiness sleep guess. Existing source zero-hop/raw-type cases swallow error only to inspect frames; native additionally requires typedTimeout and199pending/200elapsed as supplemental deterministic assertions, not fabricated source timing assertions. Native restores under the whole-operation owner and reports restorefailures; source separate writes ignore restorationfailure. Immediate successful ACK paths do not prove those divergent restore/cancellation/interleaving failure paths.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift",
+        "MeshCore/Sources/MeshCore/Session/MeshCoreSession+Regions.swift",
+        "MeshCore/Sources/MeshCore/Session/MeshCoreSession+BinaryProtocol.swift",
+        "MeshCore/Sources/MeshCore/Session/SessionConfiguration.swift",
+        "MeshCore/Sources/MeshCore/Protocol/PacketBuilder.swift",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/RegionsParser.kt"
+      ],
+      "consumer": "Actual full requestRegions setup writes rawtype preserving copiedcontact/zero-hop, live binary parses tag-stripped repeater timestamp4/list, caller stays pending through acknowledged reset after success/error/timeout, no fake predecessor response or manually returned expected list. Source firstACK gating is equivalent; these immediate ACK cases do not certify cadence silence/cancellation or real firmware/radio.",
+      "unresolved": ["Five actual annotations bind one method;65mandatoryapp runners require exact discovery, independent bounded review and persistent publication. Full WP-501 remains incomplete."],
+      "methods": [
+        "full two-phase flow returns parsed regions",
+        "timeout when no binaryResponse arrives",
+        "device error propagates correctly",
+        "temporarily sets zero-hop before sending for flood-routed contact",
+        "requestRegions preserves an unmodeled raw type byte in the temp write"
+      ]
+    },
+    {
       "id": "region-original-flood-scope-subcommand-and-disabled-key-distinction",
       "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/FloodScopeMappingTests.swift",
       "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRegionsCasesTest.kt",
