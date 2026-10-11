@@ -90,6 +90,8 @@ WP501_ACCEPTANCE_CASES = {
      "originalLoginFiltersRetainCompleteSixBytePrefixes"),
     ("com.meshcoreone.android.parity.EventDeliveryAcceptanceTest",
      "originalErrorFrameReachesTheTypedFirmwareAccessor"),
+    ("com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+     "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

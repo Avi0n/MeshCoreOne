@@ -5,6 +5,86 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "wifi-independent-literal-frame-and-incomplete-chunk-families",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.transport.WiFiFrameCodecTest",
+      "runner_name": "method()",
+      "comparison": "All6 original declarations retain independent exact frames: encode010203 as3C0300010203/size6 and empty as3C0000/size3; decode3E0300010203 as one010203; coalesced3E0200AABB3E0100CC as AABB/CC ordered; header3E0500 then0102 produces no frames until030405 completes0102030405; delimiter-only3E then0300AA remains incomplete untilBBCC completesAABBCC. Whole-byte/list equality retains original count and every field, not an encode/decode self-generated expectation.",
+      "inputs": "Exact pinned source wire literals and chunk boundaries are retained. Native additionally measures buffer counts and header constants; independent1603 device-query frame and all17split positions of a literal multi-frame vector are supplemental fixtures, not extra original declarations.",
+      "adaptations": "Swift mutating Data decoder becomes a three-byte header plus fixed payload state; valid original wire behavior remains identical. Existing WP108 typed outbound65536+ rejection replaces source UInt16 trap; EOF finish() reports typed truncated frame instead of silently discarded suffix. These already documented adaptations are supplemental, not changed original expected frames.",
+      "helpers": ["android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiFrameCodec.kt"],
+      "consumer": "Read complete frozen/native encoder and decoder plus actual transport send/receive loop. Length is unsigned LE16, payload delimiters are data, partial state is preserved and zero payload returns exactly one empty frame. Send uses outbound3C, receive decoder inbound3E; TCP consumer preserves all completed frames before EOF failure. Higher-layer parser/connection-generation evidence remains separate.",
+      "unresolved": ["All6 exact current runner identities require execution and independent review; supplemental max-length/EOF cases are not automatically all audited original families."],
+      "methods": [
+        "Encodes frame with correct delimiter and length",
+        "Encodes empty frame",
+        "Decodes single complete frame",
+        "Decodes multiple frames in one chunk",
+        "Buffers incomplete frame",
+        "Handles frame split across chunks"
+      ]
+    },
+    {
+      "id": "wifi-configured-state-typed-errors-capabilities-loopback-and-fin-consumers",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
+      "runner_name": "method()",
+      "native_method_overrides": {
+        "connect() is idempotent \u2014 second call does not create new TCP connection": "connect is idempotent second call does not create new TCP connection"
+      },
+      "comparison": "All11 selected originals retain actual production transport behavior: initialfalse, pipelineTrue/writeWithoutFalse, unconfiguredtypedNotConfigured, invalid999.999.999.999:5000 typedfailure, disconnected010203 typedNotConnected, repeated disconnectfalse/terminalqueue, nil config then192.168.1.50:5000 exactinfo, explicit disconnect no callback, invalid initialconnect no callback, actuallocalhost ephemeral connect/idempotent/no duplicate factory and FIN→streamended/callback/disconnected. Native strengthens callback counts0/1, successful actual3C02001603 framed send, queued duplicate80FF/empty delivery before clean FIN and descriptor close.",
+      "inputs": "Original source hosts/ports/payloads/configuration/capability booleans retained. NWListener ephemeral127.0.0.1 becomes actual JVM ServerSocket127.0.0.1 with ephemeral port. TrackingSocket is a real Socket with read-start/close observations, not a fake successful network. Invalid numeric host is resolved through actual production resolver. Complete source CallTracker/listener helpers and native LoopbackPeer/TrackingSocket/socketTest helpers were read.",
+      "adaptations": "Eight simultaneous redundant connect callers plus one factory and usable real peer replace source second-connect/500ms no-second-accept sleep; production mutex and already-established guard cannot create a second socket. Cleanup/IO are explicitly joined, replacing source100ms negative-callback sleeps, so no detached callback remains to be inferred. The source AsyncStream cannot throw; native exceptional Flow termination after queued frames and fresh connection-generation streams are WP108 documented adaptations, not passed as identical source API.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/LoopbackPeer.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransportError.kt",
+        "docs/android/deviations/WP-108.md"
+      ],
+      "consumer": "Read full frozen/native connection/read/close/handler bodies. Established generation owns socket and unbounded ingestion queue; eager stream exists before connect, send locks full frame, idempotent connect guard prevents orphan connection, manual disconnect clears callback before teardown, cleanFIN publishes all complete frames then closes once and reports nil loss. Initial failure cannot call established-loss handler. This does not establish every JVM DNS implementation interruption or Android LAN permissions/network binding/physical no-internet radio behavior.",
+      "unresolved": ["All11 exact current runner identities require execution and independent adaptation review; physical/platform network behavior remains separately scoped."],
+      "methods": [
+        "Initial state is disconnected",
+        "Advertises pipelined reads without a Write-Without-Response characteristic",
+        "Connect without configuration throws notConfigured",
+        "Connection to invalid host fails",
+        "Send without connection throws notConnected",
+        "Disconnect when not connected is safe",
+        "connectionInfo returns configured host and port",
+        "Disconnection handler not called on user-initiated disconnect",
+        "Disconnection handler not called on initial connect failure",
+        "connect() is idempotent \u2014 second call does not create new TCP connection",
+        "Peer close finishes the stream and fires the disconnection handler"
+      ]
+    },
+    {
+      "id": "wifi-original-testnet-target-and-inflight-cancellation-budget",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+      "runner_name": "annotated-method",
+      "comparison": "Original192.0.2.1:9 connection is genuinely in flight for200ms before caller cancellation, completes within original3second post-cancel budget with explicit error and disconnectedfalse. Native retains source target/config, default10second socket timeout and virtual200ms pending state; actual blocking socket started/exited barriers plus no-close-beforecancel and exactlyone close prevent accepting a never-started/precancelled task as this original family. Actual Dispatcher.Default3second completion timer, completed IO and closed socket assertions prove no parked SYN worker.",
+      "inputs": "Source RFC5737 address192.0.2.1 andport9, original200ms pending interval and3second completion threshold retained independently. No external connection is made: one anonymous unconnected Socket overrides only the blocking connect phase. Production resolver constructs and records actual InetSocketAddress, production socketIo/cancellation/generation teardown execute unchanged.",
+      "adaptations": "Real unrouted SYN is replaced by deterministic blocked phase, as already documented in WP108, not a physical-radio proxy. Unlike prior precancelled test or immediate127.0.0.1 fake cancellation variant, this method preserves original target and pending interval. The scoped one-phase socket object is needed in app-owned acceptance because protocol test-only ControlledSocket is not a product dependency; no new module/dependency or broad fake abstraction is introduced. Virtual200ms avoids arbitrary wall sleep; completion budget uses real dispatcher/timer.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/ControlledSocket.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportIoTest.kt",
+        "docs/android/deviations/WP-108.md"
+      ],
+      "consumer": "Actual default10second connect deadline, runInterruptible operation, outerCancellation and generation socket-close/IO join must preserve cancellation instead of timeout or success. Actual DNS interruptibility on every OS and physical SYN cleanup remain documented platform limitations; no external TESTNET probe or radio administration is performed.",
+      "unresolved": ["New35th required method needs actual execution and independent source/adaptation review. Existing in-flight cancellation/9999-to10000ms deadline identities must execute as support; no production defect is established by predecessor input differences."],
+      "methods": ["Cancelling connect() does not leave it parked"]
+    },
+    {
       "id": "event-public-session-filter-registration-flood-and-teardown",
       "source_path": "MeshCore/Tests/MeshCoreTests/Events/EventDispatcherFilteredSubscriptionTests.swift",
       "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/EventDeliveryAcceptanceTest.kt",
@@ -23,7 +103,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt"
       ],
       "consumer": "Read complete frozen dispatcher/filter/session.events bodies and actual native eventsTracked/receive/end-generation. Eager registration binds current generation before collection; filter runs before bounded queue insertion. Stop finishes current generation streams while retaining queued data; later generations get distinct dispatchers. This does not prove all lifecycle/reconnect or physical ACK delivery families.",
-      "unresolved": ["Both new methods passed at exactaf940637d4c099c59c9d7cc4dea9597767db758d within38appcases (all34owned+4repair). Both original exact short-key direct-dispatch support identities passed within45protocolcases,0failure/error/skip each suite. Hosted exact-head and independent adaptation review remain required."],
+      "unresolved": ["Both methods passed at af940637 within38appcases; both exact short-key support identities passed within45protocolcases,0failure/error/skip. Coordinator's bounded immutable99039051 source read found no blocking mismatch in these2 source families/new consumer/shared clock while explicitly distinguishing public32byte padding from original1byte events. That read is not all17event/530family/physical/privileged acceptance. Hosted exact-head and remaining independent review remain required."],
       "methods": [
         "filtered subscription receives only matching events",
         "filtered subscription survives flood of non-matching events"
@@ -45,7 +125,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt"
       ],
       "consumer": "Actual filters match sealed event case regardless of prefix but preserve original payload object; tested rejects prevent success/failure/OK conflation. Actual login firmware command outcomes remain separately audited.",
-      "unresolved": ["New method passed at af940637 within38appcases,0failure/error/skip. Hosted exact-head and independent review remain required; predecessor prefix difference is an acceptance input gap, not a proven product defect."],
+      "unresolved": ["Method passed at af940637 within38appcases,0failure/error/skip. Coordinator's bounded immutable99039051 source read found no blocking mismatch in these2 exact-prefix families, not all17event/530family/privileged acceptance. Hosted exact-head and remaining independent review remain required."],
       "methods": [
         "anyLoginSuccess matches .loginSuccess and rejects unrelated events",
         "anyLoginFailed matches .loginFailed and rejects unrelated events"
@@ -169,7 +249,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt"
       ],
       "consumer": "Actual response01 dispatch keeps nullable raw byte and typed accessor maps06 only. Does not certify all malformed error frames or higher-level error UI.",
-      "unresolved": ["New method passed at af940637 within38appcases,0failure/error/skip. Hosted exact-head and independent review remain required; predecessor missing parser assertion is an acceptance gap, not a demonstrated product defect."],
+      "unresolved": ["Method passed at af940637 within38appcases,0failure/error/skip. Coordinator's bounded immutable99039051 source read found no blocking mismatch in this typed raw6 accessor family, not all17event/530family/privileged acceptance. Hosted exact-head and remaining independent review remain required."],
       "methods": ["PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code"]
     },
     {
@@ -190,7 +270,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
       ],
       "consumer": "Read frozen RoundTrip declarations and real source/native Contact/SelfInfo/ContactMessage parsers. Contact mode3 is rejected before path slicing,55byte selfInfo before fixed-width reads, and signed message only accepts four signature bytes. Complete contact retains last advertisement/modification seconds rather than confusing outgoing147byte reserved tail with incoming147byte lastMod. These parser assertions do not certify storage/rendering of every message.",
-      "unresolved": ["At exact9862024a2a31bed227f6bb98cd19f5f2cbdbd35c this required method passed within34appcases (all30owned+4repair),0failure/error/skip. Hosted exact-head and independent semantic review remain required; predecessor input/size omissions are acceptance gaps, not proven product defects."],
+      "unresolved": ["Method passed at9862024a within34appcases,0failure/error/skip. Coordinator's bounded immutable99039051 source read found no blocking mismatch in all4 original frames/reasons/assertions, not remaining35RoundTrip/530families/privileged acceptance. Hosted exact-head and remaining independent review remain required."],
       "methods": [
         "Contact round trip",
         "Contact rejects reserved path length encoding",

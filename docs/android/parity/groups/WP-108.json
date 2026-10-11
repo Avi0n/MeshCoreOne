@@ -718,7 +718,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportIoTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -959,6 +960,30 @@
               "name": "All eight error cases retain typed metadata and native diagnostics separate from app prose",
               "line": 467,
               "end_line": 487
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "0e02bb13d94277a3ac40a88ce25a5fb1b621ed1c19c1f00657917ac97bff55cc",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
+              "line": 28,
+              "end_line": 85
+            },
+            {
+              "name": "connect",
+              "line": 37,
+              "end_line": 46
+            },
+            {
+              "name": "close",
+              "line": 48,
+              "end_line": 52
             }
           ]
         }
@@ -3995,8 +4020,356 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "0e02bb13d94277a3ac40a88ce25a5fb1b621ed1c19c1f00657917ac97bff55cc",
+          "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+          "method_or_family_name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
+          "line": 28,
+          "end_line": 85,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "97d92eb0d55685ed9feca349e937c85a308206fb58cc1dc3ce9e57d1acc9b121",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(InetSocketAddress(\"192.0.2.1\", 9), endpoint.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 61,
+              "expression": "assertEquals(10_000, timeout.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 64,
+              "expression": "assertFalse(\"Original 200ms pending interval must not become a precancelled call\", connect.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 65,
+              "expression": "assertFalse(exited.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 66,
+              "expression": "assertEquals(0, closes.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "fail",
+              "line": 73,
+              "expression": "fail(\"A cancelled connection cannot return success\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 75,
+              "expression": "assertEquals(cancellation.message, failure.message)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 77,
+              "expression": "assertTrue(exited.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 78,
+              "expression": "assertTrue(socket.isClosed)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 79,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 80,
+              "expression": "assertEquals(1, closes.get())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "CompletableDeferred",
+              "line": 29,
+              "expression": "CompletableDeferred<Unit>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CompletableDeferred",
+              "line": 30,
+              "expression": "CompletableDeferred<Unit>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CountDownLatch",
+              "line": 31,
+              "expression": "CountDownLatch(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicReference",
+              "line": 32,
+              "expression": "AtomicReference<SocketAddress>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 33,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 34,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Socket",
+              "line": 36,
+              "expression": "Socket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connect",
+              "line": 37,
+              "expression": "connect(target: SocketAddress, timeoutMillis: Int)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "endpoint.set",
+              "line": 38,
+              "expression": "endpoint.set(target)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "timeout.set",
+              "line": 39,
+              "expression": "timeout.set(timeoutMillis)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "started.complete",
+              "line": 40,
+              "expression": "started.complete(Unit)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "release.await",
+              "line": 42,
+              "expression": "release.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "exited.complete",
+              "line": 44,
+              "expression": "exited.complete(Unit)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "close",
+              "line": 48,
+              "expression": "close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.incrementAndGet",
+              "line": 49,
+              "expression": "closes.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "release.countDown",
+              "line": 50,
+              "expression": "release.countDown()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "super.close",
+              "line": 51,
+              "expression": "super.close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 54,
+              "expression": "WiFiTransport(socketFactory = { socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 56,
+              "expression": "transport.setConnectionInfo(\"192.0.2.1\", 9)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 57,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 58,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 59,
+              "expression": "withContext(Dispatchers.Default)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withTimeout",
+              "line": 59,
+              "expression": "withTimeout(3_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "started.await",
+              "line": 59,
+              "expression": "started.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InetSocketAddress",
+              "line": 60,
+              "expression": "InetSocketAddress(\"192.0.2.1\", 9)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "endpoint.get",
+              "line": 60,
+              "expression": "endpoint.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "timeout.get",
+              "line": 61,
+              "expression": "timeout.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 62,
+              "expression": "advanceTimeBy(200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 63,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 66,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CancellationException",
+              "line": 67,
+              "expression": "CancellationException(\"original pending connect cancelled\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connect.cancel",
+              "line": 68,
+              "expression": "connect.cancel(cancellation)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 69,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 70,
+              "expression": "withContext(Dispatchers.Default)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withTimeout",
+              "line": 70,
+              "expression": "withTimeout(3_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connect.join",
+              "line": 70,
+              "expression": "connect.join()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connect.await",
+              "line": 72,
+              "expression": "connect.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "catch",
+              "line": 74,
+              "expression": "catch (failure: CancellationException)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 79,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 80,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 82,
+              "expression": "withContext(NonCancellable)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 82,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "release.countDown",
+              "line": 83,
+              "expression": "release.countDown()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "WiFiTransportTests::Cancelling connect() does not leave it parked()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     }
   ]
 }

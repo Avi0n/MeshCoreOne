@@ -19619,7 +19619,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportIoTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiTransportTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -96038,6 +96039,10 @@
       "original_detail_sha256": "44c55987305b0dc37de63f852e09a60dc784a6638727113866ff67c7e29947d8",
       "assertion_status": "direct",
       "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt"
+        },
         {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-109/source-cases.json",

@@ -112,7 +112,7 @@ relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
 The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely thirty-four arbitrary passing tests. All existing module/primary suite
+not merely thirty-five arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -125,13 +125,14 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **530 actually inspected families in 64 groups**:
+`review-proposals.json` contains **548 actually inspected families in 67 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
 modern session acknowledgment/error/scope/trace12, channel pipeline5,
 LPP18, distinct contact-packet/public-flags4, V112 parser/command/cache25
-complete RoundTrip39 and complete event-filter/dispatch/error17.
+complete RoundTrip39, complete event-filter/dispatch/error17 and WiFi frame/
+transport18.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -178,7 +179,7 @@ Kotlin labels use their own Unicode/escape/interpolation rules, not the Swift
 string decoder. Suite-qualified `original` builders retain actual case,
 optional signature and row, not just their suite name. Computed rows remain
 explicitly unresolved and cannot claim a literal runner identity. The increase
-to3,961 candidate native joins from extracting these real registrations is not
+to3,962 candidate native joins from extracting these real registrations is not
 another615 inspected or passing original families.
 
 Three more required methods retain every original channel-pipeline input and
@@ -264,7 +265,24 @@ Coordinator's actual bounded immutable c8237db2 read found no blocking mismatch
 in four contact families and checked-helper wiring; it is not LPP/V112 completion,
 whole474family approval, hosted execution or general Unicode-name proof.
 
-The 530 proposals are a bounded reviewable implementation increment,
+Eighteen original WiFi framing/transport declarations now have inspected complete
+literal/input/helper/consumer comparisons: all six independent frame/chunk vectors,
+configured/error/capability state, real loopback idempotence and FIN/queue/callback
+termination. One further required method retains original TEST-NET192.0.2.1:9,
+actual in-flight socket, virtual200ms pending interval and real3second cancellation
+completion budget. Only the blocking SYN phase is injected; no external connection
+is made. It strengthens existing precancelled/immediate-other-target variants,
+without claiming physical DNS/network-binding/radio behavior. New method and all
+17 original native runner identities await execution.
+
+Coordinator's actual bounded99039051 source read found no blocking mismatch in
+four exact RoundTrip frames and five new event/login/error families/shared clock.
+It distinguishes original short-key direct-dispatch support from public32byte
+padding and verifies af-to990 input equality; not remaining35RoundTrip/all17event/
+530families/privileged acceptance. Current published990 primary runs uninterrupted;
+this next increment is local only.
+
+The 548 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -289,7 +307,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the thirty-four
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the thirty-five
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new

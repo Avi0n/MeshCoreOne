@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-530 inspected family proposals in64groups, exact source/assertion/helper/runner
+548 inspected family proposals in67groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and thirty-four Kotlin acceptance cases.
+The follow-up has92 Python regressions and thirty-five Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-530actually inspected proposals;3,961native-body joins are only candidates.
+548actually inspected proposals;3,962native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -279,6 +279,22 @@ Prior published76ddc835 primary38166202193 actually completedSUCCESS: classifier
 controller, LinuxAndroid, selected Swiftcodec, real SwiftData restore/export and
 android-ci all succeeded. Its publication batching hold is resolved. This exact76
 result is not a hosted pass for localc823/986/af940637 or full WP501 acceptance.
+
+The next local-only increment inspects all18 original WiFi frame/transport
+declarations. Original literal3C/3E framing and all incomplete chunk boundaries,
+typed configuration/errors/capabilities, actual JVM loopback idempotence and
+FIN/drained queue/callback state match source bodies with disclosed adaptations.
+The35th required method preserves original192.0.2.1:9 target, virtual200ms genuinely
+pending connect and real3second completion budget using a one-phase blocked Socket,
+not an external SYN or precancelled call. It and all17 original native WiFi runner
+identities await execution. Prior WP108 typed EOF/overflow/exceptional Flow/fresh
+generation adaptations remain explicit; no platform DNS/radio evidence is inferred.
+
+Coordinator's actual bounded99039051 read found no blocking mismatch in four
+exact RoundTrip frames and five new event/login/error families/shared helper.
+It explicitly does not approve remaining35RoundTrip/all17event/530families/
+privileged acceptance. Current990 primary38169351736 remains in progress at
+latest read; the next source/test increment is kept local to avoid interrupting it.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -316,7 +332,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the530families
+actual inspection. All1,786owned source dispositions require behavior review; only the548families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.
