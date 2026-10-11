@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "c3088f9f0d7777c42fa7c7383f4323cc496003b1159d78c9afe8cc6d0795b9c2",
+  "proposal_sha256": "0f0ceaa5ff4b35f931a5065c7ff30dcd215a18443a7e68163e98b73de609fb09",
   "families": [
     {
       "group": "backup-envelope",
@@ -69921,7 +69921,7 @@
     },
     {
       "group": "contacts-original-auto-refresh-burst-and-fifty-millisecond-history",
-      "comparison_sha256": "4796745e195f44eb11dd4c6b61859c82ee3f1e77b87edfa367193b4a956436f9",
+      "comparison_sha256": "8b1b0e49a45a1fa2d9b6e8bdcf7febf6611dfdfe7975c158784eea773dffc614",
       "source_file_family_count": 1,
       "group_compared_family_count": 1,
       "partial_source_file": false,
@@ -71855,7 +71855,7 @@
     },
     {
       "group": "lifecycle-original-binary-timeout-configuration",
-      "comparison_sha256": "eff7aadeb98cb02b5815ea830317efc75d3cde2de9c427c9316e1b938313d98e",
+      "comparison_sha256": "1a69743650533bfaecb9a4e6b945859015d19c2622adef2f219b96b99918b4ed",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -72040,7 +72040,7 @@
     },
     {
       "group": "lifecycle-original-binary-timeout-configuration",
-      "comparison_sha256": "eff7aadeb98cb02b5815ea830317efc75d3cde2de9c427c9316e1b938313d98e",
+      "comparison_sha256": "1a69743650533bfaecb9a4e6b945859015d19c2622adef2f219b96b99918b4ed",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -79699,7 +79699,7 @@
     },
     {
       "group": "settings-original-concurrent-granular-full-config-and-cache-refresh",
-      "comparison_sha256": "d3f35aabf8c93a3852b4baa938abb44d030612fe88f98f1ba6da91d7ca5fe356",
+      "comparison_sha256": "5f1944b7bf06f734916e3b3b1cab32a9c348b9e761e768995ca06fabcd5e8e3b",
       "source_file_family_count": 1,
       "group_compared_family_count": 1,
       "partial_source_file": false,
@@ -85250,7 +85250,7 @@
     },
     {
       "group": "wifi-original-two-second-accept-callback-and-stream-positive-budgets",
-      "comparison_sha256": "08c4266b40600453eb105e6811f158289e755cfd5a77ddf4b43d064b0c99528b",
+      "comparison_sha256": "572ba376e2eab04dd23c46f2724e7bc28625bee6eb92944d1ea2e00ba5b219e0",
       "source_file_family_count": 12,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -85884,7 +85884,7 @@
     },
     {
       "group": "wifi-original-two-second-accept-callback-and-stream-positive-budgets",
-      "comparison_sha256": "08c4266b40600453eb105e6811f158289e755cfd5a77ddf4b43d064b0c99528b",
+      "comparison_sha256": "572ba376e2eab04dd23c46f2724e7bc28625bee6eb92944d1ea2e00ba5b219e0",
       "source_file_family_count": 12,
       "group_compared_family_count": 2,
       "partial_source_file": true,

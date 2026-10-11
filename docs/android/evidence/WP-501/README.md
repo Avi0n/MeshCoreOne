@@ -433,8 +433,8 @@ supplemental scheduling coverage of one original family. Neither pending setter
 can finish or write again through each50ms post-OK wait before its own selfInfo;
 source polling device actor is adapted to explicit external independent echoes,
 not synchronous onSend/fake result. Same source automatic selfInfo is extracted
-without changing its bytes. New46required identity candidate awaits immutable
-actual execution; no product/RxLog/selector edits.
+without changing its bytes. Actual immutable execution is recorded below;
+no product/RxLog/selector edits.
 Coordinator bounded immutable184467aa full two-file reset/datagram/helper and
 actual public serializer/parser/consumer comparison found no blocking mismatch
 in those2families. Exact50ms/reset17/0A and12bytechannel2/FFFF/DEADBE retain
@@ -454,9 +454,38 @@ one real socket/eight redundant public calls preserve no-duplicate behavior.
 Joined teardown/negative-callback adaptations remain distinct from these budgets.
 Nine other basic WiFi bodies had no additional blocking mismatch, with native
 connected-loopback versus source unstarted disconnect explicitly disclosed.
-Original11group splits into9+2 with no new original family counted. New48mandatory
-identity candidate awaits actual immutable execution; prior9046green60suite did
-not prove the missing2second assertions and is retained without promotion.
+Original11group splits into9+2 with no new original family counted. Prior9046
+green60suite did not prove missing2second assertions and is retained without promotion.
+
+At immutable906df6fb439b3a9a40db85b6fbcf310ebada93f3 the same private-cache,
+credential-stripped locked launcher and app selector discovered/run/passed52/52
+(all48owned+4repair),0failure/error/skip. All four new methods and both real
+two-second WiFi observations/checked helper invocations execute positively.
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.session.OriginalContactsAndSettingsCasesTest --tests com.meshcoreone.android.core.protocol.session.OriginalMessageCasesTest --tests com.meshcoreone.android.core.protocol.transport.WiFiTransportTest --dependency-verification=strict`
+discovered/run/passed37/37,0failure/error/skip; strict actual XML positively
+contained all25required original support identities (11WiFi,12message,2contact/
+settings). Other12selected native cases are supplemental, not extra originals.
+The same combined controller/local/parity Python command discovered/run/passed
+363/363,0failure/error/skip. Both supported native/Gradle locks released normally.
+Initial local driver failed before Gradle at case-sensitive SystemRoot lookup;
+the corrected runner used unchanged906df6fb input bytes, not an assertion repair.
+Original cancellation assertion blob b24272846f3dc74e9df912c11cb945c5fe5e96b5
+remains unchanged; WiFi acceptance blob6bc09fa7491bba55a72082b526cf6e2f8ca26aca
+and session acceptance blob0b4a9d754184a4a03bbd0f41a9c225423677624f bind actual
+executed inputs. No new APK, physical platform, privileged approval or572family
+independent execution is inferred.
+Exact coordinator169e9d/basec68 primary38171808293 actually completedSUCCESS
+with all6jobs, including LinuxAndroid/Swiftcodec/realSwiftData execution.
+Coordinator reports checked native/controller positive counts without skip.
+PR169 remains open/unmerged for protected selector-path approval; worker source
+review/standing ordinary merge permission does not approve that gate, and local
+publication hold remains until actual merged main is supplied.
+Coordinator bounded immutable184467aa complete binary configuration file/defaults
+and exact two native rows found no blocking mismatch in40.0/1.0/headroom2.0 and
+custom0.05/null. Original second family asserts only constructor configuration,
+despite its disabled-resend title. Native status/key31/Sent1ms/50ms/no-extra-write
+exchange is supplemental, not additional original coverage or certified binary
+exchange behavior/independent execution/privileged approval.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

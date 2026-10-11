@@ -29,7 +29,7 @@
         "docs/android/deviations/WP-107.md"
       ],
       "consumer": "Read complete frozen requestAutoContactRefresh/runAutoContactRefreshLoop/trackContactChanges, Contacts fetch/ensure/cache update and actual native receive/requestContactRefresh/fetchContacts/commitFetch. Parser Advertisement dirties actual generation cache and requests one generation-owned refresh job. Request flag coalesces bursts, fetch owns serialization and subscription through contact end, and subsequent fetch uses committed Unix lastModified. Real count0 stream is complete; no synthetic cache/result or onSend responder supplies success. Generation teardown cancels/joins jobs and native background errors are diagnostic, not silently successful.",
-      "unresolved": ["New method requires immutable current-head execution and independent source/adaptation review. Conditional1..2 source allowance is not two executions or a forced second refresh; other contact-stream families remain separately unaudited."],
+      "unresolved": ["Exact method passed at906df6fb439b3a9a40db85b6fbcf310ebada93f3 within52appcases (48owned+4repair),0failure/error/skip; scoped protocol37/37 positively contained all25required original support identities and combined Python363/363passed. Hosted exact-head/independent source/adaptation review remain required. Conditional1..2 source allowance is not two executions or a forced second refresh; other contact-stream families remain separately unaudited."],
       "methods": ["auto-refresh coalesces bursty contact invalidations"]
     },
     {
@@ -57,7 +57,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/Parsers.kt"
       ],
       "consumer": "Read full frozen granular setters/mutateOtherParams/currentOtherParams/applyOtherParams and complete original OtherParamsDevice decode/echo helpers plus native public setters/mutateOtherParams/exchange/full-operation serializer/receive SelfInfo cache updates. Serialization owns snapshot-transform-write-OK-refresh across suspension, so second setter can only read actual first refreshed config. Native common serializer strengthens the dedicated Swift otherParamsSerializer by also excluding unrelated commands. Real parser ingress updates generation.selfInfo before query resumes; no synthetic state or synchronous onSend success bypass.",
-      "unresolved": ["New method requires immutable current-head execution and independent adaptation review. Prior original-named MCore/shared selfInfo case is supporting behavior, not exact original MCTst inputs; canceled/failed setting refreshes and general telemetry bit combinations remain separate families."],
+      "unresolved": ["Exact method passed at906df6fb439b3a9a40db85b6fbcf310ebada93f3 within52appcases (48owned+4repair),0failure/error/skip; scoped protocol37/37 positively contained all25required original support identities and combined Python363/363passed. Hosted exact-head/independent adaptation review remain required. Prior original-named MCore/shared selfInfo case is supporting behavior, not exact original MCTst inputs; canceled/failed setting refreshes and general telemetry bit combinations remain separate families."],
       "methods": ["concurrent granular setters do not revert each other"]
     },
     {
@@ -315,7 +315,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt"
       ],
       "consumer": "Read complete frozen/native configuration and actual binary exchange timeout/cadence blocks. Native withDeadline uses overall seconds, nullable floor disables retransmit launch entirely and firmware milliseconds update max floor/headroom cadence. These two original cases prove constructor/default meanings, not every binary timing/tag/cancellation family.",
-      "unresolved": ["Both exact original identities passed at a6f55b86 within10protocolcases positively containing all6 ConnectionState,2 stop and2 binary originals,0failure/error/skip. Hosted exact-head and independent review remain required. Other binary exchange families and the supplemental exchange's independent expected packet remain separately auditable."],
+      "unresolved": ["Both exact original identities passed at a6f55b86 within10protocolcases positively containing all6 ConnectionState,2 stop and2 binary originals,0failure/error/skip. Coordinator bounded immutable184467aa complete frozen file/configuration/native two-row comparison found no blocking mismatch in default40/1/2 or custom0.05/null scalars. Original disabled-resend title supplies no exchange assertion; native key31/MessageSent1ms/50ms/no-extra-write behavior remains supplemental, not certified binary exchange coverage or independent execution/privileged approval. Hosted exact-head/full review remain required. Other binary exchange families and the supplemental exchange's independent expected packet remain separately auditable."],
       "methods": ["defaults use a 40 second overall budget and 1 second retransmit floor", "configuration accepts custom overall and nil retransmit disables in exchange resends"]
     },
     {
@@ -397,7 +397,7 @@
         "docs/android/deviations/WP-108.md"
       ],
       "consumer": "Read complete frozen listener/accept/idempotence/FIN/CallTracker helpers and actual native connectMutex/alreadyestablishedguard/real Socket/read loop/frame decoder/terminate/channelclose/handler/socket-close/IO-join consumer. Actual reader drains complete frames on cleanFIN, closes socket once and completes registered callback/Flow without synthetic transport result. Direct support helpers remain in their owning protocol module; no testing helper becomes product dependency.",
-      "unresolved": ["Issue170 is an owned missing acceptance assertion, not observed production networking failure. Both new required app methods and unique helper invocations require immutable execution and independent review. Prior9046green60protocolcases lacked these2secondpositive assertions and are not upgraded retrospectively; no physical/LAN/DNS-all-OS guarantee or full WiFi approval is claimed."],
+      "unresolved": ["Issue170 is an owned missing acceptance assertion, not observed production networking failure. Both exact new app methods and unique helper invocations passed at906df6fb439b3a9a40db85b6fbcf310ebada93f3 within52appcases (48owned+4repair),0failure/error/skip; scoped protocol37/37 positively contained all25required original support identities and combined Python363/363passed. Hosted exact-head/independent review remain required. Prior9046green60protocolcases lacked these2secondpositive assertions and are not upgraded retrospectively; no physical/LAN/DNS-all-OS guarantee or full WiFi approval is claimed."],
       "methods": [
         "connect() is idempotent \u2014 second call does not create new TCP connection",
         "Peer close finishes the stream and fires the disconnection handler"

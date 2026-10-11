@@ -326,8 +326,10 @@ family with exact MCTst/default config/selfInfo echoes. Settings explicitly wait
 for each actual fresh selfInfo before allowing the next full write, in both first-
 writer orders; independent final2601000007 proves both original fields survive.
 Shared source automatic selfInfo literal is extracted byte-equivalently, not
-regenerated from product code. These two new methods await immutable
-execution; no product path changes or result is inferred from prior counts.
+regenerated from product code. At immutable906df6fb439b3a9a40db85b6fbcf310ebada93f3
+all48required identities plus4repair passed52/52app; protocol37/37 positively
+contained all25required original support identities and combined Python363/363
+passed,0failure/error/skip each. No product change or result inferred from prior counts.
 Owned audit stays local until coordinator PR169 repair actually lands.
 
 Coordinator source review identified [#170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170):
@@ -340,8 +342,13 @@ They retain exact source empty FIN and supplemental queued duplicate/empty-frame
 drain, plus one real socket for all redundant connect callers. Joined teardown
 still justifies negative sleeps, not positive budgets. The eleven-family proposal
 is split into nine basic comparisons and these two repaired families without
-inflating original counts. This48identity candidate awaits execution; no native
-production/helper timeout or golden is changed.
+inflating original counts. Both exact new methods and their checked helper ran
+and passed within that52/52app result at906df6fb. No native production/helper
+timeout or golden is changed; hosted exact-head/independent review remain required.
+Coordinator PR169 exacte9d primary38171808293 completedSUCCESS with all6jobs,
+including actual LinuxAndroid/Swiftcodec/SwiftData execution. PR169 remains open
+pending its protected selector-path approval and actual merge; worker publication
+hold remains and no successful169result is promoted to current165execution.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native
@@ -358,6 +365,10 @@ Additional bounded immutable184467aa read found no blocking mismatch in both
 complete original reset/datagram files, actual checked startup helper and public
 serializer/parser/result consumers. Its exact source/input conclusions are not
 independent45app/12protocol execution, fullsession or privileged acceptance.
+Bounded184467aa binary configuration comparison likewise found no blocking
+mismatch in both original40/1/2 and0.05/null scalar families. Native status
+exchange remains supplemental to the original constructor-only assertions;
+the source disabled-resend title is not binary exchange coverage.
 
 The 572 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
