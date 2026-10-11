@@ -111,8 +111,8 @@ C1/C4/D4/D5 draft-slot families. They check unchanged live occupants, reminted
 relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
-The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely thirty-five arbitrary passing tests. All existing module/primary suite
+The current app JUnit collector requires all48 exact WP-501 class/method identities,
+not merely an aggregate of arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -125,7 +125,7 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **570 actually inspected families in 77 groups**:
+`review-proposals.json` contains **572 actually inspected families in 80 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
@@ -134,7 +134,8 @@ LPP18, distinct contact-packet/public-flags4, V112 parser/command/cache25
 complete RoundTrip39, complete event-filter/dispatch/error17 and WiFi frame/
 transport18, lifecycle/input-validation/stop/binary-configuration10 and exact
 message-reset serialization/channel-datagram public-result2 and automatic/
-coalesced/real-clock message polling10.
+coalesced/real-clock message polling10 and automatic contact refresh/concurrent
+granular full-configuration settings2.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -314,9 +315,33 @@ Three separate new methods now retain all10 original auto-fetch/coalescing/timeo
 families: AA/manual1/910525/62500 selfInfo and cleared startup history; original
 20/50/100ms follower/notification waits,150/300ms leader outcomes and actual2s
 canceled follower completion; real SystemSessionClock20/120ms timeout overrides
-retain source actual<1second/>=80ms monotonic thresholds. New44required identity
-set awaits immutable execution; no original case is inferred from counts.
+retain source actual<1second/>=80ms monotonic thresholds. At immutable
+dfb3fb8a331464917cd49945f16bdc44030fa3b8 all44required identities plus4repair
+discovered/run/passed48/48app; all12selected original message support identities
+passed12/12protocol and combined Python363/363passed,0failure/error/skip each.
+These actual overlapping selections are not independent570family execution.
+Two further required methods retain the single original contact auto-refresh
+burst/50ms/cleared startup-history family and concurrent manual=true/multiAcks7
+family with exact MCTst/default config/selfInfo echoes. Settings explicitly wait
+for each actual fresh selfInfo before allowing the next full write, in both first-
+writer orders; independent final2601000007 proves both original fields survive.
+Shared source automatic selfInfo literal is extracted byte-equivalently, not
+regenerated from product code. These two new methods await immutable
+execution; no product path changes or result is inferred from prior counts.
 Owned audit stays local until coordinator PR169 repair actually lands.
+
+Coordinator source review identified [#170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170):
+the predecessor idempotent/FIN tests did not enforce the original positive
+two-second accept/callback/stream-completion budgets. Their five-second accept
+and fifteen-second harness were not equivalent to those source assertions.
+Two further required app methods use actual localhost/public transport, explicit
+two-second real observations and post-return monotonic<2second assertions.
+They retain exact source empty FIN and supplemental queued duplicate/empty-frame
+drain, plus one real socket for all redundant connect callers. Joined teardown
+still justifies negative sleeps, not positive budgets. The eleven-family proposal
+is split into nine basic comparisons and these two repaired families without
+inflating original counts. This48identity candidate awaits execution; no native
+production/helper timeout or golden is changed.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native
@@ -329,8 +354,12 @@ family/privileged acceptance. Further bounded5cc codec read found no blocking
 mismatch in all6 original vector/chunk families and complete177line native class,
 not independent execution/all11supplemental cases/physical TCP. Actual tests/
 consumer bytes and oversize/EOF adaptation provenance are retained.
+Additional bounded immutable184467aa read found no blocking mismatch in both
+complete original reset/datagram files, actual checked startup helper and public
+serializer/parser/result consumers. Its exact source/input conclusions are not
+independent45app/12protocol execution, fullsession or privileged acceptance.
 
-The 570 proposals are a bounded reviewable implementation increment,
+The 572 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -355,7 +384,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the thirty-five
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the48
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new

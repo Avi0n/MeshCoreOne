@@ -5,6 +5,8 @@
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.OriginalCase
@@ -324,8 +326,7 @@ class SessionResponseAcceptanceTest {
             val transport = MockTransport()
             val session = startSourceSession(transport,
                 SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MeshCore-Tests"),
-                hex("05011416" + "aa".repeat(32) + "00".repeat(8) +
-                    "00000001bde40d0024f400000705546573744e6f6465"))
+                sourceAutomaticSelfInfo())
             try {
                 assertEquals(hex("01032020202020204d65736843"), transport.sentData.single())
                 transport.clearSentData()
@@ -493,6 +494,97 @@ class SessionResponseAcceptanceTest {
             }
         }
     }
+
+    @OriginalCase("AutoContactRefreshTests::auto-refresh coalesces bursty contact invalidations()")
+    @Test fun originalContactInvalidationsRetainSourceSelfInfoHistoryAndFiftyMillisecondObservation() = runTest {
+        val transport = MockTransport()
+        val session = startSourceSession(transport,
+            SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MeshCore-Tests"),
+            sourceAutomaticSelfInfo())
+        try {
+            assertEquals(hex("01032020202020204d65736843"), transport.sentData.single())
+            transport.clearSentData()
+            session.setAutoUpdateContacts(true)
+            repeat(3) { transport.simulateReceive(hex("80" + "22".repeat(32))) }
+            runCurrent()
+            assertEquals(listOf(hex("04")), transport.sentData)
+            transport.simulateReceive(hex("0200000000"))
+            transport.simulateReceive(hex("0401000000"))
+            advanceTimeBy(50)
+            runCurrent()
+            assertTrue(transport.sentData.size in 1..2)
+            if (transport.sentData.size == 2) {
+                assertEquals(hex("0401000000"), transport.sentData.last())
+                transport.simulateReceive(hex("0200000000"))
+                transport.simulateReceive(hex("0402000000"))
+                advanceTimeBy(50)
+                runCurrent()
+            }
+            assertTrue(transport.sentData.size <= 2)
+            assertFalse(session.isContactsDirty)
+            assertTrue(session.cachedContacts.isEmpty())
+        } finally {
+            session.stop()
+        }
+    }
+
+    @OriginalCase("OtherParamsSerializationTests::concurrent granular setters do not revert each other()")
+    @Test fun originalConcurrentSettingsWaitForEachFreshSelfInfoBeforeTheNextWrite() = runTest {
+        for (manualFirst in listOf(true, false)) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport)
+            try {
+                val first = backgroundScope.async {
+                    if (manualFirst) session.setManualAddContacts(true) else session.setMultiAcks(7u)
+                }
+                val second = backgroundScope.async {
+                    if (manualFirst) session.setMultiAcks(7u) else session.setManualAddContacts(true)
+                }
+                runCurrent()
+                val startup = hex("01032020202020204d43547374")
+                val initialWrite = hex(if (manualFirst) "2601000000" else "2600000007")
+                assertEquals(listOf(startup, initialWrite), transport.sentData)
+                assertFalse(first.isCompleted)
+                assertFalse(second.isCompleted)
+                assertEquals(false, session.currentSelfInfo?.manualAddContacts)
+                assertEquals(0u.toUByte(), session.currentSelfInfo?.multiAcks)
+                transport.simulateOK()
+                runCurrent()
+                advanceTimeBy(50)
+                runCurrent()
+                assertEquals(listOf(startup, initialWrite, startup), transport.sentData)
+                assertFalse(first.isCompleted)
+                assertFalse(second.isCompleted)
+                assertEquals(false, session.currentSelfInfo?.manualAddContacts)
+                assertEquals(0u.toUByte(), session.currentSelfInfo?.multiAcks)
+                transport.simulateReceive(hex("05011616" + "01".repeat(32) + "00".repeat(8) +
+                    (if (manualFirst) "00000001" else "07000000") + "95440d0090d003000b05"))
+                runCurrent()
+                first.await()
+                assertEquals(listOf(startup, initialWrite, startup, hex("2601000007")), transport.sentData)
+                assertFalse(second.isCompleted)
+                transport.simulateOK()
+                runCurrent()
+                advanceTimeBy(50)
+                runCurrent()
+                assertEquals(listOf(startup, initialWrite, startup, hex("2601000007"), startup), transport.sentData)
+                assertFalse(second.isCompleted)
+                transport.simulateReceive(hex("05011616" + "01".repeat(32) + "00".repeat(8) +
+                    "0700000195440d0090d003000b05"))
+                runCurrent()
+                second.await()
+                assertEquals(true, session.currentSelfInfo?.manualAddContacts)
+                assertEquals(7u.toUByte(), session.currentSelfInfo?.multiAcks)
+                assertEquals(5, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    private fun sourceAutomaticSelfInfo(): Bytes =
+        hex("05011416" + "aa".repeat(32) + "00".repeat(8) +
+            "00000001bde40d0024f400000705546573744e6f6465")
 
     private fun sourcePipelineConfiguration(window: Long = 8, idleTimeout: Double = 1.5) =
         SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst",

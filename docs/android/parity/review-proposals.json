@@ -5,6 +5,62 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "contacts-original-auto-refresh-burst-and-fifty-millisecond-history",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "auto-refresh coalesces bursty contact invalidations": "originalContactInvalidationsRetainSourceSelfInfoHistoryAndFiftyMillisecondObservation"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "The complete single original retains enabled auto-update, exactly three identical advertisement invalidations, exactly one first getContacts request after startup history is cleared, empty count0/end1 response, original50ms observation allowing1..2requests, conditional empty count0/end2 response and another50ms observation, and final at-most2 bound. Exact initial04 and optional incremental0401000000 are asserted; clean/empty cache assertions supplement rather than replace the source wire bounds.",
+      "inputs": "Original10seconds/MeshCore-Tests configuration and66byte selfInfo adv1/tx20/max22/keyAAx32/zero coordinates/0/0/0/manual1/910525/62500/SF7/CR5/TestNode retained. Same literal sourceAutomaticSelfInfo bytes already used by the automatic message families are extracted unchanged. Three33byte8022x32 frames, five-byte contact start0200000000 and end0401000000/0402000000 are independent original little-endian inputs, not candidate-generated expectations. Source helper clears startup history; actual native startup MeshC13bytes is additionally asserted before clearing.",
+      "adaptations": "Swift Task polling and real50ms sleeps become foreground runCurrent plus exact injected50ms intervals with actual wire assertions. Native eager ingress may coalesce all invalidations into one refresh before its job starts; source explicitly permits1..2 and does not require the conditional branch to execute. Existing full-operation serializer/correlation and complete-baseline validity rules remain WP107 adaptations. This bounded single complete stream does not certify partial streams, process death or physical radio behavior.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/ContactManager.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "docs/android/deviations/WP-107.md"
+      ],
+      "consumer": "Read complete frozen requestAutoContactRefresh/runAutoContactRefreshLoop/trackContactChanges, Contacts fetch/ensure/cache update and actual native receive/requestContactRefresh/fetchContacts/commitFetch. Parser Advertisement dirties actual generation cache and requests one generation-owned refresh job. Request flag coalesces bursts, fetch owns serialization and subscription through contact end, and subsequent fetch uses committed Unix lastModified. Real count0 stream is complete; no synthetic cache/result or onSend responder supplies success. Generation teardown cancels/joins jobs and native background errors are diagnostic, not silently successful.",
+      "unresolved": ["New method requires immutable current-head execution and independent source/adaptation review. Conditional1..2 source allowance is not two executions or a forced second refresh; other contact-stream families remain separately unaudited."],
+      "methods": ["auto-refresh coalesces bursty contact invalidations"]
+    },
+    {
+      "id": "settings-original-concurrent-granular-full-config-and-cache-refresh",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "concurrent granular setters do not revert each other": "originalConcurrentSettingsWaitForEachFreshSelfInfoBeforeTheNextWrite"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "The complete single original starts concurrent manual=true/multiAcks7 setters from default full other-params configuration and requires both final written fields survive. Native explicitly exercises each admitted scheduling order; literal final2601000007 proves both original finalConfig assertions at the wire and final actual selfInfo cache also carries true/7. Before each refreshed selfInfo, the active setter and queued second setter remain pending for supplemental50ms; no next write or cache change can occur merely on OK. Each fresh session sends startup, first full config, refresh startup, merged full config, refresh startup exactly once.",
+      "inputs": "Original10seconds/MCTst and58byte selfInfo adv1/tx22/max22/key01x32/zero coordinates/default config/869525/250000/SF11/CR5/emptyname retained through checked helper. First literal2601000000 or2600000007 and final2601000007 preserve full five-byte cmd/manual/packedTelemetry/advertisement/multiAcks layout. Post-write source selfInfo echoes are independently specified: first manual-only bytes00000001 or ACK-only07000000, then final07000001, with unchanged other source fields. No candidate builder or OtherParamsConfig computes expected packets.",
+      "adaptations": "Source asynchronous actor responder polls every5ms and decodes written frames; deterministic owned test instead asserts each full frame before explicitly delivering its independent corresponding OK/selfInfo response. Both possible first-writer orders are supplemental native scheduling coverage of one original concurrent family, not two original families or runs. Source startup responder may also replay the initial appStart; native explicit responder starts after handshake and addresses only post-write refreshes, avoiding an unrelated duplicate source helper response. Supplemental50ms pending intervals strengthen the original serialized read-modify-write consumer, without a real-time scheduling guarantee.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/RequestContext.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/OtherParamsConfig.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/Parsers.kt"
+      ],
+      "consumer": "Read full frozen granular setters/mutateOtherParams/currentOtherParams/applyOtherParams and complete original OtherParamsDevice decode/echo helpers plus native public setters/mutateOtherParams/exchange/full-operation serializer/receive SelfInfo cache updates. Serialization owns snapshot-transform-write-OK-refresh across suspension, so second setter can only read actual first refreshed config. Native common serializer strengthens the dedicated Swift otherParamsSerializer by also excluding unrelated commands. Real parser ingress updates generation.selfInfo before query resumes; no synthetic state or synchronous onSend success bypass.",
+      "unresolved": ["New method requires immutable current-head execution and independent adaptation review. Prior original-named MCore/shared selfInfo case is supporting behavior, not exact original MCTst inputs; canceled/failed setting refreshes and general telemetry bit combinations remain separate families."],
+      "methods": ["concurrent granular setters do not revert each other"]
+    },
+    {
       "id": "message-original-auto-fetch-coalescing-and-startup-history",
       "source_path": "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
       "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
@@ -29,7 +85,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt"
       ],
       "consumer": "Read complete frozen startAutoMessageFetching/stop/requestDrain/drain loop and native eager messagesWaiting subscription/autoRequested/autoDrain/getMessage poll sharing. Real public incoming parser/event path feeds the listener; drain owns only one shared generation.poll and manual caller joins it. NoMoreMessages completes drain iteration and stop disables request flag, finishes subscription, cancels/joins jobs. No test-only dispatch bypass or synthetic session result.",
-      "unresolved": ["New exact method and conditional source families require current-head execution and independent review; background/process-death/physical delivery are not proven."],
+      "unresolved": ["Exact method passed atdfb3fb8a within48appcases (44owned+4repair),0failure/error/skip; all12 selected original message support identities passed12/12protocol and combined Python363/363passed. Current new-head and hosted exact execution/independent review remain required; background/process-death/physical delivery are not proven."],
       "methods": ["concurrent getMessage calls share one wire request", "auto-fetch coalesces repeated messagesWaiting notifications", "manual getMessage shares in-flight auto-fetch poll"]
     },
     {
@@ -59,7 +115,7 @@
         "docs/android/deviations/WP-107.md"
       ],
       "consumer": "Read full frozen getMessage/performGetMessage/inFlight cleanup and actual native generation.poll/start/invokeOnCompletion/await/cancellation methods. Shared exchange owns its serialization and reply independently of follower cancellation, same outcome resolves every awaiting caller, and current generation/failure guards prohibit stale success. Timeout quarantine/late-reply successor behavior is separately tested, not inferred here.",
-      "unresolved": ["New exact method requires immutable current-head execution and independent adaptation review; four source families are one discovered runner, not four passing executions."],
+      "unresolved": ["Exact method passed atdfb3fb8a within48appcases (44owned+4repair),0failure/error/skip; all12 selected original message support identities passed12/12protocol and combined Python363/363passed. Current new-head and hosted exact execution/independent adaptation review remain required; four source families are one discovered runner, not four passing executions."],
       "methods": ["a coalesced caller shares the leader's frame and result", "a coalesced caller is released when the leader times out", "a coalesced caller is released when the leader fails with a device error", "a cancelled coalesced caller does not hang"]
     },
     {
@@ -85,7 +141,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/SessionConfiguration.kt"
       ],
       "consumer": "Real generation.poll calls exchange and registers matcher before actual0A write. withDeadline selects real delay versus missing response using requested override or default seconds and returns typed Timeout while joined timer/result cleanup runs. This tests actual real-clock consumer behavior alongside existing protocol virtual19/20/80/120ms boundaries, not a claim of every platform scheduler/load or physical-radio timing guarantee.",
-      "unresolved": ["New actual real-clock method must execute on immutable current head and receive independent review; real timing results are not assumed from prior virtual support."],
+      "unresolved": ["Exact real-clock method passed atdfb3fb8a within48appcases (44owned+4repair),0failure/error/skip; all12 selected original message support identities passed12/12protocol and combined Python363/363passed. Current new-head and hosted exact execution/independent review remain required; actual monotonic thresholds executed, not inferred from prior virtual support."],
       "methods": ["getMessage times out when no response arrives", "getMessage timeout override can be shorter than the session default", "getMessage timeout override can extend beyond the session default"]
     },
     {
@@ -111,7 +167,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt"
       ],
       "consumer": "Read full frozen getMessage/performGetMessage and actual native poll/match/exchange/serializer methods. Only reset has a pending registered matcher while its command owns slot. DeviceError17 completes and releases that slot; poll then registers/writes and accepts its own NoMoreMessages. generation.poll coalescing and after-write timeout/cancellation quarantine remain separately audited, not inferred from this success.",
-      "unresolved": ["Exact method passed at184467aa within45appcases (all41owned+4repair),0failure/error/skip; both exact original message native identities passed within12protocolcases and combined Python363/363 passed. Hosted exact-head/independent review remain required. Coalescing/auto-fetch/timeout exact-input methods are separate current proposals, not inferred from this case."],
+      "unresolved": ["Exact method passed at184467aa within45appcases (all41owned+4repair),0failure/error/skip; both exact original message native identities passed within12protocolcases and combined Python363/363 passed. Coordinator bounded184467aa full frozen input/helper/serializer/consumer source comparison found no blocking mismatch in this and the datagram family; that is not independent execution/fullsession/privileged approval. Hosted exact-head/full review remain required. Coalescing/auto-fetch/timeout exact-input methods are separate current proposals, not inferred from this case."],
       "methods": ["an unrelated error does not fail an in-flight getMessage"]
     },
     {
@@ -139,7 +195,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MessagingPayloads.kt"
       ],
       "consumer": "Read complete frozen/native ChannelDatagram parser and routing plus public getMessage typed-result consumer. Actual opcode1B becomes payload reader stripping only opcode, signed SNR/4 and LE16 type survive, declared length clamps to actual remaining bytes, then ChannelDataReceived resolves MessageResult.ChannelDatagram. This proves actual parser-to-session-result delivery, not firmware support/hardware or every truncated-length/invalid-payload family.",
-      "unresolved": ["Exact method passed at184467aa within45appcases (all41owned+4repair),0failure/error/skip; both exact original message native identities passed within12protocolcases and combined Python363/363 passed. Hosted exact-head/independent review remain required; public UI/messaging persistence consumers are separately scoped."],
+      "unresolved": ["Exact method passed at184467aa within45appcases (all41owned+4repair),0failure/error/skip; both exact original message native identities passed within12protocolcases and combined Python363/363 passed. Coordinator bounded184467aa full frozen frame/helper/unsigned parser/public consumer source comparison found no blocking mismatch in this and the reset family; that is not independent execution/fullsession/privileged approval. Hosted exact-head/full review remain required; public UI/messaging persistence consumers are separately scoped."],
       "methods": ["getMessage yields channelDatagram"]
     },
     {
@@ -292,12 +348,9 @@
       "runner_directory": "core/protocol/build/test-results/test",
       "runner_class": "com.meshcoreone.android.core.protocol.transport.WiFiTransportTest",
       "runner_name": "method()",
-      "native_method_overrides": {
-        "connect() is idempotent \u2014 second call does not create new TCP connection": "connect is idempotent second call does not create new TCP connection"
-      },
-      "comparison": "All11 selected originals retain actual production transport behavior: initialfalse, pipelineTrue/writeWithoutFalse, unconfiguredtypedNotConfigured, invalid999.999.999.999:5000 typedfailure, disconnected010203 typedNotConnected, repeated disconnectfalse/terminalqueue, nil config then192.168.1.50:5000 exactinfo, explicit disconnect no callback, invalid initialconnect no callback, actuallocalhost ephemeral connect/idempotent/no duplicate factory and FIN→streamended/callback/disconnected. Native strengthens callback counts0/1, successful actual3C02001603 framed send, queued duplicate80FF/empty delivery before clean FIN and descriptor close.",
+      "comparison": "All9 selected originals retain actual production transport behavior: initialfalse, pipelineTrue/writeWithoutFalse, unconfiguredtypedNotConfigured, invalid999.999.999.999:5000 typedfailure, disconnected010203 typedNotConnected, repeated disconnectfalse/terminalqueue, nil config then192.168.1.50:5000 exactinfo, explicit disconnect no callback and invalid initialconnect no callback. Native strengthens callback counts0, actual connected-loopback user-disconnect/descriptor close and explicit terminal stream. The two idempotence/FIN positive-budget originals move to separate actual app assertions; they are not duplicated in this group.",
       "inputs": "Original source hosts/ports/payloads/configuration/capability booleans retained. NWListener ephemeral127.0.0.1 becomes actual JVM ServerSocket127.0.0.1 with ephemeral port. TrackingSocket is a real Socket with read-start/close observations, not a fake successful network. Invalid numeric host is resolved through actual production resolver. Complete source CallTracker/listener helpers and native LoopbackPeer/TrackingSocket/socketTest helpers were read.",
-      "adaptations": "Eight simultaneous redundant connect callers plus one factory and usable real peer replace source second-connect/500ms no-second-accept sleep; production mutex and already-established guard cannot create a second socket. Cleanup/IO are explicitly joined, replacing source100ms negative-callback sleeps, so no detached callback remains to be inferred. The source AsyncStream cannot throw; native exceptional Flow termination after queued frames and fresh connection-generation streams are WP108 documented adaptations, not passed as identical source API.",
+      "adaptations": "Connected-loopback user-disconnect is stronger than the source unstarted mock input, not identical input; source unstarted/disconnected safe teardown is independently retained by the preceding basic family. Cleanup/IO are explicitly joined, replacing source100ms negative-callback sleeps, so no detached callback remains to be inferred. This negative-observation adaptation does not establish source positive2second deadlines. Source AsyncStream cannot throw; native exceptional Flow termination after queued frames and fresh connection-generation streams are WP108 documented adaptations, not passed as identical source API.",
       "helpers": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/LoopbackPeer.kt",
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
@@ -305,7 +358,7 @@
         "docs/android/deviations/WP-108.md"
       ],
       "consumer": "Read full frozen/native connection/read/close/handler bodies. Established generation owns socket and unbounded ingestion queue; eager stream exists before connect, send locks full frame, idempotent connect guard prevents orphan connection, manual disconnect clears callback before teardown, cleanFIN publishes all complete frames then closes once and reports nil loss. Initial failure cannot call established-loss handler. This does not establish every JVM DNS implementation interruption or Android LAN permissions/network binding/physical no-internet radio behavior.",
-      "unresolved": ["All11 exact original identities passed at9046a463 within60protocolcases,0failure/error/skip. Hosted exact-head and independent adaptation review remain required; physical/platform network behavior remains separately scoped."],
+      "unresolved": ["All9 basic identities passed at9046a463 within60protocolcases,0failure/error/skip. Coordinator bounded WiFiTransportTest/LoopbackPeer review found no additional blocking mismatch in these9 bodies/config/error/capability families, with connected-versus-unstarted adaptation disclosed. Original idempotent accept2seconds and FIN accept/handler/stream2seconds were missing in the predecessor11family proposal and are tracked as issue170, not proven by its green60count or15second harness. Separate new app assertions require actual execution; hosted exact-head/full review and physical/platform evidence remain required."],
       "methods": [
         "Initial state is disconnected",
         "Advertises pipelined reads without a Write-Without-Response characteristic",
@@ -315,7 +368,37 @@
         "Disconnect when not connected is safe",
         "connectionInfo returns configured host and port",
         "Disconnection handler not called on user-initiated disconnect",
-        "Disconnection handler not called on initial connect failure",
+        "Disconnection handler not called on initial connect failure"
+      ]
+    },
+    {
+      "id": "wifi-original-two-second-accept-callback-and-stream-positive-budgets",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "connect() is idempotent \u2014 second call does not create new TCP connection": "originalFirstAcceptCompletesWithinTwoSecondsWithoutDuplicateConnection",
+        "Peer close finishes the stream and fires the disconnection handler": "originalPeerCloseAcceptHandlerAndStreamEachCompleteWithinTwoSeconds"
+      },
+      "checked_assertion_helpers": {
+        "observeWithinTwoSeconds": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt"
+      },
+      "comparison": "Both complete original lifecycle families retain actual ephemeral127.0.0.1 TCP peer and explicit positive2second budgets. Idempotence asserts connected after first connect, first actual accept within2seconds, all8redundant callers complete while staying connected and exactly1socket factory, usable literal framed send and exactly1descriptor close. Peer-close asserts accept2seconds, then cleanFIN callback2seconds, then received-stream termination2seconds independently, nil callback failure/exact1call, disconnectedfalse and exact1close. Exact source emptyFIN and supplemental duplicate80FF/empty framed drain each execute on separate real transport/listener instances.",
+      "inputs": "Frozen listener ephemeral port and127.0.0.1 are retained with real ServerSocket/Socket; no external host, fake success or production timeout change. Each actual accept uses soTimeout2000 and each source observation invokes uniquely bound helper with real withTimeout2000 plus System.nanoTime elapsed<2000000000 assertion including return to caller. Source cleanFIN has no payload; separate native supplemental3E020080FF/3E020080FF/3E0000 preserves complete ordered queued frames before FIN. Literal3C02001603 outgoing frame is supplemental usability proof.",
+      "adaptations": "NWListener readiness is synchronous real ServerSocket.bind. Eight redundant public connect calls/exactone socket creation replace source secondconnect/500ms negativeaccept sleep as prior structural adaptation, not the missing positivebudget. Production IO/joined teardown is unchanged. runBlocking/default real clock measures actual2seconds; outer15second hang guard remains safety only and cannot satisfy any2second assertion. Source CallTracker polling becomes deferred actual callback/stream completion, each timed separately with fail-closed uncaught timeout; no timeout-or-null fallback. Existing protocol LoopbackPeer5second accept helper is not used or changed; owned app test scopes the smaller listener budget directly.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiFrameCodec.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/LoopbackPeer.kt",
+        "docs/android/deviations/WP-108.md"
+      ],
+      "consumer": "Read complete frozen listener/accept/idempotence/FIN/CallTracker helpers and actual native connectMutex/alreadyestablishedguard/real Socket/read loop/frame decoder/terminate/channelclose/handler/socket-close/IO-join consumer. Actual reader drains complete frames on cleanFIN, closes socket once and completes registered callback/Flow without synthetic transport result. Direct support helpers remain in their owning protocol module; no testing helper becomes product dependency.",
+      "unresolved": ["Issue170 is an owned missing acceptance assertion, not observed production networking failure. Both new required app methods and unique helper invocations require immutable execution and independent review. Prior9046green60protocolcases lacked these2secondpositive assertions and are not upgraded retrospectively; no physical/LAN/DNS-all-OS guarantee or full WiFi approval is claimed."],
+      "methods": [
         "connect() is idempotent \u2014 second call does not create new TCP connection",
         "Peer close finishes the stream and fires the disconnection handler"
       ]

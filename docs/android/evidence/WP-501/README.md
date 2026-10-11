@@ -410,8 +410,53 @@ leader outcomes/DeviceError9 and actual monotonic2second follower cancellation.
 Timeout defaults/overrides use real production SystemSessionClock/Dispatchers.
 Default and System.nanoTime to preserve original<1second/>=80ms inequalities,
 not a virtual-time proxy; outer5second hang guard fails as uncaught cancellation.
-All44required identities and the new3methods await actual immutable execution.
+At immutabledfb3fb8a331464917cd49945f16bdc44030fa3b8 the same private-cache,
+credential-stripped locked launcher and app selector actually discovered/run/
+passed48/48 (all44owned+4repair),0failure/error/skip.
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.session.OriginalMessageCasesTest --dependency-verification=strict`
+discovered/run/passed12/12,0failure/error/skip; strict actual XML positively
+contained all12selected original message support identities.
+`python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+at the same immutable head discovered/run/passed363/363,0failure/error/skip.
+Both supported native/Gradle locks released normally. These are overlapping
+local selections, not hosted current candidate or570family independent proof.
 Publication stays local while coordinator actual PR169 verification/merge runs.
+
+Two further original families add two required methods: contact refresh retains
+exact66byte AA/20/22/manual1 source selfInfo, cleared startup history, three
+8022x32 invalidations, empty count0/end1/conditionalend2 and50ms1..2request bounds;
+concurrent granular settings retains exact10seconds/MCTst/default config/58byte
+selfInfo and manual=true/multiAcks7 through delayed actual refresh responses.
+Independent full five-byte final2601000007 verifies both original finalConfig
+fields and actual fresh selfInfo cache is true/7. Both first-writer orders are
+supplemental scheduling coverage of one original family. Neither pending setter
+can finish or write again through each50ms post-OK wait before its own selfInfo;
+source polling device actor is adapted to explicit external independent echoes,
+not synchronous onSend/fake result. Same source automatic selfInfo is extracted
+without changing its bytes. New46required identity candidate awaits immutable
+actual execution; no product/RxLog/selector edits.
+Coordinator bounded immutable184467aa full two-file reset/datagram/helper and
+actual public serializer/parser/consumer comparison found no blocking mismatch
+in those2families. Exact50ms/reset17/0A and12bytechannel2/FFFF/DEADBE retain
+source guarantees, not independent45app/12protocol execution/fullsession or
+privileged approval.
+Coordinator's further bounded11-family WiFi test/actual LoopbackPeer read found
+two source-test gaps, filed as [#170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170):
+source idempotent first accept2seconds and peer-close accept/handler/stream2seconds
+were not asserted by prior native five-second accept/fifteen-second harness.
+Two new required app methods enforce each original positive observation through
+actual localhost/public transport withTimeout2000 and actual post-return
+System.nanoTime elapsed<2000000000. Unique invoked observeWithinTwoSeconds body/
+assertions are bound; timeouts fail and never become null/success-shaped fallback.
+No existing protocol test/helper or production timeout is edited. Source empty
+FIN and supplemental complete duplicate80FF/empty-frame drain run separately;
+one real socket/eight redundant public calls preserve no-duplicate behavior.
+Joined teardown/negative-callback adaptations remain distinct from these budgets.
+Nine other basic WiFi bodies had no additional blocking mismatch, with native
+connected-loopback versus source unstarted disconnect explicitly disclosed.
+Original11group splits into9+2 with no new original family counted. New48mandatory
+identity candidate awaits actual immutable execution; prior9046green60suite did
+not prove the missing2second assertions and is retained without promotion.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -449,7 +494,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the570families
+actual inspection. All1,786owned source dispositions require behavior review; only the572families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

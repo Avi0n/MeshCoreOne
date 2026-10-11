@@ -92,6 +92,10 @@ WP501_ACCEPTANCE_CASES = {
      "originalErrorFrameReachesTheTypedFirmwareAccessor"),
     ("com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
      "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork"),
+    ("com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+     "originalFirstAcceptCompletesWithinTwoSecondsWithoutDuplicateConnection"),
+    ("com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+     "originalPeerCloseAcceptHandlerAndStreamEachCompleteWithinTwoSeconds"),
     ("com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
      "originalStartupStatesRetainTheExactHandshakeInputs"),
     ("com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
@@ -110,6 +114,10 @@ WP501_ACCEPTANCE_CASES = {
      "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget"),
     ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
      "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalContactInvalidationsRetainSourceSelfInfoHistoryAndFiftyMillisecondObservation"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalConcurrentSettingsWaitForEachFreshSelfInfoBeforeTheNextWrite"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

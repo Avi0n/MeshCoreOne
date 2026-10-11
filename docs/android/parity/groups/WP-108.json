@@ -965,30 +965,55 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-          "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
           ],
           "methods": [
             {
               "name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
-              "line": 29,
-              "end_line": 88
+              "line": 35,
+              "end_line": 94
             },
             {
               "name": "connect",
-              "line": 38,
-              "end_line": 47
-            },
-            {
-              "name": "close",
-              "line": 49,
+              "line": 44,
               "end_line": 53
             },
             {
+              "name": "close",
+              "line": 55,
+              "end_line": 59
+            },
+            {
+              "name": "originalFirstAcceptCompletesWithinTwoSecondsWithoutDuplicateConnection",
+              "line": 97,
+              "end_line": 138
+            },
+            {
+              "name": "close",
+              "line": 102,
+              "end_line": 105
+            },
+            {
+              "name": "originalPeerCloseAcceptHandlerAndStreamEachCompleteWithinTwoSeconds",
+              "line": 141,
+              "end_line": 195
+            },
+            {
+              "name": "close",
+              "line": 148,
+              "end_line": 151
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 197,
+              "end_line": 205
+            },
+            {
               "name": "awaitRealCompletion",
-              "line": 90,
-              "end_line": 101
+              "line": 207,
+              "end_line": 218
             }
           ]
         }
@@ -3478,8 +3503,314 @@
           "assertion_or_checked_wait": false
         }
       ],
-      "native_proposals": [],
-      "review": "unresolved-native-family"
+      "native_proposals": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
+          "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+          "method_or_family_name": "originalFirstAcceptCompletesWithinTwoSecondsWithoutDuplicateConnection",
+          "line": 97,
+          "end_line": 138,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e24426b4c01d542b200bce361322f15919921d50af4d81861a5fe2794384ae38",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 114,
+              "expression": "assertTrue(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 122,
+              "expression": "assertTrue(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 123,
+              "expression": "assertEquals(1, creations.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 124,
+              "expression": "assertTrue(socket.tcpNoDelay)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 127,
+              "expression": "assertEquals(Bytes.fromHex(\"3c02001603\"), Bytes(frame))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 129,
+              "expression": "assertTrue(observeWithinTwoSeconds(\"Disconnected stream completion\") { waiting.await() }.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 130,
+              "expression": "assertTrue(socket.isClosed)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 131,
+              "expression": "assertEquals(1, closes.get())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "withTimeout",
+              "line": 98,
+              "expression": "withTimeout(15_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 99,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 100,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Socket",
+              "line": 101,
+              "expression": "Socket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "close",
+              "line": 102,
+              "expression": "close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.incrementAndGet",
+              "line": 103,
+              "expression": "closes.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "super.close",
+              "line": 104,
+              "expression": "super.close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 107,
+              "expression": "WiFiTransport(socketFactory = { creations.incrementAndGet(); socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "creations.incrementAndGet",
+              "line": 107,
+              "expression": "creations.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ServerSocket",
+              "line": 108,
+              "expression": "ServerSocket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.bind",
+              "line": 109,
+              "expression": "listener.bind(InetSocketAddress(\"127.0.0.1\", 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InetSocketAddress",
+              "line": 109,
+              "expression": "InetSocketAddress(\"127.0.0.1\", 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 112,
+              "expression": "transport.setConnectionInfo(\"127.0.0.1\", listener.localPort)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 113,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 114,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 115,
+              "expression": "observeWithinTwoSeconds(\"First connection acceptance\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 116,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.accept",
+              "line": 116,
+              "expression": "listener.accept()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 119,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 119,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "List",
+              "line": 120,
+              "expression": "List(8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 120,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "it.await",
+              "line": 121,
+              "expression": "it.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 122,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "creations.get",
+              "line": 123,
+              "expression": "creations.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.send",
+              "line": 125,
+              "expression": "transport.send(Bytes.fromHex(\"1603\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 125,
+              "expression": "Bytes.fromHex(\"1603\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 126,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.getInputStream",
+              "line": 126,
+              "expression": "server.getInputStream()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "readNBytes",
+              "line": 126,
+              "expression": "readNBytes(5)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 127,
+              "expression": "Bytes.fromHex(\"3c02001603\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 127,
+              "expression": "Bytes(frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 128,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 129,
+              "expression": "observeWithinTwoSeconds(\"Disconnected stream completion\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "waiting.await",
+              "line": 129,
+              "expression": "waiting.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 129,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 131,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 134,
+              "expression": "withContext(NonCancellable)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 134,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "WiFiTransportTests::connect() is idempotent \u2014 second call does not create new TCP connection()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        }
+      ],
+      "review": "compare-assertion-input-helper-and-consumer-semantics"
     },
     {
       "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift",
@@ -3907,6 +4238,377 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
+          "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
+          "method_or_family_name": "originalPeerCloseAcceptHandlerAndStreamEachCompleteWithinTwoSeconds",
+          "line": 141,
+          "end_line": 195,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "324645b183008c3a26b94da1eefa1bd43bef32850739cb9148ad9342d83536a6",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 177,
+              "expression": "assertNull(observeWithinTwoSeconds(\"Peer-close disconnection handler\") { disconnected.await() })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 181,
+              "expression": "assertEquals(expected, frames)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 182,
+              "expression": "assertFalse(transport.isConnected())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 184,
+              "expression": "assertEquals(1, calls.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 185,
+              "expression": "assertEquals(1, closes.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 186,
+              "expression": "assertTrue(socket.isClosed)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 187,
+              "expression": "assertTrue(transport.receivedData().toList().isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "withTimeout",
+              "line": 142,
+              "expression": "withTimeout(15_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 143,
+              "expression": "for (wire in listOf(\"\", \"3e020080ff3e020080ff3e0000\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 143,
+              "expression": "listOf(\"\", \"3e020080ff3e020080ff3e0000\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 144,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AtomicInteger",
+              "line": 145,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CompletableDeferred",
+              "line": 146,
+              "expression": "CompletableDeferred<Throwable?>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Socket",
+              "line": 147,
+              "expression": "Socket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "close",
+              "line": 148,
+              "expression": "close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.incrementAndGet",
+              "line": 149,
+              "expression": "closes.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "super.close",
+              "line": 150,
+              "expression": "super.close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "WiFiTransport",
+              "line": 153,
+              "expression": "WiFiTransport(socketFactory = { socket })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ServerSocket",
+              "line": 154,
+              "expression": "ServerSocket()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.bind",
+              "line": 155,
+              "expression": "listener.bind(InetSocketAddress(\"127.0.0.1\", 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InetSocketAddress",
+              "line": 155,
+              "expression": "InetSocketAddress(\"127.0.0.1\", 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.incrementAndGet",
+              "line": 159,
+              "expression": "calls.incrementAndGet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "disconnected.complete",
+              "line": 160,
+              "expression": "disconnected.complete(it)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.setConnectionInfo",
+              "line": 162,
+              "expression": "transport.setConnectionInfo(\"127.0.0.1\", listener.localPort)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.connect",
+              "line": 163,
+              "expression": "transport.connect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 164,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 164,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 165,
+              "expression": "observeWithinTwoSeconds(\"Peer-close connection acceptance\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 166,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listener.accept",
+              "line": 166,
+              "expression": "listener.accept()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 168,
+              "expression": "if (wire.isNotEmpty())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "wire.isNotEmpty",
+              "line": 168,
+              "expression": "wire.isNotEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 169,
+              "expression": "withContext(Dispatchers.IO)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.getOutputStream",
+              "line": 170,
+              "expression": "server.getOutputStream()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "write",
+              "line": 171,
+              "expression": "write(Bytes.fromHex(wire).toByteArray())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 171,
+              "expression": "Bytes.fromHex(wire)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 171,
+              "expression": "toByteArray()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "flush",
+              "line": 172,
+              "expression": "flush()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "server.shutdownOutput",
+              "line": 176,
+              "expression": "server.shutdownOutput()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 177,
+              "expression": "observeWithinTwoSeconds(\"Peer-close disconnection handler\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "disconnected.await",
+              "line": 177,
+              "expression": "disconnected.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "observeWithinTwoSeconds",
+              "line": 178,
+              "expression": "observeWithinTwoSeconds(\"Peer-close received stream completion\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "received.await",
+              "line": 178,
+              "expression": "received.await()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 179,
+              "expression": "if (wire.isEmpty())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "wire.isEmpty",
+              "line": 179,
+              "expression": "wire.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "emptyList",
+              "line": 179,
+              "expression": "emptyList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 180,
+              "expression": "listOf(Bytes.fromHex(\"80ff\"), Bytes.fromHex(\"80ff\"), Bytes.EMPTY)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 180,
+              "expression": "Bytes.fromHex(\"80ff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.fromHex",
+              "line": 180,
+              "expression": "Bytes.fromHex(\"80ff\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.isConnected",
+              "line": 182,
+              "expression": "transport.isConnected()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 183,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "calls.get",
+              "line": 184,
+              "expression": "calls.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 185,
+              "expression": "closes.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.receivedData",
+              "line": 187,
+              "expression": "transport.receivedData()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toList",
+              "line": 187,
+              "expression": "toList()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 187,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withContext",
+              "line": 190,
+              "expression": "withContext(NonCancellable)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "transport.disconnect",
+              "line": 190,
+              "expression": "transport.disconnect()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "WiFiTransportTests::Peer close finishes the stream and fires the disconnection handler()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -4028,11 +4730,11 @@
       "native_proposals": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-          "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4",
+          "sha256": "cac7289f79f806892ed8b900add8984aecc639414a4fff8418949239b00e3f5c",
           "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
           "method_or_family_name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
-          "line": 29,
-          "end_line": 88,
+          "line": 35,
+          "end_line": 94,
           "factory_method": null,
           "registration_identity_resolution": null,
           "body_sha256": "1f5cf7bd585364e5db1a04c84882e7977eebee44db419b30f4dc7d85348a771e",
@@ -4040,79 +4742,79 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 61,
+              "line": 67,
               "expression": "assertEquals(0L, testScheduler.currentTime)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 62,
+              "line": 68,
               "expression": "assertEquals(InetSocketAddress(\"192.0.2.1\", 9), endpoint.get())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 63,
+              "line": 69,
               "expression": "assertEquals(10_000, timeout.get())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 66,
+              "line": 72,
               "expression": "assertEquals(200L, testScheduler.currentTime)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 67,
+              "line": 73,
               "expression": "assertFalse(\"Original 200ms pending interval must not become a precancelled call\", connect.isCompleted)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 68,
+              "line": 74,
               "expression": "assertFalse(exited.isCompleted)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 69,
+              "line": 75,
               "expression": "assertEquals(0, closes.get())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "fail",
-              "line": 76,
+              "line": 82,
               "expression": "fail(\"A cancelled connection cannot return success\")",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 78,
+              "line": 84,
               "expression": "assertEquals(cancellation.message, failure.message)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 80,
+              "line": 86,
               "expression": "assertTrue(exited.isCompleted)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 81,
+              "line": 87,
               "expression": "assertTrue(socket.isClosed)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 82,
+              "line": 88,
               "expression": "assertFalse(transport.isConnected())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 83,
+              "line": 89,
               "expression": "assertEquals(1, closes.get())",
               "assertion_or_checked_wait": true
             }
@@ -4120,158 +4822,122 @@
           "actions_and_helper_calls": [
             {
               "name": "CompletableDeferred",
-              "line": 30,
+              "line": 36,
               "expression": "CompletableDeferred<Unit>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CompletableDeferred",
-              "line": 31,
+              "line": 37,
               "expression": "CompletableDeferred<Unit>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CountDownLatch",
-              "line": 32,
+              "line": 38,
               "expression": "CountDownLatch(1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "AtomicReference",
-              "line": 33,
+              "line": 39,
               "expression": "AtomicReference<SocketAddress>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "AtomicInteger",
-              "line": 34,
+              "line": 40,
               "expression": "AtomicInteger()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "AtomicInteger",
-              "line": 35,
+              "line": 41,
               "expression": "AtomicInteger()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Socket",
-              "line": 37,
+              "line": 43,
               "expression": "Socket()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "connect",
-              "line": 38,
+              "line": 44,
               "expression": "connect(target: SocketAddress, timeoutMillis: Int)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "endpoint.set",
-              "line": 39,
+              "line": 45,
               "expression": "endpoint.set(target)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "timeout.set",
-              "line": 40,
+              "line": 46,
               "expression": "timeout.set(timeoutMillis)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "started.complete",
-              "line": 41,
+              "line": 47,
               "expression": "started.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.await",
-              "line": 43,
+              "line": 49,
               "expression": "release.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "exited.complete",
-              "line": 45,
+              "line": 51,
               "expression": "exited.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "close",
-              "line": 49,
+              "line": 55,
               "expression": "close()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "closes.incrementAndGet",
-              "line": 50,
+              "line": 56,
               "expression": "closes.incrementAndGet()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.countDown",
-              "line": 51,
+              "line": 57,
               "expression": "release.countDown()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "super.close",
-              "line": 52,
+              "line": 58,
               "expression": "super.close()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "WiFiTransport",
-              "line": 55,
+              "line": 61,
               "expression": "WiFiTransport(socketFactory = { socket })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.setConnectionInfo",
-              "line": 57,
+              "line": 63,
               "expression": "transport.setConnectionInfo(\"192.0.2.1\", 9)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.connect",
-              "line": 58,
-              "expression": "transport.connect()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "runCurrent",
-              "line": 59,
-              "expression": "runCurrent()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "awaitRealCompletion",
-              "line": 60,
-              "expression": "awaitRealCompletion(started)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "InetSocketAddress",
-              "line": 62,
-              "expression": "InetSocketAddress(\"192.0.2.1\", 9)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "endpoint.get",
-              "line": 62,
-              "expression": "endpoint.get()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "timeout.get",
-              "line": 63,
-              "expression": "timeout.get()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "advanceTimeBy",
               "line": 64,
-              "expression": "advanceTimeBy(200)",
+              "expression": "transport.connect()",
               "assertion_or_checked_wait": false
             },
             {
@@ -4281,74 +4947,110 @@
               "assertion_or_checked_wait": false
             },
             {
-              "name": "closes.get",
+              "name": "awaitRealCompletion",
+              "line": 66,
+              "expression": "awaitRealCompletion(started)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "InetSocketAddress",
+              "line": 68,
+              "expression": "InetSocketAddress(\"192.0.2.1\", 9)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "endpoint.get",
+              "line": 68,
+              "expression": "endpoint.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "timeout.get",
               "line": 69,
+              "expression": "timeout.get()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "advanceTimeBy",
+              "line": 70,
+              "expression": "advanceTimeBy(200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 71,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "closes.get",
+              "line": 75,
               "expression": "closes.get()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CancellationException",
-              "line": 70,
+              "line": 76,
               "expression": "CancellationException(\"original pending connect cancelled\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "connect.cancel",
-              "line": 71,
+              "line": 77,
               "expression": "connect.cancel(cancellation)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 72,
+              "line": 78,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "awaitRealCompletion",
-              "line": 73,
+              "line": 79,
               "expression": "awaitRealCompletion(connect)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "connect.await",
-              "line": 75,
+              "line": 81,
               "expression": "connect.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "catch",
-              "line": 77,
+              "line": 83,
               "expression": "catch (failure: CancellationException)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.isConnected",
-              "line": 82,
+              "line": 88,
               "expression": "transport.isConnected()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "closes.get",
-              "line": 83,
+              "line": 89,
               "expression": "closes.get()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "withContext",
-              "line": 85,
+              "line": 91,
               "expression": "withContext(NonCancellable)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.disconnect",
-              "line": 85,
+              "line": 91,
               "expression": "transport.disconnect()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.countDown",
-              "line": 86,
+              "line": 92,
               "expression": "release.countDown()",
               "assertion_or_checked_wait": false
             }
