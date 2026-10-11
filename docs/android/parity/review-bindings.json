@@ -57175,7 +57175,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
@@ -57386,7 +57386,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcherTest.kt",
@@ -69965,7 +69965,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalContactInvalidationsRetainSourceSelfInfoHistoryAndFiftyMillisecondObservation",
         "line": 502,
@@ -70232,7 +70232,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -70265,7 +70265,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -70334,7 +70334,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
         "line": 327,
@@ -70765,7 +70765,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -70790,7 +70790,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -70847,7 +70847,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
         "line": 327,
@@ -71278,7 +71278,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -71303,7 +71303,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -71366,7 +71366,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
         "line": 327,
@@ -71797,7 +71797,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -71822,7 +71822,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -72454,7 +72454,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -73007,7 +73007,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -73346,7 +73346,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -73837,7 +73837,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
         "line": 392,
@@ -74335,7 +74335,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -74364,7 +74364,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -74427,7 +74427,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
         "line": 392,
@@ -74925,7 +74925,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -74954,7 +74954,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -75017,7 +75017,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
         "line": 392,
@@ -75515,7 +75515,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -75544,7 +75544,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -75613,7 +75613,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
         "line": 392,
@@ -76111,7 +76111,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -76140,7 +76140,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -76221,7 +76221,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError",
         "line": 259,
@@ -76476,7 +76476,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -76501,7 +76501,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -76564,7 +76564,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
         "line": 475,
@@ -76786,7 +76786,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
         "line": 475,
@@ -77002,7 +77002,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
         "line": 475,
@@ -77236,7 +77236,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement",
         "line": 1201,
@@ -77642,7 +77642,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/RequestContext.kt",
@@ -77667,7 +77667,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -77724,7 +77724,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCancelledOwnershipDrainsBatteryAndNeverWritesParkedAdvertisement",
         "line": 1201,
@@ -78130,7 +78130,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/RequestContext.kt",
@@ -78155,7 +78155,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -78248,14 +78248,14 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
         "line": 1122,
         "end_line": 1197,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "3230d8595b08c755c018a82669ab323e0be3438169130e44de98f2a127d07327",
+        "body_sha256": "ef1612d46e5c0caaa064b2083ab3105500b498080e3331fdfbce3af1e3e36a57",
         "registration": null,
         "assertions": [
           {
@@ -78313,21 +78313,9 @@
             "assertion_or_checked_wait": true
           },
           {
-            "name": "fail",
-            "line": 1159,
-            "expression": "fail(\"First request must preserve its own device error\")",
-            "assertion_or_checked_wait": true
-          },
-          {
             "name": "assertEquals",
             "line": 1165,
             "expression": "assertEquals(if (scenario == \"text-first\") hex(\"32\" + \"22\".repeat(32) + \"0200000000\")\n                        else hex(\"1b\") + target, transport.sentData.last())",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "fail",
-            "line": 1171,
-            "expression": "fail(\"Second request must preserve its own device error\")",
             "assertion_or_checked_wait": true
           },
           {
@@ -78627,6 +78615,12 @@
             "assertion_or_checked_wait": false
           },
           {
+            "name": "error",
+            "line": 1159,
+            "expression": "error(\"First request must preserve its own device error\")",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "catch",
             "line": 1160,
             "expression": "catch (failure: MeshCoreException.DeviceError)",
@@ -78696,6 +78690,12 @@
             "name": "repeat",
             "line": 1170,
             "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "error",
+            "line": 1171,
+            "expression": "error(\"Second request must preserve its own device error\")",
             "assertion_or_checked_wait": false
           },
           {
@@ -78847,7 +78847,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -78876,7 +78876,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -78969,14 +78969,14 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
         "line": 1122,
         "end_line": 1197,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "3230d8595b08c755c018a82669ab323e0be3438169130e44de98f2a127d07327",
+        "body_sha256": "ef1612d46e5c0caaa064b2083ab3105500b498080e3331fdfbce3af1e3e36a57",
         "registration": null,
         "assertions": [
           {
@@ -79034,21 +79034,9 @@
             "assertion_or_checked_wait": true
           },
           {
-            "name": "fail",
-            "line": 1159,
-            "expression": "fail(\"First request must preserve its own device error\")",
-            "assertion_or_checked_wait": true
-          },
-          {
             "name": "assertEquals",
             "line": 1165,
             "expression": "assertEquals(if (scenario == \"text-first\") hex(\"32\" + \"22\".repeat(32) + \"0200000000\")\n                        else hex(\"1b\") + target, transport.sentData.last())",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "fail",
-            "line": 1171,
-            "expression": "fail(\"Second request must preserve its own device error\")",
             "assertion_or_checked_wait": true
           },
           {
@@ -79348,6 +79336,12 @@
             "assertion_or_checked_wait": false
           },
           {
+            "name": "error",
+            "line": 1159,
+            "expression": "error(\"First request must preserve its own device error\")",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "catch",
             "line": 1160,
             "expression": "catch (failure: MeshCoreException.DeviceError)",
@@ -79417,6 +79411,12 @@
             "name": "repeat",
             "line": 1170,
             "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "error",
+            "line": 1171,
+            "expression": "error(\"Second request must preserve its own device error\")",
             "assertion_or_checked_wait": false
           },
           {
@@ -79568,7 +79568,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -79597,7 +79597,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -79660,7 +79660,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
         "line": 1015,
@@ -80187,7 +80187,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -80212,7 +80212,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -80275,14 +80275,14 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCrossRequestOwnershipKeepsFiftyMillisecondsAndDistinctErrorsAndTags",
         "line": 1122,
         "end_line": 1197,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "3230d8595b08c755c018a82669ab323e0be3438169130e44de98f2a127d07327",
+        "body_sha256": "ef1612d46e5c0caaa064b2083ab3105500b498080e3331fdfbce3af1e3e36a57",
         "registration": null,
         "assertions": [
           {
@@ -80340,21 +80340,9 @@
             "assertion_or_checked_wait": true
           },
           {
-            "name": "fail",
-            "line": 1159,
-            "expression": "fail(\"First request must preserve its own device error\")",
-            "assertion_or_checked_wait": true
-          },
-          {
             "name": "assertEquals",
             "line": 1165,
             "expression": "assertEquals(if (scenario == \"text-first\") hex(\"32\" + \"22\".repeat(32) + \"0200000000\")\n                        else hex(\"1b\") + target, transport.sentData.last())",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "fail",
-            "line": 1171,
-            "expression": "fail(\"Second request must preserve its own device error\")",
             "assertion_or_checked_wait": true
           },
           {
@@ -80654,6 +80642,12 @@
             "assertion_or_checked_wait": false
           },
           {
+            "name": "error",
+            "line": 1159,
+            "expression": "error(\"First request must preserve its own device error\")",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "catch",
             "line": 1160,
             "expression": "catch (failure: MeshCoreException.DeviceError)",
@@ -80723,6 +80717,12 @@
             "name": "repeat",
             "line": 1170,
             "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "error",
+            "line": 1171,
+            "expression": "error(\"Second request must preserve its own device error\")",
             "assertion_or_checked_wait": false
           },
           {
@@ -80874,7 +80874,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -80903,7 +80903,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -80960,7 +80960,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
         "line": 914,
@@ -81259,7 +81259,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -81284,7 +81284,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -81347,7 +81347,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
         "line": 684,
@@ -81990,7 +81990,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -82023,7 +82023,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -82092,7 +82092,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
         "line": 914,
@@ -82391,7 +82391,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -82416,7 +82416,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -82479,7 +82479,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDisabledAndPrivateKeyErrorEightKeepTheirRequestSpecificOutcomes",
         "line": 914,
@@ -82778,7 +82778,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -82803,7 +82803,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -82860,7 +82860,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
         "line": 684,
@@ -83503,7 +83503,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -83536,7 +83536,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -83599,7 +83599,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
         "line": 684,
@@ -84242,7 +84242,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -84275,7 +84275,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -84344,7 +84344,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
         "line": 684,
@@ -84987,7 +84987,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -85020,7 +85020,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -85077,7 +85077,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
         "line": 767,
@@ -85515,7 +85515,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
@@ -85548,7 +85548,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -85611,7 +85611,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
         "line": 767,
@@ -86049,7 +86049,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
@@ -86082,7 +86082,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -86145,7 +86145,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
         "line": 767,
@@ -86583,7 +86583,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
@@ -86616,7 +86616,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -86679,7 +86679,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs",
         "line": 767,
@@ -87117,7 +87117,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
@@ -87150,7 +87150,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -87207,7 +87207,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets",
         "line": 684,
@@ -87850,7 +87850,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -87883,7 +87883,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -87946,7 +87946,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
         "line": 840,
@@ -88431,7 +88431,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -88460,7 +88460,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -88535,7 +88535,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
         "line": 840,
@@ -89020,7 +89020,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -89049,7 +89049,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -89118,7 +89118,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalPrivateKeyImportRetainsExpandedLengthPayloadTimeoutAndFreshIdentity",
         "line": 840,
@@ -89603,7 +89603,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -89632,7 +89632,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -89701,14 +89701,14 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
         "line": 965,
         "end_line": 1010,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "ebbf653305d78aa387cc6f403790ca496e3b47c86ef0178ff3466507eb70d1fd",
+        "body_sha256": "2bb7f65c578cb5fc85dcb77c25778715dc039022d3bc03ada986d5618ead1d94",
         "registration": null,
         "assertions": [
           {
@@ -89757,12 +89757,6 @@
             "name": "assertEquals",
             "line": 987,
             "expression": "assertEquals(0u, status.rxAirtime)",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "fail",
-            "line": 992,
-            "expression": "fail(\"A pre-messageSent binary rejection cannot become success\")",
             "assertion_or_checked_wait": true
           },
           {
@@ -89936,6 +89930,12 @@
             "assertion_or_checked_wait": false
           },
           {
+            "name": "error",
+            "line": 992,
+            "expression": "error(\"A pre-messageSent binary rejection cannot become success\")",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "catch",
             "line": 993,
             "expression": "catch (failure: MeshCoreException.DeviceError)",
@@ -90036,7 +90036,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -90061,7 +90061,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -90124,7 +90124,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
         "line": 1015,
@@ -90651,7 +90651,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -90676,7 +90676,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -90745,7 +90745,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalBinaryCadenceLatestTagAndOverallBudgetKeepSourceIntervals",
         "line": 1015,
@@ -91272,7 +91272,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -91297,7 +91297,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -91378,14 +91378,14 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
         "line": 965,
         "end_line": 1010,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "ebbf653305d78aa387cc6f403790ca496e3b47c86ef0178ff3466507eb70d1fd",
+        "body_sha256": "2bb7f65c578cb5fc85dcb77c25778715dc039022d3bc03ada986d5618ead1d94",
         "registration": null,
         "assertions": [
           {
@@ -91434,12 +91434,6 @@
             "name": "assertEquals",
             "line": 987,
             "expression": "assertEquals(0u, status.rxAirtime)",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "fail",
-            "line": 992,
-            "expression": "fail(\"A pre-messageSent binary rejection cannot become success\")",
             "assertion_or_checked_wait": true
           },
           {
@@ -91613,6 +91607,12 @@
             "assertion_or_checked_wait": false
           },
           {
+            "name": "error",
+            "line": 992,
+            "expression": "error(\"A pre-messageSent binary rejection cannot become success\")",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "catch",
             "line": 993,
             "expression": "catch (failure: MeshCoreException.DeviceError)",
@@ -91713,7 +91713,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -91738,7 +91738,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -91807,14 +91807,14 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalBinaryPreTagErrorsAndDedicatedRoomStatusUseExactSourceFrames",
         "line": 965,
         "end_line": 1010,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "ebbf653305d78aa387cc6f403790ca496e3b47c86ef0178ff3466507eb70d1fd",
+        "body_sha256": "2bb7f65c578cb5fc85dcb77c25778715dc039022d3bc03ada986d5618ead1d94",
         "registration": null,
         "assertions": [
           {
@@ -91863,12 +91863,6 @@
             "name": "assertEquals",
             "line": 987,
             "expression": "assertEquals(0u, status.rxAirtime)",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "fail",
-            "line": 992,
-            "expression": "fail(\"A pre-messageSent binary rejection cannot become success\")",
             "assertion_or_checked_wait": true
           },
           {
@@ -92042,6 +92036,12 @@
             "assertion_or_checked_wait": false
           },
           {
+            "name": "error",
+            "line": 992,
+            "expression": "error(\"A pre-messageSent binary rejection cannot become success\")",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "catch",
             "line": 993,
             "expression": "catch (failure: MeshCoreException.DeviceError)",
@@ -92142,7 +92142,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -92167,7 +92167,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -92236,22 +92236,16 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes",
         "line": 1091,
         "end_line": 1117,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "afecad8e01376ff2c02a440a64bae7d6330da53be252c1fc01f377db14de6eb1",
+        "body_sha256": "bd61f7a8c5b6b726eaf0cba8dbaf66bce166978b66e019d13e7a0c4725001f69",
         "registration": null,
         "assertions": [
-          {
-            "name": "fail",
-            "line": 1100,
-            "expression": "fail(\"Device rejection cannot return a successful messageSent\")",
-            "assertion_or_checked_wait": true
-          },
           {
             "name": "assertEquals",
             "line": 1106,
@@ -92354,6 +92348,12 @@
             "name": "repeat",
             "line": 1099,
             "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "error",
+            "line": 1100,
+            "expression": "error(\"Device rejection cannot return a successful messageSent\")",
             "assertion_or_checked_wait": false
           },
           {
@@ -92468,7 +92468,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -92493,7 +92493,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -92562,22 +92562,16 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalTextAndKeepAliveErrorsRetainHelloKeysAndTypedCodes",
         "line": 1091,
         "end_line": 1117,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "afecad8e01376ff2c02a440a64bae7d6330da53be252c1fc01f377db14de6eb1",
+        "body_sha256": "bd61f7a8c5b6b726eaf0cba8dbaf66bce166978b66e019d13e7a0c4725001f69",
         "registration": null,
         "assertions": [
-          {
-            "name": "fail",
-            "line": 1100,
-            "expression": "fail(\"Device rejection cannot return a successful messageSent\")",
-            "assertion_or_checked_wait": true
-          },
           {
             "name": "assertEquals",
             "line": 1106,
@@ -92680,6 +92674,12 @@
             "name": "repeat",
             "line": 1099,
             "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "error",
+            "line": 1100,
+            "expression": "error(\"Device rejection cannot return a successful messageSent\")",
             "assertion_or_checked_wait": false
           },
           {
@@ -92794,7 +92794,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -92819,7 +92819,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -92876,7 +92876,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalStartupIgnoresErrorNinetyNineBeforeItsExactSelfInfo",
         "line": 589,
@@ -93041,7 +93041,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -93092,7 +93092,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo",
         "line": 618,
@@ -93457,7 +93457,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -93486,7 +93486,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -93543,7 +93543,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo",
         "line": 618,
@@ -93908,7 +93908,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -93937,7 +93937,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -94006,7 +94006,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo",
         "line": 618,
@@ -94371,7 +94371,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -94400,7 +94400,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -94463,7 +94463,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCancelledPipelineKeepsTheSuccessorsIndexAndFreshName",
         "line": 155,
@@ -94694,7 +94694,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -94753,7 +94753,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
         "line": 190,
@@ -95304,7 +95304,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -95387,7 +95387,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
         "line": 190,
@@ -95938,7 +95938,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -95997,7 +95997,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalChannelOrderingMissingAndSerialFamiliesKeepTheirExactInputs",
         "line": 190,
@@ -96548,7 +96548,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -96619,7 +96619,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalWindowHoldsForFiftyMillisecondsAndRefillsWithoutMissingSlots",
         "line": 119,
@@ -96922,7 +96922,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionChannelOperations.kt",
@@ -96987,7 +96987,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalConcurrentSettingsWaitForEachFreshSelfInfoBeforeTheNextWrite",
         "line": 535,
@@ -97392,7 +97392,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -97425,7 +97425,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -97500,7 +97500,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDatagramFrameReachesThePublicMessageResultAfterItsWrite",
         "line": 298,
@@ -97701,7 +97701,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
@@ -97734,7 +97734,7 @@
           },
           "definition": {
             "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-            "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+            "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
             "method": "startSourceSession",
             "line": 1282,
             "end_line": 1297,
@@ -97803,7 +97803,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDeviceErrorsRemainTypedAfterDelayedResponse",
         "line": 78,
@@ -97891,7 +97891,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -98234,7 +98234,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
         "line": 52,
@@ -98422,7 +98422,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -98501,7 +98501,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
         "line": 52,
@@ -98689,7 +98689,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -98750,7 +98750,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalDeviceErrorsRemainTypedAfterDelayedResponse",
         "line": 78,
@@ -98838,7 +98838,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -99133,7 +99133,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
         "line": 52,
@@ -99321,7 +99321,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -99370,7 +99370,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
         "line": 52,
@@ -99558,7 +99558,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -99607,7 +99607,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
         "line": 52,
@@ -99795,7 +99795,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
@@ -99862,7 +99862,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-        "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8",
+        "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466",
         "class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
         "method_or_family_name": "originalCommandsWaitForDelayedAcknowledgement",
         "line": 52,
@@ -100050,7 +100050,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
-          "sha256": "23e10fafdb35de9a14b4b4e877575e48a60855904d7f0b43f5534edf76243ed8"
+          "sha256": "e98582f861b022752f28f9c31804d2cb79e63053fbdbfef3eee9e0a73dee9466"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",

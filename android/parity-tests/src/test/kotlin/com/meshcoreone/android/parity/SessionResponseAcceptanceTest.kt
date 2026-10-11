@@ -989,7 +989,7 @@ class SessionResponseAcceptanceTest {
                     val response = backgroundScope.async {
                         try {
                             if (scenario == "status-error") session.requestStatus(target) else session.requestTelemetry(target)
-                            fail("A pre-messageSent binary rejection cannot become success")
+                            error("A pre-messageSent binary rejection cannot become success")
                         } catch (failure: MeshCoreException.DeviceError) {
                             failure
                         }
@@ -1097,7 +1097,7 @@ class SessionResponseAcceptanceTest {
                     try {
                         if (message) session.sendMessage(hex("11".repeat(32)), "hello", Instant.ofEpochSecond(1_704_067_200))
                         else session.sendKeepAlive(hex("22".repeat(32)), 0u)
-                        fail("Device rejection cannot return a successful messageSent")
+                        error("Device rejection cannot return a successful messageSent")
                     } catch (failure: MeshCoreException.DeviceError) {
                         failure
                     }
@@ -1156,7 +1156,7 @@ class SessionResponseAcceptanceTest {
                         try {
                             if (scenario == "text-first") session.sendKeepAlive(hex("22".repeat(32)), 0u)
                             else session.requestStatus(target)
-                            fail("First request must preserve its own device error")
+                            error("First request must preserve its own device error")
                         } catch (failure: MeshCoreException.DeviceError) {
                             failure
                         }
@@ -1168,7 +1168,7 @@ class SessionResponseAcceptanceTest {
                         try {
                             if (scenario == "text-first") session.requestStatus(target)
                             else session.requestTelemetry(hex("42".repeat(32)))
-                            fail("Second request must preserve its own device error")
+                            error("Second request must preserve its own device error")
                         } catch (failure: MeshCoreException.DeviceError) {
                             failure
                         }

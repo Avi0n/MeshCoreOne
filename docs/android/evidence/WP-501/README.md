@@ -575,6 +575,14 @@ Initial431failure remains retained. Denominator is32actual registered original
 families as parsed in pinned inventory-details and32unique selected identities;
 the source Suite container is not a33rd test family. Newly added19comparisons
 are not covered by that bounded13-family finding.
+Initial immutablea345721f4b28da46ad6a76ed2ffd09308893c29a combinedPython363/363
+passed,0failure/error/skip. Native command failed before JUnit in new owned
+Kotlin test compilation at fourDeviceError.code accesses: JUnit fail returnsUnit,
+so the async result inferred Unit-or-DeviceError. Corrected impossible-success
+branches use Kotlin error/Nothing, preserving proper DeviceError types without
+casts or a product edit. App/protocol did not execute at this candidate; old XML
+is not reused. Both supported lock contexts unwound normally. New exact run
+after actual169merge/rebase remains required.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
