@@ -112,7 +112,7 @@ relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
 The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely twenty-nine arbitrary passing tests. All existing module/primary suite
+not merely thirty arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -125,12 +125,13 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **474 actually inspected families in 51 groups**:
+`review-proposals.json` contains **513 actually inspected families in 57 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
 modern session acknowledgment/error/scope/trace12, channel pipeline5,
-LPP18, distinct contact-packet/public-flags4 and V112 parser/command/cache25.
+LPP18, distinct contact-packet/public-flags4, V112 parser/command/cache25
+and complete RoundTrip39.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -221,10 +222,25 @@ the original CHAT/TestNode/date/coordinates size case, exact ROOM layout, all-ze
 CHAT flood case, and actual144-byte public flags seam with10-second/Test/zero-power
 self-info setup. They distinguish that seam from the147-byte builder, retain
 NaN/negative-date/longitude saturation and require delayedOK before success.
-Fixed lastModified is not an emitted wire field. These new methods and the scoped
-LPP/V112 identities await current-candidate execution.
+Fixed lastModified is not an emitted wire field. At exactc8237db2 all29 then-required
+app methods plus4 repair regressions passed33/33; protocol126/126passed included
+all43 original LPP/V112 identities, six independent Python decoder cases, four
+pinned-input assertions and two telemetry prefix/empty consumer cases.
+Each suite had0failure/error/skip; combined controller/local/parity passed363/363.
 
-The 474 proposals are a bounded reviewable implementation increment,
+All39 original RoundTrip declarations now have inspected input/field/consumer
+comparisons: versioned capability/self-info, message/channel null and lossyUTF8,
+stats/ranges/customvariables, source LPP values and radio/time/power packets.
+One new required method covers four original contact/boundary declarations with
+exact147byte incoming contact/count/Unixfields, original all-zero reservedC1
+frame, original55byte truncated self-info and source SNR0/path0/type2/three-byte
+signature. Earlier shared negative fixtures had different fields; they are not
+promoted as exact source input evidence. This method awaits execution.
+Checked packetStats helper invocations bind the actual field assertions, not
+an empty-looking registration title. Roundtrip consistency is not independent
+wire evidence; the separate pinned Python/source LPP fixture checks remain required.
+
+The 513 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -249,7 +265,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-nine
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the thirty
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new

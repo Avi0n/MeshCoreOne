@@ -19728,7 +19728,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/ContactAndRadioCommandsTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -99284,6 +99285,10 @@
       "assertion_status": "direct",
       "candidate_mappings": [
         {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt"
+        },
+        {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
           "record": 205
@@ -99307,6 +99312,10 @@
       "assertion_status": "direct",
       "candidate_mappings": [
         {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt"
+        },
+        {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
           "record": 204
@@ -99329,6 +99338,10 @@
       "original_detail_sha256": "9d8822dd1edc50f85c81cf7640d6730a7f4720e7001498ceb47c993ca8a4260e",
       "assertion_status": "direct",
       "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt"
+        },
         {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",
@@ -99766,6 +99779,10 @@
       "original_detail_sha256": "6efffc6c34d2a2652db81c330a44504012c76b9c3b96ba534afa66bbd24c3700",
       "assertion_status": "direct",
       "candidate_mappings": [
+        {
+          "kind": "candidate-case-marker",
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt"
+        },
         {
           "kind": "historical-mapping-not-current-proof",
           "path": "docs/android/evidence/WP-103/source-cases.json",

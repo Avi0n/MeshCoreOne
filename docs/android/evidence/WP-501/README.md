@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-474 inspected family proposals in51groups, exact source/assertion/helper/runner
+513 inspected family proposals in57groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and twenty-nine Kotlin acceptance cases.
+The follow-up has92 Python regressions and thirty Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-474actually inspected proposals;3,959native-body joins are only candidates.
+513actually inspected proposals;3,959native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -205,7 +205,16 @@ public flags hardening families. Two additional required owned methods retain
 the original distinct CHAT/ROOM/all-zero flood objects and public144-byte legacy
 path with exact10-second/Test/zero-power self-info setup and delayedOK.
 Existing predecessor room-copy/builder variants are not promoted as exact inputs.
-They await current immutable-candidate native execution.
+At exactc8237db2ae342d969d0d5118ba68491609a13597 both new methods actually passed:
+33app discovered/run/passed (all29 required identities plus4 repair regressions),
+0failure/error/skip. The same locked private-cache launcher also executed:
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.lpp.LPPPythonReferenceTest --tests com.meshcoreone.android.core.protocol.lpp.PinnedLPPInputsTest --tests com.meshcoreone.android.core.protocol.event.EventPayloadTest --tests com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest --tests com.meshcoreone.android.core.protocol.session.CrossComponentSessionCasesTest --tests com.meshcoreone.android.core.protocol.command.NewCommandsTest --dependency-verification=strict`.
+Strict actual XML identities discovered/run/passed126/126,0failure/error/skip:
+all43 required original LPP/V112 identities, all6 independent Python decoder
+cases, all4 pinned-input assertions and both telemetry prefix/empty consumers
+were positively present. Other selected cases are not newly inspected originals.
+Combined controller/local/parity at immutablec8237db2 passed363/363,0failure/
+error/skip. No full513-family execution or hosted result is inferred.
 
 V112 short-packet cases invoke the actual ParserTestSupport.expectFailure helper.
 The binder now retains explicit helper invocation and actual byte-bound function
@@ -213,8 +222,19 @@ assertions instead of rejecting these meaningful cases or trusting the helper's
 name. Seven new positives/negatives require a unique called definition containing
 actual assertions in an explicitly listed test input; missing/uncalled/empty/
 ambiguous definitions fail. The expanded declared parity Python suite passed
-92discovered/run/passed,0failure/error/skip before commit; the exact committed
-combined suite and scoped native identities remain required.
+92discovered/run/passed,0failure/error/skip before commit; the actual committed
+363-case combined suite and scoped native identities above resolve local execution.
+
+All39 additional original RoundTrip declarations now have complete inspected
+comparisons and a new required exact-input method. It asserts incoming147-byte
+contact/count/Unixfields and original all-zero reservedC1,55-byte truncated selfInfo
+and SNR0/path0/three-byte signed-message signature input shapes, rather than
+promoting predecessor altered shared fixtures. This30th required method awaits
+execution. Other RoundTrip groups preserve full capability/message/stats/LPP/
+radio/time/power assertions with actual helper bodies, including packetStats
+checked invocation/definition binding. Prior c8237db2 selection did not include
+ContactAndRadioCommandsTest; its8 original radio/time/power identities still
+require the next declared scoped selection.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

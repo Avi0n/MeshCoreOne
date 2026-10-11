@@ -80,6 +80,8 @@ WP501_ACCEPTANCE_CASES = {
      "originalContactPacketFamiliesKeepTheirDistinctInputs"),
     ("com.meshcoreone.android.parity.ContactPacketAcceptanceTest",
      "originalPublicFlagsSeamSaturatesAndWaitsForAcknowledgement"),
+    ("com.meshcoreone.android.parity.ProtocolRoundTripAcceptanceTest",
+     "originalBoundaryFramesRetainExactSourceInputs"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

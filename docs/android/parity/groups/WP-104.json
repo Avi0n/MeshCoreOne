@@ -1214,7 +1214,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/command/ContactAndRadioCommandsTest.kt",
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/CrossComponentParserCasesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -1346,6 +1347,25 @@
               "name": "wp106RouterSeam",
               "line": 239,
               "end_line": 244
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt",
+          "sha256": "2a362a46a450425cf14bbcf7a3b1c115ec4c97b66be43c0efc488e24b1616b28",
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalBoundaryFramesRetainExactSourceInputs",
+              "line": 21,
+              "end_line": 64
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 66,
+              "end_line": 74
             }
           ]
         }
@@ -9454,6 +9474,626 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt",
+          "sha256": "2a362a46a450425cf14bbcf7a3b1c115ec4c97b66be43c0efc488e24b1616b28",
+          "class": "com.meshcoreone.android.parity.ProtocolRoundTripAcceptanceTest",
+          "method_or_family_name": "originalBoundaryFramesRetainExactSourceInputs",
+          "line": 21,
+          "end_line": 64,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "3d40c9a3579b26ef879fd2dc12435e059f62c33d662c70a69fc4a1a557a2d5bf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 28,
+              "expression": "assertEquals(147, contactFrame.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(Bytes(ByteArray(32) { 0xAA.toByte() }), contact.publicKey)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(ContactType.CHAT, contact.type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(ContactFlags(2u), contact.flags)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(3u.toUByte(), contact.outPathLength)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(Bytes.of(0x11, 0x22, 0x33), contact.outPath)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 38,
+              "expression": "assertEquals(\"TestContact\", contact.advertisedName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(37.7749, contact.latitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(-122.4194, contact.longitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastAdvertisement)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 42,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastModified)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 47,
+              "expression": "assertParseFailure(Parsers.Contact.parse(reservedFrame), reservedFrame,\n            \"reserved path length encoding\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 54,
+              "expression": "assertEquals(55, truncatedSelf.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 55,
+              "expression": "assertParseFailure(Parsers.SelfInfo.parse(truncatedSelf), truncatedSelf,\n            \"SelfInfo response too short\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 62,
+              "expression": "assertParseFailure(Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3), truncatedSignature, \"signature truncated\")",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes",
+              "line": 22,
+              "expression": "Bytes(ByteBuffer.allocate(147).order(ByteOrder.LITTLE_ENDIAN)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(2).put(3)\n            .put(byteArrayOf(0x11, 0x22, 0x33)).put(ByteArray(61))\n            .put(\"TestContact\".toByteArray(Charsets.UTF_8)).put(ByteArray(21))\n            .putInt(1_704_067_200).putInt(37_774_900).putInt(-122_419_400)\n            .putInt(1_704_067_200).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 22,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 22,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 23,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 23,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(byteArrayOf(0x11, 0x22, 0x33))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 24,
+              "expression": "byteArrayOf(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(ByteArray(61))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 24,
+              "expression": "ByteArray(61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(\"TestContact\".toByteArray(Charsets.UTF_8))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 25,
+              "expression": "toByteArray(Charsets.UTF_8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(ByteArray(21))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 25,
+              "expression": "ByteArray(21)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(37_774_900)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(-122_419_400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 27,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 27,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 29,
+              "expression": "when (val event = Parsers.Contact.parse(contactFrame))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 29,
+              "expression": "Parsers.Contact.parse(contactFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "error",
+              "line": 31,
+              "expression": "error(\"Expected actual contact event, got $event\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 33,
+              "expression": "Bytes(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 33,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 33,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 35,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 36,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 37,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 41,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 42,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 44,
+              "expression": "Bytes(ByteBuffer.allocate(147)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(0).put(0xC1.toByte())\n            .put(ByteArray(112)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 44,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 45,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0xC1.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 46,
+              "expression": "put(ByteArray(112))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 46,
+              "expression": "ByteArray(112)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 46,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 47,
+              "expression": "Parsers.Contact.parse(reservedFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 50,
+              "expression": "Bytes(ByteBuffer.allocate(55).order(ByteOrder.LITTLE_ENDIAN)\n            .put(1).put(20).put(30).put(ByteArray(32) { 0xAA.toByte() })\n            .putInt(0).putInt(0).put(2).put(1).put(0).put(1)\n            .putInt(915_000).putInt(250_000).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 50,
+              "expression": "ByteBuffer.allocate(55)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 50,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(20)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(30)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 51,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 51,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(915_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(250_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 53,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.SelfInfo.parse",
+              "line": 55,
+              "expression": "Parsers.SelfInfo.parse(truncatedSelf)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 58,
+              "expression": "Bytes(ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN)\n            .put(0).putShort(0).put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))\n            .put(0).put(2).putInt(1_704_067_200)\n            .put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 58,
+              "expression": "ByteBuffer.allocate(18)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 58,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putShort",
+              "line": 59,
+              "expression": "putShort(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 59,
+              "expression": "byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 60,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 61,
+              "expression": "put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 61,
+              "expression": "byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 61,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.ContactMessage.parse",
+              "line": 62,
+              "expression": "Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoundTripTests::Contact round trip()",
+            "RoundTripTests::Contact rejects reserved path length encoding()",
+            "RoundTripTests::SelfInfo rejects truncated fixed-width payload()",
+            "RoundTripTests::ContactMessage rejects truncated signature payload()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -9566,6 +10206,626 @@
             "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt",
+          "sha256": "2a362a46a450425cf14bbcf7a3b1c115ec4c97b66be43c0efc488e24b1616b28",
+          "class": "com.meshcoreone.android.parity.ProtocolRoundTripAcceptanceTest",
+          "method_or_family_name": "originalBoundaryFramesRetainExactSourceInputs",
+          "line": 21,
+          "end_line": 64,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "3d40c9a3579b26ef879fd2dc12435e059f62c33d662c70a69fc4a1a557a2d5bf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 28,
+              "expression": "assertEquals(147, contactFrame.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(Bytes(ByteArray(32) { 0xAA.toByte() }), contact.publicKey)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(ContactType.CHAT, contact.type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(ContactFlags(2u), contact.flags)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(3u.toUByte(), contact.outPathLength)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(Bytes.of(0x11, 0x22, 0x33), contact.outPath)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 38,
+              "expression": "assertEquals(\"TestContact\", contact.advertisedName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(37.7749, contact.latitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(-122.4194, contact.longitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastAdvertisement)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 42,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastModified)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 47,
+              "expression": "assertParseFailure(Parsers.Contact.parse(reservedFrame), reservedFrame,\n            \"reserved path length encoding\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 54,
+              "expression": "assertEquals(55, truncatedSelf.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 55,
+              "expression": "assertParseFailure(Parsers.SelfInfo.parse(truncatedSelf), truncatedSelf,\n            \"SelfInfo response too short\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 62,
+              "expression": "assertParseFailure(Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3), truncatedSignature, \"signature truncated\")",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes",
+              "line": 22,
+              "expression": "Bytes(ByteBuffer.allocate(147).order(ByteOrder.LITTLE_ENDIAN)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(2).put(3)\n            .put(byteArrayOf(0x11, 0x22, 0x33)).put(ByteArray(61))\n            .put(\"TestContact\".toByteArray(Charsets.UTF_8)).put(ByteArray(21))\n            .putInt(1_704_067_200).putInt(37_774_900).putInt(-122_419_400)\n            .putInt(1_704_067_200).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 22,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 22,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 23,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 23,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(byteArrayOf(0x11, 0x22, 0x33))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 24,
+              "expression": "byteArrayOf(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(ByteArray(61))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 24,
+              "expression": "ByteArray(61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(\"TestContact\".toByteArray(Charsets.UTF_8))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 25,
+              "expression": "toByteArray(Charsets.UTF_8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(ByteArray(21))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 25,
+              "expression": "ByteArray(21)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(37_774_900)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(-122_419_400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 27,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 27,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 29,
+              "expression": "when (val event = Parsers.Contact.parse(contactFrame))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 29,
+              "expression": "Parsers.Contact.parse(contactFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "error",
+              "line": 31,
+              "expression": "error(\"Expected actual contact event, got $event\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 33,
+              "expression": "Bytes(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 33,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 33,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 35,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 36,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 37,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 41,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 42,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 44,
+              "expression": "Bytes(ByteBuffer.allocate(147)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(0).put(0xC1.toByte())\n            .put(ByteArray(112)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 44,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 45,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0xC1.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 46,
+              "expression": "put(ByteArray(112))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 46,
+              "expression": "ByteArray(112)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 46,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 47,
+              "expression": "Parsers.Contact.parse(reservedFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 50,
+              "expression": "Bytes(ByteBuffer.allocate(55).order(ByteOrder.LITTLE_ENDIAN)\n            .put(1).put(20).put(30).put(ByteArray(32) { 0xAA.toByte() })\n            .putInt(0).putInt(0).put(2).put(1).put(0).put(1)\n            .putInt(915_000).putInt(250_000).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 50,
+              "expression": "ByteBuffer.allocate(55)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 50,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(20)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(30)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 51,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 51,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(915_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(250_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 53,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.SelfInfo.parse",
+              "line": 55,
+              "expression": "Parsers.SelfInfo.parse(truncatedSelf)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 58,
+              "expression": "Bytes(ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN)\n            .put(0).putShort(0).put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))\n            .put(0).put(2).putInt(1_704_067_200)\n            .put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 58,
+              "expression": "ByteBuffer.allocate(18)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 58,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putShort",
+              "line": 59,
+              "expression": "putShort(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 59,
+              "expression": "byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 60,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 61,
+              "expression": "put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 61,
+              "expression": "byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 61,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.ContactMessage.parse",
+              "line": 62,
+              "expression": "Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoundTripTests::Contact round trip()",
+            "RoundTripTests::Contact rejects reserved path length encoding()",
+            "RoundTripTests::SelfInfo rejects truncated fixed-width payload()",
+            "RoundTripTests::ContactMessage rejects truncated signature payload()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -11072,6 +12332,626 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt",
+          "sha256": "2a362a46a450425cf14bbcf7a3b1c115ec4c97b66be43c0efc488e24b1616b28",
+          "class": "com.meshcoreone.android.parity.ProtocolRoundTripAcceptanceTest",
+          "method_or_family_name": "originalBoundaryFramesRetainExactSourceInputs",
+          "line": 21,
+          "end_line": 64,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "3d40c9a3579b26ef879fd2dc12435e059f62c33d662c70a69fc4a1a557a2d5bf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 28,
+              "expression": "assertEquals(147, contactFrame.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(Bytes(ByteArray(32) { 0xAA.toByte() }), contact.publicKey)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(ContactType.CHAT, contact.type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(ContactFlags(2u), contact.flags)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(3u.toUByte(), contact.outPathLength)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(Bytes.of(0x11, 0x22, 0x33), contact.outPath)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 38,
+              "expression": "assertEquals(\"TestContact\", contact.advertisedName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(37.7749, contact.latitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(-122.4194, contact.longitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastAdvertisement)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 42,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastModified)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 47,
+              "expression": "assertParseFailure(Parsers.Contact.parse(reservedFrame), reservedFrame,\n            \"reserved path length encoding\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 54,
+              "expression": "assertEquals(55, truncatedSelf.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 55,
+              "expression": "assertParseFailure(Parsers.SelfInfo.parse(truncatedSelf), truncatedSelf,\n            \"SelfInfo response too short\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 62,
+              "expression": "assertParseFailure(Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3), truncatedSignature, \"signature truncated\")",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes",
+              "line": 22,
+              "expression": "Bytes(ByteBuffer.allocate(147).order(ByteOrder.LITTLE_ENDIAN)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(2).put(3)\n            .put(byteArrayOf(0x11, 0x22, 0x33)).put(ByteArray(61))\n            .put(\"TestContact\".toByteArray(Charsets.UTF_8)).put(ByteArray(21))\n            .putInt(1_704_067_200).putInt(37_774_900).putInt(-122_419_400)\n            .putInt(1_704_067_200).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 22,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 22,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 23,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 23,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(byteArrayOf(0x11, 0x22, 0x33))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 24,
+              "expression": "byteArrayOf(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(ByteArray(61))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 24,
+              "expression": "ByteArray(61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(\"TestContact\".toByteArray(Charsets.UTF_8))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 25,
+              "expression": "toByteArray(Charsets.UTF_8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(ByteArray(21))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 25,
+              "expression": "ByteArray(21)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(37_774_900)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(-122_419_400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 27,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 27,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 29,
+              "expression": "when (val event = Parsers.Contact.parse(contactFrame))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 29,
+              "expression": "Parsers.Contact.parse(contactFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "error",
+              "line": 31,
+              "expression": "error(\"Expected actual contact event, got $event\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 33,
+              "expression": "Bytes(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 33,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 33,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 35,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 36,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 37,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 41,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 42,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 44,
+              "expression": "Bytes(ByteBuffer.allocate(147)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(0).put(0xC1.toByte())\n            .put(ByteArray(112)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 44,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 45,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0xC1.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 46,
+              "expression": "put(ByteArray(112))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 46,
+              "expression": "ByteArray(112)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 46,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 47,
+              "expression": "Parsers.Contact.parse(reservedFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 50,
+              "expression": "Bytes(ByteBuffer.allocate(55).order(ByteOrder.LITTLE_ENDIAN)\n            .put(1).put(20).put(30).put(ByteArray(32) { 0xAA.toByte() })\n            .putInt(0).putInt(0).put(2).put(1).put(0).put(1)\n            .putInt(915_000).putInt(250_000).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 50,
+              "expression": "ByteBuffer.allocate(55)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 50,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(20)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(30)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 51,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 51,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(915_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(250_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 53,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.SelfInfo.parse",
+              "line": 55,
+              "expression": "Parsers.SelfInfo.parse(truncatedSelf)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 58,
+              "expression": "Bytes(ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN)\n            .put(0).putShort(0).put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))\n            .put(0).put(2).putInt(1_704_067_200)\n            .put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 58,
+              "expression": "ByteBuffer.allocate(18)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 58,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putShort",
+              "line": 59,
+              "expression": "putShort(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 59,
+              "expression": "byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 60,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 61,
+              "expression": "put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 61,
+              "expression": "byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 61,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.ContactMessage.parse",
+              "line": 62,
+              "expression": "Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoundTripTests::Contact round trip()",
+            "RoundTripTests::Contact rejects reserved path length encoding()",
+            "RoundTripTests::SelfInfo rejects truncated fixed-width payload()",
+            "RoundTripTests::ContactMessage rejects truncated signature payload()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -11544,6 +13424,626 @@
             "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ProtocolRoundTripAcceptanceTest.kt",
+          "sha256": "2a362a46a450425cf14bbcf7a3b1c115ec4c97b66be43c0efc488e24b1616b28",
+          "class": "com.meshcoreone.android.parity.ProtocolRoundTripAcceptanceTest",
+          "method_or_family_name": "originalBoundaryFramesRetainExactSourceInputs",
+          "line": 21,
+          "end_line": 64,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "3d40c9a3579b26ef879fd2dc12435e059f62c33d662c70a69fc4a1a557a2d5bf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 28,
+              "expression": "assertEquals(147, contactFrame.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(Bytes(ByteArray(32) { 0xAA.toByte() }), contact.publicKey)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(ContactType.CHAT, contact.type)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(ContactFlags(2u), contact.flags)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 36,
+              "expression": "assertEquals(3u.toUByte(), contact.outPathLength)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(Bytes.of(0x11, 0x22, 0x33), contact.outPath)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 38,
+              "expression": "assertEquals(\"TestContact\", contact.advertisedName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(37.7749, contact.latitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 40,
+              "expression": "assertEquals(-122.4194, contact.longitude, 0.0001)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastAdvertisement)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 42,
+              "expression": "assertEquals(Instant.ofEpochSecond(1_704_067_200), contact.lastModified)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 47,
+              "expression": "assertParseFailure(Parsers.Contact.parse(reservedFrame), reservedFrame,\n            \"reserved path length encoding\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 54,
+              "expression": "assertEquals(55, truncatedSelf.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 55,
+              "expression": "assertParseFailure(Parsers.SelfInfo.parse(truncatedSelf), truncatedSelf,\n            \"SelfInfo response too short\")",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertParseFailure",
+              "line": 62,
+              "expression": "assertParseFailure(Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3), truncatedSignature, \"signature truncated\")",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes",
+              "line": 22,
+              "expression": "Bytes(ByteBuffer.allocate(147).order(ByteOrder.LITTLE_ENDIAN)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(2).put(3)\n            .put(byteArrayOf(0x11, 0x22, 0x33)).put(ByteArray(61))\n            .put(\"TestContact\".toByteArray(Charsets.UTF_8)).put(ByteArray(21))\n            .putInt(1_704_067_200).putInt(37_774_900).putInt(-122_419_400)\n            .putInt(1_704_067_200).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 22,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 22,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 23,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 23,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 23,
+              "expression": "put(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(byteArrayOf(0x11, 0x22, 0x33))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 24,
+              "expression": "byteArrayOf(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 24,
+              "expression": "put(ByteArray(61))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 24,
+              "expression": "ByteArray(61)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(\"TestContact\".toByteArray(Charsets.UTF_8))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByteArray",
+              "line": 25,
+              "expression": "toByteArray(Charsets.UTF_8)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 25,
+              "expression": "put(ByteArray(21))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 25,
+              "expression": "ByteArray(21)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(37_774_900)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 26,
+              "expression": "putInt(-122_419_400)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 27,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 27,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "when",
+              "line": 29,
+              "expression": "when (val event = Parsers.Contact.parse(contactFrame))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 29,
+              "expression": "Parsers.Contact.parse(contactFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "error",
+              "line": 31,
+              "expression": "error(\"Expected actual contact event, got $event\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 33,
+              "expression": "Bytes(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 33,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 33,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFlags",
+              "line": 35,
+              "expression": "ContactFlags(2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 36,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 37,
+              "expression": "Bytes.of(0x11, 0x22, 0x33)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 41,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 42,
+              "expression": "Instant.ofEpochSecond(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 44,
+              "expression": "Bytes(ByteBuffer.allocate(147)\n            .put(ByteArray(32) { 0xAA.toByte() }).put(1).put(0).put(0xC1.toByte())\n            .put(ByteArray(112)).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 44,
+              "expression": "ByteBuffer.allocate(147)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 45,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 45,
+              "expression": "put(0xC1.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 45,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 46,
+              "expression": "put(ByteArray(112))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 46,
+              "expression": "ByteArray(112)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 46,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.Contact.parse",
+              "line": 47,
+              "expression": "Parsers.Contact.parse(reservedFrame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 50,
+              "expression": "Bytes(ByteBuffer.allocate(55).order(ByteOrder.LITTLE_ENDIAN)\n            .put(1).put(20).put(30).put(ByteArray(32) { 0xAA.toByte() })\n            .putInt(0).putInt(0).put(2).put(1).put(0).put(1)\n            .putInt(915_000).putInt(250_000).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 50,
+              "expression": "ByteBuffer.allocate(55)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 50,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(20)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(30)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 51,
+              "expression": "put(ByteArray(32) { 0xAA.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 51,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 51,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 52,
+              "expression": "putInt(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 52,
+              "expression": "put(1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(915_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 53,
+              "expression": "putInt(250_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 53,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.SelfInfo.parse",
+              "line": 55,
+              "expression": "Parsers.SelfInfo.parse(truncatedSelf)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 58,
+              "expression": "Bytes(ByteBuffer.allocate(18).order(ByteOrder.LITTLE_ENDIAN)\n            .put(0).putShort(0).put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))\n            .put(0).put(2).putInt(1_704_067_200)\n            .put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())).array())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteBuffer.allocate",
+              "line": 58,
+              "expression": "ByteBuffer.allocate(18)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "order",
+              "line": 58,
+              "expression": "order(ByteOrder.LITTLE_ENDIAN)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putShort",
+              "line": 59,
+              "expression": "putShort(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 59,
+              "expression": "put(byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 59,
+              "expression": "byteArrayOf(1, 0x23, 0x45, 0x67, 0x89.toByte(), 0xAB.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 59,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 60,
+              "expression": "put(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "putInt",
+              "line": 60,
+              "expression": "putInt(1_704_067_200)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "put",
+              "line": 61,
+              "expression": "put(byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byteArrayOf",
+              "line": 61,
+              "expression": "byteArrayOf(0xDE.toByte(), 0xAD.toByte(), 0xBE.toByte())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 61,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "array",
+              "line": 61,
+              "expression": "array()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Parsers.ContactMessage.parse",
+              "line": 62,
+              "expression": "Parsers.ContactMessage.parse(truncatedSignature,\n            Parsers.ContactMessage.Version.V3)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MeshCore/Tests/MeshCoreTests/Validation/RoundTripTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "RoundTripTests::Contact round trip()",
+            "RoundTripTests::Contact rejects reserved path length encoding()",
+            "RoundTripTests::SelfInfo rejects truncated fixed-width payload()",
+            "RoundTripTests::ContactMessage rejects truncated signature payload()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
