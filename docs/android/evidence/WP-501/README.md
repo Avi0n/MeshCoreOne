@@ -4,7 +4,8 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
+Current integrated base: `c68f414098df1253bfccade171ae0f256790de8b`.
+Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
@@ -116,7 +117,11 @@ Repair hosted38161322710 completedSUCCESS; Swiftcodec/SwiftData were deliberatel
 unselected, not passed. The actual merge is
 c68f414098df1253bfccade171ae0f256790de8b; its tree equals the reviewed repair.
 The worker preserves ContentCancellationAcceptanceTest Git blob
-b24272846f3dc74e9df912c11cb945c5fe5e96b5 during integration. New candidate execution
+b24272846f3dc74e9df912c11cb945c5fe5e96b5 after the completed eight-commit rebase.
+The inherited repaired AppChatContent blob is
+6868cb2ac4e538483a881ce2a718a96bb065a727. Accounting and semantic bindings were
+regenerated against the actual integrated sources without changing the pin.
+New candidate execution
 is still required; the earlier failure is not relabeled as repaired execution.
 
 Baseline [run38155192945](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38155192945)
