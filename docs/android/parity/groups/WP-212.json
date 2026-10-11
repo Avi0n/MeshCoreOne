@@ -2016,7 +2016,7 @@
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceTestSupport.kt",
-          "sha256": "34855b4419f686af0bf91913e95c02384f291193f5f55eb99e5d1f7c8006f70d",
+          "sha256": "0694e9e5e068bb9a22c2f0ff6782a4498e984470960cfcf19ab3a91d19fe7068",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/RxLogServiceRegionReprocessTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/RxLogServiceReprocessTests.swift"
@@ -2024,188 +2024,188 @@
           "methods": [
             {
               "name": "saveChannel",
-              "line": 86,
-              "end_line": 88
-            },
-            {
-              "name": "saveDevice",
-              "line": 89,
+              "line": 87,
               "end_line": 89
             },
             {
-              "name": "saveContactKeys",
+              "name": "saveDevice",
               "line": 90,
               "end_line": 90
             },
             {
-              "name": "saveMessage",
+              "name": "saveContactKeys",
               "line": 91,
               "end_line": 91
             },
             {
-              "name": "message",
+              "name": "saveMessage",
               "line": 92,
               "end_line": 92
             },
             {
-              "name": "entry",
+              "name": "message",
               "line": 93,
               "end_line": 93
             },
             {
-              "name": "allEntries",
+              "name": "entry",
               "line": 94,
               "end_line": 94
             },
             {
-              "name": "seedEntry",
+              "name": "allEntries",
               "line": 95,
               "end_line": 95
             },
             {
+              "name": "seedEntry",
+              "line": 96,
+              "end_line": 96
+            },
+            {
               "name": "fetchChannels",
-              "line": 97,
-              "end_line": 98
+              "line": 98,
+              "end_line": 99
             },
             {
               "name": "fetchContactPublicKeysByPrefix",
-              "line": 99,
-              "end_line": 100
+              "line": 100,
+              "end_line": 101
             },
             {
               "name": "fetchDevice",
-              "line": 101,
-              "end_line": 105
+              "line": 102,
+              "end_line": 106
             },
             {
               "name": "setInboundHopCount",
-              "line": 106,
-              "end_line": 108
+              "line": 107,
+              "end_line": 109
             },
             {
               "name": "saveRxLogEntry",
-              "line": 109,
-              "end_line": 112
+              "line": 110,
+              "end_line": 113
             },
             {
               "name": "fetchRxLogEntries",
-              "line": 113,
-              "end_line": 115
+              "line": 114,
+              "end_line": 116
             },
             {
               "name": "clearRxLogEntries",
-              "line": 116,
-              "end_line": 118
+              "line": 117,
+              "end_line": 119
             },
             {
               "name": "fetchRecentEntriesByDecryptStatus",
-              "line": 119,
-              "end_line": 127
+              "line": 120,
+              "end_line": 128
             },
             {
               "name": "batchUpdateRxLogDecryption",
-              "line": 128,
-              "end_line": 138
+              "line": 129,
+              "end_line": 139
             },
             {
               "name": "fetchEntriesWithTransportCode",
-              "line": 139,
-              "end_line": 147
+              "line": 140,
+              "end_line": 148
             },
             {
               "name": "batchUpdateRxLogRegion",
-              "line": 148,
-              "end_line": 155
+              "line": 149,
+              "end_line": 156
             },
             {
               "name": "batchUpdateChannelMessageRegion",
-              "line": 156,
-              "end_line": 163
+              "line": 157,
+              "end_line": 164
             },
             {
               "name": "batchUpdateDMMessageRegion",
-              "line": 164,
-              "end_line": 172
+              "line": 165,
+              "end_line": 173
             },
             {
               "name": "rewriteMessages",
-              "line": 174,
-              "end_line": 178
+              "line": 175,
+              "end_line": 179
             },
             {
               "name": "events",
-              "line": 186,
-              "end_line": 186
-            },
-            {
-              "name": "events",
-              "line": 187,
-              "end_line": 187
-            },
-            {
-              "name": "waitForEvent",
-              "line": 188,
-              "end_line": 188
-            },
-            {
-              "name": "emit",
               "line": 189,
               "end_line": 189
             },
             {
+              "name": "events",
+              "line": 190,
+              "end_line": 190
+            },
+            {
+              "name": "waitForEvent",
+              "line": 191,
+              "end_line": 191
+            },
+            {
+              "name": "emit",
+              "line": 192,
+              "end_line": 192
+            },
+            {
               "name": "log",
-              "line": 197,
-              "end_line": 199
+              "line": 200,
+              "end_line": 202
             },
             {
               "name": "close",
-              "line": 213,
-              "end_line": 216
-            },
-            {
-              "name": "rxLogSvcRadio",
-              "line": 219,
+              "line": 216,
               "end_line": 219
             },
             {
-              "name": "rxLogSvcDevice",
-              "line": 221,
-              "end_line": 223
+              "name": "rxLogSvcRadio",
+              "line": 222,
+              "end_line": 222
             },
             {
-              "name": "rxLogSvcChannel",
-              "line": 225,
+              "name": "rxLogSvcDevice",
+              "line": 224,
               "end_line": 226
             },
             {
-              "name": "rxLogSvcParsed",
+              "name": "rxLogSvcChannel",
               "line": 228,
-              "end_line": 241
+              "end_line": 229
+            },
+            {
+              "name": "rxLogSvcParsed",
+              "line": 231,
+              "end_line": 244
             },
             {
               "name": "rxLogSvcTransportCode",
-              "line": 244,
-              "end_line": 248
+              "line": 247,
+              "end_line": 251
             },
             {
               "name": "rxLogSvcScopeKey",
-              "line": 250,
-              "end_line": 250
-            },
-            {
-              "name": "rxLogSvcUInt32LE",
-              "line": 252,
+              "line": 253,
               "end_line": 253
             },
             {
+              "name": "rxLogSvcUInt32LE",
+              "line": 255,
+              "end_line": 256
+            },
+            {
               "name": "rxLogSvcEncryptedChannelPayload",
-              "line": 259,
-              "end_line": 263
+              "line": 262,
+              "end_line": 266
             },
             {
               "name": "rxLogSvcWaitUntil",
-              "line": 266,
-              "end_line": 272
+              "line": 269,
+              "end_line": 275
             }
           ]
         }
@@ -2226,31 +2226,36 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceReprocessTest.kt",
-          "sha256": "dc32cbee030587c25f528e85cee20dae164559a701ce3bd846877573b6a4a226",
+          "sha256": "a3e56bc60427fdfacae0157f6edbbdf5f4b323fdadf94f470d0a3795ef1f5c3b",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/RxLogServiceReprocessTests.swift"
           ],
           "methods": [
             {
               "name": "case",
-              "line": 22,
-              "end_line": 25
+              "line": 26,
+              "end_line": 29
+            },
+            {
+              "name": "Restart readiness distinguishes the canceled subscriber from its replacement",
+              "line": 33,
+              "end_line": 56
             },
             {
               "name": "cases",
-              "line": 28,
-              "end_line": 305
+              "line": 59,
+              "end_line": 338
             },
             {
               "name": "runCatchingCancellation",
-              "line": 307,
-              "end_line": 312
+              "line": 340,
+              "end_line": 345
             }
           ]
         },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceTestSupport.kt",
-          "sha256": "34855b4419f686af0bf91913e95c02384f291193f5f55eb99e5d1f7c8006f70d",
+          "sha256": "0694e9e5e068bb9a22c2f0ff6782a4498e984470960cfcf19ab3a91d19fe7068",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/Services/RxLogServiceRegionReprocessTests.swift",
             "MC1Services/Tests/MC1ServicesTests/Services/RxLogServiceReprocessTests.swift"
@@ -2258,188 +2263,188 @@
           "methods": [
             {
               "name": "saveChannel",
-              "line": 86,
-              "end_line": 88
-            },
-            {
-              "name": "saveDevice",
-              "line": 89,
+              "line": 87,
               "end_line": 89
             },
             {
-              "name": "saveContactKeys",
+              "name": "saveDevice",
               "line": 90,
               "end_line": 90
             },
             {
-              "name": "saveMessage",
+              "name": "saveContactKeys",
               "line": 91,
               "end_line": 91
             },
             {
-              "name": "message",
+              "name": "saveMessage",
               "line": 92,
               "end_line": 92
             },
             {
-              "name": "entry",
+              "name": "message",
               "line": 93,
               "end_line": 93
             },
             {
-              "name": "allEntries",
+              "name": "entry",
               "line": 94,
               "end_line": 94
             },
             {
-              "name": "seedEntry",
+              "name": "allEntries",
               "line": 95,
               "end_line": 95
             },
             {
+              "name": "seedEntry",
+              "line": 96,
+              "end_line": 96
+            },
+            {
               "name": "fetchChannels",
-              "line": 97,
-              "end_line": 98
+              "line": 98,
+              "end_line": 99
             },
             {
               "name": "fetchContactPublicKeysByPrefix",
-              "line": 99,
-              "end_line": 100
+              "line": 100,
+              "end_line": 101
             },
             {
               "name": "fetchDevice",
-              "line": 101,
-              "end_line": 105
+              "line": 102,
+              "end_line": 106
             },
             {
               "name": "setInboundHopCount",
-              "line": 106,
-              "end_line": 108
+              "line": 107,
+              "end_line": 109
             },
             {
               "name": "saveRxLogEntry",
-              "line": 109,
-              "end_line": 112
+              "line": 110,
+              "end_line": 113
             },
             {
               "name": "fetchRxLogEntries",
-              "line": 113,
-              "end_line": 115
+              "line": 114,
+              "end_line": 116
             },
             {
               "name": "clearRxLogEntries",
-              "line": 116,
-              "end_line": 118
+              "line": 117,
+              "end_line": 119
             },
             {
               "name": "fetchRecentEntriesByDecryptStatus",
-              "line": 119,
-              "end_line": 127
+              "line": 120,
+              "end_line": 128
             },
             {
               "name": "batchUpdateRxLogDecryption",
-              "line": 128,
-              "end_line": 138
+              "line": 129,
+              "end_line": 139
             },
             {
               "name": "fetchEntriesWithTransportCode",
-              "line": 139,
-              "end_line": 147
+              "line": 140,
+              "end_line": 148
             },
             {
               "name": "batchUpdateRxLogRegion",
-              "line": 148,
-              "end_line": 155
+              "line": 149,
+              "end_line": 156
             },
             {
               "name": "batchUpdateChannelMessageRegion",
-              "line": 156,
-              "end_line": 163
+              "line": 157,
+              "end_line": 164
             },
             {
               "name": "batchUpdateDMMessageRegion",
-              "line": 164,
-              "end_line": 172
+              "line": 165,
+              "end_line": 173
             },
             {
               "name": "rewriteMessages",
-              "line": 174,
-              "end_line": 178
+              "line": 175,
+              "end_line": 179
             },
             {
               "name": "events",
-              "line": 186,
-              "end_line": 186
-            },
-            {
-              "name": "events",
-              "line": 187,
-              "end_line": 187
-            },
-            {
-              "name": "waitForEvent",
-              "line": 188,
-              "end_line": 188
-            },
-            {
-              "name": "emit",
               "line": 189,
               "end_line": 189
             },
             {
+              "name": "events",
+              "line": 190,
+              "end_line": 190
+            },
+            {
+              "name": "waitForEvent",
+              "line": 191,
+              "end_line": 191
+            },
+            {
+              "name": "emit",
+              "line": 192,
+              "end_line": 192
+            },
+            {
               "name": "log",
-              "line": 197,
-              "end_line": 199
+              "line": 200,
+              "end_line": 202
             },
             {
               "name": "close",
-              "line": 213,
-              "end_line": 216
-            },
-            {
-              "name": "rxLogSvcRadio",
-              "line": 219,
+              "line": 216,
               "end_line": 219
             },
             {
-              "name": "rxLogSvcDevice",
-              "line": 221,
-              "end_line": 223
+              "name": "rxLogSvcRadio",
+              "line": 222,
+              "end_line": 222
             },
             {
-              "name": "rxLogSvcChannel",
-              "line": 225,
+              "name": "rxLogSvcDevice",
+              "line": 224,
               "end_line": 226
             },
             {
-              "name": "rxLogSvcParsed",
+              "name": "rxLogSvcChannel",
               "line": 228,
-              "end_line": 241
+              "end_line": 229
+            },
+            {
+              "name": "rxLogSvcParsed",
+              "line": 231,
+              "end_line": 244
             },
             {
               "name": "rxLogSvcTransportCode",
-              "line": 244,
-              "end_line": 248
+              "line": 247,
+              "end_line": 251
             },
             {
               "name": "rxLogSvcScopeKey",
-              "line": 250,
-              "end_line": 250
-            },
-            {
-              "name": "rxLogSvcUInt32LE",
-              "line": 252,
+              "line": 253,
               "end_line": 253
             },
             {
+              "name": "rxLogSvcUInt32LE",
+              "line": 255,
+              "end_line": 256
+            },
+            {
               "name": "rxLogSvcEncryptedChannelPayload",
-              "line": 259,
-              "end_line": 263
+              "line": 262,
+              "end_line": 266
             },
             {
               "name": "rxLogSvcWaitUntil",
-              "line": 266,
-              "end_line": 272
+              "line": 269,
+              "end_line": 275
             }
           ]
         }
@@ -13930,11 +13935,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceReprocessTest.kt",
-          "sha256": "dc32cbee030587c25f528e85cee20dae164559a701ce3bd846877573b6a4a226",
+          "sha256": "a3e56bc60427fdfacae0157f6edbbdf5f4b323fdadf94f470d0a3795ef1f5c3b",
           "class": "com.meshcoreone.android.core.services.diagnostics.RxLogServiceReprocessTest",
           "method_or_family_name": "late-decrypted channel entries keep the matching channel index and name",
-          "line": 29,
-          "end_line": 57,
+          "line": 60,
+          "end_line": 88,
           "factory_method": "cases",
           "registration_identity_resolution": null,
           "body_sha256": "931e954c4348d1c6776c7ac852bfe274614c355f7a8e8d66e009f17450f32d9f",
@@ -13942,31 +13947,31 @@
           "assertions": [
             {
               "name": "assertNotNull",
-              "line": 51,
+              "line": 82,
               "expression": "assertNotNull(h.store.fetchRxLogEntries(radioId, 500).firstOrNull { it.id == entry.id })",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 52,
+              "line": 83,
               "expression": "assertEquals(3.toUByte(), updated.channelIndex, \"reprocessing must record the channel whose secret matched, not nil\")",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 53,
+              "line": 84,
               "expression": "assertEquals(\"Three\", updated.channelName, \"reprocessing must not fall back to channel 0's name\")",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 54,
+              "line": 85,
               "expression": "assertEquals(senderTimestamp, updated.senderTimestamp)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 55,
+              "line": 86,
               "expression": "assertEquals(DecryptStatus.SUCCESS, updated.decryptStatus)",
               "assertion_or_checked_wait": true
             }
@@ -13974,151 +13979,151 @@
           "actions_and_helper_calls": [
             {
               "name": "RxLogSvcHarness",
-              "line": 30,
+              "line": 61,
               "expression": "RxLogSvcHarness()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcRadio",
-              "line": 31,
+              "line": 62,
               "expression": "rxLogSvcRadio()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes",
-              "line": 32,
+              "line": 63,
               "expression": "Bytes(ByteArray(16) { 0x99.toByte() })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ByteArray",
-              "line": 32,
+              "line": 63,
               "expression": "ByteArray(16)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toByte",
-              "line": 32,
+              "line": 63,
               "expression": "toByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes",
-              "line": 33,
+              "line": 64,
               "expression": "Bytes(ByteArray(16) { 0x42 })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ByteArray",
-              "line": 33,
+              "line": 64,
               "expression": "ByteArray(16)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.saveChannel",
-              "line": 35,
+              "line": 66,
               "expression": "h.store.saveChannel(rxLogSvcChannel(radioId, 0, \"Public\", channelZeroSecret))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcChannel",
-              "line": 35,
+              "line": 66,
               "expression": "rxLogSvcChannel(radioId, 0, \"Public\", channelZeroSecret)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.saveChannel",
-              "line": 36,
+              "line": 67,
               "expression": "h.store.saveChannel(rxLogSvcChannel(radioId, 3, \"Three\", channelThreeSecret))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcChannel",
-              "line": 36,
+              "line": 67,
               "expression": "rxLogSvcChannel(radioId, 3, \"Three\", channelThreeSecret)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startEventMonitoring",
-              "line": 37,
+              "line": 68,
               "expression": "h.service.startEventMonitoring(radioId)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcEncryptedChannelPayload",
-              "line": 40,
+              "line": 71,
               "expression": "rxLogSvcEncryptedChannelPayload(senderTimestamp, \"hello\", channelThreeSecret)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RxLogEntryDTO.fromParsed",
-              "line": 41,
+              "line": 72,
               "expression": "RxLogEntryDTO.fromParsed(\n                    radioId, rxLogSvcParsed(PayloadType.GROUP_TEXT, payload), decryptStatus = DecryptStatus.NO_MATCHING_KEY,\n                )",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcParsed",
-              "line": 42,
+              "line": 73,
               "expression": "rxLogSvcParsed(PayloadType.GROUP_TEXT, payload)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.saveRxLogEntry",
-              "line": 44,
+              "line": 75,
               "expression": "h.store.saveRxLogEntry(entry)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.updateChannels",
-              "line": 46,
+              "line": 77,
               "expression": "h.service.updateChannels(\n                    secrets = mapOf(0.toUByte() to channelZeroSecret, 3.toUByte() to channelThreeSecret),\n                    names = mapOf(0.toUByte() to \"Public\", 3.toUByte() to \"Three\"),\n                )",
               "assertion_or_checked_wait": false
             },
             {
               "name": "mapOf",
-              "line": 47,
+              "line": 78,
               "expression": "mapOf(0.toUByte() to channelZeroSecret, 3.toUByte() to channelThreeSecret)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toUByte",
-              "line": 47,
+              "line": 78,
               "expression": "toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toUByte",
-              "line": 47,
+              "line": 78,
               "expression": "toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "mapOf",
-              "line": 48,
+              "line": 79,
               "expression": "mapOf(0.toUByte() to \"Public\", 3.toUByte() to \"Three\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toUByte",
-              "line": 48,
+              "line": 79,
               "expression": "toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toUByte",
-              "line": 48,
+              "line": 79,
               "expression": "toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.store.fetchRxLogEntries",
-              "line": 51,
+              "line": 82,
               "expression": "h.store.fetchRxLogEntries(radioId, 500)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toUByte",
-              "line": 52,
+              "line": 83,
               "expression": "toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -14303,11 +14308,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceReprocessTest.kt",
-          "sha256": "dc32cbee030587c25f528e85cee20dae164559a701ce3bd846877573b6a4a226",
+          "sha256": "a3e56bc60427fdfacae0157f6edbbdf5f4b323fdadf94f470d0a3795ef1f5c3b",
           "class": "com.meshcoreone.android.core.services.diagnostics.RxLogServiceReprocessTest",
           "method_or_family_name": "coexisting entry stream subscribers each receive every entry",
-          "line": 58,
-          "end_line": 75,
+          "line": 89,
+          "end_line": 106,
           "factory_method": "cases",
           "registration_identity_resolution": null,
           "body_sha256": "7d4f5d42b9124324789b5661c4765ef9deac953b125c3a063167588b7aa72eed",
@@ -14316,121 +14321,121 @@
           "actions_and_helper_calls": [
             {
               "name": "RxLogSvcHarness",
-              "line": 59,
+              "line": 90,
               "expression": "RxLogSvcHarness()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.startEventMonitoring",
-              "line": 60,
+              "line": 91,
               "expression": "h.service.startEventMonitoring(rxLogSvcRadio())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcRadio",
-              "line": 60,
+              "line": 91,
               "expression": "rxLogSvcRadio()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.entryStream",
-              "line": 61,
+              "line": 92,
               "expression": "h.service.entryStream()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.entryStream",
-              "line": 62,
+              "line": 93,
               "expression": "h.service.entryStream()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "mutableListOf",
-              "line": 63,
+              "line": 94,
               "expression": "mutableListOf<RxLogEntryDTO>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "mutableListOf",
-              "line": 64,
+              "line": 95,
               "expression": "mutableListOf<RxLogEntryDTO>()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "synchronized",
-              "line": 65,
+              "line": 96,
               "expression": "synchronized(receivedA)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "synchronized",
-              "line": 66,
+              "line": 97,
               "expression": "synchronized(receivedB)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.process",
-              "line": 68,
+              "line": 99,
               "expression": "h.service.process(rxLogSvcParsed(PayloadType.ADVERT, Bytes.of(0x01, 0x02, 0x03, 0x04)))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcParsed",
-              "line": 68,
+              "line": 99,
               "expression": "rxLogSvcParsed(PayloadType.ADVERT, Bytes.of(0x01, 0x02, 0x03, 0x04))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "Bytes.of",
-              "line": 68,
+              "line": 99,
               "expression": "Bytes.of(0x01, 0x02, 0x03, 0x04)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcWaitUntil",
-              "line": 70,
+              "line": 101,
               "expression": "rxLogSvcWaitUntil(\"the first subscriber must receive the entry\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "synchronized",
-              "line": 70,
+              "line": 101,
               "expression": "synchronized(receivedA)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "receivedA.isNotEmpty",
-              "line": 70,
+              "line": 101,
               "expression": "receivedA.isNotEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "rxLogSvcWaitUntil",
-              "line": 71,
+              "line": 102,
               "expression": "rxLogSvcWaitUntil(\"the second subscriber must also receive the entry\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "synchronized",
-              "line": 71,
+              "line": 102,
               "expression": "synchronized(receivedB)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "receivedB.isNotEmpty",
-              "line": 71,
+              "line": 102,
               "expression": "receivedB.isNotEmpty()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "taskA.cancel",
-              "line": 72,
+              "line": 103,
               "expression": "taskA.cancel()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "taskB.cancel",
-              "line": 73,
+              "line": 104,
               "expression": "taskB.cancel()",
               "assertion_or_checked_wait": false
             }
@@ -14528,11 +14533,11 @@
       "native_proposals": [
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceReprocessTest.kt",
-          "sha256": "dc32cbee030587c25f528e85cee20dae164559a701ce3bd846877573b6a4a226",
+          "sha256": "a3e56bc60427fdfacae0157f6edbbdf5f4b323fdadf94f470d0a3795ef1f5c3b",
           "class": "com.meshcoreone.android.core.services.diagnostics.RxLogServiceReprocessTest",
           "method_or_family_name": "finishEntryStream ends every subscriber's iteration",
-          "line": 76,
-          "end_line": 90,
+          "line": 107,
+          "end_line": 121,
           "factory_method": "cases",
           "registration_identity_resolution": null,
           "body_sha256": "902ba0f942519aa1534479675dfa9c9516876373ac73616c4e00bdfce8801670",
@@ -14540,13 +14545,13 @@
           "assertions": [
             {
               "name": "assertTrue",
-              "line": 86,
+              "line": 117,
               "expression": "assertTrue(iterationA.await(), \"finish must end the first subscriber's loop\")",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 87,
+              "line": 118,
               "expression": "assertTrue(iterationB.await(), \"finish must end the second subscriber's loop\")",
               "assertion_or_checked_wait": true
             }
@@ -14554,43 +14559,43 @@
           "actions_and_helper_calls": [
             {
               "name": "RxLogSvcHarness",
-              "line": 77,
+              "line": 108,
               "expression": "RxLogSvcHarness()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.entryStream",
-              "line": 78,
+              "line": 109,
               "expression": "h.service.entryStream()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.entryStream",
-              "line": 79,
+              "line": 110,
               "expression": "h.service.entryStream()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "h.service.finishEntryStream",
-              "line": 83,
+              "line": 114,
               "expression": "h.service.finishEntryStream()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "withTimeout",
-              "line": 85,
+              "line": 116,
               "expression": "withTimeout(5_000)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "iterationA.await",
-              "line": 86,
+              "line": 117,
               "expression": "iterationA.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "iterationB.await",
-              "line": 87,
+              "line": 118,
               "expression": "iterationB.await()",
               "assertion_or_checked_wait": false
             }

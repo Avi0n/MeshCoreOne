@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `c68f414098df1253bfccade171ae0f256790de8b`.
+Current integrated base: `a19d6138038577d7e76c63e85b58c7ba6976092a`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -583,6 +583,20 @@ branches use Kotlin error/Nothing, preserving proper DeviceError types without
 casts or a product edit. App/protocol did not execute at this candidate; old XML
 is not reused. Both supported lock contexts unwound normally. New exact run
 after actual169merge/rebase remains required.
+PR169 actually merged2026-10-11T21:23:56Z as
+a19d6138038577d7e76c63e85b58c7ba6976092a, verified on GitHub and fetched objects.
+Its parents are c68f414098df1253bfccade171ae0f256790de8b and
+e9d31b4138b8730197d0de0abe390421967b12bb; merge tree
+80a1e8c9bbb2a2b4737b826a3ee83e967acd39b8 equals the reviewed/passing candidate.
+The existing owned branch rebased35commits onto actual main without conflicts,
+not an unmerged cherry-pick. Initial reservation/authorization/base identities
+are unchanged. Caller assertion blobb24272846f3dc74e9df912c11cb945c5fe5e96b5
+remains exact. Old4a7817cb5 versus rebased2fa07b9c differs only in the six actual
+WP212repair/selector/evidence paths inherited from main. Accounting/helper
+bindings regenerate against those actual inputs; frozen source pin unchanged.
+Publication hold is lifted by actual merge; new exact native/Python execution
+and one accumulated normal-hook publication remain required. Resulting-main
+CI is not presumed passed and issue170 remains open pending reviewed merge.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
