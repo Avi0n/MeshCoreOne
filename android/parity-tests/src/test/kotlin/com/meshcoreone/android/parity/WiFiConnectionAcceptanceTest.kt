@@ -14,8 +14,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -85,15 +85,18 @@ class WiFiConnectionAcceptanceTest {
             withContext(NonCancellable) { transport.disconnect() }
             release.countDown()
         }
+    }
 
-        private suspend fun TestScope.awaitRealCompletion(job: Job) {
-            val beginning = System.nanoTime()
-            while (!job.isCompleted) {
-                assertTrue("Blocked IO must complete within the original three seconds", System.nanoTime() - beginning < 3_000_000_000L)
-                runCurrent()
-                yield()
-            }
-            assertTrue(System.nanoTime() - beginning < 3_000_000_000L)
+    private suspend fun TestScope.awaitRealCompletion(job: Job) {
+        val beginning = System.nanoTime()
+        while (!job.isCompleted) {
+            assertTrue(
+                "Blocked IO must complete within the original three seconds",
+                System.nanoTime() - beginning < 3_000_000_000L,
+            )
+            runCurrent()
+            yield()
         }
+        assertTrue(System.nanoTime() - beginning < 3_000_000_000L)
     }
 }

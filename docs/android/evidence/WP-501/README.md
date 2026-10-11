@@ -296,6 +296,9 @@ No caller cancellation was reached and protocol did not run. The test now
 explicitly drives foreground current-time work against a monotonic real3second
 bound, asserting exact virtual0/200ms. Production deadline behavior is unchanged;
 this scheduler setup failure is not a new transport defect.
+The subsequent7cc9ca8e attempt failed before JUnit at a private helper accidentally
+nested in the test method. Its class-level placement is corrected without changing
+the source time bounds or product code; no native discovery/pass is inferred.
 
 Coordinator's actual bounded99039051 read found no blocking mismatch in four
 exact RoundTrip frames and five new event/login/error families/shared helper.

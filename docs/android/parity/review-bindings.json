@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "a367c9a2cd7a954f858c9a3adfb36a757baa926f69da888a7005da3613f2bd9c",
+  "proposal_sha256": "c4d8a5a88f2075515927cf6fc6cf46c2b389abe8ea11bb532ba8417903b7d3f6",
   "families": [
     {
       "group": "backup-envelope",
@@ -75454,7 +75454,7 @@
     },
     {
       "group": "wifi-original-testnet-target-and-inflight-cancellation-budget",
-      "comparison_sha256": "bebe730daf225d0702caeb80b90dba9cdc76bb927a7a9541add376a08afd39d2",
+      "comparison_sha256": "c0f902306ad0eb9863661415a4e3317f0cc7d3b829b5d34c0d3e0d29fe375e26",
       "source_file_family_count": 12,
       "group_compared_family_count": 1,
       "partial_source_file": true,
@@ -75480,14 +75480,14 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-        "sha256": "aaea99accb714eebfe991d9dfc17f746bcf0d8b9a7326be0c4415f029eed7171",
+        "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4",
         "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
         "method_or_family_name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
         "line": 29,
-        "end_line": 98,
+        "end_line": 88,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "1f44850628a8c128b0592c0af6f4c56ec227ef9a2020cc99316af117dcfaf0c1",
+        "body_sha256": "1f5cf7bd585364e5db1a04c84882e7977eebee44db419b30f4dc7d85348a771e",
         "registration": null,
         "assertions": [
           {
@@ -75566,18 +75566,6 @@
             "name": "assertEquals",
             "line": 83,
             "expression": "assertEquals(1, closes.get())",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "assertTrue",
-            "line": 92,
-            "expression": "assertTrue(\"Blocked IO must complete within the original three seconds\", System.nanoTime() - beginning < 3_000_000_000L)",
-            "assertion_or_checked_wait": true
-          },
-          {
-            "name": "assertTrue",
-            "line": 96,
-            "expression": "assertTrue(System.nanoTime() - beginning < 3_000_000_000L)",
             "assertion_or_checked_wait": true
           }
         ],
@@ -75815,48 +75803,6 @@
             "line": 86,
             "expression": "release.countDown()",
             "assertion_or_checked_wait": false
-          },
-          {
-            "name": "TestScope.awaitRealCompletion",
-            "line": 89,
-            "expression": "TestScope.awaitRealCompletion(job: Job)",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "System.nanoTime",
-            "line": 90,
-            "expression": "System.nanoTime()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "while",
-            "line": 91,
-            "expression": "while (!job.isCompleted)",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "System.nanoTime",
-            "line": 92,
-            "expression": "System.nanoTime()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "runCurrent",
-            "line": 93,
-            "expression": "runCurrent()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "yield",
-            "line": 94,
-            "expression": "yield()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "System.nanoTime",
-            "line": 96,
-            "expression": "System.nanoTime()",
-            "assertion_or_checked_wait": false
           }
         ],
         "source_references": [
@@ -75870,7 +75816,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-          "sha256": "aaea99accb714eebfe991d9dfc17f746bcf0d8b9a7326be0c4415f029eed7171"
+          "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4"
         },
         {
           "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiTransport.kt",
@@ -75889,7 +75835,68 @@
           "sha256": "dceaddc4bee124dae7b419003340ccae1b2dc711ec8782a18b8bb98274fbff81"
         }
       ],
-      "native_checked_helper_assertions": [],
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "awaitRealCompletion",
+            "line": 60,
+            "expression": "awaitRealCompletion(started)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+            "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4",
+            "method": "awaitRealCompletion",
+            "line": 90,
+            "end_line": 101,
+            "body_sha256": "3f1744acd1e67cc9d3f85328e095c592d49d700e2554d9ce179ca440a028e0fc",
+            "assertions": [
+              {
+                "name": "assertTrue",
+                "line": 93,
+                "expression": "assertTrue(\n                \"Blocked IO must complete within the original three seconds\",\n                System.nanoTime() - beginning < 3_000_000_000L,\n            )",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 100,
+                "expression": "assertTrue(System.nanoTime() - beginning < 3_000_000_000L)",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        },
+        {
+          "invocation": {
+            "name": "awaitRealCompletion",
+            "line": 73,
+            "expression": "awaitRealCompletion(connect)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
+            "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4",
+            "method": "awaitRealCompletion",
+            "line": 90,
+            "end_line": 101,
+            "body_sha256": "3f1744acd1e67cc9d3f85328e095c592d49d700e2554d9ce179ca440a028e0fc",
+            "assertions": [
+              {
+                "name": "assertTrue",
+                "line": 93,
+                "expression": "assertTrue(\n                \"Blocked IO must complete within the original three seconds\",\n                System.nanoTime() - beginning < 3_000_000_000L,\n            )",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 100,
+                "expression": "assertTrue(System.nanoTime() - beginning < 3_000_000_000L)",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
       "runner_directory": "app/build/test-results/testDebugUnitTest",
       "runner_identity": [
         "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",

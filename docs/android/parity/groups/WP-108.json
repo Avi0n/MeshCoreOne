@@ -965,7 +965,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-          "sha256": "aaea99accb714eebfe991d9dfc17f746bcf0d8b9a7326be0c4415f029eed7171",
+          "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
           ],
@@ -973,7 +973,7 @@
             {
               "name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
               "line": 29,
-              "end_line": 98
+              "end_line": 88
             },
             {
               "name": "connect",
@@ -987,8 +987,8 @@
             },
             {
               "name": "awaitRealCompletion",
-              "line": 89,
-              "end_line": 97
+              "line": 90,
+              "end_line": 101
             }
           ]
         }
@@ -4028,14 +4028,14 @@
       "native_proposals": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-          "sha256": "aaea99accb714eebfe991d9dfc17f746bcf0d8b9a7326be0c4415f029eed7171",
+          "sha256": "23a8986b36b428970372726aad696f956994a561224385b963368a490457ffb4",
           "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
           "method_or_family_name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
           "line": 29,
-          "end_line": 98,
+          "end_line": 88,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "1f44850628a8c128b0592c0af6f4c56ec227ef9a2020cc99316af117dcfaf0c1",
+          "body_sha256": "1f5cf7bd585364e5db1a04c84882e7977eebee44db419b30f4dc7d85348a771e",
           "registration": null,
           "assertions": [
             {
@@ -4114,18 +4114,6 @@
               "name": "assertEquals",
               "line": 83,
               "expression": "assertEquals(1, closes.get())",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertTrue",
-              "line": 92,
-              "expression": "assertTrue(\"Blocked IO must complete within the original three seconds\", System.nanoTime() - beginning < 3_000_000_000L)",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertTrue",
-              "line": 96,
-              "expression": "assertTrue(System.nanoTime() - beginning < 3_000_000_000L)",
               "assertion_or_checked_wait": true
             }
           ],
@@ -4362,48 +4350,6 @@
               "name": "release.countDown",
               "line": 86,
               "expression": "release.countDown()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "TestScope.awaitRealCompletion",
-              "line": 89,
-              "expression": "TestScope.awaitRealCompletion(job: Job)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "System.nanoTime",
-              "line": 90,
-              "expression": "System.nanoTime()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "while",
-              "line": 91,
-              "expression": "while (!job.isCompleted)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "System.nanoTime",
-              "line": 92,
-              "expression": "System.nanoTime()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "runCurrent",
-              "line": 93,
-              "expression": "runCurrent()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "yield",
-              "line": 94,
-              "expression": "yield()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "System.nanoTime",
-              "line": 96,
-              "expression": "System.nanoTime()",
               "assertion_or_checked_wait": false
             }
           ],
