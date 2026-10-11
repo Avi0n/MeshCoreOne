@@ -48,6 +48,43 @@ production signing or release certification.
 
 ## Local execution before candidate publication
 
+Corrected exact0191e61ca71c4f49b48e27afc5c8cbd9b49d78d3 actual declared
+`python <session-files>\wp501-native-check.py --head 0191e61ca71c4f49b48e27afc5c8cbd9b49d78d3 --app-only`
+using unchanged scaffoldlauncher/constrainedmemory/privatecache and actual
+supportednative+Gradlelocks executes
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --tests com.meshcoreone.android.app.platform.InlineContentCancellationTest --tests com.meshcoreone.android.app.platform.PreviewPolicyTest --dependency-verification=strict --quiet`.
+Actual69required/discovered/run/passed (65mandatory+4unchangedrepair),
+0failure/error/skip/readinesspassed/locksreleased. Allfive region originals
+run inside the one real mandatory method, not five discovered executions.
+Exact clean declared combinedPython363/363passed,0failure/error/skip.
+Appsourceblob3bf729f3c52883e6c194f0dd984f00d15e364eda/
+collector5677bdec06c084b02acac58a56cccfaae633e4be. Final evidence-only
+updates must preserve these bytes; no claim of executing that laterhead.
+Native response90f3409e unchangedde014→0191; resolver05f3de0d
+unchanged9fc→0191.755/116inspected, full5133/source/resource acceptance
+and independent exactcandidate review remain incomplete.
+
+Publisheda27primary38181356057 actually completedSUCCESS/all5scopes/
+all6jobs. Full official18895line log/complete actualJSON read directly:
+controller363/Python96/app694/services2640/protocol4711/chats360/model166/
+data409/database45/l10n25 and all20module totals positive0failure/error/skip.
+Pinned codec/independentcrypto PASS is explicitly not Kotlinrestore/database
+parity; separate realSwiftData restore/export PASS bindsa19/a27/db145/
+run38181356057/attempt1. Module/backup counts overlap; no doubleaddition.
+No duplicateCIresultbundle copied/committed/uploaded/hashed/revalidated.
+This a27 result does not certify the later96addedfamilycomparison/
+issue174repair/newsource-session method.
+
+Continuing full ProtocolBugFix36source bodies/native factories/helper read
+finds original-input issue175: five binary-status families use112233445566,
+but native helper supplies nodePrefixAABBCCDDEEFF. Exact five: minimal48,
+52rxAirtime,52roomcounters,56receiveErrors,60extra. Selected scalar results
+match, not a demonstrated product defect. Intake:
+https://github.com/cbattlegear/MeshCoreOne-Android/issues/175 .
+These remain unproposed/unrepaired; do not change shared defaults or inflate
+755accounting. Full parser/consumer audit and bounded repair continue after
+this publication.170/171/172/174/175open;173producerexclusive.
+
 Exact2b90c8aa24a3034b85eb4921c752324bcf4cb38f declared app-only invocation
 discovered69,passed68,failed1 (newregionmethod),0errors/skips. Required
 Timeout/DeviceError exceptions escaped backgroundScope child tasks into the
