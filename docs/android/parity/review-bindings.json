@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "242b4e308a7e27e5eec2c498a07fa1fa38768125d856797fea4afec3c0d520d6",
+  "proposal_sha256": "6c9d8e3bbc2184f9a492ae8772a0f059762c305f41a01dbfb63e4161a43b2529",
   "families": [
     {
       "group": "backup-envelope",
@@ -77198,7 +77198,7 @@
     },
     {
       "group": "correlation-original-orphan-drain-and-parked-cancellation-no-write",
-      "comparison_sha256": "687ad02d87fa57fc7a230d40b0eae37c5597a9c2fbddc63d08a021970a7cedbc",
+      "comparison_sha256": "ccb91402b238c5579aaeebbe3beeeb1aee6cc2cb6ed596ef372cf8227e1fd07c",
       "source_file_family_count": 32,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -77704,7 +77704,7 @@
     },
     {
       "group": "correlation-original-orphan-drain-and-parked-cancellation-no-write",
-      "comparison_sha256": "687ad02d87fa57fc7a230d40b0eae37c5597a9c2fbddc63d08a021970a7cedbc",
+      "comparison_sha256": "ccb91402b238c5579aaeebbe3beeeb1aee6cc2cb6ed596ef372cf8227e1fd07c",
       "source_file_family_count": 32,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -78192,7 +78192,7 @@
     },
     {
       "group": "correlation-original-text-binary-serialization-release-and-unicast-tags",
-      "comparison_sha256": "c6a4052fa76091575b8db4a070bb5127f12de560b7bddbec8fb0a2321f092a00",
+      "comparison_sha256": "5e3379b662379668ced8ab41d731b7d488953b6d01793b4e325a4ee517fb9221",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -78913,7 +78913,7 @@
     },
     {
       "group": "correlation-original-text-binary-serialization-release-and-unicast-tags",
-      "comparison_sha256": "c6a4052fa76091575b8db4a070bb5127f12de560b7bddbec8fb0a2321f092a00",
+      "comparison_sha256": "5e3379b662379668ced8ab41d731b7d488953b6d01793b4e325a4ee517fb9221",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -79634,7 +79634,7 @@
     },
     {
       "group": "correlation-original-binary-cadence-latest-tag-and-overall-timeout",
-      "comparison_sha256": "8e6e5148371742bad653ab71159b702440becafa68078336ef0ff0e244d097f5",
+      "comparison_sha256": "65f923d01a890735631a1d31c711d5ba3e6967563f8d3071abc5d9c32b22e215",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -80249,7 +80249,7 @@
     },
     {
       "group": "correlation-original-text-binary-serialization-release-and-unicast-tags",
-      "comparison_sha256": "c6a4052fa76091575b8db4a070bb5127f12de560b7bddbec8fb0a2321f092a00",
+      "comparison_sha256": "5e3379b662379668ced8ab41d731b7d488953b6d01793b4e325a4ee517fb9221",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -80940,7 +80940,7 @@
     },
     {
       "group": "correlation-original-disabled-export-unrelated-battery-and-error-eight",
-      "comparison_sha256": "ffd8b4ec957eeab60e42bead9401c0926490b4e5a05e81b9933096e3f380f54f",
+      "comparison_sha256": "133632318a9b4e2cd47ed8003c73905175631f3ba47fdf31f6b009cad1aaab8f",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -82060,7 +82060,7 @@
     },
     {
       "group": "correlation-original-disabled-export-unrelated-battery-and-error-eight",
-      "comparison_sha256": "ffd8b4ec957eeab60e42bead9401c0926490b4e5a05e81b9933096e3f380f54f",
+      "comparison_sha256": "133632318a9b4e2cd47ed8003c73905175631f3ba47fdf31f6b009cad1aaab8f",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -82453,7 +82453,7 @@
     },
     {
       "group": "correlation-original-disabled-export-unrelated-battery-and-error-eight",
-      "comparison_sha256": "ffd8b4ec957eeab60e42bead9401c0926490b4e5a05e81b9933096e3f380f54f",
+      "comparison_sha256": "133632318a9b4e2cd47ed8003c73905175631f3ba47fdf31f6b009cad1aaab8f",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -87920,7 +87920,7 @@
     },
     {
       "group": "correlation-original-private-key-import-length-payload-and-refreshed-identity",
-      "comparison_sha256": "d39d61860341abdb878ea097ceea32dfb50b64c73c7c50527c33bba3800f8d03",
+      "comparison_sha256": "6bb5e54c088e5d504c9ee43387c5ce18f8378f48881f4d62acff24a34b00cfb5",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -88497,7 +88497,7 @@
     },
     {
       "group": "correlation-original-private-key-import-length-payload-and-refreshed-identity",
-      "comparison_sha256": "d39d61860341abdb878ea097ceea32dfb50b64c73c7c50527c33bba3800f8d03",
+      "comparison_sha256": "6bb5e54c088e5d504c9ee43387c5ce18f8378f48881f4d62acff24a34b00cfb5",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -89086,7 +89086,7 @@
     },
     {
       "group": "correlation-original-private-key-import-length-payload-and-refreshed-identity",
-      "comparison_sha256": "d39d61860341abdb878ea097ceea32dfb50b64c73c7c50527c33bba3800f8d03",
+      "comparison_sha256": "6bb5e54c088e5d504c9ee43387c5ce18f8378f48881f4d62acff24a34b00cfb5",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -89669,7 +89669,7 @@
     },
     {
       "group": "correlation-original-binary-pretag-errors-and-dedicated-room-layout",
-      "comparison_sha256": "e35f81b24a1a83437d127da20b03d39c9807d5e7d20a4bb3288c373ed7dba664",
+      "comparison_sha256": "b306909c147ded38df7223cd2bcacc735b41877f6741a1a170eed807b71e4120",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -90098,7 +90098,7 @@
     },
     {
       "group": "correlation-original-binary-cadence-latest-tag-and-overall-timeout",
-      "comparison_sha256": "8e6e5148371742bad653ab71159b702440becafa68078336ef0ff0e244d097f5",
+      "comparison_sha256": "65f923d01a890735631a1d31c711d5ba3e6967563f8d3071abc5d9c32b22e215",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -90713,7 +90713,7 @@
     },
     {
       "group": "correlation-original-binary-cadence-latest-tag-and-overall-timeout",
-      "comparison_sha256": "8e6e5148371742bad653ab71159b702440becafa68078336ef0ff0e244d097f5",
+      "comparison_sha256": "65f923d01a890735631a1d31c711d5ba3e6967563f8d3071abc5d9c32b22e215",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -91334,7 +91334,7 @@
     },
     {
       "group": "correlation-original-binary-pretag-errors-and-dedicated-room-layout",
-      "comparison_sha256": "e35f81b24a1a83437d127da20b03d39c9807d5e7d20a4bb3288c373ed7dba664",
+      "comparison_sha256": "b306909c147ded38df7223cd2bcacc735b41877f6741a1a170eed807b71e4120",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -91775,7 +91775,7 @@
     },
     {
       "group": "correlation-original-binary-pretag-errors-and-dedicated-room-layout",
-      "comparison_sha256": "e35f81b24a1a83437d127da20b03d39c9807d5e7d20a4bb3288c373ed7dba664",
+      "comparison_sha256": "b306909c147ded38df7223cd2bcacc735b41877f6741a1a170eed807b71e4120",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -92204,7 +92204,7 @@
     },
     {
       "group": "correlation-original-text-and-keepalive-device-errors",
-      "comparison_sha256": "44100b00fcc6e41a6212632c0d6a5a233f93bbad4eaf7f1629bdbfa8a9d9a20b",
+      "comparison_sha256": "14b1e281beaf033983fa0272f938ae4ff48779d95742045bae72294a004d9f23",
       "source_file_family_count": 32,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -92530,7 +92530,7 @@
     },
     {
       "group": "correlation-original-text-and-keepalive-device-errors",
-      "comparison_sha256": "44100b00fcc6e41a6212632c0d6a5a233f93bbad4eaf7f1629bdbfa8a9d9a20b",
+      "comparison_sha256": "14b1e281beaf033983fa0272f938ae4ff48779d95742045bae72294a004d9f23",
       "source_file_family_count": 32,
       "group_compared_family_count": 2,
       "partial_source_file": true,

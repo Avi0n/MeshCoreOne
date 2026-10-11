@@ -402,6 +402,15 @@ notCancelled-only assertion. Native first-messageSent resend gating/owned drain
 and correlation quarantine remain declared adaptations, not missing-tag proof.
 Mandatory owned identities52→59; new immutable execution/independent review
 remain required. Full604-family/source/resource acceptance remains unfinished.
+Actual169merge a19d6138 lifted publication hold; existing branch rebased35
+owned commits without conflict, original reservation/authorization/source pin
+and unchanged caller regression retained. Exact rebased5effaf16 passed63/63
+app (all59mandatory+4repair),32/32protocol with all32correlation support
+identities and363/363combinedPython,0failure/error/skip. All7new methods
+execute; no product edit or old-XML reuse. First native Java bootstrap512MiB
+allocation failed before Gradle; actual readiness later recovered, unchanged
+retry passed and locks released. New19source-family independent review/full
+604family/source/resource audit/current-hosted execution remain outstanding.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native

@@ -597,6 +597,21 @@ bindings regenerate against those actual inputs; frozen source pin unchanged.
 Publication hold is lifted by actual merge; new exact native/Python execution
 and one accumulated normal-hook publication remain required. Resulting-main
 CI is not presumed passed and issue170 remains open pending reviewed merge.
+Exact rebased5effaf16c49ef0ef64b979b51970e1220c43d759 first native readiness
+failed before Gradle: actual JVM mmap512MiB G1 allocation failed under shared
+host memory pressure. Only own hs_err_pid5384.log moved to session artifacts;
+no unrelated process termination, global configuration or cache edits.
+Actual later java-version succeeded with1507MiBphysical/1365MiBvirtual free,
+so unchanged command/input retry ran normally under the supported hard locks.
+App selector documented above discovered/run/passed63/63, all59mandatory
+owned+4repair identities. Correlation selector documented above passed32/32,
+all32required original support identities positively matched. Combined declared
+Python command passed363/363. All0failure/error/skip; both locks released.
+All7new methods actually execute. Initiala345compile/431metric/readiness failures
+remain retained, not retroactively passed. Evidence-only followup does not edit
+Kotlin/collector/product inputs. Remaining independent19-family source review,
+full604-family/source/resource audit and current-head hosted checks remain
+required; no full acceptance, new APK, hardware or privileged approval inferred.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

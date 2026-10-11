@@ -31,7 +31,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read entire three source declarations/shared start/selfInfo/polling and full frozen importPrivateKey, actual native validation/match/owned appStart plus receive cache update. Size guard precedes transport admission; only payloadlessOK succeeds; actual selfInfo ingress updates cached identity. Timeout is narrowly caught and asserted, all unexpected failures/cancellation propagate. No hardware command is executed.",
-      "unresolved": ["New exact method requires immutable execution and independent bounded source review. Historical component hasMCore/default1second and cannot prove original200ms/MCTst/refreshed startup bytes. Three originals are one discovered runner, not three independent executions."],
+      "unresolved": ["Exact rebased5effaf16 app63/63 (all59mandatory+4repair), protocol32/32 positively all32source support identities, combinedPython363/363passed,0failure/error/skip. New method actually executes; independent bounded source review/current hosted execution remain required. Historical component hasMCore/default1second and cannot prove original200ms/MCTst/refreshed startup bytes. Three originals are one discovered runner, not three independent executions."],
       "methods": ["importPrivateKey ignores OK responses with payloads", "importPrivateKey refreshes cached self info after OK", "importPrivateKey rejects a key that is not the expanded private-key length"]
     },
     {
@@ -60,7 +60,7 @@
         "MeshCore/Sources/MeshCore/Session/MeshCoreSession+DeviceConfig.swift"
       ],
       "consumer": "Read all three frozen bodies/local helpers, full source export matcher/getBattery and actual native query/deviceError/PacketParser paths. Feature-disabled affects only matching export; raw8 is preserved. No onSend response shortcut and no success-shaped nullable key.",
-      "unresolved": ["New exact method requires immutable execution and independent review. Component error4/default fixture does not supply original8/config proof. Three source families are one actual runner."],
+      "unresolved": ["Exact rebased5effaf16 app63/63 (all59mandatory+4repair), protocol32/32 positively all32source support identities, combinedPython363/363passed,0failure/error/skip. New method actually executes; independent bounded source review/current hosted execution remain required. Component error4/default fixture does not supply original8/config proof. Three source families are one actual runner."],
       "methods": ["exportPrivateKey throws featureDisabled on disabled response", "disabled responses do not break unrelated requests", "exportPrivateKey fails fast on device error"]
     },
     {
@@ -89,7 +89,7 @@
         "MeshCore/Sources/MeshCore/Session/MeshCoreSession+BinaryProtocol.swift"
       ],
       "consumer": "Read complete selected source bodies/local status+messageSent helpers and entire binary exchange source/native consumer. Native requestStatus preserves fullkey/prefix/type layout; pretag errors fail own exchange; typed routed response remaps packed counters and zeroes rxAirtime as source. Raw ingress/parser is exercised without cached-room seeding or fabricated typed response.",
-      "unresolved": ["New exact method requires immutable execution/independent review. No generic binary-status fallback, no-tag retransmit, real repeater/room hardware or complete binary-protocol API audit is inferred."],
+      "unresolved": ["Exact rebased5effaf16 app63/63 (all59mandatory+4repair), protocol32/32 positively all32source support identities, combinedPython363/363passed,0failure/error/skip. New method actually executes; independent bounded source review/current hosted execution remain required. No generic binary-status fallback, no-tag retransmit, real repeater/room hardware or complete binary-protocol API audit is inferred."],
       "methods": ["requestStatus fails fast on device error before messageSent", "requestTelemetry fails fast on device error before messageSent", "requestStatus uses dedicated status command and room layout for typed room targets"]
     },
     {
@@ -118,7 +118,7 @@
         "MeshCore/Sources/MeshCore/Session/MeshCoreSession+BinaryProtocol.swift"
       ],
       "consumer": "Read all selected source bodies/status+sent+binary helpers and complete source/native binary exchange: latest learned tag only, routed status prefix independent of tag, floor/headroom cadence and owned overall deadline. Actual requests/resends go through public transport. Retired tag/reused-tag/late-device-error/native quarantine extensions remain separate from selected original assertions.",
-      "unresolved": ["New exact method requires immutable execution and independent adaptation review. These three originals do not certify every binary consumer, real radio cadence, missing firstMessageSent or thread/wall-clock behavior."],
+      "unresolved": ["Exact rebased5effaf16 app63/63 (all59mandatory+4repair), protocol32/32 positively all32source support identities, combinedPython363/363passed,0failure/error/skip. New method actually executes; independent bounded adaptation review/current hosted execution remain required. These three originals do not certify every binary consumer, real radio cadence, missing firstMessageSent or thread/wall-clock behavior."],
       "methods": ["requestStatus retransmits until a matching response arrives", "binary response matches only the latest retransmit tag", "requestStatus times out after the overall budget without a reply"]
     },
     {
@@ -146,7 +146,7 @@
         "MeshCore/Sources/MeshCore/Session/MeshCoreSession+Messaging.swift"
       ],
       "consumer": "Read complete two original declarations/shared startup helper plus frozen/native sendMessage/sendKeepAlive and messageSent matcher/full-operation serializer. Request-specific error reaches only owning caller with raw5/3 intact, and no onSend response shortcut is used.",
-      "unresolved": ["New exact method requires immutable execution and independent bounded review. Dynamic source Date adaptation is explicit; native timing/clock/physical radio proof is not inferred."],
+      "unresolved": ["Exact rebased5effaf16 app63/63 (all59mandatory+4repair), protocol32/32 positively all32source support identities, combinedPython363/363passed,0failure/error/skip. New method actually executes; independent bounded source review/current hosted execution remain required. Dynamic source Date adaptation is explicit; native timing/clock/physical radio proof is not inferred."],
       "methods": ["sendMessage fails fast on device error", "sendKeepAlive fails fast on device error"]
     },
     {
@@ -176,7 +176,7 @@
         "MeshCore/Sources/MeshCore/Session/RequestContext.swift"
       ],
       "consumer": "Read full three originals/local status+sent helpers and complete frozen/native RequestResponseSerializer and binary/messageSent exchanges. One owned request holds mutex across suspended replies; terminal device error releases slot, status consumes own tag+push before unicast admits, distinct message tag cannot be stolen. No product-path edits or fake completion.",
-      "unresolved": ["New exact method requires immutable execution and independent review. These3originals are one runner; fail-after-send/correlation quarantine/reused-tag or physical concurrency cases remain separate native extensions."],
+      "unresolved": ["Exact rebased5effaf16 app63/63 (all59mandatory+4repair), protocol32/32 positively all32source support identities, combinedPython363/363passed,0failure/error/skip. New method actually executes; independent bounded source review/current hosted execution remain required. These3originals are one runner; fail-after-send/correlation quarantine/reused-tag or physical concurrency cases remain separate native extensions."],
       "methods": ["binary request serializes behind a concurrent text command", "binary request errors release the serializer for following requests", "concurrent unicast send and binary request do not share one messageSent"]
     },
     {
@@ -204,7 +204,7 @@
         "MeshCore/Sources/MeshCore/Session/RequestContext.swift"
       ],
       "consumer": "Read complete source2families/localbattery+startup helper and full actual Swift continuation guard/owned drain plus native callercontext/beforeSend/cancelInProgressSend/withOwnedSerialization/match/subscription. Public receive/parser delivers orphan under still-heldslot; follower cannot send before drain. Only narrowCancellationException is caught, expected exactidentity asserted; unexpected typedfailure propagates.",
-      "unresolved": ["New exact method requires immutable execution and independent adaptation review. This success-path drain does not certify abandoned timeout/reconnect, in-progress socketwrite, processdeath or general cancellation-latency behavior."],
+      "unresolved": ["Exact rebased5effaf16 app63/63 (all59mandatory+4repair), protocol32/32 positively all32source support identities, combinedPython363/363passed,0failure/error/skip. New method actually executes; independent bounded adaptation review/current hosted execution remain required. This success-path drain does not certify abandoned timeout/reconnect, in-progress socketwrite, processdeath or general cancellation-latency behavior."],
       "methods": ["a response orphaned by a cancelled command is not delivered to the next command", "a command cancelled while waiting on the serializer never writes"]
     },
     {
