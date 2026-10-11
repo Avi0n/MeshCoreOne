@@ -23,7 +23,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
       ],
       "consumer": "Inspected actual window/outstanding-index collector, progress watchdog, sorted partial receipt, whole-exchange ownership and exact getChannel index predicate. Public consumer distinguishes partial missing from complete snapshots and never mistakes an old same-index response for its successor. Native unresolved-index quarantine is the explicit WP107 adaptation; this source scenario's delivered late0 allows fresh0, not proof that arbitrarily late unanswered index1 is safe. Mock capability dispatch and deterministic ingestion are not physical BLE/WiFi delivery.",
-      "unresolved": ["Three newly required methods await current-candidate execution and independent source/assertion review; no production defect is inferred solely from predecessor acceptance gaps."],
+      "unresolved": ["All three new methods passed at exact4dfc797ceb19b32ffb7039b7c5f18d135ebd0954 within31app cases (all27 required identities plus4 repair regressions); hosted exact-candidate execution and independent source/assertion review remain required. No production defect is inferred solely from predecessor acceptance gaps."],
       "methods": [
         "each requested index lands in its own slot and unrequested indexes are ignored",
         "dropped writes surface as missing indexes after the idle timeout",
@@ -51,7 +51,7 @@
         "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
       ],
       "consumer": "Actual session simple exchange must write once and await OK or typed DeviceError; getDefaultFloodScope errors cannot become nil absence. The predecessor component command helper replied inside onSend, so it did not independently assert the already-written suspension state. New assertions fill that measurable acceptance gap; no proven production failure or physical/admin command is inferred.",
-      "unresolved": ["The three new exact required methods passed at b501548b within28app cases; exact hosted candidate execution and later independent semantic review remain required."],
+      "unresolved": ["The three new exact required methods passed at b501548b within28app cases and again at4dfc797c within31app cases. Coordinator's actual bounded b2c29af8 source read found no blocking input/assertion/consumer mismatch in all12 original families, including the four scope/trace companion cases; this is not full WP501 or privileged approval. Hosted exact-candidate execution remains required."],
       "methods": [
         "sendChannelData emits correct frame and awaits OK",
         "sendChannelData throws deviceError on error response",

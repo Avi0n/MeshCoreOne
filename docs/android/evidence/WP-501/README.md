@@ -170,7 +170,24 @@ comparisons and three additional required methods. Exact source configuration,
 self-info/name/secret/indices and distinct sessions replace shortened shared
 component fixtures. New assertions measure50ms window hold, missing-empty and
 returned fresh index/name, plus original sorted/unrequested/lost/serial outcomes.
-They await new-candidate execution rather than inheriting b501548b's passes.
+At exact4dfc797ceb19b32ffb7039b7c5f18d135ebd0954 the app selector above executed
+under the same supported credential-stripped private-cache launcher and shared
+native/Gradle hard locks. Strict XML identities discovered31/run31/passed31/
+0failure/error/skip: all27 required WP501 methods plus4 repair regressions.
+The three new channel-pipeline methods and unchanged caller-cancellation
+assertion actually pass; no unselected original or full gate is inferred.
+The declared combined controller/local/parity command also ran356/356passed/
+0failure/error/skip on that immutable commit. No additional protocol run is
+claimed for this test-only increment.
+
+Coordinator's actual bounded b2c29af8 review compared the complete new session
+test, all12 frozen V115SessionMethods/start-helper cases, real SessionCore/
+MockTransport and the complete Kotlin literal/registration/binder delta plus
+13negative regressions. It found no blocking source/input/assertion/consumer
+mismatch; b501-to-b2 changed only proposal/evidence/generated bindings.
+This source read is not full422-family execution, full WP501 or privileged
+approval. Exactb2 hosted38165231665 was stillin_progress at the latest check;
+classifier/controller/Swiftcodec completedSUCCESS, LinuxAndroid wasin_progress.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

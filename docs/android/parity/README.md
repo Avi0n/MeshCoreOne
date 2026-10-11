@@ -86,15 +86,15 @@ defect: the app catches the caller's one-second timeout as its own thirty-second
 failure. The complete [issue-ready report](../evidence/WP-501/inline-caller-timeout-defect.md)
 was immediately [posted for coordinator repair](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6111573158).
 The coordinator filed [#166](https://github.com/cbattlegear/MeshCoreOne-Android/issues/166)
-and is repairing it. The assertion remains failing on the current product bytes;
-the worker does not edit that product path.
+and merged the repair as c68f4140. The unchanged assertion passes on the inherited
+repaired product bytes; the worker does not edit that product path.
 
 Two further gap assertions restore the original real-store discovered-node
 deletion through the actual app/Room adapter and exact source contact-URI
 name/key/type/whitespace assertions through the real encoder/parser.
 The discovery case also checks another radio's same-key record and a subsequent
-reload. These new cases await native execution; the predecessor's fake-store
-delete and adapted contact name/key are not promoted as their proof.
+reload. Both cases passed at be12305a and again at4dfc797c; the predecessor's
+fake-store delete and adapted contact name/key are not promoted as their proof.
 
 `FreshStoreBackupAcceptanceTest` adds four actual distinct-database routes:
 export/decode/import of the original Alice/General/Hello graph with reaction
@@ -184,8 +184,18 @@ assertion: window8/defaultidle1.5/hard5/grace0.02/MCTst/10s and original self-in
 with source-specific window2 and idle0.1 overrides. They measure the original
 50ms no-refill interval, require missing-empty and exact returned index0/namefresh,
 and use distinct real sessions for ordering/loss/serial cases rather than shortened
-shared fixture defaults. Five originals bind three native runner identities;
-these additions await their new candidate execution.
+shared fixture defaults. Five originals bind three native runner identities.
+At exact4dfc797ceb19b32ffb7039b7c5f18d135ebd0954, all27 required app identities
+plus4 coordinator repair methods were discovered/run/passed31/31 with0failure/
+error/skip. This includes all three new pipeline methods and the unchanged
+caller-cancellation assertion. Combined controller/local/parity passed356/356
+with0failure/error/skip. These exact-input executions do not approve the427
+proposals or imply a hosted candidate result.
+
+The coordinator's actual bounded b2c29af8 source read found no blocking mismatch
+in all12 modern session families and the Kotlin registration/13negative-test
+delta. That read and the verified b501-to-b2 execution-input equality are retained
+as bounded review evidence, not candidate self-approval or full acceptance.
 
 The 427 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families

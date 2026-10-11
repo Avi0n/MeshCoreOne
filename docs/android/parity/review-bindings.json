@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "2c0eb4982a60bd103d51bb09bacc298b810a86d2827e817c40272f3bd3f963b4",
+  "proposal_sha256": "6a562c76db36804ccec9e6c4fbdfaf316d90087283ab6bb245615ef6db513b82",
   "families": [
     {
       "group": "backup-envelope",
@@ -62142,7 +62142,7 @@
     },
     {
       "group": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
-      "comparison_sha256": "07a77e6c8e4916e6b6a3acd686f37631d8e028e7d07b512c2aa199b5291a7a73",
+      "comparison_sha256": "a63561a78d6f462be5fb00bbf78e9db36d6e59c1ff7ee630192399b2929ff2e4",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -62423,7 +62423,7 @@
     },
     {
       "group": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
-      "comparison_sha256": "07a77e6c8e4916e6b6a3acd686f37631d8e028e7d07b512c2aa199b5291a7a73",
+      "comparison_sha256": "a63561a78d6f462be5fb00bbf78e9db36d6e59c1ff7ee630192399b2929ff2e4",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -63024,7 +63024,7 @@
     },
     {
       "group": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
-      "comparison_sha256": "07a77e6c8e4916e6b6a3acd686f37631d8e028e7d07b512c2aa199b5291a7a73",
+      "comparison_sha256": "a63561a78d6f462be5fb00bbf78e9db36d6e59c1ff7ee630192399b2929ff2e4",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -63649,7 +63649,7 @@
     },
     {
       "group": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
-      "comparison_sha256": "07a77e6c8e4916e6b6a3acd686f37631d8e028e7d07b512c2aa199b5291a7a73",
+      "comparison_sha256": "a63561a78d6f462be5fb00bbf78e9db36d6e59c1ff7ee630192399b2929ff2e4",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -64250,7 +64250,7 @@
     },
     {
       "group": "windowed-channel-read-order-loss-cancellation-and-serial-consumers",
-      "comparison_sha256": "07a77e6c8e4916e6b6a3acd686f37631d8e028e7d07b512c2aa199b5291a7a73",
+      "comparison_sha256": "a63561a78d6f462be5fb00bbf78e9db36d6e59c1ff7ee630192399b2929ff2e4",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -64615,7 +64615,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -65023,7 +65023,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -65275,7 +65275,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -65533,7 +65533,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -65899,7 +65899,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -66145,7 +66145,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -66373,7 +66373,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
@@ -66601,7 +66601,7 @@
     },
     {
       "group": "modern-session-delayed-ack-and-typed-device-error-consumers",
-      "comparison_sha256": "102e9dd24d58646a50d2c22fb591dffe9a0d0c552a5dacdcc948c1c8d5340eca",
+      "comparison_sha256": "359b5ef6f0ef85f7fd65e15c29e85a403f4ed6aec3ebac08d12e3d6c5437a29f",
       "source_file_family_count": 12,
       "group_compared_family_count": 8,
       "partial_source_file": true,
