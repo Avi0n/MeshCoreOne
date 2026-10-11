@@ -30,7 +30,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-659 inspected family proposals in102groups, exact source/assertion/helper/runner
+712 inspected family proposals in110groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -47,6 +47,28 @@ radio, new Swift execution, screenshot/accessibility matrix, legal approval,
 production signing or release certification.
 
 ## Local execution before candidate publication
+
+Publisheda27ca4032b6b2f5ab8f7002fa0eea6857fcf53b3 exact primary38181356057
+is running;38181356063 separate setup. Normal installedprepush92parity/
+21local/15scaffold+preflight passed, Linuxscaffold failed beforeapp discovery
+at unchanged transformlockExpected3/found0 contracts/model/protocol JARs;
+publication explicitlyUNVERIFIED/no force/hook/cache/checksum bypass or cleanup.
+6e98→a27only5docs/proposal/binding files, all executedtest/collector/product
+bytes unchanged. Persistent handoff:
+https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6114716024 .
+Same PR/draft/issue134/reservation18;170/171/172open,173ownercoordinator.
+
+Local next read-only53source response families/eight complete suites with all
+actual helpers/payloads/parsers/DTOs/consumer surfaces compared: DeviceInfo7/
+NewResponse7/PathDiscovery10/Discover4/Raw3/Telemetry3/Trace11/V1158.
+OriginalBody typed variants/strictversusinclusive conditions/rawbytes/
+extension defaults/multi-bytepath/directnullscope/destinationmarker/legacy
+constructors preserved. No product/test byte changes or newly demonstrated
+defect in these selected cases. Actual source DeviceInfo buildhelper
+2025-01-01/T-Deck/1.12.0/maxHalf50/pin123456/extensions and trace/helper
+defaults exact, not header-based equivalence. Selected source numeric<=.001
+staysinclusive, not blanket172strict replacement.712/110inspected,74required
+response IDs; immutable selected discovery/independent review pending.
 
 Exact6e98b6e4e73f7cff73c9a46b9d3a8bb066eca84a actual declared isolated
 Windows launcher under native/Gradle locks ran60chats/60passed, positively all
