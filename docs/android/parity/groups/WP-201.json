@@ -6375,7 +6375,7 @@
       "native_contracts": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/ContactDTOPathTests.swift",
             "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift",
@@ -8310,7 +8310,7 @@
       "native_contracts": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/ContactDTOPathTests.swift",
             "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift",
@@ -8856,7 +8856,7 @@
       "native_contracts": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/ContactDTOPathTests.swift",
             "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift",
@@ -8933,7 +8933,7 @@
       "native_contracts": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/ContactDTOPathTests.swift",
             "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift",
@@ -8996,7 +8996,7 @@
       "native_contracts": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/ContactDTOPathTests.swift",
             "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift",
@@ -9138,7 +9138,7 @@
       "native_contracts": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/ContactDTOPathTests.swift",
             "MC1Services/Tests/MC1ServicesTests/MessageDTOPathTests.swift",
@@ -11430,7 +11430,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Single-byte hops chunk into one (data, hex) pair each",
           "line": 20,
@@ -11534,7 +11534,7 @@
         },
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Single-byte hops chunk into one (data, hex) pair each",
           "line": 51,
@@ -11717,7 +11717,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Multi-byte hops chunk by the encoded hash size",
           "line": 26,
@@ -11803,7 +11803,7 @@
         },
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Multi-byte hops chunk by the encoded hash size",
           "line": 56,
@@ -11944,7 +11944,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Hops ignore bytes beyond the encoded path length",
           "line": 31,
@@ -12055,7 +12055,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "A flood-routed contact has no hops",
           "line": 34,
@@ -12178,20 +12178,20 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Displayed hops use the out-path count when a route is set, ignoring inbound",
           "line": 38,
           "end_line": 40,
           "factory_method": "contactPaths",
           "registration_identity_resolution": null,
-          "body_sha256": "cf3230d4e6af37b5ac704b0744b4025a7d7cc3a54e0dfe78d3a3f49ffaa0be8a",
+          "body_sha256": "6f7d97b3551f7e662081bd3186da5f1ae580891636db71a61ca3d936648eea37",
           "registration": "},\n        \"Displayed hops use the out-path count when a route is set, ignoring inbound\" to",
           "assertions": [
             {
               "name": "assertEquals",
               "line": 39,
-              "expression": "assertEquals(3L, testContact().copy(outPathLength = encodePathLen(1, 3)).displayedHopCount(5))",
+              "expression": "assertEquals(3L, testContact().copy(outPathLength = encodePathLen(1, 3), outPath = Bytes.of(0x1A, 0x2B, 0x3C)).displayedHopCount(5))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -12205,13 +12205,19 @@
             {
               "name": "copy",
               "line": 39,
-              "expression": "copy(outPathLength = encodePathLen(1, 3))",
+              "expression": "copy(outPathLength = encodePathLen(1, 3), outPath = Bytes.of(0x1A, 0x2B, 0x3C))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "encodePathLen",
               "line": 39,
               "expression": "encodePathLen(1, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 39,
+              "expression": "Bytes.of(0x1A, 0x2B, 0x3C)",
               "assertion_or_checked_wait": false
             },
             {
@@ -12289,7 +12295,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "A set out-path of zero hops displays zero, not the inbound fallback",
           "line": 41,
@@ -12394,7 +12400,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "A flood-routed contact falls back to the inbound advert hops",
           "line": 45,
@@ -12481,7 +12487,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "An inbound zero is a real value, not nil",
           "line": 46,
@@ -12568,7 +12574,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Flood-routed with no inbound reception has no displayed hops",
           "line": 47,
@@ -17294,7 +17300,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Single-byte hops chunk into one (data, hex) pair each",
           "line": 20,
@@ -17398,7 +17404,7 @@
         },
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Single-byte hops chunk into one (data, hex) pair each",
           "line": 51,
@@ -17581,7 +17587,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Multi-byte hops chunk by the encoded hash size",
           "line": 26,
@@ -17667,7 +17673,7 @@
         },
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Multi-byte hops chunk by the encoded hash size",
           "line": 56,
@@ -17808,7 +17814,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "A trailing partial hop is kept as a short final chunk",
           "line": 61,
@@ -17919,7 +17925,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "A message with no path nodes has no hops",
           "line": 64,
@@ -19872,7 +19878,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "helper defaults radioID to id",
           "line": 68,
@@ -19971,7 +19977,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "supportsClientRepeat returns true for firmware v9",
           "line": 69,
@@ -20046,7 +20052,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "supportsClientRepeat returns false for firmware v8",
           "line": 70,
@@ -20127,7 +20133,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "supportsClientRepeat returns true for firmware v10",
           "line": 71,
@@ -20214,7 +20220,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "sharesLocationPublicly is false for policy none",
           "line": 72,
@@ -20307,7 +20313,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "sharesLocationPublicly is true for policy share",
           "line": 75,
@@ -20400,7 +20406,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "sharesLocationPublicly is true for policy prefs",
           "line": 78,
@@ -20505,7 +20511,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "copy mutates only specified fields",
           "line": 81,
@@ -20616,7 +20622,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "copy can set optional fields to nil",
           "line": 85,
@@ -20715,7 +20721,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "copy can update multiple fields at once",
           "line": 86,
@@ -20838,7 +20844,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "savingPreRepeatSettings copies current radio params",
           "line": 87,
@@ -20973,7 +20979,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "savingPreRepeatSettings preserves other fields",
           "line": 92,
@@ -21102,7 +21108,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "clearingPreRepeatSettings sets all preRepeat fields to nil",
           "line": 96,
@@ -21225,7 +21231,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "hasPreRepeatSettings requires all four fields",
           "line": 100,
@@ -21324,7 +21330,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "hasPreRepeatSettings returns false when all nil",
           "line": 101,
@@ -21405,7 +21411,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "updating(from: SelfInfo) carries forward clientRepeat",
           "line": 102,
@@ -21528,7 +21534,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "updating(from: SelfInfo) carries forward preRepeat settings",
           "line": 103,
@@ -21675,7 +21681,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "updating(from: SelfInfo) updates radio params from SelfInfo",
           "line": 108,
@@ -21858,7 +21864,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "bare and v-prefixed versions compare on major minor",
           "line": 116,
@@ -21981,7 +21987,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "CLI ver banner compares on the first major minor",
           "line": 120,
@@ -22104,7 +22110,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "unparseable strings are not at least any version",
           "line": 124,
@@ -22215,7 +22221,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "composed cap is the last 9-block size",
           "line": 128,
@@ -22326,7 +22332,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Region 1-hop at the cap fits a 172-byte companion frame",
           "line": 132,
@@ -22419,7 +22425,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Region 1-hop at 147 overflows 172 and still fits 176",
           "line": 136,
@@ -23506,7 +23512,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "Primary fix is the first valid GPS point",
           "line": 144,
@@ -23617,7 +23623,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "A (0,0) fix is dropped",
           "line": 148,
@@ -23710,7 +23716,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "An out-of-range fix is dropped",
           "line": 149,
@@ -23809,7 +23815,7 @@
       "native_proposals": [
         {
           "path": "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/SourceModelCasesTest.kt",
-          "sha256": "f23a03d6d223c0aea4274379a5a0e3c150ebe61b48e2593bf89daa27ae323bb6",
+          "sha256": "a34fc361518309ac200902cbde477eb95c1690a2e7123bb6baf8b34e67782d9a",
           "class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
           "method_or_family_name": "No GPS point yields no fix",
           "line": 150,

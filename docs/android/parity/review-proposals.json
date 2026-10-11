@@ -29,7 +29,7 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupDiagnosticRestore.kt"
       ],
       "consumer": "Read full original/helper defaults and actual live upsert/targeted-hop writer/codec/restore business-key and surrogate paths. Actual persisted fields are asserted after full transaction; helper itself binds distinct database/empty devices/contacts/messages assertions and is invoked.",
-      "unresolved": ["New method requires immutable positive execution and independent bounded review; not every discovery-capacity or iOS/hardware route."],
+      "unresolved": ["Exact04968a00 app67/67 (all63mandatory+4unchangedrepair), parity92/92 and combinedPython363/363 passed,0failure/error/skip. Actual new method executed; no protocol suite selected. Independent bounded review/current hosted execution remain required; not every discovery-capacity or iOS/hardware route."],
       "methods": ["Discovered nodes survive full export \u2192 import into fresh store"]
     },
     {
@@ -60,7 +60,7 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt"
       ],
       "consumer": "Both complete original declarations/helper defaults and actual live save/codec/Room restore/public fetch inspected. Region remains opaque optional value and matches remain ordered list, no invented scope fallback. Actual distinct-store helper assertions are invoked and bound.",
-      "unresolved": ["New method requires immutable positive execution/independent bounded review; no mounted UI or new independent Swift proof."],
+      "unresolved": ["Exact04968a00 app67/67 (all63mandatory+4unchangedrepair), parity92/92 and combinedPython363/363 passed,0failure/error/skip. Actual new method executed; no protocol suite selected. Independent bounded review/current hosted execution remain required; no mounted UI or new independent Swift proof."],
       "methods": ["Message.regionScope round-trips through full export/import", "Message.regionScopeMatches round-trips through full export/import"]
     },
     {
@@ -89,7 +89,7 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt"
       ],
       "consumer": "Full original/helper defaults and actual saveMessage/toEntity/export/restore/fetch inspected. Actual columns read before/after copying, no source clear/fake repository. Invoked fresh-database helper assertions are bound.",
-      "unresolved": ["New method requires immutable positive execution/independent bounded review; no new family inflation or provider/hardware proof."],
+      "unresolved": ["Exact04968a00 app67/67 (all63mandatory+4unchangedrepair), parity92/92 and combinedPython363/363 passed,0failure/error/skip. Actual new method executed; no protocol suite selected. Independent bounded review/current hosted execution remain required; no new family inflation or provider/hardware proof."],
       "methods": ["saveMessage persists send metadata and preview fields through export and import"]
     },
     {
@@ -121,7 +121,7 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt"
       ],
       "consumer": "Both complete originals/helper defaults and real live repeat save/parent lookup/restore identity/outgoing-versus-incoming/recalculation read. All actual repeatIDs and42paths asserted. Incoming path dedup not inferred; invoked distinct-store helper actual assertions bound.",
-      "unresolved": ["New method requires immutable positive execution/independent bounded review. Two originals share one runner; not two new original families or generalized merge/cancellation/hardware proof."],
+      "unresolved": ["Exact04968a00 app67/67 (all63mandatory+4unchangedrepair), parity92/92 and combinedPython363/363 passed,0failure/error/skip. Actual new method executed; no protocol suite selected. Independent bounded review/current hosted execution remain required. Two originals share one runner; not two new original families or generalized merge/cancellation/hardware proof."],
       "methods": ["Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed", "Outgoing same-path repeats are not collapsed on merge import"]
     },
     {
@@ -2595,13 +2595,13 @@
       "runner_class": "com.meshcoreone.android.core.model.SourceModelCasesTest",
       "runner_name": "original-case-id",
       "comparison": "All nine originals retain byte-content chunks and uppercase hex, encoded hash-size/hop-count interpretation, clipping extra out-path bytes, FF flood sentinel, explicit zero-hop nonflood semantics and inbound null-versus-zero fallback. Native testContact's default FF sentinel was inspected; no null value is replaced by0.",
-      "inputs": "1A2B3C/hash1/count3;1A2B3C4D/hash2/count2;1A2BFFFF/hash1/count2;FF sentinel with nonempty bytes; outbound3/inbound5;outbound0/inbound5;flood inbound2,0,null.",
+      "inputs": "1A2B3C/hash1/count3;1A2B3C4D/hash2/count2;1A2BFFFF/hash1/count2;FF sentinel with nonempty bytes; displayed-hop family exact1A2B3C/hash1/count3/inbound5 (restored from prior native reduced empty-route fixture);outbound0/inbound5;flood inbound2,0,null. Original testContact helper defaults and every original expected outcome retained.",
       "adaptations": "Immutable Bytes/SnapshotList and RadioId replace Data/Swift value collections; Kotlin equality is byte-content equality. Dynamic sourceCases preserves the complete original display identity.",
       "helpers": [
         "android/core/model/src/test/kotlin/com/meshcoreone/android/core/model/TestValues.kt"
       ],
       "consumer": "displayedHopCount is the node-detail path summary contract; pathNodesHex delegates to the same pathHops byte chunks. UI actions remain separately reviewed.",
-      "unresolved": [],
+      "unresolved": ["Coordinator bounded complete9contact+4message original/helper/model/route comparison found only missing1A2B3C in this displayed-hop source-input family; native owned one-line correction requires immutable module execution/review. No observed production defect or changed expected3/inbound5; other bounded families matched. Source-only review is not independent runner execution/full acceptance."],
       "methods": [
         "Single-byte hops chunk into one (data, hex) pair each",
         "Multi-byte hops chunk by the encoded hash size",

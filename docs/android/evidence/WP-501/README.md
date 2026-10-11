@@ -52,6 +52,33 @@ Coordinator bounded19-family source review found no blocking mismatch, not a
 new independent rerun or full acceptance. Current published368 primary is still
 running at last observation; these local changes are not yet published.
 
+Exact `04968a00ba6c430c87fc38f627ef673c804f486f` executed
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --tests
+com.meshcoreone.android.app.platform.InlineContentCancellationTest --tests
+com.meshcoreone.android.app.platform.PreviewPolicyTest
+--dependency-verification=strict --quiet` through the declared isolated launcher
+and supported native/Gradle locks:67discovered/67run/67passed, all63mandatory+
+4unchangedrepair identities,0failure/error/skip. All four new methods executed.
+No protocol tests were selected or claimed. Actual isolated readiness passed
+declared JDK21.0.12.1/SDK37.2/buildtools37.0.0; locks released normally.
+`audit.py --check`, `semantic.py --check` and parity runner92/92 passed.
+The clean immutable combined controller/local/parity command passed363/363,
+0failure/error/skip. An earlier dirty-worktree combined run discovered363/
+362passed/1error because the immutable checkout guard rejected the edited
+FreshStoreBackupAcceptanceTest; that failure is retained, not a product defect
+or passing execution. The clean retry ran without edits, not a relaxed guard.
+
+Coordinator identified one additional original input gap: the contact
+displayed-hop case retained count3/inbound5 but omitted source route1A2B3C.
+Only that fixture copy now adds exact bytes, preserving expected3/defaults.
+The same reservation evolved automatically14→15 under trusted merge-integration/
+merge-disjoint-semantic-edits, binding only the existing SourceModelCasesTest
+support path; historical assignment/identity/base remain unchanged. Source
+WP-201 attributions remain intact; this is not product behavior/timeout change.
+New exact model-path execution is pending. Coordinator bounded nine contact/
+four message/19protocol byte families is source comparison, not an independent
+rerun, generic Unicode/hardware or full WP-501 approval.
+
 | Exact command | Observed outcome |
 | --- | --- |
 | `python tools\android-port\test_inventory.py --check` | Passed, actual pinned 468 paths / 5,133 declarations / 70 parameterized declarations / 382 declared rows |

@@ -36,7 +36,7 @@ class SourceModelCasesTest {
             assertTrue(c.pathHops.isEmpty()); assertTrue(c.pathNodesHex.isEmpty())
         },
         "Displayed hops use the out-path count when a route is set, ignoring inbound" to {
-            assertEquals(3L, testContact().copy(outPathLength = encodePathLen(1, 3)).displayedHopCount(5))
+            assertEquals(3L, testContact().copy(outPathLength = encodePathLen(1, 3), outPath = Bytes.of(0x1A, 0x2B, 0x3C)).displayedHopCount(5))
         },
         "A set out-path of zero hops displays zero, not the inbound fallback" to {
             val c = testContact().copy(outPathLength = encodePathLen(1, 0))

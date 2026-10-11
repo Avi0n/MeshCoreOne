@@ -433,6 +433,16 @@ the first messageSent; immediate-ack cases do not test the cadence waiter under
 silence/cancellation. Published368 primary38177276628 remains running at the
 last observation; local changes are not another published candidate.
 
+Exact04968a00 executed all67app identities (63mandatory+4unchangedrepair) and
+all four new backup methods,0failure/error/skip; parity92/92 and clean combined
+Python363/363 passed. No protocol suite selected. Earlier dirty-worktree
+combined363/362/1error is retained: immutable input guard rejected an edited
+source file, not a product failure; clean retry passed without guard changes.
+One newly reviewed contact displayed-hop fixture now restores exact1A2B3C
+beside original encoded3/inbound5. Same-owner reservation14→15 automatically
+admits that single disjoint existing model-test path, retaining owner attribution
+and original authorization. Exact model runner discovery/review remains pending.
+
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native
 consumer:192.0.2.1:9, virtual0/200ms, source10second connect and actual monotonic
