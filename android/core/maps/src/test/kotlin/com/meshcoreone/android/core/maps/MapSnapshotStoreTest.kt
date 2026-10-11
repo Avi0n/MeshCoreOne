@@ -24,6 +24,77 @@ class MapSnapshotStoreTest {
     }
 
     @Test
+    fun exactHalfwayCoordinatesRoundAwayFromZeroLikeTheFrozenSwiftRequest() {
+        for ((input, expected) in listOf(
+            0.000005 to 0.00001, -0.000005 to -0.00001,
+            0.000025 to 0.00003, -0.000025 to -0.00003,
+            Math.nextDown(0.000005) to 0.0, -Math.nextDown(0.000005) to 0.0,
+        )) {
+            val request = MapSnapshotRequest(input, input, false, false)
+            assertEquals(expected, request.latitude, 0.0)
+            assertEquals(expected, request.longitude, 0.0)
+            if (expected == 0.0) assertEquals("0.0,0.0,false,false", request.cacheKey)
+        }
+    }
+
+    @Test
+    fun memoryClearCannotLetTheOldRenderRemoveTheReplacementDeduplicationEntry() = runBlocking {
+        val firstStarted = CompletableDeferred<Unit>()
+        val secondStarted = CompletableDeferred<Unit>()
+        val firstGate = CompletableDeferred<Unit>()
+        val secondGate = CompletableDeferred<Unit>()
+        var calls = 0
+        val store = MapSnapshotStore(object : MapSnapshotRenderer<String> {
+            override suspend fun render(request: MapSnapshotRequest): String {
+                when (++calls) {
+                    1 -> { firstStarted.complete(Unit); firstGate.await() }
+                    2 -> { secondStarted.complete(Unit); secondGate.await() }
+                }
+                return "render-$calls"
+            }
+        }, this, { it.length.toLong() })
+        val request = MapSnapshotRequest(1.0, 2.0, false, false)
+        try {
+            store.request(request)
+            firstStarted.await()
+            val invalidated = async(start = CoroutineStart.UNDISPATCHED) { store.resolutions.first() }
+            store.clear()
+            assertEquals(request, invalidated.await())
+            store.request(request)
+            firstGate.complete(Unit)
+            secondStarted.await()
+            assertFalse(store.isResolved(request))
+            store.request(request)
+            val resolved = async(start = CoroutineStart.UNDISPATCHED) { store.resolutions.first() }
+            secondGate.complete(Unit)
+            assertEquals(request, resolved.await())
+            yield()
+            assertEquals(2, calls)
+            assertEquals("render-2", store.value(request))
+        } finally { store.close() }
+    }
+
+    @Test
+    fun closeIsTerminalAndReleasesTheCachedImage() = runBlocking {
+        val store = MapSnapshotStore(RecordingRenderer(), this, { it.length.toLong() })
+        val request = MapSnapshotRequest(1.0, 2.0, false, false)
+        val resolved = async(start = CoroutineStart.UNDISPATCHED) { store.resolutions.first() }
+        store.request(request)
+        resolved.await()
+        store.close()
+        store.close()
+        store.clear()
+        assertNull(store.value(request))
+        assertFalse(store.isResolved(request))
+        try {
+            store.request(request)
+            throw AssertionError("A closed process owner must not start another render")
+        } catch (expected: IllegalStateException) {
+            assertEquals("Map snapshot store is closed", expected.message)
+        }
+    }
+
+    @Test
     fun cacheMissRenderDeduplicationAndMulticastResolution() = runBlocking {
         val renderer = RecordingRenderer()
         val store = MapSnapshotStore(renderer, this, { it.length.toLong() })

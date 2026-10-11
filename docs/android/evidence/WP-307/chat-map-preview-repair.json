@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "repository": "cbattlegear/MeshCoreOne-Android",
+  "work_package": "WP-307",
+  "issue": 173,
+  "session_id": "bcb17a74-5fa6-47d0-a4be-b6b595e20559",
+  "base_sha": "a19d6138038577d7e76c63e85b58c7ba6976092a",
+  "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
+  "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
+  "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
+  "reservation": {
+    "revision": 4,
+    "release_recreate": false,
+    "capabilities": {
+      "app-build-launcher": "update-launcher-or-composition",
+      "merge-integration": "merge-disjoint-semantic-edits",
+      "wp-owned": "record-evidence"
+    },
+    "paths": [
+      "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatContent.kt",
+      "android/app/src/main/kotlin/com/meshcoreone/android/app/container/AppChatMapPreviews.kt",
+      "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatMapPreview.kt",
+      "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatsContent.kt",
+      "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMapSettings.kt",
+      "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppMessageContent.kt",
+      "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatMapPreviewTest.kt",
+      "android/core/maps/src/main/kotlin/com/meshcoreone/android/core/maps/MapLibreSnapshotRenderer.kt",
+      "android/core/maps/src/main/kotlin/com/meshcoreone/android/core/maps/MapSnapshotStore.kt",
+      "android/core/maps/src/test/kotlin/com/meshcoreone/android/core/maps/MapSnapshotStoreTest.kt",
+      "docs/android/deviations/WP-307.md",
+      "docs/android/evidence/WP-307/chat-map-preview-repair.json"
+    ]
+  },
+  "acceptance": {
+    "manifest_ids": [
+      "WP-307-behavior",
+      "WP-307-boundaries",
+      "WP-307-source-test-parity"
+    ],
+    "bounded_scope": "Restore the missing mounted coordinate thumbnail consumer and its existing independent privacy preference; not complete WP-501 acceptance.",
+    "source_consumers": [
+      "MC1/Views/Chats/Components/Fragments/MapPreviewFragmentView.swift",
+      "MC1/Views/Map/MapSnapshotLayout.swift",
+      "MC1/Views/Map/MapSnapshotRequest.swift",
+      "MC1/Views/Map/MapSnapshotRenderer.swift",
+      "MC1/Services/MapSnapshotStore.swift",
+      "MC1/Views/Chats/ViewModel/ChatMessageBakeState+ItemBuild.swift",
+      "MC1/Views/Chats/Components/UnifiedMessageBubble.swift",
+      "MC1Services/Sources/MC1Services/Services/MessageFragmentBuilder.swift",
+      "MC1/Views/Settings/Sections/MapPreviewSettingsSection.swift"
+    ],
+    "supplemental_regressions": "Ten App methods on native Robolectric SDK31/37 and three additional core/maps methods; original-family denominator unchanged.",
+    "deviations": "docs/android/deviations/WP-307.md#wp-501-discovered-repair-mounted-coordinate-thumbnails-173"
+  },
+  "verification": {
+    "readiness": "Passed declared JDK21.0.12.1, SDK37.2/build-tools37.0.0 and existing isolated private caches.",
+    "targeted_command": "& .\\android\\scaffold\\invoke-gradle.ps1 -ConstrainedMemory -BuildHeap 1280m -BuildMetaspace 512m -TestHeap 256m -GradleArguments @(':core:maps:testDebugUnitTest', ':app:testDebugUnitTest', '--tests', '*ChatMapPreviewTest', '--tests', '*PreviewPolicyTest', '--tests', '*InlineContentCancellationTest', '--tests', '*ChatRegistrationTest', ':core:maps:lintDebug', ':app:lintDebug', '--dependency-verification', 'strict', '--no-build-cache', '--quiet')",
+    "prior_working_revision": "Actual XML discovery passed 16/16 new App executions, 9/9 selected existing App executions, and 23/23 core/maps executions with zero failures/errors/skips. Core/maps lint passed. This preceded the two additional edge methods and loading-state invalidation; App lint was still running. Not exact final-candidate proof.",
+    "current_candidate": "UNVERIFIED until the exact published candidate's hosted job completes and independent review passes.",
+    "validators": [
+      "python tools\\android-port\\controller\\validate.py: passed, 1866 original paths, 64 WPs, 178 edges",
+      "python tools\\android-port\\portmap.py: passed, 1690 implementation entries",
+      "git diff --check: passed"
+    ],
+    "authoritative_ci": "Use the exact-commit hosted job result and official log. No duplicate reproducible CI-result bundle is committed or required.",
+    "scope_limits": "No live map provider, physical radio, TalkBack, phone installation, 16KiB runtime, iOS execution, legal approval or release-signing verification claimed."
+  }
+}

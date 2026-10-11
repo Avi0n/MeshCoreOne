@@ -28,15 +28,19 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun AppMessageContent(content: AppChatContent, message: MessageDTO, report: (String, Throwable?) -> Unit) {
+internal fun AppMessageContent(
+    content: AppChatContent,
+    message: MessageDTO,
+    report: (String, Throwable?) -> Unit,
+    onMap: (String) -> Unit,
+) {
     val urls = remember(message.text) { LinkDetection.detectUrls(message.text).map { it.url }.distinct() }
     val scope = rememberCoroutineScope()
     val uri = LocalUriHandler.current
     val context = androidx.compose.ui.platform.LocalContext.current
     val preferences by content.rendering.collectAsState()
-    if (!preferences[AppStorageKey.linkPreviewsEnabled]) return
     val autoResolve = preferences[if (message.isChannelMessage) AppStorageKey.linkPreviewsAutoResolveChannels else AppStorageKey.linkPreviewsAutoResolveDM]
-    urls.forEach { url ->
+    (if (preferences[AppStorageKey.linkPreviewsEnabled]) urls else emptyList()).forEach { url ->
         key(url, autoResolve) {
             var image by remember { mutableStateOf<ChatImage?>(null) }
             var failure by remember { mutableStateOf<Throwable?>(null) }
@@ -146,4 +150,8 @@ internal fun AppMessageContent(content: AppChatContent, message: MessageDTO, rep
             }
         }
     }
+    val coordinate = remember(message.text, preferences[AppStorageKey.showMapPreviewThumbnails]) {
+        chatMapPreviewCoordinate(message.text, preferences[AppStorageKey.showMapPreviewThumbnails])
+    }
+    coordinate?.let { AppChatMapPreview(content.mapPreviews, it, onMap) }
 }
