@@ -2,6 +2,8 @@
 package com.meshcoreone.android.app.platform
 
 import com.meshcoreone.android.app.container.AndroidRuntimeLinkFactory
+import com.meshcoreone.android.app.container.usesLanHosting
+import com.meshcoreone.android.core.model.ConnectionMethod
 import com.meshcoreone.android.core.contracts.domain.*
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.model.TransportType
@@ -11,6 +13,16 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class TransportRegistrationTest {
+    @Test fun hostingFollowsTheActualTransportWhenSavedMethodsContainBothKinds() {
+        val wifi = ConnectionMethod.WiFi("synthetic.test", 5000u)
+        val mixed = listOf(wifi, ConnectionMethod.Bluetooth(UUID.randomUUID()))
+        assertTrue(usesLanHosting(TransportType.WIFI, mixed))
+        assertFalse(usesLanHosting(TransportType.BLUETOOTH, listOf(wifi)))
+        assertFalse(usesLanHosting(null, mixed))
+        assertTrue(usesLanHosting(null, listOf(wifi)))
+        assertFalse(usesLanHosting(null, emptyList()))
+    }
+
     @Test fun aStaleLinkCannotClearTheCurrentGenerationTransport() = runBlocking {
         val factory = AndroidRuntimeLinkFactory({ error("This test must not create a Bluetooth link") })
         val first = factory.create(ConnectionTarget.WiFi("radio.test", 5000u))

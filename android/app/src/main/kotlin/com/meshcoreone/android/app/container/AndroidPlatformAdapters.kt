@@ -1,7 +1,6 @@
 // AndroidOnly: WP-303 Android implementations of the process roles that have no merged production adapter.
 package com.meshcoreone.android.app.container
 
-import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.edit
@@ -76,8 +75,18 @@ class AndroidHostEnvironment(
         get() = context.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
     override val userUnlocked: Boolean get() = context.getSystemService(UserManager::class.java)?.isUserUnlocked ?: true
     override val bluetoothEnabled: Boolean
-        get() = context.getSystemService(BluetoothManager::class.java)?.adapter?.isEnabled ?: false
+        get() = com.meshcoreone.android.app.platform.bluetoothAvailability(context) ==
+            com.meshcoreone.android.core.ble.BluetoothAvailability.Ready
     override val reconnectInProgress: Boolean get() = reconnecting()
     override val lastConnectedDeviceId: UUID? get() = lastDevice()
     override val lanOnly: Boolean get() = lan()
+}
+
+internal fun usesLanHosting(
+    transport: com.meshcoreone.android.core.model.TransportType?,
+    methods: List<com.meshcoreone.android.core.model.ConnectionMethod>,
+): Boolean = when (transport) {
+    com.meshcoreone.android.core.model.TransportType.WIFI -> true
+    com.meshcoreone.android.core.model.TransportType.BLUETOOTH -> false
+    null -> methods.isNotEmpty() && methods.all { it is com.meshcoreone.android.core.model.ConnectionMethod.WiFi }
 }

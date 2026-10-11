@@ -163,8 +163,8 @@ object AndroidAppContainerFactory {
             reconnecting = { holder.get()?.connectionManager?.reconnectionCoordinator?.reconnectingDeviceId != null },
             lastDevice = { holder.get()?.connectionPort?.lastConnectedDeviceId },
             lan = {
-                holder.get()?.connectionManager?.connectedDevice?.connectionMethods
-                    ?.let { methods -> methods.isNotEmpty() && methods.all { it is com.meshcoreone.android.core.model.ConnectionMethod.WiFi } } == true
+                val current = holder.get()
+                usesLanHosting(current?.currentTransport, current?.connectionManager?.connectedDevice?.connectionMethods.orEmpty())
             },
         )
         val locationProducing = LocationManagerLocationProducing(application)

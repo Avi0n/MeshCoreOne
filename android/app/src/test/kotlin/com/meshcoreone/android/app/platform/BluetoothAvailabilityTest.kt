@@ -24,5 +24,9 @@ class BluetoothAvailabilityTest {
         packages.setSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE, true)
         shadowOf(application).denyPermissions(Manifest.permission.BLUETOOTH_CONNECT)
         assertEquals(BluetoothAvailability.Unauthorized, bluetoothAvailability(application))
+        val environment = com.meshcoreone.android.app.container.AndroidHostEnvironment(application, { false }, { null }, { true })
+        assertFalse(environment.bluetoothEnabled)
+        assertFalse(environment.connectPermissionGranted)
+        assertTrue(environment.lanOnly)
     }
 }
