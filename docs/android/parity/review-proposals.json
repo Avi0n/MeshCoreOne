@@ -23,7 +23,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt"
       ],
       "consumer": "Read complete frozen dispatcher/filter/session.events bodies and actual native eventsTracked/receive/end-generation. Eager registration binds current generation before collection; filter runs before bounded queue insertion. Stop finishes current generation streams while retaining queued data; later generations get distinct dispatchers. This does not prove all lifecycle/reconnect or physical ACK delivery families.",
-      "unresolved": ["Both new methods await actual execution and independent adaptation review; original exact short-key direct-dispatch identities must also execute as support evidence."],
+      "unresolved": ["Both new methods passed at exactaf940637d4c099c59c9d7cc4dea9597767db758d within38appcases (all34owned+4repair). Both original exact short-key direct-dispatch support identities passed within45protocolcases,0failure/error/skip each suite. Hosted exact-head and independent adaptation review remain required."],
       "methods": [
         "filtered subscription receives only matching events",
         "filtered subscription survives flood of non-matching events"
@@ -45,7 +45,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RemoteAdminPayloads.kt"
       ],
       "consumer": "Actual filters match sealed event case regardless of prefix but preserve original payload object; tested rejects prevent success/failure/OK conflation. Actual login firmware command outcomes remain separately audited.",
-      "unresolved": ["New method awaits execution and independent review; predecessor prefix difference is an acceptance input gap, not a proven product defect."],
+      "unresolved": ["New method passed at af940637 within38appcases,0failure/error/skip. Hosted exact-head and independent review remain required; predecessor prefix difference is an acceptance input gap, not a proven product defect."],
       "methods": [
         "anyLoginSuccess matches .loginSuccess and rejects unrelated events",
         "anyLoginFailed matches .loginFailed and rejects unrelated events"
@@ -74,7 +74,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/RxLogTypes.kt"
       ],
       "consumer": "Actual event case predicates feed dispatcher subscription filtering before buffering. Contact/channel-message factory assertions test text receipt variants, not arbitrary content/storage/rendering.",
-      "unresolved": ["Exact4 runner identities await current candidate execution; independent review remains required."],
+      "unresolved": ["All4 exact identities passed at af940637 within45protocolcases,0failure/error/skip. Hosted exact-head and independent review remain required."],
       "methods": [
         "rxLogData matches .rxLogData and rejects unrelated events",
         "anyAdvertisement matches .advertisement and rejects unrelated events",
@@ -98,7 +98,7 @@
       "adaptations": "Explicit two display renames and UByte/UInt native types; no source assertion/parameter family is dropped.",
       "helpers": ["android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventFilter.kt"],
       "consumer": "Any ACK filter is used by persistent session listeners and public subscription acceptance; filtering before capacity protects receipt from unrelated events. This factory test is not an ACK wire/parser proof.",
-      "unresolved": ["Exact2 runner identities await current candidate execution and independent review."],
+      "unresolved": ["Both exact identities passed at af940637 within45protocolcases,0failure/error/skip. Hosted exact-head and independent review remain required."],
       "methods": ["matches .acknowledgement regardless of code", "does not match non-acknowledgement events"]
     },
     {
@@ -116,7 +116,7 @@
       "adaptations": "Injected diagnostic observer replaces OSLog/signposts without logging sensitive keys. Finished explicit queue allows complete retained data assertion; source only keeps stream alive and reads count. Swift actor serialization becomes locked queue/dispatcher; no SharedFlow conflation of data.",
       "helpers": ["android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt"],
       "consumer": "Read actual locked offer removes only oldest at100capacity; filter is evaluated first; finish drains queue and consumer cancellation discards without false overflow. Other11 native concurrency/cancel/teardown cases supplement but are not additional original declarations.",
-      "unresolved": ["Exact native identity awaits current candidate execution; OS logging output and general lifecycle review remain separate."],
+      "unresolved": ["Exact identity passed at af940637 within45protocolcases,0failure/error/skip. Hosted/independent review, OS logging output and general lifecycle review remain separate."],
       "methods": ["droppedEventCount increments when a slow consumer overflows the buffer"]
     },
     {
@@ -143,7 +143,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/MeshCoreException.kt"
       ],
       "consumer": "Actual typed accessors delegate to canonical rawcode mapping; asynchronous command query/simple consumer raises DeviceError with same raw byte. App localization/UX error recovery are separate consumer families, not asserted by canonical enum tests.",
-      "unresolved": ["Exact4 runner identities await current candidate execution and independent review."],
+      "unresolved": ["All4 exact identities passed at af940637 within45protocolcases,0failure/error/skip. Hosted exact-head and independent review remain required."],
       "methods": [
         "All six firmware sub-codes map to the matching ErrorCode",
         "Unknown or out-of-range bytes yield a nil typed code but keep the raw value",
@@ -169,7 +169,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/model/PacketCodes.kt"
       ],
       "consumer": "Actual response01 dispatch keeps nullable raw byte and typed accessor maps06 only. Does not certify all malformed error frames or higher-level error UI.",
-      "unresolved": ["New method awaits execution and independent review; predecessor missing parser assertion is an acceptance gap, not a demonstrated product defect."],
+      "unresolved": ["New method passed at af940637 within38appcases,0failure/error/skip. Hosted exact-head and independent review remain required; predecessor missing parser assertion is an acceptance gap, not a demonstrated product defect."],
       "methods": ["PacketParser maps a RESP_CODE_ERR frame to .error with the firmware sub-code"]
     },
     {

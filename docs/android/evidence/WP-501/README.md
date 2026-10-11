@@ -246,7 +246,16 @@ bindings:6factory/2ACK/2filtered/1overflow/6error families, including all6 firmw
 subcode parameter rows. Four new required methods preserve complete original
 six-byte login prefix and literal0106 error-parser/accessor, plus actual public
 session eager registration,500nonmatching events and stop/drain termination.
-These methods await execution.
+At exactaf940637d4c099c59c9d7cc4dea9597767db758d all four methods actually passed,
+within38app discovered/run/passed (all34owned+4repair),0failure/error/skip.
+The same locked private-cache launcher used the existing app selector plus
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.event.EventDispatcherTest --tests com.meshcoreone.android.core.protocol.event.EventFilterTest --tests com.meshcoreone.android.core.protocol.event.EventPayloadTest --dependency-verification=strict`.
+Actual strict XML discovered/run/passed45/45,0failure/error/skip, positively
+containing all11 original event runner identities and both exact original short-key
+filtered-subscription support methods. Other selected native cases are additional
+behavior, not extra original inspected declarations. This does not execute all530
+proposals or imply a hosted current result. Combined controller/local/parity at
+the same immutableaf940637 passed363/363,0failure/error/skip.
 The initial29aea85f local native attempt failed before JUnit at compile:
 nonexistent Bytes.copyOf and a clock helper that was still embedded privately
 in SessionResponseAcceptanceTest. The owned test correction uses real Bytes
@@ -266,6 +275,10 @@ assertions remain required support evidence. Fixed EPOCH message timestamps are
 irrelevant to the type-only filter but are explicitly disclosed, not date proof.
 Coordinator's actual bounded c8237db2 source read found no blocking mismatch in
 four contact families/checked-helper wiring, not whole474/LPP/V112/hosted approval.
+Prior published76ddc835 primary38166202193 actually completedSUCCESS: classifier,
+controller, LinuxAndroid, selected Swiftcodec, real SwiftData restore/export and
+android-ci all succeeded. Its publication batching hold is resolved. This exact76
+result is not a hosted pass for localc823/986/af940637 or full WP501 acceptance.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

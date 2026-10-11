@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "6b6a39866e4fcb4d356537cdcc7b22fd2d7b353c2163c4d1ee1cbe001c4052c1",
+  "proposal_sha256": "dcb6027b1e5ddc0fbcd9ebbc939bbf1aa96be16a224c98f20b32f886b9b797f8",
   "families": [
     {
       "group": "backup-envelope",
@@ -56482,7 +56482,7 @@
     },
     {
       "group": "event-slow-consumer-overflow-drop-observability",
-      "comparison_sha256": "b2b3b09b1419e185e75183aa8438252d0617c6306aa0471a30962d7d02a18b82",
+      "comparison_sha256": "e658f0a41646d632b6e35c2afbab8fe997c4256137bc60e6d824a70886174403",
       "source_file_family_count": 1,
       "group_compared_family_count": 1,
       "partial_source_file": false,
@@ -56629,7 +56629,7 @@
     },
     {
       "group": "event-public-session-filter-registration-flood-and-teardown",
-      "comparison_sha256": "410f7d56b647a155a361f1aba52e63724b59dca14815fdb14f6db5a913e4d0f5",
+      "comparison_sha256": "f7b0d7b7aefc6abbbed5184e7ac5cc4d8227e7936955d8212c00095fc40e9f5b",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -56846,7 +56846,7 @@
     },
     {
       "group": "event-public-session-filter-registration-flood-and-teardown",
-      "comparison_sha256": "410f7d56b647a155a361f1aba52e63724b59dca14815fdb14f6db5a913e4d0f5",
+      "comparison_sha256": "f7b0d7b7aefc6abbbed5184e7ac5cc4d8227e7936955d8212c00095fc40e9f5b",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -57057,7 +57057,7 @@
     },
     {
       "group": "event-any-acknowledgement-positive-negative-payload-families",
-      "comparison_sha256": "77fd8e3b3458c3ddda6742226d6a033f8084288c86ae90a728923e0d3ea0219e",
+      "comparison_sha256": "3312babf66889de0da1a38d4f45ca39e4d80487b838044764d68f8cb71327856",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -57186,7 +57186,7 @@
     },
     {
       "group": "event-any-acknowledgement-positive-negative-payload-families",
-      "comparison_sha256": "77fd8e3b3458c3ddda6742226d6a033f8084288c86ae90a728923e0d3ea0219e",
+      "comparison_sha256": "3312babf66889de0da1a38d4f45ca39e4d80487b838044764d68f8cb71327856",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -57297,7 +57297,7 @@
     },
     {
       "group": "event-rx-advertisement-and-message-factories",
-      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "comparison_sha256": "f4fb656f11467499b78a8b31b806a4b5146d621dd34aafbf9e0425b4b5c7e8de",
       "source_file_family_count": 6,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -57464,7 +57464,7 @@
     },
     {
       "group": "event-rx-advertisement-and-message-factories",
-      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "comparison_sha256": "f4fb656f11467499b78a8b31b806a4b5146d621dd34aafbf9e0425b4b5c7e8de",
       "source_file_family_count": 6,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -57625,7 +57625,7 @@
     },
     {
       "group": "event-rx-advertisement-and-message-factories",
-      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "comparison_sha256": "f4fb656f11467499b78a8b31b806a4b5146d621dd34aafbf9e0425b4b5c7e8de",
       "source_file_family_count": 6,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -57768,7 +57768,7 @@
     },
     {
       "group": "event-login-factories-complete-original-prefixes",
-      "comparison_sha256": "28500742958663646f615de30bbfe9519b0710b142b71c24bdb3aded09e6902b",
+      "comparison_sha256": "2f0b6cc1b9bdd6880180f024bf9d532bf88b68ff949ec52b199fa0927c39d845",
       "source_file_family_count": 6,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -58000,7 +58000,7 @@
     },
     {
       "group": "event-login-factories-complete-original-prefixes",
-      "comparison_sha256": "28500742958663646f615de30bbfe9519b0710b142b71c24bdb3aded09e6902b",
+      "comparison_sha256": "2f0b6cc1b9bdd6880180f024bf9d532bf88b68ff949ec52b199fa0927c39d845",
       "source_file_family_count": 6,
       "group_compared_family_count": 2,
       "partial_source_file": true,
@@ -58226,7 +58226,7 @@
     },
     {
       "group": "event-rx-advertisement-and-message-factories",
-      "comparison_sha256": "ddc82701956c55076afb1c44ee77502ce037e1b2aef53a6ae00297e1c90878ee",
+      "comparison_sha256": "f4fb656f11467499b78a8b31b806a4b5146d621dd34aafbf9e0425b4b5c7e8de",
       "source_file_family_count": 6,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -58381,7 +58381,7 @@
     },
     {
       "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
-      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "comparison_sha256": "e31057ff288df7ec84598e3c21d64dbe681c7a7499a588cbbd7a383f0e9e3e41",
       "source_file_family_count": 6,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -58477,7 +58477,7 @@
     },
     {
       "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
-      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "comparison_sha256": "e31057ff288df7ec84598e3c21d64dbe681c7a7499a588cbbd7a383f0e9e3e41",
       "source_file_family_count": 6,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -58647,7 +58647,7 @@
     },
     {
       "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
-      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "comparison_sha256": "e31057ff288df7ec84598e3c21d64dbe681c7a7499a588cbbd7a383f0e9e3e41",
       "source_file_family_count": 6,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -58761,7 +58761,7 @@
     },
     {
       "group": "event-real-error-frame-dispatch-to-canonical-accessor",
-      "comparison_sha256": "76260745a0c02b82fc2b77f4bdd0107145b8892b9051141fb9bd106f47d3a3d3",
+      "comparison_sha256": "e7f253a69ddd3508f3c4ec5e285f9d87fdb343aa2a694506bb926c28924f6856",
       "source_file_family_count": 6,
       "group_compared_family_count": 1,
       "partial_source_file": true,
@@ -58864,7 +58864,7 @@
     },
     {
       "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
-      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "comparison_sha256": "e31057ff288df7ec84598e3c21d64dbe681c7a7499a588cbbd7a383f0e9e3e41",
       "source_file_family_count": 6,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -59002,7 +59002,7 @@
     },
     {
       "group": "event-typed-error-code-rows-null-unknown-and-exception-consumers",
-      "comparison_sha256": "189d69f425e7cc84fb0da96f8715b7248a2be7c3e46f5956a75bcce7e4498619",
+      "comparison_sha256": "e31057ff288df7ec84598e3c21d64dbe681c7a7499a588cbbd7a383f0e9e3e41",
       "source_file_family_count": 6,
       "group_compared_family_count": 5,
       "partial_source_file": true,

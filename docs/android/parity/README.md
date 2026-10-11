@@ -253,7 +253,12 @@ advertisements; the public native wire route pads those keys to32bytes because
 the real parser requires them. Supporting existing dispatcher tests retain the
 exact short-key source events. Timestamp in contact/channel predicate helpers
 becomes fixed EPOCH; these predicates never inspect it. These adaptations are
-explicit and require independent review. The four new methods await execution.
+explicit and require independent review. All four new methods passed at exact
+af940637d4c099c59c9d7cc4dea9597767db758d within38app (34owned+4repair).
+Protocol45/45passed positively contained all11 original event runner identities
+and both original short-key dispatch support methods. Each suite had0failure/
+error/skip; combined controller/local/parity passed363/363 at the same immutable
+head. This is not full530-family execution or a hosted current result.
 
 Coordinator's actual bounded immutable c8237db2 read found no blocking mismatch
 in four contact families and checked-helper wiring; it is not LPP/V112 completion,
