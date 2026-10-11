@@ -125,7 +125,7 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **560 actually inspected families in 74 groups**:
+`review-proposals.json` contains **570 actually inspected families in 77 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
@@ -133,7 +133,8 @@ modern session acknowledgment/error/scope/trace12, channel pipeline5,
 LPP18, distinct contact-packet/public-flags4, V112 parser/command/cache25
 complete RoundTrip39, complete event-filter/dispatch/error17 and WiFi frame/
 transport18, lifecycle/input-validation/stop/binary-configuration10 and exact
-message-reset serialization/channel-datagram public-result2.
+message-reset serialization/channel-datagram public-result2 and automatic/
+coalesced/real-clock message polling10.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -304,9 +305,17 @@ These counts overlap earlier selections, not558 independently executed families.
 Next two required methods retain actual original10seconds/MCTst/58byte selfInfo,
 reset DeviceError17 and50ms parked getMessage/third write/NoMoreMessages, and
 exact12byte channel2/FFFF/DEADBE datagram-to-public MessageResult. Their exact
-current-head execution is pending. Shared startup assertion helper invocation/
+execution passed at184467aa within45app (41owned+4repair),12protocol with both
+exact original identities and combined Python363/363,0failure/error/skip each.
+Shared startup assertion helper invocation/
 definition/assertions are explicitly bound; remaining coalescing/auto-fetch/
 timeout original-input families are not silently covered by these two.
+Three separate new methods now retain all10 original auto-fetch/coalescing/timeout
+families: AA/manual1/910525/62500 selfInfo and cleared startup history; original
+20/50/100ms follower/notification waits,150/300ms leader outcomes and actual2s
+canceled follower completion; real SystemSessionClock20/120ms timeout overrides
+retain source actual<1second/>=80ms monotonic thresholds. New44required identity
+set awaits immutable execution; no original case is inferred from counts.
 Owned audit stays local until coordinator PR169 repair actually lands.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
@@ -316,9 +325,12 @@ consumer:192.0.2.1:9, virtual0/200ms, source10second connect and actual monotoni
 found no blocking mismatch in all8 ConnectionState/stop originals and actual
 157line class/public consumers, including original unstarted mock semantics.
 Both are source-only reads, not independent execution/full17WiFi/session/full
-560family/privileged acceptance. Actual tests/consumer bytes are retained.
+family/privileged acceptance. Further bounded5cc codec read found no blocking
+mismatch in all6 original vector/chunk families and complete177line native class,
+not independent execution/all11supplemental cases/physical TCP. Actual tests/
+consumer bytes and oversize/EOF adaptation provenance are retained.
 
-The 560 proposals are a bounded reviewable implementation increment,
+The 570 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.

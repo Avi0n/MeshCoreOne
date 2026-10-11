@@ -2,6 +2,9 @@
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionGetChannelsTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/V115GetMessageTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.OriginalCase
@@ -21,8 +24,11 @@ import java.time.ZoneOffset
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -307,6 +313,184 @@ class SessionResponseAcceptanceTest {
             assertEquals(2, transport.sentData.size)
         } finally {
             session.stop()
+        }
+    }
+
+    @OriginalCase("AutoMessageFetchTests::concurrent getMessage calls share one wire request()")
+    @OriginalCase("AutoMessageFetchTests::auto-fetch coalesces repeated messagesWaiting notifications()")
+    @OriginalCase("AutoMessageFetchTests::manual getMessage shares in-flight auto-fetch poll()")
+    @Test fun originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory() = runTest {
+        for (scenario in listOf("concurrent", "waiting", "manual")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport,
+                SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MeshCore-Tests"),
+                hex("05011416" + "aa".repeat(32) + "00".repeat(8) +
+                    "00000001bde40d0024f400000705546573744e6f6465"))
+            try {
+                assertEquals(hex("01032020202020204d65736843"), transport.sentData.single())
+                transport.clearSentData()
+                if (scenario == "concurrent") {
+                    val first = backgroundScope.async { session.getMessage(timeout = 10.0) }
+                    val second = backgroundScope.async { session.getMessage(timeout = 10.0) }
+                    runCurrent()
+                    assertEquals(listOf(hex("0a")), transport.sentData)
+                    assertFalse(first.isCompleted)
+                    assertFalse(second.isCompleted)
+                    transport.simulateReceive(hex("0a"))
+                    runCurrent()
+                    assertEquals(MessageResult.NoMoreMessages, first.await())
+                    assertEquals(MessageResult.NoMoreMessages, second.await())
+                    assertEquals(1, transport.sentData.size)
+                } else {
+                    session.startAutoMessageFetching()
+                    repeat(if (scenario == "waiting") 3 else 1) { transport.simulateReceive(hex("83")) }
+                    runCurrent()
+                    assertEquals(listOf(hex("0a")), transport.sentData)
+                    if (scenario == "manual") {
+                        val manual = backgroundScope.async { session.getMessage(timeout = 10.0) }
+                        advanceTimeBy(20)
+                        runCurrent()
+                        assertFalse(manual.isCompleted)
+                        assertEquals(1, transport.sentData.size)
+                        transport.simulateReceive(hex("0a"))
+                        runCurrent()
+                        assertEquals(MessageResult.NoMoreMessages, manual.await())
+                        assertEquals(1, transport.sentData.size)
+                    } else {
+                        transport.simulateReceive(hex("0a"))
+                        advanceTimeBy(50)
+                        runCurrent()
+                        assertTrue(transport.sentData.size in 1..2)
+                        if (transport.sentData.size == 2) {
+                            transport.simulateReceive(hex("0a"))
+                            advanceTimeBy(20)
+                            runCurrent()
+                            assertEquals(2, transport.sentData.size)
+                        }
+                    }
+                    session.stopAutoMessageFetching()
+                    val stoppedWrites = transport.sentData.size
+                    transport.simulateReceive(hex("83"))
+                    advanceTimeBy(50)
+                    runCurrent()
+                    assertEquals(stoppedWrites, transport.sentData.size)
+                }
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("GetMessageCoalescingTests::a coalesced caller shares the leader's frame and result()")
+    @OriginalCase("GetMessageCoalescingTests::a coalesced caller is released when the leader times out()")
+    @OriginalCase("GetMessageCoalescingTests::a coalesced caller is released when the leader fails with a device error()")
+    @OriginalCase("GetMessageCoalescingTests::a cancelled coalesced caller does not hang()")
+    @Test fun originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget() = runTest {
+        for (scenario in listOf("result", "timeout", "error", "cancelled")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport)
+            try {
+                val timeout = when (scenario) { "timeout" -> 0.15; "cancelled" -> 0.3; else -> null }
+                val leader = backgroundScope.async<Result<MessageResult>> {
+                    try {
+                        Result.success(session.getMessage(timeout))
+                    } catch (failure: MeshCoreException.Timeout) {
+                        Result.failure(failure)
+                    } catch (failure: MeshCoreException.DeviceError) {
+                        Result.failure(failure)
+                    }
+                }
+                runCurrent()
+                val follower = backgroundScope.async<Result<MessageResult>> {
+                    try {
+                        Result.success(session.getMessage())
+                    } catch (failure: MeshCoreException.Timeout) {
+                        Result.failure(failure)
+                    } catch (failure: MeshCoreException.DeviceError) {
+                        Result.failure(failure)
+                    }
+                }
+                advanceTimeBy(if (scenario == "result") 100 else 50)
+                runCurrent()
+                assertEquals(listOf(hex("01032020202020204d43547374"), hex("0a")), transport.sentData)
+                assertFalse(leader.isCompleted)
+                assertFalse(follower.isCompleted)
+                when (scenario) {
+                    "result" -> {
+                        transport.simulateReceive(hex("0a"))
+                        runCurrent()
+                        assertEquals(MessageResult.NoMoreMessages, leader.await().getOrThrow())
+                        assertEquals(MessageResult.NoMoreMessages, follower.await().getOrThrow())
+                    }
+                    "error" -> {
+                        transport.simulateError(9u)
+                        runCurrent()
+                        for (result in listOf(leader.await(), follower.await())) {
+                            val failure = result.exceptionOrNull()
+                            assertTrue(failure is MeshCoreException.DeviceError)
+                            assertEquals(9u.toUByte(), (failure as MeshCoreException.DeviceError).code)
+                        }
+                    }
+                    "timeout" -> {
+                        advanceTimeBy(99)
+                        runCurrent()
+                        assertFalse(leader.isCompleted)
+                        assertFalse(follower.isCompleted)
+                        advanceTimeBy(1)
+                        runCurrent()
+                        assertTrue(leader.await().exceptionOrNull() is MeshCoreException.Timeout)
+                        assertTrue(follower.await().exceptionOrNull() is MeshCoreException.Timeout)
+                    }
+                    "cancelled" -> {
+                        val cancellationStarted = System.nanoTime()
+                        follower.cancel(CancellationException("source-coalesced-caller"))
+                        runCurrent()
+                        assertTrue(follower.isCompleted)
+                        try {
+                            follower.await()
+                            fail("The cancelled follower cannot become a successful result")
+                        } catch (_: CancellationException) {
+                            assertTrue(System.nanoTime() - cancellationStarted < 2_000_000_000L)
+                        }
+                        assertFalse(leader.isCompleted)
+                        advanceTimeBy(250)
+                        runCurrent()
+                        assertTrue(leader.await().exceptionOrNull() is MeshCoreException.Timeout)
+                    }
+                }
+                assertEquals(2, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("GetMessageTimeoutTests::getMessage times out when no response arrives()")
+    @OriginalCase("GetMessageTimeoutTests::getMessage timeout override can be shorter than the session default()")
+    @OriginalCase("GetMessageTimeoutTests::getMessage timeout override can extend beyond the session default()")
+    @Test fun originalTimeoutOverridesUseRealDeadlinesAndSourceInputs() = runBlocking {
+        for (scenario in listOf("default", "shorter", "longer")) {
+            val transport = MockTransport()
+            transport.connect()
+            val session = MeshCoreSession(transport,
+                SessionConfiguration(defaultTimeout = if (scenario == "shorter") 2.0 else 0.02,
+                    clientIdentifier = "MeshCore-Tests"))
+            try {
+                val started = System.nanoTime()
+                try {
+                    withTimeout(5_000) {
+                        session.getMessage(when (scenario) { "shorter" -> 0.02; "longer" -> 0.12; else -> null })
+                    }
+                    fail("The missing response cannot become a successful poll")
+                } catch (_: MeshCoreException.Timeout) {
+                    val elapsed = System.nanoTime() - started
+                    if (scenario == "shorter") assertTrue("Original under-one-second bound", elapsed < 1_000_000_000L)
+                    if (scenario == "longer") assertTrue("Original at-least-eighty-millisecond bound", elapsed >= 80_000_000L)
+                    assertEquals(listOf(hex("0a")), transport.sentData)
+                }
+            } finally {
+                session.stop()
+            }
         }
     }
 

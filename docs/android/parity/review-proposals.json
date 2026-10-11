@@ -5,6 +5,90 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "message-original-auto-fetch-coalescing-and-startup-history",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/AutoMessageFetchTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "concurrent getMessage calls share one wire request": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
+        "auto-fetch coalesces repeated messagesWaiting notifications": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory",
+        "manual getMessage shares in-flight auto-fetch poll": "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "All3 originals retain source-specific startup/cleared history, one actual shared poll for two concurrent callers, exactly three messagesWaiting notifications coalescing into1..2 polls with original50ms/conditional20ms observations, and one manual caller joining automatic poll across original20ms wait. Both callers receive NoMoreMessages and no additional write. Supplemental stop observation sends another83 after joined stop and checks no new poll over50ms.",
+      "inputs": "Exact original10seconds/MeshCore-Tests configuration and66byte selfInfo adv1/tx20/max22/keyAAx32/zero coordinates/0/0/0/manual1/910525/62500/SF7/CR5/TestNode. Independently specified source fields form05011416/AA32/zero8/00000001/BDE40D00/24F40000/0705/TestNode. Actual source5character startupMeshC is literal asserted then send history cleared exactly as source helper does. Three fresh sessions avoid prior generation/cache contamination; requests/responses0A and waiting83 are literal.",
+      "adaptations": "Source real50/20ms observation sleeps become exact injected-scheduler intervals with actual write/pending assertions. Native automatic listener filters before public bounded queue and explicit stop joins jobs; these are existing native consumer adaptations, not hardware/real-time proof. Three original families share one actual runner; conditional second-poll branch preserves original allowed1..2 range rather than inventing a strict count.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/EventDispatcher.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt"
+      ],
+      "consumer": "Read complete frozen startAutoMessageFetching/stop/requestDrain/drain loop and native eager messagesWaiting subscription/autoRequested/autoDrain/getMessage poll sharing. Real public incoming parser/event path feeds the listener; drain owns only one shared generation.poll and manual caller joins it. NoMoreMessages completes drain iteration and stop disables request flag, finishes subscription, cancels/joins jobs. No test-only dispatch bypass or synthetic session result.",
+      "unresolved": ["New exact method and conditional source families require current-head execution and independent review; background/process-death/physical delivery are not proven."],
+      "methods": ["concurrent getMessage calls share one wire request", "auto-fetch coalesces repeated messagesWaiting notifications", "manual getMessage shares in-flight auto-fetch poll"]
+    },
+    {
+      "id": "message-original-coalesced-result-timeout-device-error-and-cancellation",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/GetMessageCoalescingTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "a coalesced caller shares the leader's frame and result": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
+        "a coalesced caller is released when the leader times out": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
+        "a coalesced caller is released when the leader fails with a device error": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget",
+        "a cancelled coalesced caller does not hang": "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget"
+      },
+      "checked_assertion_helpers": {
+        "startSourceSession": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt"
+      },
+      "comparison": "All4 originals preserve one leader/follower request, original100ms successful follower wait or50ms timeout/error/cancel waits and exactly2 startup+poll writes. Source NoMoreMessages reaches both; source leader150ms timeout reaches both with no extra frame; source DeviceError9 reaches both; source canceled follower is completed with cancellation inside actual monotonic2second bound while leader remains pending and reaches its own300ms timeout. Supplemental149ms pending/150ms exact expiry strengthens source leader bound.",
+      "inputs": "Each family has a fresh actual session with original10seconds/MCTst/full58byte selfInfo1/22/22/key01x32/zeros/869525/250000/11/5/emptyname. Leader overrides0.15 or0.3 and follower default10seconds retained; follower must not own a new timeout/frame. Exact MCTst startup/0A response/noMore/error9 literals are independent frozen inputs.",
+      "adaptations": "Actor Task.value sharing becomes generation-owned Deferred poll, and virtual100/50/150/300ms replaces source arbitrary sleeps. Native follower cancellation propagates promptly rather than possibly waiting for source leader; it remains within original2second bound, preserves leader task and writes no new frame. Actual monotonic bound is measured around cancel/completed/await, not a lower-API/virtual-time proxy. Only expected Timeout/DeviceError are captured as typed Result; other errors/cancellation fail normally.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/RequestContext.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+        "docs/android/deviations/WP-107.md"
+      ],
+      "consumer": "Read full frozen getMessage/performGetMessage/inFlight cleanup and actual native generation.poll/start/invokeOnCompletion/await/cancellation methods. Shared exchange owns its serialization and reply independently of follower cancellation, same outcome resolves every awaiting caller, and current generation/failure guards prohibit stale success. Timeout quarantine/late-reply successor behavior is separately tested, not inferred here.",
+      "unresolved": ["New exact method requires immutable current-head execution and independent adaptation review; four source families are one discovered runner, not four passing executions."],
+      "methods": ["a coalesced caller shares the leader's frame and result", "a coalesced caller is released when the leader times out", "a coalesced caller is released when the leader fails with a device error", "a cancelled coalesced caller does not hang"]
+    },
+    {
+      "id": "message-original-real-clock-default-shorter-and-longer-timeouts",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "getMessage times out when no response arrives": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
+        "getMessage timeout override can be shorter than the session default": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs",
+        "getMessage timeout override can extend beyond the session default": "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs"
+      },
+      "comparison": "All3 original inputs retain already-connected transport without session startup, MeshCore-Tests identifier, missing response and typed MeshCore Timeout. Default20ms expires; override20ms with default2seconds measures actual monotonicelapsed<1second; override120ms with default20ms measures actualelapsed>=80ms. These exact original wall-time thresholds are measured with System.nanoTime and actual production SystemSessionClock/Dispatchers.Default, not merely scheduler advancement. Exactly one literal0A write is additionally required.",
+      "inputs": "Original constructor defaults,20ms/2second values, nullable default or20/120ms override and connected initial state retained through actual public getMessage. No selfInfo/handshake is fabricated. Source ContinuousClock maps to JDK monotonic System.nanoTime; exact original inequality thresholds remain unchanged.",
+      "adaptations": "runBlocking plus real default production clock replaces source async real-clock test. An outer5second safety timeout makes a broken/hanging call fail with uncaught cancellation, never expected MeshCore Timeout or fake success; it does not alter the original<1second/>=80ms assertions or requested20/120ms budgets. Three fresh sessions are stopped/joined in finally, unlike unowned source teardown omission; no source typed failure is swallowed.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionTransportOwnership.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/SessionConfiguration.kt"
+      ],
+      "consumer": "Real generation.poll calls exchange and registers matcher before actual0A write. withDeadline selects real delay versus missing response using requested override or default seconds and returns typed Timeout while joined timer/result cleanup runs. This tests actual real-clock consumer behavior alongside existing protocol virtual19/20/80/120ms boundaries, not a claim of every platform scheduler/load or physical-radio timing guarantee.",
+      "unresolved": ["New actual real-clock method must execute on immutable current head and receive independent review; real timing results are not assumed from prior virtual support."],
+      "methods": ["getMessage times out when no response arrives", "getMessage timeout override can be shorter than the session default", "getMessage timeout override can extend beyond the session default"]
+    },
+    {
       "id": "message-original-reset-error-and-fifty-millisecond-serializer-wait",
       "source_path": "MeshCore/Tests/MeshCoreTests/Session/GetMessageSerializationTests.swift",
       "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
@@ -27,7 +111,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt"
       ],
       "consumer": "Read full frozen getMessage/performGetMessage and actual native poll/match/exchange/serializer methods. Only reset has a pending registered matcher while its command owns slot. DeviceError17 completes and releases that slot; poll then registers/writes and accepts its own NoMoreMessages. generation.poll coalescing and after-write timeout/cancellation quarantine remain separately audited, not inferred from this success.",
-      "unresolved": ["New exact method requires current-head execution and independent review. Remaining coalescing/auto-fetch/timeout original exact-input/helper families stay separate and unresolved."],
+      "unresolved": ["Exact method passed at184467aa within45appcases (all41owned+4repair),0failure/error/skip; both exact original message native identities passed within12protocolcases and combined Python363/363 passed. Hosted exact-head/independent review remain required. Coalescing/auto-fetch/timeout exact-input methods are separate current proposals, not inferred from this case."],
       "methods": ["an unrelated error does not fail an in-flight getMessage"]
     },
     {
@@ -55,7 +139,7 @@
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/MessagingPayloads.kt"
       ],
       "consumer": "Read complete frozen/native ChannelDatagram parser and routing plus public getMessage typed-result consumer. Actual opcode1B becomes payload reader stripping only opcode, signed SNR/4 and LE16 type survive, declared length clamps to actual remaining bytes, then ChannelDataReceived resolves MessageResult.ChannelDatagram. This proves actual parser-to-session-result delivery, not firmware support/hardware or every truncated-length/invalid-payload family.",
-      "unresolved": ["New exact method requires current-head positive execution and independent review; public UI/messaging persistence consumers are separately scoped."],
+      "unresolved": ["Exact method passed at184467aa within45appcases (all41owned+4repair),0failure/error/skip; both exact original message native identities passed within12protocolcases and combined Python363/363 passed. Hosted exact-head/independent review remain required; public UI/messaging persistence consumers are separately scoped."],
       "methods": ["getMessage yields channelDatagram"]
     },
     {
@@ -190,7 +274,7 @@
       "adaptations": "Swift mutating Data decoder becomes a three-byte header plus fixed payload state; valid original wire behavior remains identical. Existing WP108 typed outbound65536+ rejection replaces source UInt16 trap; EOF finish() reports typed truncated frame instead of silently discarded suffix. These already documented adaptations are supplemental, not changed original expected frames.",
       "helpers": ["android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/tcp/WiFiFrameCodec.kt"],
       "consumer": "Read complete frozen/native encoder and decoder plus actual transport send/receive loop. Length is unsigned LE16, payload delimiters are data, partial state is preserved and zero payload returns exactly one empty frame. Send uses outbound3C, receive decoder inbound3E; TCP consumer preserves all completed frames before EOF failure. Higher-layer parser/connection-generation evidence remains separate.",
-      "unresolved": ["All6 exact original identities passed at9046a463 within60protocolcases,0failure/error/skip. Hosted exact-head and independent review remain required; supplemental max-length/EOF cases are not automatically additional audited original families."],
+      "unresolved": ["All6 exact original identities passed at9046a463 within60protocolcases,0failure/error/skip. Coordinator bounded immutable5cc255f7 read of full frozen6cases/Swift+Kotlin codec/native177line class found no blocking mismatch in those6families, not independent execution or all11supplemental boundary/noise/EOF/reset cases. Existing typed oversize/EOF adaptation provenance retained. Hosted exact-head/trusted acceptance remain required; supplemental max-length/EOF cases are not automatically additional audited original families."],
       "methods": [
         "Encodes frame with correct delimiter and length",
         "Encodes empty frame",

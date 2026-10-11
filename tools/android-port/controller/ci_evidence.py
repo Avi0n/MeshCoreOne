@@ -104,6 +104,12 @@ WP501_ACCEPTANCE_CASES = {
      "originalMessagePollWaitsFiftyMillisecondsBehindTheCommandAndItsError"),
     ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
      "originalDatagramFrameReachesThePublicMessageResultAfterItsWrite"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalAutomaticPollsRetainTheirSelfInfoAndClearStartupHistory"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalCoalescedOutcomesKeepFollowerWaitsAndCancellationBudget"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalTimeoutOverridesUseRealDeadlinesAndSourceInputs"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

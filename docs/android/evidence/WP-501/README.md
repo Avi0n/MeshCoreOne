@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-560 inspected family proposals in74groups, exact source/assertion/helper/runner
+570 inspected family proposals in77groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and forty-one Kotlin acceptance cases.
+The follow-up has92 Python regressions and forty-four Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-560actually inspected proposals; native-body joins are only candidates.
+570actually inspected proposals; native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -370,7 +370,15 @@ reset DeviceError17/third0A write/NoMoreMessages; exact12byte channel2/FFFF/DEAD
 datagram reaches typed public MessageResult only after actual0A request.
 Prior native shared defaults/onSend shortcut are not passed off as original
 delayed inputs. Explicit checked startSourceSession helper binds actual invoked
-definition/assertions;41required identity set awaits immutable execution. All
+definition/assertions. At actual184467aaab94d052c3e90b6735efc74e08d57954,
+same locked/private-cache app selector discovered/run/passed45/45 (41owned+
+4repair),0failure/error/skip. `:core:protocol:test --tests com.meshcoreone.android.core.protocol.session.OriginalMessageCasesTest --dependency-verification=strict`
+discovered/run/passed12/12,0failure/error/skip; both exact serializer/datagram
+original display identities positively contained. Other10 native original-named
+cases executing here did not become independently inspected original-input
+coverage automatically. Same immutable combined Python command ran363/363passed,
+0failure/error/skip. Native/Gradle locks released normally and actual source/test
+handoff recorded in165comment6113428465. All
 other auto-fetch/coalescing/timeout source inputs remain separately unresolved,
 not added to passing totals merely because their full source/native bodies were
 read. Publication remains held local pending actual PR169 merge.
@@ -387,7 +395,23 @@ those8originals; original stop is unstarted/disconnected with invocation0/1,
 not connected-live-transport evidence. The actual a6-to5cc delta has only5
 proposal/evidence/generated-binding files, no Kotlin/collector/consumer change.
 These provided source assessments retain exact input/object bindings and
-limitations; neither is promoted to independent native or full560family gate.
+limitations; neither is promoted to independent native or full-family gate.
+Further bounded immutable5cc source read covered all6 original codec vectors/
+chunks, complete Swift/Kotlin codec/decoder and177line native class with no
+blocking mismatch. Other11 native boundary/noise/EOF/reset cases are supplemental,
+not new original6families or physicalTCP evidence. Typed oversize/EOF extensions
+retain WP108 adaptation provenance; no independent execution inferred.
+
+Next three owned message methods retain all10 original AutoMessageFetch/
+GetMessageCoalescing/GetMessageTimeout families and exact helpers/consumers.
+Auto families use original66byte AA/20/22/manual1/910525/62500/TestNode and clear
+startup history; coalescing retains20/50/100ms original observations,150/300ms
+leader outcomes/DeviceError9 and actual monotonic2second follower cancellation.
+Timeout defaults/overrides use real production SystemSessionClock/Dispatchers.
+Default and System.nanoTime to preserve original<1second/>=80ms inequalities,
+not a virtual-time proxy; outer5second hang guard fails as uncaught cancellation.
+All44required identities and the new3methods await actual immutable execution.
+Publication stays local while coordinator actual PR169 verification/merge runs.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -425,7 +449,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the560families
+actual inspection. All1,786owned source dispositions require behavior review; only the570families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.
