@@ -51,6 +51,27 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Exact `594ab698fab90654beb3b40ad06c924355231605` passed34/34 original
+ProtocolBugFix parser cases and70/70 app cases (66mandatory+4unchangedrepair),
+0failure/error/skip, with supported locks/readiness passed and released.
+Clean declared combinedPython363/363passed. Initial driver fallthrough and
+before-discovery WinError1455/theme-converter failures remain recorded in
+WP501 evidence; unchanged app retry passed, no old69XML promoted.
+
+The next24-family comparison reads complete frozen RxLogParser13/RxLogTypes11,
+all actual constructors/helpers/wire ingress/DTO and live process/decode
+consumers. Three positional RouteType property assertions are restored to
+original named-case assertions on the same admitted test path/reservation20.
+Independent hashlib confirms the existing supplemental AABBCC packet hash;
+no candidate-generated expectation or golden change. Rawtype12-14UNKNOWN/
+15RAW_CUSTOM, reservedC1 rejection, exact path/sender/recipient bytes and
+all nullable signals retained.815families/121groups inspected,66mandatory,
+0candidate-approved acceptance; immutable24-case discovery/review pending.
+No direct parser/hash original certifies persistence, repeats, decryption or
+full live cancellation. Coordinator173production remains exclusive.
+Source-only PR176 review returned no bounded blocker at exacta4e/basea19;
+it did not execute or approve that candidate or advance this branch's base.
+
 Published accumulatedaf2f6f597/basea19, existingdraftPR165. Exactprimary
 38183893582running,38183893563separate setup; no completed newhostedclaim.
 Normalinstalled prepush Python92parity/21local/15scaffold and preflightpassed,
@@ -65,7 +86,7 @@ pagination/session/service consumers now compared,34parser identities and
 two original public-session families bound. ExactTest10s/zero-power62byte
 startup/error10 and separateunstarted31x6/no-write guard replace component
 defaults for those two originals.791families/119groups/66mandatoryappmethods;
-actual34protocol/70app positive immutableexecution stillpending.
+actual34protocol/70app positive immutableexecution passed at594.
 Sourceinclusive.001 MMA unchanged; exactDTO SNR equality is stronger for the
 selected representable samples. Native malformed live-neighbor diagnostics,
 whole-table serialization and cancellation checks remain bounded adaptations,
@@ -78,7 +99,7 @@ de014/region38at9fc bytebindings unchangedthrough0191. Initial2b90negative
 test-harness failure retained; typedResult capture repairs only test handling,
 not production/errors/deadlines.755/116inspected remains partial, not accepted.
 Priorpublisheda27primary38181356057 actuallySUCCESS/fullofficialJSONread,
-not latercandidate evidence. ContinuingProtocolBugFix inputgap175 five
+not latercandidate evidence. Earlier0191 ProtocolBugFix inputgap175 five
 112233445566prefix fixtures remains unproposed/unrepaired; no full36case
 acceptance or product defect claim.173production exclusive.
 

@@ -4099,7 +4099,7 @@
       "native_contracts": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -4119,22 +4119,22 @@
             {
               "name": "types",
               "line": 71,
-              "end_line": 101
+              "end_line": 110
             },
             {
               "name": "code",
-              "line": 105,
-              "end_line": 105
+              "line": 114,
+              "end_line": 114
             },
             {
               "name": "match",
-              "line": 106,
-              "end_line": 107
+              "line": 115,
+              "end_line": 116
             },
             {
               "name": "transportCodes",
-              "line": 110,
-              "end_line": 154
+              "line": 119,
+              "end_line": 163
             }
           ]
         }
@@ -4154,7 +4154,7 @@
       "native_contracts": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -4174,22 +4174,22 @@
             {
               "name": "types",
               "line": 71,
-              "end_line": 101
+              "end_line": 110
             },
             {
               "name": "code",
-              "line": 105,
-              "end_line": 105
+              "line": 114,
+              "end_line": 114
             },
             {
               "name": "match",
-              "line": 106,
-              "end_line": 107
+              "line": 115,
+              "end_line": 116
             },
             {
               "name": "transportCodes",
-              "line": 110,
-              "end_line": 154
+              "line": 119,
+              "end_line": 163
             }
           ]
         }
@@ -4209,7 +4209,7 @@
       "native_contracts": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -4229,22 +4229,22 @@
             {
               "name": "types",
               "line": 71,
-              "end_line": 101
+              "end_line": 110
             },
             {
               "name": "code",
-              "line": 105,
-              "end_line": 105
+              "line": 114,
+              "end_line": 114
             },
             {
               "name": "match",
-              "line": 106,
-              "end_line": 107
+              "line": 115,
+              "end_line": 116
             },
             {
               "name": "transportCodes",
-              "line": 110,
-              "end_line": 154
+              "line": 119,
+              "end_line": 163
             }
           ]
         }
@@ -16045,7 +16045,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse empty payload returns nil",
           "line": 22,
@@ -16173,7 +16173,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse FLOOD GROUP_TEXT packet",
           "line": 23,
@@ -16373,7 +16373,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse TC_FLOOD with transport code and path",
           "line": 29,
@@ -16567,7 +16567,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse DIRECT packet (no transport code)",
           "line": 35,
@@ -16755,7 +16755,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse TC_DIRECT with transport code",
           "line": 41,
@@ -16907,7 +16907,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse packet with unknown payload type",
           "line": 47,
@@ -17023,7 +17023,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse DIRECT TEXT_MSG extracts sender and recipient pubkey hashes",
           "line": 48,
@@ -17151,7 +17151,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse TC_DIRECT TEXT_MSG extracts sender and recipient pubkey hashes",
           "line": 51,
@@ -17279,7 +17279,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse DIRECT TEXT_MSG with hashSize > 1 path still extracts 1-byte payload hashes",
           "line": 54,
@@ -17389,7 +17389,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse FLOOD GROUP_TEXT has nil sender pubkey prefix",
           "line": 57,
@@ -17505,7 +17505,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "MeshEvent.rxLogData holds ParsedRxLogData",
           "line": 58,
@@ -17615,7 +17615,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse rejects reserved (mode 3) path length encoding",
           "line": 63,
@@ -17743,7 +17743,7 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Parse FLOOD TEXT_MSG extracts sender and recipient pubkey hashes",
           "line": 64,
@@ -17865,34 +17865,64 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "RouteType raw values match protocol spec",
           "line": 72,
-          "end_line": 72,
+          "end_line": 75,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "a7144a5cda3eabd8df8d9db12502881cd3287185d6821d1975ece38a31166184",
+          "body_sha256": "96e4b033a2e7d8c75c19f451916ae030aa767947b31292eb5d5e3e7d8a6f49f5",
           "registration": "original(\"RxLogTypesTests\", \"RouteType raw values match protocol spec\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 72,
-              "expression": "assertEquals(listOf(0, 1, 2, 3), RouteType.entries.map { it.rawValue.toInt() })",
+              "line": 73,
+              "expression": "assertEquals(0u.toUByte(), RouteType.TC_FLOOD.rawValue)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 73,
+              "expression": "assertEquals(1u.toUByte(), RouteType.FLOOD.rawValue)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 74,
+              "expression": "assertEquals(2u.toUByte(), RouteType.DIRECT.rawValue)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 74,
+              "expression": "assertEquals(3u.toUByte(), RouteType.TC_DIRECT.rawValue)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
             {
-              "name": "listOf",
-              "line": 72,
-              "expression": "listOf(0, 1, 2, 3)",
+              "name": "u.toUByte",
+              "line": 73,
+              "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "it.rawValue.toInt",
-              "line": 72,
-              "expression": "it.rawValue.toInt()",
+              "name": "u.toUByte",
+              "line": 73,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 74,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 74,
+              "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
           ],
@@ -17957,31 +17987,42 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "RouteType hasTransportCode",
-          "line": 73,
-          "end_line": 73,
+          "line": 76,
+          "end_line": 79,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "d9ff37b57a57e358ed0a5286b591211872a533597aa8559afde12bfd2de21bb9",
+          "body_sha256": "aefe8f04dcf9ecbe40dd80800fb6aac4fb4d5f336eb4097fa14a78162da359c3",
           "registration": "original(\"RxLogTypesTests\", \"RouteType hasTransportCode\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 73,
-              "expression": "assertEquals(listOf(true, false, false, true), RouteType.entries.map { it.hasTransportCode })",
+              "line": 77,
+              "expression": "assertEquals(true, RouteType.TC_FLOOD.hasTransportCode)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 77,
+              "expression": "assertEquals(false, RouteType.FLOOD.hasTransportCode)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 78,
+              "expression": "assertEquals(false, RouteType.DIRECT.hasTransportCode)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 78,
+              "expression": "assertEquals(true, RouteType.TC_DIRECT.hasTransportCode)",
               "assertion_or_checked_wait": true
             }
           ],
-          "actions_and_helper_calls": [
-            {
-              "name": "listOf",
-              "line": 73,
-              "expression": "listOf(true, false, false, true)",
-              "assertion_or_checked_wait": false
-            }
-          ],
+          "actions_and_helper_calls": [],
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -18043,11 +18084,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType raw values match protocol spec",
-          "line": 74,
-          "end_line": 77,
+          "line": 80,
+          "end_line": 83,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "35f0bc6c53ed4ad09b83fc3fea2ba249a83fd140ba4ea9697d5a465a8e4e2c71",
@@ -18055,25 +18096,25 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 75,
+              "line": 81,
               "expression": "assertEquals(0u.toUByte(), PayloadType.REQUEST.rawValue)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 75,
+              "line": 81,
               "expression": "assertEquals(5u.toUByte(), PayloadType.GROUP_TEXT.rawValue)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 76,
+              "line": 82,
               "expression": "assertEquals(11u.toUByte(), PayloadType.CONTROL.rawValue)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 76,
+              "line": 82,
               "expression": "assertEquals(255u.toUByte(), PayloadType.UNKNOWN.rawValue)",
               "assertion_or_checked_wait": true
             }
@@ -18081,25 +18122,25 @@
           "actions_and_helper_calls": [
             {
               "name": "u.toUByte",
-              "line": 75,
+              "line": 81,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 75,
+              "line": 81,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 76,
+              "line": 82,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 76,
+              "line": 82,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -18177,11 +18218,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Reserved PayloadType values 12-14 map to unknown via fromBits",
-          "line": 78,
-          "end_line": 78,
+          "line": 84,
+          "end_line": 84,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "7665e282cf7a45a72a98595a98fc443dfb113abfbb3ba22e5cfd17de6e35af2c",
@@ -18189,7 +18230,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 78,
+              "line": 84,
               "expression": "assertEquals(PayloadType.UNKNOWN, PayloadType.fromBits(value.toUByte()))",
               "assertion_or_checked_wait": true
             }
@@ -18197,19 +18238,19 @@
           "actions_and_helper_calls": [
             {
               "name": "for",
-              "line": 78,
+              "line": 84,
               "expression": "for (value in 12..14)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "PayloadType.fromBits",
-              "line": 78,
+              "line": 84,
               "expression": "PayloadType.fromBits(value.toUByte())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "value.toUByte",
-              "line": 78,
+              "line": 84,
               "expression": "value.toUByte()",
               "assertion_or_checked_wait": false
             }
@@ -18263,11 +18304,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType value 15 maps to rawCustom via fromBits",
-          "line": 79,
-          "end_line": 79,
+          "line": 85,
+          "end_line": 85,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "ea4d5e18d914cebef19b4820989dfee1173f59a0b3fec253a4ee9fd487a1bfbd",
@@ -18275,7 +18316,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 79,
+              "line": 85,
               "expression": "assertEquals(PayloadType.RAW_CUSTOM, PayloadType.fromBits(15u))",
               "assertion_or_checked_wait": true
             }
@@ -18283,7 +18324,7 @@
           "actions_and_helper_calls": [
             {
               "name": "PayloadType.fromBits",
-              "line": 79,
+              "line": 85,
               "expression": "PayloadType.fromBits(15u)",
               "assertion_or_checked_wait": false
             }
@@ -18349,11 +18390,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType rawValue initializer returns nil for undefined values",
-          "line": 80,
-          "end_line": 82,
+          "line": 86,
+          "end_line": 88,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "6e6105eae2ed3c28e6d1256622813a47d54362e8e0b0c2dd005e3ce3f54cdc10",
@@ -18361,13 +18402,13 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 81,
+              "line": 87,
               "expression": "assertNull(PayloadType.fromRawValue(12u))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 81,
+              "line": 87,
               "expression": "assertEquals(PayloadType.UNKNOWN, PayloadType.fromRawValue(255u))",
               "assertion_or_checked_wait": true
             }
@@ -18375,13 +18416,13 @@
           "actions_and_helper_calls": [
             {
               "name": "PayloadType.fromRawValue",
-              "line": 81,
+              "line": 87,
               "expression": "PayloadType.fromRawValue(12u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "PayloadType.fromRawValue",
-              "line": 81,
+              "line": 87,
               "expression": "PayloadType.fromRawValue(255u)",
               "assertion_or_checked_wait": false
             }
@@ -18459,11 +18500,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType fromBits with valid values",
-          "line": 83,
-          "end_line": 85,
+          "line": 89,
+          "end_line": 91,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "1f3b346cb658e9e3fff7d44406cd50360835814fcb2daa58ca33d741ab1667d1",
@@ -18471,19 +18512,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 84,
+              "line": 90,
               "expression": "assertEquals(PayloadType.REQUEST, PayloadType.fromBits(0u))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 84,
+              "line": 90,
               "expression": "assertEquals(PayloadType.GROUP_TEXT, PayloadType.fromBits(5u))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 84,
+              "line": 90,
               "expression": "assertEquals(PayloadType.CONTROL, PayloadType.fromBits(11u))",
               "assertion_or_checked_wait": true
             }
@@ -18491,19 +18532,19 @@
           "actions_and_helper_calls": [
             {
               "name": "PayloadType.fromBits",
-              "line": 84,
+              "line": 90,
               "expression": "PayloadType.fromBits(0u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "PayloadType.fromBits",
-              "line": 84,
+              "line": 90,
               "expression": "PayloadType.fromBits(5u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "PayloadType.fromBits",
-              "line": 84,
+              "line": 90,
               "expression": "PayloadType.fromBits(11u)",
               "assertion_or_checked_wait": false
             }
@@ -18569,31 +18610,42 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "RouteType displayName",
-          "line": 86,
-          "end_line": 86,
+          "line": 92,
+          "end_line": 95,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
-          "body_sha256": "0121ce87d2c847d1b3b87b2dd8fc669a8532f27d505267ec1643a78f6fdb7c82",
+          "body_sha256": "bb52b9b828d3c0ba11f170355633c3c730c0fe5b3b28e29f8cef7f7e5bb9cd55",
           "registration": "original(\"RxLogTypesTests\", \"RouteType displayName\")",
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 86,
-              "expression": "assertEquals(listOf(\"TC_FLOOD\", \"FLOOD\", \"DIRECT\", \"TC_DIRECT\"), RouteType.entries.map { it.displayName })",
+              "line": 93,
+              "expression": "assertEquals(\"TC_FLOOD\", RouteType.TC_FLOOD.displayName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 93,
+              "expression": "assertEquals(\"FLOOD\", RouteType.FLOOD.displayName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(\"DIRECT\", RouteType.DIRECT.displayName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(\"TC_DIRECT\", RouteType.TC_DIRECT.displayName)",
               "assertion_or_checked_wait": true
             }
           ],
-          "actions_and_helper_calls": [
-            {
-              "name": "listOf",
-              "line": 86,
-              "expression": "listOf(\"TC_FLOOD\", \"FLOOD\", \"DIRECT\", \"TC_DIRECT\")",
-              "assertion_or_checked_wait": false
-            }
-          ],
+          "actions_and_helper_calls": [],
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/RxLogParserTests.swift",
             "MeshCore/Tests/MeshCoreTests/RxLogTypesTests.swift",
@@ -18649,11 +18701,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "PayloadType displayName",
-          "line": 87,
-          "end_line": 89,
+          "line": 96,
+          "end_line": 98,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e36bbf6373244f5d50a13192f95d1d49154ef4283e5122bd7bfd4a985cbca7dc",
@@ -18661,19 +18713,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 88,
+              "line": 97,
               "expression": "assertEquals(\"REQUEST\", PayloadType.REQUEST.displayName)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 88,
+              "line": 97,
               "expression": "assertEquals(\"GROUP_TEXT\", PayloadType.GROUP_TEXT.displayName)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 88,
+              "line": 97,
               "expression": "assertEquals(\"UNKNOWN\", PayloadType.UNKNOWN.displayName)",
               "assertion_or_checked_wait": true
             }
@@ -18788,11 +18840,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "ParsedRxLogData initializes with all fields",
-          "line": 90,
-          "end_line": 95,
+          "line": 99,
+          "end_line": 104,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "58d08945e328a704bcefd667b501c4d0bc433659c9e3c9c15a9d1f865c11823d",
@@ -18800,55 +18852,55 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 92,
+              "line": 101,
               "expression": "assertEquals(8.5, data.snr)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 92,
+              "line": 101,
               "expression": "assertEquals(-85L, data.rssi)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 92,
+              "line": 101,
               "expression": "assertEquals(RouteType.FLOOD, data.routeType)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 93,
+              "line": 102,
               "expression": "assertEquals(PayloadType.GROUP_TEXT, data.payloadType)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 93,
+              "line": 102,
               "expression": "assertEquals(1u.toUByte(), data.payloadVersion)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 94,
+              "line": 103,
               "expression": "assertNull(data.transportCode)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 94,
+              "line": 103,
               "expression": "assertEquals(2u.toUByte(), data.pathLength)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 94,
+              "line": 103,
               "expression": "assertEquals(hex(\"3a7f\").toList(), data.pathNodes)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 94,
+              "line": 103,
               "expression": "assertEquals(16, data.packetHash.length)",
               "assertion_or_checked_wait": true
             }
@@ -18856,55 +18908,55 @@
           "actions_and_helper_calls": [
             {
               "name": "ParsedRxLogData",
-              "line": 91,
+              "line": 100,
               "expression": "ParsedRxLogData(8.5, -85, hex(\"010203\"), RouteType.FLOOD, PayloadType.GROUP_TEXT, 1u, 5u, null, 2u, hex(\"3a7f\").toList(), hex(\"aabb\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 91,
+              "line": 100,
               "expression": "hex(\"010203\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 91,
+              "line": 100,
               "expression": "hex(\"3a7f\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toList",
-              "line": 91,
+              "line": 100,
               "expression": "toList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 91,
+              "line": 100,
               "expression": "hex(\"aabb\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 93,
+              "line": 102,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "u.toUByte",
-              "line": 94,
+              "line": 103,
               "expression": "u.toUByte()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 94,
+              "line": 103,
               "expression": "hex(\"3a7f\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toList",
-              "line": 94,
+              "line": 103,
               "expression": "toList()",
               "assertion_or_checked_wait": false
             }
@@ -18988,11 +19040,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "ParsedRxLogData packetHash is stable",
-          "line": 96,
-          "end_line": 100,
+          "line": 105,
+          "end_line": 109,
           "factory_method": "types",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "63796e1168d63d38ac8e9b51cb1cb18b101a7263706cdbb20cae3e51b12f5dee",
@@ -19000,13 +19052,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 99,
+              "line": 108,
               "expression": "assertEquals(first.packetHash, second.packetHash)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 99,
+              "line": 108,
               "expression": "assertEquals(\"fa22dfe1da9013b3\", first.packetHash)",
               "assertion_or_checked_wait": true
             }
@@ -19014,55 +19066,55 @@
           "actions_and_helper_calls": [
             {
               "name": "ParsedRxLogData",
-              "line": 97,
+              "line": 106,
               "expression": "ParsedRxLogData(null, null, Bytes.EMPTY, RouteType.FLOOD, PayloadType.GROUP_TEXT, 0u, 5u, null, 0u, emptyList(), hex(\"aabbcc\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "emptyList",
-              "line": 97,
+              "line": 106,
               "expression": "emptyList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 97,
+              "line": 106,
               "expression": "hex(\"aabbcc\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "ParsedRxLogData",
-              "line": 98,
+              "line": 107,
               "expression": "ParsedRxLogData(5.0, -90, hex(\"ff\"), RouteType.DIRECT, PayloadType.ACK, 2u, 3u, hex(\"01020304\"), 3u, hex(\"112233\").toList(), hex(\"aabbcc\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 98,
+              "line": 107,
               "expression": "hex(\"ff\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 98,
+              "line": 107,
               "expression": "hex(\"01020304\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 98,
+              "line": 107,
               "expression": "hex(\"112233\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "toList",
-              "line": 98,
+              "line": 107,
               "expression": "toList()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 98,
+              "line": 107,
               "expression": "hex(\"aabbcc\")",
               "assertion_or_checked_wait": false
             }
@@ -19152,11 +19204,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Scope key is SHA-256 of #-prefixed name truncated to 16 bytes",
-          "line": 111,
-          "end_line": 113,
+          "line": 120,
+          "end_line": 122,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "7b00affe36ee8e7c6bcdacc19e7b4a15e1ae3dee617575e25b39ca1b8e92f372",
@@ -19164,19 +19216,19 @@
           "assertions": [
             {
               "name": "assertNotNull",
-              "line": 112,
+              "line": 121,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 112,
+              "line": 121,
               "expression": "assertEquals(germany, key)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 112,
+              "line": 121,
               "expression": "assertEquals(16, key.size)",
               "assertion_or_checked_wait": true
             }
@@ -19184,7 +19236,7 @@
           "actions_and_helper_calls": [
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 112,
+              "line": 121,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"Germany\")",
               "assertion_or_checked_wait": false
             }
@@ -19256,11 +19308,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Names with and without # produce identical scope keys",
-          "line": 114,
-          "end_line": 116,
+          "line": 123,
+          "end_line": 125,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "09eb84e748fd0bc35783efaf346c4f6350002cb7eaaaa557af91b9f54b8025ec",
@@ -19268,19 +19320,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 115,
+              "line": 124,
               "expression": "assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"#Germany\")))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 115,
+              "line": 124,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 115,
+              "line": 124,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"#Germany\"))",
               "assertion_or_checked_wait": true
             }
@@ -19288,13 +19340,13 @@
           "actions_and_helper_calls": [
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 115,
+              "line": 124,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"Germany\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 115,
+              "line": 124,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"#Germany\")",
               "assertion_or_checked_wait": false
             }
@@ -19366,11 +19418,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Whitespace around region name is trimmed before normalization",
-          "line": 117,
-          "end_line": 119,
+          "line": 126,
+          "end_line": 128,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "0e86999932462a452a374962c9393c1c06bcec360aae564203ecd8a86bb6dea4",
@@ -19378,19 +19430,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 118,
+              "line": 127,
               "expression": "assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"  Germany  \")))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 118,
+              "line": 127,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Germany\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 118,
+              "line": 127,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"  Germany  \"))",
               "assertion_or_checked_wait": true
             }
@@ -19398,13 +19450,13 @@
           "actions_and_helper_calls": [
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 118,
+              "line": 127,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"Germany\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 118,
+              "line": 127,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"  Germany  \")",
               "assertion_or_checked_wait": false
             }
@@ -19470,11 +19522,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Dollar-prefixed (private) region returns nil scope key",
-          "line": 120,
-          "end_line": 122,
+          "line": 129,
+          "end_line": 131,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "d5322c9fcbce2dc85b5de58f44b8fd0e8db3b409c32f1269372eed179e3c7cdc",
@@ -19482,13 +19534,13 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 121,
+              "line": 130,
               "expression": "assertNull(TransportCodeRegionResolver.deriveScopeKey(\"\\$secret\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNull",
-              "line": 121,
+              "line": 130,
               "expression": "assertNull(TransportCodeRegionResolver.deriveScopeKey(\"\\$\"))",
               "assertion_or_checked_wait": true
             }
@@ -19496,13 +19548,13 @@
           "actions_and_helper_calls": [
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 121,
+              "line": 130,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"\\$secret\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 121,
+              "line": 130,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"\\$\")",
               "assertion_or_checked_wait": false
             }
@@ -19580,11 +19632,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Empty or whitespace-only region name returns nil",
-          "line": 123,
-          "end_line": 125,
+          "line": 132,
+          "end_line": 134,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "99ea92cb2666975d290808cecb1fc23df51b0c71f1ba63114df49fec93128440",
@@ -19592,7 +19644,7 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 124,
+              "line": 133,
               "expression": "assertNull(TransportCodeRegionResolver.deriveScopeKey(it))",
               "assertion_or_checked_wait": true
             }
@@ -19600,13 +19652,13 @@
           "actions_and_helper_calls": [
             {
               "name": "listOf",
-              "line": 124,
+              "line": 133,
               "expression": "listOf(\"\", \"   \", \"\\t\\n\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 124,
+              "line": 133,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(it)",
               "assertion_or_checked_wait": false
             }
@@ -19678,11 +19730,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Repeated derivation of the same name yields identical keys",
-          "line": 126,
-          "end_line": 128,
+          "line": 135,
+          "end_line": 137,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "98f4209598e6e8b639cd6e1be3daa7e1073194ee138bd438331aef22f31e4581",
@@ -19690,19 +19742,19 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 127,
+              "line": 136,
               "expression": "assertEquals(assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\")), assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\")))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 127,
+              "line": 136,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertNotNull",
-              "line": 127,
+              "line": 136,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\"))",
               "assertion_or_checked_wait": true
             }
@@ -19710,13 +19762,13 @@
           "actions_and_helper_calls": [
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 127,
+              "line": 136,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 127,
+              "line": 136,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\")",
               "assertion_or_checked_wait": false
             }
@@ -19770,11 +19822,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "rewriteReservedCode maps 0 to 1",
-          "line": 129,
-          "end_line": 129,
+          "line": 138,
+          "end_line": 138,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "019cedf455296af2c7ae3581ed1173ab6f6712fc58b876821b60782ed060e738",
@@ -19782,7 +19834,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 129,
+              "line": 138,
               "expression": "assertEquals(1u.toUShort(), TransportCodeRegionResolver.rewriteReservedCode(0u))",
               "assertion_or_checked_wait": true
             }
@@ -19790,13 +19842,13 @@
           "actions_and_helper_calls": [
             {
               "name": "u.toUShort",
-              "line": 129,
+              "line": 138,
               "expression": "u.toUShort()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.rewriteReservedCode",
-              "line": 129,
+              "line": 138,
               "expression": "TransportCodeRegionResolver.rewriteReservedCode(0u)",
               "assertion_or_checked_wait": false
             }
@@ -19850,11 +19902,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "rewriteReservedCode maps 0xFFFF to 0xFFFE",
-          "line": 130,
-          "end_line": 130,
+          "line": 139,
+          "end_line": 139,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "c3b377020fbc7bb88ccde391151ed1814e1c16d1afe7f71ad50a713f59d4fae4",
@@ -19862,7 +19914,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 130,
+              "line": 139,
               "expression": "assertEquals(0xfffeu.toUShort(), TransportCodeRegionResolver.rewriteReservedCode(0xffffu))",
               "assertion_or_checked_wait": true
             }
@@ -19870,13 +19922,13 @@
           "actions_and_helper_calls": [
             {
               "name": "u.toUShort",
-              "line": 130,
+              "line": 139,
               "expression": "u.toUShort()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.rewriteReservedCode",
-              "line": 130,
+              "line": 139,
               "expression": "TransportCodeRegionResolver.rewriteReservedCode(0xffffu)",
               "assertion_or_checked_wait": false
             }
@@ -19966,11 +20018,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "rewriteReservedCode passes through non-reserved values",
-          "line": 131,
-          "end_line": 133,
+          "line": 140,
+          "end_line": 142,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e7b53be73781e002bd22d1b4a9a2a1a6d86b96648b7a04957edcea6e49c0474d",
@@ -19978,7 +20030,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 132,
+              "line": 141,
               "expression": "assertEquals(it.toUShort(), TransportCodeRegionResolver.rewriteReservedCode(it.toUShort()))",
               "assertion_or_checked_wait": true
             }
@@ -19986,25 +20038,25 @@
           "actions_and_helper_calls": [
             {
               "name": "listOf",
-              "line": 132,
+              "line": 141,
               "expression": "listOf(1, 0xfffe, 0x1234, 0x8000)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.toUShort",
-              "line": 132,
+              "line": 141,
               "expression": "it.toUShort()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "TransportCodeRegionResolver.rewriteReservedCode",
-              "line": 132,
+              "line": 141,
               "expression": "TransportCodeRegionResolver.rewriteReservedCode(it.toUShort())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "it.toUShort",
-              "line": 132,
+              "line": 141,
               "expression": "it.toUShort()",
               "assertion_or_checked_wait": false
             }
@@ -20130,11 +20182,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "calcTransportCode reads first two HMAC bytes as little-endian UInt16",
-          "line": 134,
-          "end_line": 134,
+          "line": 143,
+          "end_line": 143,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "46ddddd21bf43f4e0f296f71706477c7157c6a6341f24fd978c4c3943d6bff78",
@@ -20142,7 +20194,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 134,
+              "line": 143,
               "expression": "assertEquals(31_787u.toUShort(), code())",
               "assertion_or_checked_wait": true
             }
@@ -20150,13 +20202,13 @@
           "actions_and_helper_calls": [
             {
               "name": "u.toUShort",
-              "line": 134,
+              "line": 143,
               "expression": "u.toUShort()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "code",
-              "line": 134,
+              "line": 143,
               "expression": "code()",
               "assertion_or_checked_wait": false
             }
@@ -20228,11 +20280,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "calcTransportCode masks payload type bits to low nibble",
-          "line": 135,
-          "end_line": 135,
+          "line": 144,
+          "end_line": 144,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e3868b28b2c2e35e11725726d0e692522f07f784e940d50a306c3374f35e7dfe",
@@ -20240,7 +20292,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 135,
+              "line": 144,
               "expression": "assertEquals(code(bits = 5u), code(bits = 0xf5u))",
               "assertion_or_checked_wait": true
             }
@@ -20248,13 +20300,13 @@
           "actions_and_helper_calls": [
             {
               "name": "code",
-              "line": 135,
+              "line": 144,
               "expression": "code(bits = 5u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "code",
-              "line": 135,
+              "line": 144,
               "expression": "code(bits = 0xf5u)",
               "assertion_or_checked_wait": false
             }
@@ -20326,11 +20378,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "calcTransportCode is deterministic for the same inputs",
-          "line": 136,
-          "end_line": 138,
+          "line": 145,
+          "end_line": 147,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "e88b775aaac40b417e0ad5f0695bae41db18b31d9b87ff6311faf1ecbcff1f69",
@@ -20338,13 +20390,13 @@
           "assertions": [
             {
               "name": "assertNotNull",
-              "line": 137,
+              "line": 146,
               "expression": "assertNotNull(TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 137,
+              "line": 146,
               "expression": "assertEquals(code(key), code(key))",
               "assertion_or_checked_wait": true
             }
@@ -20352,19 +20404,19 @@
           "actions_and_helper_calls": [
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 137,
+              "line": 146,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"Bavaria\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "code",
-              "line": 137,
+              "line": 146,
               "expression": "code(key)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "code",
-              "line": 137,
+              "line": 146,
               "expression": "code(key)",
               "assertion_or_checked_wait": false
             }
@@ -20442,11 +20494,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Round-trip: compute code then resolve back to unique region name",
-          "line": 139,
-          "end_line": 141,
+          "line": 148,
+          "end_line": 150,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "18d0874e61fae85ffbeb7d736008493c6d2ded9472cca321213a152f9a6449e5",
@@ -20454,7 +20506,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 140,
+              "line": 149,
               "expression": "assertEquals(RegionMatchResult.Unique(\"Germany\"), match(listOf(RegionScopeKey(\"Germany\", germany)), code()))",
               "assertion_or_checked_wait": true
             }
@@ -20462,31 +20514,31 @@
           "actions_and_helper_calls": [
             {
               "name": "RegionMatchResult.Unique",
-              "line": 140,
+              "line": 149,
               "expression": "RegionMatchResult.Unique(\"Germany\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "match",
-              "line": 140,
+              "line": 149,
               "expression": "match(listOf(RegionScopeKey(\"Germany\", germany)), code())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 140,
+              "line": 149,
               "expression": "listOf(RegionScopeKey(\"Germany\", germany))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RegionScopeKey",
-              "line": 140,
+              "line": 149,
               "expression": "RegionScopeKey(\"Germany\", germany)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "code",
-              "line": 140,
+              "line": 149,
               "expression": "code()",
               "assertion_or_checked_wait": false
             }
@@ -20540,11 +20592,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Empty scopeKeys returns none",
-          "line": 142,
-          "end_line": 142,
+          "line": 151,
+          "end_line": 151,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "9505d5090326f7cd9f29fb8fcdfe1cda1be6b5d9cea232aeb81cddcbc7e8a86a",
@@ -20552,7 +20604,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 142,
+              "line": 151,
               "expression": "assertEquals(RegionMatchResult.None, match(emptyList(), 0x1234u))",
               "assertion_or_checked_wait": true
             }
@@ -20560,13 +20612,13 @@
           "actions_and_helper_calls": [
             {
               "name": "match",
-              "line": 142,
+              "line": 151,
               "expression": "match(emptyList(), 0x1234u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "emptyList",
-              "line": 142,
+              "line": 151,
               "expression": "emptyList()",
               "assertion_or_checked_wait": false
             }
@@ -20650,11 +20702,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "No matching region returns none",
-          "line": 143,
-          "end_line": 145,
+          "line": 152,
+          "end_line": 154,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "3e28372fa54d544ba7ac4483df1dff7fe0f866ba59920ab9d80b4f61a3bb10bb",
@@ -20662,7 +20714,7 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 144,
+              "line": 153,
               "expression": "assertEquals(RegionMatchResult.None, match(listOf(RegionScopeKey(\"Germany\", germany), RegionScopeKey(\"USA\", hex(\"5eaf24a29d2936601e22ac56065cb314\"))), 31_788u))",
               "assertion_or_checked_wait": true
             }
@@ -20670,31 +20722,31 @@
           "actions_and_helper_calls": [
             {
               "name": "match",
-              "line": 144,
+              "line": 153,
               "expression": "match(listOf(RegionScopeKey(\"Germany\", germany), RegionScopeKey(\"USA\", hex(\"5eaf24a29d2936601e22ac56065cb314\"))), 31_788u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 144,
+              "line": 153,
               "expression": "listOf(RegionScopeKey(\"Germany\", germany), RegionScopeKey(\"USA\", hex(\"5eaf24a29d2936601e22ac56065cb314\")))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RegionScopeKey",
-              "line": 144,
+              "line": 153,
               "expression": "RegionScopeKey(\"Germany\", germany)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RegionScopeKey",
-              "line": 144,
+              "line": 153,
               "expression": "RegionScopeKey(\"USA\", hex(\"5eaf24a29d2936601e22ac56065cb314\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "hex",
-              "line": 144,
+              "line": 153,
               "expression": "hex(\"5eaf24a29d2936601e22ac56065cb314\")",
               "assertion_or_checked_wait": false
             }
@@ -20796,11 +20848,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Ambiguous match returns all names sorted independent of input order",
-          "line": 146,
-          "end_line": 150,
+          "line": 155,
+          "end_line": 159,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "a5d9146e1c8121c7ea3ba62f66a3af88998c46fd7cda67b16ca4675231760709",
@@ -20808,13 +20860,13 @@
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 149,
+              "line": 158,
               "expression": "assertEquals(RegionMatchResult.Ambiguous(listOf(\"de-by\", \"de-hh\")), a)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 149,
+              "line": 158,
               "expression": "assertEquals(a, b)",
               "assertion_or_checked_wait": true
             }
@@ -20822,49 +20874,49 @@
           "actions_and_helper_calls": [
             {
               "name": "listOf",
-              "line": 147,
+              "line": 156,
               "expression": "listOf(RegionScopeKey(\"de-by\", germany), RegionScopeKey(\"de-hh\", germany))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RegionScopeKey",
-              "line": 147,
+              "line": 156,
               "expression": "RegionScopeKey(\"de-by\", germany)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RegionScopeKey",
-              "line": 147,
+              "line": 156,
               "expression": "RegionScopeKey(\"de-hh\", germany)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "match",
-              "line": 148,
+              "line": 157,
               "expression": "match(forward)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "match",
-              "line": 148,
+              "line": 157,
               "expression": "match(forward.reversed())",
               "assertion_or_checked_wait": false
             },
             {
               "name": "forward.reversed",
-              "line": 148,
+              "line": 157,
               "expression": "forward.reversed()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "RegionMatchResult.Ambiguous",
-              "line": 149,
+              "line": 158,
               "expression": "RegionMatchResult.Ambiguous(listOf(\"de-by\", \"de-hh\"))",
               "assertion_or_checked_wait": false
             },
             {
               "name": "listOf",
-              "line": 149,
+              "line": 158,
               "expression": "listOf(\"de-by\", \"de-hh\")",
               "assertion_or_checked_wait": false
             }
@@ -20930,11 +20982,11 @@
       "native_proposals": [
         {
           "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalRxLogCasesTest.kt",
-          "sha256": "c344ca1c2a72f75ce85225930fd6bdd58c83628eb2f9d3abb3892cf788d5db6b",
+          "sha256": "530471973283647dff0398a94170e113cb6c698eb24271904494613a45be55da",
           "class": "com.meshcoreone.android.core.protocol.parser.OriginalRxLogCasesTest",
           "method_or_family_name": "Dollar-prefixed private regions never match via empty scope key",
-          "line": 151,
-          "end_line": 153,
+          "line": 160,
+          "end_line": 162,
           "factory_method": "transportCodes",
           "registration_identity_resolution": "exact-literal-display",
           "body_sha256": "59a89d79ea041d10111ac6d819e371f9a802b52f06099f4e7734a60da06bc0dd",
@@ -20942,13 +20994,13 @@
           "assertions": [
             {
               "name": "assertNull",
-              "line": 152,
+              "line": 161,
               "expression": "assertNull(TransportCodeRegionResolver.deriveScopeKey(\"\\$secret\"))",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 152,
+              "line": 161,
               "expression": "assertEquals(RegionMatchResult.None, match(emptyList(), 0x1234u))",
               "assertion_or_checked_wait": true
             }
@@ -20956,19 +21008,19 @@
           "actions_and_helper_calls": [
             {
               "name": "TransportCodeRegionResolver.deriveScopeKey",
-              "line": 152,
+              "line": 161,
               "expression": "TransportCodeRegionResolver.deriveScopeKey(\"\\$secret\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "match",
-              "line": 152,
+              "line": 161,
               "expression": "match(emptyList(), 0x1234u)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "emptyList",
-              "line": 152,
+              "line": 161,
               "expression": "emptyList()",
               "assertion_or_checked_wait": false
             }

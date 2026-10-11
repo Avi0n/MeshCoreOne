@@ -36,7 +36,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-791 inspected family proposals in119groups, exact source/assertion/helper/runner
+815 inspected family proposals in121groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -54,7 +54,61 @@ production signing or release certification.
 
 ## Local execution before candidate publication
 
-Next owned175repair: same typedreservation19->20 admits existing
+Exact `594ab698fab90654beb3b40ad06c924355231605`:
+
+- `python <session-files>\wp501-native-check.py --head 594ab698fab90654beb3b40ad06c924355231605 --bugfix-only`
+  invokes declared `:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalBugFixCasesTest --dependency-verification=strict --quiet`.
+  Required/discovered/run/passed34/34/34/34,0failure/error/skip.
+- `python <session-files>\wp501-native-check.py --head 594ab698fab90654beb3b40ad06c924355231605 --app-only`
+  invokes declared `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --tests com.meshcoreone.android.app.platform.InlineContentCancellationTest --tests com.meshcoreone.android.app.platform.PreviewPolicyTest --dependency-verification=strict --quiet`.
+  Required/discovered/run/passed70/70/70/70 (66mandatory+4unchangedrepair),
+  0failure/error/skip, including the new two-original public-session method.
+- `python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+  clean immutable363/363passed,0failure/error/skip.
+
+Unchanged constrained-memory scaffold launcher/private caches/JDK21.0.12.1/
+SDK37.2/strict dependency verification; actual supported native/Gradle locks
+acquired and released normally. Appsourceblob
+`9f1ac6fe9cae87def964b83bd97220929a5e6726`, collector
+`a65804ea6d507b0336083ab6ba735b731017c3b5`, OriginalBugFix
+`d4127ddc5da73d9c7db8f87e7888bbfe54ad5dd0`.
+These identify executed594 bytes, not execution of later evidence-only heads.
+
+Retained predecessor attempts: the first external bugfix driver ran34passed
+then fell through into an unrelated protocol selector; required-identity
+collection failed correctly and app never ran. Corrected only the external
+mode guard before the successful34 invocation. First app attempt failed
+before app discovery in unchanged `:core:designsystem:verifyThemeConversion`
+(22converter tests/3errors, subprocess Git/WinError1455) under98% shared-host
+commit pressure. No source drift was found; quoting the PowerShell SHA tree
+argument confirmed the original frozen tree. Unchanged app retry passed all
+22converter tests and70app cases. No cache/process cleanup, product/test
+relaxation or prior69XML reuse.
+
+Next bounded24-family RxLog increment reads both complete frozen originals,
+actual native factories/helper/DTO/parser/wire adapter and relevant live
+process/decode consumers. Three existing RouteType rawvalue/transport/display
+families regain original named-case predicates instead of positional enum
+lists; same admitted path/reservation20, no product edit. Independent Python
+hashlib confirms the existing AABBCC first8SHA256 literalfa22dfe1da9013b3,
+not candidate-produced expectation.815/121inspected; immutable declared
+24RxLog runner execution pending. Direct parser/hash tests do not certify
+live decryption/storage/repeat delivery/cancellation/full consumer parity.
+
+The first combined363-test invocation on this edited RxLog worktree discovered
+363/passed361/errors2,0failure/skip. Both errors correctly rejected changed
+`review-bindings.json` through the immutable committed-input guard. Accounting
+and semantic checks passed, but that dirty invocation is not clean-head PASS.
+Commit the admitted changes before the unchanged declared rerun; do not weaken
+the guard or reuse594 proof as execution of this new candidate.
+
+[Bounded PR176 source review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/176#issuecomment-6115173434)
+returned no blocking finding at exactbasea19/heada4e83853b5f9b5f2fa43c282b52fbc82b8a31761,
+samepin/manifest/policy/reservation4/12paths. Complete requested source/native/
+test/wiring read; no candidate execution, edit, gate/human approval or full501
+acceptance. Coordinator173production remains exclusive; no new merged base.
+
+The owned175repair: same typedreservation19->20 admits existing
 OriginalBugFixCasesTest throughtrustedmerge-integration; only five literal
 112233445566prefix inputs restored, genericAABBdefault retained for actual
 sourceAABBcases. Full36ProtocolBugFix sourcebodies/helpers/two nativefactories/
@@ -62,7 +116,7 @@ typedDTOs/status/neighbor/ACL/MMA/LPP/pagination and actualsession/service
 consumers compared. Two genericcomponent startup/key families now bind exact
 originalpublicsession Test10s/zero-power62bytes/31x32/error10 and separate
 unstarted31x6/typedInvalidInput/no writes.791/119inspected,66mandatory;
-actual34protocol/70app immutablepositive discovery pending.
+actual34protocol/70app immutablepositive discovery passed at594.
 SourceMMA inclusive.001 unchanged, exact representableSNR DTO equality
 strengthens source. Native malformedlive-neighbor errors/wholetableowner/
 explicitcancellation are disclosed limits, not general consumer/hardware proof.
@@ -106,7 +160,7 @@ No duplicateCIresultbundle copied/committed/uploaded/hashed/revalidated.
 This a27 result does not certify the later96addedfamilycomparison/
 issue174repair/newsource-session method.
 
-Continuing full ProtocolBugFix36source bodies/native factories/helper read
+Earlier0191 full ProtocolBugFix36source bodies/native factories/helper read
 finds original-input issue175: five binary-status families use112233445566,
 but native helper supplies nodePrefixAABBCCDDEEFF. Exact five: minimal48,
 52rxAirtime,52roomcounters,56receiveErrors,60extra. Selected scalar results

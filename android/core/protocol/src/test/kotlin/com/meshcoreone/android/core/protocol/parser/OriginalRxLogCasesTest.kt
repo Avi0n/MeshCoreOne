@@ -69,8 +69,14 @@ class OriginalRxLogCasesTest {
 
     @TestFactory
     fun types() = listOf(
-        original("RxLogTypesTests", "RouteType raw values match protocol spec") { assertEquals(listOf(0, 1, 2, 3), RouteType.entries.map { it.rawValue.toInt() }) },
-        original("RxLogTypesTests", "RouteType hasTransportCode") { assertEquals(listOf(true, false, false, true), RouteType.entries.map { it.hasTransportCode }) },
+        original("RxLogTypesTests", "RouteType raw values match protocol spec") {
+            assertEquals(0u.toUByte(), RouteType.TC_FLOOD.rawValue); assertEquals(1u.toUByte(), RouteType.FLOOD.rawValue)
+            assertEquals(2u.toUByte(), RouteType.DIRECT.rawValue); assertEquals(3u.toUByte(), RouteType.TC_DIRECT.rawValue)
+        },
+        original("RxLogTypesTests", "RouteType hasTransportCode") {
+            assertEquals(true, RouteType.TC_FLOOD.hasTransportCode); assertEquals(false, RouteType.FLOOD.hasTransportCode)
+            assertEquals(false, RouteType.DIRECT.hasTransportCode); assertEquals(true, RouteType.TC_DIRECT.hasTransportCode)
+        },
         original("RxLogTypesTests", "PayloadType raw values match protocol spec") {
             assertEquals(0u.toUByte(), PayloadType.REQUEST.rawValue); assertEquals(5u.toUByte(), PayloadType.GROUP_TEXT.rawValue)
             assertEquals(11u.toUByte(), PayloadType.CONTROL.rawValue); assertEquals(255u.toUByte(), PayloadType.UNKNOWN.rawValue)
@@ -83,7 +89,10 @@ class OriginalRxLogCasesTest {
         original("RxLogTypesTests", "PayloadType fromBits with valid values") {
             assertEquals(PayloadType.REQUEST, PayloadType.fromBits(0u)); assertEquals(PayloadType.GROUP_TEXT, PayloadType.fromBits(5u)); assertEquals(PayloadType.CONTROL, PayloadType.fromBits(11u))
         },
-        original("RxLogTypesTests", "RouteType displayName") { assertEquals(listOf("TC_FLOOD", "FLOOD", "DIRECT", "TC_DIRECT"), RouteType.entries.map { it.displayName }) },
+        original("RxLogTypesTests", "RouteType displayName") {
+            assertEquals("TC_FLOOD", RouteType.TC_FLOOD.displayName); assertEquals("FLOOD", RouteType.FLOOD.displayName)
+            assertEquals("DIRECT", RouteType.DIRECT.displayName); assertEquals("TC_DIRECT", RouteType.TC_DIRECT.displayName)
+        },
         original("RxLogTypesTests", "PayloadType displayName") {
             assertEquals("REQUEST", PayloadType.REQUEST.displayName); assertEquals("GROUP_TEXT", PayloadType.GROUP_TEXT.displayName); assertEquals("UNKNOWN", PayloadType.UNKNOWN.displayName)
         },
