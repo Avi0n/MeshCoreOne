@@ -289,6 +289,13 @@ pending connect and real3second completion budget using a one-phase blocked Sock
 not an external SYN or precancelled call. It and all17 original native WiFi runner
 identities await execution. Prior WP108 typed EOF/overflow/exceptional Flow/fresh
 generation adaptations remain explicit; no platform DNS/radio evidence is inferred.
+Initial local7b015594 discovered39appcases:38passed/1failed,0error/skip.
+The new method's real-dispatcher wait allowed runTest to advance automatically
+to the existing10second connect deadline before the intended200ms cancellation.
+No caller cancellation was reached and protocol did not run. The test now
+explicitly drives foreground current-time work against a monotonic real3second
+bound, asserting exact virtual0/200ms. Production deadline behavior is unchanged;
+this scheduler setup failure is not a new transport defect.
 
 Coordinator's actual bounded99039051 read found no blocking mismatch in four
 exact RoundTrip frames and five new event/login/error families/shared helper.

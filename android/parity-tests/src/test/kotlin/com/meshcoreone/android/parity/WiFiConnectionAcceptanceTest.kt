@@ -11,14 +11,15 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.yield
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -56,18 +57,20 @@ class WiFiConnectionAcceptanceTest {
             transport.setConnectionInfo("192.0.2.1", 9)
             val connect = backgroundScope.async { transport.connect() }
             runCurrent()
-            withContext(Dispatchers.Default) { withTimeout(3_000) { started.await() } }
+            awaitRealCompletion(started)
+            assertEquals(0L, testScheduler.currentTime)
             assertEquals(InetSocketAddress("192.0.2.1", 9), endpoint.get())
             assertEquals(10_000, timeout.get())
             advanceTimeBy(200)
             runCurrent()
+            assertEquals(200L, testScheduler.currentTime)
             assertFalse("Original 200ms pending interval must not become a precancelled call", connect.isCompleted)
             assertFalse(exited.isCompleted)
             assertEquals(0, closes.get())
             val cancellation = CancellationException("original pending connect cancelled")
             connect.cancel(cancellation)
             runCurrent()
-            withContext(Dispatchers.Default) { withTimeout(3_000) { connect.join() } }
+            awaitRealCompletion(connect)
             try {
                 connect.await()
                 fail("A cancelled connection cannot return success")
@@ -81,6 +84,16 @@ class WiFiConnectionAcceptanceTest {
         } finally {
             withContext(NonCancellable) { transport.disconnect() }
             release.countDown()
+        }
+
+        private suspend fun TestScope.awaitRealCompletion(job: Job) {
+            val beginning = System.nanoTime()
+            while (!job.isCompleted) {
+                assertTrue("Blocked IO must complete within the original three seconds", System.nanoTime() - beginning < 3_000_000_000L)
+                runCurrent()
+                yield()
+            }
+            assertTrue(System.nanoTime() - beginning < 3_000_000_000L)
         }
     }
 }

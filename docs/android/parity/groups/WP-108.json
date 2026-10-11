@@ -965,25 +965,30 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-          "sha256": "0e02bb13d94277a3ac40a88ce25a5fb1b621ed1c19c1f00657917ac97bff55cc",
+          "sha256": "aaea99accb714eebfe991d9dfc17f746bcf0d8b9a7326be0c4415f029eed7171",
           "source_references": [
             "MeshCore/Tests/MeshCoreTests/Transport/WiFiTransportTests.swift"
           ],
           "methods": [
             {
               "name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
-              "line": 28,
-              "end_line": 85
+              "line": 29,
+              "end_line": 98
             },
             {
               "name": "connect",
-              "line": 37,
-              "end_line": 46
+              "line": 38,
+              "end_line": 47
             },
             {
               "name": "close",
-              "line": 48,
-              "end_line": 52
+              "line": 49,
+              "end_line": 53
+            },
+            {
+              "name": "awaitRealCompletion",
+              "line": 89,
+              "end_line": 97
             }
           ]
         }
@@ -4023,90 +4028,108 @@
       "native_proposals": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/WiFiConnectionAcceptanceTest.kt",
-          "sha256": "0e02bb13d94277a3ac40a88ce25a5fb1b621ed1c19c1f00657917ac97bff55cc",
+          "sha256": "aaea99accb714eebfe991d9dfc17f746bcf0d8b9a7326be0c4415f029eed7171",
           "class": "com.meshcoreone.android.parity.WiFiConnectionAcceptanceTest",
           "method_or_family_name": "originalTargetAndPendingDelayCancelWithinThreeSecondsWithoutExternalNetwork",
-          "line": 28,
-          "end_line": 85,
+          "line": 29,
+          "end_line": 98,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "97d92eb0d55685ed9feca349e937c85a308206fb58cc1dc3ce9e57d1acc9b121",
+          "body_sha256": "1f44850628a8c128b0592c0af6f4c56ec227ef9a2020cc99316af117dcfaf0c1",
           "registration": null,
           "assertions": [
             {
               "name": "assertEquals",
-              "line": 60,
+              "line": 61,
+              "expression": "assertEquals(0L, testScheduler.currentTime)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 62,
               "expression": "assertEquals(InetSocketAddress(\"192.0.2.1\", 9), endpoint.get())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 61,
+              "line": 63,
               "expression": "assertEquals(10_000, timeout.get())",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertFalse",
-              "line": 64,
-              "expression": "assertFalse(\"Original 200ms pending interval must not become a precancelled call\", connect.isCompleted)",
-              "assertion_or_checked_wait": true
-            },
-            {
-              "name": "assertFalse",
-              "line": 65,
-              "expression": "assertFalse(exited.isCompleted)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
               "line": 66,
+              "expression": "assertEquals(200L, testScheduler.currentTime)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 67,
+              "expression": "assertFalse(\"Original 200ms pending interval must not become a precancelled call\", connect.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 68,
+              "expression": "assertFalse(exited.isCompleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 69,
               "expression": "assertEquals(0, closes.get())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "fail",
-              "line": 73,
+              "line": 76,
               "expression": "fail(\"A cancelled connection cannot return success\")",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 75,
+              "line": 78,
               "expression": "assertEquals(cancellation.message, failure.message)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 77,
+              "line": 80,
               "expression": "assertTrue(exited.isCompleted)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertTrue",
-              "line": 78,
+              "line": 81,
               "expression": "assertTrue(socket.isClosed)",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertFalse",
-              "line": 79,
+              "line": 82,
               "expression": "assertFalse(transport.isConnected())",
               "assertion_or_checked_wait": true
             },
             {
               "name": "assertEquals",
-              "line": 80,
+              "line": 83,
               "expression": "assertEquals(1, closes.get())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 92,
+              "expression": "assertTrue(\"Blocked IO must complete within the original three seconds\", System.nanoTime() - beginning < 3_000_000_000L)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 96,
+              "expression": "assertTrue(System.nanoTime() - beginning < 3_000_000_000L)",
               "assertion_or_checked_wait": true
             }
           ],
           "actions_and_helper_calls": [
-            {
-              "name": "CompletableDeferred",
-              "line": 29,
-              "expression": "CompletableDeferred<Unit>()",
-              "assertion_or_checked_wait": false
-            },
             {
               "name": "CompletableDeferred",
               "line": 30,
@@ -4114,21 +4137,21 @@
               "assertion_or_checked_wait": false
             },
             {
-              "name": "CountDownLatch",
+              "name": "CompletableDeferred",
               "line": 31,
+              "expression": "CompletableDeferred<Unit>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "CountDownLatch",
+              "line": 32,
               "expression": "CountDownLatch(1)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "AtomicReference",
-              "line": 32,
-              "expression": "AtomicReference<SocketAddress>()",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "AtomicInteger",
               "line": 33,
-              "expression": "AtomicInteger()",
+              "expression": "AtomicReference<SocketAddress>()",
               "assertion_or_checked_wait": false
             },
             {
@@ -4138,225 +4161,249 @@
               "assertion_or_checked_wait": false
             },
             {
+              "name": "AtomicInteger",
+              "line": 35,
+              "expression": "AtomicInteger()",
+              "assertion_or_checked_wait": false
+            },
+            {
               "name": "Socket",
-              "line": 36,
+              "line": 37,
               "expression": "Socket()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "connect",
-              "line": 37,
+              "line": 38,
               "expression": "connect(target: SocketAddress, timeoutMillis: Int)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "endpoint.set",
-              "line": 38,
+              "line": 39,
               "expression": "endpoint.set(target)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "timeout.set",
-              "line": 39,
+              "line": 40,
               "expression": "timeout.set(timeoutMillis)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "started.complete",
-              "line": 40,
+              "line": 41,
               "expression": "started.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.await",
-              "line": 42,
+              "line": 43,
               "expression": "release.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "exited.complete",
-              "line": 44,
+              "line": 45,
               "expression": "exited.complete(Unit)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "close",
-              "line": 48,
+              "line": 49,
               "expression": "close()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "closes.incrementAndGet",
-              "line": 49,
+              "line": 50,
               "expression": "closes.incrementAndGet()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.countDown",
-              "line": 50,
+              "line": 51,
               "expression": "release.countDown()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "super.close",
-              "line": 51,
+              "line": 52,
               "expression": "super.close()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "WiFiTransport",
-              "line": 54,
+              "line": 55,
               "expression": "WiFiTransport(socketFactory = { socket })",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.setConnectionInfo",
-              "line": 56,
+              "line": 57,
               "expression": "transport.setConnectionInfo(\"192.0.2.1\", 9)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.connect",
-              "line": 57,
+              "line": 58,
               "expression": "transport.connect()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 58,
+              "line": 59,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "withContext",
-              "line": 59,
-              "expression": "withContext(Dispatchers.Default)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "withTimeout",
-              "line": 59,
-              "expression": "withTimeout(3_000)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "started.await",
-              "line": 59,
-              "expression": "started.await()",
+              "name": "awaitRealCompletion",
+              "line": 60,
+              "expression": "awaitRealCompletion(started)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "InetSocketAddress",
-              "line": 60,
+              "line": 62,
               "expression": "InetSocketAddress(\"192.0.2.1\", 9)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "endpoint.get",
-              "line": 60,
+              "line": 62,
               "expression": "endpoint.get()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "timeout.get",
-              "line": 61,
+              "line": 63,
               "expression": "timeout.get()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "advanceTimeBy",
-              "line": 62,
+              "line": 64,
               "expression": "advanceTimeBy(200)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 63,
+              "line": 65,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "closes.get",
-              "line": 66,
+              "line": 69,
               "expression": "closes.get()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "CancellationException",
-              "line": 67,
+              "line": 70,
               "expression": "CancellationException(\"original pending connect cancelled\")",
               "assertion_or_checked_wait": false
             },
             {
               "name": "connect.cancel",
-              "line": 68,
+              "line": 71,
               "expression": "connect.cancel(cancellation)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "runCurrent",
-              "line": 69,
+              "line": 72,
               "expression": "runCurrent()",
               "assertion_or_checked_wait": false
             },
             {
-              "name": "withContext",
-              "line": 70,
-              "expression": "withContext(Dispatchers.Default)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "withTimeout",
-              "line": 70,
-              "expression": "withTimeout(3_000)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "connect.join",
-              "line": 70,
-              "expression": "connect.join()",
+              "name": "awaitRealCompletion",
+              "line": 73,
+              "expression": "awaitRealCompletion(connect)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "connect.await",
-              "line": 72,
+              "line": 75,
               "expression": "connect.await()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "catch",
-              "line": 74,
+              "line": 77,
               "expression": "catch (failure: CancellationException)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.isConnected",
-              "line": 79,
+              "line": 82,
               "expression": "transport.isConnected()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "closes.get",
-              "line": 80,
+              "line": 83,
               "expression": "closes.get()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "withContext",
-              "line": 82,
+              "line": 85,
               "expression": "withContext(NonCancellable)",
               "assertion_or_checked_wait": false
             },
             {
               "name": "transport.disconnect",
-              "line": 82,
+              "line": 85,
               "expression": "transport.disconnect()",
               "assertion_or_checked_wait": false
             },
             {
               "name": "release.countDown",
-              "line": 83,
+              "line": 86,
               "expression": "release.countDown()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "TestScope.awaitRealCompletion",
+              "line": 89,
+              "expression": "TestScope.awaitRealCompletion(job: Job)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "System.nanoTime",
+              "line": 90,
+              "expression": "System.nanoTime()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "while",
+              "line": 91,
+              "expression": "while (!job.isCompleted)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "System.nanoTime",
+              "line": 92,
+              "expression": "System.nanoTime()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "runCurrent",
+              "line": 93,
+              "expression": "runCurrent()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "yield",
+              "line": 94,
+              "expression": "yield()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "System.nanoTime",
+              "line": 96,
+              "expression": "System.nanoTime()",
               "assertion_or_checked_wait": false
             }
           ],
