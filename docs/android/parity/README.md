@@ -398,8 +398,11 @@ dedicated ROOM counters, 500ms RTT/headroom2→1s resend, latest-tag80ms observa
 ownership/error release/tag isolation, canceled1111 orphan drain→2222 and parked
 cancel/no-write all execute through public session/parser paths. Fixed timestamps
 replace ambient Date explicitly; pending-after-stale-tag strengthens source's
-notCancelled-only assertion. Native first-messageSent resend gating/owned drain
-and correlation quarantine remain declared adaptations, not missing-tag proof.
+notCancelled-only assertion. First-messageSent resend gating is source-equivalent:
+the frozen cadence actor waits for hasSuggested; cancellation resumes its floor
+before the canceled loop exits. Immediate-ack cases prove neither pretag silence
+nor cadence-waiter cancellation. Owned drain and correlation quarantine remain
+declared native adaptations.
 Mandatory owned identities52→59; new immutable execution/independent review
 remain required. Full604-family/source/resource acceptance remains unfinished.
 Actual169merge a19d6138 lifted publication hold; existing branch rebased35
@@ -411,6 +414,24 @@ execute; no product edit or old-XML reuse. First native Java bootstrap512MiB
 allocation failed before Gradle; actual readiness later recovered, unchanged
 retry passed and locks released. New19source-family independent review/full
 604family/source/resource audit/current-hosted execution remain outstanding.
+
+Four additional owned methods close six previously disclosed backup assertion
+gaps: actual discovered ContactFrame/targeted-hop writers, Germany scope, ordered
+de-by/de-hh matches, live send/preview metadata, same42path distinct hearings and
+two-local-plus-two-new merge. All use real public writers/codec/Room stores;
+fresh-source rows survive and merge retains original null-rxlog inputs. Six
+families move from three component groups into four exact app groups without
+inflating the604original denominator:95groups,63mandatory app identities.
+New immutable execution and independent review are pending. No product change,
+new iOS/hardware claim, original exclusion or timeout adjustment.
+
+Coordinator bounded5eff/368 review covered all19remaining correlation originals,
+seven complete methods/helpers/consumers with no blocking source mismatch.
+This is not independent63/32execution or full WP-501 acceptance. A subsequent
+source-description correction confirms both Swift and native cadence wait for
+the first messageSent; immediate-ack cases do not test the cadence waiter under
+silence/cancellation. Published368 primary38177276628 remains running at the
+last observation; local changes are not another published candidate.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native

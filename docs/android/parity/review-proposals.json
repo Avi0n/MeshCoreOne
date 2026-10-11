@@ -5,6 +5,126 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "backup-original-discovery-frame-hop-writer-and-distinct-room",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "Discovered nodes survive full export \u2192 import into fresh store": "originalDiscoveredFrameAndTargetedHopWriterRestoreIntoDistinctEmptyRoom"
+      },
+      "checked_assertion_helpers": {
+        "withFreshDestination": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt"
+      },
+      "comparison": "Complete original preserves live ContactFrame upsert and targeted inbound-hop writer before real export/decode/import into a distinct empty Room database. Exact key22x32/nameDiscovered-Repeater/REPEATER2/51.5/-0.12/advert7/pathAABBCC/length3/inbound2/stamp7 all asserted after restore. Original nodecount1/validmanifest/inserted1 retained. Native adds actual different database/empty tables, fresh surrogate, second0insert1skip/rowunchanged and original source node survival.",
+      "inputs": "Source createTestDataStore device key01x32/TestDevice/fw8/v1.0.0/TestMfg/build01Jan2025/max100/8/915000/250000/10/5/tx20/max20/multi0/baseTelemetry2/zeros/activetrue retained by sourceStoreDevice independent literals. Ambient UUID/Date fixed uniqueUUID/1700000000; live discovered lastHeard still uses real repository clock. Exact frame flags0/lastModified7 and every selected original field retained.",
+      "adaptations": "SwiftData public writer/container becomes public Room writer/distinct Room database, not DTO seed plus source clear. Source does not assert exact wallclock. Additional surrogate/reimport/source-survival assertions are supplemental, not independent Swift interoperability. Only own stores are closed, no live radio/network.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DiscoveredNodeRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupDiagnosticRestore.kt"
+      ],
+      "consumer": "Read full original/helper defaults and actual live upsert/targeted-hop writer/codec/restore business-key and surrogate paths. Actual persisted fields are asserted after full transaction; helper itself binds distinct database/empty devices/contacts/messages assertions and is invoked.",
+      "unresolved": ["New method requires immutable positive execution and independent bounded review; not every discovery-capacity or iOS/hardware route."],
+      "methods": ["Discovered nodes survive full export \u2192 import into fresh store"]
+    },
+    {
+      "id": "backup-original-region-and-ordered-matches-distinct-room",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "Message.regionScope round-trips through full export/import": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
+        "Message.regionScopeMatches round-trips through full export/import": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores"
+      },
+      "checked_assertion_helpers": {
+        "withFreshDestination": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt"
+      },
+      "comparison": "Two originals preserve live contactABx32/Alice/messageGreetings, regionGermany or nullregion/orderedde-by,de-hh, public export/parse/import into distinct empty database and own-radio messagecount1/exact restored region/matches. Adds parsed DTO equality/UUID/text/source row survival. Neither pipeline clears source.",
+      "inputs": "Original source device/contact/direct-message defaults retained: outgoing/pending/plain/send1/path0/nilpath/readfalse/retry0 and exact contact flags0/pathFF/empty/lastHeardnull. Ambient UUID/Date fixed uniqueUUID/1700000000 and source dedup prefixes with validUUID. Each row opens its own empty source and destination, avoiding accidental same-public-key radio remapping; the restored full public exportEnvelope snapshot asserts original total1, then actual public fetchMessage must equal its row, not only selected contact count.",
+      "adaptations": "SwiftData containers and public writers become distinct Room/public writers. Date/UUID fixture adaptation explicit; no geographic computation/map/provider/translation. Field read is not mounted resend/UI evidence or independent iOS interoperability.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt"
+      ],
+      "consumer": "Both complete original declarations/helper defaults and actual live save/codec/Room restore/public fetch inspected. Region remains opaque optional value and matches remain ordered list, no invented scope fallback. Actual distinct-store helper assertions are invoked and bound.",
+      "unresolved": ["New method requires immutable positive execution/independent bounded review; no mounted UI or new independent Swift proof."],
+      "methods": ["Message.regionScope round-trips through full export/import", "Message.regionScopeMatches round-trips through full export/import"]
+    },
+    {
+      "id": "backup-original-live-send-metadata-distinct-room",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "saveMessage persists send metadata and preview fields through export and import": "originalSavedMessageMetadataSurvivesDistinctRoomExportImport"
+      },
+      "checked_assertion_helpers": {
+        "withFreshDestination": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt"
+      },
+      "comparison": "Complete original public saveMessage retains defaultTestmessage/sendCount3/URLhttps://example.com/titleExample/thumb:2summary; all four fields asserted in actual live row then after export/codec/distinct empty restore. Original referenced contact is not saved; destination contacts remain empty. Adds source row/text/UUID survival without direct database seeding.",
+      "inputs": "Original source device/direct-message defaults outgoing/pending/plain/path0/nilpath/readfalse/retry0/exactsend3 retained. Ambient Date/UUID fixed1700000000/validUUID and source save-message-fields-UUID prefix. Emoji surrogate pair preserves actual original character, not ASCII substitute; no provider loads or candidate-generated expected fields.",
+      "adaptations": "SwiftDTO-to-model live writer becomes public Room writer/full codec/distinct database. Missing contact is original fixture input, not invented orphan bypass. Date/UUID fixture adaptation explicit; field proof does not certify preview networking/cache/cancellation or iOS oracle.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt"
+      ],
+      "consumer": "Full original/helper defaults and actual saveMessage/toEntity/export/restore/fetch inspected. Actual columns read before/after copying, no source clear/fake repository. Invoked fresh-database helper assertions are bound.",
+      "unresolved": ["New method requires immutable positive execution/independent bounded review; no new family inflation or provider/hardware proof."],
+      "methods": ["saveMessage persists send metadata and preview fields through export and import"]
+    },
+    {
+      "id": "backup-original-same-path-hearings-fresh-restore-and-merge",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
+        "Outgoing same-path repeats are not collapsed on merge import": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge"
+      },
+      "checked_assertion_helpers": {
+        "withFreshDestination": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt"
+      },
+      "comparison": "Two originals preserve TestContact/ABx32/outgoingechoed/nildedup, two distinct repeatIDs/same42path/distinctrx-logIDs→realexport/distinctrestore/insert2skip0/restoredIDs/heard2. Merge localtwo42hearings plus two newIDs/42/nullrxlog/sameparentheard0 envelope yields parentskip1/extrasinsert2/fourIDs/heard4. Exact42 replaces supplemental component31. Actual public repeat writer used; parent count recomputed after import, not seeded2/4.",
+      "inputs": "Original helper outgoing/pending/plain/path0/send1/echoed and repeat pathLength0/SNR8.5/RSSI-90 retained. Ambient dates fixed1700000000; rx-logUUIDs deterministic distinct, repeatUUIDs unique. Original merge DeviceDTO helperfw9/v1.13.0/multi2 explicit versus seededstorefw8/v1.0.0/multi0. Separate merge receiver is seeded by live writers with original two local null-rxlog hearings; the two new hearings also retain nullrxlog, actual parentheard0 and four distinctUUIDs. Fresh-copy source remains unchanged.",
+      "adaptations": "SwiftData writers/containers become public Room writers/distinct database. Native repeat writer requires explicit radio partition. Separate receiver preserves exact merge null-rxlog inputs without mutating the distinct-rxlog fresh-export source. Date/UUID fixture adaptation explicit; no compressed-byte/iOS/hardware equivalence claimed.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt"
+      ],
+      "consumer": "Both complete originals/helper defaults and real live repeat save/parent lookup/restore identity/outgoing-versus-incoming/recalculation read. All actual repeatIDs and42paths asserted. Incoming path dedup not inferred; invoked distinct-store helper actual assertions bound.",
+      "unresolved": ["New method requires immutable positive execution/independent bounded review. Two originals share one runner; not two new original families or generalized merge/cancellation/hardware proof."],
+      "methods": ["Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed", "Outgoing same-path repeats are not collapsed on merge import"]
+    },
+    {
       "id": "correlation-original-private-key-import-length-payload-and-refreshed-identity",
       "source_path": "MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift",
       "partial_source_file": true,
@@ -81,7 +201,7 @@
       },
       "comparison": "Three originals retain31x32 target: dedicated1Bstatus+Error10 beforemessageSent;27000000telemetry+Error11 beforemessageSent; ROOM status1B with tagAABBCCDD/default5000ms followed by dedicated87push containing battery1000/posted17/push9. Exact typed10/11 and final1000/17/9/rxAirtime0 retained. Native additionally asserts whole request bytes, genuine pending before replies/aftermessageSent,60byte original status frame and startup+request count2.",
       "inputs": "Source10seconds/MCTst/sourceTest62byte selfInfo retained; default binary40seconds/floor1.0/headroom2 unchanged. Independent status helper matches entire frozen makeStatusResponsePacket: header8700/31x6;batteryLE1000/queue0/noise-110/RSSI-85/received100/sent50/airtime25/uptime3600/flood5/direct10/rxflood15/rxdirect20/full0/SNR0/dups0/packed17+9. No candidate parser/builder creates expected status or command.",
-      "adaptations": "Swift routed event/layout remap becomes public raw MockTransport/PacketParser and actual binary matcher. Learned tag comes only after actual write. Native default binary resends wait for firstMessageSent (existing WP107 adaptation); no missing-tag cadence guarantee is claimed by these immediate-response families. ROOM push mapping differs from generic binary fallback, which this source case does not invoke.",
+      "adaptations": "Swift routed event/layout remap becomes public raw MockTransport/PacketParser and actual binary matcher. Learned tag comes only after actual write. Both implementations gate resends on first messageSent: frozen BinaryExchangeCadence.waitForInterval awaits hasSuggested and applySuggestedTimeoutMs resumes its checked waiters. Cancellation resumes the floor then the canceled loop exits; this is source-equivalent first-ack gating, not a native pretag-resend deviation. Selected immediate-response families do not prove silence before the first ack or cancellation of the cadence waiter. ROOM push mapping differs from generic binary fallback, which this source case does not invoke.",
       "helpers": [
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -110,7 +230,7 @@
       },
       "comparison": "Three originals preserve31x32 target/0.05floor/2.0overall, tag11223344/500ms suggested→actual retransmit/tag55667788/500ms and routed battery2200 with >=2status writes; stale binary tag11223344 then original80ms observation/notCancelled followed by55667788 empty telemetry; separate0.5overall/01020304tag/50ms suggestion with typedTimeout and >=2status writes. Native additionally asserts999ms no resend/exact1000ms identical resend, latest-tag caller actually pending after full80ms and exact500ms budget/499pending. Source latest-tag only asserts notCancelled, not !completed; stronger pending assertion is disclosed rather than misattributed.",
       "inputs": "Original10seconds/MCTst/sourceTest62byte info retained. Independent literal1B31x32 and2700000031x32,0600tags/f4010000 or32000000,8C00tag/noLPP and full source status2200 are exact helpers. Headroom2 makes500ms→1s and50ms→100ms, not floor50ms resends. Timer metrics are relative to each new scenario, not accumulated virtual time.",
-      "adaptations": "Injected monotonic scheduler replaces real source polling/sleeps; native resends start after first actualMessageSent versus Swift initial send cadence task, as existing WP107 adaptation. Selected families deliver firstmessageSent immediately and do not certify pretag silence/resend behavior. Latest-tag stale reply is delivered after second actual send/tag; pending strengthens original notCancelled. Source try?80ms sleep is an uncaught deterministic80ms interval. Timeout invalidates ambiguous response families per existing correlation safety; no fabricated successor is admitted.",
+      "adaptations": "Injected monotonic scheduler replaces real source polling/sleeps. Native and frozen Swift both wait for the first actual messageSent before resend cadence: BinaryExchangeCadence.waitForInterval suspends on hasSuggested, applySuggestedTimeoutMs resumes waiters, and cancellation resumes the floor before the canceled loop exits. No native pretag-resend deviation exists. Selected families deliver the first ack immediately and do not certify pretag silence or cancellation of the cadence waiter. Latest-tag stale reply is delivered after second actual send/tag; pending strengthens original notCancelled. Source try?80ms sleep is an uncaught deterministic80ms interval. Timeout invalidates ambiguous response families per existing correlation safety; no fabricated successor is admitted.",
       "helpers": [
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
         "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
@@ -1593,11 +1713,10 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt"
       ],
       "consumer": "Inspected business-key dedup, immutable committed rows, per-radio remaining capacity, explicit skipped/dropped receipts, fresh surrogate ids and protocol-safe UTF8/path limits govern real repository data, not a map marker or fake import count.",
-      "unresolved": ["Original discovered ContactFrame/targeted-hop-writer through distinct source/destination backup requires an admitted support assertion or explained reviewed equivalent; current direct DTO/clear-source route alone does not complete it."],
+      "unresolved": ["Original discovered ContactFrame/targeted-hop writer/fresh-container family is now assigned exclusively to backup-original-discovery-frame-hop-writer-and-distinct-room; its new runner requires immutable execution/review. This remaining component group does not receive that acceptance by association."],
       "methods": [
         "Import preserves distinct node snapshots recorded within the same second",
         "Discovered nodes import into fresh store, dedup on re-import",
-        "Discovered nodes survive full export → import into fresh store",
         "Discovered nodes remap to local radioID when device publicKey matches",
         "Discovered nodes skip after remap when local already has the business key",
         "Import trims discovered nodes over the per-radio cap",
@@ -1622,7 +1741,7 @@
       "adaptations": "Swift DTO-to-SwiftData model construction becomes actual Room import and column reads. Full region/matches/live-save pipelines clear source rows, not distinct destination containers; codec/column values are compared but fresh-container behavior for those extra fields remains an explicit adaptation. Native altitude-only wire test omits location where source supplied it; separate omitted-altitude case includes both source location values. DTO equality is not an independent golden or raw-text oracle; separate WP501 UTF8 and genuine Swift fixture cases assert bytes.",
       "helpers": ["android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt"],
       "consumer": "Actual field codecs, repository save and Room restore/warmUp retain opaque region choices, failure acknowledgement, sort/create distinction and send/preview metadata. These do not certify resend UI/navigation or active translation.",
-      "unresolved": ["Distinct-container region/matches/live-save field routes must be explained as reviewed equivalents or filled; currently disclosed clear-source pipelines are not independent iOS interoperability evidence."],
+      "unresolved": ["Three fresh-container region/matches/live-save families are assigned exclusively to the new backup-original region and metadata groups; new runners require immutable execution/review. Remaining component codecs/model-field assertions are not independent iOS interoperability."],
       "methods": [
         "Node status packet-type counters survive DTO encode → decode round-trip",
         "Legacy snapshot envelope without packet-type counters decodes them as nil",
@@ -1631,11 +1750,9 @@
         "Node altitude survives DTO encode → decode round-trip",
         "Legacy snapshot envelope without altitude decodes it as nil",
         "Node status packet-type counters survive full backup export → import",
-        "Message.regionScope round-trips through full export/import",
         "MessageDTO Codable: regionScope set decodes round-trip",
         "Legacy MessageDTO envelope without regionScope decodes as nil",
         "Message(dto:) forwards regionScope verbatim through DTO to model",
-        "Message.regionScopeMatches round-trips through full export/import",
         "MessageDTO Codable: regionScopeMatches set decodes round-trip",
         "Legacy MessageDTO envelope without regionScopeMatches decodes as empty",
         "Message(dto:) forwards regionScopeMatches verbatim through DTO to model",
@@ -1648,8 +1765,7 @@
         "MessageDTO Codable: sortDate distinct from createdAt round-trips",
         "Legacy MessageDTO envelope without sortDate falls back to createdAt",
         "Message(dto:) forwards sortDate verbatim through DTO to model",
-        "Fully-populated MessageDTO survives encode/decode with every field distinct",
-        "saveMessage persists send metadata and preview fields through export and import"
+        "Fully-populated MessageDTO survives encode/decode with every field distinct"
       ]
     },
     {
@@ -1725,15 +1841,13 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt"
       ],
       "consumer": "Inspected messageBackupKey distinguishes outgoing actions from incoming wire packets; path arrival/canonical adoption and actual child insertion recalculate real heard counts. Native UTF8/offline timeline tests independently retain original text without translation.",
-      "unresolved": ["Distinct-container same-path repeat/action route needs a explained reviewed equivalent or gap assertion; existing clear-source result is not labeled a new iOS oracle."],
+      "unresolved": ["Both same42path repeat families are now assigned exclusively to backup-original-same-path-hearings-fresh-restore-and-merge; its new runner requires immutable execution/review. Intentional outgoing action distinct-container route remains separate; existing clear-source result is not a new iOS oracle."],
       "methods": [
         "Export assigns content-based dedup keys to incoming messages with nil deduplicationKey",
         "Export preserves existing content-based dedup keys unchanged",
         "Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication",
-        "Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed",
         "Skipped incoming parent with a distinct path is promoted to a MessageRepeat",
         "Incoming extra that matches an existing extra path is not inserted again",
-        "Outgoing same-path repeats are not collapsed on merge import",
         "Skipped incoming parent with nil pathNodes does not invent a 0-hop extra",
         "Skipped incoming parent adopts a path onto a local nil column",
         "Skipped incoming parent adopts a 0-hop Data onto a local nil column",

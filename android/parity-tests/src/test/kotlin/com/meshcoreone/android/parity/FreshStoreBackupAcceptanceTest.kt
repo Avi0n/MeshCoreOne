@@ -307,6 +307,210 @@ class FreshStoreBackupAcceptanceTest : RoomProcessTest() {
         }
     }
 
+    @OriginalCase("BackupIntegrationTests::Discovered nodes survive full export \u2192 import into fresh store()")
+    @Test fun originalDiscoveredFrameAndTargetedHopWriterRestoreIntoDistinctEmptyRoom() = runTest {
+        val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
+        try {
+            val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+            val key = Bytes(ByteArray(32) { 0x22 })
+            val path = Bytes.of(0xAA, 0xBB, 0xCC)
+            store.saveDevice(sourceStoreDevice(radio))
+            val frame = ContactFrame(publicKey = key, type = ContactType.REPEATER, flags = 0u,
+                outPathLength = 3u, outPath = path, name = "Discovered-Repeater",
+                lastAdvertTimestamp = 7u, latitude = 51.5, longitude = -0.12, lastModified = 7u)
+            store.upsertDiscoveredNode(radio, frame)
+            store.setInboundHopCount(radio, key, 2, 7u)
+            val sourceNode = store.fetchDiscoveredNodes(radio).single()
+            assertEquals(2L, sourceNode.inboundHopCount)
+            val service = AppBackupService(storage.backupPreferences, "synthetic", "1")
+            val parsed = AppBackupCodec().parseBackup(service.export(store).data)
+            assertEquals(1, parsed.discoveredNodes.size)
+            assertTrue(parsed.manifest.validate(parsed))
+            withFreshDestination(backgroundScope) { destination ->
+                assertTrue(destination.fetchDiscoveredNodes(radio).isEmpty())
+                val result = service.importBackup(parsed, destination)
+                assertEquals(1L, result.counts.getValue(BackupModelKind.DISCOVERED_NODES).inserted)
+                val restored = destination.fetchDiscoveredNodes(radio).single()
+                assertEquals("Discovered-Repeater", restored.name)
+                assertEquals(key, restored.publicKey)
+                assertEquals(ContactType.REPEATER.rawValue, restored.typeRawValue)
+                assertEquals(51.5, restored.latitude, 0.0)
+                assertEquals(-0.12, restored.longitude, 0.0)
+                assertEquals(7u, restored.lastAdvertTimestamp)
+                assertEquals(3u.toUByte(), restored.outPathLength)
+                assertEquals(path, restored.outPath)
+                assertEquals(2L, restored.inboundHopCount)
+                assertEquals(7u, restored.inboundHopAdvertTimestamp)
+                assertNotEquals(sourceNode.id, restored.id)
+                val second = service.importBackup(parsed, destination)
+                assertEquals(0L, second.counts.getValue(BackupModelKind.DISCOVERED_NODES).inserted)
+                assertEquals(1L, second.counts.getValue(BackupModelKind.DISCOVERED_NODES).skipped)
+                assertEquals(restored, destination.fetchDiscoveredNodes(radio).single())
+            }
+            assertEquals(sourceNode, store.fetchDiscoveredNodes(radio).single())
+        } finally {
+            storage.close()
+        }
+    }
+
+    @OriginalCase("BackupIntegrationTests::Message.regionScope round-trips through full export/import()")
+    @OriginalCase("BackupIntegrationTests::Message.regionScopeMatches round-trips through full export/import()")
+    @Test fun originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores() = runTest {
+        val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
+        try {
+            for (matches in listOf(false, true)) {
+                withFreshDestination(backgroundScope) { source ->
+                    val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+                    source.saveDevice(sourceStoreDevice(radio))
+                    val contact = ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),
+                        name = "Alice", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)
+                    source.saveContact(contact)
+                    val message = MessageDTO(radioId = radio, contactID = contact.id, text = "Greetings",
+                        timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000),
+                        regionScope = if (matches) null else "Germany",
+                        regionScopeMatches = if (matches) SnapshotList.of("de-by", "de-hh") else SnapshotList.empty(),
+                        deduplicationKey = (if (matches) "region-scope-matches-roundtrip-" else "region-scope-roundtrip-") +
+                            UUID.fromString("11111111-2222-3333-4444-555555555555"))
+                    source.saveMessage(message)
+                    val service = AppBackupService(storage.backupPreferences, "synthetic", "1")
+                    val parsed = AppBackupCodec().parseBackup(service.export(source).data)
+                    assertEquals(message, parsed.messages.single())
+                    withFreshDestination(backgroundScope) { destination ->
+                        assertNotSame(source, destination)
+                        service.importBackup(parsed, destination)
+                        val restoredMessages = service.exportEnvelope(destination).messages
+                        assertEquals(1, restoredMessages.size)
+                        val restored = requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))
+                        assertEquals(restoredMessages.single(), restored)
+                        if (matches) {
+                            assertNull(restored.regionScope)
+                            assertEquals(listOf("de-by", "de-hh"), restored.regionScopeMatches)
+                        } else {
+                            assertEquals("Germany", restored.regionScope)
+                            assertTrue(restored.regionScopeMatches.isEmpty())
+                        }
+                        assertEquals("Greetings", restored.text)
+                        assertEquals(message.id, restored.id)
+                    }
+                    assertEquals(message, source.fetchMessage(EntityKey(radio, message.id)))
+                }
+            }
+        } finally {
+            storage.close()
+        }
+    }
+
+    @OriginalCase("BackupIntegrationTests::saveMessage persists send metadata and preview fields through export and import()")
+    @Test fun originalSavedMessageMetadataSurvivesDistinctRoomExportImport() = runTest {
+        val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
+        try {
+            val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+            store.saveDevice(sourceStoreDevice(radio))
+            val message = MessageDTO(radioId = radio,
+                contactID = UUID.fromString("11111111-2222-3333-4444-555555555555"),
+                text = "Test message", timestamp = 1_700_000_000u,
+                createdAt = Instant.ofEpochSecond(1_700_000_000), sendCount = 3,
+                deduplicationKey = "save-message-fields-" + UUID.fromString("22222222-2222-3333-4444-555555555555"),
+                linkPreviewURL = "https://example.com", linkPreviewTitle = "Example", reactionSummary = "\uD83D\uDC4D:2")
+            store.saveMessage(message)
+            val saved = requireNotNull(store.fetchMessage(EntityKey(radio, message.id)))
+            assertEquals(3L, saved.sendCount)
+            assertEquals("https://example.com", saved.linkPreviewURL)
+            assertEquals("Example", saved.linkPreviewTitle)
+            assertEquals("\uD83D\uDC4D:2", saved.reactionSummary)
+            val service = AppBackupService(storage.backupPreferences, "synthetic", "1")
+            val parsed = AppBackupCodec().parseBackup(service.export(store).data)
+            withFreshDestination(backgroundScope) { destination ->
+                service.importBackup(parsed, destination)
+                val imported = requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))
+                assertEquals(3L, imported.sendCount)
+                assertEquals("https://example.com", imported.linkPreviewURL)
+                assertEquals("Example", imported.linkPreviewTitle)
+                assertEquals("\uD83D\uDC4D:2", imported.reactionSummary)
+                assertEquals("Test message", imported.text)
+                assertTrue(destination.fetchContacts(radio).isEmpty())
+            }
+            assertEquals(saved, store.fetchMessage(EntityKey(radio, message.id)))
+        } finally {
+            storage.close()
+        }
+    }
+
+    @OriginalCase("BackupIntegrationTests::Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed()")
+    @OriginalCase("BackupIntegrationTests::Outgoing same-path repeats are not collapsed on merge import()")
+    @Test fun originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge() = runTest {
+        val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
+        try {
+            val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+            store.saveDevice(sourceStoreDevice(radio))
+            val contact = ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),
+                name = "TestContact", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)
+            store.saveContact(contact)
+            val message = MessageDTO(radioId = radio, contactID = contact.id, text = "echoed",
+                timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000))
+            store.saveMessage(message)
+            val first = MessageRepeatDTO(messageID = message.id, receivedAt = message.createdAt,
+                pathNodes = Bytes.of(0x42), pathLength = 0u, snr = 8.5, rssi = -90,
+                rxLogEntryID = UUID.fromString("11111111-2222-3333-4444-555555555555"))
+            val second = first.copy(id = UUID.randomUUID(),
+                rxLogEntryID = UUID.fromString("22222222-2222-3333-4444-555555555555"))
+            assertNotEquals(first.id, second.id)
+            store.saveMessageRepeat(radio, first)
+            store.saveMessageRepeat(radio, second)
+            val service = AppBackupService(storage.backupPreferences, "synthetic", "1")
+            val parsed = AppBackupCodec().parseBackup(service.export(store).data)
+            val parent = EntityKey(radio, message.id)
+            withFreshDestination(backgroundScope) { destination ->
+                val result = service.importBackup(parsed, destination)
+                assertEquals(2L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)
+                assertEquals(0L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).skipped)
+                val repeats = destination.fetchMessageRepeats(parent)
+                assertEquals(2, repeats.size)
+                assertEquals(setOf(first.id, second.id), repeats.map { it.id }.toSet())
+                assertEquals(2L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)
+                assertTrue(repeats.all { it.pathNodes == Bytes.of(0x42) })
+            }
+            assertEquals(setOf(first.id, second.id), store.fetchMessageRepeats(parent).map { it.id }.toSet())
+            assertEquals(message, store.fetchMessage(parent))
+            withFreshDestination(backgroundScope) { destination ->
+                destination.saveDevice(sourceStoreDevice(radio))
+                destination.saveContact(contact)
+                destination.saveMessage(message)
+                val localOne = first.copy(id = UUID.randomUUID(), rxLogEntryID = null)
+                val localTwo = second.copy(id = UUID.randomUUID(), rxLogEntryID = null)
+                destination.saveMessageRepeat(radio, localOne)
+                destination.saveMessageRepeat(radio, localTwo)
+                val extraOne = localOne.copy(id = UUID.randomUUID())
+                val extraTwo = localTwo.copy(id = UUID.randomUUID())
+                val envelope = AppBackupEnvelope(exportDate = message.createdAt, appVersion = "1", appBuild = "1",
+                    devices = SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,
+                        firmwareVersionString = "v1.13.0", multiAcks = 2u)),
+                    contacts = SnapshotList.of(contact), messages = SnapshotList.of(message.copy(heardRepeats = 0)),
+                    messageRepeats = SnapshotList.of(extraOne, extraTwo)).withActualManifest()
+                val merged = service.importBackup(envelope, destination)
+                assertEquals(1L, merged.counts.getValue(BackupModelKind.MESSAGES).skipped)
+                assertEquals(2L, merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)
+                val all = destination.fetchMessageRepeats(parent)
+                assertEquals(4, all.size)
+                assertEquals(setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id), all.map { it.id }.toSet())
+                assertTrue(all.all { it.pathNodes == Bytes.of(0x42) && it.rxLogEntryID == null })
+                assertEquals(4L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)
+            }
+        } finally {
+            storage.close()
+        }
+    }
+
+    private fun sourceStoreDevice(radio: RadioId): DeviceDTO =
+        DeviceDTO(id = radio.value, radioId = radio, publicKey = Bytes(ByteArray(32) { 1 }), nodeName = "TestDevice",
+            firmwareVersion = 8u, firmwareVersionString = "v1.0.0", manufacturerName = "TestMfg",
+            buildDate = "01 Jan 2025", maxContacts = 100u, maxChannels = 8u,
+            frequency = 915_000u, bandwidth = 250_000u, spreadingFactor = 10u, codingRate = 5u,
+            txPower = 20, maxTxPower = 20, latitude = 0.0, longitude = 0.0, blePin = 0u,
+            manualAddContacts = false, multiAcks = 0u, telemetryModeBase = 2u, telemetryModeLoc = 0u,
+            telemetryModeEnv = 0u, advertLocationPolicy = 0u, lastConnected = Instant.ofEpochSecond(1_700_000_000),
+            lastContactSync = 0u, isActive = true)
+
     private suspend fun withFreshDestination(scope: CoroutineScope, block: suspend (RoomPersistenceStore) -> Unit) {
         val destinationDatabase = openMemoryDatabase()
         val destination = RoomPersistenceStore(destinationDatabase, scope)

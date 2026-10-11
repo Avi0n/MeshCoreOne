@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-604 inspected family proposals in91groups, exact source/assertion/helper/runner
+604 inspected family proposals in95groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -40,6 +40,18 @@ production signing or release certification.
 
 ## Local execution before candidate publication
 
+The next local batch adds four actual app methods for six previously accounted
+backup originals, not six new families. It uses real ContactFrame/targeted-hop,
+message/repeat writers and distinct empty restore/merge databases; exact source
+regions/metadata/42path hearing identities and nullrxlog merge inputs are retained.
+Mandatory app identities59→63, groups91→95, inspected families remain604.
+New immutable execution/independent review is pending. Cadence wording is
+corrected against the full pinned actor: Swift also waits for first messageSent;
+the immediate-ack cases do not prove pretag silence or cadence-waiter cancellation.
+Coordinator bounded19-family source review found no blocking mismatch, not a
+new independent rerun or full acceptance. Current published368 primary is still
+running at last observation; these local changes are not yet published.
+
 | Exact command | Observed outcome |
 | --- | --- |
 | `python tools\android-port\test_inventory.py --check` | Passed, actual pinned 468 paths / 5,133 declarations / 70 parameterized declarations / 382 declared rows |
@@ -56,7 +68,7 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and59mandatory Kotlin acceptance cases.
+The follow-up has92 Python regressions and63mandatory Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.

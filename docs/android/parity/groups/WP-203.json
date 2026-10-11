@@ -2699,7 +2699,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
           ],
@@ -2735,9 +2735,34 @@
               "end_line": 308
             },
             {
+              "name": "originalDiscoveredFrameAndTargetedHopWriterRestoreIntoDistinctEmptyRoom",
+              "line": 311,
+              "end_line": 354
+            },
+            {
+              "name": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
+              "line": 358,
+              "end_line": 401
+            },
+            {
+              "name": "originalSavedMessageMetadataSurvivesDistinctRoomExportImport",
+              "line": 404,
+              "end_line": 437
+            },
+            {
+              "name": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
+              "line": 441,
+              "end_line": 502
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 504,
+              "end_line": 512
+            },
+            {
               "name": "withFreshDestination",
-              "line": 310,
-              "end_line": 322
+              "line": 514,
+              "end_line": 526
             }
           ]
         },
@@ -18388,7 +18413,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore",
           "line": 235,
@@ -23109,7 +23134,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "original32ByteStaleSecretCannotOverwriteReconfiguredLiveChannel",
           "line": 160,
@@ -23882,7 +23907,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy",
           "line": 191,
@@ -36347,6 +36372,570 @@
             "BackupIntegrationTests::Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
+          "line": 441,
+          "end_line": 502,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b42bf2914823218f2ddc4966a8cf931510de98beafff2175715ec24accec0598",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotEquals",
+              "line": 457,
+              "expression": "assertNotEquals(first.id, second.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 465,
+              "expression": "assertEquals(2L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 466,
+              "expression": "assertEquals(0L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 468,
+              "expression": "assertEquals(2, repeats.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 469,
+              "expression": "assertEquals(setOf(first.id, second.id), repeats.map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 470,
+              "expression": "assertEquals(2L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 471,
+              "expression": "assertTrue(repeats.all { it.pathNodes == Bytes.of(0x42) })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 473,
+              "expression": "assertEquals(setOf(first.id, second.id), store.fetchMessageRepeats(parent).map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 474,
+              "expression": "assertEquals(message, store.fetchMessage(parent))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 491,
+              "expression": "assertEquals(1L, merged.counts.getValue(BackupModelKind.MESSAGES).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 492,
+              "expression": "assertEquals(2L, merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 494,
+              "expression": "assertEquals(4, all.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 495,
+              "expression": "assertEquals(setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id), all.map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 496,
+              "expression": "assertTrue(all.all { it.pathNodes == Bytes.of(0x42) && it.rxLogEntryID == null })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 497,
+              "expression": "assertEquals(4L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 442,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 442,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 444,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 444,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 445,
+              "expression": "store.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 445,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 446,
+              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                name = \"TestContact\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 446,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 446,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 446,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 448,
+              "expression": "store.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 449,
+              "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"echoed\",\n                timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 450,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 451,
+              "expression": "store.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageRepeatDTO",
+              "line": 452,
+              "expression": "MessageRepeatDTO(messageID = message.id, receivedAt = message.createdAt,\n                pathNodes = Bytes.of(0x42), pathLength = 0u, snr = 8.5, rssi = -90,\n                rxLogEntryID = UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 453,
+              "expression": "Bytes.of(0x42)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 454,
+              "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first.copy",
+              "line": 455,
+              "expression": "first.copy(id = UUID.randomUUID(),\n                rxLogEntryID = UUID.fromString(\"22222222-2222-3333-4444-555555555555\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 455,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 456,
+              "expression": "UUID.fromString(\"22222222-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessageRepeat",
+              "line": 458,
+              "expression": "store.saveMessageRepeat(radio, first)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessageRepeat",
+              "line": 459,
+              "expression": "store.saveMessageRepeat(radio, second)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 460,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 461,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 461,
+              "expression": "parseBackup(service.export(store).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 461,
+              "expression": "service.export(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 462,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 463,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 464,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 465,
+              "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 466,
+              "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessageRepeats",
+              "line": 467,
+              "expression": "destination.fetchMessageRepeats(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 469,
+              "expression": "setOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 469,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 470,
+              "expression": "requireNotNull(destination.fetchMessage(parent))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessage",
+              "line": 470,
+              "expression": "destination.fetchMessage(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 471,
+              "expression": "Bytes.of(0x42)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 473,
+              "expression": "setOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessageRepeats",
+              "line": 473,
+              "expression": "store.fetchMessageRepeats(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 473,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 474,
+              "expression": "store.fetchMessage(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 475,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveDevice",
+              "line": 476,
+              "expression": "destination.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 476,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveContact",
+              "line": 477,
+              "expression": "destination.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveMessage",
+              "line": 478,
+              "expression": "destination.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first.copy",
+              "line": 479,
+              "expression": "first.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 479,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "second.copy",
+              "line": 480,
+              "expression": "second.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 480,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveMessageRepeat",
+              "line": 481,
+              "expression": "destination.saveMessageRepeat(radio, localOne)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveMessageRepeat",
+              "line": 482,
+              "expression": "destination.saveMessageRepeat(radio, localTwo)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "localOne.copy",
+              "line": 483,
+              "expression": "localOne.copy(id = UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 483,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "localTwo.copy",
+              "line": 484,
+              "expression": "localTwo.copy(id = UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 484,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupEnvelope",
+              "line": 485,
+              "expression": "AppBackupEnvelope(exportDate = message.createdAt, appVersion = \"1\", appBuild = \"1\",\n                    devices = SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)),\n                    contacts = SnapshotList.of(contact), messages = SnapshotList.of(message.copy(heardRepeats = 0)),\n                    messageRepeats = SnapshotList.of(extraOne, extraTwo))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 486,
+              "expression": "SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 486,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 486,
+              "expression": "copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 488,
+              "expression": "SnapshotList.of(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 488,
+              "expression": "SnapshotList.of(message.copy(heardRepeats = 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message.copy",
+              "line": 488,
+              "expression": "message.copy(heardRepeats = 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 489,
+              "expression": "SnapshotList.of(extraOne, extraTwo)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withActualManifest",
+              "line": 489,
+              "expression": "withActualManifest()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 490,
+              "expression": "service.importBackup(envelope, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "merged.counts.getValue",
+              "line": 491,
+              "expression": "merged.counts.getValue(BackupModelKind.MESSAGES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "merged.counts.getValue",
+              "line": 492,
+              "expression": "merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessageRepeats",
+              "line": 493,
+              "expression": "destination.fetchMessageRepeats(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 495,
+              "expression": "setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 495,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 496,
+              "expression": "Bytes.of(0x42)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 497,
+              "expression": "requireNotNull(destination.fetchMessage(parent))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessage",
+              "line": 497,
+              "expression": "destination.fetchMessage(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 500,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed()",
+            "BackupIntegrationTests::Outgoing same-path repeats are not collapsed on merge import()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -37490,6 +38079,570 @@
             "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
           ],
           "explicit_original_case_ids": [
+            "BackupIntegrationTests::Outgoing same-path repeats are not collapsed on merge import()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
+          "line": 441,
+          "end_line": 502,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b42bf2914823218f2ddc4966a8cf931510de98beafff2175715ec24accec0598",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotEquals",
+              "line": 457,
+              "expression": "assertNotEquals(first.id, second.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 465,
+              "expression": "assertEquals(2L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 466,
+              "expression": "assertEquals(0L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 468,
+              "expression": "assertEquals(2, repeats.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 469,
+              "expression": "assertEquals(setOf(first.id, second.id), repeats.map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 470,
+              "expression": "assertEquals(2L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 471,
+              "expression": "assertTrue(repeats.all { it.pathNodes == Bytes.of(0x42) })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 473,
+              "expression": "assertEquals(setOf(first.id, second.id), store.fetchMessageRepeats(parent).map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 474,
+              "expression": "assertEquals(message, store.fetchMessage(parent))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 491,
+              "expression": "assertEquals(1L, merged.counts.getValue(BackupModelKind.MESSAGES).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 492,
+              "expression": "assertEquals(2L, merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 494,
+              "expression": "assertEquals(4, all.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 495,
+              "expression": "assertEquals(setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id), all.map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 496,
+              "expression": "assertTrue(all.all { it.pathNodes == Bytes.of(0x42) && it.rxLogEntryID == null })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 497,
+              "expression": "assertEquals(4L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 442,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 442,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 444,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 444,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 445,
+              "expression": "store.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 445,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 446,
+              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                name = \"TestContact\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 446,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 446,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 446,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 448,
+              "expression": "store.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 449,
+              "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"echoed\",\n                timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 450,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 451,
+              "expression": "store.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageRepeatDTO",
+              "line": 452,
+              "expression": "MessageRepeatDTO(messageID = message.id, receivedAt = message.createdAt,\n                pathNodes = Bytes.of(0x42), pathLength = 0u, snr = 8.5, rssi = -90,\n                rxLogEntryID = UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 453,
+              "expression": "Bytes.of(0x42)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 454,
+              "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first.copy",
+              "line": 455,
+              "expression": "first.copy(id = UUID.randomUUID(),\n                rxLogEntryID = UUID.fromString(\"22222222-2222-3333-4444-555555555555\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 455,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 456,
+              "expression": "UUID.fromString(\"22222222-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessageRepeat",
+              "line": 458,
+              "expression": "store.saveMessageRepeat(radio, first)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessageRepeat",
+              "line": 459,
+              "expression": "store.saveMessageRepeat(radio, second)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 460,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 461,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 461,
+              "expression": "parseBackup(service.export(store).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 461,
+              "expression": "service.export(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 462,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 463,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 464,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 465,
+              "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 466,
+              "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessageRepeats",
+              "line": 467,
+              "expression": "destination.fetchMessageRepeats(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 469,
+              "expression": "setOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 469,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 470,
+              "expression": "requireNotNull(destination.fetchMessage(parent))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessage",
+              "line": 470,
+              "expression": "destination.fetchMessage(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 471,
+              "expression": "Bytes.of(0x42)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 473,
+              "expression": "setOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessageRepeats",
+              "line": 473,
+              "expression": "store.fetchMessageRepeats(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 473,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 474,
+              "expression": "store.fetchMessage(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 475,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveDevice",
+              "line": 476,
+              "expression": "destination.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 476,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveContact",
+              "line": 477,
+              "expression": "destination.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveMessage",
+              "line": 478,
+              "expression": "destination.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first.copy",
+              "line": 479,
+              "expression": "first.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 479,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "second.copy",
+              "line": 480,
+              "expression": "second.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 480,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveMessageRepeat",
+              "line": 481,
+              "expression": "destination.saveMessageRepeat(radio, localOne)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.saveMessageRepeat",
+              "line": 482,
+              "expression": "destination.saveMessageRepeat(radio, localTwo)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "localOne.copy",
+              "line": 483,
+              "expression": "localOne.copy(id = UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 483,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "localTwo.copy",
+              "line": 484,
+              "expression": "localTwo.copy(id = UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 484,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupEnvelope",
+              "line": 485,
+              "expression": "AppBackupEnvelope(exportDate = message.createdAt, appVersion = \"1\", appBuild = \"1\",\n                    devices = SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)),\n                    contacts = SnapshotList.of(contact), messages = SnapshotList.of(message.copy(heardRepeats = 0)),\n                    messageRepeats = SnapshotList.of(extraOne, extraTwo))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 486,
+              "expression": "SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 486,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 486,
+              "expression": "copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 488,
+              "expression": "SnapshotList.of(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 488,
+              "expression": "SnapshotList.of(message.copy(heardRepeats = 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "message.copy",
+              "line": 488,
+              "expression": "message.copy(heardRepeats = 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 489,
+              "expression": "SnapshotList.of(extraOne, extraTwo)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withActualManifest",
+              "line": 489,
+              "expression": "withActualManifest()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 490,
+              "expression": "service.importBackup(envelope, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "merged.counts.getValue",
+              "line": 491,
+              "expression": "merged.counts.getValue(BackupModelKind.MESSAGES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "merged.counts.getValue",
+              "line": 492,
+              "expression": "merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessageRepeats",
+              "line": 493,
+              "expression": "destination.fetchMessageRepeats(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 495,
+              "expression": "setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 495,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 496,
+              "expression": "Bytes.of(0x42)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 497,
+              "expression": "requireNotNull(destination.fetchMessage(parent))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessage",
+              "line": 497,
+              "expression": "destination.fetchMessage(parent)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 500,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed()",
             "BackupIntegrationTests::Outgoing same-path repeats are not collapsed on merge import()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -40808,6 +41961,342 @@
             "BackupIntegrationTests::Message.regionScope round-trips through full export/import()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
+          "line": 358,
+          "end_line": 401,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ee19a34284dd53e12ca14861ae327c5a33432342e6fe642408cceea40cca1dc5",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 377,
+              "expression": "assertEquals(message, parsed.messages.single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotSame",
+              "line": 379,
+              "expression": "assertNotSame(source, destination)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 382,
+              "expression": "assertEquals(1, restoredMessages.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 384,
+              "expression": "assertEquals(restoredMessages.single(), restored)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 386,
+              "expression": "assertNull(restored.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 387,
+              "expression": "assertEquals(listOf(\"de-by\", \"de-hh\"), restored.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 389,
+              "expression": "assertEquals(\"Germany\", restored.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 390,
+              "expression": "assertTrue(restored.regionScopeMatches.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 392,
+              "expression": "assertEquals(\"Greetings\", restored.text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 393,
+              "expression": "assertEquals(message.id, restored.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 395,
+              "expression": "assertEquals(message, source.fetchMessage(EntityKey(radio, message.id)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 359,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 359,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 361,
+              "expression": "for (matches in listOf(false, true))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 361,
+              "expression": "listOf(false, true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 362,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 363,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 363,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.saveDevice",
+              "line": 364,
+              "expression": "source.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 364,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 365,
+              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                        name = \"Alice\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 365,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 365,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 365,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.saveContact",
+              "line": 367,
+              "expression": "source.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 368,
+              "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"Greetings\",\n                        timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000),\n                        regionScope = if (matches) null else \"Germany\",\n                        regionScopeMatches = if (matches) SnapshotList.of(\"de-by\", \"de-hh\") else SnapshotList.empty(),\n                        deduplicationKey = (if (matches) \"region-scope-matches-roundtrip-\" else \"region-scope-roundtrip-\") +\n                            UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 369,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 370,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 371,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 371,
+              "expression": "SnapshotList.of(\"de-by\", \"de-hh\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.empty",
+              "line": 371,
+              "expression": "SnapshotList.empty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 372,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 373,
+              "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.saveMessage",
+              "line": 374,
+              "expression": "source.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 375,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 376,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 376,
+              "expression": "parseBackup(service.export(source).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 376,
+              "expression": "service.export(source)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parsed.messages.single",
+              "line": 377,
+              "expression": "parsed.messages.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 378,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 380,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.exportEnvelope",
+              "line": 381,
+              "expression": "service.exportEnvelope(destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 383,
+              "expression": "requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessage",
+              "line": 383,
+              "expression": "destination.fetchMessage(EntityKey(radio, message.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 383,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "restoredMessages.single",
+              "line": 384,
+              "expression": "restoredMessages.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 385,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 387,
+              "expression": "listOf(\"de-by\", \"de-hh\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "restored.regionScopeMatches.isEmpty",
+              "line": 390,
+              "expression": "restored.regionScopeMatches.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.fetchMessage",
+              "line": 395,
+              "expression": "source.fetchMessage(EntityKey(radio, message.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 395,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 399,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Message.regionScope round-trips through full export/import()",
+            "BackupIntegrationTests::Message.regionScopeMatches round-trips through full export/import()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -41537,6 +43026,342 @@
             "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
           ],
           "explicit_original_case_ids": [
+            "BackupIntegrationTests::Message.regionScopeMatches round-trips through full export/import()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
+          "line": 358,
+          "end_line": 401,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ee19a34284dd53e12ca14861ae327c5a33432342e6fe642408cceea40cca1dc5",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 377,
+              "expression": "assertEquals(message, parsed.messages.single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotSame",
+              "line": 379,
+              "expression": "assertNotSame(source, destination)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 382,
+              "expression": "assertEquals(1, restoredMessages.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 384,
+              "expression": "assertEquals(restoredMessages.single(), restored)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 386,
+              "expression": "assertNull(restored.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 387,
+              "expression": "assertEquals(listOf(\"de-by\", \"de-hh\"), restored.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 389,
+              "expression": "assertEquals(\"Germany\", restored.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 390,
+              "expression": "assertTrue(restored.regionScopeMatches.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 392,
+              "expression": "assertEquals(\"Greetings\", restored.text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 393,
+              "expression": "assertEquals(message.id, restored.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 395,
+              "expression": "assertEquals(message, source.fetchMessage(EntityKey(radio, message.id)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 359,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 359,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 361,
+              "expression": "for (matches in listOf(false, true))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 361,
+              "expression": "listOf(false, true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 362,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 363,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 363,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.saveDevice",
+              "line": 364,
+              "expression": "source.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 364,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 365,
+              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                        name = \"Alice\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 365,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 365,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 365,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.saveContact",
+              "line": 367,
+              "expression": "source.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 368,
+              "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"Greetings\",\n                        timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000),\n                        regionScope = if (matches) null else \"Germany\",\n                        regionScopeMatches = if (matches) SnapshotList.of(\"de-by\", \"de-hh\") else SnapshotList.empty(),\n                        deduplicationKey = (if (matches) \"region-scope-matches-roundtrip-\" else \"region-scope-roundtrip-\") +\n                            UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 369,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 370,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 371,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 371,
+              "expression": "SnapshotList.of(\"de-by\", \"de-hh\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.empty",
+              "line": 371,
+              "expression": "SnapshotList.empty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 372,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 373,
+              "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.saveMessage",
+              "line": 374,
+              "expression": "source.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 375,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 376,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 376,
+              "expression": "parseBackup(service.export(source).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 376,
+              "expression": "service.export(source)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parsed.messages.single",
+              "line": 377,
+              "expression": "parsed.messages.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 378,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 380,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.exportEnvelope",
+              "line": 381,
+              "expression": "service.exportEnvelope(destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 383,
+              "expression": "requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessage",
+              "line": 383,
+              "expression": "destination.fetchMessage(EntityKey(radio, message.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 383,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "restoredMessages.single",
+              "line": 384,
+              "expression": "restoredMessages.single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 385,
+              "expression": "if (matches)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 387,
+              "expression": "listOf(\"de-by\", \"de-hh\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "restored.regionScopeMatches.isEmpty",
+              "line": 390,
+              "expression": "restored.regionScopeMatches.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "source.fetchMessage",
+              "line": 395,
+              "expression": "source.fetchMessage(EntityKey(radio, message.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 395,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 399,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Message.regionScope round-trips through full export/import()",
             "BackupIntegrationTests::Message.regionScopeMatches round-trips through full export/import()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -43864,6 +45689,263 @@
               "name": "toDTO",
               "line": 241,
               "expression": "toDTO()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::saveMessage persists send metadata and preview fields through export and import()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "originalSavedMessageMetadataSurvivesDistinctRoomExportImport",
+          "line": 404,
+          "end_line": 437,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0af602a19ffca0ef565d59de213552db268818e9ace31d91640677a599c2f7a0",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 417,
+              "expression": "assertEquals(3L, saved.sendCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 418,
+              "expression": "assertEquals(\"https://example.com\", saved.linkPreviewURL)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 419,
+              "expression": "assertEquals(\"Example\", saved.linkPreviewTitle)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 420,
+              "expression": "assertEquals(\"\\uD83D\\uDC4D:2\", saved.reactionSummary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 426,
+              "expression": "assertEquals(3L, imported.sendCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 427,
+              "expression": "assertEquals(\"https://example.com\", imported.linkPreviewURL)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 428,
+              "expression": "assertEquals(\"Example\", imported.linkPreviewTitle)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 429,
+              "expression": "assertEquals(\"\\uD83D\\uDC4D:2\", imported.reactionSummary)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 430,
+              "expression": "assertEquals(\"Test message\", imported.text)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 431,
+              "expression": "assertTrue(destination.fetchContacts(radio).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 433,
+              "expression": "assertEquals(saved, store.fetchMessage(EntityKey(radio, message.id)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 405,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 405,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 407,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 407,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 408,
+              "expression": "store.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 408,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 409,
+              "expression": "MessageDTO(radioId = radio,\n                contactID = UUID.fromString(\"11111111-2222-3333-4444-555555555555\"),\n                text = \"Test message\", timestamp = 1_700_000_000u,\n                createdAt = Instant.ofEpochSecond(1_700_000_000), sendCount = 3,\n                deduplicationKey = \"save-message-fields-\" + UUID.fromString(\"22222222-2222-3333-4444-555555555555\"),\n                linkPreviewURL = \"https://example.com\", linkPreviewTitle = \"Example\", reactionSummary = \"\\uD83D\\uDC4D:2\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 410,
+              "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 412,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 413,
+              "expression": "UUID.fromString(\"22222222-2222-3333-4444-555555555555\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 415,
+              "expression": "store.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 416,
+              "expression": "requireNotNull(store.fetchMessage(EntityKey(radio, message.id)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 416,
+              "expression": "store.fetchMessage(EntityKey(radio, message.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 416,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 421,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 422,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 422,
+              "expression": "parseBackup(service.export(store).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 422,
+              "expression": "service.export(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 423,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 424,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 425,
+              "expression": "requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessage",
+              "line": 425,
+              "expression": "destination.fetchMessage(EntityKey(radio, message.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 425,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchContacts",
+              "line": 431,
+              "expression": "destination.fetchContacts(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 431,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 433,
+              "expression": "store.fetchMessage(EntityKey(radio, message.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 433,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 435,
+              "expression": "storage.close()",
               "assertion_or_checked_wait": false
             }
           ],
@@ -46693,6 +48775,359 @@
               "name": "dto.copy",
               "line": 93,
               "expression": "dto.copy(id = actual.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Discovered nodes survive full export \u2192 import into fresh store()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "originalDiscoveredFrameAndTargetedHopWriterRestoreIntoDistinctEmptyRoom",
+          "line": 311,
+          "end_line": 354,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "a4e9658bfc0a988a030142e2603133f5292c478c360433777710b0391ae3a83a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 324,
+              "expression": "assertEquals(2L, sourceNode.inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 327,
+              "expression": "assertEquals(1, parsed.discoveredNodes.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 328,
+              "expression": "assertTrue(parsed.manifest.validate(parsed))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 330,
+              "expression": "assertTrue(destination.fetchDiscoveredNodes(radio).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 332,
+              "expression": "assertEquals(1L, result.counts.getValue(BackupModelKind.DISCOVERED_NODES).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 334,
+              "expression": "assertEquals(\"Discovered-Repeater\", restored.name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 335,
+              "expression": "assertEquals(key, restored.publicKey)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 336,
+              "expression": "assertEquals(ContactType.REPEATER.rawValue, restored.typeRawValue)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 337,
+              "expression": "assertEquals(51.5, restored.latitude, 0.0)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 338,
+              "expression": "assertEquals(-0.12, restored.longitude, 0.0)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 339,
+              "expression": "assertEquals(7u, restored.lastAdvertTimestamp)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 340,
+              "expression": "assertEquals(3u.toUByte(), restored.outPathLength)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 341,
+              "expression": "assertEquals(path, restored.outPath)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 342,
+              "expression": "assertEquals(2L, restored.inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 343,
+              "expression": "assertEquals(7u, restored.inboundHopAdvertTimestamp)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotEquals",
+              "line": 344,
+              "expression": "assertNotEquals(sourceNode.id, restored.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 346,
+              "expression": "assertEquals(0L, second.counts.getValue(BackupModelKind.DISCOVERED_NODES).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 347,
+              "expression": "assertEquals(1L, second.counts.getValue(BackupModelKind.DISCOVERED_NODES).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 348,
+              "expression": "assertEquals(restored, destination.fetchDiscoveredNodes(radio).single())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 350,
+              "expression": "assertEquals(sourceNode, store.fetchDiscoveredNodes(radio).single())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 312,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 312,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 314,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 314,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 315,
+              "expression": "Bytes(ByteArray(32) { 0x22 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 315,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 316,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 317,
+              "expression": "store.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 317,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFrame",
+              "line": 318,
+              "expression": "ContactFrame(publicKey = key, type = ContactType.REPEATER, flags = 0u,\n                outPathLength = 3u, outPath = path, name = \"Discovered-Repeater\",\n                lastAdvertTimestamp = 7u, latitude = 51.5, longitude = -0.12, lastModified = 7u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 321,
+              "expression": "store.upsertDiscoveredNode(radio, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 322,
+              "expression": "store.setInboundHopCount(radio, key, 2, 7u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 323,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 323,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 325,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 326,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 326,
+              "expression": "parseBackup(service.export(store).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 326,
+              "expression": "service.export(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parsed.manifest.validate",
+              "line": 328,
+              "expression": "parsed.manifest.validate(parsed)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 329,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchDiscoveredNodes",
+              "line": 330,
+              "expression": "destination.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 330,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 331,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 332,
+              "expression": "result.counts.getValue(BackupModelKind.DISCOVERED_NODES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchDiscoveredNodes",
+              "line": 333,
+              "expression": "destination.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 333,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 340,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 345,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "second.counts.getValue",
+              "line": 346,
+              "expression": "second.counts.getValue(BackupModelKind.DISCOVERED_NODES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "second.counts.getValue",
+              "line": 347,
+              "expression": "second.counts.getValue(BackupModelKind.DISCOVERED_NODES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchDiscoveredNodes",
+              "line": 348,
+              "expression": "destination.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 348,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 350,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "single",
+              "line": 350,
+              "expression": "single()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 352,
+              "expression": "storage.close()",
               "assertion_or_checked_wait": false
             }
           ],

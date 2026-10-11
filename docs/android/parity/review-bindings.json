@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "6c9d8e3bbc2184f9a492ae8772a0f059762c305f41a01dbfb63e4161a43b2529",
+  "proposal_sha256": "06f5859ef3ac1a780a3160280a6cc9bcefdeae13efa8cc09cea9c704edaa8085",
   "families": [
     {
       "group": "backup-envelope",
@@ -8084,7 +8084,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -8475,7 +8475,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -8782,7 +8782,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -9059,7 +9059,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -9306,7 +9306,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -9523,7 +9523,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -9854,7 +9854,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -10137,7 +10137,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -10576,7 +10576,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -11051,7 +11051,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -11573,7 +11573,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-        "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
         "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
         "method_or_family_name": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
         "line": 27,
@@ -12183,7 +12183,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         },
         {
           "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
@@ -12204,9 +12204,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -12551,9 +12551,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -12748,9 +12748,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -13022,10 +13022,10 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
-      "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "group": "backup-original-discovery-frame-hop-writer-and-distinct-room",
+      "comparison_sha256": "f94d13fbc53c149faa3bfc083eabc4738313f786d4f822af4e7ef6968abaa420",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 1,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -13120,161 +13120,347 @@
       ],
       "original_inputs": null,
       "native": {
-        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupDiagnosticIntegrationTest.kt",
-        "sha256": "36a70ca3b7af523147dfb0b44fa72a6320e3d26cc3fc2703d08b02f256951fd4",
-        "class": "com.meshcoreone.android.core.data.backup.BackupDiagnosticIntegrationTest",
-        "method_or_family_name": "discoveredFullNativePipelineRetainsEveryField",
-        "line": 83,
-        "end_line": 94,
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+        "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "method_or_family_name": "originalDiscoveredFrameAndTargetedHopWriterRestoreIntoDistinctEmptyRoom",
+        "line": 311,
+        "end_line": 354,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "206ab2400738ced537196bbb2651d4e44ad3e806d16de1844b6a44b405c6ce97",
+        "body_sha256": "a4e9658bfc0a988a030142e2603133f5292c478c360433777710b0391ae3a83a",
         "registration": null,
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 89,
-            "expression": "assertEquals(1, backup.discoveredNodes.size)",
+            "line": 324,
+            "expression": "assertEquals(2L, sourceNode.inboundHopCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 327,
+            "expression": "assertEquals(1, parsed.discoveredNodes.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 89,
-            "expression": "assertTrue(backup.manifest.validate(backup))",
+            "line": 328,
+            "expression": "assertTrue(parsed.manifest.validate(parsed))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 330,
+            "expression": "assertTrue(destination.fetchDiscoveredNodes(radio).isEmpty())",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 91,
-            "expression": "assertEquals(1L, service.importBackup(backup, store).count(BackupModelKind.DISCOVERED_NODES).inserted)",
+            "line": 332,
+            "expression": "assertEquals(1L, result.counts.getValue(BackupModelKind.DISCOVERED_NODES).inserted)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 93,
-            "expression": "assertEquals(dto.copy(id = actual.id), actual)",
+            "line": 334,
+            "expression": "assertEquals(\"Discovered-Repeater\", restored.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 335,
+            "expression": "assertEquals(key, restored.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 336,
+            "expression": "assertEquals(ContactType.REPEATER.rawValue, restored.typeRawValue)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 337,
+            "expression": "assertEquals(51.5, restored.latitude, 0.0)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 338,
+            "expression": "assertEquals(-0.12, restored.longitude, 0.0)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 339,
+            "expression": "assertEquals(7u, restored.lastAdvertTimestamp)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 340,
+            "expression": "assertEquals(3u.toUByte(), restored.outPathLength)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 341,
+            "expression": "assertEquals(path, restored.outPath)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 342,
+            "expression": "assertEquals(2L, restored.inboundHopCount)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 343,
+            "expression": "assertEquals(7u, restored.inboundHopAdvertTimestamp)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotEquals",
+            "line": 344,
+            "expression": "assertNotEquals(sourceNode.id, restored.id)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 346,
+            "expression": "assertEquals(0L, second.counts.getValue(BackupModelKind.DISCOVERED_NODES).inserted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 347,
+            "expression": "assertEquals(1L, second.counts.getValue(BackupModelKind.DISCOVERED_NODES).skipped)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 348,
+            "expression": "assertEquals(restored, destination.fetchDiscoveredNodes(radio).single())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 350,
+            "expression": "assertEquals(sourceNode, store.fetchDiscoveredNodes(radio).single())",
             "assertion_or_checked_wait": true
           }
         ],
         "actions_and_helper_calls": [
           {
-            "name": "discovered",
-            "line": 84,
-            "expression": "discovered()",
+            "name": "MeshCoreStorage.get",
+            "line": 312,
+            "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "copy",
-            "line": 84,
-            "expression": "copy(publicKey = key(0x22), name = \"Discovered-Repeater\", typeRawValue = 2u,\n            latitude = 51.5, longitude = -0.12, lastAdvertTimestamp = 7u, outPathLength = 3u,\n            outPath = Bytes.of(0xAA, 0xBB, 0xCC), inboundHopCount = 2, inboundHopAdvertTimestamp = 7u)",
+            "name": "ApplicationProvider.getApplicationContext",
+            "line": 312,
+            "expression": "ApplicationProvider.getApplicationContext<Context>()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "key",
-            "line": 84,
-            "expression": "key(0x22)",
+            "name": "RadioId",
+            "line": 314,
+            "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 314,
+            "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 315,
+            "expression": "Bytes(ByteArray(32) { 0x22 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 315,
+            "expression": "ByteArray(32)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 86,
+            "line": 316,
             "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.discoveredNodes",
-            "line": 87,
-            "expression": "db.discoveredNodes()",
+            "name": "store.saveDevice",
+            "line": 317,
+            "expression": "store.saveDevice(sourceStoreDevice(radio))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "insert",
-            "line": 87,
-            "expression": "insert(dto.toEntity())",
+            "name": "sourceStoreDevice",
+            "line": 317,
+            "expression": "sourceStoreDevice(radio)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "dto.toEntity",
-            "line": 87,
-            "expression": "dto.toEntity()",
+            "name": "ContactFrame",
+            "line": 318,
+            "expression": "ContactFrame(publicKey = key, type = ContactType.REPEATER, flags = 0u,\n                outPathLength = 3u, outPath = path, name = \"Discovered-Repeater\",\n                lastAdvertTimestamp = 7u, latitude = 51.5, longitude = -0.12, lastModified = 7u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.upsertDiscoveredNode",
+            "line": 321,
+            "expression": "store.upsertDiscoveredNode(radio, frame)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.setInboundHopCount",
+            "line": 322,
+            "expression": "store.setInboundHopCount(radio, key, 2, 7u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDiscoveredNodes",
+            "line": 323,
+            "expression": "store.fetchDiscoveredNodes(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 323,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupService",
+            "line": 325,
+            "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "AppBackupCodec",
-            "line": 88,
+            "line": 326,
             "expression": "AppBackupCodec()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "parseBackup",
-            "line": 88,
+            "line": 326,
             "expression": "parseBackup(service.export(store).data)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.export",
-            "line": 88,
+            "line": 326,
             "expression": "service.export(store)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "backup.manifest.validate",
-            "line": 89,
-            "expression": "backup.manifest.validate(backup)",
+            "name": "parsed.manifest.validate",
+            "line": 328,
+            "expression": "parsed.manifest.validate(parsed)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.discoveredNodes",
-            "line": 90,
-            "expression": "db.discoveredNodes()",
+            "name": "withFreshDestination",
+            "line": 329,
+            "expression": "withFreshDestination(backgroundScope)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "clearRadio",
-            "line": 90,
-            "expression": "clearRadio(RADIO.value)",
+            "name": "destination.fetchDiscoveredNodes",
+            "line": 330,
+            "expression": "destination.fetchDiscoveredNodes(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 330,
+            "expression": "isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.importBackup",
-            "line": 91,
-            "expression": "service.importBackup(backup, store)",
+            "line": 331,
+            "expression": "service.importBackup(parsed, destination)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "count",
-            "line": 91,
-            "expression": "count(BackupModelKind.DISCOVERED_NODES)",
+            "name": "result.counts.getValue",
+            "line": 332,
+            "expression": "result.counts.getValue(BackupModelKind.DISCOVERED_NODES)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.discoveredNodes",
-            "line": 92,
-            "expression": "db.discoveredNodes()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "forRadio",
-            "line": 92,
-            "expression": "forRadio(RADIO.value)",
+            "name": "destination.fetchDiscoveredNodes",
+            "line": 333,
+            "expression": "destination.fetchDiscoveredNodes(radio)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "single",
-            "line": 92,
+            "line": 333,
             "expression": "single()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "toDTO",
-            "line": 92,
-            "expression": "toDTO()",
+            "name": "u.toUByte",
+            "line": 340,
+            "expression": "u.toUByte()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "dto.copy",
-            "line": 93,
-            "expression": "dto.copy(id = actual.id)",
+            "name": "service.importBackup",
+            "line": 345,
+            "expression": "service.importBackup(parsed, destination)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "second.counts.getValue",
+            "line": 346,
+            "expression": "second.counts.getValue(BackupModelKind.DISCOVERED_NODES)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "second.counts.getValue",
+            "line": 347,
+            "expression": "second.counts.getValue(BackupModelKind.DISCOVERED_NODES)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.fetchDiscoveredNodes",
+            "line": 348,
+            "expression": "destination.fetchDiscoveredNodes(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 348,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDiscoveredNodes",
+            "line": 350,
+            "expression": "store.fetchDiscoveredNodes(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "single",
+            "line": 350,
+            "expression": "single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "storage.close",
+            "line": 352,
+            "expression": "storage.close()",
             "assertion_or_checked_wait": false
           }
         ],
@@ -13288,23 +13474,74 @@
       },
       "assertion_helper_inputs": [
         {
-          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
-          "sha256": "fda4f644c3d3bef95de3978a3fc757c8afffebd4b82bea67ddbbacf942ee60cf"
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+          "sha256": "15e67b5c656596423983ada907a349a77d752b68a6178fac65338eadeb59cb73"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DiscoveredNodeRepository.kt",
+          "sha256": "764a612bca6e18331e5bbb731f309a6db5e5f54c410619f5b9332929635d89e8"
         },
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupDiagnosticRestore.kt",
           "sha256": "6cba649bb8ab513a4571fdc604f48587f3f11518d3957151e5c2c1de7e1c700b"
-        },
-        {
-          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt",
-          "sha256": "976fbabeb88ea22fc958027735be211c3af1f2daa0bb530bc143847ac3e0897a"
         }
       ],
-      "native_checked_helper_assertions": [],
-      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 329,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
       "runner_identity": [
-        "com.meshcoreone.android.core.data.backup.BackupDiagnosticIntegrationTest",
-        "discoveredFullNativePipelineRetainsEveryField"
+        "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "originalDiscoveredFrameAndTargetedHopWriterRestoreIntoDistinctEmptyRoom"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -13757,7 +13994,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -14603,9 +14840,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -14884,9 +15121,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -15251,7 +15488,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-        "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
         "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
         "method_or_family_name": "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore",
         "line": 235,
@@ -16146,7 +16383,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -17057,7 +17294,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-        "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
         "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
         "method_or_family_name": "channelRepeatExportRestoresFreshParentAndCascadeWithoutDeletingSource",
         "line": 95,
@@ -17397,7 +17634,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         },
         {
           "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
@@ -17652,7 +17889,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -17775,7 +18012,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-        "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
         "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
         "method_or_family_name": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
         "line": 27,
@@ -18385,7 +18622,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         },
         {
           "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
@@ -18406,9 +18643,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -18559,9 +18796,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -18792,9 +19029,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -19262,9 +19499,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -19693,7 +19930,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -19706,9 +19943,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -20426,7 +20663,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -21408,7 +21645,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -21775,7 +22012,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -22076,7 +22313,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -22815,9 +23052,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -23888,7 +24125,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -24322,9 +24559,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -24501,9 +24738,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -24692,9 +24929,9 @@
     },
     {
       "group": "backup-integration-snapshot-and-discovery-boundaries",
-      "comparison_sha256": "7e7be57590fc360b679e1ab800976de6cbb6011dc1b9cc91e2ad5c54f5d22662",
+      "comparison_sha256": "c337c971f57391536836869f07db4b0a48979815a8b24b19c4dc8790d33b0794",
       "source_file_family_count": 127,
-      "group_compared_family_count": 12,
+      "group_compared_family_count": 11,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -24925,9 +25162,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -25200,9 +25437,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -25293,9 +25530,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -25386,9 +25623,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -25497,9 +25734,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -25590,9 +25827,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -26156,9 +26393,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -26291,9 +26528,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -26426,9 +26663,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -26609,9 +26846,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -27433,9 +27670,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -27550,9 +27787,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -27697,9 +27934,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -27808,9 +28045,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -27966,10 +28203,10 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
-      "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "group": "backup-original-region-and-ordered-matches-distinct-room",
+      "comparison_sha256": "61241d3f056f185621497094438ef9b17ce4418bbf049926c228f45f72702e15",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 2,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -27992,101 +28229,329 @@
       ],
       "original_inputs": null,
       "native": {
-        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupFieldIntegrationTest.kt",
-        "sha256": "f815bd753dfabc209a11dd49675b9aa640cc185b8a6d8a5a7ae48b0079be08c8",
-        "class": "com.meshcoreone.android.core.data.backup.BackupFieldIntegrationTest",
-        "method_or_family_name": "scopeRegionIsOpaqueInNativePipeline",
-        "line": 113,
-        "end_line": 120,
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+        "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "method_or_family_name": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
+        "line": 358,
+        "end_line": 401,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "39763a5820064f05c9e2e6cbe1c05950dd3ced1fb3e6390735086e2c054e5c17",
+        "body_sha256": "ee19a34284dd53e12ca14861ae327c5a33432342e6fe642408cceea40cca1dc5",
         "registration": null,
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 119,
-            "expression": "assertEquals(\"Germany\", db.messages().byId(RADIO.value, dto.id)?.regionScope)",
+            "line": 377,
+            "expression": "assertEquals(message, parsed.messages.single())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotSame",
+            "line": 379,
+            "expression": "assertNotSame(source, destination)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 382,
+            "expression": "assertEquals(1, restoredMessages.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 384,
+            "expression": "assertEquals(restoredMessages.single(), restored)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 386,
+            "expression": "assertNull(restored.regionScope)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 387,
+            "expression": "assertEquals(listOf(\"de-by\", \"de-hh\"), restored.regionScopeMatches)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 389,
+            "expression": "assertEquals(\"Germany\", restored.regionScope)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 390,
+            "expression": "assertTrue(restored.regionScopeMatches.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 392,
+            "expression": "assertEquals(\"Greetings\", restored.text)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 393,
+            "expression": "assertEquals(message.id, restored.id)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 395,
+            "expression": "assertEquals(message, source.fetchMessage(EntityKey(radio, message.id)))",
             "assertion_or_checked_wait": true
           }
         ],
         "actions_and_helper_calls": [
           {
-            "name": "message",
-            "line": 114,
-            "expression": "message()",
+            "name": "MeshCoreStorage.get",
+            "line": 359,
+            "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "copy",
-            "line": 114,
-            "expression": "copy(regionScope = \"Germany\", deduplicationKey = \"region-scope-roundtrip\")",
+            "name": "ApplicationProvider.getApplicationContext",
+            "line": 359,
+            "expression": "ApplicationProvider.getApplicationContext<Context>()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "seed",
-            "line": 115,
-            "expression": "seed(envelope(messages = listOf(dto)))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "envelope",
-            "line": 115,
-            "expression": "envelope(messages = listOf(dto))",
+            "name": "for",
+            "line": 361,
+            "expression": "for (matches in listOf(false, true))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 115,
-            "expression": "listOf(dto)",
+            "line": 361,
+            "expression": "listOf(false, true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "withFreshDestination",
+            "line": 362,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 363,
+            "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 363,
+            "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "source.saveDevice",
+            "line": 364,
+            "expression": "source.saveDevice(sourceStoreDevice(radio))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceStoreDevice",
+            "line": 364,
+            "expression": "sourceStoreDevice(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactDTO",
+            "line": 365,
+            "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                        name = \"Alice\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 365,
+            "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 365,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 365,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "source.saveContact",
+            "line": 367,
+            "expression": "source.saveContact(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 368,
+            "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"Greetings\",\n                        timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000),\n                        regionScope = if (matches) null else \"Germany\",\n                        regionScopeMatches = if (matches) SnapshotList.of(\"de-by\", \"de-hh\") else SnapshotList.empty(),\n                        deduplicationKey = (if (matches) \"region-scope-matches-roundtrip-\" else \"region-scope-roundtrip-\") +\n                            UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 369,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 370,
+            "expression": "if (matches)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 371,
+            "expression": "if (matches)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 371,
+            "expression": "SnapshotList.of(\"de-by\", \"de-hh\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.empty",
+            "line": 371,
+            "expression": "SnapshotList.empty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 372,
+            "expression": "if (matches)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 373,
+            "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "source.saveMessage",
+            "line": 374,
+            "expression": "source.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupService",
+            "line": 375,
+            "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "AppBackupCodec",
-            "line": 116,
+            "line": 376,
             "expression": "AppBackupCodec()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "parseBackup",
-            "line": 116,
-            "expression": "parseBackup(service.export(store).data)",
+            "line": 376,
+            "expression": "parseBackup(service.export(source).data)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.export",
-            "line": 116,
-            "expression": "service.export(store)",
+            "line": 376,
+            "expression": "service.export(source)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 117,
-            "expression": "db.messages()",
+            "name": "parsed.messages.single",
+            "line": 377,
+            "expression": "parsed.messages.single()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "clearRadio",
-            "line": 117,
-            "expression": "clearRadio(RADIO.value)",
+            "name": "withFreshDestination",
+            "line": 378,
+            "expression": "withFreshDestination(backgroundScope)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.importBackup",
-            "line": 118,
-            "expression": "service.importBackup(backup, store)",
+            "line": 380,
+            "expression": "service.importBackup(parsed, destination)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 119,
-            "expression": "db.messages()",
+            "name": "service.exportEnvelope",
+            "line": 381,
+            "expression": "service.exportEnvelope(destination)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "byId",
-            "line": 119,
-            "expression": "byId(RADIO.value, dto.id)",
+            "name": "requireNotNull",
+            "line": 383,
+            "expression": "requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.fetchMessage",
+            "line": 383,
+            "expression": "destination.fetchMessage(EntityKey(radio, message.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 383,
+            "expression": "EntityKey(radio, message.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "restoredMessages.single",
+            "line": 384,
+            "expression": "restoredMessages.single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 385,
+            "expression": "if (matches)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 387,
+            "expression": "listOf(\"de-by\", \"de-hh\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "restored.regionScopeMatches.isEmpty",
+            "line": 390,
+            "expression": "restored.regionScopeMatches.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "source.fetchMessage",
+            "line": 395,
+            "expression": "source.fetchMessage(EntityKey(radio, message.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 395,
+            "expression": "EntityKey(radio, message.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "storage.close",
+            "line": 399,
+            "expression": "storage.close()",
             "assertion_or_checked_wait": false
           }
         ],
@@ -28094,29 +28559,139 @@
           "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
         ],
         "explicit_original_case_ids": [
-          "BackupIntegrationTests::Message.regionScope round-trips through full export/import()"
+          "BackupIntegrationTests::Message.regionScope round-trips through full export/import()",
+          "BackupIntegrationTests::Message.regionScopeMatches round-trips through full export/import()"
         ],
         "execution": "exact-candidate-runner-identity-resolution-required"
       },
       "assertion_helper_inputs": [
         {
-          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
-          "sha256": "fda4f644c3d3bef95de3978a3fc757c8afffebd4b82bea67ddbbacf942ee60cf"
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+          "sha256": "15e67b5c656596423983ada907a349a77d752b68a6178fac65338eadeb59cb73"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt",
+          "sha256": "d5d8707615843ccf8e65d8bc2ae98d6210db7722b23b0ec41f7f3b6718b7461a"
         }
       ],
-      "native_checked_helper_assertions": [],
-      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 362,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        },
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 378,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
       "runner_identity": [
-        "com.meshcoreone.android.core.data.backup.BackupFieldIntegrationTest",
-        "scopeRegionIsOpaqueInNativePipeline"
+        "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
-      "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "group": "backup-original-region-and-ordered-matches-distinct-room",
+      "comparison_sha256": "61241d3f056f185621497094438ef9b17ce4418bbf049926c228f45f72702e15",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 2,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -28145,131 +28720,329 @@
       ],
       "original_inputs": null,
       "native": {
-        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupFieldIntegrationTest.kt",
-        "sha256": "f815bd753dfabc209a11dd49675b9aa640cc185b8a6d8a5a7ae48b0079be08c8",
-        "class": "com.meshcoreone.android.core.data.backup.BackupFieldIntegrationTest",
-        "method_or_family_name": "ambiguousScopesSurviveRealPipelineWithoutInventingSingleScope",
-        "line": 138,
-        "end_line": 146,
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+        "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "method_or_family_name": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
+        "line": 358,
+        "end_line": 401,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "31fab268f1838b9c38d6577a07c1fe57bcf59f71ed75173db47959f9404b9d7a",
+        "body_sha256": "ee19a34284dd53e12ca14861ae327c5a33432342e6fe642408cceea40cca1dc5",
         "registration": null,
         "assertions": [
           {
-            "name": "assertNull",
-            "line": 144,
-            "expression": "assertNull(db.messages().byId(RADIO.value, dto.id)?.regionScope)",
+            "name": "assertEquals",
+            "line": 377,
+            "expression": "assertEquals(message, parsed.messages.single())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotSame",
+            "line": 379,
+            "expression": "assertNotSame(source, destination)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 145,
-            "expression": "assertEquals(listOf(\"de-by\", \"de-hh\"), db.messages().byId(RADIO.value, dto.id)?.regionScopeMatches)",
+            "line": 382,
+            "expression": "assertEquals(1, restoredMessages.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 384,
+            "expression": "assertEquals(restoredMessages.single(), restored)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 386,
+            "expression": "assertNull(restored.regionScope)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 387,
+            "expression": "assertEquals(listOf(\"de-by\", \"de-hh\"), restored.regionScopeMatches)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 389,
+            "expression": "assertEquals(\"Germany\", restored.regionScope)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 390,
+            "expression": "assertTrue(restored.regionScopeMatches.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 392,
+            "expression": "assertEquals(\"Greetings\", restored.text)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 393,
+            "expression": "assertEquals(message.id, restored.id)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 395,
+            "expression": "assertEquals(message, source.fetchMessage(EntityKey(radio, message.id)))",
             "assertion_or_checked_wait": true
           }
         ],
         "actions_and_helper_calls": [
           {
-            "name": "message",
-            "line": 139,
-            "expression": "message()",
+            "name": "MeshCoreStorage.get",
+            "line": 359,
+            "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "copy",
-            "line": 139,
-            "expression": "copy(regionScope = null, regionScopeMatches = SnapshotList.of(\"de-by\", \"de-hh\"), deduplicationKey = \"region-scope-matches-roundtrip\")",
+            "name": "ApplicationProvider.getApplicationContext",
+            "line": 359,
+            "expression": "ApplicationProvider.getApplicationContext<Context>()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "SnapshotList.of",
-            "line": 139,
-            "expression": "SnapshotList.of(\"de-by\", \"de-hh\")",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "seed",
-            "line": 140,
-            "expression": "seed(envelope(messages = listOf(dto)))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "envelope",
-            "line": 140,
-            "expression": "envelope(messages = listOf(dto))",
+            "name": "for",
+            "line": 361,
+            "expression": "for (matches in listOf(false, true))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 140,
-            "expression": "listOf(dto)",
+            "line": 361,
+            "expression": "listOf(false, true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "withFreshDestination",
+            "line": 362,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 363,
+            "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 363,
+            "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "source.saveDevice",
+            "line": 364,
+            "expression": "source.saveDevice(sourceStoreDevice(radio))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceStoreDevice",
+            "line": 364,
+            "expression": "sourceStoreDevice(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ContactDTO",
+            "line": 365,
+            "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                        name = \"Alice\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 365,
+            "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 365,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 365,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "source.saveContact",
+            "line": 367,
+            "expression": "source.saveContact(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 368,
+            "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"Greetings\",\n                        timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000),\n                        regionScope = if (matches) null else \"Germany\",\n                        regionScopeMatches = if (matches) SnapshotList.of(\"de-by\", \"de-hh\") else SnapshotList.empty(),\n                        deduplicationKey = (if (matches) \"region-scope-matches-roundtrip-\" else \"region-scope-roundtrip-\") +\n                            UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 369,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 370,
+            "expression": "if (matches)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 371,
+            "expression": "if (matches)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 371,
+            "expression": "SnapshotList.of(\"de-by\", \"de-hh\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.empty",
+            "line": 371,
+            "expression": "SnapshotList.empty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 372,
+            "expression": "if (matches)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 373,
+            "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "source.saveMessage",
+            "line": 374,
+            "expression": "source.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupService",
+            "line": 375,
+            "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "AppBackupCodec",
-            "line": 141,
+            "line": 376,
             "expression": "AppBackupCodec()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "parseBackup",
-            "line": 141,
-            "expression": "parseBackup(service.export(store).data)",
+            "line": 376,
+            "expression": "parseBackup(service.export(source).data)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.export",
-            "line": 141,
-            "expression": "service.export(store)",
+            "line": 376,
+            "expression": "service.export(source)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 142,
-            "expression": "db.messages()",
+            "name": "parsed.messages.single",
+            "line": 377,
+            "expression": "parsed.messages.single()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "clearRadio",
-            "line": 142,
-            "expression": "clearRadio(RADIO.value)",
+            "name": "withFreshDestination",
+            "line": 378,
+            "expression": "withFreshDestination(backgroundScope)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.importBackup",
-            "line": 143,
-            "expression": "service.importBackup(backup, store)",
+            "line": 380,
+            "expression": "service.importBackup(parsed, destination)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 144,
-            "expression": "db.messages()",
+            "name": "service.exportEnvelope",
+            "line": 381,
+            "expression": "service.exportEnvelope(destination)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "byId",
-            "line": 144,
-            "expression": "byId(RADIO.value, dto.id)",
+            "name": "requireNotNull",
+            "line": 383,
+            "expression": "requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.fetchMessage",
+            "line": 383,
+            "expression": "destination.fetchMessage(EntityKey(radio, message.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 383,
+            "expression": "EntityKey(radio, message.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "restoredMessages.single",
+            "line": 384,
+            "expression": "restoredMessages.single()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 385,
+            "expression": "if (matches)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 145,
+            "line": 387,
             "expression": "listOf(\"de-by\", \"de-hh\")",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 145,
-            "expression": "db.messages()",
+            "name": "restored.regionScopeMatches.isEmpty",
+            "line": 390,
+            "expression": "restored.regionScopeMatches.isEmpty()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "byId",
-            "line": 145,
-            "expression": "byId(RADIO.value, dto.id)",
+            "name": "source.fetchMessage",
+            "line": 395,
+            "expression": "source.fetchMessage(EntityKey(radio, message.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 395,
+            "expression": "EntityKey(radio, message.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "storage.close",
+            "line": 399,
+            "expression": "storage.close()",
             "assertion_or_checked_wait": false
           }
         ],
@@ -28277,29 +29050,139 @@
           "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
         ],
         "explicit_original_case_ids": [
+          "BackupIntegrationTests::Message.regionScope round-trips through full export/import()",
           "BackupIntegrationTests::Message.regionScopeMatches round-trips through full export/import()"
         ],
         "execution": "exact-candidate-runner-identity-resolution-required"
       },
       "assertion_helper_inputs": [
         {
-          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
-          "sha256": "fda4f644c3d3bef95de3978a3fc757c8afffebd4b82bea67ddbbacf942ee60cf"
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+          "sha256": "15e67b5c656596423983ada907a349a77d752b68a6178fac65338eadeb59cb73"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt",
+          "sha256": "d5d8707615843ccf8e65d8bc2ae98d6210db7722b23b0ec41f7f3b6718b7461a"
         }
       ],
-      "native_checked_helper_assertions": [],
-      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 362,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        },
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 378,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
       "runner_identity": [
-        "com.meshcoreone.android.core.data.backup.BackupFieldIntegrationTest",
-        "ambiguousScopesSurviveRealPipelineWithoutInventingSingleScope"
+        "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -28384,9 +29267,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -28471,9 +29354,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -28570,9 +29453,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -28675,9 +29558,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -28768,9 +29651,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -28879,9 +29762,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -29026,9 +29909,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -29584,9 +30467,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -29834,10 +30717,10 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
-      "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "group": "backup-original-same-path-hearings-fresh-restore-and-merge",
+      "comparison_sha256": "161d0c0a5e1f7457a2a68d77ef6d2f7d751866a79e18157d6b1fc259c60de165",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 2,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -29878,233 +30761,557 @@
       ],
       "original_inputs": null,
       "native": {
-        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageIntegrationTest.kt",
-        "sha256": "d28242e644aa422077a87899ec2fbcbe2ba30ed9f7cf9adea7417d40bdb82082",
-        "class": "com.meshcoreone.android.core.data.backup.BackupMessageIntegrationTest",
-        "method_or_family_name": "outgoingSamePathMergePreservesFourSeparateHearings",
-        "line": 92,
-        "end_line": 100,
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+        "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "method_or_family_name": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
+        "line": 441,
+        "end_line": 502,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "1dc70d755917a558b4e7d52afb66379a87fe19bb173b80732126cde415e880f8",
+        "body_sha256": "b42bf2914823218f2ddc4966a8cf931510de98beafff2175715ec24accec0598",
         "registration": null,
         "assertions": [
           {
-            "name": "assertEquals",
-            "line": 97,
-            "expression": "assertEquals(1L, result.count(BackupModelKind.MESSAGES).skipped)",
+            "name": "assertNotEquals",
+            "line": 457,
+            "expression": "assertNotEquals(first.id, second.id)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 97,
-            "expression": "assertEquals(2L, result.count(BackupModelKind.MESSAGE_REPEATS).inserted)",
+            "line": 465,
+            "expression": "assertEquals(2L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 98,
-            "expression": "assertEquals(4, db.repeats().forMessage(RADIO.value, id(4)).size)",
+            "line": 466,
+            "expression": "assertEquals(0L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).skipped)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 99,
-            "expression": "assertEquals(4L, db.messages().byId(RADIO.value, id(4))?.heardRepeats)",
+            "line": 468,
+            "expression": "assertEquals(2, repeats.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 469,
+            "expression": "assertEquals(setOf(first.id, second.id), repeats.map { it.id }.toSet())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 470,
+            "expression": "assertEquals(2L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 471,
+            "expression": "assertTrue(repeats.all { it.pathNodes == Bytes.of(0x42) })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 473,
+            "expression": "assertEquals(setOf(first.id, second.id), store.fetchMessageRepeats(parent).map { it.id }.toSet())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 474,
+            "expression": "assertEquals(message, store.fetchMessage(parent))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 491,
+            "expression": "assertEquals(1L, merged.counts.getValue(BackupModelKind.MESSAGES).skipped)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 492,
+            "expression": "assertEquals(2L, merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 494,
+            "expression": "assertEquals(4, all.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 495,
+            "expression": "assertEquals(setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id), all.map { it.id }.toSet())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 496,
+            "expression": "assertTrue(all.all { it.pathNodes == Bytes.of(0x42) && it.rxLogEntryID == null })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 497,
+            "expression": "assertEquals(4L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
             "assertion_or_checked_wait": true
           }
         ],
         "actions_and_helper_calls": [
           {
-            "name": "seed",
-            "line": 93,
-            "expression": "seed(envelope(messages = listOf(message())))",
+            "name": "MeshCoreStorage.get",
+            "line": 442,
+            "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "envelope",
-            "line": 93,
-            "expression": "envelope(messages = listOf(message()))",
+            "name": "ApplicationProvider.getApplicationContext",
+            "line": 442,
+            "expression": "ApplicationProvider.getApplicationContext<Context>()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "listOf",
-            "line": 93,
-            "expression": "listOf(message())",
+            "name": "RadioId",
+            "line": 444,
+            "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "message",
-            "line": 93,
-            "expression": "message()",
+            "name": "UUID.fromString",
+            "line": 444,
+            "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.repeats",
-            "line": 94,
-            "expression": "db.repeats()",
+            "name": "store.saveDevice",
+            "line": 445,
+            "expression": "store.saveDevice(sourceStoreDevice(radio))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "insert",
-            "line": 94,
-            "expression": "insert(repeat().toEntity(RADIO, id(4)))",
+            "name": "sourceStoreDevice",
+            "line": 445,
+            "expression": "sourceStoreDevice(radio)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "repeat",
-            "line": 94,
-            "expression": "repeat()",
+            "name": "ContactDTO",
+            "line": 446,
+            "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                name = \"TestContact\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "toEntity",
-            "line": 94,
-            "expression": "toEntity(RADIO, id(4))",
+            "name": "Bytes",
+            "line": 446,
+            "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 94,
-            "expression": "id(4)",
+            "name": "ByteArray",
+            "line": 446,
+            "expression": "ByteArray(32)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.repeats",
-            "line": 94,
-            "expression": "db.repeats()",
+            "name": "toByte",
+            "line": 446,
+            "expression": "toByte()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "insert",
-            "line": 94,
-            "expression": "insert(repeat(id = id(50)).toEntity(RADIO, id(4)))",
+            "name": "store.saveContact",
+            "line": 448,
+            "expression": "store.saveContact(contact)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "repeat",
-            "line": 94,
-            "expression": "repeat(id = id(50))",
+            "name": "MessageDTO",
+            "line": 449,
+            "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"echoed\",\n                timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 94,
-            "expression": "id(50)",
+            "name": "Instant.ofEpochSecond",
+            "line": 450,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "toEntity",
-            "line": 94,
-            "expression": "toEntity(RADIO, id(4))",
+            "name": "store.saveMessage",
+            "line": 451,
+            "expression": "store.saveMessage(message)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 94,
-            "expression": "id(4)",
+            "name": "MessageRepeatDTO",
+            "line": 452,
+            "expression": "MessageRepeatDTO(messageID = message.id, receivedAt = message.createdAt,\n                pathNodes = Bytes.of(0x42), pathLength = 0u, snr = 8.5, rssi = -90,\n                rxLogEntryID = UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 453,
+            "expression": "Bytes.of(0x42)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 454,
+            "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "first.copy",
+            "line": 455,
+            "expression": "first.copy(id = UUID.randomUUID(),\n                rxLogEntryID = UUID.fromString(\"22222222-2222-3333-4444-555555555555\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 455,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 456,
+            "expression": "UUID.fromString(\"22222222-2222-3333-4444-555555555555\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessageRepeat",
+            "line": 458,
+            "expression": "store.saveMessageRepeat(radio, first)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessageRepeat",
+            "line": 459,
+            "expression": "store.saveMessageRepeat(radio, second)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupService",
+            "line": 460,
+            "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupCodec",
+            "line": 461,
+            "expression": "AppBackupCodec()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "parseBackup",
+            "line": 461,
+            "expression": "parseBackup(service.export(store).data)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "service.export",
+            "line": 461,
+            "expression": "service.export(store)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 462,
+            "expression": "EntityKey(radio, message.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "withFreshDestination",
+            "line": 463,
+            "expression": "withFreshDestination(backgroundScope)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.importBackup",
-            "line": 95,
-            "expression": "service.importBackup(envelope(messages = listOf(message()),\n            repeats = listOf(repeat(id = id(51)), repeat(id = id(52)))), store)",
+            "line": 464,
+            "expression": "service.importBackup(parsed, destination)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "envelope",
-            "line": 95,
-            "expression": "envelope(messages = listOf(message()),\n            repeats = listOf(repeat(id = id(51)), repeat(id = id(52))))",
+            "name": "result.counts.getValue",
+            "line": 465,
+            "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "listOf",
-            "line": 95,
-            "expression": "listOf(message())",
+            "name": "result.counts.getValue",
+            "line": 466,
+            "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "message",
-            "line": 95,
-            "expression": "message()",
+            "name": "destination.fetchMessageRepeats",
+            "line": 467,
+            "expression": "destination.fetchMessageRepeats(parent)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "listOf",
-            "line": 96,
-            "expression": "listOf(repeat(id = id(51)), repeat(id = id(52)))",
+            "name": "setOf",
+            "line": 469,
+            "expression": "setOf(first.id, second.id)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "repeat",
-            "line": 96,
-            "expression": "repeat(id = id(51))",
+            "name": "toSet",
+            "line": 469,
+            "expression": "toSet()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 96,
-            "expression": "id(51)",
+            "name": "requireNotNull",
+            "line": 470,
+            "expression": "requireNotNull(destination.fetchMessage(parent))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "repeat",
-            "line": 96,
-            "expression": "repeat(id = id(52))",
+            "name": "destination.fetchMessage",
+            "line": 470,
+            "expression": "destination.fetchMessage(parent)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 96,
-            "expression": "id(52)",
+            "name": "Bytes.of",
+            "line": 471,
+            "expression": "Bytes.of(0x42)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "result.count",
-            "line": 97,
-            "expression": "result.count(BackupModelKind.MESSAGES)",
+            "name": "setOf",
+            "line": 473,
+            "expression": "setOf(first.id, second.id)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "result.count",
-            "line": 97,
-            "expression": "result.count(BackupModelKind.MESSAGE_REPEATS)",
+            "name": "store.fetchMessageRepeats",
+            "line": 473,
+            "expression": "store.fetchMessageRepeats(parent)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.repeats",
-            "line": 98,
-            "expression": "db.repeats()",
+            "name": "toSet",
+            "line": 473,
+            "expression": "toSet()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "forMessage",
-            "line": 98,
-            "expression": "forMessage(RADIO.value, id(4))",
+            "name": "store.fetchMessage",
+            "line": 474,
+            "expression": "store.fetchMessage(parent)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 98,
-            "expression": "id(4)",
+            "name": "withFreshDestination",
+            "line": 475,
+            "expression": "withFreshDestination(backgroundScope)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 99,
-            "expression": "db.messages()",
+            "name": "destination.saveDevice",
+            "line": 476,
+            "expression": "destination.saveDevice(sourceStoreDevice(radio))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "byId",
-            "line": 99,
-            "expression": "byId(RADIO.value, id(4))",
+            "name": "sourceStoreDevice",
+            "line": 476,
+            "expression": "sourceStoreDevice(radio)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 99,
-            "expression": "id(4)",
+            "name": "destination.saveContact",
+            "line": 477,
+            "expression": "destination.saveContact(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveMessage",
+            "line": 478,
+            "expression": "destination.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "first.copy",
+            "line": 479,
+            "expression": "first.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 479,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "second.copy",
+            "line": 480,
+            "expression": "second.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 480,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveMessageRepeat",
+            "line": 481,
+            "expression": "destination.saveMessageRepeat(radio, localOne)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveMessageRepeat",
+            "line": 482,
+            "expression": "destination.saveMessageRepeat(radio, localTwo)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "localOne.copy",
+            "line": 483,
+            "expression": "localOne.copy(id = UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 483,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "localTwo.copy",
+            "line": 484,
+            "expression": "localTwo.copy(id = UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 484,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupEnvelope",
+            "line": 485,
+            "expression": "AppBackupEnvelope(exportDate = message.createdAt, appVersion = \"1\", appBuild = \"1\",\n                    devices = SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)),\n                    contacts = SnapshotList.of(contact), messages = SnapshotList.of(message.copy(heardRepeats = 0)),\n                    messageRepeats = SnapshotList.of(extraOne, extraTwo))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 486,
+            "expression": "SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceStoreDevice",
+            "line": 486,
+            "expression": "sourceStoreDevice(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 486,
+            "expression": "copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 488,
+            "expression": "SnapshotList.of(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 488,
+            "expression": "SnapshotList.of(message.copy(heardRepeats = 0))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "message.copy",
+            "line": 488,
+            "expression": "message.copy(heardRepeats = 0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 489,
+            "expression": "SnapshotList.of(extraOne, extraTwo)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "withActualManifest",
+            "line": 489,
+            "expression": "withActualManifest()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "service.importBackup",
+            "line": 490,
+            "expression": "service.importBackup(envelope, destination)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "merged.counts.getValue",
+            "line": 491,
+            "expression": "merged.counts.getValue(BackupModelKind.MESSAGES)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "merged.counts.getValue",
+            "line": 492,
+            "expression": "merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.fetchMessageRepeats",
+            "line": 493,
+            "expression": "destination.fetchMessageRepeats(parent)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "setOf",
+            "line": 495,
+            "expression": "setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toSet",
+            "line": 495,
+            "expression": "toSet()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 496,
+            "expression": "Bytes.of(0x42)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "requireNotNull",
+            "line": 497,
+            "expression": "requireNotNull(destination.fetchMessage(parent))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.fetchMessage",
+            "line": 497,
+            "expression": "destination.fetchMessage(parent)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "storage.close",
+            "line": 500,
+            "expression": "storage.close()",
             "assertion_or_checked_wait": false
           }
         ],
@@ -30112,29 +31319,135 @@
           "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
         ],
         "explicit_original_case_ids": [
+          "BackupIntegrationTests::Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed()",
           "BackupIntegrationTests::Outgoing same-path repeats are not collapsed on merge import()"
         ],
         "execution": "exact-candidate-runner-identity-resolution-required"
       },
       "assertion_helper_inputs": [
         {
-          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
-          "sha256": "fda4f644c3d3bef95de3978a3fc757c8afffebd4b82bea67ddbbacf942ee60cf"
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+          "sha256": "15e67b5c656596423983ada907a349a77d752b68a6178fac65338eadeb59cb73"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+          "sha256": "39d4e099ef8e51fd4b9292e5e638a3ea306b5a26ec8601da6669bbd29ccf09d0"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
         },
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt",
           "sha256": "d5d8707615843ccf8e65d8bc2ae98d6210db7722b23b0ec41f7f3b6718b7461a"
-        },
-        {
-          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt",
-          "sha256": "976fbabeb88ea22fc958027735be211c3af1f2daa0bb530bc143847ac3e0897a"
         }
       ],
-      "native_checked_helper_assertions": [],
-      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 463,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        },
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 475,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
       "runner_identity": [
-        "com.meshcoreone.android.core.data.backup.BackupMessageIntegrationTest",
-        "outgoingSamePathMergePreservesFourSeparateHearings"
+        "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -30196,7 +31509,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-        "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
         "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
         "method_or_family_name": "original32ByteStaleSecretCannotOverwriteReconfiguredLiveChannel",
         "line": 160,
@@ -30482,7 +31795,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -30719,10 +32032,10 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
-      "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "group": "backup-original-same-path-hearings-fresh-restore-and-merge",
+      "comparison_sha256": "161d0c0a5e1f7457a2a68d77ef6d2f7d751866a79e18157d6b1fc259c60de165",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 2,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -30775,269 +32088,557 @@
       ],
       "original_inputs": null,
       "native": {
-        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageIntegrationTest.kt",
-        "sha256": "d28242e644aa422077a87899ec2fbcbe2ba30ed9f7cf9adea7417d40bdb82082",
-        "class": "com.meshcoreone.android.core.data.backup.BackupMessageIntegrationTest",
-        "method_or_family_name": "outgoingDistinctHearingsOfSamePathRetainBothIdentities",
-        "line": 52,
-        "end_line": 64,
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+        "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "method_or_family_name": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
+        "line": 441,
+        "end_line": 502,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "e38f1f6bf1f6cd75b464182a955409f1d86dfbb97886fcc70c4aebd464bb746e",
+        "body_sha256": "b42bf2914823218f2ddc4966a8cf931510de98beafff2175715ec24accec0598",
         "registration": null,
         "assertions": [
           {
-            "name": "assertEquals",
-            "line": 60,
-            "expression": "assertEquals(2L, result.count(BackupModelKind.MESSAGE_REPEATS).inserted)",
+            "name": "assertNotEquals",
+            "line": 457,
+            "expression": "assertNotEquals(first.id, second.id)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 60,
-            "expression": "assertEquals(0L, result.count(BackupModelKind.MESSAGE_REPEATS).skipped)",
+            "line": 465,
+            "expression": "assertEquals(2L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 62,
-            "expression": "assertEquals(2, actual.size)",
+            "line": 466,
+            "expression": "assertEquals(0L, result.counts.getValue(BackupModelKind.MESSAGE_REPEATS).skipped)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 62,
-            "expression": "assertEquals(setOf(first.id, second.id), actual.map { it.id }.toSet())",
+            "line": 468,
+            "expression": "assertEquals(2, repeats.size)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 63,
-            "expression": "assertEquals(2L, db.messages().byId(RADIO.value, id(4))?.heardRepeats)",
+            "line": 469,
+            "expression": "assertEquals(setOf(first.id, second.id), repeats.map { it.id }.toSet())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 470,
+            "expression": "assertEquals(2L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 471,
+            "expression": "assertTrue(repeats.all { it.pathNodes == Bytes.of(0x42) })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 473,
+            "expression": "assertEquals(setOf(first.id, second.id), store.fetchMessageRepeats(parent).map { it.id }.toSet())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 474,
+            "expression": "assertEquals(message, store.fetchMessage(parent))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 491,
+            "expression": "assertEquals(1L, merged.counts.getValue(BackupModelKind.MESSAGES).skipped)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 492,
+            "expression": "assertEquals(2L, merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS).inserted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 494,
+            "expression": "assertEquals(4, all.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 495,
+            "expression": "assertEquals(setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id), all.map { it.id }.toSet())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 496,
+            "expression": "assertTrue(all.all { it.pathNodes == Bytes.of(0x42) && it.rxLogEntryID == null })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 497,
+            "expression": "assertEquals(4L, requireNotNull(destination.fetchMessage(parent)).heardRepeats)",
             "assertion_or_checked_wait": true
           }
         ],
         "actions_and_helper_calls": [
           {
-            "name": "seed",
-            "line": 53,
-            "expression": "seed(envelope(devices = listOf(device()), messages = listOf(message())))",
+            "name": "MeshCoreStorage.get",
+            "line": 442,
+            "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "envelope",
-            "line": 53,
-            "expression": "envelope(devices = listOf(device()), messages = listOf(message()))",
+            "name": "ApplicationProvider.getApplicationContext",
+            "line": 442,
+            "expression": "ApplicationProvider.getApplicationContext<Context>()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "listOf",
-            "line": 53,
-            "expression": "listOf(device())",
+            "name": "RadioId",
+            "line": 444,
+            "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "device",
-            "line": 53,
-            "expression": "device()",
+            "name": "UUID.fromString",
+            "line": 444,
+            "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "listOf",
-            "line": 53,
-            "expression": "listOf(message())",
+            "name": "store.saveDevice",
+            "line": 445,
+            "expression": "store.saveDevice(sourceStoreDevice(radio))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "message",
-            "line": 53,
-            "expression": "message()",
+            "name": "sourceStoreDevice",
+            "line": 445,
+            "expression": "sourceStoreDevice(radio)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "repeat",
-            "line": 54,
-            "expression": "repeat(path = Bytes.of(0x42))",
+            "name": "ContactDTO",
+            "line": 446,
+            "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                name = \"TestContact\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 446,
+            "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 446,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 446,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveContact",
+            "line": 448,
+            "expression": "store.saveContact(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 449,
+            "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"echoed\",\n                timestamp = 1_700_000_000u, createdAt = Instant.ofEpochSecond(1_700_000_000))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 450,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveMessage",
+            "line": 451,
+            "expression": "store.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageRepeatDTO",
+            "line": 452,
+            "expression": "MessageRepeatDTO(messageID = message.id, receivedAt = message.createdAt,\n                pathNodes = Bytes.of(0x42), pathLength = 0u, snr = 8.5, rssi = -90,\n                rxLogEntryID = UUID.fromString(\"11111111-2222-3333-4444-555555555555\"))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 54,
+            "line": 453,
             "expression": "Bytes.of(0x42)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "copy",
-            "line": 54,
-            "expression": "copy(rxLogEntryID = id(100))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "id",
-            "line": 54,
-            "expression": "id(100)",
+            "name": "UUID.fromString",
+            "line": 454,
+            "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first.copy",
-            "line": 55,
-            "expression": "first.copy(id = id(50), rxLogEntryID = id(101))",
+            "line": 455,
+            "expression": "first.copy(id = UUID.randomUUID(),\n                rxLogEntryID = UUID.fromString(\"22222222-2222-3333-4444-555555555555\"))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 55,
-            "expression": "id(50)",
+            "name": "UUID.randomUUID",
+            "line": 455,
+            "expression": "UUID.randomUUID()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 55,
-            "expression": "id(101)",
+            "name": "UUID.fromString",
+            "line": 456,
+            "expression": "UUID.fromString(\"22222222-2222-3333-4444-555555555555\")",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.repeats",
-            "line": 56,
-            "expression": "db.repeats()",
+            "name": "store.saveMessageRepeat",
+            "line": 458,
+            "expression": "store.saveMessageRepeat(radio, first)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "insert",
-            "line": 56,
-            "expression": "insert(first.toEntity(RADIO, id(4)))",
+            "name": "store.saveMessageRepeat",
+            "line": 459,
+            "expression": "store.saveMessageRepeat(radio, second)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "first.toEntity",
-            "line": 56,
-            "expression": "first.toEntity(RADIO, id(4))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "id",
-            "line": 56,
-            "expression": "id(4)",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "db.repeats",
-            "line": 56,
-            "expression": "db.repeats()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "insert",
-            "line": 56,
-            "expression": "insert(second.toEntity(RADIO, id(4)))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "second.toEntity",
-            "line": 56,
-            "expression": "second.toEntity(RADIO, id(4))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "id",
-            "line": 56,
-            "expression": "id(4)",
+            "name": "AppBackupService",
+            "line": 460,
+            "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "AppBackupCodec",
-            "line": 57,
+            "line": 461,
             "expression": "AppBackupCodec()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "parseBackup",
-            "line": 57,
+            "line": 461,
             "expression": "parseBackup(service.export(store).data)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.export",
-            "line": 57,
+            "line": 461,
             "expression": "service.export(store)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 58,
-            "expression": "db.messages()",
+            "name": "EntityKey",
+            "line": 462,
+            "expression": "EntityKey(radio, message.id)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "clearRadio",
-            "line": 58,
-            "expression": "clearRadio(RADIO.value)",
+            "name": "withFreshDestination",
+            "line": 463,
+            "expression": "withFreshDestination(backgroundScope)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.importBackup",
-            "line": 59,
-            "expression": "service.importBackup(backup, store)",
+            "line": 464,
+            "expression": "service.importBackup(parsed, destination)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "result.count",
-            "line": 60,
-            "expression": "result.count(BackupModelKind.MESSAGE_REPEATS)",
+            "name": "result.counts.getValue",
+            "line": 465,
+            "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "result.count",
-            "line": 60,
-            "expression": "result.count(BackupModelKind.MESSAGE_REPEATS)",
+            "name": "result.counts.getValue",
+            "line": 466,
+            "expression": "result.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.repeats",
-            "line": 61,
-            "expression": "db.repeats()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "forMessage",
-            "line": 61,
-            "expression": "forMessage(RADIO.value, id(4))",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "id",
-            "line": 61,
-            "expression": "id(4)",
+            "name": "destination.fetchMessageRepeats",
+            "line": 467,
+            "expression": "destination.fetchMessageRepeats(parent)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "setOf",
-            "line": 62,
+            "line": 469,
             "expression": "setOf(first.id, second.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "toSet",
-            "line": 62,
+            "line": 469,
             "expression": "toSet()",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 63,
-            "expression": "db.messages()",
+            "name": "requireNotNull",
+            "line": 470,
+            "expression": "requireNotNull(destination.fetchMessage(parent))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "byId",
-            "line": 63,
-            "expression": "byId(RADIO.value, id(4))",
+            "name": "destination.fetchMessage",
+            "line": 470,
+            "expression": "destination.fetchMessage(parent)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "id",
-            "line": 63,
-            "expression": "id(4)",
+            "name": "Bytes.of",
+            "line": 471,
+            "expression": "Bytes.of(0x42)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "setOf",
+            "line": 473,
+            "expression": "setOf(first.id, second.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessageRepeats",
+            "line": 473,
+            "expression": "store.fetchMessageRepeats(parent)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toSet",
+            "line": 473,
+            "expression": "toSet()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 474,
+            "expression": "store.fetchMessage(parent)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "withFreshDestination",
+            "line": 475,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveDevice",
+            "line": 476,
+            "expression": "destination.saveDevice(sourceStoreDevice(radio))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceStoreDevice",
+            "line": 476,
+            "expression": "sourceStoreDevice(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveContact",
+            "line": 477,
+            "expression": "destination.saveContact(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveMessage",
+            "line": 478,
+            "expression": "destination.saveMessage(message)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "first.copy",
+            "line": 479,
+            "expression": "first.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 479,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "second.copy",
+            "line": 480,
+            "expression": "second.copy(id = UUID.randomUUID(), rxLogEntryID = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 480,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveMessageRepeat",
+            "line": 481,
+            "expression": "destination.saveMessageRepeat(radio, localOne)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.saveMessageRepeat",
+            "line": 482,
+            "expression": "destination.saveMessageRepeat(radio, localTwo)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "localOne.copy",
+            "line": 483,
+            "expression": "localOne.copy(id = UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 483,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "localTwo.copy",
+            "line": 484,
+            "expression": "localTwo.copy(id = UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 484,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "AppBackupEnvelope",
+            "line": 485,
+            "expression": "AppBackupEnvelope(exportDate = message.createdAt, appVersion = \"1\", appBuild = \"1\",\n                    devices = SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)),\n                    contacts = SnapshotList.of(contact), messages = SnapshotList.of(message.copy(heardRepeats = 0)),\n                    messageRepeats = SnapshotList.of(extraOne, extraTwo))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 486,
+            "expression": "SnapshotList.of(sourceStoreDevice(radio).copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceStoreDevice",
+            "line": 486,
+            "expression": "sourceStoreDevice(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 486,
+            "expression": "copy(firmwareVersion = 9u,\n                        firmwareVersionString = \"v1.13.0\", multiAcks = 2u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 488,
+            "expression": "SnapshotList.of(contact)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 488,
+            "expression": "SnapshotList.of(message.copy(heardRepeats = 0))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "message.copy",
+            "line": 488,
+            "expression": "message.copy(heardRepeats = 0)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 489,
+            "expression": "SnapshotList.of(extraOne, extraTwo)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "withActualManifest",
+            "line": 489,
+            "expression": "withActualManifest()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "service.importBackup",
+            "line": 490,
+            "expression": "service.importBackup(envelope, destination)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "merged.counts.getValue",
+            "line": 491,
+            "expression": "merged.counts.getValue(BackupModelKind.MESSAGES)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "merged.counts.getValue",
+            "line": 492,
+            "expression": "merged.counts.getValue(BackupModelKind.MESSAGE_REPEATS)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.fetchMessageRepeats",
+            "line": 493,
+            "expression": "destination.fetchMessageRepeats(parent)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "setOf",
+            "line": 495,
+            "expression": "setOf(localOne.id, localTwo.id, extraOne.id, extraTwo.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toSet",
+            "line": 495,
+            "expression": "toSet()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.of",
+            "line": 496,
+            "expression": "Bytes.of(0x42)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "requireNotNull",
+            "line": 497,
+            "expression": "requireNotNull(destination.fetchMessage(parent))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "destination.fetchMessage",
+            "line": 497,
+            "expression": "destination.fetchMessage(parent)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "storage.close",
+            "line": 500,
+            "expression": "storage.close()",
             "assertion_or_checked_wait": false
           }
         ],
@@ -31045,29 +32646,135 @@
           "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
         ],
         "explicit_original_case_ids": [
-          "BackupIntegrationTests::Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed()"
+          "BackupIntegrationTests::Repeats with identical path but distinct ids survive round-trip and heardRepeats is recomputed()",
+          "BackupIntegrationTests::Outgoing same-path repeats are not collapsed on merge import()"
         ],
         "execution": "exact-candidate-runner-identity-resolution-required"
       },
       "assertion_helper_inputs": [
         {
-          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
-          "sha256": "fda4f644c3d3bef95de3978a3fc757c8afffebd4b82bea67ddbbacf942ee60cf"
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+          "sha256": "15e67b5c656596423983ada907a349a77d752b68a6178fac65338eadeb59cb73"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+          "sha256": "736efe4dd9e24448827551e368f33183a12d30394f7e6761b38153fbf593756d"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageRepeatDTO+Testing.swift",
+          "sha256": "39d4e099ef8e51fd4b9292e5e638a3ea306b5a26ec8601da6669bbd29ccf09d0"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
         },
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt",
           "sha256": "d5d8707615843ccf8e65d8bc2ae98d6210db7722b23b0ec41f7f3b6718b7461a"
-        },
-        {
-          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt",
-          "sha256": "976fbabeb88ea22fc958027735be211c3af1f2daa0bb530bc143847ac3e0897a"
         }
       ],
-      "native_checked_helper_assertions": [],
-      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 463,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        },
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 475,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
       "runner_identity": [
-        "com.meshcoreone.android.core.data.backup.BackupMessageIntegrationTest",
-        "outgoingDistinctHearingsOfSamePathRetainBothIdentities"
+        "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -31326,9 +33033,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -31455,9 +33162,9 @@
     },
     {
       "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "comparison_sha256": "21356ae26ace0e7036e7863764fdfcbe8f6498cf64abfd5612e194d13aa29a07",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 23,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -31542,9 +33249,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -31751,9 +33458,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -31972,9 +33679,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -32235,9 +33942,9 @@
     },
     {
       "group": "backup-integration-message-actions-and-nil-empty-path-arrivals",
-      "comparison_sha256": "1eb471ee35d3d9687ab2e957fa37d0e3efc5d87cfbf4cbccecbb9ddd8d07cf03",
+      "comparison_sha256": "daee0100e21982943257672b7d311290170c00c928bbc5e7c2e97c3c042a56c0",
       "source_file_family_count": 127,
-      "group_compared_family_count": 11,
+      "group_compared_family_count": 9,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -32989,7 +34696,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-        "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
         "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
         "method_or_family_name": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
         "line": 27,
@@ -33599,7 +35306,7 @@
       "assertion_helper_inputs": [
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         },
         {
           "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
@@ -33682,7 +35389,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-        "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
         "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
         "method_or_family_name": "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy",
         "line": 191,
@@ -34148,7 +35855,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28"
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -35209,10 +36916,10 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
-      "group": "backup-integration-complete-message-snapshot-and-legacy-field-families",
-      "comparison_sha256": "34ae1ae3ca0b2ebac46f670a261274390f9babdc1a1fde9a12e335e0236ed1db",
+      "group": "backup-original-live-send-metadata-distinct-room",
+      "comparison_sha256": "bdef76f9b9b525b1fc70645ee5312058702b1b617d7386469c3a1e31de9b2126",
       "source_file_family_count": 127,
-      "group_compared_family_count": 26,
+      "group_compared_family_count": 1,
       "partial_source_file": true,
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "source_blob_sha": "5f8d9ed7837537e5945f6097c4e43ac19a8e3fd2",
@@ -35283,167 +36990,251 @@
       ],
       "original_inputs": null,
       "native": {
-        "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupFieldIntegrationTest.kt",
-        "sha256": "f815bd753dfabc209a11dd49675b9aa640cc185b8a6d8a5a7ae48b0079be08c8",
-        "class": "com.meshcoreone.android.core.data.backup.BackupFieldIntegrationTest",
-        "method_or_family_name": "liveRepositorySendMetadataFlowsThroughActualBackup",
-        "line": 231,
-        "end_line": 244,
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+        "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "method_or_family_name": "originalSavedMessageMetadataSurvivesDistinctRoomExportImport",
+        "line": 404,
+        "end_line": 437,
         "factory_method": null,
         "registration_identity_resolution": null,
-        "body_sha256": "05f7f9e5d821fea2e543c25332dd40c879971ff25a50b6e439142031f791fb0e",
+        "body_sha256": "0af602a19ffca0ef565d59de213552db268818e9ace31d91640677a599c2f7a0",
         "registration": null,
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 236,
+            "line": 417,
             "expression": "assertEquals(3L, saved.sendCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 236,
-            "expression": "assertEquals(dto.linkPreviewURL, saved.linkPreviewURL)",
+            "line": 418,
+            "expression": "assertEquals(\"https://example.com\", saved.linkPreviewURL)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 237,
+            "line": 419,
             "expression": "assertEquals(\"Example\", saved.linkPreviewTitle)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 237,
-            "expression": "assertEquals(dto.reactionSummary, saved.reactionSummary)",
+            "line": 420,
+            "expression": "assertEquals(\"\\uD83D\\uDC4D:2\", saved.reactionSummary)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 242,
-            "expression": "assertEquals(3L, actual.sendCount)",
+            "line": 426,
+            "expression": "assertEquals(3L, imported.sendCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 242,
-            "expression": "assertEquals(dto.linkPreviewURL, actual.linkPreviewURL)",
+            "line": 427,
+            "expression": "assertEquals(\"https://example.com\", imported.linkPreviewURL)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 243,
-            "expression": "assertEquals(\"Example\", actual.linkPreviewTitle)",
+            "line": 428,
+            "expression": "assertEquals(\"Example\", imported.linkPreviewTitle)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 243,
-            "expression": "assertEquals(dto.reactionSummary, actual.reactionSummary)",
+            "line": 429,
+            "expression": "assertEquals(\"\\uD83D\\uDC4D:2\", imported.reactionSummary)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 430,
+            "expression": "assertEquals(\"Test message\", imported.text)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 431,
+            "expression": "assertTrue(destination.fetchContacts(radio).isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 433,
+            "expression": "assertEquals(saved, store.fetchMessage(EntityKey(radio, message.id)))",
             "assertion_or_checked_wait": true
           }
         ],
         "actions_and_helper_calls": [
           {
-            "name": "message",
-            "line": 232,
-            "expression": "message()",
+            "name": "MeshCoreStorage.get",
+            "line": 405,
+            "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "copy",
-            "line": 232,
-            "expression": "copy(sendCount = 3, deduplicationKey = \"save-message-fields\", linkPreviewURL = \"https://example.com\",\n            linkPreviewTitle = \"Example\", reactionSummary = \"\\uD83D\\uDC4D:2\")",
+            "name": "ApplicationProvider.getApplicationContext",
+            "line": 405,
+            "expression": "ApplicationProvider.getApplicationContext<Context>()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 407,
+            "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 407,
+            "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 408,
+            "expression": "store.saveDevice(sourceStoreDevice(radio))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceStoreDevice",
+            "line": 408,
+            "expression": "sourceStoreDevice(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MessageDTO",
+            "line": 409,
+            "expression": "MessageDTO(radioId = radio,\n                contactID = UUID.fromString(\"11111111-2222-3333-4444-555555555555\"),\n                text = \"Test message\", timestamp = 1_700_000_000u,\n                createdAt = Instant.ofEpochSecond(1_700_000_000), sendCount = 3,\n                deduplicationKey = \"save-message-fields-\" + UUID.fromString(\"22222222-2222-3333-4444-555555555555\"),\n                linkPreviewURL = \"https://example.com\", linkPreviewTitle = \"Example\", reactionSummary = \"\\uD83D\\uDC4D:2\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 410,
+            "expression": "UUID.fromString(\"11111111-2222-3333-4444-555555555555\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Instant.ofEpochSecond",
+            "line": 412,
+            "expression": "Instant.ofEpochSecond(1_700_000_000)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.fromString",
+            "line": 413,
+            "expression": "UUID.fromString(\"22222222-2222-3333-4444-555555555555\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "store.saveMessage",
-            "line": 234,
-            "expression": "store.saveMessage(dto)",
+            "line": 415,
+            "expression": "store.saveMessage(message)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "requireNotNull",
-            "line": 235,
-            "expression": "requireNotNull(db.messages().byId(RADIO.value, dto.id))",
+            "line": 416,
+            "expression": "requireNotNull(store.fetchMessage(EntityKey(radio, message.id)))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 235,
-            "expression": "db.messages()",
+            "name": "store.fetchMessage",
+            "line": 416,
+            "expression": "store.fetchMessage(EntityKey(radio, message.id))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "byId",
-            "line": 235,
-            "expression": "byId(RADIO.value, dto.id)",
+            "name": "EntityKey",
+            "line": 416,
+            "expression": "EntityKey(radio, message.id)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "toDTO",
-            "line": 235,
-            "expression": "toDTO()",
+            "name": "AppBackupService",
+            "line": 421,
+            "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
             "assertion_or_checked_wait": false
           },
           {
             "name": "AppBackupCodec",
-            "line": 238,
+            "line": 422,
             "expression": "AppBackupCodec()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "parseBackup",
-            "line": 238,
+            "line": 422,
             "expression": "parseBackup(service.export(store).data)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.export",
-            "line": 238,
+            "line": 422,
             "expression": "service.export(store)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 239,
-            "expression": "db.messages()",
-            "assertion_or_checked_wait": false
-          },
-          {
-            "name": "clearRadio",
-            "line": 239,
-            "expression": "clearRadio(RADIO.value)",
+            "name": "withFreshDestination",
+            "line": 423,
+            "expression": "withFreshDestination(backgroundScope)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "service.importBackup",
-            "line": 240,
-            "expression": "service.importBackup(backup, store)",
+            "line": 424,
+            "expression": "service.importBackup(parsed, destination)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "requireNotNull",
-            "line": 241,
-            "expression": "requireNotNull(db.messages().byId(RADIO.value, dto.id))",
+            "line": 425,
+            "expression": "requireNotNull(destination.fetchMessage(EntityKey(radio, message.id)))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "db.messages",
-            "line": 241,
-            "expression": "db.messages()",
+            "name": "destination.fetchMessage",
+            "line": 425,
+            "expression": "destination.fetchMessage(EntityKey(radio, message.id))",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "byId",
-            "line": 241,
-            "expression": "byId(RADIO.value, dto.id)",
+            "name": "EntityKey",
+            "line": 425,
+            "expression": "EntityKey(radio, message.id)",
             "assertion_or_checked_wait": false
           },
           {
-            "name": "toDTO",
-            "line": 241,
-            "expression": "toDTO()",
+            "name": "destination.fetchContacts",
+            "line": 431,
+            "expression": "destination.fetchContacts(radio)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "isEmpty",
+            "line": 431,
+            "expression": "isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchMessage",
+            "line": 433,
+            "expression": "store.fetchMessage(EntityKey(radio, message.id))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "EntityKey",
+            "line": 433,
+            "expression": "EntityKey(radio, message.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "storage.close",
+            "line": 435,
+            "expression": "storage.close()",
             "assertion_or_checked_wait": false
           }
         ],
@@ -35457,15 +37248,78 @@
       },
       "assertion_helper_inputs": [
         {
-          "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
-          "sha256": "fda4f644c3d3bef95de3978a3fc757c8afffebd4b82bea67ddbbacf942ee60cf"
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+          "sha256": "15e67b5c656596423983ada907a349a77d752b68a6178fac65338eadeb59cb73"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+          "sha256": "cb6d6984d44888e6bd515757b189c1351820935e31ea24490765457fcbd15a0e"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+          "sha256": "64cf59ad79f59eb33f7f151797b415add26cfbee8dcf47ed2d8d3c7817bd7682"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt",
+          "sha256": "d5d8707615843ccf8e65d8bc2ae98d6210db7722b23b0ec41f7f3b6718b7461a"
         }
       ],
-      "native_checked_helper_assertions": [],
-      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "native_checked_helper_assertions": [
+        {
+          "invocation": {
+            "name": "withFreshDestination",
+            "line": 423,
+            "expression": "withFreshDestination(backgroundScope)",
+            "assertion_or_checked_wait": false
+          },
+          "definition": {
+            "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+            "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+            "method": "withFreshDestination",
+            "line": 514,
+            "end_line": 526,
+            "body_sha256": "a024f5f974d6673e0b0cea5f23ab3bf80894a062546eeb902992138e7e4b309b",
+            "assertions": [
+              {
+                "name": "assertNotSame",
+                "line": 518,
+                "expression": "assertNotSame(db, destinationDatabase)",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 519,
+                "expression": "assertTrue(destinationDatabase.devices().all().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 520,
+                "expression": "assertTrue(destinationDatabase.contacts().backupAll().isEmpty())",
+                "assertion_or_checked_wait": true
+              },
+              {
+                "name": "assertTrue",
+                "line": 521,
+                "expression": "assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())",
+                "assertion_or_checked_wait": true
+              }
+            ]
+          }
+        }
+      ],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
       "runner_identity": [
-        "com.meshcoreone.android.core.data.backup.BackupFieldIntegrationTest",
-        "liveRepositorySendMetadataFlowsThroughActualBackup"
+        "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+        "originalSavedMessageMetadataSurvivesDistinctRoomExportImport"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
@@ -79634,7 +81488,7 @@
     },
     {
       "group": "correlation-original-binary-cadence-latest-tag-and-overall-timeout",
-      "comparison_sha256": "65f923d01a890735631a1d31c711d5ba3e6967563f8d3071abc5d9c32b22e215",
+      "comparison_sha256": "028fb15e97b29bff44f53e26f4f3c39d053c53c2dec0d6cd98e0ebf3d77e6a0c",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -89669,7 +91523,7 @@
     },
     {
       "group": "correlation-original-binary-pretag-errors-and-dedicated-room-layout",
-      "comparison_sha256": "b306909c147ded38df7223cd2bcacc735b41877f6741a1a170eed807b71e4120",
+      "comparison_sha256": "3476747a72c9034efd37c03487af7de48c9818950b33245ef9adbb8c455e541b",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -90098,7 +91952,7 @@
     },
     {
       "group": "correlation-original-binary-cadence-latest-tag-and-overall-timeout",
-      "comparison_sha256": "65f923d01a890735631a1d31c711d5ba3e6967563f8d3071abc5d9c32b22e215",
+      "comparison_sha256": "028fb15e97b29bff44f53e26f4f3c39d053c53c2dec0d6cd98e0ebf3d77e6a0c",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -90713,7 +92567,7 @@
     },
     {
       "group": "correlation-original-binary-cadence-latest-tag-and-overall-timeout",
-      "comparison_sha256": "65f923d01a890735631a1d31c711d5ba3e6967563f8d3071abc5d9c32b22e215",
+      "comparison_sha256": "028fb15e97b29bff44f53e26f4f3c39d053c53c2dec0d6cd98e0ebf3d77e6a0c",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -91334,7 +93188,7 @@
     },
     {
       "group": "correlation-original-binary-pretag-errors-and-dedicated-room-layout",
-      "comparison_sha256": "b306909c147ded38df7223cd2bcacc735b41877f6741a1a170eed807b71e4120",
+      "comparison_sha256": "3476747a72c9034efd37c03487af7de48c9818950b33245ef9adbb8c455e541b",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -91775,7 +93629,7 @@
     },
     {
       "group": "correlation-original-binary-pretag-errors-and-dedicated-room-layout",
-      "comparison_sha256": "b306909c147ded38df7223cd2bcacc735b41877f6741a1a170eed807b71e4120",
+      "comparison_sha256": "3476747a72c9034efd37c03487af7de48c9818950b33245ef9adbb8c455e541b",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
