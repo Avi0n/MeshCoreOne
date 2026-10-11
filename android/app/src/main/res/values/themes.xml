@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- AndroidOnly: WP-002 Native launch-window scaffold; Compose owns content theme. -->
+<!-- AndroidOnly: WP-407 API31+ platform splash; the process ThemeService owns Compose content. -->
 <resources>
     <style name="Theme.MeshCoreOne" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowSplashScreenBackground">#F7F9FC</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">#F7F9FC</item>
     </style>
 </resources>

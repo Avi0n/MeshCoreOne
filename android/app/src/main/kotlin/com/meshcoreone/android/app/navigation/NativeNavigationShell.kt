@@ -99,6 +99,7 @@ import com.meshcoreone.android.feature.remotenodes.dependencies.RemoteNodesUiDep
 import com.meshcoreone.android.feature.settings.SettingsEntry
 import com.meshcoreone.android.feature.tools.ToolsEntry
 import com.meshcoreone.android.feature.tools.ToolsFeatureDependencies
+import com.meshcoreone.android.app.container.AppChatsFeature
 import com.meshcoreone.android.feature.tools.los.LineOfSightEntry
 import com.meshcoreone.android.feature.tools.los.LineOfSightFeatureDependencies
 import com.meshcoreone.android.core.ui.UiErrorMapper
@@ -139,8 +140,10 @@ fun NativeNavigationShell(
     nodes: NodesFeatureDependencies? = null,
     lineOfSight: LineOfSightFeatureDependencies? = null,
     remoteNodes: RemoteNodesUiDependencies? = null,
+    chats: AppChatsFeature? = null,
+    settings: com.meshcoreone.android.app.container.AppSettingsFeature? = null,
     content: @Composable (NavigationDestination, (FeatureRoute) -> Unit) -> Unit = { destination, navigate ->
-        ExistingFeatureContent(destination, navigate, onboarding, map, tools, nodes, lineOfSight, remoteNodes, coordinator)
+        ExistingFeatureContent(destination, navigate, onboarding, map, tools, nodes, lineOfSight, remoteNodes, chats, settings, coordinator)
     },
 ) {
     require(unreadCount >= 0) { "Unread count must be nonnegative" }
@@ -418,6 +421,8 @@ private fun ExistingFeatureContent(
     nodes: NodesFeatureDependencies?,
     lineOfSight: LineOfSightFeatureDependencies?,
     remoteNodes: RemoteNodesUiDependencies?,
+    chats: AppChatsFeature?,
+    settings: com.meshcoreone.android.app.container.AppSettingsFeature?,
     coordinator: NavigationCoordinator,
 ) {
     val navigationState by coordinator.state.collectAsStateWithLifecycle()
@@ -432,7 +437,9 @@ private fun ExistingFeatureContent(
     }
     val route = FeatureRoute(feature)
     when (feature) {
-        FeatureId.CHATS -> ChatsEntry(route, navigate)
+        FeatureId.CHATS -> if (chats != null) {
+            AppChatsContent(chats, destination, coordinator)
+        } else ChatsEntry(route, navigate)
         FeatureId.NODES -> NodesEntry(
             route = route,
             onNavigate = navigate,
@@ -487,7 +494,8 @@ private fun ExistingFeatureContent(
                 )
             }
         }
-        FeatureId.SETTINGS -> SettingsEntry(route, navigate)
+        FeatureId.SETTINGS -> if (settings != null) AppSettingsContent(settings, destination, coordinator)
+            else SettingsEntry(route, navigate)
         FeatureId.ONBOARDING -> OnboardingEntry(
             route,
             // Leaving the auxiliary setup route pops it before moving on (completion targets the Chats root).

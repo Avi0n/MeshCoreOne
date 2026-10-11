@@ -40,16 +40,16 @@ enum class SettingsDetail(val sourceName: String, val requiresDevice: Boolean) {
 
 sealed interface ChatSelection {
     data class Direct(val contact: ContactDTO) : ChatSelection {
-        override fun equals(other: Any?): Boolean = other is Direct && contact.id == other.contact.id
-        override fun hashCode(): Int = contact.id.hashCode()
+        override fun equals(other: Any?): Boolean = other is Direct && contact.radioId == other.contact.radioId && contact.id == other.contact.id
+        override fun hashCode(): Int = 31 * contact.radioId.hashCode() + contact.id.hashCode()
     }
     data class Channel(val channel: ChannelDTO) : ChatSelection {
-        override fun equals(other: Any?): Boolean = other is Channel && channel.id == other.channel.id
-        override fun hashCode(): Int = channel.id.hashCode()
+        override fun equals(other: Any?): Boolean = other is Channel && channel.radioId == other.channel.radioId && channel.id == other.channel.id
+        override fun hashCode(): Int = 31 * channel.radioId.hashCode() + channel.id.hashCode()
     }
     data class Room(val session: RemoteNodeSessionDTO) : ChatSelection {
-        override fun equals(other: Any?): Boolean = other is Room && session.id == other.session.id
-        override fun hashCode(): Int = session.id.hashCode()
+        override fun equals(other: Any?): Boolean = other is Room && session.radioId == other.session.radioId && session.id == other.session.id
+        override fun hashCode(): Int = 31 * session.radioId.hashCode() + session.id.hashCode()
     }
 }
 

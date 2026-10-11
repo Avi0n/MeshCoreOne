@@ -27,6 +27,7 @@ import java.time.Instant
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
 
 /** Runtime state the sync retry policy reads, plus the out-of-band disconnect the resync-failure path needs. */
 internal class ManagerRuntimeSyncState(
@@ -128,6 +129,13 @@ class ConnectionManagerAppPort(
 
 /** [ConnectedDeviceAccess] over the runtime manager's guarded connected-device value. */
 class ManagerDeviceAccess(private val manager: ConnectionManager) : ConnectedDeviceAccess {
+    private val mutableChanges = kotlinx.coroutines.flow.MutableStateFlow(0L)
+    internal val changes: kotlinx.coroutines.flow.StateFlow<Long> = mutableChanges
     override val connectedDevice: DeviceDTO? get() = manager.connectedDevice
-    override fun replaceConnectedDevice(device: DeviceDTO) = manager.replaceConnectedDevice(device)
+    override fun replaceConnectedDevice(device: DeviceDTO) {
+        manager.replaceConnectedDevice(device)
+        if (manager.connectedDevice == device) {
+            mutableChanges.update { Math.incrementExact(it) }
+        }
+    }
 }

@@ -52,6 +52,7 @@ def runtime_sources():
         "check.py": Path(__file__).with_name("check.py"),
         "fast.py": Path(__file__).with_name("fast.py"),
         "run.sh": Path(__file__).with_name("run.sh"),
+        "inventory_rules.py": MODULE_ROOT / "inventory_rules.py",
     }
     files.update({
         f"controller/{source.name}": source

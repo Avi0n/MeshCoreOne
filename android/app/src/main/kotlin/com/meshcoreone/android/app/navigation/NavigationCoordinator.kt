@@ -45,6 +45,26 @@ class NavigationCoordinator(initial: NavigationState = NavigationState()) {
         }
     }
 
+    // AndroidOnly: WP-407 Attach restored public screen state without overwriting live process radio/readiness.
+    internal fun attachHostState(restored: NavigationState) = mutableState.update {
+        if (restored == NavigationState() || it.stacks.values.any { stack -> stack.size > 1 } ||
+            it.selectedTab != AppTab.CHATS || it.pendingMapFocus != null ||
+            it.pendingContactLink != null || it.pendingChannelLink != null || it.pendingHashtag != null ||
+            it.pendingNotifications.isNotEmpty() || it.pendingChatContact != null || it.pendingChannel != null ||
+            it.pendingRoomSession != null || it.pendingRoomAuthentication != null || it.pendingContactDetail != null
+        ) return@update it
+        it.copy(
+            selectedTab = restored.selectedTab,
+            stacks = restored.stacks,
+            nextEntryId = maxOf(it.nextEntryId, restored.nextEntryId),
+            selectedSetting = restored.selectedSetting,
+            selectedTool = restored.selectedTool,
+            widthDp = restored.widthDp,
+            tabBarVisible = restored.tabBarVisible,
+            failure = restored.failure ?: it.failure,
+        )
+    }
+
     fun selectTab(tab: AppTab) = mutableState.update { it.select(tab) }
     fun measureWindow(widthDp: Float) {
         require(widthDp.isFinite() && widthDp >= 0f) { "Window width must be finite and nonnegative" }

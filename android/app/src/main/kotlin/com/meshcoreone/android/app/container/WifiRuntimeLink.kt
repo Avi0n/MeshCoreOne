@@ -28,7 +28,10 @@ import kotlinx.coroutines.runBlocking
  * reaches the runtime through the transport's disconnection handler. Registration is synchronous, as the runtime
  * requires; the transport's handler slots are lock-guarded and return immediately.
  */
-class WifiRuntimeLink(host: String, port: UShort, private val wifi: WiFiTransport = WiFiTransport()) : RuntimeLink {
+class WifiRuntimeLink(
+    host: String, port: UShort, private val wifi: WiFiTransport = WiFiTransport(),
+    private val onSessionLive: (SessionToken?) -> Unit = {},
+) : RuntimeLink {
     override val transport: MeshTransport get() = wifi
     override val type: TransportType = TransportType.WIFI
 
@@ -40,7 +43,7 @@ class WifiRuntimeLink(host: String, port: UShort, private val wifi: WiFiTranspor
     }
 
     override suspend fun configure(capabilities: DeviceCapabilities, platform: DevicePlatform) = Unit
-    override suspend fun setSessionLive(token: SessionToken?) = Unit
+    override suspend fun setSessionLive(token: SessionToken?) = onSessionLive(token)
     override suspend fun recordBondVerification(deviceId: UUID, at: Instant) = Unit
     override suspend fun clearBondVerification(deviceId: UUID) = Unit
     override suspend fun mayRefreshBond(deviceId: UUID): Boolean = false
@@ -59,17 +62,34 @@ class AndroidRuntimeLinkFactory(
 ) : RuntimeLinkFactory {
     private val latest = AtomicReference<BleRuntimeLink?>(null)
     private val latestId = AtomicReference<UUID?>(null)
+    private data class LiveLink(val token: SessionToken, val owner: Any, val type: TransportType)
+    private val live = AtomicReference<LiveLink?>(null)
 
-    override fun create(target: ConnectionTarget): RuntimeLink = when (target) {
-        is ConnectionTarget.WiFi -> WifiRuntimeLink(target.host, target.port)
-        is ConnectionTarget.Bluetooth -> {
-            val handle = BleDeviceHandle(target.handle.address.value)
-            val link = BleRuntimeLink(BleTransport(gattFacades(handle), configuration), target.deviceId, memory, dispatcher = linkDispatcher)
-            latest.getAndSet(link)?.release()
-            latestId.set(target.deviceId)
-            link
+    override fun create(target: ConnectionTarget): RuntimeLink {
+        val owner = Any()
+        fun sessionChanged(token: SessionToken?, type: TransportType) {
+            if (token != null) live.set(LiveLink(token, owner, type))
+            else {
+                val previous = live.get()
+                if (previous?.owner === owner) live.compareAndSet(previous, null)
+            }
+        }
+        return when (target) {
+            is ConnectionTarget.WiFi -> WifiRuntimeLink(target.host, target.port,
+                onSessionLive = { sessionChanged(it, TransportType.WIFI) })
+            is ConnectionTarget.Bluetooth -> {
+                val handle = BleDeviceHandle(target.handle.address.value)
+                val link = BleRuntimeLink(BleTransport(gattFacades(handle), configuration), target.deviceId, memory,
+                    dispatcher = linkDispatcher, onSessionLive = { sessionChanged(it, TransportType.BLUETOOTH) })
+                latest.getAndSet(link)?.release()
+                latestId.set(target.deviceId)
+                link
+            }
         }
     }
+
+    fun transportFor(token: SessionToken): TransportType? =
+        live.get()?.takeIf { it.token == token }?.type
 
     /** The newest Bluetooth link's diagnostics, or null before any Bluetooth connect. */
     fun currentBleLink(): BleLinkSnapshot? {

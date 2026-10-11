@@ -10,6 +10,17 @@ HEAD = "b" * 40
 
 
 class WorkflowScopeTests(unittest.TestCase):
+    def test_installed_runtime_inputs_select_controller_verification(self):
+        for path in (
+            "tools/android-port/local/reserve.py",
+            "tools/android-port/local/test_reserve.py",
+            "tools/android-port/inventory_rules.py",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(classify([path]), {
+                    scope: scope == "controller" for scope in SCOPES
+                })
+
     def test_feature_changes_schedule_scaffold_without_unrelated_oracles(self):
         for paths in (
             ["android/feature/content/src/main/kotlin/ContentScreen.kt",

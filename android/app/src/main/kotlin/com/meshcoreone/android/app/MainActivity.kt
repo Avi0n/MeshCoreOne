@@ -13,6 +13,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -24,6 +25,7 @@ import com.meshcoreone.android.app.deeplinks.ContainerDeepLinkEnvironment
 import com.meshcoreone.android.app.deeplinks.DeepLinkRouteOutcome
 import com.meshcoreone.android.app.deeplinks.PendingExternalRoute
 import com.meshcoreone.android.app.navigation.NativeNavigationShell
+import com.meshcoreone.android.app.navigation.AppShortcutContent
 import com.meshcoreone.android.app.navigation.NavigationCoordinator
 import com.meshcoreone.android.app.navigation.NavigationFailure
 import com.meshcoreone.android.app.navigation.NavigationSavedState
@@ -31,6 +33,15 @@ import com.meshcoreone.android.app.navigation.NavigationState
 import com.meshcoreone.android.app.container.onboarding.OnboardingGate
 import com.meshcoreone.android.core.connectivity.pairing.CompanionChooserHost
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
+import com.meshcoreone.android.core.designsystem.ThemeServiceHost
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.meshcoreone.android.core.l10n.generated.AppLocalizableStrings
 import com.meshcoreone.android.feature.tools.trace.AndroidRecentHopsStorage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.MainScope
@@ -38,7 +49,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class NavigationHostViewModel : ViewModel() {
-    val navigation = NavigationCoordinator()
+    var navigation = NavigationCoordinator()
+        private set
     var initialized = false
     private var deepLinksBound = false
     private var initialViewIntentSubmitted = false
@@ -50,6 +62,8 @@ class NavigationHostViewModel : ViewModel() {
 
     fun bindDeepLinks(container: AppContainer) {
         if (deepLinksBound) return
+        container.navigation.attachHostState(navigation.state.value)
+        navigation = container.navigation
         router = AppDeepLinkRouter(ContainerDeepLinkEnvironment(container, navigation))
         deepLinksBound = true
         viewModelScope.launch { pendingExternalRoute.markReady() }
@@ -74,12 +88,17 @@ class NavigationHostViewModel : ViewModel() {
 }
 
 open class MainActivity : ComponentActivity() {
-    private data class ContainerResolution(val container: AppContainer?)
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(com.meshcoreone.android.app.platform.AppLanguages.attach(base))
+    }
+    private data class ContainerResolution(val container: AppContainer?, val failure: Throwable? = null)
 
     private lateinit var host: NavigationHostViewModel
     private val uiScope = MainScope()
     private val chooserRequests = HashMap<Int, Long>()
     private var nextChooserCode = 1
+    private var chooserJob: kotlinx.coroutines.Job? = null
+    private var chooserSetup: com.meshcoreone.android.core.connectivity.pairing.CompanionSetupService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,21 +115,18 @@ open class MainActivity : ComponentActivity() {
             host.initialized = true
         }
         host.submitInitialViewIntent(intent)
-        uiScope.launch {
-            val application = application as? MeshCoreApplication ?: return@launch
-            try {
-                host.bindDeepLinks(application.container.await())
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                // The process container reports its construction failure; the staged URI remains inert.
-            }
-        }
         setContent {
-            MeshCoreTheme {
-                // Nothing is drawn until the container answers, so a first run never flashes the main shell.
-                val resolved by produceContainer()
-                resolved?.let { answer ->
+            val resolved by produceContainer()
+            val screen: @Composable () -> Unit = {
+                val answer = resolved
+                if (answer == null) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                } else if (answer.failure != null) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(AppLocalizableStrings.commonErrorFailedToLoad))
+                    }
+                } else {
+                    answer.container?.let { AppShortcutContent(it) }
                     OnboardingGate(host.navigation, answer.container?.onboarding) { bound ->
                         val tools = remember(answer.container) {
                             answer.container?.let { container ->
@@ -120,18 +136,26 @@ open class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+                        val unread by (answer.container?.chatsFeature?.unreadCount
+                            ?: remember { kotlinx.coroutines.flow.MutableStateFlow(0L) }).collectAsState()
                         NativeNavigationShell(
                             host.navigation,
+                            unreadCount = unread,
                             onboarding = bound?.forRerun(),
                             map = answer.container?.mapFeature,
                             tools = tools,
                             nodes = answer.container?.nodesFeature,
                             remoteNodes = answer.container?.remoteNodesFeature,
                             lineOfSight = answer.container?.lineOfSight,
+                            chats = answer.container?.chatsFeature,
+                            settings = answer.container?.settingsFeature,
                         )
                     }
                 }
             }
+            val themeService = resolved?.container?.themeService
+            if (themeService != null) ThemeServiceHost(themeService) { screen() }
+            else MeshCoreTheme(content = screen)
         }
     }
 
@@ -142,13 +166,15 @@ open class MainActivity : ComponentActivity() {
     @Composable
     private fun produceContainer(): State<ContainerResolution?> = produceState<ContainerResolution?>(null) {
         val app = application as? MeshCoreApplication
-        value = ContainerResolution(if (app == null) null else try {
-            app.container.await()
+        value = if (app == null) ContainerResolution(null) else try {
+            val current = app.container.await()
+            host.bindDeepLinks(current)
+            ContainerResolution(current)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
-            null
-        })
+            ContainerResolution(null, failure)
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -161,24 +187,29 @@ open class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         val application = application as? MeshCoreApplication ?: return
-        uiScope.launch {
+        chooserJob?.cancel()
+        chooserJob = uiScope.launch {
             val setup = try {
                 application.container.await().companionSetup
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                null
+                java.util.logging.Logger.getLogger("com.mc1.Launcher").log(
+                    java.util.logging.Level.WARNING, "Companion chooser unavailable", failure,
+                )
+                return@launch
             }
+            activeChooserHost.set(this@MainActivity)
+            chooserSetup = setup
             setup?.setChooserHost(CompanionChooserHost { chooser, requestId -> launchChooser(chooser, requestId) })
         }
     }
 
     override fun onPause() {
-        (application as? MeshCoreApplication)?.let { app ->
-            if (app.container.isCompleted && !app.container.isCancelled) {
-                uiScope.launch { app.container.await().companionSetup?.setChooserHost(null) }
-            }
-        }
+        chooserJob?.cancel()
+        chooserJob = null
+        if (activeChooserHost.compareAndSet(this, null)) chooserSetup?.setChooserHost(null)
+        chooserSetup = null
         super.onPause()
     }
 
@@ -188,7 +219,7 @@ open class MainActivity : ComponentActivity() {
     }
 
     private fun launchChooser(chooser: Any, requestId: Long) {
-        val sender = chooser as? IntentSender ?: return
+        val sender = requireNotNull(chooser as? IntentSender) { "Companion chooser must be an IntentSender" }
         val code = nextChooserCode.also { nextChooserCode = if (it >= MAX_CHOOSER_CODE) 1 else it + 1 }
         chooserRequests[code] = requestId
         startIntentSenderForResult(sender, code, null, 0, 0, 0)
@@ -205,6 +236,7 @@ open class MainActivity : ComponentActivity() {
 
     private companion object {
         const val MAX_CHOOSER_CODE = 0x7FFF
+        val activeChooserHost = java.util.concurrent.atomic.AtomicReference<MainActivity?>(null)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

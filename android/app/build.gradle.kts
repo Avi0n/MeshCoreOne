@@ -47,6 +47,10 @@ dependencies {
     implementation(project(":platform:widgets"))
     implementation(project(":platform:shortcuts"))
     implementation(project(":platform:translation"))
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.zxing.core)
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation("androidx.test.espresso:espresso-core:3.7.0")
     testImplementation(libs.androidx.room.runtime)
@@ -90,10 +94,23 @@ class ContentPlatformSdkArguments(
     override fun asArguments(): Iterable<String> =
         listOf("-Drobolectric.dependency.dir=${directory.get().asFile.absolutePath}")
 }
-tasks.withType<Test>().configureEach {
+val appPlatformSdk33 = configurations.create("appPlatformSdk33") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    isTransitive = false
+}
+dependencies.add(appPlatformSdk33.name, "org.robolectric:android-all-instrumented:13-robolectric-9030017-i7")
+val prepareAppPlatformSdks = tasks.register<Sync>("prepareAppPlatformSdks") {
     dependsOn(":core:designsystem:prepareThemePlatformSdks")
+    from(rootProject.project(":core:designsystem").layout.buildDirectory.dir("theme-platform-sdks"))
+    from(appPlatformSdk33)
+    into(layout.buildDirectory.dir("platform-sdks"))
+}
+tasks.withType<Test>().configureEach {
+    dependsOn(prepareAppPlatformSdks)
+    forkEvery = 1
     jvmArgumentProviders.add(ContentPlatformSdkArguments(
-        rootProject.project(":core:designsystem").layout.buildDirectory.dir("theme-platform-sdks"),
+        layout.buildDirectory.dir("platform-sdks"),
     ))
     jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")
 }
@@ -161,6 +178,18 @@ tasks.register("resolveWp302NavigationDependencies") {
 }
 
 val repository = rootProject.projectDir.parentFile
+val verifyEmojiCatalog by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Verify the complete source-selected emoji catalog and its exact packaged notices."
+    workingDir(repository)
+    commandLine("python", "tools/android-port/emoji_convert.py", "--check")
+    inputs.file(repository.resolve("tools/android-port/emoji_convert.py"))
+    inputs.file(layout.projectDirectory.file("src/main/assets/emoji/emojibase.json"))
+    inputs.files(listOf(
+        "Emojibase-Bindings-Apache-2.0.txt", "Emojibase-Data-MIT.txt", "Unicode-License.txt",
+    ).map { layout.projectDirectory.file("src/main/assets/licenses/$it") }).withPropertyName("emojiNotices")
+}
+tasks.named("preBuild") { dependsOn(verifyEmojiCatalog) }
 val navigationInputBinding = layout.buildDirectory.file("reports/wp302/input-binding.properties")
 val navigationArtifactDirectory = layout.buildDirectory.dir("reports/wp302/screens")
 val prepareNavigationTestInputs by tasks.registering {
