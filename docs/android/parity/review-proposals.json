@@ -25,7 +25,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete selected frozen declaration/startSession/makeSelfInfo and shared checked polling helper plus actual frozen/native startup/query/matcher/receive cache consumer. Registered selfInfo matcher ignores Error while received SelfInfo updates actual generation cache and resolves startup. No dispatchForTesting or preseeded cache bypass.",
-      "unresolved": ["New exact method requires immutable execution and independent review. This one selected family does not complete the remaining command-correlation file or represent physical startup proof."],
+      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded source review and hosted exact execution remain required. This one selected family does not complete the remaining command-correlation file or represent physical startup proof."],
       "methods": ["session start ignores unrelated errors until selfInfo arrives"]
     },
     {
@@ -55,7 +55,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete three frozen declarations/helpers and sendSimpleCommand/sendAndMatch/full serializer, plus actual native simple/query/match/deadline/registered subscriptions. Only payloadless Ok can complete simple; error42 reaches the typed matcher; first successful response releases entire operation before second write. Existing post-timeout ambiguous-reply quarantine is separate native adaptation and no fresh successor is fabricated.",
-      "unresolved": ["New exact method requires immutable execution/independent adaptation review. Original-named component uses MCore/default1second and omits original50ms wait; its green result cannot substitute for these original inputs. Three families remain one native runner."],
+      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded adaptation review and hosted exact execution remain required. Original-named component uses MCore/default1second and omits original50ms wait; its green result cannot substitute for these original inputs. Three families remain one native runner."],
       "methods": ["simple commands serialize concurrent OK/ERROR waits", "simple commands ignore OK responses with payloads", "simple commands still fail on device errors"]
     },
     {
@@ -88,7 +88,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete selected declarations/shared helpers and frozen/native battery/getSelfTelemetry/getChannel/getContact/exportContact query/match/receive consumers. Actual parser ingress routes typed events; generation selfInfo determines telemetry prefix, actual index/fullkey/URI predicates reject unrelated payload before a matching response. Contact cache may still track unsolicited contacts but does not satisfy the request for another key. No onSend shortcut, synthetic typed event or fake transport result.",
-      "unresolved": ["New exact method requires immutable execution/independent review. Error-to-nil general contact behavior, malformed URI/Unicode names, other public persistence consumers and remaining command-correlation families are separate contracts, not approved from these five successes."],
+      "unresolved": ["Exact10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded source review and hosted exact execution remain required. Error-to-nil general contact behavior, malformed URI/Unicode names, other public persistence consumers and remaining command-correlation families are separate contracts, not approved from these five successes."],
       "methods": ["getBattery ignores unrelated errors while waiting for a battery response", "getSelfTelemetry ignores telemetry for other nodes", "getChannel ignores responses for other channel indexes", "getContact ignores responses for other public keys", "exportContact ignores contact URIs for other public keys"]
     },
     {
@@ -120,7 +120,7 @@
         "MeshCore/Tests/MeshCoreTests/Helpers/TestPolling.swift"
       ],
       "consumer": "Read complete four frozen declarations/contact helpers/shared polling and full source fetchContacts/watchdog/post-exchange cache update, plus native real fetchContacts/StreamProgressTracker/watchdog/select/commitFetch/subscription and join cleanup. ContactsStart supplies reportedTotal independently of received count; no-header leaves it null. Progress cadence keeps idle watchdog alive; missing end and no progress produces typedTimeout, cancels/joins consumer/watchdog and leaves generation baseline dirty. No manufactured empty-success snapshot or synthetic contact cache.",
-      "unresolved": ["Initial43132243 app56discovered/55passed/1failed,0error/skip, at an owned supplemental elapsed assertion incorrectly placed after awaiting timeout: actual160ms versus expected140ms. Frozen source sleeps140ms then awaits, so watchdog phase can legitimately add20ms before returning. Exact140ms observation moves before await; source0.08idle/1hard budgets and typedTimeout remain unchanged, no product defect or weakened source assertion. Corrected immutable execution/independent review remain required. Full command-correlation/binary/after-write cancellation families remain separate; four originals are one runner and partial result is not full-cache equivalence."],
+      "unresolved": ["Initial43132243 app56discovered/55passed/1failed,0error/skip, at an owned supplemental elapsed assertion incorrectly placed after awaiting timeout: actual160ms versus expected140ms. Frozen source sleeps140ms then awaits, so watchdog phase can legitimately add20ms before returning. Exact140ms observation moves before await; source0.08idle/1hard budgets and typedTimeout remain unchanged, no product defect or weakened source assertion. Corrected10984d6b app56/56passed with all52mandatory+4repair identities; protocol32/32passed with all13selected correlation identities; combinedPython363/363passed,0failure/error/skip. Independent bounded source review and hosted exact execution remain required. Full command-correlation/binary/after-write cancellation families remain separate; four originals are one runner and partial result is not full-cache equivalence."],
       "methods": ["getContacts succeeds when slow stream keeps making progress", "getContactsReportingTotal surfaces the contactsStart total, not the received count", "getContactsReportingTotal returns a nil total when contactsStart never arrives", "getContacts times out after inactivity before contactsEnd"]
     },
     {

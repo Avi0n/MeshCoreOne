@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-570 inspected family proposals in77groups, exact source/assertion/helper/runner
+585 inspected family proposals in84groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -535,6 +535,23 @@ thresholds remain bound. Prompt native follower cancellation is documented
 adaptation; outer5s cancellation propagates. Together with prior two-family
 settings/contact read, this completes12 bounded source comparisons from906,
 not independent52app/37protocol execution/fullWP501 or protected approval.
+Corrected immutable10984d6b41fdbc8473c1a69e0ab435a247aedd6c executed the existing
+credential-stripped Windows launcher under supported shared native/Gradle hard
+locks and private caches:
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --tests com.meshcoreone.android.app.platform.InlineContentCancellationTest --tests com.meshcoreone.android.app.platform.PreviewPolicyTest --dependency-verification=strict --quiet`
+discovered/run/passed56/56, including all52mandatory owned and4inherited repair
+identities. `:core:protocol:test --tests com.meshcoreone.android.core.protocol.session.OriginalCorrelationCasesTest --dependency-verification=strict --quiet`
+discovered/run/passed32/32, positively containing all13selected source support
+identities. All reports had0failure/error/skip; locks released normally.
+`python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+passed363/363 at both initial43132243 and corrected10984d6b,0failure/error/skip.
+`python android\parity-tests\semantic.py --check` and declared parity-only92/92
+also passed before the corrected commit. The initial431failure is retained;
+passing all32component runners does not turn the19remaining correlation
+families into inspected/approved source comparisons. Four app runners bind13
+originals once each, not13new executions. Full audit, independent source review,
+hosted current-head checks and actual169merge remain outstanding. PR165 stays
+at published990; no new APK or device/hardware/Swift/legal claim is inferred.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.

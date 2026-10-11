@@ -382,6 +382,13 @@ complete helpers/actual consumers found no blocking mismatch, with prompt native
 follower cancellation/real-clock threshold adaptations explicitly preserved.
 Together with prior settings/contact read this is12source comparisons, not
 independent52app/37protocol execution/full acceptance/protected approval.
+Corrected10984d6b actually passed56/56app (all52owned+4repair identities),
+32/32protocol with all13selected correlation support identities,363/363combined
+Python and92/92precommit parity,0failure/error/skip. Shared locks released
+normally. The prior431owned56/55/1failure remains retained. Four new methods
+bind13source families; the19remaining green component cases are not
+automatically inspected comparisons. Full audit/independent review/current
+hosted checks remain outstanding; publication is held until actual169merge.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native

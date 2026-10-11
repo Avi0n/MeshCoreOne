@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "dadb8af8e87478483615628b0d8d58d87a3704cd5248022f801088c10365a489",
+  "proposal_sha256": "22523872bb0aa53fc76c061485be2818142841971df2539e1c779eb3edd4974a",
   "families": [
     {
       "group": "backup-envelope",
@@ -77198,7 +77198,7 @@
     },
     {
       "group": "correlation-original-battery-telemetry-channel-contact-and-uri-predicates",
-      "comparison_sha256": "43bf3b39ae2bd3e935e17fedbed4cdf9ed444f6477d4bbe15ff65f4fd2ec5aca",
+      "comparison_sha256": "c0ca4acf940b66905206161e3f754f96c10e96c47db3a7301670f49a8e8c34cf",
       "source_file_family_count": 32,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -77937,7 +77937,7 @@
     },
     {
       "group": "correlation-original-battery-telemetry-channel-contact-and-uri-predicates",
-      "comparison_sha256": "43bf3b39ae2bd3e935e17fedbed4cdf9ed444f6477d4bbe15ff65f4fd2ec5aca",
+      "comparison_sha256": "c0ca4acf940b66905206161e3f754f96c10e96c47db3a7301670f49a8e8c34cf",
       "source_file_family_count": 32,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -78670,7 +78670,7 @@
     },
     {
       "group": "correlation-original-battery-telemetry-channel-contact-and-uri-predicates",
-      "comparison_sha256": "43bf3b39ae2bd3e935e17fedbed4cdf9ed444f6477d4bbe15ff65f4fd2ec5aca",
+      "comparison_sha256": "c0ca4acf940b66905206161e3f754f96c10e96c47db3a7301670f49a8e8c34cf",
       "source_file_family_count": 32,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -79409,7 +79409,7 @@
     },
     {
       "group": "correlation-original-battery-telemetry-channel-contact-and-uri-predicates",
-      "comparison_sha256": "43bf3b39ae2bd3e935e17fedbed4cdf9ed444f6477d4bbe15ff65f4fd2ec5aca",
+      "comparison_sha256": "c0ca4acf940b66905206161e3f754f96c10e96c47db3a7301670f49a8e8c34cf",
       "source_file_family_count": 32,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -80154,7 +80154,7 @@
     },
     {
       "group": "correlation-original-contact-cadence-total-truncation-and-inactivity",
-      "comparison_sha256": "23c99817e197ffd2ef3baacf39b622dfb87ec00d32f2f3426364bc7b4334d82b",
+      "comparison_sha256": "5b27496ce26365b8dbc26fc37594cddfadae2a93468b251d22653eef029caae5",
       "source_file_family_count": 32,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -80682,7 +80682,7 @@
     },
     {
       "group": "correlation-original-contact-cadence-total-truncation-and-inactivity",
-      "comparison_sha256": "23c99817e197ffd2ef3baacf39b622dfb87ec00d32f2f3426364bc7b4334d82b",
+      "comparison_sha256": "5b27496ce26365b8dbc26fc37594cddfadae2a93468b251d22653eef029caae5",
       "source_file_family_count": 32,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -81216,7 +81216,7 @@
     },
     {
       "group": "correlation-original-contact-cadence-total-truncation-and-inactivity",
-      "comparison_sha256": "23c99817e197ffd2ef3baacf39b622dfb87ec00d32f2f3426364bc7b4334d82b",
+      "comparison_sha256": "5b27496ce26365b8dbc26fc37594cddfadae2a93468b251d22653eef029caae5",
       "source_file_family_count": 32,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -81750,7 +81750,7 @@
     },
     {
       "group": "correlation-original-contact-cadence-total-truncation-and-inactivity",
-      "comparison_sha256": "23c99817e197ffd2ef3baacf39b622dfb87ec00d32f2f3426364bc7b4334d82b",
+      "comparison_sha256": "5b27496ce26365b8dbc26fc37594cddfadae2a93468b251d22653eef029caae5",
       "source_file_family_count": 32,
       "group_compared_family_count": 4,
       "partial_source_file": true,
@@ -82284,7 +82284,7 @@
     },
     {
       "group": "correlation-original-battery-telemetry-channel-contact-and-uri-predicates",
-      "comparison_sha256": "43bf3b39ae2bd3e935e17fedbed4cdf9ed444f6477d4bbe15ff65f4fd2ec5aca",
+      "comparison_sha256": "c0ca4acf940b66905206161e3f754f96c10e96c47db3a7301670f49a8e8c34cf",
       "source_file_family_count": 32,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -83017,7 +83017,7 @@
     },
     {
       "group": "correlation-original-startup-unrelated-error-before-self-info",
-      "comparison_sha256": "994f7c8fba3aa016583da8759edde55b332c57f822a92b80c8b1cf0174783acc",
+      "comparison_sha256": "a9d8975c0b0a599617b7b37b3927b541c995746ea3287bb10774876a5de44c36",
       "source_file_family_count": 32,
       "group_compared_family_count": 1,
       "partial_source_file": true,
@@ -83227,7 +83227,7 @@
     },
     {
       "group": "correlation-original-simple-serialization-payload-timeout-and-device-error",
-      "comparison_sha256": "6bfc4953d227e585ee7eb292ffd39568dbbc96c9d23fb43ab614bd7ff8733681",
+      "comparison_sha256": "332bcbc60e677432e64fa788ea428ebc4393c1be040bc58f17c37abc63bd712c",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -83684,7 +83684,7 @@
     },
     {
       "group": "correlation-original-simple-serialization-payload-timeout-and-device-error",
-      "comparison_sha256": "6bfc4953d227e585ee7eb292ffd39568dbbc96c9d23fb43ab614bd7ff8733681",
+      "comparison_sha256": "332bcbc60e677432e64fa788ea428ebc4393c1be040bc58f17c37abc63bd712c",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -84135,7 +84135,7 @@
     },
     {
       "group": "correlation-original-simple-serialization-payload-timeout-and-device-error",
-      "comparison_sha256": "6bfc4953d227e585ee7eb292ffd39568dbbc96c9d23fb43ab614bd7ff8733681",
+      "comparison_sha256": "332bcbc60e677432e64fa788ea428ebc4393c1be040bc58f17c37abc63bd712c",
       "source_file_family_count": 32,
       "group_compared_family_count": 3,
       "partial_source_file": true,
