@@ -111,7 +111,7 @@ C1/C4/D4/D5 draft-slot families. They check unchanged live occupants, reminted
 relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
-The current app JUnit collector requires all48 exact WP-501 class/method identities,
+The current app JUnit collector requires all52 exact WP-501 class/method identities,
 not merely an aggregate of arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
@@ -125,7 +125,7 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **572 actually inspected families in 80 groups**:
+`review-proposals.json` contains **585 actually inspected families in 84 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
@@ -135,7 +135,8 @@ complete RoundTrip39, complete event-filter/dispatch/error17 and WiFi frame/
 transport18, lifecycle/input-validation/stop/binary-configuration10 and exact
 message-reset serialization/channel-datagram public-result2 and automatic/
 coalesced/real-clock message polling10 and automatic contact refresh/concurrent
-granular full-configuration settings2.
+granular full-configuration settings2 and selected original command-correlation
+startup/simple/predicate/contact-stream13.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -349,6 +350,28 @@ Coordinator PR169 exacte9d primary38171808293 completedSUCCESS with all6jobs,
 including actual LinuxAndroid/Swiftcodec/SwiftData execution. PR169 remains open
 pending its protected selector-path approval and actual merge; worker publication
 hold remains and no successful169result is promoted to current165execution.
+Coordinator bounded immutable906df6fb complete two-method/helper/collector/9+2
+binding split read found no blocking source mismatch for issue170. Sequential
+original2second milestones and real emptyFIN/supplemental frame drain retain
+their inputs;906-to-bfa64e442 changes only5docs/proposal/binding files. This
+resolves that local source-level gap, not independent execution or hosted/full
+acceptance. Issue170 remains open until actual published/executed/reviewed merge.
+
+Four further required methods retain13 selected original correlation families:
+startup Error99 before exact62byte Test selfInfo, concurrent simple50ms wait/
+payloadOK7 with original200ms timeout/typedError42, five exact key/index/prefix/
+URI response predicates, and contact70ms cadence/count/declared-total/nil-header/
+140ms inactivity inputs. Fresh original10seconds/MCTst and0.2/default1.0/hard10
+or stalled0.08/hard1 configurations replace the predecessor shortened shared
+defaults. Incoming contacts are this source helper's full148byte frame, not the
+other147byte RoundTrip frame. New52identity candidate awaits execution; partial
+groups preserve the complete original-file denominator and do not claim the
+remaining correlation/binary/cancellation families.
+Coordinator also read complete immutable906 source contact-refresh/settings
+files/helpers/new methods and actual requestContactRefresh/full-exchange mutation
+consumers with no blocking mismatch in those two source families. Original
+inputs, final wire/config and delayed fresh cache assertions remain bound;
+not independent52app/37protocol execution or hardware/full acceptance.
 
 Coordinator's bounded immutable9046 read found no blocking mismatch in the
 entire WiFi cancellation class/checked helper/exact source family/real native
@@ -370,7 +393,7 @@ mismatch in both original40/1/2 and0.05/null scalar families. Native status
 exchange remains supplemental to the original constructor-only assertions;
 the source disabled-resend title is not binary exchange coverage.
 
-The 572 proposals are a bounded reviewable implementation increment,
+The 585 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -395,7 +418,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the48
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the52
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new

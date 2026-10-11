@@ -7,6 +7,7 @@
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/GetMessageTimeoutTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/AutoContactRefreshTests.swift@db14559b39d32322b06477c6ae676112f583db50
 // PortedFrom: MeshCore/Tests/MeshCoreTests/Session/OtherParamsSerializationTests.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MeshCore/Tests/MeshCoreTests/Session/MeshCoreSessionCommandCorrelationTests.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.parity
 
 import com.meshcoreone.android.app.container.OriginalCase
@@ -15,6 +16,7 @@ import com.meshcoreone.android.core.protocol.config.MeshCoreException
 import com.meshcoreone.android.core.protocol.config.SessionConfiguration
 import com.meshcoreone.android.core.protocol.event.MessageResult
 import com.meshcoreone.android.core.protocol.model.FloodScope
+import com.meshcoreone.android.core.protocol.model.AutoAddConfig
 import com.meshcoreone.android.core.protocol.session.MeshCoreSession
 import com.meshcoreone.android.core.protocol.session.SessionClock
 import com.meshcoreone.android.core.protocol.transport.mock.MockTransport
@@ -581,6 +583,259 @@ class SessionResponseAcceptanceTest {
             }
         }
     }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::session start ignores unrelated errors until selfInfo arrives()")
+    @Test fun originalStartupIgnoresErrorNinetyNineBeforeItsExactSelfInfo() = runTest {
+        val transport = MockTransport()
+        val session = MeshCoreSession(transport,
+            SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst"),
+            publicSessionClock(), backgroundScope.coroutineContext)
+        try {
+            val starting = backgroundScope.async { session.start() }
+            runCurrent()
+            assertEquals(listOf(hex("01032020202020204d43547374")), transport.sentData)
+            assertFalse(starting.isCompleted)
+            transport.simulateError(99u)
+            runCurrent()
+            assertFalse(starting.isCompleted)
+            assertNull(session.currentSelfInfo)
+            val selfInfo = sourceSelfInfo(915_000, 125_000, 7, "Test")
+            assertEquals(62, selfInfo.size)
+            transport.simulateReceive(selfInfo)
+            runCurrent()
+            starting.await()
+            assertEquals("Test", session.currentSelfInfo?.name)
+            assertEquals(1, transport.sentData.size)
+        } finally {
+            session.stop()
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::simple commands serialize concurrent OK/ERROR waits()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::simple commands ignore OK responses with payloads()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::simple commands still fail on device errors()")
+    @Test fun originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo() = runTest {
+        for (scenario in listOf("serialized", "payload", "device-error")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport,
+                SessionConfiguration(defaultTimeout = if (scenario == "payload") 0.2 else 10.0,
+                    clientIdentifier = "MCTst"),
+                sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                if (scenario == "serialized") {
+                    val first = backgroundScope.async { session.factoryReset() }
+                    val second = backgroundScope.async { session.sendAdvertisement(true) }
+                    runCurrent()
+                    advanceTimeBy(50)
+                    runCurrent()
+                    assertEquals(listOf(hex("01032020202020204d43547374"), hex("337265736574")), transport.sentData)
+                    assertFalse(first.isCompleted)
+                    assertFalse(second.isCompleted)
+                    transport.simulateOK()
+                    runCurrent()
+                    first.await()
+                    assertEquals(3, transport.sentData.size)
+                    assertEquals(hex("0701"), transport.sentData.last())
+                    assertFalse(second.isCompleted)
+                    transport.simulateOK()
+                    runCurrent()
+                    second.await()
+                    assertEquals(3, transport.sentData.size)
+                } else if (scenario == "payload") {
+                    val started = testScheduler.currentTime
+                    val reset = backgroundScope.async {
+                        try {
+                            session.factoryReset()
+                            fail("An OK payload cannot satisfy a simple command")
+                        } catch (failure: MeshCoreException.Timeout) {
+                            failure
+                        }
+                    }
+                    runCurrent()
+                    assertEquals(hex("337265736574"), transport.sentData.last())
+                    transport.simulateOK(7u)
+                    advanceTimeBy(199)
+                    runCurrent()
+                    assertFalse(reset.isCompleted)
+                    assertEquals(2, transport.sentData.size)
+                    advanceTimeBy(1)
+                    runCurrent()
+                    assertTrue(reset.await() is MeshCoreException.Timeout)
+                    assertEquals(200L, testScheduler.currentTime - started)
+                    assertEquals(2, transport.sentData.size)
+                } else {
+                    delayedError(transport, "3a1e02", 42u) {
+                        session.setAutoAddConfig(AutoAddConfig(0x1eu, 2u))
+                    }
+                    assertEquals(2, transport.sentData.size)
+                }
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getBattery ignores unrelated errors while waiting for a battery response()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getSelfTelemetry ignores telemetry for other nodes()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getChannel ignores responses for other channel indexes()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getContact ignores responses for other public keys()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::exportContact ignores contact URIs for other public keys()")
+    @Test fun originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets() = runTest {
+        for (scenario in listOf("battery", "telemetry", "channel", "contact", "uri")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport,
+                selfInfo = sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                when (scenario) {
+                    "battery" -> {
+                        val response = backgroundScope.async { session.getBattery() }
+                        runCurrent()
+                        assertEquals(hex("14"), transport.sentData.last())
+                        transport.simulateError(10u)
+                        runCurrent()
+                        assertFalse(response.isCompleted)
+                        transport.simulateReceive(hex("0cb20f"))
+                        runCurrent()
+                        assertEquals(4018L, response.await().level)
+                    }
+                    "telemetry" -> {
+                        val response = backgroundScope.async { session.getSelfTelemetry() }
+                        runCurrent()
+                        assertEquals(hex("27000000"), transport.sentData.last())
+                        transport.simulateReceive(hex("8b00aabbccddeeff016700fa"))
+                        runCurrent()
+                        assertFalse(response.isCompleted)
+                        transport.simulateReceive(hex("8b00" + "01".repeat(6) + "016700f0"))
+                        runCurrent()
+                        assertEquals(hex("01".repeat(6)), response.await().publicKeyPrefix)
+                        assertEquals(hex("016700f0"), response.await().rawData)
+                    }
+                    "channel" -> {
+                        val response = backgroundScope.async { session.getChannel(3u) }
+                        runCurrent()
+                        assertEquals(hex("1f03"), transport.sentData.last())
+                        transport.simulateReceive(sourceChannel(9, "Wrong", 0xaa))
+                        runCurrent()
+                        assertFalse(response.isCompleted)
+                        transport.simulateReceive(sourceChannel(3, "Right", 0xbb))
+                        runCurrent()
+                        assertEquals(3u.toUByte(), response.await().index)
+                        assertEquals("Right", response.await().name)
+                    }
+                    "contact" -> {
+                        val key = hex("11".repeat(32))
+                        val response = backgroundScope.async { session.getContact(key) }
+                        runCurrent()
+                        assertEquals(hex("1e") + key, transport.sentData.last())
+                        transport.simulateReceive(sourceCorrelationContact(0x22, "Wrong"))
+                        runCurrent()
+                        assertFalse(response.isCompleted)
+                        transport.simulateReceive(sourceCorrelationContact(0x11, "Right"))
+                        runCurrent()
+                        val contact = response.await()
+                        assertNotNull(contact)
+                        assertEquals(key, contact!!.publicKey)
+                        assertEquals("Right", contact.advertisedName)
+                    }
+                    "uri" -> {
+                        val key = hex("11".repeat(32))
+                        val response = backgroundScope.async { session.exportContact(key) }
+                        runCurrent()
+                        assertEquals(hex("11") + key, transport.sentData.last())
+                        transport.simulateReceive(hex("0b" + "22".repeat(32) + "cd".repeat(8)))
+                        runCurrent()
+                        assertFalse(response.isCompleted)
+                        transport.simulateReceive(hex("0b" + "11".repeat(32) + "cd".repeat(8)))
+                        runCurrent()
+                        val uri = response.await()
+                        assertTrue(uri.contains("11".repeat(32)))
+                        assertFalse(uri.contains("22".repeat(32)))
+                    }
+                }
+                assertEquals(2, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getContacts succeeds when slow stream keeps making progress()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getContactsReportingTotal surfaces the contactsStart total, not the received count()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getContactsReportingTotal returns a nil total when contactsStart never arrives()")
+    @OriginalCase("MeshCoreSessionCommandCorrelationTests::getContacts times out after inactivity before contactsEnd()")
+    @Test fun originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs() = runTest {
+        for (scenario in listOf("slow", "truncated", "no-header", "inactive")) {
+            val transport = MockTransport()
+            val session = startSourceSession(transport,
+                SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = "MCTst",
+                    contactStreamInactivityTimeout = if (scenario == "inactive") 0.08 else 1.0,
+                    contactStreamHardTimeout = if (scenario == "inactive") 1.0 else 10.0),
+                sourceSelfInfo(915_000, 125_000, 7, "Test"))
+            try {
+                val started = testScheduler.currentTime
+                if (scenario == "inactive") {
+                    val response = backgroundScope.async {
+                        try {
+                            session.getContacts()
+                            fail("A stalled contact stream cannot become an empty successful snapshot")
+                        } catch (failure: MeshCoreException.Timeout) {
+                            failure
+                        }
+                    }
+                    runCurrent()
+                    assertEquals(hex("04"), transport.sentData.last())
+                    transport.simulateReceive(hex("0201000000"))
+                    runCurrent()
+                    advanceTimeBy(79)
+                    runCurrent()
+                    assertFalse(response.isCompleted)
+                    advanceTimeBy(61)
+                    runCurrent()
+                    assertTrue(response.await() is MeshCoreException.Timeout)
+                    assertEquals(140L, testScheduler.currentTime - started)
+                    assertTrue(session.isContactsDirty)
+                } else {
+                    val response = backgroundScope.async {
+                        if (scenario == "slow") {
+                            session.getContacts() to null
+                        } else {
+                            val result = session.getContactsReportingTotal()
+                            result.contacts to result.reportedTotal
+                        }
+                    }
+                    runCurrent()
+                    assertEquals(hex("04"), transport.sentData.last())
+                    if (scenario != "no-header") transport.simulateReceive(hex("0203000000"))
+                    runCurrent()
+                    repeat(if (scenario == "slow") 3 else 2) { index ->
+                        if (scenario == "slow") advanceTimeBy(70)
+                        val contact = sourceCorrelationContact(index + 1, "Node $index")
+                        assertEquals(148, contact.size)
+                        transport.simulateReceive(contact)
+                        runCurrent()
+                        assertFalse(response.isCompleted)
+                    }
+                    if (scenario == "slow") advanceTimeBy(70)
+                    transport.simulateReceive(hex("0480009265"))
+                    runCurrent()
+                    val result = response.await()
+                    assertEquals(if (scenario == "slow") 3 else 2, result.first.size)
+                    assertEquals(if (scenario == "truncated") 3L else null, result.second)
+                    assertEquals(if (scenario == "slow") listOf("Node 0", "Node 1", "Node 2") else
+                        listOf("Node 0", "Node 1"), result.first.map { it.advertisedName })
+                    if (scenario == "slow") assertEquals(280L, testScheduler.currentTime - started)
+                    assertEquals(scenario != "slow", session.isContactsDirty)
+                }
+                assertEquals(2, transport.sentData.size)
+            } finally {
+                session.stop()
+            }
+        }
+    }
+
+    private fun sourceCorrelationContact(keyByte: Int, name: String): Bytes =
+        Bytes.of(0x03) + Bytes(ByteArray(32) { keyByte.toByte() }) + hex("0100ff") +
+            Bytes(ByteArray(64)) + Bytes.utf8(name) + Bytes(ByteArray(32 - name.length)) + Bytes(ByteArray(16))
 
     private fun sourceAutomaticSelfInfo(): Bytes =
         hex("05011416" + "aa".repeat(32) + "00".repeat(8) +

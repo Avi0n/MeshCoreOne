@@ -118,6 +118,14 @@ WP501_ACCEPTANCE_CASES = {
      "originalContactInvalidationsRetainSourceSelfInfoHistoryAndFiftyMillisecondObservation"),
     ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
      "originalConcurrentSettingsWaitForEachFreshSelfInfoBeforeTheNextWrite"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalStartupIgnoresErrorNinetyNineBeforeItsExactSelfInfo"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalSimpleCorrelationKeepsFiftyMillisecondWaitPayloadSevenAndErrorFortyTwo"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalResponsePredicatesRetainTheirKeysIndexesAndLiteralPackets"),
+    ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",
+     "originalContactStreamsKeepCadenceDeclaredTotalsAndInactivityInputs"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

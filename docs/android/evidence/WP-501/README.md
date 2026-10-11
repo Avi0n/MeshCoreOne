@@ -486,6 +486,37 @@ custom0.05/null. Original second family asserts only constructor configuration,
 despite its disabled-resend title. Native status/key31/Sent1ms/50ms/no-extra-write
 exchange is supplemental, not additional original coverage or certified binary
 exchange behavior/independent execution/privileged approval.
+Coordinator bounded immutable906df6fb entire111line issue170 two-method/helper
+addition plus exact collector/binding/proposal9+2 split found no blocking mismatch.
+Every positive observation invokes unique actual helper withTimeout2000 and
+post-await monotonic<2e9; real acceptsoTimeout2000 also bounds blocking IO.
+Source sequential2second milestones, actual emptyFIN and supplemental ordered
+duplicate/empty-frame drain retain count1close/callback/disconnected/no-duplicate
+and usable3C02001603 inputs.906-to-bfa64e442 only5docs/proposal/binding files.
+This resolves local source-level gap;52app/37protocol/363Python remain worker
+execution, not independent rerun/current-remote hosted/full approval. Issue170
+remains open until persistent published/executed/reviewed merge.
+
+Four further required methods add13 selected original command-correlation
+families with exact10seconds/MCTst/62byte Test selfInfo: startup ignores99,
+simple waits50ms/payloadOK7 times out at original200ms/AutoAdd1E2 gets typed42,
+five wrong-key/index/prefix/URI events remain pending before exact result, and
+contact70ms cadence/declared3-count2/nil-header/stalled0.08idle1hard140ms inputs.
+Source startSession/makeSelfInfo/contact/channel/URI/telemetry/battery and global
+10second/10ms checked polling helpers were read with actual consumers. Native
+predecessor shared MCore1second/0.1idle3hard does not establish these source inputs.
+Full148byte incoming contact layout differs from earlier147byte truncated frames.
+Each new proposal is explicitly partial and retains whole original file count;
+other correlation/binary/cancellation families are not counted as inspected.
+New52required identity candidate awaits immutable execution; no product edit.
+Native monotonic injected progress elapsed replaces frozen Date elapsed with
+explicit exact cadence/timeout consequences; wall-clock jumps are not certified.
+Coordinator bounded906 complete source contact-refresh/settings files/device/
+selfInfo helpers/new2methods/shared literal and real requestContactRefresh/
+mutateOtherParams full core.exchange read found no blocking mismatch in those
+two source families. Original source inputs and wire+fresh-cache assertions are
+preserved; stronger native50ms waits are not source5ms emulator/hardware proof
+or independent52app/37protocol execution/full approval.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -523,7 +554,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the572families
+actual inspection. All1,786owned source dispositions require behavior review; only the585families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.
