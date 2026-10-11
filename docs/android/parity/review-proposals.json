@@ -5,6 +5,126 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "lifecycle-original-initial-and-reconnect-handshakes",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "initial start emits connecting then connected": "originalStartupStatesRetainTheExactHandshakeInputs",
+        "reconnect start emits reconnecting then connected": "originalStartupStatesRetainTheExactHandshakeInputs"
+      },
+      "comparison": "Both original initial/reconnect families preserve immediate Disconnected then Connecting or Reconnecting(1) and Connected in order. Real public session startup is suspended after its actual appStart write until original selfInfo is delivered; currentSelfInfo remains null before delivery, then exact TestNode/key01 is visible. Transport stays connected until stop; terminal Disconnected, observer completion and physical disconnection are additional native lifecycle assertions.",
+      "inputs": "Unlike shared native fixture's 1second/MCore/default selfInfo1/22/22/Test inputs, this assertion retains original10seconds/Test startup and exact independently specified66byte response:05000000/key01x32/zero coordinates/multiAck0/policy0/mode0/manual0/915000/125000/SF7/CR5/TestNode. Complete original helper read; appStart010320202020202054657374 is a literal frozen builder expectation, not candidate-generated expected bytes.",
+      "adaptations": "Swift eager AsyncStream iterator becomes an eagerly registered single-consumer Flow collected by a background coroutine on the injected test scheduler. No sleeps or onSend shortcut manufacture handshake success. Both families share one JUnit method and are not two discovered executions; stop stream closure is an already documented native lifecycle adaptation.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ConnectionState.kt"
+      ],
+      "consumer": "Read frozen lifecycle/stream and native start/connectionStates/endGeneration/receive/ownership bodies. Actual connect publishes Connected before selfInfo handshake, receiver registers before query write, parser caches actual SelfInfo and resolves pending reply, and startup readiness is set only after its query returns. Observer registration atomically enqueues current state before later transitions. These consumers are exercised, not merely enum equality.",
+      "unresolved": ["New exact method requires current-head positive execution and independent review. No Android BLE/reconnect/platform UI or physical transport claim follows from MockTransport."],
+      "methods": ["initial start emits connecting then connected", "reconnect start emits reconnecting then connected"]
+    },
+    {
+      "id": "lifecycle-original-failed-handshake-intermediate-states-and-retry",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "failed appStart unwinds start so it can be retried": "originalFiftyMillisecondFailureKeepsIntermediateStatesAndWritesAgain"
+      },
+      "comparison": "Original failed startup emits Connecting and Connected before Failed, leaves currentSelfInfo null, and a retry sends a second fresh appStart rather than succeeding/no-op. Existing original-named native test checked only Failed/null and two writes; this gap-fill asserts both intermediate states for each attempt, exact two literal writes, typed Timeout and disconnected transport. Supplemental49ms pending then50ms timeout checks measure the actual original deadline.",
+      "inputs": "Original50millisecond defaultTimeout and client Test retained, with all other source configuration defaults. No selfInfo delivered. Two successive public starts use the same session/transport/observer and exact independent Test startup bytes. Source real50ms timer becomes injected clock with explicit49+1ms advancement, not a looser default fixture deadline.",
+      "adaptations": "Observer OSAllocatedUnfairLock/Task becomes scheduler-confined list/Flow collection. Typed Timeout specializes original MeshCoreError assertion; native cleanup joins the failed generation before return, rather than a detached canceled receiver. Neither failure/assertion nor deadline is weakened.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionTransportOwnership.kt"
+      ],
+      "consumer": "Actual startup failure unwinds active generation with original failure, publishes Failed, disconnects and cancels/joins receiver. Retry creates a fresh generation after preceding cleanup with state subscription still active. CurrentSelfInfo reads active generation, so stale handshake state cannot become readiness. Frozen isRunning reset and fresh appStart semantics are retained.",
+      "unresolved": ["New exact method requires current-head execution and independent semantic review. No new product defect is inferred from the prior native assertion/input gap."],
+      "methods": ["failed appStart unwinds start so it can be retried"]
+    },
+    {
+      "id": "lifecycle-original-input-validation-before-transport",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "getContact rejects short public key before sending": "originalInvalidInputsDoNotWriteOrConnect",
+        "requestStatus rejects short public key before sending": "originalInvalidInputsDoNotWriteOrConnect",
+        "setPathHashMode rejects reserved mode before sending": "originalInvalidInputsDoNotWriteOrConnect"
+      },
+      "comparison": "All three originals assert typed MeshCoreError before any sentData:31byteAA getContact,31byteBB requestStatus and reserved path mode3. Native specializes InvalidInput and preserves empty writes; supplemental isConnected=false proves validation does not start/claim a link as a side effect.",
+      "inputs": "Exact original10seconds/Test configuration,31byte key lengths/values and mode3 are retained through actual public API. The shared native fixture uses different defaults; new owned method fills that exact-input seam. Three original families share one actual JUnit runner, not three executions.",
+      "adaptations": "Typed InvalidInput replaces a generic enum-error expectation. No session handshake is added before validation. List of explicitly literal suspend operations merely combines independent original actions on one untouched session.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt"
+      ],
+      "consumer": "Actual public getContact and requestStatus requireFullPublicKey before exchange/write; setPathHashMode rejects >MAX_PATH_HASH_MODE before simple packet construction/exchange. Error is observable at the caller without transport side effects or success-shaped absence.",
+      "unresolved": ["Current-head positive method execution and independent review remain required; this is not proof of every configuration/input boundary."],
+      "methods": ["getContact rejects short public key before sending", "requestStatus rejects short public key before sending", "setPathHashMode rejects reserved mode before sending"]
+    },
+    {
+      "id": "lifecycle-original-unstarted-stop-ownership",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "stop with disconnectTransport false leaves the transport connected": "originalUnstartedStopRetainsTheDisconnectOwnershipFlag",
+        "stop by default disconnects the transport": "originalUnstartedStopRetainsTheDisconnectOwnershipFlag"
+      },
+      "comparison": "Both original stop cases use an unstarted session and assert disconnect invocation0 for false or1 for default. Original title says connected but original mock starts false and does not call connect; this method retains actual unstarted source input rather than silently using existing native preconnected variation. Exact disconnect counts and empty writes/isConnected=false are asserted through public session.stop.",
+      "inputs": "Original default SessionConfiguration and initially disconnected mock. Two fresh sessions each use one delegating MeshTransport whose sole overridden disconnect counts then calls actual MockTransport.disconnect; no fake success/disconnect-state substitute. Real retained-connected evidence remains in existing native variation, not reclassified as this original input.",
+      "adaptations": "Actor invocation counter becomes test-confined counter on scheduler. Source repeated default stop could call disconnect repeatedly; native generation closes exactly once, an existing WP107 adaptation. This selected original only calls stop once; no repeat-call equality is claimed.",
+      "helpers": [
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionTransportOwnership.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalLifecycleCasesTest.kt"
+      ],
+      "consumer": "Actual initial native generation can be stopped without startup. Default stop acquires appropriate transport ownership and closes it once; false stops generation without taking/disconnecting a caller's transport. Teardown receipt is awaited and stream/pending generation children finish. No Android OS reconnect ownership behavior is certified by this counter.",
+      "unresolved": ["New current-head method must execute positively and receive independent review. Physical reconnect/link ownership remains separately scoped."],
+      "methods": ["stop with disconnectTransport false leaves the transport connected", "stop by default disconnects the transport"]
+    },
+    {
+      "id": "lifecycle-original-binary-timeout-configuration",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/BinaryRequestTimeoutTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalLifecycleCasesTest.kt",
+      "native_factory": "originalCases",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.session.OriginalLifecycleCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "Both original configuration families preserve default40seconds overall,1second retransmit floor and2RTT headroom, plus custom0.05seconds/null disabled retransmit. Exact scalar/null assertions match frozen body. Native second original-named method additionally performs a real status exchange through the public session, sends MessageSent with1ms suggestion then reaches50ms typedTimeout without any resend; this supplement is not an extra source declaration.",
+      "inputs": "Both original constructor inputs and constants are exact. Supplemental native exchange changes client to MCore solely for its shared startup fixture and uses key31x32; neither is passed off as source input because originals do not perform a request.",
+      "adaptations": "Swift optional TimeInterval maps to nullable Double seconds. Binary configuration itself has no behavior change. Native retransmission waits for first actual MessageSent to bind correlation before resends, unlike source timer starting after initial write; existing WP107 correlation adaptation remains separate from these two scalar constructor tests.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/SessionTestSupport.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/SessionConfiguration.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt"
+      ],
+      "consumer": "Read complete frozen/native configuration and actual binary exchange timeout/cadence blocks. Native withDeadline uses overall seconds, nullable floor disables retransmit launch entirely and firmware milliseconds update max floor/headroom cadence. These two original cases prove constructor/default meanings, not every binary timing/tag/cancellation family.",
+      "unresolved": ["Both exact original native runner identities require current-head execution and independent review. Other binary exchange families and the supplemental exchange's independent expected packet remain separately auditable."],
+      "methods": ["defaults use a 40 second overall budget and 1 second retransmit floor", "configuration accepts custom overall and nil retransmit disables in exchange resends"]
+    },
+    {
       "id": "wifi-independent-literal-frame-and-incomplete-chunk-families",
       "source_path": "MeshCore/Tests/MeshCoreTests/Transport/WiFiFrameCodecTests.swift",
       "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/transport/WiFiFrameCodecTest.kt",

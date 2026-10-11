@@ -125,14 +125,14 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **548 actually inspected families in 67 groups**:
+`review-proposals.json` contains **558 actually inspected families in 72 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
 contact/share/QR/discovery20, localization2, backup-integration127 and
 protocol/application byte/path/transport54, modern command/flood-scope/reset28
 modern session acknowledgment/error/scope/trace12, channel pipeline5,
 LPP18, distinct contact-packet/public-flags4, V112 parser/command/cache25
 complete RoundTrip39, complete event-filter/dispatch/error17 and WiFi frame/
-transport18.
+transport18 and lifecycle/input-validation/stop/binary-configuration10.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -288,7 +288,16 @@ at the separate core:services RxLog restart readiness test; SwiftData was skippe
 Coordinator owns its bounded test-readiness repair and no RxLog path is edited
 here. This next increment is still local only; no current hosted pass is inferred.
 
-The 548 proposals are a bounded reviewable implementation increment,
+Four new lifecycle acceptance methods retain original10seconds/Test/full66byte
+TestNode selfInfo, all failed50ms intermediate Connecting/Connected/Failed and
+fresh retry writes, exact31byteAA/BB and mode3 no-write validation, and initially
+disconnected/unstarted stop0/1 invocations. Shared native fixture input and missing
+intermediate assertions were test-acceptance gaps, not established product defects.
+Both original binary configuration families are also inspected through actual
+timeout/cadence consumers. New39 required identities and both binary native runner
+identities await current-head execution; coordinator currently owns native locks.
+
+The 558 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "b29650c5f4d9898e5c6dc476cdea87d35f6b07c545b0e243bebb40b647a37d96",
+  "proposal_sha256": "a0e107adb86c55de23dee7543a23ca696f9c213d5abfe2ccda8be2e0a3159cd2",
   "families": [
     {
       "group": "backup-envelope",
@@ -36846,6 +36846,364 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "lifecycle-original-unstarted-stop-ownership",
+      "comparison_sha256": "c0bca9d956fd083388f1ab744d54947b3b6c7422f4667da02b1bc8008a1e2127",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+      "source_blob_sha": "44853b6d73abecefd3d2036704e996f6503ea344",
+      "case_id": "MeshCoreSessionStopTests::stop by default disconnects the transport()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "72833a352916cc977252aa552a0441699450291571465211aa2eb5b575adddcb",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 27,
+          "expression": "#expect(await transport.disconnectInvocations == 1)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalUnstartedStopRetainsTheDisconnectOwnershipFlag",
+        "line": 138,
+        "end_line": 156,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b5642063feb32b14c30a14b385dadd8766f6fbe6adfaa46676d52c2c9a01796a",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertFalse",
+            "line": 150,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 152,
+            "expression": "assertEquals(if (disconnect) 1 else 0, disconnects)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 153,
+            "expression": "assertTrue(transport.sentData.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 154,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "for",
+            "line": 139,
+            "expression": "for (disconnect in listOf(false, true))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 139,
+            "expression": "listOf(false, true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MockTransport",
+            "line": 140,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "disconnect",
+            "line": 143,
+            "expression": "disconnect()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.disconnect",
+            "line": 145,
+            "expression": "transport.disconnect()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 148,
+            "expression": "MeshCoreSession(counted, clock = publicSessionClock(),\n                coroutineContext = backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 148,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 150,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 151,
+            "expression": "if (disconnect)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 151,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 151,
+            "expression": "session.stop(disconnectTransport = false)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 152,
+            "expression": "if (disconnect)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.isEmpty",
+            "line": 153,
+            "expression": "transport.sentData.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 154,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MeshCoreSessionStopTests::stop with disconnectTransport false leaves the transport connected()",
+          "MeshCoreSessionStopTests::stop by default disconnects the transport()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionTransportOwnership.kt",
+          "sha256": "36fc15b8700cf0edb51e09fc78d61ecc03844dfa617ab4e9feffb7f140090a45"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+          "sha256": "30dad0d2211e873fb22d2e2c523b1004b8278e71479ac6a2001fdb56cb462ac0"
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalLifecycleCasesTest.kt",
+          "sha256": "f857fdedd5d64fbeed91cb824b7322a70934695da35cdbba621a34fd7b083825"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalUnstartedStopRetainsTheDisconnectOwnershipFlag"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-unstarted-stop-ownership",
+      "comparison_sha256": "c0bca9d956fd083388f1ab744d54947b3b6c7422f4667da02b1bc8008a1e2127",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+      "source_blob_sha": "44853b6d73abecefd3d2036704e996f6503ea344",
+      "case_id": "MeshCoreSessionStopTests::stop with disconnectTransport false leaves the transport connected()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "a06f5c5ce19d4df02194b7fc00877ecdbb2274186afd5944387d22217d90dc76",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(await transport.disconnectInvocations == 0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalUnstartedStopRetainsTheDisconnectOwnershipFlag",
+        "line": 138,
+        "end_line": 156,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b5642063feb32b14c30a14b385dadd8766f6fbe6adfaa46676d52c2c9a01796a",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertFalse",
+            "line": 150,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 152,
+            "expression": "assertEquals(if (disconnect) 1 else 0, disconnects)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 153,
+            "expression": "assertTrue(transport.sentData.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 154,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "for",
+            "line": 139,
+            "expression": "for (disconnect in listOf(false, true))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 139,
+            "expression": "listOf(false, true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MockTransport",
+            "line": 140,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "disconnect",
+            "line": 143,
+            "expression": "disconnect()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.disconnect",
+            "line": 145,
+            "expression": "transport.disconnect()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 148,
+            "expression": "MeshCoreSession(counted, clock = publicSessionClock(),\n                coroutineContext = backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 148,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 150,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 151,
+            "expression": "if (disconnect)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 151,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 151,
+            "expression": "session.stop(disconnectTransport = false)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 152,
+            "expression": "if (disconnect)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.isEmpty",
+            "line": 153,
+            "expression": "transport.sentData.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 154,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "MeshCoreSessionStopTests::stop with disconnectTransport false leaves the transport connected()",
+          "MeshCoreSessionStopTests::stop by default disconnects the transport()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionTransportOwnership.kt",
+          "sha256": "36fc15b8700cf0edb51e09fc78d61ecc03844dfa617ab4e9feffb7f140090a45"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+          "sha256": "30dad0d2211e873fb22d2e2c523b1004b8278e71479ac6a2001fdb56cb462ac0"
+        },
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalLifecycleCasesTest.kt",
+          "sha256": "f857fdedd5d64fbeed91cb824b7322a70934695da35cdbba621a34fd7b083825"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalUnstartedStopRetainsTheDisconnectOwnershipFlag"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "message-paths",
       "comparison_sha256": "7ff94b9f377679e14f2c26b2728593a36f08dae9b329ca81dcac5642f367b444",
       "source_file_family_count": 4,
@@ -69558,6 +69916,1958 @@
       "runner_identity": [
         "com.meshcoreone.android.core.protocol.command.V115CommandsTest",
         "setDefaultFloodScope with disabled scope clears()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-binary-timeout-configuration",
+      "comparison_sha256": "079fd7ec7a7f1f7570387f910fc12f0c5d90b29b6559b72afaf0bc5d70d0ea49",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/BinaryRequestTimeoutTests.swift",
+      "source_blob_sha": "44c1207da924439661536e9bac78db866beb1a2d",
+      "case_id": "BinaryRequestTimeoutTests::configuration accepts custom overall and nil retransmit disables in exchange resends()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "dafceca2dc84d2c16609752bcdcd0597943961311e339b42cdef2040aadae78c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 21,
+          "expression": "#expect(configuration.binaryRequestOverallTimeout == 0.05)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 22,
+          "expression": "#expect(configuration.binaryRequestRetransmitInterval == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalLifecycleCasesTest.kt",
+        "sha256": "f857fdedd5d64fbeed91cb824b7322a70934695da35cdbba621a34fd7b083825",
+        "class": "com.meshcoreone.android.core.protocol.session.OriginalLifecycleCasesTest",
+        "method_or_family_name": "configuration accepts custom overall and nil retransmit disables in exchange resends",
+        "line": 92,
+        "end_line": 107,
+        "factory_method": "originalCases",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "d8e2d68178632f90747c824c9d604dc103b3f5aa4dada4c06e93e98af46c8d21",
+        "registration": "original(\"BinaryRequestTimeoutTests\", \"configuration accepts custom overall and nil retransmit disables in exchange resends\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 94,
+            "expression": "assertEquals(0.05, configuration.binaryRequestOverallTimeout)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 95,
+            "expression": "assertNull(configuration.binaryRequestRetransmitInterval)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFailsWith",
+            "line": 104,
+            "expression": "assertFailsWith<MeshCoreException.Timeout> { task.await() }",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 105,
+            "expression": "assertEquals(2, f.transport.sent.size)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "SessionConfiguration",
+            "line": 93,
+            "expression": "SessionConfiguration(binaryRequestOverallTimeout = 0.05, binaryRequestRetransmitInterval = null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "fixture",
+            "line": 96,
+            "expression": "fixture(configuration.copy(clientIdentifier = \"MCore\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "configuration.copy",
+            "line": 96,
+            "expression": "configuration.copy(clientIdentifier = \"MCore\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "start",
+            "line": 97,
+            "expression": "start(f)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "f.session.requestStatus",
+            "line": 98,
+            "expression": "f.session.requestStatus(filled(0x31, 32))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "filled",
+            "line": 98,
+            "expression": "filled(0x31, 32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 99,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "f.transport.receive",
+            "line": 100,
+            "expression": "f.transport.receive(sentPacket(timeoutMs = 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sentPacket",
+            "line": 100,
+            "expression": "sentPacket(timeoutMs = 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 101,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 102,
+            "expression": "advanceTimeBy(50)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 103,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "task.await",
+            "line": 104,
+            "expression": "task.await()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "f.session.stop",
+            "line": 106,
+            "expression": "f.session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/BinaryRequestTimeoutTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "BinaryRequestTimeoutTests::configuration accepts custom overall and nil retransmit disables in exchange resends()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/SessionTestSupport.kt",
+          "sha256": "70d641957515ce8ba71e543b1a9d8b92b3e2c923688c4322aedcd5ad436fade0"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/SessionConfiguration.kt",
+          "sha256": "a7a1f433351b924b5180f05d9fb3507404f7c28cad9b3dbcb6592e27aa2aaf8c"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+          "sha256": "b1628a17653cf20b341834bcb5280ae508521b5ba12f2e658e412fa877cb7379"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+          "sha256": "77760436952147c1dc939b81e063c917169612a82859a9f77747ca51889a0ce4"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.session.OriginalLifecycleCasesTest",
+        "BinaryRequestTimeoutTests::configuration accepts custom overall and nil retransmit disables in exchange resends()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-binary-timeout-configuration",
+      "comparison_sha256": "079fd7ec7a7f1f7570387f910fc12f0c5d90b29b6559b72afaf0bc5d70d0ea49",
+      "source_file_family_count": 2,
+      "group_compared_family_count": 2,
+      "partial_source_file": false,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/BinaryRequestTimeoutTests.swift",
+      "source_blob_sha": "44c1207da924439661536e9bac78db866beb1a2d",
+      "case_id": "BinaryRequestTimeoutTests::defaults use a 40 second overall budget and 1 second retransmit floor()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "83441412afd4e2e521c664901ff98cce275a60e8ed3fbe0e31a7185bcbdf678c",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 10,
+          "expression": "#expect(configuration.binaryRequestOverallTimeout == 40.0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 11,
+          "expression": "#expect(configuration.binaryRequestRetransmitInterval == 1.0)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 12,
+          "expression": "#expect(SessionConfiguration.binaryRetransmitRTTHeadroom == 2.0)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/OriginalLifecycleCasesTest.kt",
+        "sha256": "f857fdedd5d64fbeed91cb824b7322a70934695da35cdbba621a34fd7b083825",
+        "class": "com.meshcoreone.android.core.protocol.session.OriginalLifecycleCasesTest",
+        "method_or_family_name": "defaults use a 40 second overall budget and 1 second retransmit floor",
+        "line": 86,
+        "end_line": 91,
+        "factory_method": "originalCases",
+        "registration_identity_resolution": "exact-literal-display",
+        "body_sha256": "bd819191f1f7a253f5aa791b5265f542586e9080c9473e327fbc1ffab90f796e",
+        "registration": "original(\"BinaryRequestTimeoutTests\", \"defaults use a 40 second overall budget and 1 second retransmit floor\")",
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 88,
+            "expression": "assertEquals(40.0, configuration.binaryRequestOverallTimeout)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 89,
+            "expression": "assertEquals(1.0, configuration.binaryRequestRetransmitInterval)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 90,
+            "expression": "assertEquals(2.0, SessionConfiguration.BINARY_RETRANSMIT_RTT_HEADROOM)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "SessionConfiguration",
+            "line": 87,
+            "expression": "SessionConfiguration()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/BinaryRequestTimeoutTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "BinaryRequestTimeoutTests::defaults use a 40 second overall budget and 1 second retransmit floor()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/session/SessionTestSupport.kt",
+          "sha256": "70d641957515ce8ba71e543b1a9d8b92b3e2c923688c4322aedcd5ad436fade0"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/config/SessionConfiguration.kt",
+          "sha256": "a7a1f433351b924b5180f05d9fb3507404f7c28cad9b3dbcb6592e27aa2aaf8c"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+          "sha256": "b1628a17653cf20b341834bcb5280ae508521b5ba12f2e658e412fa877cb7379"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+          "sha256": "77760436952147c1dc939b81e063c917169612a82859a9f77747ca51889a0ce4"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_identity": [
+        "com.meshcoreone.android.core.protocol.session.OriginalLifecycleCasesTest",
+        "BinaryRequestTimeoutTests::defaults use a 40 second overall budget and 1 second retransmit floor()"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-failed-handshake-intermediate-states-and-retry",
+      "comparison_sha256": "9db2b5323bbc61c92b572e4ee1881be48a638db28bf22dcd3e32b1b14a9a8834",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 1,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "source_blob_sha": "d585215610e8c9e9722e99c5d5deba1cdf57d741",
+      "case_id": "ConnectionStateTests::failed appStart unwinds start so it can be retried()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "292304b2734e419f69fd4deffb5d5ae1b722196883b024713aa85c3641b5533f",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 83,
+          "expression": "#expect(throws: MeshCoreError.self) {\n      try await session.start()\n    }",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 94,
+          "expression": "#expect(states.contains(.connecting))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 95,
+          "expression": "#expect(states.contains(.connected))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 96,
+          "expression": "#expect(await session.currentSelfInfo == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 99,
+          "expression": "#expect(throws: MeshCoreError.self) {\n      try await session.start()\n    }",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 102,
+          "expression": "#expect(await transport.sentData.count == 2, \"retry start() should send a fresh appStart\")",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalFiftyMillisecondFailureKeepsIntermediateStatesAndWritesAgain",
+        "line": 65,
+        "end_line": 107,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "fc150ffde9c5d1755be06f2995bb043b06dc4b72752e5518dd62ab183b924a19",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 73,
+            "expression": "assertEquals(listOf(ConnectionState.Disconnected), states)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 85,
+            "expression": "assertEquals(attempt + 1, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 86,
+            "expression": "assertEquals(Bytes.fromHex(\"010320202020202054657374\"), transport.sentData.last())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 87,
+            "expression": "assertEquals(ConnectionState.Connecting, states[states.lastIndex - 1])",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 88,
+            "expression": "assertEquals(ConnectionState.Connected, states.last())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 89,
+            "expression": "assertFalse(startup.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 92,
+            "expression": "assertFalse(\"The original fifty-millisecond deadline has not expired\", startup.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 95,
+            "expression": "assertTrue(startup.await() is MeshCoreException.Timeout)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 96,
+            "expression": "assertTrue(states.last() is ConnectionState.Failed)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 97,
+            "expression": "assertNull(session.currentSelfInfo)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 98,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 100,
+            "expression": "assertEquals(2, transport.sentData.size)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 101,
+            "expression": "assertEquals(2, states.count { it == ConnectionState.Connecting })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 102,
+            "expression": "assertEquals(2, states.count { it == ConnectionState.Connected })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 103,
+            "expression": "assertEquals(2, states.count { it is ConnectionState.Failed })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 66,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 67,
+            "expression": "MeshCoreSession(transport,\n            SessionConfiguration(defaultTimeout = 0.05, clientIdentifier = \"Test\"),\n            publicSessionClock(), backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SessionConfiguration",
+            "line": 68,
+            "expression": "SessionConfiguration(defaultTimeout = 0.05, clientIdentifier = \"Test\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 69,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "mutableListOf",
+            "line": 70,
+            "expression": "mutableListOf<ConnectionState>()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 72,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 73,
+            "expression": "listOf(ConnectionState.Disconnected)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 75,
+            "expression": "repeat(2)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.start",
+            "line": 78,
+            "expression": "session.start()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "error",
+            "line": 79,
+            "expression": "error(\"A missing selfInfo cannot make startup successful\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "catch",
+            "line": 80,
+            "expression": "catch (failure: MeshCoreException.Timeout)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 84,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.fromHex",
+            "line": 86,
+            "expression": "Bytes.fromHex(\"010320202020202054657374\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.last",
+            "line": 86,
+            "expression": "transport.sentData.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "states.last",
+            "line": 88,
+            "expression": "states.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 90,
+            "expression": "advanceTimeBy(49)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 91,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "advanceTimeBy",
+            "line": 93,
+            "expression": "advanceTimeBy(1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 94,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startup.await",
+            "line": 95,
+            "expression": "startup.await()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "states.last",
+            "line": 96,
+            "expression": "states.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 98,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 105,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ConnectionStateTests::failed appStart unwinds start so it can be retried()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionClock.kt",
+          "sha256": "77760436952147c1dc939b81e063c917169612a82859a9f77747ca51889a0ce4"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionTransportOwnership.kt",
+          "sha256": "36fc15b8700cf0edb51e09fc78d61ecc03844dfa617ab4e9feffb7f140090a45"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalFiftyMillisecondFailureKeepsIntermediateStatesAndWritesAgain"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-input-validation-before-transport",
+      "comparison_sha256": "602382969e1af7c2f0cd6db443724a3dab40d0c31000758ca605145a6dbe1890",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 3,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "source_blob_sha": "d585215610e8c9e9722e99c5d5deba1cdf57d741",
+      "case_id": "ConnectionStateTests::getContact rejects short public key before sending()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "6c70d6a79372aed1133f600a628c9bed63fe2074f759c43ff46f2d0ea4a16ebc",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 115,
+          "expression": "#expect(throws: MeshCoreError.self) {\n      _ = try await session.getContact(publicKey: Data(repeating: 0xAA, count: 31))\n    }",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 119,
+          "expression": "#expect(await transport.sentData.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalInvalidInputsDoNotWriteOrConnect",
+        "line": 112,
+        "end_line": 134,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0525787d936ae600c3e90a5c85a24eb1d7c4a9c50c7a4d080e5df224ac80de32",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "fail",
+            "line": 125,
+            "expression": "fail(\"Invalid source input must remain a typed failure\")",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 127,
+            "expression": "assertTrue(transport.sentData.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 128,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 113,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 114,
+            "expression": "MeshCoreSession(transport,\n            SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\"),\n            publicSessionClock(), backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SessionConfiguration",
+            "line": 115,
+            "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 116,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 118,
+            "expression": "for (operation in listOf<suspend () -> Unit>(\n                { session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() })); Unit },\n                { session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() })); Unit },\n                { session.setPathHashMode(3u) },\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 118,
+            "expression": "listOf<suspend () -> Unit>(\n                { session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() })); Unit },\n                { session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() })); Unit },\n                { session.setPathHashMode(3u) },\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "suspend",
+            "line": 118,
+            "expression": "suspend ()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.getContact",
+            "line": 119,
+            "expression": "session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() }))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 119,
+            "expression": "Bytes(ByteArray(31) { 0xAA.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 119,
+            "expression": "ByteArray(31)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 119,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.requestStatus",
+            "line": 120,
+            "expression": "session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() }))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 120,
+            "expression": "Bytes(ByteArray(31) { 0xBB.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 120,
+            "expression": "ByteArray(31)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 120,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.setPathHashMode",
+            "line": 121,
+            "expression": "session.setPathHashMode(3u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "operation",
+            "line": 124,
+            "expression": "operation()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "catch",
+            "line": 126,
+            "expression": "catch (_: MeshCoreException.InvalidInput)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.isEmpty",
+            "line": 127,
+            "expression": "transport.sentData.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 128,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 132,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ConnectionStateTests::getContact rejects short public key before sending()",
+          "ConnectionStateTests::requestStatus rejects short public key before sending()",
+          "ConnectionStateTests::setPathHashMode rejects reserved mode before sending()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+          "sha256": "250548cae47ee691f3ade9aca8ba598d63a0be9e213bed7c990720ac3d5cb2ff"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
+          "sha256": "380c4c362b978885e25881b76f23ecf8c4a6f15ec4b4cda83f8b327263b67abf"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+          "sha256": "b1628a17653cf20b341834bcb5280ae508521b5ba12f2e658e412fa877cb7379"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalInvalidInputsDoNotWriteOrConnect"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-initial-and-reconnect-handshakes",
+      "comparison_sha256": "b99b486add923685a59fbc54b2f68513ca88bb4976e37938e0109f2290bd2a6d",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 2,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "source_blob_sha": "d585215610e8c9e9722e99c5d5deba1cdf57d741",
+      "case_id": "ConnectionStateTests::initial start emits connecting then connected()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "03dfb2f4717ae0360e098bbd65ef09c674eb64a698c43f68c9c5a2d2d23e8445",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 17,
+          "expression": "#expect(await iterator.next() == .disconnected)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 30,
+          "expression": "#expect(await iterator.next() == .connecting)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 31,
+          "expression": "#expect(await iterator.next() == .connected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalStartupStatesRetainTheExactHandshakeInputs",
+        "line": 27,
+        "end_line": 62,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "81b4b999c023b7448bf428975f0777c72969f860786f9f5be742a59b9113b616",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 36,
+            "expression": "assertEquals(listOf(ConnectionState.Disconnected), states)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 40,
+            "expression": "assertEquals(listOf(Bytes.fromHex(\"010320202020202054657374\")), transport.sentData)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 41,
+            "expression": "assertFalse(startup.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 42,
+            "expression": "assertNull(session.currentSelfInfo)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 44,
+            "expression": "assertEquals(listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected), states)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 50,
+            "expression": "assertEquals(listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected), states)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 51,
+            "expression": "assertEquals(\"TestNode\", session.currentSelfInfo?.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 52,
+            "expression": "assertEquals(Bytes(ByteArray(32) { 1 }), session.currentSelfInfo?.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 53,
+            "expression": "assertTrue(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 58,
+            "expression": "assertEquals(ConnectionState.Disconnected, states.last())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 59,
+            "expression": "assertTrue(observer.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 60,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "for",
+            "line": 28,
+            "expression": "for (attempt in listOf<Long?>(null, 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 28,
+            "expression": "listOf<Long?>(null, 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MockTransport",
+            "line": 29,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 30,
+            "expression": "MeshCoreSession(transport,\n                SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\"),\n                publicSessionClock(), backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SessionConfiguration",
+            "line": 31,
+            "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 32,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "mutableListOf",
+            "line": 33,
+            "expression": "mutableListOf<ConnectionState>()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 35,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 36,
+            "expression": "listOf(ConnectionState.Disconnected)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.start",
+            "line": 38,
+            "expression": "session.start(reconnectingAttempt = attempt)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 39,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 40,
+            "expression": "listOf(Bytes.fromHex(\"010320202020202054657374\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.fromHex",
+            "line": 40,
+            "expression": "Bytes.fromHex(\"010320202020202054657374\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 43,
+            "expression": "if (attempt == null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ConnectionState.Reconnecting",
+            "line": 43,
+            "expression": "ConnectionState.Reconnecting(1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 44,
+            "expression": "listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 45,
+            "expression": "transport.simulateReceive(Bytes.fromHex(\n                    \"05000000\" + \"01\".repeat(32) + \"00\".repeat(12) +\n                        \"38630d0048e801000705546573744e6f6465\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.fromHex",
+            "line": 45,
+            "expression": "Bytes.fromHex(\n                    \"05000000\" + \"01\".repeat(32) + \"00\".repeat(12) +\n                        \"38630d0048e801000705546573744e6f6465\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 46,
+            "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 46,
+            "expression": "repeat(12)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 48,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startup.await",
+            "line": 49,
+            "expression": "startup.await()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 50,
+            "expression": "listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 52,
+            "expression": "Bytes(ByteArray(32) { 1 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 52,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 53,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 55,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 57,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "states.last",
+            "line": 58,
+            "expression": "states.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 60,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ConnectionStateTests::initial start emits connecting then connected()",
+          "ConnectionStateTests::reconnect start emits reconnecting then connected()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+          "sha256": "250548cae47ee691f3ade9aca8ba598d63a0be9e213bed7c990720ac3d5cb2ff"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+          "sha256": "30dad0d2211e873fb22d2e2c523b1004b8278e71479ac6a2001fdb56cb462ac0"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ConnectionState.kt",
+          "sha256": "4b72fe1bd4ef642656560fa828887eb09a299b688a3e864acf9bf5166d458eb3"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalStartupStatesRetainTheExactHandshakeInputs"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-initial-and-reconnect-handshakes",
+      "comparison_sha256": "b99b486add923685a59fbc54b2f68513ca88bb4976e37938e0109f2290bd2a6d",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 2,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "source_blob_sha": "d585215610e8c9e9722e99c5d5deba1cdf57d741",
+      "case_id": "ConnectionStateTests::reconnect start emits reconnecting then connected()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "e2c8dd94b089ff1d923ce7619205691656a33edebe14103a89ca2dcf37b5e4db",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 45,
+          "expression": "#expect(await iterator.next() == .disconnected)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 58,
+          "expression": "#expect(await iterator.next() == .reconnecting(attempt: 1))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 59,
+          "expression": "#expect(await iterator.next() == .connected)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalStartupStatesRetainTheExactHandshakeInputs",
+        "line": 27,
+        "end_line": 62,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "81b4b999c023b7448bf428975f0777c72969f860786f9f5be742a59b9113b616",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 36,
+            "expression": "assertEquals(listOf(ConnectionState.Disconnected), states)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 40,
+            "expression": "assertEquals(listOf(Bytes.fromHex(\"010320202020202054657374\")), transport.sentData)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 41,
+            "expression": "assertFalse(startup.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 42,
+            "expression": "assertNull(session.currentSelfInfo)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 44,
+            "expression": "assertEquals(listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected), states)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 50,
+            "expression": "assertEquals(listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected), states)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 51,
+            "expression": "assertEquals(\"TestNode\", session.currentSelfInfo?.name)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 52,
+            "expression": "assertEquals(Bytes(ByteArray(32) { 1 }), session.currentSelfInfo?.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 53,
+            "expression": "assertTrue(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 58,
+            "expression": "assertEquals(ConnectionState.Disconnected, states.last())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 59,
+            "expression": "assertTrue(observer.isCompleted)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 60,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "for",
+            "line": 28,
+            "expression": "for (attempt in listOf<Long?>(null, 1))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 28,
+            "expression": "listOf<Long?>(null, 1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MockTransport",
+            "line": 29,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 30,
+            "expression": "MeshCoreSession(transport,\n                SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\"),\n                publicSessionClock(), backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SessionConfiguration",
+            "line": 31,
+            "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 32,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "mutableListOf",
+            "line": 33,
+            "expression": "mutableListOf<ConnectionState>()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 35,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 36,
+            "expression": "listOf(ConnectionState.Disconnected)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.start",
+            "line": 38,
+            "expression": "session.start(reconnectingAttempt = attempt)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 39,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 40,
+            "expression": "listOf(Bytes.fromHex(\"010320202020202054657374\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.fromHex",
+            "line": 40,
+            "expression": "Bytes.fromHex(\"010320202020202054657374\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "if",
+            "line": 43,
+            "expression": "if (attempt == null)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ConnectionState.Reconnecting",
+            "line": 43,
+            "expression": "ConnectionState.Reconnecting(1)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 44,
+            "expression": "listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.simulateReceive",
+            "line": 45,
+            "expression": "transport.simulateReceive(Bytes.fromHex(\n                    \"05000000\" + \"01\".repeat(32) + \"00\".repeat(12) +\n                        \"38630d0048e801000705546573744e6f6465\"))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes.fromHex",
+            "line": 45,
+            "expression": "Bytes.fromHex(\n                    \"05000000\" + \"01\".repeat(32) + \"00\".repeat(12) +\n                        \"38630d0048e801000705546573744e6f6465\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 46,
+            "expression": "repeat(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "repeat",
+            "line": 46,
+            "expression": "repeat(12)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 48,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "startup.await",
+            "line": 49,
+            "expression": "startup.await()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 50,
+            "expression": "listOf(ConnectionState.Disconnected, pendingState, ConnectionState.Connected)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 52,
+            "expression": "Bytes(ByteArray(32) { 1 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 52,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 53,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 55,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "runCurrent",
+            "line": 57,
+            "expression": "runCurrent()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "states.last",
+            "line": 58,
+            "expression": "states.last()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 60,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ConnectionStateTests::initial start emits connecting then connected()",
+          "ConnectionStateTests::reconnect start emits reconnecting then connected()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionResponseAcceptanceTest.kt",
+          "sha256": "5b14af5b285cbfc9d15f32031b09dfaa98f6171b6da35abd9c57fc4e7de63350"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionCore.kt",
+          "sha256": "e23b0bbef688bc3ee1a85bfa450f5bd5537381a1f3bfb05338cd5bb9f5ae4791"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+          "sha256": "250548cae47ee691f3ade9aca8ba598d63a0be9e213bed7c990720ac3d5cb2ff"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/transport/mock/MockTransport.kt",
+          "sha256": "30dad0d2211e873fb22d2e2c523b1004b8278e71479ac6a2001fdb56cb462ac0"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/event/ConnectionState.kt",
+          "sha256": "4b72fe1bd4ef642656560fa828887eb09a299b688a3e864acf9bf5166d458eb3"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalStartupStatesRetainTheExactHandshakeInputs"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-input-validation-before-transport",
+      "comparison_sha256": "602382969e1af7c2f0cd6db443724a3dab40d0c31000758ca605145a6dbe1890",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 3,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "source_blob_sha": "d585215610e8c9e9722e99c5d5deba1cdf57d741",
+      "case_id": "ConnectionStateTests::requestStatus rejects short public key before sending()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2d034db5d3fc3f37dbe75a10d86da1ae14d30047d381f1735e673f99281221ab",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 130,
+          "expression": "#expect(throws: MeshCoreError.self) {\n      _ = try await session.requestStatus(from: Data(repeating: 0xBB, count: 31))\n    }",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 134,
+          "expression": "#expect(await transport.sentData.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalInvalidInputsDoNotWriteOrConnect",
+        "line": 112,
+        "end_line": 134,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0525787d936ae600c3e90a5c85a24eb1d7c4a9c50c7a4d080e5df224ac80de32",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "fail",
+            "line": 125,
+            "expression": "fail(\"Invalid source input must remain a typed failure\")",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 127,
+            "expression": "assertTrue(transport.sentData.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 128,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 113,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 114,
+            "expression": "MeshCoreSession(transport,\n            SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\"),\n            publicSessionClock(), backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SessionConfiguration",
+            "line": 115,
+            "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 116,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 118,
+            "expression": "for (operation in listOf<suspend () -> Unit>(\n                { session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() })); Unit },\n                { session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() })); Unit },\n                { session.setPathHashMode(3u) },\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 118,
+            "expression": "listOf<suspend () -> Unit>(\n                { session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() })); Unit },\n                { session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() })); Unit },\n                { session.setPathHashMode(3u) },\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "suspend",
+            "line": 118,
+            "expression": "suspend ()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.getContact",
+            "line": 119,
+            "expression": "session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() }))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 119,
+            "expression": "Bytes(ByteArray(31) { 0xAA.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 119,
+            "expression": "ByteArray(31)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 119,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.requestStatus",
+            "line": 120,
+            "expression": "session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() }))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 120,
+            "expression": "Bytes(ByteArray(31) { 0xBB.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 120,
+            "expression": "ByteArray(31)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 120,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.setPathHashMode",
+            "line": 121,
+            "expression": "session.setPathHashMode(3u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "operation",
+            "line": 124,
+            "expression": "operation()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "catch",
+            "line": 126,
+            "expression": "catch (_: MeshCoreException.InvalidInput)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.isEmpty",
+            "line": 127,
+            "expression": "transport.sentData.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 128,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 132,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ConnectionStateTests::getContact rejects short public key before sending()",
+          "ConnectionStateTests::requestStatus rejects short public key before sending()",
+          "ConnectionStateTests::setPathHashMode rejects reserved mode before sending()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+          "sha256": "250548cae47ee691f3ade9aca8ba598d63a0be9e213bed7c990720ac3d5cb2ff"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
+          "sha256": "380c4c362b978885e25881b76f23ecf8c4a6f15ec4b4cda83f8b327263b67abf"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+          "sha256": "b1628a17653cf20b341834bcb5280ae508521b5ba12f2e658e412fa877cb7379"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalInvalidInputsDoNotWriteOrConnect"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "lifecycle-original-input-validation-before-transport",
+      "comparison_sha256": "602382969e1af7c2f0cd6db443724a3dab40d0c31000758ca605145a6dbe1890",
+      "source_file_family_count": 6,
+      "group_compared_family_count": 3,
+      "partial_source_file": true,
+      "source_path": "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift",
+      "source_blob_sha": "d585215610e8c9e9722e99c5d5deba1cdf57d741",
+      "case_id": "ConnectionStateTests::setPathHashMode rejects reserved mode before sending()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "033208c8230e5d2c5cc4be14c30adf5e69ff5f8bba6faf51ffdfab20f98fabc2",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 145,
+          "expression": "#expect(throws: MeshCoreError.self) {\n      try await session.setPathHashMode(3)\n    }",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 149,
+          "expression": "#expect(await transport.sentData.isEmpty)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/SessionLifecycleAcceptanceTest.kt",
+        "sha256": "a743670fc17eecb3752d33548adb4e61bc6a2cc5f67a7afe845d1d09e24ba63b",
+        "class": "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "method_or_family_name": "originalInvalidInputsDoNotWriteOrConnect",
+        "line": 112,
+        "end_line": 134,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "0525787d936ae600c3e90a5c85a24eb1d7c4a9c50c7a4d080e5df224ac80de32",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "fail",
+            "line": 125,
+            "expression": "fail(\"Invalid source input must remain a typed failure\")",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 127,
+            "expression": "assertTrue(transport.sentData.isEmpty())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertFalse",
+            "line": 128,
+            "expression": "assertFalse(transport.isConnected())",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "MockTransport",
+            "line": 113,
+            "expression": "MockTransport()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "MeshCoreSession",
+            "line": 114,
+            "expression": "MeshCoreSession(transport,\n            SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\"),\n            publicSessionClock(), backgroundScope.coroutineContext)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SessionConfiguration",
+            "line": 115,
+            "expression": "SessionConfiguration(defaultTimeout = 10.0, clientIdentifier = \"Test\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "publicSessionClock",
+            "line": 116,
+            "expression": "publicSessionClock()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "for",
+            "line": 118,
+            "expression": "for (operation in listOf<suspend () -> Unit>(\n                { session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() })); Unit },\n                { session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() })); Unit },\n                { session.setPathHashMode(3u) },\n            ))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "listOf",
+            "line": 118,
+            "expression": "listOf<suspend () -> Unit>(\n                { session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() })); Unit },\n                { session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() })); Unit },\n                { session.setPathHashMode(3u) },\n            )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "suspend",
+            "line": 118,
+            "expression": "suspend ()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.getContact",
+            "line": 119,
+            "expression": "session.getContact(Bytes(ByteArray(31) { 0xAA.toByte() }))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 119,
+            "expression": "Bytes(ByteArray(31) { 0xAA.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 119,
+            "expression": "ByteArray(31)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 119,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.requestStatus",
+            "line": 120,
+            "expression": "session.requestStatus(Bytes(ByteArray(31) { 0xBB.toByte() }))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 120,
+            "expression": "Bytes(ByteArray(31) { 0xBB.toByte() })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 120,
+            "expression": "ByteArray(31)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "toByte",
+            "line": 120,
+            "expression": "toByte()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.setPathHashMode",
+            "line": 121,
+            "expression": "session.setPathHashMode(3u)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "operation",
+            "line": 124,
+            "expression": "operation()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "catch",
+            "line": 126,
+            "expression": "catch (_: MeshCoreException.InvalidInput)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.sentData.isEmpty",
+            "line": 127,
+            "expression": "transport.sentData.isEmpty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "transport.isConnected",
+            "line": 128,
+            "expression": "transport.isConnected()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "session.stop",
+            "line": 132,
+            "expression": "session.stop()",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/MeshCoreSessionStopTests.swift",
+          "MeshCore/Tests/MeshCoreTests/Session/ConnectionStateTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "ConnectionStateTests::getContact rejects short public key before sending()",
+          "ConnectionStateTests::requestStatus rejects short public key before sending()",
+          "ConnectionStateTests::setPathHashMode rejects reserved mode before sending()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/MeshCoreSession.kt",
+          "sha256": "250548cae47ee691f3ade9aca8ba598d63a0be9e213bed7c990720ac3d5cb2ff"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionContactOperations.kt",
+          "sha256": "380c4c362b978885e25881b76f23ecf8c4a6f15ec4b4cda83f8b327263b67abf"
+        },
+        {
+          "path": "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/session/SessionBinaryOperations.kt",
+          "sha256": "b1628a17653cf20b341834bcb5280ae508521b5ba12f2e658e412fa877cb7379"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.SessionLifecycleAcceptanceTest",
+        "originalInvalidInputsDoNotWriteOrConnect"
       ],
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },

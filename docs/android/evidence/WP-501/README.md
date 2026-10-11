@@ -22,7 +22,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-548 inspected family proposals in67groups, exact source/assertion/helper/runner
+558 inspected family proposals in72groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -56,12 +56,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and thirty-five Kotlin acceptance cases.
+The follow-up has92 Python regressions and thirty-nine Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-548actually inspected proposals;3,962native-body joins are only candidates.
+558actually inspected proposals; native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -321,7 +321,21 @@ owns the bounded AndroidOnly test-readiness race repair with original5seconds/
 packet/second-radio assertion and product bytes unchanged. No RxLog path is edited
 or failure rerun away here. Worker9046a463 native/Gradle locks released normally;
 coordinator was immediately notified in PR165 comment6113188780. The next source/
-test increment remains local, not a hosted pass or full548-family acceptance.
+test increment remains local, not a hosted pass or full-family acceptance.
+
+Next lifecycle increment inspects all6 frozen ConnectionState,2 stop and2 binary
+configuration declarations. Four new required app methods retain original
+10seconds/Test and complete66byte zero-TX selfInfo/TestNode, original50ms failed
+handshake intermediate Connecting/Connected/Failed plus second fresh write,
+31byteAA/BB/mode3 validation without transport writes, and unstarted/initially
+disconnected default stop invocation1 versus false0. Existing shared native
+fixtures change original inputs and omit failed intermediate state assertions;
+these are admitted test gaps, not a new production defect. Both exact binary
+configuration native identities retain all40/1/2/default and0.05/null assertions;
+their real status-exchange supplement is not an original constructor action.
+New four methods and current39required identity set await actual-head native
+execution while coordinator owns supported native/Gradle locks for issue168.
+Frozen files remain unchanged; no product/RxLog edit or physical/UI claim.
 Prior be12305a hosted38163834649 completedCANCELLED after publication advanced:
 classifier/controller/SwiftcodecSUCCESS, LinuxAndroid/SwiftDataCANCELLED,
 android-ciFAILURE. No passing unexecuted or cancelled stage is inferred.
@@ -359,7 +373,7 @@ The generated worklist has 2,356 recognized historical/marker family candidates,
 2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the548families
+actual inspection. All1,786owned source dispositions require behavior review; only the558families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.
