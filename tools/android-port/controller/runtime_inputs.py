@@ -43,6 +43,9 @@ FIXED_INPUTS = (
     "android/build-logic/gradle/verification-metadata.xml",
     "docs/android/evidence/WP-201/collect_evidence.py",
     "tools/android-port/tests/test_domain_room_evidence.py",
+    "android/parity-tests/audit.py", "android/parity-tests/test_audit.py",
+    "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBackupAcceptanceTest.kt",
+    "docs/android/parity/coverage-policy.json", "docs/android/parity/accounting.json",
 )
 
 

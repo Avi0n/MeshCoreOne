@@ -27,6 +27,19 @@ LINT_TARGETS = (
     *("platform/" + name for name in ("notifications", "widgets", "shortcuts", "translation")),
 )
 PYTHON_MINIMUMS = {"scaffold": 15}
+WP501_ACCEPTANCE_CASES = {
+    ("com.meshcoreone.android.parity.MessageBackupAcceptanceTest", name)
+    for name in (
+        "cjkOriginalTextSurvivesBackupAndMountedTimeline",
+        "rtlOriginalTextSurvivesBackupAndMountedTimeline",
+        "zwjOriginalTextSurvivesBackupAndMountedTimeline",
+        "decomposedOriginalTextSurvivesBackupAndMountedTimeline",
+        "composedOriginalTextSurvivesBackupAndMountedTimeline",
+        "whitespaceAndQuoteOriginalTextSurvivesBackupAndMountedTimeline",
+        "corruptedManifestCannotMutateTheProcessStore",
+        "cancelledCodecClosesInputAndDoesNotBecomeInvalidFileSuccess",
+    )
+}
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",
     "permissions", "pinned_notices", "verification_fixture_packaged", "native_libraries",
@@ -114,7 +127,21 @@ def compare_discovery_tsv(report: Path, result: dict):
 
 def collect_suites(android: Path):
     result = {name: suite_counts(android / path, minimum) for name, (path, minimum) in SUITES.items()}
+    require_case_identities(android / SUITES["app"][0], WP501_ACCEPTANCE_CASES)
     compare_discovery_tsv(android / "build" / "reports" / "scaffold" / "test-discovery.tsv", result)
+    return result
+
+
+def require_case_identities(directory: Path, expected: set[tuple[str, str]]):
+    if not expected:
+        raise PortError("Zero required behavioral test identities")
+    result = suite_counts(directory, len(expected))
+    observed = {
+        (case.get("classname"), case.get("name"))
+        for path in directory.glob("TEST-*.xml") for case in read_xml(path).findall("testcase")
+    }
+    if not expected <= observed:
+        raise PortError(f"Missing WP-501 behavioral tests: {sorted(expected - observed)}")
     return result
 
 

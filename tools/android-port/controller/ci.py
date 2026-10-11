@@ -260,9 +260,12 @@ def python_checks(output: Path):
             None, output / "traceability.log")
     execute([sys.executable, str(REPO / "android" / "scaffold" / "sync_notices.py")],
             None, output / "pinned-notices.log")
+    execute([sys.executable, str(REPO / "android" / "parity-tests" / "audit.py"), "--check"],
+            None, output / "parity-accounting.log")
     results = {}
     for name, path, minimum in (
         ("scaffold", REPO / "android" / "scaffold", PYTHON_MINIMUMS["scaffold"]),
+        ("parity-accounting", REPO / "android" / "parity-tests", 1),
     ):
         suite = unittest.TestLoader().discover(str(path), pattern="test_*.py")
         text = io.StringIO()
