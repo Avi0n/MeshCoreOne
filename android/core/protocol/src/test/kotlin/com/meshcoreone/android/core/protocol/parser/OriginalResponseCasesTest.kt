@@ -52,20 +52,33 @@ class OriginalResponseCasesTest {
     fun contactNames() = listOf(
         original("ContactNameDecodingTests", "Flag emoji split at the name boundary decodes to a readable prefix") {
             val name = filled(0x78, 28) + hex("f09f8700")
-            assertEquals("x".repeat(28), assertNotNull(Parsers.parseContactData(contactBody(name = name, pathLength = 255))).advertisedName)
+            assertEquals("x".repeat(28), assertNotNull(Parsers.parseContactData(sourceContactNameBody(name))).advertisedName)
         },
         original("ContactNameDecodingTests", "Lone regional indicator is kept when only half a flag survives") {
             val name = filled(0x78, 27) + hex("f09f87ba00")
-            assertEquals("x".repeat(27) + "\uD83C\uDDFA", assertNotNull(Parsers.parseContactData(contactBody(name = name, pathLength = 255))).advertisedName)
+            assertEquals("x".repeat(27) + "\uD83C\uDDFA", assertNotNull(Parsers.parseContactData(sourceContactNameBody(name))).advertisedName)
         },
         original("ContactNameDecodingTests", "A flag name that fits the buffer decodes unchanged") {
             val name = "Team \uD83C\uDDFA\uD83C\uDDF8"
-            assertEquals(name, assertNotNull(Parsers.parseContactData(contactBody(name = Bytes.utf8(name), pathLength = 255))).advertisedName)
+            assertEquals(name, assertNotNull(Parsers.parseContactData(sourceContactNameBody(Bytes.utf8(name) + Bytes.of(0)))).advertisedName)
         },
         original("ContactNameDecodingTests", "Plain ASCII name still decodes") {
-            assertEquals("TestNode", assertNotNull(Parsers.parseContactData(contactBody(name = Bytes.utf8("TestNode"), pathLength = 255))).advertisedName)
+            assertEquals("TestNode", assertNotNull(Parsers.parseContactData(sourceContactNameBody(Bytes.utf8("TestNode") + Bytes.of(0)))).advertisedName)
         },
     )
+
+    private fun sourceContactNameBody(name: Bytes): Bytes {
+        val body = contactBody(name = name, flags = 0, pathLength = 255, path = Bytes.EMPTY,
+            lastAdvert = 0u, latitude = 0, longitude = 0, lastModified = 0u)
+        val expected = ByteArray(147)
+        expected.fill(0xAA.toByte(), 0, 32)
+        expected[32] = 1
+        expected[34] = 0xFF.toByte()
+        name.toByteArray().copyInto(expected, destinationOffset = 99, endIndex = minOf(name.size, 32))
+        assertEquals(147, body.size)
+        assertEquals(Bytes(expected), body)
+        return body
+    }
 
     private fun login(admin: Int, acl: Int, time: UInt = 0u, prefix: Bytes = nodePrefix) =
         assertIs<MeshEvent.LoginSuccess>(Parsers.LoginSuccess.parse(loginBody(admin.toUByte(), acl.toUByte(), time, prefix))).info

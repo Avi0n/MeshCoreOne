@@ -501,6 +501,62 @@ class FreshStoreBackupAcceptanceTest : RoomProcessTest() {
         }
     }
 
+    @OriginalCase("BackupIntegrationTests::Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication()")
+    @Test fun originalIntentionalSendsKeepBothActionIdsInFreshRoomAndOfflineTimeline() = runTest {
+        val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
+        try {
+            val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+            store.saveDevice(sourceStoreDevice(radio))
+            val contact = ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),
+                name = "TestContact", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)
+            store.saveContact(contact)
+            val first = MessageDTO(radioId = radio, contactID = contact.id, text = "ok",
+                timestamp = 1_700_001_234u, createdAt = Instant.ofEpochSecond(1_700_001_234))
+            val second = first.copy(id = UUID.randomUUID())
+            assertNotEquals(first.id, second.id)
+            store.saveMessage(first)
+            store.saveMessage(second)
+            val service = AppBackupService(storage.backupPreferences, "synthetic", "1")
+            val parsed = AppBackupCodec().parseBackup(service.export(store).data)
+            assertEquals(2L, parsed.manifest.messageCount)
+            assertEquals(setOf(first.id, second.id), parsed.messages.map { it.id }.toSet())
+            assertTrue(parsed.messages.all { it.contactID == contact.id && it.text == "ok" &&
+                it.timestamp == 1_700_001_234u && it.direction == MessageDirection.OUTGOING &&
+                it.status == MessageStatus.PENDING && it.deduplicationKey == null })
+            withFreshDestination(backgroundScope) { destination ->
+                val result = service.importBackup(parsed, destination)
+                assertEquals(2L, result.counts.getValue(BackupModelKind.MESSAGES).inserted)
+                assertEquals(0L, result.counts.getValue(BackupModelKind.MESSAGES).skipped)
+                val restored = destination.fetchMessages(EntityKey(radio, contact.id))
+                assertEquals(2, restored.size)
+                assertEquals(setOf(first.id, second.id), restored.map { it.id }.toSet())
+                assertTrue(restored.all { it.text == "ok" && it.timestamp == 1_700_001_234u &&
+                    it.direction == MessageDirection.OUTGOING && it.status == MessageStatus.PENDING })
+                assertEquals(0L, service.importBackup(parsed, destination).counts.getValue(BackupModelKind.MESSAGES).inserted)
+                assertEquals(2, destination.fetchMessages(EntityKey(radio, contact.id)).size)
+                val harness = ContainerHarness(this, destination)
+                try {
+                    val restoredContact = requireNotNull(destination.fetchContact(EntityKey(radio, contact.id)))
+                    val conversation = TimelineConversation.Direct(restoredContact)
+                    val timeline = ChatViewModel(conversation, harness.container.chatsFeature.timeline(conversation), backgroundScope)
+                    timeline.start()
+                    timeline.open()
+                    harness.eventually("both restored original send actions visible") { timeline.state.value.messages.size == 2 }
+                    assertEquals(setOf(first.id, second.id), timeline.state.value.messages.map { it.id }.toSet())
+                    assertTrue(timeline.state.value.messages.all { it.text == "ok" && it.timestamp == 1_700_001_234u })
+                    assertTrue(harness.lifecycle.created.isEmpty())
+                    assertTrue(harness.links.links.isEmpty())
+                } finally {
+                    harness.container.close()
+                }
+            }
+            assertEquals(first, store.fetchMessage(EntityKey(radio, first.id)))
+            assertEquals(second, store.fetchMessage(EntityKey(radio, second.id)))
+        } finally {
+            storage.close()
+        }
+    }
+
     private fun sourceStoreDevice(radio: RadioId): DeviceDTO =
         DeviceDTO(id = radio.value, radioId = radio, publicKey = Bytes(ByteArray(32) { 1 }), nodeName = "TestDevice",
             firmwareVersion = 8u, firmwareVersionString = "v1.0.0", manufacturerName = "TestMfg",

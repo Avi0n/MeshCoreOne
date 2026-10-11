@@ -30,7 +30,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-604 inspected family proposals in95groups, exact source/assertion/helper/runner
+625 inspected family proposals in99groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished; the proven mounted content cancellation defect now has a
 merged coordinator repair whose unchanged worker assertion passed at be12305a**;
@@ -47,6 +47,31 @@ radio, new Swift execution, screenshot/accessibility matrix, legal approval,
 production signing or release certification.
 
 ## Local execution before candidate publication
+
+The next local increment fills the remaining intentional-send distinct-store
+route with original TestContact/ok/1700001234/two different outgoing actionUUIDs,
+public writers, actual codec, fresh Room insert2/skip0/count2 and offline mounted
+timeline retaining both IDs. This moves one already-accounted original to its
+own app group, not a new declaration. It adds one mandatory method63→64.
+
+Three further comparisons read complete frozen ACK4/login13/contact-name4
+families plus all actual helpers/parsers and scoped consumers:21new inspected
+families,625total/99groups. Four contact-name rows previously inherited generic
+flags2/path112233/nonzero times/coordinates rather than source zero fields.
+An invoked source-specific helper now sets exact original147byteAA32/CHAT1/
+flags0/FF/64zeropath/name32/zero16, checked against independently filled raw
+array/length147. Shared helper defaults, names and all production remain
+unchanged. This is an original-input acceptance gap, not an observed parser
+failure. Same reservation15→16 automatically admits only the disjoint existing
+OriginalResponseCasesTest support path via trusted merge-integration operation,
+preserving source owner attribution/initial identities. New immutable native
+execution/independent review is pending; published266CI still runs.
+
+Coordinator bounded266 six backup originals/four new full methods, route171
+and cadence correction found no blocking source mismatch. Additional bounded
+22crypto/10Discovery comparisons likewise found none within stated inputs/
+consumers. These read-only findings are not independent reruns,625/5133full
+acceptance, general Unicode/hardware or an approved protected gate.
 
 The next local batch adds four actual app methods for six previously accounted
 backup originals, not six new families. It uses real ContactFrame/targeted-hop,
@@ -120,7 +145,7 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has92 Python regressions and63mandatory Kotlin acceptance cases.
+The follow-up has92 Python regressions and64mandatory Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.

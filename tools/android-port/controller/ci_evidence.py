@@ -70,6 +70,8 @@ WP501_ACCEPTANCE_CASES = {
      "originalSavedMessageMetadataSurvivesDistinctRoomExportImport"),
     ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
      "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge"),
+    ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+     "originalIntentionalSendsKeepBothActionIdsInFreshRoomAndOfflineTimeline"),
     ("com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
      "originalApplicationHexFamiliesUseProductionFormattingAndParsing"),
     ("com.meshcoreone.android.parity.SessionResponseAcceptanceTest",

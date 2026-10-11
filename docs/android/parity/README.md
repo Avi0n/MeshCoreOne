@@ -49,6 +49,24 @@ before filing a product defect. Unresolved markers (including production
 scenario labels that are not registered original tests) stay visible rather
 than being guessed into the original inventory.
 
+## Latest local audit increment
+
+Original intentional outgoing sends now use exact TestContact/ok/1700001234/
+distinctUUIDs/public writers and genuine separate destination, with insert2/
+skip0/count2/identity assertions plus offline timeline consequence. One prior
+family moves to one new app group; mandatory63→64 without denominator inflation.
+Complete ACK4/login13/contact-name4 comparisons add21new inspected families:
+625total/99groups, not passing coverage. Contact-name helper inputs previously
+inherited unrelated flags/path/timestamps/coordinates; four rows now retain
+complete original zero fields and independently assert all147raw bytes. Generic
+helper/expected names/production remain unchanged. Same reservation evolves
+15→16 automatically for that bounded existing parser-test support path.
+New immutable execution/independent review is pending while published266CI runs.
+
+Coordinator bounded266 backup6/route171/cadence and unchanged22crypto/
+10Discovery source/helper/consumer reads found no blocking mismatch, not an
+independent local rerun/full625or5133acceptance or hardware/protected approval.
+
 ## Executable gap fill
 
 The app's existing test-only source set includes `android/parity-tests/src/test`.

@@ -5,6 +5,112 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "parser-original-ack-partial-triptime-and-typed-outcome",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/AckParsingTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalResponseCasesTest.kt",
+      "native_factory": "ack",
+      "checked_assertion_helpers": {
+        "expectFailure": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/ParserTestSupport.kt"
+      },
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.parser.OriginalResponseCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All four complete originals preserve actual PacketParser opcode82/raw ACK tagDEADBEEF and typed acknowledgement/code equality. Payload4 gives nulltripTime; payload8 exactF4010000 parses500UInt32LE; payload3/010203 gives typedParseFailure. Final original loop covers each extraFFcount1,2,3/payload5,6,7 and nulltripTime without partial integer read; all three rows remain one registered original family, not three extra discoveries.",
+      "inputs": "Exact source82/DEADBEEF/F4010000/010203/allFFpartial1..3 preserved by literal raw frame or rawFrame plus checked requestTag constant. No PacketBuilder/candidate parser generates expected tags/triptime. Actual original helper registration and parsed<T>/expectFailure definitions inspected; native assertIs fails rather than source Issue.record/return, equivalent mandatory failing outcome.",
+      "adaptations": "Immutable content-equal Bytes and UInt replace Data/UInt32; nullable UInt preserves absence, not zero default. Kotlin dynamic original helper retains exact source case IDs. Source fourth loop is internal rows1..3, not parameterized JUnit tests. No production edit/whole message-delivery/physical timing claim.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/ParserTestSupport.kt",
+        "MeshCore/Sources/MeshCore/Protocol/PacketParser.swift",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/PacketParser.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
+      ],
+      "consumer": "Actual source/native PacketParser ACK branches consume first4code bytes and read unsignedLEtripTime only when4more available. Actual MessageService acknowledgement preserves nullabletriptime into updateMessageAck and receipt while verifying current radio/identity; inspected consumer contract is not automatically new executed service acceptance.",
+      "unresolved": ["New four-family comparison requires exact positive runner execution and independent bounded review/current hosted acceptance. Passing other ACK/session/service cases is not substitute for these original frames."],
+      "methods": ["4-byte ACK payload produces tripTime nil", "8-byte ACK payload parses trip time as UInt32 LE", "3-byte ACK payload produces parseFailure", "5-7 byte ACK payload produces tripTime nil (no partial read)"]
+    },
+    {
+      "id": "parser-original-contact-name-whole-frame-and-utf8-boundary",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/ContactNameDecodingTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalResponseCasesTest.kt",
+      "native_factory": "contactNames",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.parser.OriginalResponseCasesTest",
+      "runner_name": "original-case-id",
+      "checked_assertion_helpers": {
+        "sourceContactNameBody": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalResponseCasesTest.kt"
+      },
+      "comparison": "All four complete originals preserve direct parseContactData and required nonnull contact/name equality:28x followedF09F87+null→28x;27x+completeF09F87BA+null→27x+loneU1F1FA;Team+USflag+null unchanged;TestNode+null unchanged. Newly corrected invoked sourceContactNameBody preserves complete147-byte original helperAA32/CHAT1/flags0/FF/64zeropath/name32/nullpadding/zero16timestamps+coords; wholebody equality against independent manually filled147byte array plus exactlength147 supplement original.",
+      "inputs": "Actual frozen contactBody helper and all original UTF8 name bytes read. Prior generic native contactBody inherited flags2/path112233/advert1704067200/37.7749/-122.4194/modified1704067200 despite matching names; those were missing original inputs, not observed parser failure. Four callers now use source-specific helper explicit zeros without altering shared generic fixture/defaults or expected original names. Native expected full frame uses raw array offsets, not candidate builder or parser.",
+      "adaptations": "Swift Data/null-terminated slot and longest-valid UTF8prefix become content-equal Bytes/explicit null plus JVM strict prefix decoder. Source try#require/expect translates mandatory assertNotNull/equality. Wholebody/length assertions are extra native checks, not new original families or general Unicode locale/grapheme proof. Shared helpers/production untouched.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalResponseCasesTest.kt",
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/ParserTestSupport.kt",
+        "MeshCore/Tests/MeshCoreTests/Protocol/ContactNameDecodingTests.swift",
+        "MeshCore/Sources/MeshCore/Protocol/Parsers+Contacts.swift",
+        "MeshCore/Sources/MeshCore/Protocol/DataExtensions.swift",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/Parsers.kt",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/ParserText.kt"
+      ],
+      "consumer": "Source/native parseContactData validates147 and path encoding, reads slot99..131 before firstnull, decodes longest valid prefix and trimscontrols, preserves raw type/flags/timestamps. Contact/NewContact parsers delegate same helper; selected source family executes direct parser, not discovery persistence or UI. Actual source-specific helper unique definition/body/assertions/invocation bound, no name-only equivalence.",
+      "unresolved": ["Four exact original-input corrections require immutable runner execution/independent review. Prior generic native passing name outcomes did not certify missing original zero fields; no product defect or historical passing promotion."],
+      "methods": ["Flag emoji split at the name boundary decodes to a readable prefix", "Lone regional indicator is kept when only half a flag survives", "A flag name that fits the buffer decodes unchanged", "Plain ASCII name still decodes"]
+    },
+    {
+      "id": "parser-original-login-acl-admin-prefix-and-server-time",
+      "source_path": "MeshCore/Tests/MeshCoreTests/Protocol/LoginSuccessParserTests.swift",
+      "native_path": "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/OriginalResponseCasesTest.kt",
+      "native_factory": "loginSuccess",
+      "runner_directory": "core/protocol/build/test-results/test",
+      "runner_class": "com.meshcoreone.android.core.protocol.parser.OriginalResponseCasesTest",
+      "runner_name": "original-case-id",
+      "comparison": "All thirteen complete originals retain extended13byte/adminbyte/prefix6/timeUInt32LE/ACL/fw2 helper and exact output gates. C++1/3→admintrue/permission2;0/0→false0;0/2→false1;2/0→false0;0/1→false0. pyMC1/2→true2 and0/1→false0. Legacy00+AABBCCDDEEFF→false1/nulltime;short0102→false0/emptyprefix. Exact1784300000→serverInstant,zero→null,legacy→null;112233445566 extracted exactly from1..7. No generic !=0/ACLbit0 admin escalation.",
+      "inputs": "Complete frozen extendedPayload defaultAABBCCDDEEFF/time0/fw2 and extractLogin helpers inspected against native login/privatehelper and loginBody same bytes/defaults. Source7byte/2byte legacy/short input exact, independent epoch/prefix constants retained. Native strict assertIs adds mandatory typed-event failure instead of optional extractLogin yielding null on wrong event; expected isAdmin/permissions/serverTime/prefix remain source literals.",
+      "adaptations": "Swift Date Unix seconds becomes exact Instant.ofEpochSecond1784300000; optionalabsence remains null, never epochzero. Native emits repository-standard warning for source short-payload zeroLoginInfo fallback, preserving intentionally success-shaped original parser event without silently claiming successful service authentication. No protocol/fw/admin product behavior change or first7/13 boundary expansion claimed.",
+      "helpers": [
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/parser/ParserTestSupport.kt",
+        "MeshCore/Tests/MeshCoreTests/Protocol/LoginSuccessParserTests.swift",
+        "MeshCore/Sources/MeshCore/Protocol/Parsers+Auth.swift",
+        "android/core/protocol/src/main/kotlin/com/meshcoreone/android/core/protocol/parser/Parsers.kt",
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/remote/RemoteNodeService.kt"
+      ],
+      "consumer": "Actual frozen/native LoginSuccess parser uses byte0==1 authoritatively, nonadminACL2 only grants normalizedreadWrite, otherACLs guest; sourcelegacy0 grantsreadWrite. Actual RemoteNodeService receives normalizedinfo/publicprefix/serverTime into LoginResult and ownership-scoped login completion; parser originals do not prove password/login consumer UI/service success or physical server ACL enforcement.",
+      "unresolved": ["New thirteen-family comparison requires exact positive original runner execution and independent bounded review/current hosted acceptance; no whole remote service/hardware/admin privilege certification."],
+      "methods": ["C++ admin login (byte0=1, ACL=0x03) parses as admin on both repeater and room-server", "C++ repeater guest login (byte0=0, ACL=0x00) parses as guest", "C++ repeater read-write login (byte0=0, ACL=0x02) parses as read-write, not admin", "C++ room-server guest login (byte0=2, ACL=0x00) parses as non-admin guest", "C++ room-server read-only login (byte0=0, ACL=0x01) parses as non-posting guest", "pyMC admin login (ACL=0x02) parses as admin", "pyMC guest login (ACL=0x01) parses as non-admin guest", "Legacy 7-byte payload with companion-radio hardcoded 0 parses as non-admin", "Payload shorter than 7 bytes returns zero LoginInfo fallback", "Extended-format server timestamp parses as serverTime", "Zero server timestamp yields nil serverTime", "Legacy 7-byte payload yields nil serverTime", "Extended-format pubkey prefix is extracted from bytes 1..<7"]
+    },
+    {
+      "id": "backup-original-intentional-send-identities-distinct-room-and-offline-consumer",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+      "runner_name": "annotated-method",
+      "native_method_overrides": {
+        "Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication": "originalIntentionalSendsKeepBothActionIdsInFreshRoomAndOfflineTimeline"
+      },
+      "checked_assertion_helpers": {
+        "withFreshDestination": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt"
+      },
+      "comparison": "Full original intentional-send case retains two outgoing pending/plain/null-dedup actions, same recipient/ok text/exact1700001234 timestamp and distinct UUIDs through live public writers/export/codec/import into a distinct empty Room store. Original insert2/skip0/count2/exactUUIDset preserved. Adds parsed exact metadata, secondimport0insert/count2, actual restored offline timeline exposing both IDs/text/timestamps without radio/link calls and untouched source rows. Prior core clear-source pipeline cannot substitute for this actual fresh-store original.",
+      "inputs": "Complete source createTestDataStore/device/contact/direct-message defaults retained: key01x32/TestDevice/fw8/v1.0.0/multi0;contactABx32/TestContact/CHAT1/flags0/pathFF/empty/lastHeardnull;messageoutgoing/pending/plain/path0/nilpath/send1/readfalse/retry0. Original constant1700001234 and textok exact. Ambient source createdAt fixed to1700001234, UUIDs remain distinct valid UUIDs. No reaction/reply/statusSENT or candidate-generated expected wire/data added to replace original input.",
+      "adaptations": "Public SwiftData writers/distinct destination become public Room writers/distinct actual database. Date fixture fixed only; original does not assert createdAt difference. Existing test-only process graph/offline timeline supplements original storage assertions, not physical-radio/device/Compose screenshot evidence. Native get-by-contact plus whole parsed manifest validates both actual actions; no source clear or fake persistence.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/PersistenceStore+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/ContactDTO+Testing.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/MessageDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/MessageRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupMessageRestore.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt"
+      ],
+      "consumer": "Read complete frozen original/default helpers and source/native backup key outgoingUUID identity versus incoming content, real live MessageRepository save and restore knownIDs. Existing mounted ChatViewModel/container reads restore rows into process offline consumer; no auto-connect or preview call. Actual invoked unique fresh-database helper asserts distinct DB/empty tables, not merely helper-name metadata.",
+      "unresolved": ["New mandatory method requires immutable positive discovery/execution and independent bounded review. Existing604unique original families remain unchanged; this one family moves exclusively from component group. No new iOS/hardware or complete timeline acceptance inferred."],
+      "methods": ["Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication"]
+    },
+    {
       "id": "backup-original-discovery-frame-hop-writer-and-distinct-room",
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "partial_source_file": true,
@@ -1841,11 +1947,10 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/BackupRestoreMetadata.kt"
       ],
       "consumer": "Inspected messageBackupKey distinguishes outgoing actions from incoming wire packets; path arrival/canonical adoption and actual child insertion recalculate real heard counts. Native UTF8/offline timeline tests independently retain original text without translation.",
-      "unresolved": ["Both same42path repeat families are assigned exclusively to backup-original-same-path-hearings-fresh-restore-and-merge, with exact04968a00 app execution. Independent review/current hosted acceptance remain required. Intentional outgoing action distinct-container route remains separate; existing clear-source result is not a new iOS oracle."],
+      "unresolved": ["Same42path repeat and intentional outgoing action families are assigned exclusively to their backup-original distinct-store app groups, with exact04968a00 repeat execution and new intentional-send method execution pending. Independent review/current hosted acceptance remain required; this component group does not inherit acceptance or new iOS evidence."],
       "methods": [
         "Export assigns content-based dedup keys to incoming messages with nil deduplicationKey",
         "Export preserves existing content-based dedup keys unchanged",
-        "Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication",
         "Skipped incoming parent with a distinct path is promoted to a MessageRepeat",
         "Incoming extra that matches an existing extra path is not inserted again",
         "Skipped incoming parent with nil pathNodes does not invent a 0-hop extra",

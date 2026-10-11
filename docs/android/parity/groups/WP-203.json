@@ -2699,7 +2699,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
           ],
@@ -2755,14 +2755,19 @@
               "end_line": 502
             },
             {
+              "name": "originalIntentionalSendsKeepBothActionIdsInFreshRoomAndOfflineTimeline",
+              "line": 505,
+              "end_line": 558
+            },
+            {
               "name": "sourceStoreDevice",
-              "line": 504,
-              "end_line": 512
+              "line": 560,
+              "end_line": 568
             },
             {
               "name": "withFreshDestination",
-              "line": 514,
-              "end_line": 526
+              "line": 570,
+              "end_line": 582
             }
           ]
         },
@@ -18413,7 +18418,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore",
           "line": 235,
@@ -23134,7 +23139,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "original32ByteStaleSecretCannotOverwriteReconfiguredLiveChannel",
           "line": 160,
@@ -23907,7 +23912,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy",
           "line": 191,
@@ -35886,6 +35891,461 @@
             "BackupIntegrationTests::Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
+          "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+          "method_or_family_name": "originalIntentionalSendsKeepBothActionIdsInFreshRoomAndOfflineTimeline",
+          "line": 505,
+          "end_line": 558,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5bf00c4d16fc53175a0afdc37387504f852a903caf0dfb7edd57dfe8547fadf6",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotEquals",
+              "line": 516,
+              "expression": "assertNotEquals(first.id, second.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 521,
+              "expression": "assertEquals(2L, parsed.manifest.messageCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 522,
+              "expression": "assertEquals(setOf(first.id, second.id), parsed.messages.map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 523,
+              "expression": "assertTrue(parsed.messages.all { it.contactID == contact.id && it.text == \"ok\" &&\n                it.timestamp == 1_700_001_234u && it.direction == MessageDirection.OUTGOING &&\n                it.status == MessageStatus.PENDING && it.deduplicationKey == null })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 528,
+              "expression": "assertEquals(2L, result.counts.getValue(BackupModelKind.MESSAGES).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 529,
+              "expression": "assertEquals(0L, result.counts.getValue(BackupModelKind.MESSAGES).skipped)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 531,
+              "expression": "assertEquals(2, restored.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 532,
+              "expression": "assertEquals(setOf(first.id, second.id), restored.map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 533,
+              "expression": "assertTrue(restored.all { it.text == \"ok\" && it.timestamp == 1_700_001_234u &&\n                    it.direction == MessageDirection.OUTGOING && it.status == MessageStatus.PENDING })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 535,
+              "expression": "assertEquals(0L, service.importBackup(parsed, destination).counts.getValue(BackupModelKind.MESSAGES).inserted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 536,
+              "expression": "assertEquals(2, destination.fetchMessages(EntityKey(radio, contact.id)).size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "harness.eventually",
+              "line": 544,
+              "expression": "harness.eventually(\"both restored original send actions visible\") { timeline.state.value.messages.size == 2 }",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 545,
+              "expression": "assertEquals(setOf(first.id, second.id), timeline.state.value.messages.map { it.id }.toSet())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 546,
+              "expression": "assertTrue(timeline.state.value.messages.all { it.text == \"ok\" && it.timestamp == 1_700_001_234u })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 547,
+              "expression": "assertTrue(harness.lifecycle.created.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 548,
+              "expression": "assertTrue(harness.links.links.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 553,
+              "expression": "assertEquals(first, store.fetchMessage(EntityKey(radio, first.id)))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 554,
+              "expression": "assertEquals(second, store.fetchMessage(EntityKey(radio, second.id)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "MeshCoreStorage.get",
+              "line": 506,
+              "expression": "MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ApplicationProvider.getApplicationContext",
+              "line": 506,
+              "expression": "ApplicationProvider.getApplicationContext<Context>()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 508,
+              "expression": "RadioId(UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.fromString",
+              "line": 508,
+              "expression": "UUID.fromString(\"AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 509,
+              "expression": "store.saveDevice(sourceStoreDevice(radio))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "sourceStoreDevice",
+              "line": 509,
+              "expression": "sourceStoreDevice(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactDTO",
+              "line": 510,
+              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),\n                name = \"TestContact\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 510,
+              "expression": "Bytes(ByteArray(32) { 0xAB.toByte() })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 510,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toByte",
+              "line": 510,
+              "expression": "toByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 512,
+              "expression": "store.saveContact(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 513,
+              "expression": "MessageDTO(radioId = radio, contactID = contact.id, text = \"ok\",\n                timestamp = 1_700_001_234u, createdAt = Instant.ofEpochSecond(1_700_001_234))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 514,
+              "expression": "Instant.ofEpochSecond(1_700_001_234)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first.copy",
+              "line": 515,
+              "expression": "first.copy(id = UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 515,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 517,
+              "expression": "store.saveMessage(first)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 518,
+              "expression": "store.saveMessage(second)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupService",
+              "line": 519,
+              "expression": "AppBackupService(storage.backupPreferences, \"synthetic\", \"1\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "AppBackupCodec",
+              "line": 520,
+              "expression": "AppBackupCodec()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "parseBackup",
+              "line": 520,
+              "expression": "parseBackup(service.export(store).data)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.export",
+              "line": 520,
+              "expression": "service.export(store)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 522,
+              "expression": "setOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 522,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 526,
+              "expression": "withFreshDestination(backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 527,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 528,
+              "expression": "result.counts.getValue(BackupModelKind.MESSAGES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "result.counts.getValue",
+              "line": 529,
+              "expression": "result.counts.getValue(BackupModelKind.MESSAGES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessages",
+              "line": 530,
+              "expression": "destination.fetchMessages(EntityKey(radio, contact.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 530,
+              "expression": "EntityKey(radio, contact.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 532,
+              "expression": "setOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 532,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "service.importBackup",
+              "line": 535,
+              "expression": "service.importBackup(parsed, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "counts.getValue",
+              "line": 535,
+              "expression": "counts.getValue(BackupModelKind.MESSAGES)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchMessages",
+              "line": 536,
+              "expression": "destination.fetchMessages(EntityKey(radio, contact.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 536,
+              "expression": "EntityKey(radio, contact.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContainerHarness",
+              "line": 537,
+              "expression": "ContainerHarness(this, destination)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "requireNotNull",
+              "line": 539,
+              "expression": "requireNotNull(destination.fetchContact(EntityKey(radio, contact.id)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "destination.fetchContact",
+              "line": 539,
+              "expression": "destination.fetchContact(EntityKey(radio, contact.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 539,
+              "expression": "EntityKey(radio, contact.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "TimelineConversation.Direct",
+              "line": 540,
+              "expression": "TimelineConversation.Direct(restoredContact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChatViewModel",
+              "line": 541,
+              "expression": "ChatViewModel(conversation, harness.container.chatsFeature.timeline(conversation), backgroundScope)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.container.chatsFeature.timeline",
+              "line": 541,
+              "expression": "harness.container.chatsFeature.timeline(conversation)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "timeline.start",
+              "line": 542,
+              "expression": "timeline.start()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "timeline.open",
+              "line": 543,
+              "expression": "timeline.open()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 545,
+              "expression": "setOf(first.id, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 545,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.lifecycle.created.isEmpty",
+              "line": 547,
+              "expression": "harness.lifecycle.created.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.links.links.isEmpty",
+              "line": 548,
+              "expression": "harness.links.links.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "harness.container.close",
+              "line": 550,
+              "expression": "harness.container.close()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 553,
+              "expression": "store.fetchMessage(EntityKey(radio, first.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 553,
+              "expression": "EntityKey(radio, first.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 554,
+              "expression": "store.fetchMessage(EntityKey(radio, second.id))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 554,
+              "expression": "EntityKey(radio, second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "storage.close",
+              "line": 556,
+              "expression": "storage.close()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "BackupIntegrationTests::Outgoing messages with identical recipient/text/timestamp survive round-trip without deduplication()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -36375,7 +36835,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
           "line": 441,
@@ -38085,7 +38545,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "originalSamePathHearingsKeepDistinctIdsAcrossFreshRestoreAndMerge",
           "line": 441,
@@ -41964,7 +42424,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
           "line": 358,
@@ -43032,7 +43492,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "originalRegionAndOrderedMatchesUseLiveWritersAndDistinctDestinationStores",
           "line": 358,
@@ -45702,7 +46162,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "originalSavedMessageMetadataSurvivesDistinctRoomExportImport",
           "line": 404,
@@ -48788,7 +49248,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "1902b43120b55044e5c3ffd52f23c9834a9a8f52b9b2589ebd95958915346bf4",
+          "sha256": "a075cdf91fa420a3648b1a705222666cb4a7d5e991fabdaa2f423c762e1361e3",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "originalDiscoveredFrameAndTargetedHopWriterRestoreIntoDistinctEmptyRoom",
           "line": 311,
