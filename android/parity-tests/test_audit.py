@@ -236,7 +236,7 @@ class WiringTest(unittest.TestCase):
     def test_exact_required_behavioral_names_are_distinct_and_nonzero(self):
         from controller.ci_evidence import WP501_ACCEPTANCE_CASES
 
-        self.assertEqual(14, len(WP501_ACCEPTANCE_CASES))
+        self.assertEqual(16, len(WP501_ACCEPTANCE_CASES))
         directory = audit.REPO / "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity"
         for class_name, method in WP501_ACCEPTANCE_CASES:
             text = (directory / (class_name.rsplit(".", 1)[1] + ".kt")).read_text(encoding="utf-8")

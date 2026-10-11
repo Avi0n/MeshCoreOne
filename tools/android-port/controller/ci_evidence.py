@@ -50,6 +50,10 @@ WP501_ACCEPTANCE_CASES = {
      "deletingDiscoveredNodeUpdatesRealRoomAndMountedFilterWithoutTouchingAnotherRadio"),
     ("com.meshcoreone.android.parity.ContactShareAcceptanceTest",
      "originalContactShareFieldsRoundTripWithoutWhitespace"),
+    ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+     "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer"),
+    ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+     "channelRepeatExportRestoresFreshParentAndCascadeWithoutDeletingSource"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

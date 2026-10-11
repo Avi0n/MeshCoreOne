@@ -5,6 +5,168 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "backup-integration-distinct-fresh-store",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+      "runner_name": "method",
+      "native_method_overrides": {
+        "Full round-trip: export then import into fresh store restores all data": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
+        "Unmodeled contact type byte (0x04) survives full backup export → import": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
+        "Device knownRegions survives full backup export → import into a fresh store": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
+        "Fresh-store import sets MessageRepeat relationship and cascade deletes work": "channelRepeatExportRestoresFreshParentAndCascadeWithoutDeletingSource"
+      },
+      "comparison": "The original full pipeline requires one device/contact/channel/message/reaction, exact Alice/General/Hello, valid manifest, zero skipped and a reaction pointing to a persisted destination message. Existing core native tests clear the source database; the new WP501 assertion uses distinct simultaneously open real Room databases and retains source rows. It additionally checks ordered targeted-writer US915/EU868, reminted Device.id with stable radioID and unknown type4 plus CHAT fallback. The separate original fresh repeat case retains a channel message and exact42 path; public export/decode/import yields one parent/one repeat, deleting only the destination parent cascades its repeat while source parent/repeat remain.",
+      "inputs": "Literal source AB32byte device/contact keys, BB32byte cascade device key, Alice/General/Hello/Hello mesh, channel0, type4, ordered US915/EU868, outgoing SENT message and explicit source dedup keys; source UUID randomness becomes fixed partition plus independently allocated row UUIDs.",
+      "adaptations": "SwiftData fresh containers become independent real in-memory Room process stores. Three source declarations share the full native pipeline but exact execution is counted once; the cascade is a second runner method. The strengthened mounted offline timeline is additional native consumer evidence, not original-loop inflation or a new Swift oracle. Earlier clear-source tests remain visible but are not the evidence for distinct-store behavior.",
+      "helpers": [
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerTestSupport.kt"
+      ],
+      "consumer": "Restored Hello is observed through actual process chats dependencies/ChatViewModel without a radio connection; actual repository FK cascade is asserted after destination deletion and original source remains readable.",
+      "unresolved": ["New distinct-store Kotlin cases require actual native execution; coordinator #166 repair currently owns the native/Gradle lane."],
+      "methods": [
+        "Full round-trip: export then import into fresh store restores all data",
+        "Unmodeled contact type byte (0x04) survives full backup export → import",
+        "Device knownRegions survives full backup export → import into a fresh store",
+        "Fresh-store import sets MessageRepeat relationship and cascade deletes work"
+      ]
+    },
+    {
+      "id": "backup-integration-early-required-and-legacy-fields",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupFieldIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.BackupFieldIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "Unknown ContactDTO.typeRawValue4 survives encode/decode and modeled type remains CHAT. knownRegions is ordered US915/EU868 and remains required; native additionally rejects omission. Explicit br preset round-trips, removal of the JSON key becomes null, and radio redaction clears it. These are actual public DTO wire functions, not a header or data-class name comparison.",
+      "inputs": "Source literal4, US915/EU868 and br; remove appliedRadioPresetID entirely rather than assign JSON null. Native encodeContact/decodeContact and encodeDevice/decodeDevice use the actual Codable-compatible field codec.",
+      "adaptations": "Swift UInt8 is UByte. JSONSerialization dictionary-key removal becomes JsonObject.replacing(key,null), whose helper removes the key. Required regions are deliberately not a legacy default. Extra rejection assertions do not become additional original cases.",
+      "helpers": ["android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt"],
+      "consumer": "Full unknown-type/known-region persistence is bound to separate distinct-store assertions; these five comparisons are specifically wire/legacy/redaction field boundaries.",
+      "unresolved": [],
+      "methods": [
+        "Unmodeled contact type byte (0x04) survives DTO encode → decode round-trip",
+        "Device knownRegions survives DTO encode → decode round-trip",
+        "Device appliedRadioPresetID survives DTO encode → decode round-trip",
+        "Legacy device envelope without appliedRadioPresetID decodes it as nil",
+        "redactedForBackup nils appliedRadioPresetID"
+      ]
+    },
+    {
+      "id": "backup-integration-radio-parent-and-orphan-identity",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupIdentityIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.BackupIdentityIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "Full CC32byte device key match maps source children to the existing OTHER_RADIO; zero devices/one Bob contact inserted, old partition empty, local device retained. Existing incoming message with existing-msg-key accepts a repeat referencing foreign UUID, skips parent, inserts one repeat and actual delete cascades. Orphan device-only deletion retains every original listed child kind through export/import/idempotent repeat. The pre-contact orphan DM with AD six-byte prefix survives backup/remap/adoption exactly once and second adoption is empty.",
+      "inputs": "CC device/DD Bob contact, two distinct radio UUIDs; incoming existing-msg-key with31 path. Orphan source types include contact/channel/direct-message/session/room-message/path/blocked sender. Orphan DM uses AD32key/prefix6, timestamp1700000700 and pre-contact dm.",
+      "adaptations": "Cross-bundle native case starts from constructed envelope rather than original source export; full codec and distinct-store routes are separately bound. Orphan history native source includes extra snapshot/discovery/reaction/repeat kinds and checks corresponding counts, but destination uses clear-source rows, not a distinct container; the new distinct-store case is not proof of every orphan kind. Fixed UUIDs replace randomness. Native orphan adoption asserts a concrete linked row instead of Swift's permissive already-adopted alternative.",
+      "helpers": ["android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt"],
+      "consumer": "BackupDatabaseRestore inserts/maps devices and contacts before children; actual Room relationships/cascade and partition-qualified repository adoption are inspected rather than manufactured restore receipts.",
+      "unresolved": ["Distinct-store orphan export/import for all seven original child kinds is not yet independently asserted; existing native clear-source route is disclosed, not promoted as fresh-container proof."],
+      "methods": [
+        "Cross-bundle: child records are remapped to local radioID on publicKey match",
+        "Import repeats onto existing message sets relationship and enables cascade delete",
+        "Export preserves orphaned radio-scoped data after device-only delete",
+        "Orphan DM survives export import and adoption under reminted device id"
+      ]
+    },
+    {
+      "id": "backup-integration-early-metadata-and-cache-consumers",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupMetadataIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.BackupMetadataIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "Existing Alice nil lastMessageDate is absent from conversations before restore, then one foreign-parent message inserts/one contact skips and actual conversations expose Alice/non-null date/local parent. Two31/42 repeats plus Eve thumb recompute heardRepeats2/summary thumb:1 for skipped incoming parent. Existing channel nil date becomes actual message AT. Contact holes adopt Field Ops, safety flags, exact date7/2 unread, custom OCV and AA16avatar; local identity remains. Avatar11/22/33 bytes exercise required codec, missing-key null, native export/import and Carol merge. Heard timestamps cover raw1700000500, missing-key null/model0, local-newer1700000900, newer1700001000 and future clamp. Channel default metadata adopts date11/4 unread, mentions/favorite/US scope without changing identity.",
+      "inputs": "Source literal contact names/safety/count/OCV/avatar bytes; AT fixed Unix clock replaces Date(); channel index2 and original default notification/flood policy. Known-empty versus omitted nullable fields remain distinct. Native future vector includes UInt.MAX_VALUE in addition to original now+86400.",
+      "adaptations": "Room DAO actual conversation and metadata values replace SwiftData fetches. The heard core case seeds legacy row through import, then merges900/100/1000/future instead of first separately exporting600 from a source store. New fullExportRestoresDistinctEmptyRoomAndOfflineConsumer supplies the missing exact600 export/import and22byte-avatar insert through distinct real databases. It is required by the app exact-case collector and its full assertion bytes are separately bound as a support input here. The core avatar export/import clears the source rows rather than opens a new destination; its raw byte/Carol-merge assertions remain meaningful but are not claimed as the distinct-store evidence. Tests use fixed clock and immutable DTO copies, not sleep.",
+      "helpers": [
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt"
+      ],
+      "consumer": "Inspected mergeContact/mergeChannel preserve local safety choices, max counters/date and missing-only metadata; actual message parent remaps and reconcileDates make persisted conversation visible. Full mounted chat-list changes require separate consumer assertions.",
+      "unresolved": ["New exact600 and22byte-avatar distinct-store support assertions require actual native execution, not the existing core test's historical pass."],
+      "methods": [
+        "Import onto existing contact with nil lastMessageDate makes DM thread visible",
+        "Import repeats/reactions onto existing message recomputes heardRepeats and reactionSummary",
+        "Import messages onto existing channel with nil lastMessageDate refreshes metadata",
+        "Import onto existing contact restores backup-owned contact metadata",
+        "Contact avatarImageData survives encode decode export import and merge",
+        "Contact lastHeardTimestamp survives encode decode export import and merge",
+        "Import onto existing channel restores backup-owned channel metadata"
+      ]
+    },
+    {
+      "id": "backup-integration-global-trace-run-identity",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupDiagnosticIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.BackupDiagnosticIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "Existing path run180/AT-120 accepts foreign run95/AT once; first receipt0insert/1skip/1merge/changes, exact UUID set and second0merge/nochanges/two runs are asserted. Distinct PathB carrying PathA's existing runUUID inserts B but never relocates R: A still owns one, B empty, global total1.",
+      "inputs": "Original two path identities/hash-size and global runUUID collision; native shared Route uses default1234path/hash2 instead of original12345678/hash2, collision B retainsABCDEF01 bytes. Dates fixed to AT and AT-120; identical parent identity and distinct/dedup child UUID semantics remain.",
+      "adaptations": "Actual Room path/run tables replace SwiftData child arrays; native source seeding goes through real import rather than createSavedTracePath. Assertions prove merge/dedup relationship behavior, not protocol radio tracing or exact path-builder behavior.",
+      "helpers": ["android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt"],
+      "consumer": "Actual trace-run FK identity, stable path business key and receipt hasRestoredChanges govern restore UI; no radio trace is sent by these tests.",
+      "unresolved": [],
+      "methods": [
+        "Import onto existing saved trace path merges runs without duplicating them",
+        "Import reusing a local run's id under a different path drops the duplicate run rather than relocating it"
+      ]
+    },
+    {
+      "id": "localized-airtime-percent",
+      "source_path": "MC1Tests/Localization/AirtimePercentLabelTests.swift",
+      "native_path": "android/core/l10n/src/test/kotlin/com/meshcoreone/android/core/l10n/AirtimePercentLabelTest.kt",
+      "runner_directory": "core/l10n/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.l10n.AirtimePercentLabelTest",
+      "runner_name": "method",
+      "native_method_overrides": {
+        "airtimePercent renders a literal percent sign": "airtimePercentRendersLiteralPercentSign"
+      },
+      "comparison": "The original declaration's exact Airtime % result is asserted against actual AAPT-compiled English resources. The additional native case independently renders all twelve raw source locale records and asserts the Simplified Chinese label intentionally has no percent sign; there is no invented copy.",
+      "inputs": "Source English Airtime %% localization with literal Airtime % expectation; all twelve declared locales and the original Chinese label.",
+      "adaptations": "Apple L10n.tr/String(format:) percent escaping becomes Android resource/format conversion, not Java formatting of an arbitrary String. JUnit4 uses a disclosed camelCase method name without a SourceCase annotation; source pin, actual assertion body and plain runner identity remain bound.",
+      "helpers": [
+        "android/core/l10n/src/test/kotlin/com/meshcoreone/android/core/l10n/LocalizationTestSupport.kt",
+        "docs/android/generated/l10n-key-map.json"
+      ],
+      "consumer": "The typed AppRemoteNodesStrings resource id is resolved through Resources for the effective locale; original literal text is not passed through a translation provider.",
+      "unresolved": [],
+      "methods": ["airtimePercent renders a literal percent sign"]
+    },
+    {
+      "id": "localized-subdivision-catalog",
+      "source_path": "MC1Tests/Localization/RegionalSubdivisionLocalizationTests.swift",
+      "native_path": "android/core/l10n/src/test/kotlin/com/meshcoreone/android/core/l10n/RegionalSubdivisionLocalizationTest.kt",
+      "runner_directory": "core/l10n/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.l10n.RegionalSubdivisionLocalizationTest",
+      "runner_name": "method",
+      "native_method_overrides": {
+        "every catalog subdivision key resolves in every locale": "everyCatalogSubdivisionKeyResolvesInEveryLocale"
+      },
+      "comparison": "The single original declaration's full59-code/twelve-locale loops are preserved. Native verifies51US/8AU, each actual compiled value against the pinned raw source record, not merely absence of the sentinel/raw key, and rejects empty values. Additional cases preserve unknown-code null and immutable exposed code snapshots.",
+      "inputs": "de/en/es/fr/it/ko/nl/pl/pt/ru/uk/zh-Hans; complete source US/AU catalog59codes; region.subdivision.<code> keys; unknown US-UNKNOWN/CA-ON.",
+      "adaptations": "Apple locale bundles become configuration-specific Resources, Portuguese pt maps to per-app pt-PT, and raw source records independently supply expectations. These708iterations remain one original declaration, not708 passing original families. Native tests use Robolectric API31 compiled resources, not physical language settings or iOS runtime.",
+      "helpers": [
+        "android/core/l10n/src/test/kotlin/com/meshcoreone/android/core/l10n/LocalizationTestSupport.kt",
+        "docs/android/generated/l10n-key-map.json"
+      ],
+      "consumer": "RegionalSubdivisionNames.displayName uses current Resources and returns null for genuinely absent codes. Complete app/widget/shortcut resource and format semantics are documented in the separate resource review.",
+      "unresolved": [],
+      "methods": ["every catalog subdivision key resolves in every locale"]
+    },
+    {
       "id": "contact-share",
       "source_path": "MC1Tests/Views/Contacts/ContactShareContentTests.swift",
       "native_path": "android/feature/nodes/src/test/kotlin/com/meshcoreone/android/feature/nodes/share/ContactShareContentTest.kt",

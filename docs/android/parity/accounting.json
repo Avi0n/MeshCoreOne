@@ -13348,6 +13348,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupMetadataIntegrationTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupPreferenceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTransactionTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBackupAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"

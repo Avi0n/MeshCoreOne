@@ -1884,6 +1884,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupMetadataIntegrationTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupPreferenceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTransactionTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/MessageBackupAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
@@ -2693,6 +2694,30 @@
               "name": "expectImportFailure",
               "line": 252,
               "end_line": 253
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
+          "sha256": "e0bb073882551a956a66a5d99f1442e545770d99e6ba69474610c6c7d6ea06ac",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer",
+              "line": 26,
+              "end_line": 92
+            },
+            {
+              "name": "channelRepeatExportRestoresFreshParentAndCascadeWithoutDeletingSource",
+              "line": 94,
+              "end_line": 127
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 129,
+              "end_line": 141
             }
           ]
         },

@@ -21,7 +21,7 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-199 inspected family proposals in19groups, exact source/assertion/helper/runner
+223 inspected family proposals in26groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
 audit is unfinished and a mounted content cancellation defect is proven**;
 independent full behavioral acceptance remains BLOCKED. All 1,866 inputs and 5,133 declarations
@@ -54,18 +54,21 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has 67 Python regressions and fourteen Kotlin acceptance cases.
-The current Python suite passes67/67 without failure/error/skip.
+The follow-up has72 Python regressions and sixteen Kotlin acceptance cases.
+The current Python suite passes72/72 without failure/error/skip.
+The committed d6432a56 combined controller/local/parity command ran338 cases:
+338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-199actually inspected proposals;3,344native-body joins are only candidates.
+223actually inspected proposals;3,344native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
 0errors/skips. The failing mounted caller-timeout assertion and exact producer
 bytes are in the [immediate defect report](inline-caller-timeout-defect.md),
 posted for coordinator filing/repair as [#166](https://github.com/cbattlegear/MeshCoreOne-Android/issues/166).
-The two subsequently added real-store discovery/source-literal URI cases have
-not yet executed while coordinator repair holds the shared native/Gradle locks.
+The four subsequently added real-store discovery/source-literal URI and
+distinct-store backup/cascade cases have not yet executed. Execution was not
+started while coordinator repair held the shared native/Gradle locks.
 New semantic runner bindings have not
 yet been verified by the new candidate's full hosted stage.
 
@@ -76,6 +79,19 @@ is SUCCESS at exactee7981b5: classifier/controller/LinuxAndroid/Swiftcodec/
 SwiftDatarestore-export/android-ci passed. This proves the nine committed
 WP-501 Kotlin cases, not these uncommitted additional assertions or full parity.
 No overlapping module/oracle totals are double-added.
+
+Exact published41a3d5df
+[run38159331670](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38159331670)
+completed FAILURE: actual app639discovered/1failed, the unchanged caller-timeout
+assertion reproduced #166. Classifier/controller/Swiftcodec succeeded;
+SwiftData restore/export was skipped because its Android producer failed.
+This is authoritative hosted failure, not inferred from the local result.
+
+Actual local `python tools\android-port\l10n_convert.py --check --self-test`
+passed74cases with all169source inputs/28,903records/2,374native resources/
+12locales/63outputs and no unsupported inputs. The two original localization
+declarations and actual source/native helper/resource semantics are compared in
+`parity/resource-review.md`. This is not new Kotlin execution or full UI parity.
 
 New Kotlin assertions and exact-candidate full checks must pass before publication
 is called verified. Results/logs are read in place and reported on the PR,
@@ -89,7 +105,7 @@ The generated worklist has 2,341 recognized historical/marker family candidates,
 2,681 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the199families
+actual inspection. All1,786owned source dispositions require behavior review; only the223families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

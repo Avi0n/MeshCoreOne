@@ -401,15 +401,24 @@ def bind_reviews(groups, repo=audit.REPO):
             if key in indexed:
                 raise PortError("Ambiguous original semantic family")
             indexed[key] = family
-    result, identities = [], set()
+    result, identities, compared = [], set(), set()
+    renamed_units = None
     for group in value["groups"]:
         if group["id"] in identities:
             raise PortError("Duplicate semantic comparison group")
         identities.add(group["id"])
         families = [family for (path, _), family in indexed.items() if path == group["source_path"]]
         methods = {family["case_id"].split("::", 1)[1].rsplit("(", 1)[0] for family in families}
-        if len(methods) != len(families) or set(group["methods"]) != methods or len(group["methods"]) != len(methods):
+        selected = set(group["methods"])
+        partial = group.get("partial_source_file", False)
+        if type(partial) is not bool or not selected or len(selected) != len(group["methods"]) or \
+                len(methods) != len(families) or \
+                (not selected < methods if partial else selected != methods):
             raise PortError(f"Missing/duplicate original method or parameter family in comparison: {group['id']}")
+        original_family_count = len(families)
+        families = [family for family in families
+                    if family["case_id"].split("::", 1)[1].rsplit("(", 1)[0] in selected]
+        methods = selected
         overrides = group.get("native_method_overrides", {})
         if not overrides.keys() <= methods:
             raise PortError("Native method adaptation names an unknown original")
@@ -435,24 +444,33 @@ def bind_reviews(groups, repo=audit.REPO):
                           (family["case_id"] in candidate.get("explicit_original_case_ids", [])
                            if group["runner_name"] == "annotated-method" else candidate["method_or_family_name"] == native_name)
                           and candidate["factory_method"] == group.get("native_factory")]
-            if not candidates and native_name != method:
+            if not candidates and native_name != method and group["runner_name"] != "annotated-method":
                 # A disclosed rename must be resolved against the actual native body,
                 # not silently accepted by the candidate's prose.
-                native, _ = native_units(repo)
-                candidates = [candidate for candidate in native[native_name]
+                if renamed_units is None:
+                    renamed_units, _ = native_units(repo)
+                candidates = [candidate for candidate in renamed_units[native_name]
                               if candidate["path"] == target["native_path"] and
-                              group["source_path"] in candidate["source_references"]]
+                              group["source_path"] in candidate["source_references"] and
+                              candidate["factory_method"] == group.get("native_factory")]
             if len(candidates) != 1 or not candidates[0]["assertions"]:
                 raise PortError(f"Missing/ambiguous actual native assertions: {group['id']}: {method}")
             native = candidates[0]
             if native["class"] != target["runner_class"]:
                 raise PortError("Native assertion owner disagrees with expected runner class")
-            if group["runner_name"] not in ("method()", "original-case-id", "annotated-method"):
+            if group["runner_name"] not in ("method", "method()", "original-case-id", "annotated-method"):
                 raise PortError("Unknown native test registration shape")
             runner_name = (native_name + "()" if group["runner_name"] == "method()" else
-                           native["method_or_family_name"] if group["runner_name"] == "annotated-method" else family["case_id"])
+                           native["method_or_family_name"] if group["runner_name"] in ("method", "annotated-method") else family["case_id"])
+            identity = (family["source_path"], family["case_id"])
+            if identity in compared:
+                raise PortError("Original semantic family compared more than once")
+            compared.add(identity)
             result.append({
                 "group": group["id"], "comparison_sha256": digest(group),
+                "source_file_family_count": original_family_count,
+                "group_compared_family_count": len(families),
+                "partial_source_file": partial,
                 "source_path": family["source_path"], "source_blob_sha": family["source_blob_sha"],
                 "case_id": family["case_id"], "parameter_family": family["parameter_family"],
                 "original_declaration_sha256": family["declaration_sha256"],

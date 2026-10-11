@@ -187,6 +187,51 @@ class SemanticBindingTest(unittest.TestCase):
         with patch.object(semantic, "load_json", return_value=value), self.assertRaisesRegex(PortError, "actual native assertions"):
             semantic.bind_reviews(groups)
 
+    def test_explicit_unannotated_junit4_shape_uses_plain_runner_name(self):
+        groups, value = self.fixture()
+        value["groups"][0]["runner_name"] = "method"
+        with patch.object(semantic, "load_json", return_value=value):
+            result = semantic.bind_reviews(groups)
+        self.assertEqual(["Native", "checked"], result["families"][0]["runner_identity"])
+
+    def test_disclosed_rename_cannot_bypass_required_original_annotation(self):
+        groups, value = self.fixture()
+        value["groups"][0].update(runner_name="annotated-method", native_method_overrides={"checked": "renamed"})
+        native = groups["WP-101"]["families"][0]["native_proposals"][0]
+        native.update(method_or_family_name="renamed", source_references=["Original.swift"])
+        with patch.object(semantic, "load_json", return_value=value), \
+                patch.object(semantic, "native_units", return_value=({"renamed": [native]}, {})), \
+                self.assertRaisesRegex(PortError, "actual native assertions"):
+            semantic.bind_reviews(groups)
+
+    def test_explicit_partial_file_keeps_uninspected_families_visible(self):
+        groups, value = self.fixture()
+        original = groups["WP-101"]["families"][0]
+        groups["WP-101"]["families"].append({**original, "case_id": "Original::uninspected()"})
+        value["groups"][0]["partial_source_file"] = True
+        with patch.object(semantic, "load_json", return_value=value):
+            result = semantic.bind_reviews(groups)
+        self.assertEqual(1, len(result["families"]))
+        self.assertEqual(2, result["families"][0]["source_file_family_count"])
+        self.assertEqual(1, result["families"][0]["group_compared_family_count"])
+        self.assertTrue(result["families"][0]["partial_source_file"])
+
+    def test_partial_file_flag_cannot_hide_missing_unknown_or_duplicate_methods(self):
+        for partial, methods in ((True, []), (True, ["unknown"]), (True, ["checked", "checked"]),
+                                 (True, ["checked"]), ("true", ["checked"])):
+            groups, value = self.fixture()
+            value["groups"][0].update(partial_source_file=partial, methods=methods)
+            with self.subTest(partial=partial, methods=methods), \
+                    patch.object(semantic, "load_json", return_value=value), self.assertRaises(PortError):
+                semantic.bind_reviews(groups)
+
+    def test_same_original_cannot_inflate_comparisons_across_groups(self):
+        groups, value = self.fixture()
+        value["groups"].append({**value["groups"][0], "id": "duplicate-original"})
+        with patch.object(semantic, "load_json", return_value=value), \
+                self.assertRaisesRegex(PortError, "more than once"):
+            semantic.bind_reviews(groups)
+
     def test_many_to_many_target_keeps_the_actual_native_class_and_runner(self):
         groups, value = self.fixture()
         native = groups["WP-101"]["families"][0]["native_proposals"][0]
