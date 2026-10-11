@@ -4,13 +4,30 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `a19d6138038577d7e76c63e85b58c7ba6976092a`.
+Current integrated base: `d3f942576e2406cf588cb491994297598e2af681`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+## Actual merged-base adoption
+
+Coordinator-directed adoption of PR176's actual maintainer merge
+`d3f942576e2406cf588cb491994297598e2af681` was independently refreshed:
+PR MERGED at2026-10-11T23:53:58Z, parentsa19/a4e, tree
+`0124b863cbb73f40fadfb6ea6134bf25eaa72390` exactly equals reviewed a4e.
+Issue173 repair is now inherited production, not worker-created or an open
+product blocker. All51owned commits rebased cleanly; the actual rebase result
+was `d701d2c832a0d3941caa32402e8816e1ad5dac7d`, not yet published/executed.
+Owned app/protocol assertions and collector are byte-identical to a515;
+generated accounting/WP312 worklist reflects the actual newly inherited map
+consumers without promoting them to accepted families. Same reservation20/
+initial authorization/base250/source/manifest/policy remain unchanged.
+Prior594/5f/AF2 execution retains its a19-base identity; it is not new-base
+proof. Fresh declared app70 and exact-candidate hosted verification remain
+required. No other checkout, producer edit, additional worker or merge action.
 
 Latest completed hosted candidate: [af2f6f597 primary38183893582](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38183893582),
 actual SUCCESS/all six jobs/basea19. Full18868-line official log read directly:
@@ -127,7 +144,7 @@ follow-up files do not become new native execution or independent approval.
 returned no blocking finding at exactbasea19/heada4e83853b5f9b5f2fa43c282b52fbc82b8a31761,
 samepin/manifest/policy/reservation4/12paths. Complete requested source/native/
 test/wiring read; no candidate execution, edit, gate/human approval or full501
-acceptance. Coordinator173production remains exclusive; no new merged base.
+acceptance. That source review preceded the actual merge/adoption above.
 
 The owned175repair: same typedreservation19->20 admits existing
 OriginalBugFixCasesTest throughtrustedmerge-integration; only five literal

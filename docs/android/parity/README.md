@@ -51,6 +51,16 @@ than being guessed into the original inventory.
 
 ## Latest local audit increment
 
+Adopted actual main `d3f942576e2406cf588cb491994297598e2af681` after
+coordinator-directed PR176 merge: parentsa19/a4e, actual tree0124b863
+equals revieweda4e, merge timestamp refreshed. All51owned commits rebase
+cleanly to d701d2c8; worker app/protocol/collector bytes unchanged.
+Regenerated accounting and WP312 worklist include actual inherited map
+mounting, not additional semantic acceptance.173is inherited merged repair,
+not an open worker product blocker. Fresh current-base app70/hosted checks
+pending; olda19-base594/5f/AF2 passes are not promoted to new-base execution.
+Initial reservation/base250 and revision20/source/manifest/policy preserved.
+
 Exact `594ab698fab90654beb3b40ad06c924355231605` passed34/34 original
 ProtocolBugFix parser cases and70/70 app cases (66mandatory+4unchangedrepair),
 0failure/error/skip, with supported locks/readiness passed and released.
@@ -73,7 +83,8 @@ not product assertions; unchanged clean rerun passed after commit.
 No direct parser/hash original certifies persistence, repeats, decryption or
 full live cancellation. Coordinator173production remains exclusive.
 Source-only PR176 review returned no bounded blocker at exacta4e/basea19;
-it did not execute or approve that candidate or advance this branch's base.
+it did not execute or approve that candidate; actual merged-base adoption is
+recorded separately above.
 
 Published accumulatedaf2f6f597/basea19, existingdraftPR165. Exactprimary
 38183893582completedSUCCESS/all6jobs; full18868-line official log/actualJSON

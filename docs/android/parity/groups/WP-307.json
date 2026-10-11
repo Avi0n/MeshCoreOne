@@ -300,9 +300,148 @@
       "kind": "production",
       "owner": "WP-307",
       "exclusion": null,
-      "candidate_native_paths": [],
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatMapPreview.kt",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatMapPreviewTest.kt"
+      ],
       "acceptance": "independent-behavior-review-required",
-      "native_contracts": [],
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatMapPreview.kt",
+          "sha256": "0f26cd872dfbdd65a88294c94e5fdb20d865a3a3283e3b5ac415336f6c5d5487",
+          "source_references": [
+            "MC1/Views/Chats/Components/Fragments/MapPreviewFragmentView.swift",
+            "MC1/Views/Map/MapSnapshotLayout.swift"
+          ],
+          "methods": [
+            {
+              "name": "chatMapPreviewCoordinate",
+              "line": 55,
+              "end_line": 56
+            },
+            {
+              "name": "AppChatMapPreview",
+              "line": 61,
+              "end_line": 124
+            },
+            {
+              "name": "readImage",
+              "line": 71,
+              "end_line": 71
+            },
+            {
+              "name": "refresh",
+              "line": 74,
+              "end_line": 79
+            }
+          ]
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatMapPreviewTest.kt",
+          "sha256": "65d75ad72e6ea3763c3f1025fb8d94a8539208d7080895f8d0c9e6d5404f2598",
+          "source_references": [
+            "MC1/Views/Chats/Components/Fragments/MapPreviewFragmentView.swift",
+            "MC1/Views/Settings/Sections/MapPreviewSettingsSection.swift"
+          ],
+          "methods": [
+            {
+              "name": "attachNativeHost",
+              "line": 55,
+              "end_line": 58
+            },
+            {
+              "name": "disposeNativeHost",
+              "line": 60,
+              "end_line": 60
+            },
+            {
+              "name": "mountedConversationShowsTheCoordinateCardWithWebPreviewsDisabledAndRoutesToMaps",
+              "line": 62,
+              "end_line": 92
+            },
+            {
+              "name": "disabledThumbnailsAndCoordinatesInsideContactChipsNeverRequestTiles",
+              "line": 94,
+              "end_line": 118
+            },
+            {
+              "name": "sharedLoadingFailureAndRetryReachBothCardsWithoutDuplicateRenders",
+              "line": 120,
+              "end_line": 146
+            },
+            {
+              "name": "screenReentryUsesTheProcessCacheAndMemoryTrimRefreshesVisibleCards",
+              "line": 148,
+              "end_line": 167
+            },
+            {
+              "name": "offlineFallbackRecoversToTheOnlineDarkKeyWithoutGatingCoordinateNavigation",
+              "line": 169,
+              "end_line": 189
+            },
+            {
+              "name": "memoryTrimDuringRenderingNotifiesTheLoadingCardAndDeduplicatesItsReplacement",
+              "line": 191,
+              "end_line": 209
+            },
+            {
+              "name": "queuedRendersCheckPersistedPrivacyBeforeInvokingTheTileRenderer",
+              "line": 211,
+              "end_line": 242
+            },
+            {
+              "name": "rendererExceptionIsARecoverableFallbackRatherThanAStuckSpinner",
+              "line": 244,
+              "end_line": 256
+            },
+            {
+              "name": "settingsTogglePersistsTheExistingIndependentPrivacyPreference",
+              "line": 258,
+              "end_line": 279
+            },
+            {
+              "name": "renderDeadlineAndProcessCloseCancelOwnedWorkAndNeverInventAnImage",
+              "line": 281,
+              "end_line": 309
+            },
+            {
+              "name": "render",
+              "line": 285,
+              "end_line": 285
+            },
+            {
+              "name": "report",
+              "line": 326,
+              "end_line": 326
+            },
+            {
+              "name": "mount",
+              "line": 327,
+              "end_line": 333
+            },
+            {
+              "name": "withFixture",
+              "line": 336,
+              "end_line": 367
+            },
+            {
+              "name": "render",
+              "line": 347,
+              "end_line": 347
+            },
+            {
+              "name": "fetch",
+              "line": 350,
+              "end_line": 351
+            },
+            {
+              "name": "bitmap",
+              "line": 369,
+              "end_line": 369
+            }
+          ]
+        }
+      ],
       "review": "compare-observable-actions-state-error-cancellation-and-resources"
     },
     {

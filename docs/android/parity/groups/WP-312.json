@@ -201,7 +201,7 @@
       "native_contracts": [
         {
           "path": "android/core/maps/src/main/kotlin/com/meshcoreone/android/core/maps/MapSnapshotStore.kt",
-          "sha256": "c24f92ae9c140add1b957f99bde12b21843fe8855d3bbada1914e948e52951d9",
+          "sha256": "454a8ab50b7c91471dba32418361e0d663ca946afd259d025ab685859db6a8d3",
           "source_references": [
             "MC1/Services/MapSnapshotStore.swift",
             "MC1/Views/Map/MapSnapshotRequest.swift"
@@ -209,58 +209,58 @@
           "methods": [
             {
               "name": "invoke",
-              "line": 26,
-              "end_line": 42
+              "line": 28,
+              "end_line": 48
             },
             {
               "name": "normalized",
-              "line": 32,
-              "end_line": 35
+              "line": 34,
+              "end_line": 41
             },
             {
               "name": "value",
-              "line": 75,
-              "end_line": 75
+              "line": 82,
+              "end_line": 82
             },
             {
               "name": "isResolved",
-              "line": 77,
-              "end_line": 78
+              "line": 84,
+              "end_line": 85
             },
             {
               "name": "request",
-              "line": 80,
-              "end_line": 104
+              "line": 87,
+              "end_line": 117
             },
             {
               "name": "retry",
-              "line": 106,
-              "end_line": 111
+              "line": 119,
+              "end_line": 124
             },
             {
               "name": "clearFailures",
-              "line": 113,
-              "end_line": 119
+              "line": 126,
+              "end_line": 132
             },
             {
               "name": "clear",
-              "line": 121,
-              "end_line": 131
+              "line": 134,
+              "end_line": 145
             },
             {
               "name": "close",
-              "line": 133,
-              "end_line": 142
+              "line": 147,
+              "end_line": 161
             },
             {
               "name": "insertFailure",
-              "line": 144,
-              "end_line": 151
+              "line": 163,
+              "end_line": 170
             },
             {
               "name": "insertValue",
-              "line": 153,
-              "end_line": 164
+              "line": 172,
+              "end_line": 183
             }
           ]
         }
@@ -1027,9 +1027,42 @@
       "kind": "production",
       "owner": "WP-312",
       "exclusion": null,
-      "candidate_native_paths": [],
+      "candidate_native_paths": [
+        "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatMapPreview.kt"
+      ],
       "acceptance": "independent-behavior-review-required",
-      "native_contracts": [],
+      "native_contracts": [
+        {
+          "path": "android/app/src/main/kotlin/com/meshcoreone/android/app/navigation/AppChatMapPreview.kt",
+          "sha256": "0f26cd872dfbdd65a88294c94e5fdb20d865a3a3283e3b5ac415336f6c5d5487",
+          "source_references": [
+            "MC1/Views/Chats/Components/Fragments/MapPreviewFragmentView.swift",
+            "MC1/Views/Map/MapSnapshotLayout.swift"
+          ],
+          "methods": [
+            {
+              "name": "chatMapPreviewCoordinate",
+              "line": 55,
+              "end_line": 56
+            },
+            {
+              "name": "AppChatMapPreview",
+              "line": 61,
+              "end_line": 124
+            },
+            {
+              "name": "readImage",
+              "line": 71,
+              "end_line": 71
+            },
+            {
+              "name": "refresh",
+              "line": 74,
+              "end_line": 79
+            }
+          ]
+        }
+      ],
       "review": "compare-observable-actions-state-error-cancellation-and-resources"
     },
     {
@@ -1067,7 +1100,7 @@
       "native_contracts": [
         {
           "path": "android/core/maps/src/main/kotlin/com/meshcoreone/android/core/maps/MapSnapshotStore.kt",
-          "sha256": "c24f92ae9c140add1b957f99bde12b21843fe8855d3bbada1914e948e52951d9",
+          "sha256": "454a8ab50b7c91471dba32418361e0d663ca946afd259d025ab685859db6a8d3",
           "source_references": [
             "MC1/Services/MapSnapshotStore.swift",
             "MC1/Views/Map/MapSnapshotRequest.swift"
@@ -1075,58 +1108,58 @@
           "methods": [
             {
               "name": "invoke",
-              "line": 26,
-              "end_line": 42
+              "line": 28,
+              "end_line": 48
             },
             {
               "name": "normalized",
-              "line": 32,
-              "end_line": 35
+              "line": 34,
+              "end_line": 41
             },
             {
               "name": "value",
-              "line": 75,
-              "end_line": 75
+              "line": 82,
+              "end_line": 82
             },
             {
               "name": "isResolved",
-              "line": 77,
-              "end_line": 78
+              "line": 84,
+              "end_line": 85
             },
             {
               "name": "request",
-              "line": 80,
-              "end_line": 104
+              "line": 87,
+              "end_line": 117
             },
             {
               "name": "retry",
-              "line": 106,
-              "end_line": 111
+              "line": 119,
+              "end_line": 124
             },
             {
               "name": "clearFailures",
-              "line": 113,
-              "end_line": 119
+              "line": 126,
+              "end_line": 132
             },
             {
               "name": "clear",
-              "line": 121,
-              "end_line": 131
+              "line": 134,
+              "end_line": 145
             },
             {
               "name": "close",
-              "line": 133,
-              "end_line": 142
+              "line": 147,
+              "end_line": 161
             },
             {
               "name": "insertFailure",
-              "line": 144,
-              "end_line": 151
+              "line": 163,
+              "end_line": 170
             },
             {
               "name": "insertValue",
-              "line": 153,
-              "end_line": 164
+              "line": 172,
+              "end_line": 183
             }
           ]
         }
@@ -1448,7 +1481,7 @@
       "native_contracts": [
         {
           "path": "android/core/maps/src/test/kotlin/com/meshcoreone/android/core/maps/MapSnapshotStoreTest.kt",
-          "sha256": "f975b99b76ae48708a72105a642a3572baa2c2f507aa067c754cd7ce8b5fb743",
+          "sha256": "cfdc16a08407dae75e1f80a0d1d53f9a97479ce76508360132df974e93327bc5",
           "source_references": [
             "MC1Tests/Services/MapSnapshotStoreTests.swift"
           ],
@@ -1459,29 +1492,49 @@
               "end_line": 24
             },
             {
-              "name": "cacheMissRenderDeduplicationAndMulticastResolution",
+              "name": "exactHalfwayCoordinatesRoundAwayFromZeroLikeTheFrozenSwiftRequest",
               "line": 27,
-              "end_line": 44
+              "end_line": 38
             },
             {
-              "name": "failureRetryAndClearInvalidateResolvedState",
-              "line": 47,
-              "end_line": 68
-            },
-            {
-              "name": "countAndFailureCapsEvictOldestEntries",
-              "line": 71,
-              "end_line": 98
-            },
-            {
-              "name": "closeCancelsInFlightRenderWithoutCaching",
-              "line": 101,
-              "end_line": 112
+              "name": "memoryClearCannotLetTheOldRenderRemoveTheReplacementDeduplicationEntry",
+              "line": 41,
+              "end_line": 75
             },
             {
               "name": "render",
-              "line": 119,
-              "end_line": 123
+              "line": 48,
+              "end_line": 54
+            },
+            {
+              "name": "closeIsTerminalAndReleasesTheCachedImage",
+              "line": 78,
+              "end_line": 95
+            },
+            {
+              "name": "cacheMissRenderDeduplicationAndMulticastResolution",
+              "line": 98,
+              "end_line": 115
+            },
+            {
+              "name": "failureRetryAndClearInvalidateResolvedState",
+              "line": 118,
+              "end_line": 139
+            },
+            {
+              "name": "countAndFailureCapsEvictOldestEntries",
+              "line": 142,
+              "end_line": 169
+            },
+            {
+              "name": "closeCancelsInFlightRenderWithoutCaching",
+              "line": 172,
+              "end_line": 183
+            },
+            {
+              "name": "render",
+              "line": 190,
+              "end_line": 194
             }
           ]
         }
