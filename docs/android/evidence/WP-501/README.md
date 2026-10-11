@@ -21,9 +21,10 @@ capabilities. No release/recreate or ledger edits occurred.
 ## Acceptance scope
 
 WP-501-behavior and WP-501-source-test-parity: complete source/family accounting,
-328 inspected family proposals in36groups, exact source/assertion/helper/runner
+382 inspected family proposals in40groups, exact source/assertion/helper/runner
 bindings and executable cross-component acceptance extensions. **The full semantic
-audit is unfinished and a mounted content cancellation defect is proven**;
+audit is unfinished; the proven mounted content cancellation defect now has a
+merged coordinator repair whose unchanged worker assertion awaits re-execution**;
 independent full behavioral acceptance remains BLOCKED. All 1,866 inputs and 5,133 declarations
 remain present. 1,786 paths are in scope; 80 are exact charter exclusions.
 All 111 excluded historical declarations remain accountable; 66 of these are
@@ -54,12 +55,12 @@ documented missing-state blocker. The supported local snapshot runner then
 verified actual ready inputs; no dependency/SDK install or environment workaround
 was necessary. This is resolved, not an outstanding WP-501 setup blocker.
 
-The follow-up has72 Python regressions and twenty Kotlin acceptance cases.
+The follow-up has72 Python regressions and twenty-one Kotlin acceptance cases.
 The prior c3c2608d Python suite passed72/72 without failure/error/skip.
 The committed d6432a56 combined controller/local/parity command ran338 cases:
 338passed,0failure/error/skip; it does not include these later72-case edits.
 `semantic.py` generates58complete owner worklists/5,133original families and
-328actually inspected proposals;3,344native-body joins are only candidates.
+382actually inspected proposals;3,344native-body joins are only candidates.
 The Windows isolated-cache task
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.* --dependency-verification=strict`
 ran under the supported shared Gradle hard lock:12discovered/11passed/1failed,
@@ -79,8 +80,9 @@ reported insufficient system resources. The bounded host probe measured780MiB
 free physical/183MiB free virtual memory. No dependency install, shared-cache
 change or unrelated process termination occurred. Normal supported publication
 reported UNVERIFIED after snapshot Git pack-objects failed and allowed push.
-The exact c3c2608d hosted run38161221673 remains a separate candidate outcome;
-its result must be read from GitHub, not inferred from baseline or local failures.
+Exact c3c2608d hosted38161221673 completedFAILURE: app644tests/1failed at the
+unchanged #166 caller-timeout assertion; classifier/controller/Swiftcodec
+completedSUCCESS, SwiftData restore/exportSKIPPED after Android producer failure.
 
 The next source-backed increment compares all127 original BackupIntegration
 declarations, including transaction faults/cancellation, nil/empty path arrivals,
@@ -90,7 +92,32 @@ all-seven-kind distinct-store orphan gaps; they have no native result yet.
 The precommit combined Python command discovered343/run343:341passed/0failures/
 2errors/0skips. Both errors correctly rejected edited runtime-required inputs
 that differed from immutable HEAD. Commit-bound rerun is required, not a waived
-checkout-integrity check or acceptance pass.
+checkout-integrity check or acceptance pass. The actual committeda86951e0 rerun
+discovered343/run343/passed343/0failure/error/skip, resolving both guards with
+immutable inputs. Its supported push passed Python/preflight but native scaffold
+failed at the existing WSL transform lock (Expected3/found0) and published
+explicitlyUNVERIFIED. Exact hosted38162259507 failed before JUnit at a new owned
+test's omitted required nullable ContactDTO.lastHeardTimestamp argument. The
+fixture now supplies the original helper's explicitnull and CHAT raw type;
+this compiler error is not a second production defect or passing native result.
+
+An additional54 primitive/application families compare literal endian/padding/
+grapheme vectors, every path mode/sentinel and three parameter rows/twelve
+round-trip pairs, actual opt-in transport defaults and original app hex inputs.
+The new combined15-family app assertion uses the real production formatter/
+parser, not the protocol's recreated test-only application adapter. It counts
+once as a required JUnit execution and awaits native verification.
+
+Coordinator repair8967cba594296833e0219f9fdd444f3c673f7461 was independently
+source-reviewed against base250dd50e and the unchanged worker assertion, with
+no blocking findings in the bounded four-file diff. The actual assessment is
+PR167 comment6112090500, not a privileged approval or full WP-501 acceptance.
+Repair hosted38161322710 completedSUCCESS; Swiftcodec/SwiftData were deliberately
+unselected, not passed. The actual merge is
+c68f414098df1253bfccade171ae0f256790de8b; its tree equals the reviewed repair.
+The worker preserves ContentCancellationAcceptanceTest Git blob
+b24272846f3dc74e9df912c11cb945c5fe5e96b5 during integration. New candidate execution
+is still required; the earlier failure is not relabeled as repaired execution.
 
 Baseline [run38155192945](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38155192945)
 is SUCCESS at exact250dd50e. Initial WP-501
@@ -121,11 +148,11 @@ WP-501-accepted artifact; this candidate changes only tests and validation wirin
 
 ## Remaining independent evidence and owner routing
 
-The generated worklist has 2,341 recognized historical/marker family candidates,
-2,681 families without those recognized mapping forms and 111 excluded families.
+The generated worklist has 2,356 recognized historical/marker family candidates,
+2,666 families without those recognized mapping forms and 111 excluded families.
 These figures are **not executed case counts or proven missing-test counts**.
 Dynamic factories, alternate source maps and many-to-many assertions require
-actual inspection. All1,786owned source dispositions require behavior review; only the328families
+actual inspection. All1,786owned source dispositions require behavior review; only the382families
 described above have actual bounded comparison proposals so far.
 Completing remaining original/native/helper/consumer/resource comparisons is
 assigned worker implementation, not a new unavailable human gate.

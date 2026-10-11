@@ -62,6 +62,8 @@ WP501_ACCEPTANCE_CASES = {
      "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy"),
     ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
      "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore"),
+    ("com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+     "originalApplicationHexFamiliesUseProductionFormattingAndParsing"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

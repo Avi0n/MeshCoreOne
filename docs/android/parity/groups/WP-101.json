@@ -13,7 +13,8 @@
       "owner": "WP-101",
       "exclusion": null,
       "candidate_native_paths": [
-        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/primitives/BytesTest.kt"
+        "android/core/protocol/src/test/kotlin/com/meshcoreone/android/core/protocol/primitives/BytesTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -244,6 +245,20 @@
               "name": "Invalid slices byte values and cursor offsets fail explicitly",
               "line": 307,
               "end_line": 318
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+              "line": 28,
+              "end_line": 47
             }
           ]
         }
@@ -2109,6 +2124,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -2190,6 +2451,252 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -2273,6 +2780,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -2354,6 +3107,252 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -2437,6 +3436,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -2518,6 +3763,252 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -2601,6 +4092,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -2682,6 +4419,252 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -2765,6 +4748,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -2847,6 +5076,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -2923,6 +5398,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -2992,6 +5713,252 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -3074,6 +6041,252 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
@@ -3181,6 +6394,252 @@
           ],
           "explicit_original_case_ids": [],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -3274,6 +6733,252 @@
             "MeshCore/Tests/MeshCoreTests/Protocol/DataExtensionsTests.swift"
           ],
           "explicit_original_case_ids": [],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/ApplicationBytesAcceptanceTest.kt",
+          "sha256": "bbaae50a8a8e04de7b07a34cc1aaedfb2baac37c29218baffb893753ae2c52ce",
+          "class": "com.meshcoreone.android.parity.ApplicationBytesAcceptanceTest",
+          "method_or_family_name": "originalApplicationHexFamiliesUseProductionFormattingAndParsing",
+          "line": 28,
+          "end_line": 47,
+          "factory_method": null,
+          "body_sha256": "e4b47cbdeab2eb58c2960e1bb54ca946b9d5993c26628d62a9dd006992798465",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 30,
+              "expression": "assertEquals(\"\", Bytes.EMPTY.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 31,
+              "expression": "assertEquals(\"AABBCCDD\", bytes.uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 32,
+              "expression": "assertEquals(\"AA BB CC DD\", bytes.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 33,
+              "expression": "assertEquals(\"AA:BB:CC\", Bytes.of(0xAA, 0xBB, 0xCC).uppercaseHexString(\":\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 34,
+              "expression": "assertEquals(\"0F\", Bytes.of(0x0F).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 35,
+              "expression": "assertEquals(\"000102\", Bytes.of(0, 1, 2).uppercaseHexString())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 37,
+              "expression": "assertEquals(text, bytes, applicationBytesFromHex(text))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 39,
+              "expression": "assertEquals(Bytes.EMPTY, applicationBytesFromHex(\"\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 40,
+              "expression": "assertNull(applicationBytesFromHex(\"ABC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 41,
+              "expression": "assertEquals(Bytes.of(0xAA, 0xBB, 0xCC), applicationBytesFromHex(\"AA-BB-CC\"))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 44,
+              "expression": "assertEquals(original, applicationBytesFromHex(original.uppercaseHexString()))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 46,
+              "expression": "assertEquals(spaced, applicationBytesFromHex(spaced.uppercaseHexString(\" \")))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes.of",
+              "line": 29,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC, 0xDD)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.EMPTY.uppercaseHexString",
+              "line": 30,
+              "expression": "Bytes.EMPTY.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 31,
+              "expression": "bytes.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "bytes.uppercaseHexString",
+              "line": 32,
+              "expression": "bytes.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 33,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 33,
+              "expression": "uppercaseHexString(\":\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 34,
+              "expression": "Bytes.of(0x0F)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 34,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 35,
+              "expression": "Bytes.of(0, 1, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "uppercaseHexString",
+              "line": 35,
+              "expression": "uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 36,
+              "expression": "for (text in listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 36,
+              "expression": "listOf(\"AABBCCDD\", \"AA BB CC DD\", \"aabbccdd\", \"AaBbCcDd\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 37,
+              "expression": "applicationBytesFromHex(text)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 39,
+              "expression": "applicationBytesFromHex(\"\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 40,
+              "expression": "applicationBytesFromHex(\"ABC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 41,
+              "expression": "Bytes.of(0xAA, 0xBB, 0xCC)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 41,
+              "expression": "applicationBytesFromHex(\"AA-BB-CC\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 42,
+              "expression": "Bytes.of(0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,\n            0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 44,
+              "expression": "applicationBytesFromHex(original.uppercaseHexString())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "original.uppercaseHexString",
+              "line": 44,
+              "expression": "original.uppercaseHexString()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 45,
+              "expression": "Bytes.of(0xDE, 0xAD, 0xBE, 0xEF)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "applicationBytesFromHex",
+              "line": 46,
+              "expression": "applicationBytesFromHex(spaced.uppercaseHexString(\" \"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "spaced.uppercaseHexString",
+              "line": 46,
+              "expression": "spaced.uppercaseHexString(\" \")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Tests/Extensions/DataExtensionsTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "DataExtensionsTests::Empty data returns empty string()",
+            "DataExtensionsTests::Hex string with no separator()",
+            "DataExtensionsTests::Hex string with space separator()",
+            "DataExtensionsTests::Hex string with custom separator()",
+            "DataExtensionsTests::Hex string for single byte()",
+            "DataExtensionsTests::Hex string preserves leading zeros()",
+            "DataExtensionsTests::Init from valid hex string()",
+            "DataExtensionsTests::Init from hex string with spaces()",
+            "DataExtensionsTests::Init from lowercase hex string()",
+            "DataExtensionsTests::Init from mixed case hex string()",
+            "DataExtensionsTests::Init from empty hex string()",
+            "DataExtensionsTests::Init from odd-length hex string returns nil()",
+            "DataExtensionsTests::Init filters out non-hex characters()",
+            "DataExtensionsTests::Round-trip preserves data()",
+            "DataExtensionsTests::Round-trip with spaces preserves data()"
+          ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],

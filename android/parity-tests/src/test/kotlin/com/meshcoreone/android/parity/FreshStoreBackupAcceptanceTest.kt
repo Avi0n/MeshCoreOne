@@ -240,7 +240,7 @@ class FreshStoreBackupAcceptanceTest : RoomProcessTest() {
             val device = DeviceDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }),
                 nodeName = "TestDevice")
             val contact = ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xD1.toByte() }),
-                name = "Orphaned Contact")
+                name = "Orphaned Contact", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)
             val channel = ChannelDTO(radioId = radio, index = 1u, name = "Orphaned Channel",
                 secret = Bytes(ByteArray(16)), unreadCount = 3, notificationLevel = NotificationLevel.MENTIONS_ONLY,
                 isFavorite = true)

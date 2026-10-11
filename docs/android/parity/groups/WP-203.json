@@ -2699,7 +2699,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
+          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
           ],
@@ -18330,13 +18330,13 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
+          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "deviceOnlyDeleteExportsAllSevenOrphanKindsIntoDistinctEmptyStore",
           "line": 235,
           "end_line": 308,
           "factory_method": null,
-          "body_sha256": "b1657b29596c64ab083a4e8d4c8d41ff2a0ca3ad75f191b54a31fa262e11216f",
+          "body_sha256": "4cb4a63c503f1806e20f9252ccd59f976568c852a3ce1cafd443107552c228e6",
           "registration": null,
           "assertions": [
             {
@@ -18578,7 +18578,7 @@
             {
               "name": "ContactDTO",
               "line": 242,
-              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xD1.toByte() }),\n                name = \"Orphaned Contact\")",
+              "expression": "ContactDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xD1.toByte() }),\n                name = \"Orphaned Contact\", typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null)",
               "assertion_or_checked_wait": false
             },
             {
@@ -23042,7 +23042,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
+          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "original32ByteStaleSecretCannotOverwriteReconfiguredLiveChannel",
           "line": 160,
@@ -23813,7 +23813,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "262f9eae274ff9290b47d89a3de33c5ece9f49f19346205719b8f3c4cc25af5c",
+          "sha256": "456ff88c17bf7a46a22fd7f37a2a193fb5a77530cb1f593d537bb8e342610b28",
           "class": "com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
           "method_or_family_name": "original32ByteDraftSlotsReportOnlyFreshAndRelocatedOccupancy",
           "line": 191,

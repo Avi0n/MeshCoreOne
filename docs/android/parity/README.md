@@ -111,7 +111,7 @@ relocated identity and the exact newly occupied draft-slot set through public
 repositories and real import receipts, not the predecessor 16-byte variants.
 
 The current app JUnit collector requires every exact WP-501 class/method identity,
-not merely twenty arbitrary passing tests. All existing module/primary suite
+not merely twenty-one arbitrary passing tests. All existing module/primary suite
 checks remain. The Python audit regressions exercise duplicate/path-qualified
 families, full parameter provenance, drift, exclusions, no header/historical-pass
 promotion, and missing/zero/failed/error/skipped/malformed/duplicate JUnit cases.
@@ -124,9 +124,10 @@ assertions, parameter expressions, actions, helper references, compile condition
 and actual native assertion/registration bodies. This lexical extractor is not
 a compiler, a behavioral oracle or automatic equivalence.
 
-`review-proposals.json` contains **328 actually inspected families in 36 groups**:
+`review-proposals.json` contains **382 actually inspected families in 40 groups**:
 crypto22, model41, backup41, coordinates/mentions/link-tokenization75 and
-contact/share/QR/discovery20, localization2 and backup-integration127.
+contact/share/QR/discovery20, localization2, backup-integration127 and
+protocol/application byte/path/transport54.
 Each proposal explains exact inputs/assertions, helper and consumer behavior,
 native adaptations and unresolved scope. `review-bindings.json` binds that prose,
 actual source/native/helper bytes and precise JUnit class/display identities.
@@ -147,7 +148,18 @@ actual source format/plural/locale/helper comparisons and the converter outcome.
 `semantic.py --check --verify-execution` additionally requires those exact cases
 in the current candidate's actual reports; historical pass totals are not promoted.
 The existing full scaffold stage invokes this after collecting primary/module
-JUnit. The 328 proposals are a bounded reviewable implementation increment,
+JUnit.
+
+The fifteen original application hex declarations now use the real production
+`ApplicationBytes` adapter. The predecessor MIT protocol suite recreated a GPL
+display parser in test-only support; it is not promoted as production consumer
+evidence. One explicitly annotated app assertion retains every original literal
+and supports fifteen path-qualified original families, but is one runner case.
+Path encoding retains all three parameter rows and twelve nested round-trip
+pairs with explicit harmless display renames; reserved modes, endian bytes,
+grapheme limits and actual interface delegation are compared independently.
+
+The 382 proposals are a bounded reviewable implementation increment,
 **not completion of the full original/consumer/resource audit**. Other families
 and source/resource contracts remain worker audit work, not an unavailable
 hardware gate or an independent-review-only preparation stop.
@@ -172,7 +184,7 @@ For an intentional, inspected candidate mapping change, regenerate with
 This updates accounting only, never golden bytes or passing dispositions.
 
 The existing app task `:app:testDebugUnitTest --tests
-com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty
+com.meshcoreone.android.parity.* --dependency-verification=strict` selects the twenty-one
 behavioral cases. Use the documented isolated `android\scaffold\invoke-gradle.ps1`
 or supported local Linux snapshot runner, with strict dependency verification.
 The existing `verifyScaffoldTests` includes these cases automatically; no new
