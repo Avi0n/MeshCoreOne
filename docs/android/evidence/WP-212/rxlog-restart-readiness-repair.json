@@ -9,7 +9,7 @@
   "manifest_sha256": "39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda",
   "policy_revision": "3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20",
   "reservation": {
-    "revision": 1,
+    "revision": 2,
     "capability": "wp-owned",
     "operation": "modify",
     "release_recreate": false,
@@ -17,7 +17,14 @@
       "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceReprocessTest.kt",
       "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceTestSupport.kt",
       "docs/android/deviations/WP-212.md",
-      "docs/android/evidence/WP-212/rxlog-restart-readiness-repair.json"
+      "docs/android/evidence/WP-212/rxlog-restart-readiness-repair.json",
+      "tools/android-port/oracle/workflow_scope.py",
+      "tools/android-port/oracle/test_workflow_scope.py"
+    ],
+    "support_capability": "traceability-validation",
+    "support_operations": [
+      "add-or-update-validator-rule",
+      "add-regression-fixture-or-test"
     ]
   },
   "origin": {
@@ -74,6 +81,29 @@
       "git diff --check: passed"
     ],
     "full_wp501_acceptance": "not claimed",
-    "ios_hardware_signing": "not executed"
+    "ios_hardware_signing": "not executed",
+    "first_repair_ci": {
+      "run_id": 38171379720,
+      "head_sha": "2fe54b8efe351d04ec3523eaf6482066bf513ca0",
+      "conclusion": "success",
+      "execution_scopes": "all unselected; no native/controller/codec/SwiftData test proof",
+      "merge_authorized_by_this_result": false
+    },
+    "ci_selector_repair": {
+      "rule": "android/core/services/ inputs select scaffold",
+      "regression_inputs": "actual service production, test and build paths",
+      "other_scopes": "unchanged; classifier changes retain existing all-scope rule",
+      "verification": {
+        "command": "python tools\\android-port\\oracle\\run_tests.py --output <session-artifact>\\rxlog168-selector-tests.json",
+        "result": "passed",
+        "discovered": 96,
+        "run": 96,
+        "passed": 96,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "scope": "Actual Python tool regressions; not Android/iOS/hardware acceptance"
+      }
+    }
   }
 }
