@@ -59,17 +59,34 @@ class AndroidRuntimeLinkFactory(
 ) : RuntimeLinkFactory {
     private val latest = AtomicReference<BleRuntimeLink?>(null)
     private val latestId = AtomicReference<UUID?>(null)
+    private data class LiveLink(val token: SessionToken, val owner: RuntimeLink)
+    private val live = AtomicReference<LiveLink?>(null)
 
-    override fun create(target: ConnectionTarget): RuntimeLink = when (target) {
-        is ConnectionTarget.WiFi -> WifiRuntimeLink(target.host, target.port)
-        is ConnectionTarget.Bluetooth -> {
-            val handle = BleDeviceHandle(target.handle.address.value)
-            val link = BleRuntimeLink(BleTransport(gattFacades(handle), configuration), target.deviceId, memory, dispatcher = linkDispatcher)
-            latest.getAndSet(link)?.release()
-            latestId.set(target.deviceId)
-            link
+    override fun create(target: ConnectionTarget): RuntimeLink {
+        val link = when (target) {
+            is ConnectionTarget.WiFi -> WifiRuntimeLink(target.host, target.port)
+            is ConnectionTarget.Bluetooth -> {
+                val handle = BleDeviceHandle(target.handle.address.value)
+                val link = BleRuntimeLink(BleTransport(gattFacades(handle), configuration), target.deviceId, memory, dispatcher = linkDispatcher)
+                latest.getAndSet(link)?.release()
+                latestId.set(target.deviceId)
+                link
+            }
+        }
+        return object : RuntimeLink by link {
+            override suspend fun setSessionLive(token: SessionToken?) {
+                link.setSessionLive(token)
+                if (token != null) live.set(LiveLink(token, link))
+                else {
+                    val previous = live.get()
+                    if (previous?.owner === link) live.compareAndSet(previous, null)
+                }
+            }
         }
     }
+
+    fun transportFor(token: SessionToken): TransportType? =
+        live.get()?.takeIf { it.token == token }?.owner?.type
 
     /** The newest Bluetooth link's diagnostics, or null before any Bluetooth connect. */
     fun currentBleLink(): BleLinkSnapshot? {

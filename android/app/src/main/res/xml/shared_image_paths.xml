@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AndroidOnly: WP-407 Share only deliberately exported cached images; no database, keys or root paths. -->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <cache-path name="images" path="shared-images/" />
+</paths>

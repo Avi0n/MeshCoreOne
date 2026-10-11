@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AndroidOnly: WP-407 Native platform labels not present in the pinned Apple localization catalog. -->
+<resources>
+    <string name="platform_open_source_licenses">Open-source licenses</string>
+    <string name="platform_system_language">System language</string>
+</resources>

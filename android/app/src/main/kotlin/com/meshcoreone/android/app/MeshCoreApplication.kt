@@ -3,7 +3,14 @@ package com.meshcoreone.android.app
 
 import android.app.Activity
 import android.app.Application
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Build
+import android.os.UserManager
+import com.meshcoreone.android.app.platform.UnlockedProcessStart
 import com.meshcoreone.android.app.container.AndroidAppContainerFactory
 import com.meshcoreone.android.app.container.AppContainer
 import com.meshcoreone.android.app.state.ProcessForegroundState
@@ -38,6 +45,8 @@ class MeshCoreApplication : Application() {
     private val processScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val pending = CompletableDeferred<AppContainer>()
     val foreground = ProcessForegroundState()
+    private val unlockedStart = UnlockedProcessStart(::startContainer)
+    private var unlockReceiver: BroadcastReceiver? = null
 
     /** Completes with the process container once it is built; fails if construction failed (storage unavailable). */
     val container: kotlinx.coroutines.Deferred<AppContainer> get() = pending
@@ -60,17 +69,61 @@ class MeshCoreApplication : Application() {
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
             override fun onActivityDestroyed(activity: Activity) = Unit
         })
+        val user = getSystemService(UserManager::class.java)
+        if (!user.isUserUnlocked) {
+            val receiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    if (intent.action == Intent.ACTION_USER_UNLOCKED && user.isUserUnlocked) {
+                        unlockedStart.onUnlockState(true)
+                        unlockReceiver?.let(::unregisterReceiver)
+                        unlockReceiver = null
+                    }
+                }
+            }
+            unlockReceiver = receiver
+            if (Build.VERSION.SDK_INT >= 33) {
+                registerReceiver(receiver, IntentFilter(Intent.ACTION_USER_UNLOCKED), Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                registerReceiver(receiver, IntentFilter(Intent.ACTION_USER_UNLOCKED))
+            }
+        }
+        // Recheck after registration so an unlock racing onCreate cannot strand the process.
+        if (user.isUserUnlocked) {
+            unlockedStart.onUnlockState(true)
+            unlockReceiver?.let(::unregisterReceiver)
+            unlockReceiver = null
+        }
+    }
+
+    private fun startContainer() {
         processScope.launch {
             try {
                 val built = AndroidAppContainerFactory.create(this@MeshCoreApplication, processScope, foreground)
-                pending.complete(built)
-                built.start()
+                try {
+                    built.start()
+                    pending.complete(built)
+                } catch (failure: Exception) {
+                    try { kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { built.close() } }
+                    catch (cleanup: Exception) { failure.addSuppressed(cleanup) }
+                    throw failure
+                }
             } catch (cancelled: CancellationException) {
                 pending.completeExceptionally(cancelled)
                 throw cancelled
             } catch (failure: Exception) {
-                logger.log(Level.SEVERE, "Process container failed to start: ${failure.message}")
+                logger.log(Level.SEVERE, "Process container failed to start", failure)
                 pending.completeExceptionally(failure)
+            }
+        }
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (pending.isCompleted && !pending.isCancelled) {
+            processScope.launch {
+                try { pending.await().chatContent?.trimMemory() }
+                catch (cancelled: CancellationException) { throw cancelled }
+                catch (failure: Exception) { logger.log(Level.WARNING, "Could not trim process chat caches", failure) }
             }
         }
     }
@@ -98,6 +151,9 @@ class MeshCoreApplication : Application() {
                 }
 
             override suspend fun requestConnection(origin: ConnectionRequestOrigin): ConnectionRequestResult {
+                if (!getSystemService(UserManager::class.java).isUserUnlocked) {
+                    return ConnectionRequestResult.UserLocked
+                }
                 val current = pending.await()
                 if (current.connectionManager.connectionState != DeviceConnectionState.DISCONNECTED) {
                     return ConnectionRequestResult.AlreadyActive

@@ -131,6 +131,9 @@ class AppContainerDependencies(
     },
     /** Real process/store/RF/elevation adapters for line-of-sight; network terrain remains optional to mesh. */
     val lineOfSight: com.meshcoreone.android.feature.tools.los.LineOfSightFeatureDependencies? = null,
+    val themeService: com.meshcoreone.android.core.designsystem.ThemeService? = null,
+    val backupEngine: com.meshcoreone.android.feature.settings.app.backup.BackupEngine? = null,
+    internal val chatContent: AppChatContent? = null,
     val newBootstrapDebugLog: (CoroutineScope) -> DebugLogBuffer? = { null },
     /** Releases process-owned resources (database, storage) once the runtime has closed. */
     val onClose: suspend () -> Unit = {},
@@ -150,6 +153,12 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
 
     val sessions = SessionRegistry()
     val navigation = NavigationCoordinator()
+    internal val currentTransport: com.meshcoreone.android.core.model.TransportType?
+        get() = connectionManager.snapshot.value.token?.let {
+            (dependencies.linkFactory as? AndroidRuntimeLinkFactory)?.transportFor(it)
+        }
+    internal val processStore get() = dependencies.store
+    internal val uiScope = CoroutineScope(dependencies.mainScope.coroutineContext + SupervisorJob(processJob))
     val foreground: ProcessForegroundState = dependencies.foreground
     val bootstrapDebugLog: DebugLogBuffer? = dependencies.newBootstrapDebugLog(processScope)
         // A live process publishes its bootstrap buffer as the process-global one; the inert placeholder never does.
@@ -202,7 +211,7 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
         dependencies.connectivityDiagnostics, dependencies.ensureBonded, dependencies.knownEndpoints, dependencies.bonds,
     )
 
-    private val deviceEditor = ConnectedDeviceEditor(
+    internal val deviceEditor = ConnectedDeviceEditor(
         ManagerDeviceAccess(connectionManager), dependencies.store, dependencies.store,
         { sessions.current?.let { ContactRemoval(it.token.radioId, it) } },
         RadioPresetMatcher { frequency, bandwidth, spreadingFactor, codingRate ->
@@ -242,6 +251,14 @@ class AppContainer(private val dependencies: AppContainerDependencies) {
     val mapFeature by lazy(::createMapFeatureDependencies)
     val nodesFeature by lazy(::createNodesFeatureDependencies)
     val remoteNodesFeature by lazy(::createRemoteNodesFeatureDependencies)
+    val chatsFeature by lazy { AppChatsFeature(this) }
+    val themeService get() = dependencies.themeService
+    val backupEngine get() = dependencies.backupEngine
+    internal val chatContent get() = dependencies.chatContent
+    internal val notificationPreferences get() = dependencies.notificationPreferences
+    internal val settingsRegionResolver get() = dependencies.onboardingPlatform?.regionResolver
+    var settingsFeature: AppSettingsFeature? = null
+        internal set
     internal val nodesMessages get() = dependencies.nodesMessages
     internal val nodesAnnouncer get() = dependencies.nodesAnnouncer
     internal val nodesPreferences get() = dependencies.nodesPreferences

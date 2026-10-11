@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- AndroidOnly: WP-002 Launcher; WP-303 registers the process Application. Radio, network and service declarations come from core:connectivity's manifest. -->
+<!-- AndroidOnly: WP-407 Native launcher/privacy policy; connectivity owns radio permissions and services. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Optional: approximate location is read once to suggest the radio region during onboarding. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <!-- AndroidOnly: WP-312 retain existing connectivity permissions without MapLibre's precise/Wi-Fi additions. -->
     <uses-permission android:name="android.permission.INTERNET" tools:node="replace" />
@@ -15,12 +20,25 @@
         android:name="com.meshcoreone.android.app.MeshCoreApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/scaffold_data_extraction_rules"
+        android:fullBackupContent="false"
+        android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:localeConfig="@xml/l10n_locales"
         android:supportsRtl="true"
         android:theme="@style/Theme.MeshCoreOne">
-        <activity android:name=".MainActivity" android:exported="true">
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.shared-images"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/shared_image_paths" />
+        </provider>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:resizeableActivity="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -170,6 +170,7 @@ class RadioSessionContainer private constructor(
         }
     override val settingsService: SettingsService get() = deviceSettings.settingsService
     override val deviceService: DeviceService get() = deviceSettings.deviceService
+    internal val regionDiscoveryService get() = deviceSettings.regionDiscoveryService
     override val advertisementService = AdvertisementService(session, session, dataStore, scope, appStateProvider = env.appState)
     val messagePollingService = MessagePollingService(token, session, dataStore, inputs.connection.signals, scope)
     val binaryProtocolService = BinaryProtocolService(session.asBinaryProtocolSessionPort(), scope)
