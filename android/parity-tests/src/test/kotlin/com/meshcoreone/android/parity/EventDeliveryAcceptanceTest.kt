@@ -84,10 +84,10 @@ class EventDeliveryAcceptanceTest {
     }
 
     private suspend fun TestScope.startWireSession(session: MeshCoreSession, transport: MockTransport) {
-        val startup = async { session.start() }
+        val startup = backgroundScope.async { session.start() }
         runCurrent()
         assertEquals(
-            Bytes.of(1, 3, 32, 32, 32, 32, 32, 32) + Bytes("MeshCore-Swift".toByteArray(Charsets.UTF_8)),
+            Bytes.of(1, 3, 32, 32, 32, 32, 32, 32, 0x4d, 0x65, 0x73, 0x68, 0x43),
             transport.sentData.single(),
         )
         val selfInfo = ByteBuffer.allocate(58).order(ByteOrder.LITTLE_ENDIAN)

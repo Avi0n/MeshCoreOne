@@ -252,6 +252,13 @@ nonexistent Bytes.copyOf and a clock helper that was still embedded privately
 in SessionResponseAcceptanceTest. The owned test correction uses real Bytes
 constructor and extracts that unchanged clock body for both acceptance classes.
 This is a test-owned compile repair, not a production defect or passing execution.
+The corrected7eae9fc2 discovered38app cases:36passed/2failed,0error/skip.
+Both new public-session methods failed at supplemental startup expected22bytes
+versus actual13, before reaching original ACK/flood assertions. Complete suppressed
+stack identified this first assertion; finally.stop cancellation was not a
+demonstrated production stop defect. Frozen PacketBuilder.appStart explicitly
+truncates identifier to5characters, matching actual MeshC. The test expectation
+is corrected to the frozen13byte literal, without touching product/default inputs.
 Source internal dispatch admits one-byte
 advertisement keys; actual wire ingress pads the original byte with31zeros
 because real parser requires32bytes. Existing exact short-key direct dispatcher
