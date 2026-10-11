@@ -5,6 +5,77 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "backup-integration-channel-identity-capacity-and-draft-receipts",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupChannelIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.BackupChannelIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "Fourteen original channel assertions are inspected: different-secret collision keeps kosice and inserts praha; Brno/Praha message follows relocated slot with leading dedup rewrite and no Brno foreign message; stale surrogate cannot overwrite live rotated secret; fresh5 and relocation destination are affected draft slots but2/6merge and occupied4 are not; legacy notification projection yields MUTED without modifying -1; flood scope inherit/US persists; same-secret same-slot retains max date over older createdAt; same-secret moved3to5 remaps without insert; public-zero-secret merges at0; second relocated restore skips message; full capacity2 drops foreign channel/message; dropped is not already-here; two-message manifest balances; relocation reserves0 and chooses2.",
+      "inputs": "Exact source16byte B0/A0/B2/A2/A4/B6/A6 collision secrets and slots0/1/2/3/4/5/6, maxChannels2/3/default8, Jan/Praha checkpoint and source DEADBEEF leading channel dedup. Explicit32byte source C1/C4/D4/D5 draft and B2/A1 stale-secret cases use16byte native fixture variants; both supported key sizes require preservation. Original flood-scope source uses32byte55 while native uses16byte55; the actual adaptation is disclosed.",
+      "adaptations": "Source direct batchInsertChannels lower-layer assertions become actual AppBackupService/Room transaction assertions and typed import affected-slot receipts. Native additional dedup-prefix assertion strengthens the relocated message case. Same/moved/public cases reuse helper Jan/Praha timestamp900 rather than Eva950/Lena1000/Mara1100 labels; identity and max-date inputs remain explicit. Core flood-scope pipeline clears source rows rather than a new destination; it is not claimed as distinct-container evidence. Fixed UUIDs replace randomness; SQLite entities project legacy notification without a migrating getter.",
+      "helpers": [
+        "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt"
+      ],
+      "consumer": "Inspected BackupDatabaseRestore matches full (radio,secret), reserves slot0, remaps message/dedup before child insert, drops messages for dropped slots, and emits actual destination occupancy for draft clearing. No radio channel synchronization is sent during these tests.",
+      "unresolved": ["New original32ByteSecretAndFloodScopesSurviveDistinctStoreExportImport explicitly fills the source32byte55 and distinct-store inherit/US gap; actual native execution is pending. Other stale/draft32byte source variants remain disclosed rather than claimed as exact16byte test inputs."],
+      "methods": [
+        "Import onto a different-secret slot keeps the local channel and inserts the backup channel separately",
+        "Channel reconcile: backup channel collides with a different-secret local slot, relocates and carries its message",
+        "Re-importing a stale backup never upserts a reconfigured live channel",
+        "batchInsertChannels reports newly-occupied local slots for draft clearing, excluding merges",
+        "Exporting a channel with an unmigrated notification level does not migrate the live row",
+        "Channel floodScope survives a fresh-insert export/import round-trip",
+        "Channel reconcile: same secret at same slot merges metadata, index unchanged",
+        "Channel reconcile: same secret on a different slot remaps the message, no duplicate channel",
+        "Channel reconcile: public channel merges into local public channel without relocation",
+        "Channel reconcile: re-importing a relocated channel skips the message the second time",
+        "Channel reconcile: backup channel with no free slot is dropped along with its messages",
+        "Dropped channels and their messages are accounted as dropped, not already-here",
+        "Full import accounts a no-slot channel's messages as dropped and the manifest balances",
+        "Channel reconcile: relocation reserves slot 0 for the public channel"
+      ]
+    },
+    {
+      "id": "backup-integration-duplicate-device-first-winner",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupIdentityIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.BackupIdentityIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "Source envelope contains two devices with identical42 full32byte key and distinct source radioIDs; contact01/02 keys deliberately differ so convergence does not accidentally dedup them. Actual native restore asserts exactly1device inserted/1skipped, two contacts under first RADIO, OTHER_RADIO empty and winning device identity unchanged.",
+      "inputs": "Literal42/01/02 keys, two device/radio UUIDs and two contact UUIDs; envelope order determines first winner, not sorted surrogate UUID.",
+      "adaptations": "Native fixed UUIDs and actual Room rows replace source random UUID/SwiftData fetches. Native partition emptiness and winning radio assertions strengthen the original two-contact/count contract.",
+      "helpers": ["android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt"],
+      "consumer": "Inspected firstRadio/mapping logic retains first matching device and remaps loser children before contacts are reconciled, rather than reporting a fake second device or losing contact02.",
+      "unresolved": [],
+      "methods": ["Duplicate device public keys in one envelope skip the loser and remap its children"]
+    },
+    {
+      "id": "backup-integration-remote-metadata-and-repeat-import",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupMetadataIntegrationTest.kt",
+      "runner_directory": "core/data/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.core.data.backup.BackupMetadataIntegrationTest",
+      "runner_name": "annotated-method",
+      "comparison": "Stable-secret77 channel unread5/dateAT merges unread9/dateAT+9000, second entire Room row equality proves no double count/date oscillation. New Ops Room session starts disconnected but retains ADMIN/connected-date200/unread5/mentions/favorite/neighbor4/sync88/message-date200. Actual failed room message preserves CAFE-BABE author bytes, Ops/Retry me, fractional275.25 date, failed raw4/DEADBEEF ack/1450 round trip/retry3/max7 by DTO equality. Existing connected ADMIN session retains local250 date, sync123 and neighbor2 while adopts unread9/mentions/favorite/last-message300; receipt0insert/1skip/1merge/changes.",
+      "inputs": "Source fixed Unix AT/200/225/250/275.25/300/9000 values and77 stable32byte channel secret. Native session helper uses CD32key rather than source F3/F4 but full key and parent scope stay intact. No real connection, admin command or arbitrary default success is emitted.",
+      "adaptations": "Actual empty Room destination/in-memory session row snapshots replace SwiftData containers. DTO equality in new-session and room-message cases includes every specified metadata field and does not merely compare ids. Existing-session native explicitly keeps neighbor2 as inspected source merge helper does not adopt neighbor7.",
+      "helpers": ["android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/backup/BackupTestValues.kt"],
+      "consumer": "Inspected insertSessions forces only newly inserted rows disconnected; mergeSession maxes counters/dates and preserves live connection, permission, connected date and neighbor count. Room messages are remapped to real session parents and session last-message dates reconciled.",
+      "unresolved": [],
+      "methods": [
+        "Re-importing the same backup is idempotent for unread counts and last-message dates",
+        "Import inserts remote sessions as disconnected while preserving backup metadata",
+        "Import preserves room-message delivery metadata",
+        "Import onto existing remote session restores backup metadata without clobbering live state"
+      ]
+    },
+    {
       "id": "backup-integration-distinct-fresh-store",
       "source_path": "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift",
       "partial_source_file": true,

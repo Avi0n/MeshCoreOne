@@ -54,6 +54,8 @@ WP501_ACCEPTANCE_CASES = {
      "fullExportRestoresDistinctEmptyRoomAndOfflineConsumer"),
     ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
      "channelRepeatExportRestoresFreshParentAndCascadeWithoutDeletingSource"),
+    ("com.meshcoreone.android.parity.FreshStoreBackupAcceptanceTest",
+     "original32ByteSecretAndFloodScopesSurviveDistinctStoreExportImport"),
 }
 APK_FIELDS = {
     "scope", "artifact", "sha256", "size_bytes", "package", "min_sdk", "target_sdk",

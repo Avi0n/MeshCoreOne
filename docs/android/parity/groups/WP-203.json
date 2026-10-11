@@ -2699,7 +2699,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/FreshStoreBackupAcceptanceTest.kt",
-          "sha256": "e0bb073882551a956a66a5d99f1442e545770d99e6ba69474610c6c7d6ea06ac",
+          "sha256": "613f48caad55b28b6343590c3402b3516e6daefeb242e779e18ace8a449adc6e",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/BackupIntegrationTests.swift"
           ],
@@ -2715,9 +2715,14 @@
               "end_line": 127
             },
             {
-              "name": "withFreshDestination",
+              "name": "original32ByteSecretAndFloodScopesSurviveDistinctStoreExportImport",
               "line": 129,
-              "end_line": 141
+              "end_line": 156
+            },
+            {
+              "name": "withFreshDestination",
+              "line": 158,
+              "end_line": 170
             }
           ]
         },

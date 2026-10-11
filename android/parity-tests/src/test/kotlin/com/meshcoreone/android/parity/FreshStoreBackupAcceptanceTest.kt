@@ -126,6 +126,35 @@ class FreshStoreBackupAcceptanceTest : RoomProcessTest() {
         }
     }
 
+    @Test fun original32ByteSecretAndFloodScopesSurviveDistinctStoreExportImport() = runTest {
+        val storage = MeshCoreStorage.get(ApplicationProvider.getApplicationContext<Context>())
+        try {
+            val radio = RadioId(UUID.fromString("AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE"))
+            store.saveDevice(DeviceDTO(radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAB.toByte() }), nodeName = "TestDevice"))
+            val publicChannel = ChannelDTO(radioId = radio, index = 0u, name = "General", secret = Bytes(ByteArray(16)))
+            val regional = ChannelDTO(radioId = radio, index = 1u, name = "Regional",
+                secret = Bytes(ByteArray(32) { 0x55 })).withFloodScope(ChannelFloodScope.Region("US"))
+            store.saveChannel(publicChannel)
+            store.saveChannel(regional)
+            val service = AppBackupService(storage.backupPreferences, "synthetic", "1")
+            val parsed = AppBackupCodec().parseBackup(service.export(store).data)
+            assertEquals(32, parsed.channels.single { it.index == 1.toUByte() }.secret.size)
+            withFreshDestination(backgroundScope) { destination ->
+                assertEquals(2L, service.importBackup(parsed, destination).counts.getValue(BackupModelKind.CHANNELS).inserted)
+                val channels = destination.fetchChannels(radio)
+                assertEquals(2, channels.size)
+                assertEquals(ChannelFloodScope.Inherit, channels.single { it.index == 0.toUByte() }.floodScope)
+                val restored = channels.single { it.index == 1.toUByte() }
+                assertEquals(ChannelFloodScope.Region("US"), restored.floodScope)
+                assertEquals(Bytes(ByteArray(32) { 0x55 }), restored.secret)
+                assertEquals("Regional", restored.name)
+            }
+            assertEquals(regional.secret, db.channels().byId(radio.value, regional.id)?.secret)
+        } finally {
+            storage.close()
+        }
+    }
+
     private suspend fun withFreshDestination(scope: CoroutineScope, block: suspend (RoomPersistenceStore) -> Unit) {
         val destinationDatabase = openMemoryDatabase()
         val destination = RoomPersistenceStore(destinationDatabase, scope)
@@ -133,7 +162,7 @@ class FreshStoreBackupAcceptanceTest : RoomProcessTest() {
             assertNotSame(db, destinationDatabase)
             assertTrue(destinationDatabase.devices().all().isEmpty())
             assertTrue(destinationDatabase.contacts().backupAll().isEmpty())
-            assertTrue(destinationDatabase.messages().backupAll().isEmpty())
+            assertTrue(destinationDatabase.messages().backupRadioIds().isEmpty())
             block(destination)
         } finally {
             try { destination.close() } finally { destinationDatabase.close() }
