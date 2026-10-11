@@ -87,6 +87,7 @@ RULES = {
         "prefix": (
             "android/app/", "android/build-logic/", "android/core/testing/",
             "android/core/contracts/", "android/core/designsystem/", "android/core/model/",
+            "android/core/services/",
             "android/feature/", "android/platform/",
         ),
     },

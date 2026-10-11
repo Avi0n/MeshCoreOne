@@ -33,6 +33,7 @@ import java.time.Clock
 import java.time.Instant
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -181,10 +182,12 @@ internal class RxLogSvcFakeStore : RxLogServiceStore {
 /** Session whose `events(filter)` registers synchronously, like the real `SessionCore.eventsTracked`. */
 internal class RxLogSvcFakeSession : SessionEventStreaming {
     private val broadcaster = RxLogStreamBroadcaster<MeshEvent>()
+    private val registrations = AtomicLong()
     val subscriberCount: Int get() = broadcaster.subscriberCount
+    val registrationCount: Long get() = registrations.get()
     override val connectionState: Flow<ConnectionState> = emptyFlow()
-    override fun events(): Flow<MeshEvent> = broadcaster.subscribe()
-    override fun events(filter: EventFilter): Flow<MeshEvent> = broadcaster.subscribe().filter(filter::matches)
+    override fun events(): Flow<MeshEvent> = broadcaster.subscribe().also { registrations.incrementAndGet() }
+    override fun events(filter: EventFilter): Flow<MeshEvent> = events().filter(filter::matches)
     override suspend fun waitForEvent(filter: EventFilter, timeout: Double?): MeshEvent? = null
     fun emit(event: MeshEvent) = broadcaster.yield(event)
 }
@@ -204,10 +207,10 @@ internal class RxLogSvcHarness(
     val store: RxLogSvcFakeStore = RxLogSvcFakeStore(),
     heardRepeats: RxLogRepeatProcessing? = null,
     clock: Clock = Clock.systemUTC(),
+    val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
 ) : AutoCloseable {
     val session = RxLogSvcFakeSession()
     val logs = RxLogSvcLogRecorder()
-    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     val service = RxLogService(session, store, heardRepeats, scope, clock, logs, Locale.US)
 
     override fun close() {

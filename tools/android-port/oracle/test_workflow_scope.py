@@ -42,6 +42,17 @@ class WorkflowScopeTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertTrue(classify([path])["external-oracle"])
 
+    def test_service_production_tests_and_build_select_native_verification(self):
+        for path in (
+            "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogService.kt",
+            "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/diagnostics/RxLogServiceReprocessTest.kt",
+            "android/core/services/build.gradle.kts",
+        ):
+            with self.subTest(path=path):
+                self.assertEqual(classify([path]), {
+                    scope: scope == "scaffold" for scope in SCOPES
+                })
+
     def test_wp203_room_backup_and_harness_schedule_complete_backup_chain(self):
         for path in (
             "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/backup/AppBackupCodec.kt",
