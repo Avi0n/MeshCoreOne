@@ -58,9 +58,43 @@ App668/BLE311/services2647/allotherselectedpositive, controller/Swift
 unselected; this worker has not read the complete authoritative logs and
 creates no second hosted-result bundle.
 
-## Current restored persistence original predicates
+## Current restored RX and region original predicates
 
-Current1351/5133 proposed comparisons/175groups/81mandatory/zero fully
+Current1365/5133 proposed comparisons/176groups/81mandatory/zero fully
+approved behavioral acceptances add14 selected complete persistence
+originals. Exact annotated-method joins preserve single timestamp/nil
+count1, model projection literal1703123456, four correlated RX rows/count2/
+AA,BB arrival paths, Germany scope AND matches, original1703000050/[12,34]
+dual rewrite, five coded rows plus nil-code99/count2/non-null codes/
+receivedAt4,3/clocks4,3, original unknown0C/1703000001, channel incoming/
+delivered fallback and corrected wire clocks with both region fields,
+ambiguous nil/match-set and outgoing/sent exclusion, original AB-prefix
+and distinct Alice/Bob contacts/full prefixes/texts at1703555555.
+Selected complete frozen bodies/helper defaults/native storage/projection/
+SQL/actual region reprocess consumers read; labels are not equivalence.
+Real inherited API31 Room/native SQLite/production store preserves original
+preflush predicates and adds actual committed model/region-column checks.
+Fixture fromParsed computes input hash only, not an expected hash oracle.
+Fixed0x44 repeated32-byte device key replaces source random32-byte key
+explicitly; no universal identity/randomness, retention/batching/rollback/
+cancellation/ties/SwiftData/API37/device/mounted reprocess proof.
+Same reservation30->31/wp-owned/create preserves immutable identities/pins.
+Fourteen-name native execution is pending; remaining114 of135 persistence
+comparisons and independent/full acceptance remain unresolved.
+
+Independent bounded SOURCE-ONLY PR197 comparison posted
+[6121536833](https://github.com/cbattlegear/MeshCoreOne-Android/pull/197#issuecomment-6121536833)
+binds actual9ff71dc3e76cdd94982baf54f32330824e038c8a/base9ed1 and exactly
+classifier/test/WP004 deviation151-added/4-removed. Complete18 classifier
+bodies, unchanged workflow/positive-discovery/typed-error consumers read;
+all12 incumbents unchanged/six additions, no new selected source blocker.
+No candidate execution/private102-case/native certification/APPROVED/global
+acceptance; actual hosted jobs/logs and genuine adoption remain separate.
+Disjoint existing parity registrations are retained; no worker CI repair.
+
+## Previous seven restored persistence original predicates
+
+The previous1351/5133 proposed comparisons/175groups/81mandatory/zero fully
 approved behavioral acceptances add seven complete original counterparts.
 Exact annotated-method joins bind Bob public-key lookup, A1/A2 one-pass
 batch removal, distinct WithMsgs/Bare contact protection, all five original

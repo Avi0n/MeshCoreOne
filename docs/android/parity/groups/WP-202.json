@@ -8025,7 +8025,8 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/MessageSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
-        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt"
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -8449,6 +8450,100 @@
               "name": "mutingRetainsTheInitialFalseAndBothOriginalTransitions",
               "line": 162,
               "end_line": 173
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "radio",
+              "line": 32,
+              "end_line": 42
+            },
+            {
+              "name": "rx",
+              "line": 44,
+              "end_line": 59
+            },
+            {
+              "name": "channel",
+              "line": 61,
+              "end_line": 64
+            },
+            {
+              "name": "aSingleRxRowPreservesTheOriginalSenderTimestamp",
+              "line": 67,
+              "end_line": 74
+            },
+            {
+              "name": "aSingleRxRowPreservesTheOriginalAbsentTimestamp",
+              "line": 77,
+              "end_line": 84
+            },
+            {
+              "name": "senderTimestampRetainsTheOriginalModelToUnsignedProjection",
+              "line": 87,
+              "end_line": 96
+            },
+            {
+              "name": "correlatedRxRowsRetainBothOriginalCountAndArrivalOrder",
+              "line": 99,
+              "end_line": 110
+            },
+            {
+              "name": "savingRxRegionRetainsBothOriginalStorageFields",
+              "line": 113,
+              "end_line": 125
+            },
+            {
+              "name": "rxRegionRewriteRetainsTheOriginalTimestampCodeAndDualFieldTransition",
+              "line": 128,
+              "end_line": 141
+            },
+            {
+              "name": "transportCodeSelectionRetainsOriginalCountNonNullCodesAndExactArrivalDates",
+              "line": 144,
+              "end_line": 161
+            },
+            {
+              "name": "unknownNibbleStorageRetainsTheOriginalWireTimestampAndBits",
+              "line": 164,
+              "end_line": 169
+            },
+            {
+              "name": "normalChannelBackfillRetainsBothOriginalRegionFields",
+              "line": 172,
+              "end_line": 182
+            },
+            {
+              "name": "correctedChannelBackfillRetainsOriginalWireClockAndBothRegionFields",
+              "line": 185,
+              "end_line": 197
+            },
+            {
+              "name": "ambiguousChannelBackfillRetainsTheOriginalNilScopeAndMatchSet",
+              "line": 200,
+              "end_line": 210
+            },
+            {
+              "name": "outgoingChannelBackfillRetainsTheOriginalSentSetupAndExclusion",
+              "line": 213,
+              "end_line": 223
+            },
+            {
+              "name": "directBackfillRetainsTheOriginalAbPrefixAndBothRegionFields",
+              "line": 226,
+              "end_line": 241
+            },
+            {
+              "name": "directBackfillRetainsTwoOriginalContactsTextsAndPrefixFamilies",
+              "line": 244,
+              "end_line": 264
             }
           ]
         }
@@ -46130,6 +46225,71 @@
             "PersistenceStoreTests::saveRxLogEntry preserves payloadTypeBits including unknown nibbles()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "aSingleRxRowPreservesTheOriginalSenderTimestamp",
+          "line": 67,
+          "end_line": 74,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "cabdd17f9ad7b73c46e6e42d60125bb100ecdc0844f11fd79fef66ae9a1c8574",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 72,
+              "expression": "assertEquals(1, entries.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 73,
+              "expression": "assertEquals(1_703_123_456u, entries.first().senderTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 68,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 69,
+              "expression": "store.saveRxLogEntry(rx(radio, timestamp = 1_703_123_456u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 69,
+              "expression": "rx(radio, timestamp = 1_703_123_456u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 71,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "entries.first",
+              "line": 73,
+              "expression": "entries.first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Save and fetch RxLogEntry preserves senderTimestamp()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -46423,6 +46583,71 @@
             "PersistenceStoreTests::saveRxLogEntry preserves payloadTypeBits including unknown nibbles()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "aSingleRxRowPreservesTheOriginalAbsentTimestamp",
+          "line": 77,
+          "end_line": 84,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d27112e94be68648fa3dd8088e5dfd0e253c09aee7adcede87b80e12f076eb19",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 82,
+              "expression": "assertEquals(1, entries.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 83,
+              "expression": "assertNull(entries.first().senderTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 78,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 79,
+              "expression": "store.saveRxLogEntry(rx(radio, timestamp = null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 79,
+              "expression": "rx(radio, timestamp = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 81,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "entries.first",
+              "line": 83,
+              "expression": "entries.first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Save and fetch RxLogEntry with nil senderTimestamp()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -46714,6 +46939,113 @@
             "PersistenceStoreTests::findRxLogEntry sees an insert before the batch save()",
             "PersistenceStoreTests::saveRxLogEntry forwards regionScope to the persisted model()",
             "PersistenceStoreTests::saveRxLogEntry preserves payloadTypeBits including unknown nibbles()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "senderTimestampRetainsTheOriginalModelToUnsignedProjection",
+          "line": 87,
+          "end_line": 96,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "bd5024abe1638974db2da7ec02c0689891df60f6c3fd9e866ac55571112a9220",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 91,
+              "expression": "assertEquals(1_703_123_456u, store.fetchRxLogEntries(radio).first().senderTimestamp)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(1_703_123_456L, assertNotNull(db.rxLogs().byId(radio.value, dto.id)).senderTimestamp)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 94,
+              "expression": "assertNotNull(db.rxLogs().byId(radio.value, dto.id))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 95,
+              "expression": "assertEquals(1_703_123_456u, store.fetchRxLogEntries(radio).first().senderTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 88,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 89,
+              "expression": "rx(radio, timestamp = 1_703_123_456u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 90,
+              "expression": "store.saveRxLogEntry(dto)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 91,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 91,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.flushPendingRxLogEntries",
+              "line": 93,
+              "expression": "store.flushPendingRxLogEntries()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "db.rxLogs",
+              "line": 94,
+              "expression": "db.rxLogs()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byId",
+              "line": 94,
+              "expression": "byId(radio.value, dto.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 95,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 95,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::RxLogEntryDTO init from model preserves senderTimestamp()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -48001,6 +48333,155 @@
             "PersistenceStoreTests::fetchRxLogEntries returns every matching channel row in receivedAt order()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "correlatedRxRowsRetainBothOriginalCountAndArrivalOrder",
+          "line": 99,
+          "end_line": 110,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "aa7f79cc317c0b5822db36e348b23d66114584535ecdd590543b05041eb21f61",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 108,
+              "expression": "assertEquals(2, matches.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 109,
+              "expression": "assertEquals(listOf(Bytes.of(0xAA), Bytes.of(0xBB)), matches.map { it.pathNodes })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 100,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 101,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 102,
+              "expression": "store.saveRxLogEntry(rx(radio, 42u, receivedAt = earlier.plusSeconds(2), path = listOf(0xBBu)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 102,
+              "expression": "rx(radio, 42u, receivedAt = earlier.plusSeconds(2), path = listOf(0xBBu))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "earlier.plusSeconds",
+              "line": 102,
+              "expression": "earlier.plusSeconds(2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 102,
+              "expression": "listOf(0xBBu)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 103,
+              "expression": "store.saveRxLogEntry(rx(radio, 42u, receivedAt = earlier, path = listOf(0xAAu)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 103,
+              "expression": "rx(radio, 42u, receivedAt = earlier, path = listOf(0xAAu))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 103,
+              "expression": "listOf(0xAAu)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 104,
+              "expression": "store.saveRxLogEntry(rx(radio, 42u, channel = 2u, receivedAt = earlier, path = listOf(0xCCu)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 104,
+              "expression": "rx(radio, 42u, channel = 2u, receivedAt = earlier, path = listOf(0xCCu))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 104,
+              "expression": "listOf(0xCCu)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 105,
+              "expression": "store.saveRxLogEntry(rx(radio, 43u, receivedAt = earlier, path = listOf(0xDDu)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 105,
+              "expression": "rx(radio, 43u, receivedAt = earlier, path = listOf(0xDDu))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 105,
+              "expression": "listOf(0xDDu)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 107,
+              "expression": "store.fetchRxLogEntries(radio, 1u, 42u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 109,
+              "expression": "listOf(Bytes.of(0xAA), Bytes.of(0xBB))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 109,
+              "expression": "Bytes.of(0xAA)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 109,
+              "expression": "Bytes.of(0xBB)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::fetchRxLogEntries returns every matching channel row in receivedAt order()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -49176,6 +49657,131 @@
             "PersistenceStoreTests::saveRxLogEntry preserves payloadTypeBits including unknown nibbles()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "savingRxRegionRetainsBothOriginalStorageFields",
+          "line": 113,
+          "end_line": 125,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "90cc915c0bef6b5d80907475c506615aaacbd426a15f91700c436fcbb80cf3dc",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 118,
+              "expression": "assertEquals(\"Germany\", entries.first().regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 119,
+              "expression": "assertEquals(listOf(\"Germany\"), entries.first().regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 122,
+              "expression": "assertNotNull(db.rxLogs().byId(radio.value, dto.id))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 123,
+              "expression": "assertEquals(\"Germany\", row.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 124,
+              "expression": "assertEquals(listOf(\"Germany\"), row.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 114,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 115,
+              "expression": "rx(radio, 1_703_000_000u, \"Germany\", SnapshotList.of(\"Germany\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 115,
+              "expression": "SnapshotList.of(\"Germany\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 116,
+              "expression": "store.saveRxLogEntry(dto)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 117,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "entries.first",
+              "line": 118,
+              "expression": "entries.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 119,
+              "expression": "listOf(\"Germany\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "entries.first",
+              "line": 119,
+              "expression": "entries.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.flushPendingRxLogEntries",
+              "line": 121,
+              "expression": "store.flushPendingRxLogEntries()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "db.rxLogs",
+              "line": 122,
+              "expression": "db.rxLogs()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "byId",
+              "line": 122,
+              "expression": "byId(radio.value, dto.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 124,
+              "expression": "listOf(\"Germany\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::saveRxLogEntry forwards regionScope to the persisted model()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -49445,6 +50051,125 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::batchUpdateRxLogRegion writes dual region fields()",
             "PersistenceStoreTests::fetchEntriesWithTransportCode includes labeled rows and honors limit()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "rxRegionRewriteRetainsTheOriginalTimestampCodeAndDualFieldTransition",
+          "line": 128,
+          "end_line": 141,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "acf59fda5d67324ab9b28b3ad4cefc8efb2d8fe108aa288d3e3858f7e46e184b",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 139,
+              "expression": "assertNull(updated.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 140,
+              "expression": "assertEquals(listOf(\"de-by\", \"de-hh\"), updated.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 129,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 130,
+              "expression": "store.saveRxLogEntry(rx(\n            radio, 1_703_000_050u, \"Germany\", SnapshotList.of(\"Germany\"), transport = Bytes.of(0x12, 0x34),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 130,
+              "expression": "rx(\n            radio, 1_703_000_050u, \"Germany\", SnapshotList.of(\"Germany\"), transport = Bytes.of(0x12, 0x34),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 131,
+              "expression": "SnapshotList.of(\"Germany\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 131,
+              "expression": "Bytes.of(0x12, 0x34)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 133,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 133,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchUpdateRxLogRegion",
+              "line": 134,
+              "expression": "store.batchUpdateRxLogRegion(radio, SnapshotList.of(\n            RxLogRegionUpdate(id, null, SnapshotList.of(\"de-by\", \"de-hh\")),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 134,
+              "expression": "SnapshotList.of(\n            RxLogRegionUpdate(id, null, SnapshotList.of(\"de-by\", \"de-hh\")),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RxLogRegionUpdate",
+              "line": 135,
+              "expression": "RxLogRegionUpdate(id, null, SnapshotList.of(\"de-by\", \"de-hh\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 135,
+              "expression": "SnapshotList.of(\"de-by\", \"de-hh\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 138,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 138,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 140,
+              "expression": "listOf(\"de-by\", \"de-hh\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::batchUpdateRxLogRegion writes dual region fields()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -49778,6 +50503,179 @@
             "PersistenceStoreTests::fetchEntriesWithTransportCode includes labeled rows and honors limit()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "transportCodeSelectionRetainsOriginalCountNonNullCodesAndExactArrivalDates",
+          "line": 144,
+          "end_line": 161,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "8d43c2d182a8eaabe0c36310a4dd89de83afea0c4d98d4293b55d6fddf1075d5",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 157,
+              "expression": "assertEquals(2, entries.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 158,
+              "expression": "assertTrue(entries.all { it.transportCode != null })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 159,
+              "expression": "assertEquals(listOf(base.plusSeconds(4), base.plusSeconds(3)), entries.map { it.receivedAt })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 160,
+              "expression": "assertEquals(listOf(4u, 3u), entries.map { it.senderTimestamp })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 145,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 146,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 147,
+              "expression": "for (index in 0 until 5)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 148,
+              "expression": "store.saveRxLogEntry(rx(\n                radio, index.toUInt(), if (index == 0) \"Germany\" else null,\n                if (index == 0) SnapshotList.of(\"Germany\") else SnapshotList.empty(),\n                transport = Bytes.of(index, 2), receivedAt = base.plusSeconds(index.toLong()),\n            ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 148,
+              "expression": "rx(\n                radio, index.toUInt(), if (index == 0) \"Germany\" else null,\n                if (index == 0) SnapshotList.of(\"Germany\") else SnapshotList.empty(),\n                transport = Bytes.of(index, 2), receivedAt = base.plusSeconds(index.toLong()),\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 149,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 149,
+              "expression": "if (index == 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "if",
+              "line": 150,
+              "expression": "if (index == 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 150,
+              "expression": "SnapshotList.of(\"Germany\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.empty",
+              "line": 150,
+              "expression": "SnapshotList.empty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 151,
+              "expression": "Bytes.of(index, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "base.plusSeconds",
+              "line": 151,
+              "expression": "base.plusSeconds(index.toLong())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toLong",
+              "line": 151,
+              "expression": "index.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 154,
+              "expression": "store.saveRxLogEntry(rx(radio, 99u, transport = null, receivedAt = base.plusSeconds(100)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 154,
+              "expression": "rx(radio, 99u, transport = null, receivedAt = base.plusSeconds(100))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "base.plusSeconds",
+              "line": 154,
+              "expression": "base.plusSeconds(100)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchEntriesWithTransportCode",
+              "line": 156,
+              "expression": "store.fetchEntriesWithTransportCode(radio, 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 159,
+              "expression": "listOf(base.plusSeconds(4), base.plusSeconds(3))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "base.plusSeconds",
+              "line": 159,
+              "expression": "base.plusSeconds(4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "base.plusSeconds",
+              "line": 159,
+              "expression": "base.plusSeconds(3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 160,
+              "expression": "listOf(4u, 3u)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::fetchEntriesWithTransportCode includes labeled rows and honors limit()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -50062,6 +50960,71 @@
             "PersistenceStoreTests::RxLogEntryDTO init from model preserves senderTimestamp()",
             "PersistenceStoreTests::findRxLogEntry sees an insert before the batch save()",
             "PersistenceStoreTests::saveRxLogEntry forwards regionScope to the persisted model()",
+            "PersistenceStoreTests::saveRxLogEntry preserves payloadTypeBits including unknown nibbles()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "unknownNibbleStorageRetainsTheOriginalWireTimestampAndBits",
+          "line": 164,
+          "end_line": 169,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "2597182cbe60809413a57affea130c6a26b7ec05b09de8397feac908db3f1c0d",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 168,
+              "expression": "assertEquals(0x0Cu.toUByte(), store.fetchRxLogEntries(radio).first().payloadTypeBits)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 165,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveRxLogEntry",
+              "line": 166,
+              "expression": "store.saveRxLogEntry(rx(radio, 1_703_000_001u, bits = 0x0Cu))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "rx",
+              "line": 166,
+              "expression": "rx(radio, 1_703_000_001u, bits = 0x0Cu)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 168,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchRxLogEntries",
+              "line": 168,
+              "expression": "store.fetchRxLogEntries(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 168,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::saveRxLogEntry preserves payloadTypeBits including unknown nibbles()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -50402,6 +51365,101 @@
             "PersistenceStoreTests::batchUpdateChannelMessageRegion back-fills timestamp-corrected message()",
             "PersistenceStoreTests::batchUpdateChannelMessageRegion writes multi-match regionScopeMatches with nil scope()",
             "PersistenceStoreTests::batchUpdateChannelMessageRegion skips outgoing messages()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "normalChannelBackfillRetainsBothOriginalRegionFields",
+          "line": 172,
+          "end_line": 182,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "aedd27c3736aa2985978a6539bd504e4e324f5f3b10d827868374aa1a7431337",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 180,
+              "expression": "assertEquals(\"Germany\", saved.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 181,
+              "expression": "assertEquals(listOf(\"Germany\"), saved.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 173,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 174,
+              "expression": "store.saveMessage(channel(radio, 0u, 1_703_111_111u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "channel",
+              "line": 174,
+              "expression": "channel(radio, 0u, 1_703_111_111u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchUpdateChannelMessageRegion",
+              "line": 175,
+              "expression": "store.batchUpdateChannelMessageRegion(radio, SnapshotList.of(\n            ChannelRegionUpdate(0u, 1_703_111_111u, \"Germany\", SnapshotList.of(\"Germany\")),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 175,
+              "expression": "SnapshotList.of(\n            ChannelRegionUpdate(0u, 1_703_111_111u, \"Germany\", SnapshotList.of(\"Germany\")),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelRegionUpdate",
+              "line": 176,
+              "expression": "ChannelRegionUpdate(0u, 1_703_111_111u, \"Germany\", SnapshotList.of(\"Germany\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 176,
+              "expression": "SnapshotList.of(\"Germany\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 179,
+              "expression": "store.fetchMessages(radio, 0u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 179,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 181,
+              "expression": "listOf(\"Germany\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::batchUpdateChannelMessageRegion back-fills normal-case message via timestamp fallback()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -50753,6 +51811,119 @@
             "PersistenceStoreTests::batchUpdateChannelMessageRegion back-fills timestamp-corrected message()",
             "PersistenceStoreTests::batchUpdateChannelMessageRegion writes multi-match regionScopeMatches with nil scope()",
             "PersistenceStoreTests::batchUpdateChannelMessageRegion skips outgoing messages()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "correctedChannelBackfillRetainsOriginalWireClockAndBothRegionFields",
+          "line": 185,
+          "end_line": 197,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "885853bc8e827926bb44e2b4e7307c050173124bfc0c304beb4b7dc2caa2c4dd",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 195,
+              "expression": "assertEquals(\"USA\", saved.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 196,
+              "expression": "assertEquals(listOf(\"USA\"), saved.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 186,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 187,
+              "expression": "store.saveMessage(channel(radio, 1u, Instant.now().epochSecond.toUInt()).copy(\n            senderTimestamp = 1_703_222_222u,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "channel",
+              "line": 187,
+              "expression": "channel(radio, 1u, Instant.now().epochSecond.toUInt())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 187,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 187,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 187,
+              "expression": "copy(\n            senderTimestamp = 1_703_222_222u,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchUpdateChannelMessageRegion",
+              "line": 190,
+              "expression": "store.batchUpdateChannelMessageRegion(radio, SnapshotList.of(\n            ChannelRegionUpdate(1u, 1_703_222_222u, \"USA\", SnapshotList.of(\"USA\")),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 190,
+              "expression": "SnapshotList.of(\n            ChannelRegionUpdate(1u, 1_703_222_222u, \"USA\", SnapshotList.of(\"USA\")),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelRegionUpdate",
+              "line": 191,
+              "expression": "ChannelRegionUpdate(1u, 1_703_222_222u, \"USA\", SnapshotList.of(\"USA\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 191,
+              "expression": "SnapshotList.of(\"USA\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 194,
+              "expression": "store.fetchMessages(radio, 1u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 194,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 196,
+              "expression": "listOf(\"USA\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::batchUpdateChannelMessageRegion back-fills timestamp-corrected message()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -51112,6 +52283,107 @@
             "PersistenceStoreTests::batchUpdateChannelMessageRegion skips outgoing messages()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "ambiguousChannelBackfillRetainsTheOriginalNilScopeAndMatchSet",
+          "line": 200,
+          "end_line": 210,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "f8118c5da6bb08076959717fca3702d7b4e39791c2926282dbf2de56e1eec4f2",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 208,
+              "expression": "assertNull(saved.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 209,
+              "expression": "assertEquals(setOf(\"First\", \"Second\"), saved.regionScopeMatches.toSet())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 201,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 202,
+              "expression": "store.saveMessage(channel(radio, 3u, 1_703_666_666u))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "channel",
+              "line": 202,
+              "expression": "channel(radio, 3u, 1_703_666_666u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchUpdateChannelMessageRegion",
+              "line": 203,
+              "expression": "store.batchUpdateChannelMessageRegion(radio, SnapshotList.of(\n            ChannelRegionUpdate(3u, 1_703_666_666u, null, SnapshotList.of(\"First\", \"Second\")),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 203,
+              "expression": "SnapshotList.of(\n            ChannelRegionUpdate(3u, 1_703_666_666u, null, SnapshotList.of(\"First\", \"Second\")),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelRegionUpdate",
+              "line": 204,
+              "expression": "ChannelRegionUpdate(3u, 1_703_666_666u, null, SnapshotList.of(\"First\", \"Second\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 204,
+              "expression": "SnapshotList.of(\"First\", \"Second\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 207,
+              "expression": "store.fetchMessages(radio, 3u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 207,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "setOf",
+              "line": 209,
+              "expression": "setOf(\"First\", \"Second\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "saved.regionScopeMatches.toSet",
+              "line": 209,
+              "expression": "saved.regionScopeMatches.toSet()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::batchUpdateChannelMessageRegion writes multi-match regionScopeMatches with nil scope()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -51445,6 +52717,95 @@
             "PersistenceStoreTests::batchUpdateChannelMessageRegion skips outgoing messages()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "outgoingChannelBackfillRetainsTheOriginalSentSetupAndExclusion",
+          "line": 213,
+          "end_line": 223,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "55aa05f1d23d4109e3d7316cceea0eba264f807d4205754dae0cc819cd40f942",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 222,
+              "expression": "assertNull(store.fetchMessages(radio, 2u).first().regionScope)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 214,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 215,
+              "expression": "store.saveMessage(channel(radio, 2u, 1_703_333_333u).copy(\n            direction = MessageDirection.OUTGOING, status = MessageStatus.SENT,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "channel",
+              "line": 215,
+              "expression": "channel(radio, 2u, 1_703_333_333u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 215,
+              "expression": "copy(\n            direction = MessageDirection.OUTGOING, status = MessageStatus.SENT,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchUpdateChannelMessageRegion",
+              "line": 218,
+              "expression": "store.batchUpdateChannelMessageRegion(radio, SnapshotList.of(\n            ChannelRegionUpdate(2u, 1_703_333_333u, \"France\", SnapshotList.of(\"France\")),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 218,
+              "expression": "SnapshotList.of(\n            ChannelRegionUpdate(2u, 1_703_333_333u, \"France\", SnapshotList.of(\"France\")),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelRegionUpdate",
+              "line": 219,
+              "expression": "ChannelRegionUpdate(2u, 1_703_333_333u, \"France\", SnapshotList.of(\"France\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 219,
+              "expression": "SnapshotList.of(\"France\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 222,
+              "expression": "store.fetchMessages(radio, 2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 222,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::batchUpdateChannelMessageRegion skips outgoing messages()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -51744,6 +53105,119 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::batchUpdateDMMessageRegion back-fills DM by sender prefix byte()",
             "PersistenceStoreTests::batchUpdateDMMessageRegion ignores DMs from other senders at same timestamp()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "directBackfillRetainsTheOriginalAbPrefixAndBothRegionFields",
+          "line": 226,
+          "end_line": 241,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "dabe3e3c58879a2c528decb424f5e824f8a59db13cada2f8bd8b257b5b177bb8",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 239,
+              "expression": "assertEquals(\"Germany\", saved.regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 240,
+              "expression": "assertEquals(listOf(\"Germany\"), saved.regionScopeMatches)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 227,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 228,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 229,
+              "expression": "store.saveMessage(MessageDTO(\n            radioId = radio, contactID = contact, text = \"Test message\", timestamp = 1_703_444_444u,\n            direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,\n            senderKeyPrefix = Bytes.of(0xAB, 0xCD, 0xEF, 1, 2, 3),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 229,
+              "expression": "MessageDTO(\n            radioId = radio, contactID = contact, text = \"Test message\", timestamp = 1_703_444_444u,\n            direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,\n            senderKeyPrefix = Bytes.of(0xAB, 0xCD, 0xEF, 1, 2, 3),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 232,
+              "expression": "Bytes.of(0xAB, 0xCD, 0xEF, 1, 2, 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchUpdateDMMessageRegion",
+              "line": 234,
+              "expression": "store.batchUpdateDMMessageRegion(radio, SnapshotList.of(\n            DirectRegionUpdate(0xABu, 1_703_444_444u, \"Germany\", SnapshotList.of(\"Germany\")),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 234,
+              "expression": "SnapshotList.of(\n            DirectRegionUpdate(0xABu, 1_703_444_444u, \"Germany\", SnapshotList.of(\"Germany\")),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DirectRegionUpdate",
+              "line": 235,
+              "expression": "DirectRegionUpdate(0xABu, 1_703_444_444u, \"Germany\", SnapshotList.of(\"Germany\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 235,
+              "expression": "SnapshotList.of(\"Germany\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 238,
+              "expression": "store.fetchMessages(EntityKey(radio, contact))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 238,
+              "expression": "EntityKey(radio, contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 238,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 240,
+              "expression": "listOf(\"Germany\")",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::batchUpdateDMMessageRegion back-fills DM by sender prefix byte()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -52074,6 +53548,155 @@
           ],
           "explicit_original_case_ids": [
             "PersistenceStoreTests::batchUpdateDMMessageRegion back-fills DM by sender prefix byte()",
+            "PersistenceStoreTests::batchUpdateDMMessageRegion ignores DMs from other senders at same timestamp()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
+          "sha256": "1b3afa7552e5c81653f898a826092dfc5750433b3aa90ab311a1ecd50956771b",
+          "class": "com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest",
+          "method_or_family_name": "directBackfillRetainsTwoOriginalContactsTextsAndPrefixFamilies",
+          "line": 244,
+          "end_line": 264,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "942015ddc72d95e9fa4de44f713e61dfe1673b70edf0c43271521fbbb0029fac",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 262,
+              "expression": "assertEquals(\"Germany\", store.fetchMessages(EntityKey(radio, alice)).first().regionScope)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 263,
+              "expression": "assertNull(store.fetchMessages(EntityKey(radio, bob)).first().regionScope)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 245,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 246,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 247,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 248,
+              "expression": "store.saveMessage(MessageDTO(\n            radioId = radio, contactID = alice, text = \"From Alice\", timestamp = 1_703_555_555u,\n            direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,\n            senderKeyPrefix = Bytes.of(0xAA, 0x11, 0x22, 0x33, 0x44, 0x55),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 248,
+              "expression": "MessageDTO(\n            radioId = radio, contactID = alice, text = \"From Alice\", timestamp = 1_703_555_555u,\n            direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,\n            senderKeyPrefix = Bytes.of(0xAA, 0x11, 0x22, 0x33, 0x44, 0x55),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 251,
+              "expression": "Bytes.of(0xAA, 0x11, 0x22, 0x33, 0x44, 0x55)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 253,
+              "expression": "store.saveMessage(MessageDTO(\n            radioId = radio, contactID = bob, text = \"From Bob\", timestamp = 1_703_555_555u,\n            direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,\n            senderKeyPrefix = Bytes.of(0xBB, 0x66, 0x77, 0x88, 0x99, 0),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 253,
+              "expression": "MessageDTO(\n            radioId = radio, contactID = bob, text = \"From Bob\", timestamp = 1_703_555_555u,\n            direction = MessageDirection.INCOMING, status = MessageStatus.DELIVERED,\n            senderKeyPrefix = Bytes.of(0xBB, 0x66, 0x77, 0x88, 0x99, 0),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 256,
+              "expression": "Bytes.of(0xBB, 0x66, 0x77, 0x88, 0x99, 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.batchUpdateDMMessageRegion",
+              "line": 258,
+              "expression": "store.batchUpdateDMMessageRegion(radio, SnapshotList.of(\n            DirectRegionUpdate(0xAAu, 1_703_555_555u, \"Germany\", SnapshotList.of(\"Germany\")),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 258,
+              "expression": "SnapshotList.of(\n            DirectRegionUpdate(0xAAu, 1_703_555_555u, \"Germany\", SnapshotList.of(\"Germany\")),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "DirectRegionUpdate",
+              "line": 259,
+              "expression": "DirectRegionUpdate(0xAAu, 1_703_555_555u, \"Germany\", SnapshotList.of(\"Germany\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 259,
+              "expression": "SnapshotList.of(\"Germany\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 262,
+              "expression": "store.fetchMessages(EntityKey(radio, alice))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 262,
+              "expression": "EntityKey(radio, alice)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 262,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 263,
+              "expression": "store.fetchMessages(EntityKey(radio, bob))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 263,
+              "expression": "EntityKey(radio, bob)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 263,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::batchUpdateDMMessageRegion ignores DMs from other senders at same timestamp()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"

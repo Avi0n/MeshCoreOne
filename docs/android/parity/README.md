@@ -1,5 +1,29 @@
 # WP-501 source, case-family and consumer acceptance
 
+Current1365/5133 proposed comparisons/176groups/81mandatory/zero fully
+approved behavioral acceptances restore14 more independent persistence
+originals: single non-null/nil RX timestamps, model unsigned projection,
+correlated row count/arrival paths, both region storage fields, exact
+dual-field rewrite, transport-code count/non-null/receivedAt/clock order,
+unknown raw nibble, channel fallback/corrected/ambiguous/outgoing predicates,
+and original AB-prefix versus distinct Alice/Bob DM inputs. Complete
+selected frozen bodies/helpers/storage/query/reprocess consumers were
+compared; aggregate annotations omitted predicates or changed these inputs.
+Actual inherited API31 Room/native SQLite/production store; original
+preflush observations remain, with two additional committed-column checks.
+Same reservation30->31 admits the owned file/create, preserving pins/audit
+identity. Fourteen-name native execution is pending; remaining114 of135
+persistence comparisons and independent/full acceptance remain unresolved.
+No existing original comparison, mandatory witness or golden changed.
+
+Bounded SOURCE-ONLY PR197 comparison at9ff71dc/base9ed was posted as
+[discussion6121536833](https://github.com/cbattlegear/MeshCoreOne-Android/pull/197#issuecomment-6121536833):
+all151-added/4-removed lines/all18 classifier bodies and unchanged workflow,
+discovery/error consumers read; no new selected blocker. No candidate
+execution/private certification/APPROVED/global verdict; actual hosted
+verification and genuine adoption remain separate. Existing WP501 parity
+registrations are disjoint and stay intact.
+
 Actual reviewed195 merge9ed1da0b340f1d29bb6db4d84d9aa6fa3352d7ff is
 adopted on this same branch: parents185466+0d52, candidate-equal
 tree765d79a0e6c84140ce3d15e9ad5a5f1fa0386ad9 independently verified;
@@ -16,7 +40,7 @@ acceptance. Incoming192/canonical196 witnesses/failures remain unchanged.
 Coordinator reports official19538225308371 selected scaffoldPASS,
 not independently full-log-read by this worker; no second CI bundle.
 
-Current1351/5133 proposed original comparisons /175groups /81mandatory /
+The previous1351/5133 proposed original comparisons /175groups /81mandatory /
 zero fully approved behavioral acceptances restore seven persistence
 counterparts using real API31 Room/native SQLite/production store: Bob
 full-key lookup; both A1/A2 contacts deleted in one batch; distinct Bare
