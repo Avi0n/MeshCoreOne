@@ -4,6 +4,7 @@ package com.meshcoreone.android.accessibility
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.provider.Settings
@@ -43,6 +44,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.robolectric.Robolectric
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
 
 abstract class NativeAccessibilityHarness {
@@ -51,6 +53,8 @@ abstract class NativeAccessibilityHarness {
 
     @Suppress("DEPRECATION")
     @Before fun attachNativeWindowAtSystemFont200() {
+        RuntimeEnvironment.setFontScale(2f)
+        RuntimeEnvironment.setQualifiers("+ldrtl")
         val application = ApplicationProvider.getApplicationContext<Context>()
         assertTrue(Settings.Global.putFloat(application.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f))
         assertEquals(0f, Settings.Global.getFloat(application.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE), 0f)
@@ -66,6 +70,7 @@ abstract class NativeAccessibilityHarness {
         host.get().window.decorView.layoutDirection = View.LAYOUT_DIRECTION_RTL
         host.get().actionBar?.hide()
         host.windowFocusChanged(true)
+        assertEquals(2f, Resources.getSystem().configuration.fontScale, 0f)
         assertEquals(2f, host.get().resources.configuration.fontScale, 0f)
     }
 
