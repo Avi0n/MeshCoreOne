@@ -129,16 +129,20 @@ class NativeLineOfSightAccessibilityTest : DeviceAccessibilityHarness() {
     }
 
     private fun nativeRoot(automation: UiAutomation): AccessibilityNodeInfo {
+        compose.waitForIdle()
+        automation.waitForIdle(100, 1000)
         var root: AccessibilityNodeInfo? = null
         compose.waitUntil {
             root = automation.rootInActiveWindow
             root?.packageName?.toString() == activity.packageName
         }
-        return requireNotNull(root)
+        return requireNotNull(root).also { assertTrue("The real native window must refresh", it.refresh()) }
     }
 
     private fun namedNodes(root: AccessibilityNodeInfo, label: String): List<AccessibilityNodeInfo> = buildList {
         fun visit(node: AccessibilityNodeInfo) {
+            println("WP503_PLATFORM_NODE|class=${node.className}|text=${node.text}|description=${node.contentDescription}" +
+                "|clickable=${node.isClickable}|children=${node.childCount}")
             if (node.text?.toString() == label || node.contentDescription?.toString() == label) add(node)
             for (index in 0 until node.childCount) {
                 visit(requireNotNull(node.getChild(index)) { "Native accessibility child $index became unavailable" })
