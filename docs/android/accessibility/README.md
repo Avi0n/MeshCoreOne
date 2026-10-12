@@ -1,11 +1,48 @@
 # WP-503 accessibility audit
 
-**Status: new authentication and Map/LoS executions fail; PR205 remains draft and incomplete.**
+**Status: runtime-dependent failures repaired in the audit runner; PR205 remains draft and incomplete.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Current execution and base refresh
+
+At `c4c5b94000077c1a3cbe5e7a60efbb89a2cc15ce`, the unchanged strict shared oracles
+pass **70/70 JVM native cases**, plus **11/11 actual Android instrumentation cases on
+each of API31 and API37**, zero failures/errors/skips. These complementary executions
+cover all92 owned cases at the same source commit; they are not one JUnit invocation or
+full-matrix/TalkBack acceptance. The JVM run measures760 painted spans, zero below
+unchanged floors, minimum4.517812074094317:1.
+
+The failed published234 [run38303960053](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38303960053)
+remains authoritative: App812/8 failures, workflow FAILED; SwiftData skipped and final
+guard failed. It is not canceled or retroactively green. SDK31 idling reproduces in an
+independent Material secure dialog, with230439 placements but one unchanged geometry at
+374f3857d. Global font/RTL and instrumentation-style looper diagnostics did not solve it;
+the queued-main-looper hint is not established as its root cause.
+
+Instead, all nine remote cases and both Map/LoS cases now execute with the existing
+AndroidJUnitRunner on both actual Android APIs. No test is ignored, SDK removed, assertion
+floor relaxed, timeout increased or production component substituted. Shared native text,
+scroll, target and pixel assertions are reused by both runners. SDK31 secure prefill,
+long-password typed failure/edit recovery, countdown/disabled duplicates and real
+cancellation now pass on Android; actual MapLibre JNI also executes.
+
+The first Android run at d4ef01b49 passes9/fails2. Both are corrected oracle errors:
+the LoS label belongs to a real AndroidView, queried with Espresso rather than nonexistent
+Compose text semantics; the progress bar starts offscreen and requires one measured12px
+non-gesture ScrollBy. Its entire real4px allocation then fits with zero tolerance:
+API31(24,605)-(296,609), API37(24,718)-(296,722). Actual Cancel104x54dp is fully contained.
+The corrected source commit passes all eleven cases on both APIs.
+
+Actual profiles are isolated, fresh, read-only emulators: API31 AOSP/x86_64/4KiB/no GMS
+and API37.2 Play Store/x86_64/16KiB/GMS. Both use verified real system font2, RTL,
+360x900/mdpi and animator scale0. Saved AVD app data/snapshots are not changed. These
+are automated emulator observations, not physical TalkBack traversal, radio acceptance
+or default-motion verification. [Commands, input hashes and device transcripts](../evidence/WP-503/README.md)
+retain the source and runner distinctions.
+
+### Historical execution before the runner repair
 
 Actual live main `d8181418614a5acaa46f4acde54b741b492ac4b0` is adopted at
 `95ad80c13`; the landed room production/owning fixture bytes match the already integrated

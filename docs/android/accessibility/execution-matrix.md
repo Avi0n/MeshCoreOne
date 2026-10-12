@@ -1,6 +1,17 @@
 # WP-503 native execution matrix
 
-**Current authentication and Map/LoS executions fail; historical cohort78/78 passed.** This matrix remains the
+**Current owned cases pass in complementary JVM/Android runners; WP503 remains incomplete.**
+At source `c4c5b94000077c1a3cbe5e7a60efbb89a2cc15ce`, JVM70/70 and actual Android11/11
+per API31/37 pass, zero failures/errors/skips. All nine remote cases and both Map/LoS
+cases are mandatory instrumentation cases on both APIs, not excluded JVM failures.
+Real Android resolves the reproduced SDK31 framework idling/JVM JNI limitations.
+Shared font/48dp/zero-clipping assertions remain unchanged. Native AndroidView labels use
+Espresso; progress visual allocation uses one measured12px ScrollBy, not expanded semantics.
+The failed published234 hosted run38303960053 remains FAILED/App812/8; no old result is
+relabeled as current. Actual emulator profiles and transcripts are in the
+[evidence](../evidence/WP-503/README.md).
+Populated map/terrain, remaining states/windows, default-motion and physical TalkBack
+observations remain NOT RUN. This matrix remains the
 full assertion/observation contract, not a passing result. The real App runner discovered
 24 audit tests on SDK31/37 at candidate86993ee65: 6 passed, 18 failed, no errors/skips.
 It covered all 38 rich-span/pixel frames, room distinctions, mixed-direction direct retry,

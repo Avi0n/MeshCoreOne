@@ -1,11 +1,97 @@
 # WP-503 attempt evidence
 
-**Current authentication and native-map executions fail; historical cohort78/78 passed.**
-Native suites execute through the existing App unit runner.
+**Current owned cases pass across JVM and actual Android; PR205/WP503 remain incomplete.**
+Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
-No screenshot golden comparison, device TalkBack observation or independent review of this
+No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Current runner repair and actual Android evidence
+
+Authoritative published `234473213cc2555987d8a177cb4f6468749b35da`
+[run38303960053](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38303960053)
+is **FAILED**, not canceled: App812 discovered/8 failed, classifier/controller/Swift codec
+passed, SwiftData skipped and final guard failed. No second CI-result bundle is retained.
+Its local owned selection discovers92/passes84/fails8, zero errors/skips.
+
+Further SDK31 secure-control selectors use the unchanged declared command
+`:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.frameworkSecure*`
+with the common strict options below:
+
+| Actual source | Discovered / result |
+| --- | --- |
+| 48e431e02 | 2,1 passed/1 SDK31 idling failure;227662 placements, one280x84 geometry. |
+| 50a6637c4 | 2,1 passed/1 SDK31 idling failure after public global font/RTL configuration;185463 placements, same geometry. |
+| 2fa5e4251 | 2,0 passed/2 failed: instrumentation-style looper requires activity creation on the main looper. |
+| 36fcd5199 | 0 discovery, rejected; exact Gradle error: no tests found for the secure selector. Expression-bodied teardown violated JUnit void. |
+| 374f3857d | 2,1 passed/1 SDK31 idling failure after void teardown repair/main-thread dispatch;230439 placements, one unchanged geometry. |
+
+The queued-main-looper hint is not established as root cause. Unsuccessful configuration/
+looper changes are removed. All nine remote cases and both Map/LoS cases now run through
+the existing AndroidJUnitRunner on both actual APIs, with shared unchanged native oracles.
+An independent actual Android31 secure control at6436ceee2 passes1/1. No ignored case,
+removed SDK, inflated timeout/heap, expected-green failure or substituted production UI.
+
+Declared assembly, through the same serialized snapshot/preflight/candidate environment:
+
+```text
+:app:assembleDebug :app:assembleDebugAndroidTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m
+```
+
+**Passed** at6436ceee2, d4ef01b49 and
+`c4c5b94000077c1a3cbe5e7a60efbb89a2cc15ce`; assembly is not test discovery.
+The last commit's APK inputs are retained with [source/hash binding](device-inputs.json).
+
+Actual isolated emulator setup uses fresh owned `-data` images, `-read-only`,
+`-no-snapshot-load -no-snapshot-save -no-window -no-audio -no-metrics`,
+and the installed AVDs. Saved AVD app data/snapshots are untouched. Initial reuse of a
+read-only saved-data image failed installation with signature mismatch; no uninstall or
+saved-data wipe was performed. A fresh isolated image resolved that concrete installation
+failure. Actual profiles: API31 AOSP/x86_64/4096-byte pages/no GMS; API37.2 Play Store/
+x86_64/16384-byte pages/GMS. Both use actual OS font2, RTL,360x900/mdpi and animation0.
+
+The following commands ran on each owned emulator (`API` is31 or37, `SERIAL` its endpoint):
+
+```text
+adb -s SERIAL shell wm size 360x900
+adb -s SERIAL shell wm density 160
+adb -s SERIAL shell settings put global debug.force_rtl 1
+adb -s SERIAL shell setprop debug.force_rtl true
+adb -s SERIAL shell settings put system font_scale 2.0
+adb -s SERIAL shell settings put global animator_duration_scale 0
+adb -s SERIAL shell settings put global transition_animation_scale 0
+adb -s SERIAL shell settings put global window_animation_scale 0
+adb -s SERIAL install -r -t <exact-app-apk>
+adb -s SERIAL install -r -t <exact-test-apk>
+adb -s SERIAL shell am instrument -w -r -e package com.meshcoreone.android.accessibility -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Executable: `C:\android-sdk\platform-tools\adb.exe`. Both installs/profile settings pass.
+Tests assert the selected actual API, real system/activity font2 and animator0;
+native TextLayoutResult additionally asserts actual font2/RTL.
+ADB exit alone is not accepted: all eleven named cases must finish with status0,
+`OK (11 tests)`, and no failed/error/skipped statuses.
+
+| Source / actual runner | Discovered / result |
+| --- | --- |
+| d4ef01b49 / Android31 package selection | 11,9 passed/2 failed. LoS label incorrectly queried as Compose semantics; actual progress bar offscreen. Neither is a product defect. |
+| c4c5b9400 / Android31 package selection | **11/11 passed**,0 failures/errors/skips; [actual transcript](device-api31.txt),13.618s. |
+| c4c5b9400 / Android37 package selection | **11/11 passed**,0 failures/errors/skips; [actual transcript](device-api37.txt),47.276s. |
+| c4c5b9400 / `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.*` plus common strict options | **70/70 passed**,0 failures/errors/skips. Exactly760 painted records/0 below unchanged floors/min4.517812074094317:1. |
+
+These92 complementary source-bound cases are not one JUnit invocation or complete WP
+acceptance. The migrated22 runtime cases are mandatory on both Android APIs, not absent
+tests credited from the smaller JVM count. Espresso now queries the actual labelled
+MapLibre AndroidView. A single measured12px native ScrollBy reaches progress's actual4px
+visual bar with zero clipping: API31(24,605)-(296,609) in viewport(24,88)-(296,609);
+API37(24,718)-(296,722) in viewport(24,88)-(296,722). Both require disabled duplicates,
+actual30-second countdown and real cancellation. Cancel104x54dp is wholly contained.
+Native secure controls idle after3/API31 and4/API37 placements, one geometry each.
+
+These are actual automated emulator/UI/JNI executions, not physical TalkBack traversal,
+radio delivery, populated terrain/map acceptance or default-motion verification.
+Remaining matrix states remain unverified. Owned emulator helpers are stopped afterward.
 
 ## Latest bounded executable results
 
@@ -15,7 +101,7 @@ App task, not new acceptance tasks. Common exact options:
 `--console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`.
 Native graphics, SDK31/37; owned audits use real Resources font2/RTL. The producer-owned
 keyboard cohort's different native window/default font is explicitly recorded below.
-No device/TalkBack claim.
+The following older JVM executions make no device/TalkBack claim.
 
 | Actual committed inputs / command (plus common options) | Discovered / result |
 | --- | --- |
