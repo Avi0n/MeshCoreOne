@@ -85,6 +85,8 @@ android {
     sourceSets.getByName("test").kotlin.srcDir(
         "src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases",
     )
+    // AndroidOnly: WP-503 Execute owned accessibility suites with the existing native App test runner.
+    sourceSets.getByName("test").kotlin.srcDir(rootProject.file("accessibility-tests/src/test/kotlin"))
 }
 
 class ContentPlatformSdkArguments(
