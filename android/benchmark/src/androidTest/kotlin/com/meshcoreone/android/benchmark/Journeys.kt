@@ -10,7 +10,6 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.assertEquals
 
@@ -44,20 +43,24 @@ internal fun MacrobenchmarkScope.openWorkload(screen: String) {
 }
 
 internal fun MacrobenchmarkScope.scrollTimeline() {
-    val timeline = device.wait(Until.findObject(By.desc("WP504_TIMELINE")), TIMEOUT_MS)
-    assertNotNull("Production timeline was not mounted", timeline)
-    timeline.setGestureMargin(device.displayWidth / 5)
-    repeat(12) { assertTrue("Timeline gesture failed", timeline.swipe(Direction.DOWN, 0.8f)) }
+    repeat(12) {
+        val timeline = checkNotNull(device.wait(Until.findObject(By.desc("WP504_TIMELINE")), TIMEOUT_MS)) {
+            "Production timeline was not mounted"
+        }
+        timeline.setGestureMargin(device.displayWidth / 5)
+        timeline.swipe(Direction.DOWN, 0.8f)
+    }
     assertTrue("Timeline did not load older database pages", device.wait(
         Until.hasObject(By.descContains("WP504_PAGED:")), TIMEOUT_MS,
     ))
 }
 
 internal fun MacrobenchmarkScope.panMap() {
-    val map = device.wait(Until.findObject(By.desc("WP504_MAP")), TIMEOUT_MS)
-    assertNotNull("Native MapLibre surface was not mounted", map)
+    val map = checkNotNull(device.wait(Until.findObject(By.desc("WP504_MAP")), TIMEOUT_MS)) {
+        "Native MapLibre surface was not mounted"
+    }
     map.setGestureMargin(device.displayWidth / 5)
-    repeat(8) { assertTrue("Map gesture failed", map.swipe(Direction.LEFT, 0.6f)) }
+    repeat(8) { map.swipe(Direction.LEFT, 0.6f) }
     assertTrue("Native map never reported a camera change", device.wait(
         Until.hasObject(By.desc("WP504_MAP_MOVED")), TIMEOUT_MS,
     ))
