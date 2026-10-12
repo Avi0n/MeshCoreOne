@@ -97,7 +97,7 @@ class WorkloadActivity : ComponentActivity() {
 
     private fun showTimeline(storage: WorkloadStorage) {
         val contact = ContactDTO(
-            id = Workload.contactId, radioId = RadioId(Workload.radioId), publicKey = Bytes.of(ByteArray(32) { 0x50 }),
+            id = Workload.contactId, radioId = RadioId(Workload.radioId), publicKey = Bytes(ByteArray(32) { 0x50 }),
             name = "Offline workload", lastHeardTimestamp = null,
         )
         val key = EntityKey(contact.radioId, contact.id)

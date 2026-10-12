@@ -121,6 +121,13 @@ class ContentPlatformSdkArguments(
     override fun asArguments(): Iterable<String> =
         listOf("-Drobolectric.dependency.dir=${directory.get().asFile.absolutePath}")
 }
+// AndroidOnly: WP-504 The fixture compiles against existing pins, without widening production API edges.
+dependencies {
+    listOf("benchmarkImplementation", "profileImplementation").forEach { configuration ->
+        add(configuration, libs.androidx.room.runtime)
+        add(configuration, libs.maplibre.android)
+    }
+}
 val appPlatformSdk33 = configurations.create("appPlatformSdk33") {
     isCanBeConsumed = false
     isCanBeResolved = true
