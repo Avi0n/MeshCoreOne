@@ -4,13 +4,39 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `edc063b071ed689fd8c14407ab19b86e2c796293`.
+Current integrated base: `e508efe1525244efc472cc9eda2b6801bf30b31a`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+## Current reaction originals and reviewed privacy-merge adoption
+
+Current proposals1141/5133families/159groups/76mandatory/0approved.
+Adds95 disjoint full-body comparisons:44 ReactionParser originals across
+seven factories and51 MeshCoreOpen originals across nine factories.
+Exact independent literals and multi-assertion/invalid branches, Crockford
+normalization, selected skin-tone/ZWJ/VS16/flags, ordered summaries, DTO
+contact/channel nil guards, UTF16-prefix5/wrappingUInt32/zero1/millis
+truncation and source v1 wire fixture fields are preserved and body-bound.
+Complete source/native184-entry codebook order was read; original nine
+selected indices/count184 remain their actual families, not184 new cases.
+Source self-roundtrip/manual-hash expectations are not independent new
+packet goldens. Native supplements and known Unicode segmentation limits
+remain disclosed without extra original credit or universal Swift/Dart proof.
+Current selected parser execution and independent/persistent acceptance
+remain pending; actual mounted192 six failures stay blocking.
+
+Actual reviewed PR191 mergee508 is independently verified/adopted:
+parentsedc+f61, candidate-equal tree07ec0ba3c216d06f7f1bd4b5c26dbc31ff6ccf65,
+genuine MERGED identity. Clean same-branch rebase preserves all worker
+reaction/RF/pacing/messaging test/helper blobs; Android delta is exactly the
+inherited ChatMapPreviewTest synchronization repair, plus WP317 deviation.
+Earlier65846/cb7/356 executions remain actual baseedc results. Source-only
+review6119373639 is retained; hosted producer success is not fresh worker
+native/instrumentation/hardware/legal/signing/global-parity evidence.
 
 ## Incoming reaction composition gap and mounted witnesses
 
@@ -59,7 +85,7 @@ native replay, fabricated approval or unexecuted producer-evidence credit.
 
 ## Current platform consumer audit and actual routing-repair adoption
 
-Current proposals1046/5133families/143groups/70mandatory/0approved include44
+The historical RF increment1046/5133families/143groups/70mandatory/0approved included44
 new disjoint RFCalculator originals:29 propagation/constants/distance,
 11 full-profile/clearance/loss/invalid inputs,two returned frequency/k fields
 and two inclusive slice/segment origins. Complete frozen/native bodies and

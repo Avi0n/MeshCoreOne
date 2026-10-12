@@ -1,6 +1,20 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is1046/5133families/143groups/76mandatory/0approved.
+Current proposed inspection is1141/5133families/159groups/76mandatory/0approved.
+Actual reviewed191 mergee508/parentsedc+f61/candidate-equal tree07ec0ba3
+is adopted. Only inherited ChatMapPreviewTest/WP317 deviation changed;
+executed worker reaction/RF/pacing/messaging blobs remain unchanged.
+Earlier cb7/65846/356 results stay edc-bound, not fresh e508 executions.
+The next95 reaction parser originals are16 disjoint full-body comparisons:
+44 Pocket format/hash/invalid/ZWJ/summary/DTO/DM cases and51 MeshCoreOpen
+v3/v1/codebook/UTF16/wrapping-hash cases. Every original input and selected
+independent assertion is bound alongside complete helpers and actual incoming
+consumers. Native supplements/184 codebook entries do not add original credit.
+Source self-roundtrips/manual-hash comparisons are not independent new goldens;
+selected graphemes do not certify all Swift/JDK Unicode segmentation.
+Pure-parser execution/independent/persistent acceptance remain pending.
+Actual App192 remains blocked by six unchanged mounted failures, not hidden
+by pure-parser comparisons, removed scope or unexecuted hardware claims.
 Incoming reaction bridge defect192 is separately routed WP303/necessaryWP216:
 Pocket late-target queue writes are no-ops; MeshCoreOpen v3/v1 is never parsed
 by actual App composition. Six mandatory real Room/normal-polling consumers and

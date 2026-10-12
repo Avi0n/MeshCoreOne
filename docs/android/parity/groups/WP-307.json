@@ -338,7 +338,7 @@
         },
         {
           "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/platform/ChatMapPreviewTest.kt",
-          "sha256": "65d75ad72e6ea3763c3f1025fb8d94a8539208d7080895f8d0c9e6d5404f2598",
+          "sha256": "021bff655e223b1686222ecc96b29bf37e10798e712d88fb50747053053c5438",
           "source_references": [
             "MC1/Views/Chats/Components/Fragments/MapPreviewFragmentView.swift",
             "MC1/Views/Settings/Sections/MapPreviewSettingsSection.swift"
@@ -397,47 +397,47 @@
             {
               "name": "settingsTogglePersistsTheExistingIndependentPrivacyPreference",
               "line": 258,
-              "end_line": 279
+              "end_line": 280
             },
             {
               "name": "renderDeadlineAndProcessCloseCancelOwnedWorkAndNeverInventAnImage",
-              "line": 281,
-              "end_line": 309
+              "line": 282,
+              "end_line": 310
             },
             {
               "name": "render",
-              "line": 285,
-              "end_line": 285
+              "line": 286,
+              "end_line": 286
             },
             {
               "name": "report",
-              "line": 326,
-              "end_line": 326
+              "line": 327,
+              "end_line": 327
             },
             {
               "name": "mount",
-              "line": 327,
-              "end_line": 333
+              "line": 328,
+              "end_line": 334
             },
             {
               "name": "withFixture",
-              "line": 336,
-              "end_line": 367
+              "line": 337,
+              "end_line": 368
             },
             {
               "name": "render",
-              "line": 347,
-              "end_line": 347
+              "line": 348,
+              "end_line": 348
             },
             {
               "name": "fetch",
-              "line": 350,
-              "end_line": 351
+              "line": 351,
+              "end_line": 352
             },
             {
               "name": "bitmap",
-              "line": 369,
-              "end_line": 369
+              "line": 370,
+              "end_line": 370
             }
           ]
         }
