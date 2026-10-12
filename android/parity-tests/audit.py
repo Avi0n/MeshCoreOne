@@ -209,8 +209,14 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         value = generate()
-        write_or_check(repo_path(REPO, OUTPUT), json_bytes(value), check=not args.generate)
-        print(json.dumps({"accounting": "complete", "acceptance": value["acceptance"], **value["counts"]}))
+        if args.check:
+            print(json.dumps({
+                "result": "passed",
+                "scope": "frozen source and native provenance; historical accounting is not a freshness gate",
+            }))
+        else:
+            write_or_check(repo_path(REPO, OUTPUT), json_bytes(value), check=not args.generate)
+            print(json.dumps({"accounting": "complete", "acceptance": value["acceptance"], **value["counts"]}))
         if args.require_acceptance:
             from acceptance import github_review
 

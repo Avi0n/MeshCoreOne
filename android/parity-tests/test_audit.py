@@ -1,7 +1,9 @@
 """AndroidOnly: WP-501 Regression assertions for complete fail-closed original-family accounting."""
 
 import copy
+import contextlib
 import importlib.util
+import io
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -211,6 +213,24 @@ class CurrentExecutionTest(unittest.TestCase):
         self.report()
         with self.assertRaisesRegex(PortError, "Zero required"):
             audit.verify_acceptance_tests(self.directory, set())
+
+
+class CheckCommandTest(unittest.TestCase):
+    def test_check_validates_inputs_without_rewriting_or_freshness_gating_history(self):
+        with patch.object(audit, "generate", return_value={}) as validate, \
+                patch.object(audit, "write_or_check") as output, \
+                contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(0, audit.main(["--check"]))
+        validate.assert_called_once_with()
+        output.assert_not_called()
+
+    def test_check_still_rejects_source_or_provenance_drift(self):
+        with patch.object(audit, "generate", side_effect=PortError("source drift")), \
+                patch.object(audit, "write_or_check") as output, \
+                contextlib.redirect_stderr(io.StringIO()) as errors:
+            self.assertEqual(2, audit.main(["--check"]))
+        self.assertIn("source drift", errors.getvalue())
+        output.assert_not_called()
 
 
 class WiringTest(unittest.TestCase):
