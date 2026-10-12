@@ -8031,6 +8031,7 @@
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt"
@@ -8802,6 +8803,80 @@
               "name": "mutingRetainsTheInitialFalseAndBothOriginalTransitions",
               "line": 162,
               "end_line": 173
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "device",
+              "line": 26,
+              "end_line": 31
+            },
+            {
+              "name": "frame",
+              "line": 33,
+              "end_line": 36
+            },
+            {
+              "name": "pending",
+              "line": 38,
+              "end_line": 48
+            },
+            {
+              "name": "originalFirstDrainRetainsReturnedOneAndPersistedOptionalAttemptOne",
+              "line": 51,
+              "end_line": 60
+            },
+            {
+              "name": "originalMissingPendingMessageReturnsNullWithoutCreatingARow",
+              "line": 63,
+              "end_line": 67
+            },
+            {
+              "name": "originalNilZeroAndThreeAttemptsRetainDeleteOneForbiddenLegacyAndExactSurvivorCounts",
+              "line": 70,
+              "end_line": 86
+            },
+            {
+              "name": "originalRepeatedLegacyPurgeRetainsIndependentOneThenZeroReturns",
+              "line": 89,
+              "end_line": 97
+            },
+            {
+              "name": "originalWarmUpRetainsPairedAndUnpairedNilAttemptContextsAndBothEmptyReads",
+              "line": 100,
+              "end_line": 114
+            },
+            {
+              "name": "originalPublicPendingDeleteRetainsAttemptOneAndImmediateFalseWithoutTestSave",
+              "line": 117,
+              "end_line": 124
+            },
+            {
+              "name": "originalChannelZeroHelloDeletionRetainsBothPendingAndMessageEmptyPostconditions",
+              "line": 127,
+              "end_line": 141
+            },
+            {
+              "name": "originalNoMessageRowOrphanDeletionRetainsPendingEmptyRead",
+              "line": 144,
+              "end_line": 151
+            },
+            {
+              "name": "originalMatchedAndOrphanDeviceDataDeletionRetainsPendingEmptyAndNonNullDevice",
+              "line": 154,
+              "end_line": 169
+            },
+            {
+              "name": "originalThreeContactOneRowsRetainOnlyContactTwoPendingIdentityAndMessageCount",
+              "line": 172,
+              "end_line": 201
             }
           ]
         },
@@ -43051,6 +43126,83 @@
             "PersistenceStoreTests::incrementPendingSendAttemptCount returns nil when no row matches()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalFirstDrainRetainsReturnedOneAndPersistedOptionalAttemptOne",
+          "line": 51,
+          "end_line": 60,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "10b8f563b4c6b2d6737e7ac96cc4946207c0dad40c558e60e1dd4a5871f0fd82",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 57,
+              "expression": "assertEquals(1L, result)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(1L, persisted?.attemptCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "UUID.randomUUID",
+              "line": 52,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 53,
+              "expression": "pending(messageID = messageID, attemptCount = 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 54,
+              "expression": "store.upsertPendingSend(dto)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementPendingSendAttemptCount",
+              "line": 56,
+              "expression": "store.incrementPendingSendAttemptCount(EntityKey(dto.radioId, messageID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 56,
+              "expression": "EntityKey(dto.radioId, messageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 58,
+              "expression": "store.fetchPendingSends(dto.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "firstOrNull",
+              "line": 58,
+              "expression": "firstOrNull()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::incrementPendingSendAttemptCount from 0 bumps to 1()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -43193,6 +43345,65 @@
           ],
           "explicit_original_case_ids": [
             "PersistenceStoreTests::incrementPendingSendAttemptCount from 0 bumps to 1()",
+            "PersistenceStoreTests::incrementPendingSendAttemptCount returns nil when no row matches()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalMissingPendingMessageReturnsNullWithoutCreatingARow",
+          "line": 63,
+          "end_line": 67,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "1f5d0d1768a794fc7ce83fcf69de313feb056f350357449403b70566b7d05583",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 66,
+              "expression": "assertNull(result)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "UUID.randomUUID",
+              "line": 64,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.incrementPendingSendAttemptCount",
+              "line": 65,
+              "expression": "store.incrementPendingSendAttemptCount(EntityKey(RadioId(UUID.randomUUID()), messageID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 65,
+              "expression": "EntityKey(RadioId(UUID.randomUUID()), messageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 65,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 65,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::incrementPendingSendAttemptCount returns nil when no row matches()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -43571,6 +43782,125 @@
             "PersistenceStoreTests::purgeLegacyAttemptCountRows is idempotent()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalNilZeroAndThreeAttemptsRetainDeleteOneForbiddenLegacyAndExactSurvivorCounts",
+          "line": 70,
+          "end_line": 86,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "a497e28b271fd573b080b40d83bf891b119391831051e5f3b2c5c2f4fcbc887f",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 79,
+              "expression": "assertEquals(1L, store.purgeLegacyAttemptCountRows())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 82,
+              "expression": "assertFalse(messageIDs.contains(legacy.messageID))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 84,
+              "expression": "assertEquals(0L, byMessageID[race.messageID])",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 85,
+              "expression": "assertEquals(3L, byMessageID[drained.messageID])",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 71,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 71,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 72,
+              "expression": "pending(radio = radio, attemptCount = null, sequence = 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 73,
+              "expression": "pending(radio = radio, attemptCount = 0, sequence = 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 74,
+              "expression": "pending(radio = radio, attemptCount = 3, sequence = 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 75,
+              "expression": "store.upsertPendingSend(legacy)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 76,
+              "expression": "store.upsertPendingSend(race)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 77,
+              "expression": "store.upsertPendingSend(drained)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.purgeLegacyAttemptCountRows",
+              "line": 79,
+              "expression": "store.purgeLegacyAttemptCountRows()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 80,
+              "expression": "store.fetchPendingSends(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "toSet",
+              "line": 81,
+              "expression": "toSet()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "messageIDs.contains",
+              "line": 82,
+              "expression": "messageIDs.contains(legacy.messageID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::purgeLegacyAttemptCountRows deletes only legacy nil rows()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -43871,6 +44201,77 @@
             "PersistenceStoreTests::Database warm-up()",
             "PersistenceStoreTests::warmUp runs both purgeOrphanPendingSends and purgeLegacyAttemptCountRows()",
             "PersistenceStoreTests::purgeLegacyAttemptCountRows deletes only legacy nil rows()",
+            "PersistenceStoreTests::purgeLegacyAttemptCountRows is idempotent()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalRepeatedLegacyPurgeRetainsIndependentOneThenZeroReturns",
+          "line": 89,
+          "end_line": 97,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6c326228d347eaaff013ef5966c90af450b3544e55ffb58dce60be24efda1c36",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 95,
+              "expression": "assertEquals(1L, firstDeleted)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 96,
+              "expression": "assertEquals(0L, secondDeleted)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 90,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 90,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 91,
+              "expression": "store.upsertPendingSend(pending(radio = radio, attemptCount = null))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 91,
+              "expression": "pending(radio = radio, attemptCount = null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.purgeLegacyAttemptCountRows",
+              "line": 93,
+              "expression": "store.purgeLegacyAttemptCountRows()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.purgeLegacyAttemptCountRows",
+              "line": 94,
+              "expression": "store.purgeLegacyAttemptCountRows()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::purgeLegacyAttemptCountRows is idempotent()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -44219,6 +44620,119 @@
             "PersistenceStoreTests::purgeLegacyAttemptCountRows is idempotent()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalWarmUpRetainsPairedAndUnpairedNilAttemptContextsAndBothEmptyReads",
+          "line": 100,
+          "end_line": 114,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ef8bf8fba0367347fec84331415bdd815ec30e6ac9316fbf5eeef45593b5e1c5",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 112,
+              "expression": "assertTrue(survivingForDevice.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 113,
+              "expression": "assertTrue(survivingForUnknown.isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "UUID.randomUUID",
+              "line": 101,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 102,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 102,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 103,
+              "expression": "device(radioWithDevice)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 104,
+              "expression": "pending(radio = device.radioId, attemptCount = null, sequence = 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 105,
+              "expression": "pending(radio = radioWithoutDevice, attemptCount = null, sequence = 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 106,
+              "expression": "store.upsertPendingSend(nilOnDevice)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 107,
+              "expression": "store.upsertPendingSend(orphan)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.warmUp",
+              "line": 109,
+              "expression": "store.warmUp()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 110,
+              "expression": "store.fetchPendingSends(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 111,
+              "expression": "store.fetchPendingSends(radioWithoutDevice)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "survivingForDevice.isEmpty",
+              "line": 112,
+              "expression": "survivingForDevice.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "survivingForUnknown.isEmpty",
+              "line": 113,
+              "expression": "survivingForUnknown.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::warmUp runs both purgeOrphanPendingSends and purgeLegacyAttemptCountRows()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -44470,6 +44984,89 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::deleteMessage cascades the matching PendingSend in a single transaction()",
             "PersistenceStoreTests::deleteMessage reaps an orphan PendingSend even when no Message row exists()",
+            "PersistenceStoreTests::deletePendingSendsForMessage public API saves on return()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalPublicPendingDeleteRetainsAttemptOneAndImmediateFalseWithoutTestSave",
+          "line": 117,
+          "end_line": 124,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "a9dfcb96eec9cea8263711704f5cc32e9a17248d36e62646d5369cdcb4500b41",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 123,
+              "expression": "assertFalse(store.hasPendingSend(EntityKey(radio, messageID)))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 118,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 118,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 119,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 120,
+              "expression": "store.upsertPendingSend(pending(messageID = messageID, radio = radio, attemptCount = 1, sequence = 1))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 120,
+              "expression": "pending(messageID = messageID, radio = radio, attemptCount = 1, sequence = 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.deletePendingSendsForMessage",
+              "line": 122,
+              "expression": "store.deletePendingSendsForMessage(EntityKey(radio, messageID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 122,
+              "expression": "EntityKey(radio, messageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.hasPendingSend",
+              "line": 123,
+              "expression": "store.hasPendingSend(EntityKey(radio, messageID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 123,
+              "expression": "EntityKey(radio, messageID)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::deletePendingSendsForMessage public API saves on return()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -44775,6 +45372,125 @@
             "PersistenceStoreTests::deletePendingSendsForMessage public API saves on return()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalChannelZeroHelloDeletionRetainsBothPendingAndMessageEmptyPostconditions",
+          "line": 127,
+          "end_line": 141,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7ff4bdc44c0a060f0ce99cafccdfeca3079ac7071583c83ecf579b203b0a6ae0",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 138,
+              "expression": "assertTrue(remainingPending.isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 140,
+              "expression": "assertTrue(remainingMessages.isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 128,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 129,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 130,
+              "expression": "store.saveMessage(MessageDTO(\n            id = messageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"hello\", timestamp = Instant.now().epochSecond.toUInt(),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 130,
+              "expression": "MessageDTO(\n            id = messageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"hello\", timestamp = Instant.now().epochSecond.toUInt(),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 132,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 132,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 134,
+              "expression": "store.upsertPendingSend(pending(messageID = messageID, radio = device.radioId, attemptCount = 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 134,
+              "expression": "pending(messageID = messageID, radio = device.radioId, attemptCount = 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.deleteMessage",
+              "line": 136,
+              "expression": "store.deleteMessage(EntityKey(device.radioId, messageID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 136,
+              "expression": "EntityKey(device.radioId, messageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 137,
+              "expression": "store.fetchPendingSends(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "remainingPending.isEmpty",
+              "line": 138,
+              "expression": "remainingPending.isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchAllMessages",
+              "line": 139,
+              "expression": "store.fetchAllMessages(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "remainingMessages.isEmpty",
+              "line": 140,
+              "expression": "remainingMessages.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::deleteMessage cascades the matching PendingSend in a single transaction()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -45035,6 +45751,83 @@
             "PersistenceStoreTests::deletePendingSendsForMessage public API saves on return()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalNoMessageRowOrphanDeletionRetainsPendingEmptyRead",
+          "line": 144,
+          "end_line": 151,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "c7b9e5e182403d810542a9a2df07a3425ad8c5888a1f9c9023bdeb1adec58205",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 150,
+              "expression": "assertTrue(store.fetchPendingSends(device.radioId).isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 145,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 146,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 147,
+              "expression": "store.upsertPendingSend(pending(messageID = orphanMessageID, radio = device.radioId, attemptCount = 0))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 147,
+              "expression": "pending(messageID = orphanMessageID, radio = device.radioId, attemptCount = 0)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.deleteMessage",
+              "line": 149,
+              "expression": "store.deleteMessage(EntityKey(device.radioId, orphanMessageID))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 149,
+              "expression": "EntityKey(device.radioId, orphanMessageID)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 150,
+              "expression": "store.fetchPendingSends(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 150,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::deleteMessage reaps an orphan PendingSend even when no Message row exists()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -45268,6 +46061,125 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::deleteDeviceData removes all associated data but not device record()",
             "PersistenceStoreTests::deleteDeviceData reaps a message and its heard repeats while preserving the device()",
+            "PersistenceStoreTests::deleteDeviceData reaps radio-scoped orphan PendingSends and preserves the Device row()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalMatchedAndOrphanDeviceDataDeletionRetainsPendingEmptyAndNonNullDevice",
+          "line": 154,
+          "end_line": 169,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "9d5ccb660317d24e5ca05f5e49412ab6bf79d48da49adb15c6a3767893fc3ce2",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 167,
+              "expression": "assertTrue(store.fetchPendingSends(device.radioId).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 168,
+              "expression": "assertNotNull(store.fetchDevice(device.radioId))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 155,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 156,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 157,
+              "expression": "store.saveMessage(MessageDTO(\n            id = matchedMessageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"matched\", timestamp = Instant.now().epochSecond.toUInt(),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 157,
+              "expression": "MessageDTO(\n            id = matchedMessageID, radioId = device.radioId, contactID = null, channelIndex = 0u,\n            text = \"matched\", timestamp = Instant.now().epochSecond.toUInt(),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 159,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 159,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 161,
+              "expression": "store.upsertPendingSend(pending(\n            messageID = matchedMessageID, radio = device.radioId, attemptCount = 0, sequence = 1,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 161,
+              "expression": "pending(\n            messageID = matchedMessageID, radio = device.radioId, attemptCount = 0, sequence = 1,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 164,
+              "expression": "store.upsertPendingSend(pending(radio = device.radioId, attemptCount = 0, sequence = 2))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 164,
+              "expression": "pending(radio = device.radioId, attemptCount = 0, sequence = 2)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.deleteDeviceData",
+              "line": 166,
+              "expression": "store.deleteDeviceData(device.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 167,
+              "expression": "store.fetchPendingSends(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 167,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 168,
+              "expression": "store.fetchDevice(device.radioId)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::deleteDeviceData reaps radio-scoped orphan PendingSends and preserves the Device row()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -45968,6 +46880,215 @@
             "PersistenceStoreTests::deleteMessagesForContact cascades PendingSends and spares unrelated contacts()",
             "PersistenceStoreTests::deleteContact cascades messages, reactions, repeats, and pending sends()",
             "PersistenceStoreTests::deleteContact removes local data when the contact row is already gone()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
+          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
+          "method_or_family_name": "originalThreeContactOneRowsRetainOnlyContactTwoPendingIdentityAndMessageCount",
+          "line": 172,
+          "end_line": 201,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "f092b669857d82ddfe094004da288e7792e7cd4af176a99d770804646c8c997e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 197,
+              "expression": "assertEquals(1, remaining.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 198,
+              "expression": "assertEquals(contact2MessageID, remaining.firstOrNull()?.messageID)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 200,
+              "expression": "assertEquals(1, contact2Messages.size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 173,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 174,
+              "expression": "store.saveContact(device.radioId, frame(\"Contact1\", 0x55))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 174,
+              "expression": "frame(\"Contact1\", 0x55)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 175,
+              "expression": "store.saveContact(device.radioId, frame(\"Contact2\", 0x56))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 175,
+              "expression": "frame(\"Contact2\", 0x56)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 176,
+              "expression": "for (i in 0 until 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 177,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 178,
+              "expression": "store.saveMessage(MessageDTO(\n                id = messageID, radioId = device.radioId, contactID = contact1,\n                text = \"C1 $i\", timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 178,
+              "expression": "MessageDTO(\n                id = messageID, radioId = device.radioId, contactID = contact1,\n                text = \"C1 $i\", timestamp = Instant.now().epochSecond.toUInt() + i.toUInt(),\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 180,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 180,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "i.toUInt",
+              "line": 180,
+              "expression": "i.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 182,
+              "expression": "store.upsertPendingSend(pending(\n                messageID = messageID, radio = device.radioId, attemptCount = 0, sequence = i.toLong() + 1,\n            ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 182,
+              "expression": "pending(\n                messageID = messageID, radio = device.radioId, attemptCount = 0, sequence = i.toLong() + 1,\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "i.toLong",
+              "line": 183,
+              "expression": "i.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 186,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 187,
+              "expression": "store.saveMessage(MessageDTO(\n            id = contact2MessageID, radioId = device.radioId, contactID = contact2,\n            text = \"C2 keep\", timestamp = Instant.now().epochSecond.toUInt() + 100u,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 187,
+              "expression": "MessageDTO(\n            id = contact2MessageID, radioId = device.radioId, contactID = contact2,\n            text = \"C2 keep\", timestamp = Instant.now().epochSecond.toUInt() + 100u,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 189,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 189,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertPendingSend",
+              "line": 191,
+              "expression": "store.upsertPendingSend(pending(\n            messageID = contact2MessageID, radio = device.radioId, attemptCount = 0, sequence = 99,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "pending",
+              "line": 191,
+              "expression": "pending(\n            messageID = contact2MessageID, radio = device.radioId, attemptCount = 0, sequence = 99,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.deleteMessagesForContact",
+              "line": 195,
+              "expression": "store.deleteMessagesForContact(EntityKey(device.radioId, contact1))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 195,
+              "expression": "EntityKey(device.radioId, contact1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchPendingSends",
+              "line": 196,
+              "expression": "store.fetchPendingSends(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "remaining.firstOrNull",
+              "line": 198,
+              "expression": "remaining.firstOrNull()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 199,
+              "expression": "store.fetchMessages(EntityKey(device.radioId, contact2))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 199,
+              "expression": "EntityKey(device.radioId, contact2)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::deleteMessagesForContact cascades PendingSends and spares unrelated contacts()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }

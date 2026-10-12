@@ -12,6 +12,33 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Pending-maintenance original increment
+
+Ten complete new originals registered:1445/5133 proposals/184groups/83mandatory/
+0approved,101/135 PersistenceStore proposed/34remaining;73 qualified source-
+compared/new12+6+10 pending. Same producer reservation39->40 automatically
+admits only the new owned class, no authorization rewrite/release/recreate.
+Ten full bodies/joins/290helperrows/29actual inputs: returned+persisted0->1;
+missing row nil; separate legacy-nil/race0/drained3 rows with purge1/forbidden
+legacy identity/exact survivor attempts; independent idempotent1/0 returns;
+paired/unknown radios with both original nil-row warmUp empties; public
+delete attempt1/sequence1 and immediate hasPending false without test save;
+channel0/hello/null-contact deletion with pending+message empty; missing-message
+orphan pending empty; matched+orphan device-data deletion/parent non-null;
+three Contact1/C1/current+i/sequence1..3 and Contact2/C2 keep/current+100/
+sequence99 with final pending count1/matching Contact2 UUID/message count1.
+
+Complete frozen makePendingSendDTO fields/current Date/fresh UUIDs/defaultDM/
+nil-channel/false-resend/empty-text/zero-timestamp/nil-localname/defaultseq1/
+nullable0 sentinel retained. Delegated device/frame/Message defaults bound;
+fixed44/55/56 key substitutions explicit. Actual Room nullable mapping/SQL/
+transaction/cascades/warmUp/save ordering read, not test-side cascades/save.
+Original two nil warmUp rows do not independently discriminate both purge
+implementations; original atomic titles are committed postconditions, not
+save-failure/rollback/race/cancellation/queue/mounted/API37/hardware proof.
+Ten-only strict native execution and independent source comparison pending;
+all1435 incumbent native/vector/helper/identity fields retained, no replay.
+
 ## Contact/history input increment and qualified reviews
 
 Actual clean3728210e443a8d80fc718f178b917a5b93ae6b03/base d958 strict

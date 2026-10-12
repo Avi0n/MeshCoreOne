@@ -1,5 +1,14 @@
 # WP-501 source, case-family and consumer acceptance
 
+Next ten complete pending-maintenance/cascade originals registered:
+1445/5133 proposals/184groups/83mandatory/0approved;101/135 PersistenceStore/
+34remaining,73 qualified source-compared/new12+6+10 pending. Ten bodies/joins/
+290helperrows/29inputs, all original nil/zero/positive attempts/independent
+returns/identity membership/parent-preservation/survivor counts retained.
+Same reservation40; only ten-new selector prepared, no old native replay.
+Native execution/source comparison pending, real-store committed predicates
+not fault-injection/queue/mounted/API37/hardware certification.
+
 Actual clean3728/base d958 six-only6PASS/zero bad/all6 identities,
 XML14:02:56.632Z/native35ae246e/SHA2113eda9, real required-contact/node/
 all-fields/read-state predicates;39 helper fingerprints/raw private XML captured.
