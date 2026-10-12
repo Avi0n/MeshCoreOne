@@ -23,7 +23,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt"
       ],
       "consumer": "Actual incoming consumer chooses content key before lookup and before corrected message timestamp persistence because RX packet hash changes across retries. These five fixed input inequalities do not prove hash collision freedom, migrations or native transactional duplicate races.",
-      "unresolved": ["Fresh current clean services covering execution/independent bounded review required. Prior9c31services29passed before restored epoch/contact inputs, not current proof."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased. Prior9c31passed before restored epoch/contact inputs is not substituted. Independent bounded review/current-hosted/persistent merge/full audit remain required."],
       "methods": [
         "DM fallback key is deterministic",
         "Channel fallback key is deterministic",
@@ -50,7 +50,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/ChatSendQueueService.kt"
       ],
       "consumer": "Actual chat queue fires when entering READY/current generation, parks pending envelopes on configured timeout, clears only after successful send and finishes/joins observers on shutdown. These direct signal originals do not execute real BLE/queue persistence/ready-transition race or hardware reconnect.",
-      "unresolved": ["Fresh current services positive identities/independent bounded review required. Prior9c31passed before restored50ms windows is not current proof; no physical BLE claim."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased, including restored50ms windows. Independent bounded review/current-hosted/persistent merge/full audit required; no physical BLE claim."],
       "methods": [
         "wait returns immediately when signal already armed",
         "wait suspends until fire",
@@ -75,7 +75,7 @@
         "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift"
       ],
       "consumer": "Actual retryLoop bounds total/flood attempts and ACK expiry uses max(giveUpWindow,pendingTimeout); these two getter/constructor originals do not execute retry traffic, all settings consumers or airtime budgets.",
-      "unresolved": ["Fresh current services covering/independent bounded review required; original undocumented-negative and live retry boundary not inferred passed."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased. Independent bounded review/current-hosted/persistent merge/full audit required; original undocumented-negative and live retry boundary not inferred passed."],
       "methods": [
         "maxAttempts == 5 is accepted at the precondition boundary",
         "Default config respects the maxAttempts ceiling"
@@ -98,7 +98,7 @@
         "MC1Services/Sources/MC1Services/Services/MessageServiceConfig.swift"
       ],
       "consumer": "Actual MessageService retryLoop/reset/trackPendingAck/firmware-timeout and give-up expiry fields read; ChatSendQueue READY/park/teardown uses its separate queue config. Getter equality does not prove floodFallbackOnRetry/triggerPathDiscoveryAfterFlood high-level behavior or native pool-backoff/error/cancellation parity; those require source-selected flow comparison.",
-      "unresolved": ["Fresh current services positive identities/independent bounded review required; broader configuration-driven messaging acceptance remains incomplete."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased. Both frozen source flags floodFallbackOnRetry/triggerPathDiscoveryAfterFlood are likewise declarations/assignment-only in actual pinned source; absence of native consumers alone is not a new product defect. Independent bounded review/current-hosted/persistent merge/full configuration-driven messaging acceptance incomplete."],
       "methods": ["MessageServiceConfig default values", "MessageServiceConfig custom values"]
     },
     {
@@ -117,7 +117,7 @@
         "MC1Services/Sources/MC1Services/Utilities/DeduplicationKey.swift"
       ],
       "consumer": "Actual sync and offline/backup key consumers use the content key; these direct selected-prefix cases do not certify persistence migration, collision freedom, live repeats or every Unicode input.",
-      "unresolved": ["Fresh immutable app/services covering execution and independent bounded review required; full WP501 unfinished. No production change."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required including four separate prefix row IDs and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased. Aggregate remains one original parameter family. Independent bounded review/current-hosted/persistent merge/full audit required. No production change."],
       "methods": ["Content-based key uses the expected prefix for DM and channel scopes"]
     },
     {
@@ -137,7 +137,7 @@
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeduplicationKey.kt"
       ],
       "consumer": "Content keys feed actual sync lookup/dedup and reviewed backup/offline routes. These three pure key cases do not execute those transactional/live consumers or prove arbitrary hash collision absence.",
-      "unresolved": ["Fresh immutable services positive original identities and independent review required; whole audit incomplete."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased. Independent bounded review/current-hosted/persistent merge/full audit required."],
       "methods": [
         "Content-based key has an 8-char hex hash suffix",
         "Content-based key is deterministic and distinguishes different content",
@@ -160,7 +160,7 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/AckCodeBuilder.kt"
       ],
       "consumer": "Actual DM service predicts/registers ACK before wire send, merges firmware acceptance code, accumulates retry tags and removes failed pending ownership. These four pure formula cases do not execute that mailbox/cancellation/teardown consumer or prove arbitrary concurrent-message collision freedom.",
-      "unresolved": ["Fresh immutable services covering execution and independent bounded review required; no live radio/iOS/full acceptance claim."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased, including exact source02/03keys. Independent bounded review/current-hosted/persistent merge/full audit required; no live radio/iOS claim."],
       "methods": [
         "matches firmware formula for known fixture",
         "different texts produce different codes",
@@ -187,7 +187,7 @@
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/RxLogEntryDTO.kt"
       ],
       "consumer": "Actual AppContainer->RadioSessionContainerFactory->RadioSessionContainer SyncRetryServices injects syncMessageCodecs real messaging matcher; native/source sync lookup decodes and chooses earliest matching key/path metadata. Core HeardRepeatsService has real canonical adoption/later distinct-path persistence, but actual mounted SyncHeardRepeatsAdapter merely logs a named gap and returns Unit/null for harvest/record. This concrete production omission is routed separately to coordinator, never solved or excluded by five matcher unit cases. Adjacent reaction visibility gaps are not promoted to additional proven findings without separate bounded review.",
-      "unresolved": ["Fresh immutable services positive identities and independent bounded review required; actual mounted live-repeat adapter omission requires owner repair. No hardware/full graph/Unicode parity claimed."],
+      "unresolved": ["Clean0081c3bde/d3f final services29/29/all29required and aggregate1/1/Python363/363passed0failure/error/skip/readinessPASS/locksreleased, including exact dates/C3ID/A1/hello/Test/hash. Independent bounded review/current-hosted/persistent merge/full audit required; actual mounted live-repeat adapter omission intake6115846783 requires owner repair. No hardware/full graph/Unicode parity claimed."],
       "methods": [
         "keeps the 0x88 whose body matches the message key",
         "sorts matches by receivedAt ascending",

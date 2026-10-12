@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "2cab0a1a895d1085f17df7d29ec21444f6c2209fea484ccc8d356cbffdb2c173",
+  "proposal_sha256": "ead7187f355689f93e1dc59f13f2d16205c400a742c7a2c151fa1cdcc5ab7116",
   "families": [
     {
       "group": "backup-envelope",
@@ -39048,7 +39048,7 @@
     },
     {
       "group": "messaging-source-dedup-suffix-determinism-empty",
-      "comparison_sha256": "73ba548c1d3c21584c42160e1e33848d68d26b22a14a8e430ebd6f54d7f37f94",
+      "comparison_sha256": "337c462091805f94d1a0ff25f437a2bafeac7eb79b0e4c571827e118dfd23651",
       "source_file_family_count": 4,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -39133,7 +39133,7 @@
     },
     {
       "group": "messaging-source-dedup-suffix-determinism-empty",
-      "comparison_sha256": "73ba548c1d3c21584c42160e1e33848d68d26b22a14a8e430ebd6f54d7f37f94",
+      "comparison_sha256": "337c462091805f94d1a0ff25f437a2bafeac7eb79b0e4c571827e118dfd23651",
       "source_file_family_count": 4,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -39236,7 +39236,7 @@
     },
     {
       "group": "messaging-source-prefix-all-four-parameter-rows",
-      "comparison_sha256": "b24877867f0dea03e7dfb72f892826900aa217358019c359eb15ea9fca2cd956",
+      "comparison_sha256": "b4c1ade3edf69de994dafb0742d6882bce78d3b667315467caa286dd6fbb96a3",
       "source_file_family_count": 4,
       "group_compared_family_count": 1,
       "partial_source_file": true,
@@ -39393,7 +39393,7 @@
     },
     {
       "group": "messaging-source-dedup-suffix-determinism-empty",
-      "comparison_sha256": "73ba548c1d3c21584c42160e1e33848d68d26b22a14a8e430ebd6f54d7f37f94",
+      "comparison_sha256": "337c462091805f94d1a0ff25f437a2bafeac7eb79b0e4c571827e118dfd23651",
       "source_file_family_count": 4,
       "group_compared_family_count": 3,
       "partial_source_file": true,
@@ -43220,7 +43220,7 @@
     },
     {
       "group": "messaging-source-ack-formula-text-attempt-key-literals",
-      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "comparison_sha256": "b46b39f64cd7a22a785484ddf5922bbbca8e1f14f9cf3c06411333c6ef355c46",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -43317,7 +43317,7 @@
     },
     {
       "group": "messaging-source-ack-formula-text-attempt-key-literals",
-      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "comparison_sha256": "b46b39f64cd7a22a785484ddf5922bbbca8e1f14f9cf3c06411333c6ef355c46",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -43420,7 +43420,7 @@
     },
     {
       "group": "messaging-source-ack-formula-text-attempt-key-literals",
-      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "comparison_sha256": "b46b39f64cd7a22a785484ddf5922bbbca8e1f14f9cf3c06411333c6ef355c46",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -43505,7 +43505,7 @@
     },
     {
       "group": "messaging-source-ack-formula-text-attempt-key-literals",
-      "comparison_sha256": "c3bc809b38592ab6fb3d9b70d42d8a8665331d36f2794b613834adb5af558600",
+      "comparison_sha256": "b46b39f64cd7a22a785484ddf5922bbbca8e1f14f9cf3c06411333c6ef355c46",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -43608,7 +43608,7 @@
     },
     {
       "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
-      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "comparison_sha256": "4c9d4c0dbfbad754cc94e544e3f0ca86ecaab3614c8573c709ae5f24f10d2243",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -43724,7 +43724,7 @@
     },
     {
       "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
-      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "comparison_sha256": "4c9d4c0dbfbad754cc94e544e3f0ca86ecaab3614c8573c709ae5f24f10d2243",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -43816,7 +43816,7 @@
     },
     {
       "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
-      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "comparison_sha256": "4c9d4c0dbfbad754cc94e544e3f0ca86ecaab3614c8573c709ae5f24f10d2243",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -43932,7 +43932,7 @@
     },
     {
       "group": "messaging-source-open-signal-arm-suspend-cancel-rearm",
-      "comparison_sha256": "23d1ac92cdc84e9d580363afd6b0e17fab9ea9c3d020af2f0542dddfea683794",
+      "comparison_sha256": "4c9d4c0dbfbad754cc94e544e3f0ca86ecaab3614c8573c709ae5f24f10d2243",
       "source_file_family_count": 4,
       "group_compared_family_count": 4,
       "partial_source_file": false,
@@ -44061,7 +44061,7 @@
     },
     {
       "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
-      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "comparison_sha256": "6696d63bec6f21d1ff06c31de5d94dbf02637d47c46d3c20f4fa52dd628eb084",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -44176,7 +44176,7 @@
     },
     {
       "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
-      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "comparison_sha256": "6696d63bec6f21d1ff06c31de5d94dbf02637d47c46d3c20f4fa52dd628eb084",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -44279,7 +44279,7 @@
     },
     {
       "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
-      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "comparison_sha256": "6696d63bec6f21d1ff06c31de5d94dbf02637d47c46d3c20f4fa52dd628eb084",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -44400,7 +44400,7 @@
     },
     {
       "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
-      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "comparison_sha256": "6696d63bec6f21d1ff06c31de5d94dbf02637d47c46d3c20f4fa52dd628eb084",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -44497,7 +44497,7 @@
     },
     {
       "group": "messaging-source-fallback-keys-exact-contact-channel-epoch",
-      "comparison_sha256": "a8c31df0df9b99b2016e128b5365ac03fb19c017065c0dba1faccece1e516e84",
+      "comparison_sha256": "6696d63bec6f21d1ff06c31de5d94dbf02637d47c46d3c20f4fa52dd628eb084",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -44606,7 +44606,7 @@
     },
     {
       "group": "messaging-source-config-five-attempt-boundary",
-      "comparison_sha256": "682952a3901cd1dfc43dea5dbbf75ae45cdb6725e80811576fb41a580c3c80ab",
+      "comparison_sha256": "f8cd3c6d1feeb2b3ca5ad46a41f137c6ad432abad1ad7b54fd0faab585ee2f07",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -44689,7 +44689,7 @@
     },
     {
       "group": "messaging-source-config-five-attempt-boundary",
-      "comparison_sha256": "682952a3901cd1dfc43dea5dbbf75ae45cdb6725e80811576fb41a580c3c80ab",
+      "comparison_sha256": "f8cd3c6d1feeb2b3ca5ad46a41f137c6ad432abad1ad7b54fd0faab585ee2f07",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -44772,7 +44772,7 @@
     },
     {
       "group": "messaging-source-config-default-and-custom-fields",
-      "comparison_sha256": "0817e25e613cb519883976390956ae9f74e56ba8aa5286e99ce9492e9dc0e276",
+      "comparison_sha256": "ec5d71c1f6609b57001e71b60899186ad4f7992b13337601ce4c8ec6b9d1fb47",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -44915,7 +44915,7 @@
     },
     {
       "group": "messaging-source-config-default-and-custom-fields",
-      "comparison_sha256": "0817e25e613cb519883976390956ae9f74e56ba8aa5286e99ce9492e9dc0e276",
+      "comparison_sha256": "ec5d71c1f6609b57001e71b60899186ad4f7992b13337601ce4c8ec6b9d1fb47",
       "source_file_family_count": 2,
       "group_compared_family_count": 2,
       "partial_source_file": false,
@@ -45070,7 +45070,7 @@
     },
     {
       "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
-      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "comparison_sha256": "141e7887d8786a6bfa656bb399ac5e91615f9f38c7a98b75b2322bd85a722ac3",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -45215,7 +45215,7 @@
     },
     {
       "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
-      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "comparison_sha256": "141e7887d8786a6bfa656bb399ac5e91615f9f38c7a98b75b2322bd85a722ac3",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -45342,7 +45342,7 @@
     },
     {
       "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
-      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "comparison_sha256": "141e7887d8786a6bfa656bb399ac5e91615f9f38c7a98b75b2322bd85a722ac3",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -45463,7 +45463,7 @@
     },
     {
       "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
-      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "comparison_sha256": "141e7887d8786a6bfa656bb399ac5e91615f9f38c7a98b75b2322bd85a722ac3",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,
@@ -45572,7 +45572,7 @@
     },
     {
       "group": "messaging-source-channel-rx-exact-path-time-body-inputs",
-      "comparison_sha256": "4508881ac1236ba969367e31adad4fab081dc5f8cf24c475b6a197b8fa88e605",
+      "comparison_sha256": "141e7887d8786a6bfa656bb399ac5e91615f9f38c7a98b75b2322bd85a722ac3",
       "source_file_family_count": 5,
       "group_compared_family_count": 5,
       "partial_source_file": false,

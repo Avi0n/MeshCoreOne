@@ -14,6 +14,26 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Next messaging-key input/parameter increment
 
+Final clean0081c3bde80c798a8abba98ba5c73320bb4e56e8/d3f actually
+passed the same single declared services/app command below:
+29/29services/all29required row-expanded identities and1/1aggregate/
+one required method,0failure/error/skip/readinessPASS/locksreleased.
+All26original families/four existing prefix rows positively execute;
+not30new families. Actual clean declared combinedPython363/363PASS,
+0failure/error/skip; raised67-count guard works. First native attempt
+correctly refused sharedgradle-execution collision before readiness/
+Gradle/discovery. Supported ledger laterempty; unchanged exact retry
+passed, no lock/owner/process/cache bypass. Scoped92/92alsoPASS.
+Prior parity-generation process exited1073807364 with no output; unchanged
+retry generated/checks/92PASS, no inferred first-result success.
+Exact executed SourceValues blob0f8490020726aa1d5cd30dc6eb5bc110340df44c,
+aggregatea361c9c905d080bd595400c11124ff728cb9df69,
+collector9119d7ef2591ddadab3c46db6b91d77f6e4e135f.
+Full869/5133/current-hosted/independent acceptance incomplete; coordinator
+owns179existing fixture shutdown and incoming-repeat intake6115846783,
+no overlapping worker production/test edit. Both frozen retry flags are
+declaration/assignment-only too, not new proven product defects.
+
 Clean9c31ccbef806d6e4f430a5e341107656417f47e7/d3f actual declared
 `:core:services:test --tests com.meshcoreone.android.core.services.messaging.SourceValuesTest.values :app:testDebugUnitTest --tests com.meshcoreone.android.parity.MessageKeyAcceptanceTest --dependency-verification=strict --quiet`
 passed29/29services, all16then-required original identities including all
