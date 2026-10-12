@@ -13,7 +13,10 @@ or physical evidence. Actual dedf/basea4fa App52 executed49PASS/3FAIL/
 two acknowledged writes at clock0 before its independent25/60/60ms deadline.
 Overall command FAILED on actual189, not full parity. Subsequent same-rig
 explicit-pacing positive clock control is one supplemental JUnit method/three
-inputs (no original/mandatory inflation); changed-helper/control run pending.
+inputs (no original/mandatory inflation). Exact91132 App53/50PASS/3FAIL/
+zeroerror-skip/all53names passes49 originals and that one control, with only
+the three real default-config integration witnesses failing zero-delay writes.
+No additional unchanged native run; full acceptance remains BLOCKED on189.
 Qualified independent6115227237(updated06:08:46Z) source-compares all49 exact
 detector/scalar cases, not universal localized contains or live transport.
 Actual cleanff63/basea4fa Windows run passed messaging69/69/all66 original

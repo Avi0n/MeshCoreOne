@@ -80,7 +80,18 @@ pacing to the three real integration witnesses. Deadline completion waits only
 for bounded coroutine cleanup (2s wall timeout), while actual recorded write
 times must equal the exact virtual25/60/60ms boundaries and remain absent one
 millisecond before them. This avoids conflating immediate Deferred completion
-with callback timing. New control/changed helper execution remains pending.
+with callback timing.
+Exact clean91132b151b5134e9695402a046a46b1571ce73e3/basea4fa App-only
+`:app:testDebugUnitTest --tests com.meshcoreone.android.app.container.DevicePlatformDetectionTest --tests com.meshcoreone.android.parity.BlePacingAcceptanceTest --dependency-verification=strict --quiet`
+actually discovered53/50PASS/3FAIL/0errors/skips. All53 distinct required names
+were independently checked in real JUnit:49 original detectors PASS, the single
+explicit-pacing control PASS for all three intervals, exactly the three actual
+adapter witnesses FAIL with `[0s]` versus `[0s, 0s]`. Control uses the same
+actual link/transport/clock/callbacks and proves the floor/exact-deadline guards
+can pass without supplying explicit configuration to the failing integrations.
+Witness blob4bd684d57ec71f76f5cb73c8b07796287967cb43 binds execution.
+Readiness passed, source clean and supported locks released. Overall Gradle
+command remains FAILED on owner189; no further unchanged native run is needed.
 
 Independent6115227237 updated06:08:46Z was actually read: qualified all49
 detector/scalar comparisons at491a/a4fa, testd6686632/modelf7557b4c unchanged.
