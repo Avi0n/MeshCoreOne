@@ -1,6 +1,9 @@
 // AndroidOnly: WP-503 Actual offline Nodes entry, localized selection, primary text and native row routing at system font 200.
 package com.meshcoreone.android.accessibility
 
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -9,7 +12,12 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -27,6 +35,7 @@ import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactType
+import com.meshcoreone.android.core.services.contacts.ContactService
 import com.meshcoreone.android.feature.nodes.NodesEntry
 import com.meshcoreone.android.feature.nodes.NodesDestination
 import com.meshcoreone.android.feature.nodes.NodesNavigation
@@ -45,11 +54,14 @@ import com.meshcoreone.android.feature.nodes.model.NodeSortOrder
 import java.time.Instant
 import java.util.UUID
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
@@ -61,6 +73,89 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
     private val radio = RadioId(UUID(0, 91))
     private val contact = ContactDTO(id = UUID(0, 92), radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAA.toByte() }),
         name = "\u4e2d", lastHeardTimestamp = null, isBlocked = true)
+
+    @Test fun offlinePathAndTransportActionsKeepDisabledStateAndFullLabelsAtFont200() {
+        mountDetail(contact.copy(isBlocked = false))
+        for (label in listOf(C.contactsDetailDiscoverPath, C.contactsDetailEditPath, C.contactsDetailResetPath,
+            C.contactsDetailSendMessage, C.contactsDetailTelemetry, C.contactsDetailShareViaAdvert)) {
+            val text = activity.getString(label)
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(hasText(text))
+            val action = compose.onNodeWithText(text).performScrollTo().assertIsDisplayed().assertIsNotEnabled()
+            println("WP503_OFFLINE_DETAIL_ACTION|sdk=${android.os.Build.VERSION.SDK_INT}|label=$text" +
+                "|bounds=${action.fetchSemanticsNode().boundsInRoot}|enabled=false|realRadio=false")
+            assertFont200Unclipped(action)
+        }
+        val history = activity.getString(C.contactsDetailSavedHistory)
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(hasText(history))
+        assertFont200Unclipped(compose.onNodeWithText(history).performScrollTo().assertIsDisplayed().assertIsEnabled())
+        assertVisibleClickTargetsAtLeast48Dp()
+    }
+
+    @Test fun offlineQrShareKeepsNamedAlternativeCopyFeedbackAndExactNativeIntentReachable() {
+        var exports = 0
+        var waits = 0
+        val reset = CompletableDeferred<Unit>()
+        var exported = ""
+        val dependencies = offlineDependencies(contactUriCodec = object : ContactUriCodec {
+            override fun exportContactUri(name: String, publicKey: Bytes, type: ContactType): String {
+                assertEquals(contact.name, name)
+                assertEquals(contact.publicKey, publicKey)
+                assertEquals(ContactType.CHAT, type)
+                exports++
+                return ContactService.exportContactURI(name, publicKey, type).also { exported = it }
+            }
+            override fun parseContactUri(text: String) = error("Sharing must not import a contact")
+        }, clock = object : NodesClock {
+            override val wallNow = Instant.ofEpochSecond(100)
+            override val elapsed = Duration.ZERO
+            override suspend fun sleep(duration: Duration) {
+                assertEquals(2.seconds, duration)
+                waits++
+                reset.await()
+            }
+        })
+        mountDetail(contact, dependencies = dependencies)
+        val shareLabel = activity.getString(C.contactsDetailShareContact)
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(
+            hasText(shareLabel) and SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick))
+        compose.onNode(hasText(shareLabel) and SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick))
+            .performScrollTo().performClick()
+        compose.waitUntil { exports == 1 }
+        assertEquals("meshcore://contact/add?name=%E4%B8%AD&public_key=${"AA".repeat(32)}&type=1", exported)
+        val dialog = hasAnyAncestor(isDialog())
+        compose.onNodeWithContentDescription(contact.displayName).assertIsDisplayed()
+        assertFont200Unclipped(compose.onNode(hasText(List(32) { "AA" }.joinToString(" ")) and dialog))
+        val copy = compose.onNodeWithText(activity.getString(C.contactsQrCopy)).assertIsDisplayed().assertIsEnabled()
+        assertFont200Unclipped(copy)
+        assertVisibleClickTargetsAtLeast48Dp()
+        copy.performClick()
+        compose.waitUntil { waits == 1 }
+        val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        assertEquals(contact.displayName, clipboard.primaryClip?.description?.label)
+        assertEquals("AA".repeat(32), clipboard.primaryClip?.getItemAt(0)?.text?.toString())
+        val copied = compose.onNodeWithText(activity.getString(C.contactsQrCopied)).assertIsDisplayed().assertIsNotEnabled()
+        assertFont200Unclipped(copied)
+        compose.runOnIdle { reset.complete(Unit) }
+        copy.assertIsDisplayed().assertIsEnabled()
+        assertEquals(1, waits)
+        compose.onNode(hasText(shareLabel) and dialog).assertIsDisplayed().performClick()
+        val chooser = requireNotNull(shadowOf(activity).nextStartedActivity)
+        assertEquals(Intent.ACTION_CHOOSER, chooser.action)
+        @Suppress("DEPRECATION")
+        val payload = requireNotNull(chooser.getParcelableExtra<Intent>(Intent.EXTRA_INTENT))
+        assertEquals(Intent.ACTION_SEND, payload.action)
+        assertEquals("text/plain", payload.type)
+        assertEquals(exported, payload.getStringExtra(Intent.EXTRA_TEXT))
+        assertEquals(contact.displayName, payload.getStringExtra(Intent.EXTRA_SUBJECT))
+        val done = compose.onNodeWithText(activity.getString(C.contactsCommonDone)).assertIsDisplayed()
+        assertFont200Unclipped(done)
+        assertVisibleClickTargetsAtLeast48Dp()
+        done.performClick()
+        compose.onAllNodes(isDialog()).assertCountEquals(0)
+        assertEquals(1, exports)
+        println("WP503_NATIVE_QR_SHARE|sdk=${android.os.Build.VERSION.SDK_INT}|uriExports=$exports|copyWaits=$waits" +
+            "|copiedKeyBytes=32|chooserIntentCaptured=true|realChooser=false|realRadio=false")
+    }
 
     @Test fun actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable() {
         val favorite = contact.copy(name = "\u4e2dQ", isBlocked = false, isFavorite = true)
@@ -240,12 +335,16 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
         assertTrue("A failed offline clear must not simulate success/navigation", !backedOut)
     }
 
-    private fun mountDetail(cachedContact: ContactDTO, onBack: () -> Unit = { error("Unexpected Back") }) {
+    private fun mountDetail(
+        cachedContact: ContactDTO,
+        onBack: () -> Unit = { error("Unexpected Back") },
+        dependencies: NodesFeatureDependencies = offlineDependencies(cachedContact),
+    ) {
         content {
             MeshCoreTheme(motionScale = 0f) {
                 AuditSurface {
                     NodesEntry(FeatureRoute(FeatureId.NODES), { error("No cross-feature route expected") },
-                        dependencies = offlineDependencies(cachedContact), destination = NodesDestination.Detail(cachedContact),
+                        dependencies = dependencies, destination = NodesDestination.Detail(cachedContact),
                         navigation = object : NodesNavigation {
                             override fun openContact(contact: ContactDTO) = error("Unexpected contact")
                             override fun openDiscovery() = error("Unexpected discovery")
@@ -262,6 +361,15 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
     private fun offlineDependencies(
         cachedContact: ContactDTO = contact,
         cachedContacts: List<ContactDTO> = listOf(cachedContact),
+        contactUriCodec: ContactUriCodec = object : ContactUriCodec {
+            override fun exportContactUri(name: String, publicKey: Bytes, type: ContactType): String = error("No export expected")
+            override fun parseContactUri(text: String) = error("No parse expected")
+        },
+        clock: NodesClock = object : NodesClock {
+            override val wallNow = Instant.ofEpochSecond(100)
+            override val elapsed = Duration.ZERO
+            override suspend fun sleep(duration: Duration) = error("No sleep expected")
+        },
     ): NodesFeatureDependencies {
         val store = object : NodesDataStore {
             override suspend fun fetchContacts(radioId: RadioId) = cachedContacts.filter { it.radioId == radioId }
@@ -290,10 +398,7 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
             override fun notificationCleanup() = null
         }
         return NodesFeatureDependencies(session,
-            uriCodec = object : ContactUriCodec {
-                override fun exportContactUri(name: String, publicKey: Bytes, type: ContactType): String = error("No export expected")
-                override fun parseContactUri(text: String) = error("No parse expected")
-            },
+            uriCodec = contactUriCodec,
             timeouts = object : FirmwareTimeouts {
                 override fun pathDiscoverySeconds(suggestedTimeoutMs: UInt): Double = error("No discovery timeout expected")
                 override fun pathDiscoveryRetransmitInterval(suggestedTimeoutMs: UInt): Duration? = error("No retransmit expected")
@@ -305,10 +410,6 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
                 override fun stringList(key: String): List<String>? = error("No preferences read expected")
                 override fun setStringList(key: String, value: List<String>) = error("No preferences write expected")
             },
-            clock = object : NodesClock {
-                override val wallNow = Instant.ofEpochSecond(100)
-                override val elapsed = Duration.ZERO
-                override suspend fun sleep(duration: Duration) = error("No sleep expected")
-            })
+            clock = clock)
     }
 }
