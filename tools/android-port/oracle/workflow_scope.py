@@ -21,6 +21,7 @@ SHA = re.compile(r"[0-9a-f]{40}")
 ZERO = "0" * 40
 ALL_SCOPE_INPUTS = {
     ".github/workflows/android-ci.yml",
+    "tools/android-port/controller/ci.py",
     "tools/android-port/oracle/workflow_scope.py",
 }
 SHARED_GRADLE_INPUTS = {
