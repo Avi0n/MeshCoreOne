@@ -20,6 +20,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.meshcoreone.android.core.designsystem.AppColorSchemePreference
 import com.meshcoreone.android.core.designsystem.ColorScheme
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
@@ -130,10 +131,26 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         var retried: UUID? = null
         roomContent(RoomConversationState(room, listOf(failed),
             RoomConversationStateHolder.rows(listOf(failed)), hasLoadedOnce = true)) { retried = it }
-        val retry = host.get().getString(C.chatsMessageStatusRetry)
-        compose.onNodeWithText(retry).assertIsDisplayed().performClick()
+        val row = compose.onNode(messageNarrative(failed.text, host.get().getString(R.remoteNodesRoomMessageStatusFailedLabel)))
+            .assertIsDisplayed().fetchSemanticsNode()
+        val action = row.config[SemanticsActions.CustomActions].single { it.label == host.get().getString(C.chatsMessageActionRetry) }
+        compose.runOnIdle { assertTrue("The source failed-only custom action must retry", action.action()) }
         assertEquals(failed.id, retried)
-        assertVisibleClickTargetsAtLeast48Dp()
+        retried = null
+        val retry = host.get().getString(C.chatsMessageStatusRetry)
+        val caption = compose.onNodeWithText(retry, useUnmergedTree = true).fetchSemanticsNode()
+        val button = generateSequence(caption) { it.parent }.first { it.config.contains(SemanticsActions.OnClick) }
+        val target = button.touchBoundsInRoot
+        val density = host.get().resources.displayMetrics.density
+        println("WP503_ROOM_RETRY_TARGET|bounds=$target|size=${button.size}|row=${row.boundsInRoot}")
+        assertTrue("The real pointer Retry control must retain a 48dp effective target",
+            target.width / density >= 48f && target.height / density >= 48f)
+        assertTrue("Retry must not be clipped by its actual message row",
+            target.left >= row.boundsInRoot.left && target.top >= row.boundsInRoot.top &&
+                target.right <= row.boundsInRoot.right && target.bottom <= row.boundsInRoot.bottom)
+        compose.onNode(SemanticsMatcher("Actual native Retry button") { it.id == button.id }, useUnmergedTree = true)
+            .performTouchInput { click(center) }
+        assertEquals(failed.id, retried)
         assertFont200Unclipped(compose.onNodeWithText(failed.text, useUnmergedTree = true))
     }
 
