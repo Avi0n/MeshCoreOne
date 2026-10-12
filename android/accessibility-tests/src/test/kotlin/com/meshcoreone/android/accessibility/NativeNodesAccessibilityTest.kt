@@ -1,14 +1,19 @@
 // AndroidOnly: WP-503 Actual offline Nodes entry, localized selection, primary text and native row routing at system font 200.
 package com.meshcoreone.android.accessibility
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.onNodeWithTag
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
@@ -20,6 +25,7 @@ import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.feature.nodes.NodesEntry
+import com.meshcoreone.android.feature.nodes.NodesDestination
 import com.meshcoreone.android.feature.nodes.NodesNavigation
 import com.meshcoreone.android.feature.nodes.RemoteNodeAction
 import com.meshcoreone.android.feature.nodes.deps.Announcer
@@ -36,6 +42,7 @@ import java.time.Instant
 import java.util.UUID
 import kotlin.time.Duration
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -95,11 +102,81 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
         compose.onNodeWithText(contact.name).assertIsDisplayed()
     }
 
-    private fun offlineDependencies(): NodesFeatureDependencies {
+    @Test fun actualDetailKeepsALongCjkHeadingAndNicknameCancellationReachableAtFont200() {
+        val longName = "\u4e2d\u6587\u8282\u70b9".repeat(4) + " offline"
+        mountDetail(contact.copy(name = longName))
+        val heading = compose.onNode(hasText(longName) and SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            .assertIsDisplayed()
+        assertFont200Unclipped(heading)
+        val measured = heading.fetchSemanticsNode()
+        val root = compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot
+        assertTrue("The full multiline heading must fit its actual current viewport",
+            measured.boundsInRoot.height == measured.size.height.toFloat() &&
+                measured.boundsInRoot.top >= root.top && measured.boundsInRoot.bottom <= root.bottom)
+        val edit = host.get().getString(C.contactsCommonEdit)
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(hasText(edit))
+        compose.onNodeWithText(edit).performScrollTo().performClick()
+        val editor = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
+            .performScrollTo().performClick()
+        editor.performTextInput("\u672c\u5730\u6635\u79f0")
+        assertFont200Unclipped(editor)
+        compose.onNodeWithText(host.get().getString(C.contactsCommonSave)).performScrollTo().assertIsDisplayed()
+        val cancel = compose.onNodeWithText(host.get().getString(C.contactsCommonCancel)).performScrollTo()
+        assertFont200Unclipped(cancel)
+        assertVisibleClickTargetsAtLeast48Dp()
+        cancel.performClick()
+        compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)).assertCountEquals(0)
+        compose.onNodeWithText(edit).assertIsDisplayed()
+    }
+
+    @Test fun offlineClearMessagesRequiresConfirmationAndExplainsUnavailableServicesWithoutDismissingDetail() {
+        var backedOut = false
+        mountDetail(contact, onBack = { backedOut = true })
+        val clear = host.get().getString(C.contactsDetailClearMessages)
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToNode(hasText(clear))
+        val button = compose.onNodeWithText(clear).performScrollTo().assertIsDisplayed()
+        assertFont200Unclipped(button)
+        assertVisibleClickTargetsAtLeast48Dp()
+        button.performClick()
+        val confirmation = C.contactsDetailAlertClearMessagesMessage(host.get().resources, contact.displayName)
+        assertFont200Unclipped(compose.onNodeWithText(confirmation).assertIsDisplayed())
+        compose.onNodeWithText(host.get().getString(C.contactsCommonCancel)).performClick()
+        compose.onNodeWithText(confirmation).assertDoesNotExist()
+        button.performClick()
+        compose.onNodeWithText(host.get().getString(C.contactsCommonOk)).performClick()
+        val unavailable = host.get().getString(C.contactsDetailErrorServicesUnavailable)
+        assertFont200Unclipped(compose.onNodeWithText(unavailable).assertIsDisplayed())
+        compose.onNodeWithText(host.get().getString(C.contactsCommonError)).assertIsDisplayed()
+        compose.onNodeWithText(host.get().getString(C.contactsCommonOk)).performClick()
+        compose.onNodeWithText(unavailable).assertDoesNotExist()
+        compose.onNodeWithText(clear).assertIsDisplayed()
+        assertTrue("A failed offline clear must not simulate success/navigation", !backedOut)
+    }
+
+    private fun mountDetail(cachedContact: ContactDTO, onBack: () -> Unit = { error("Unexpected Back") }) {
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    NodesEntry(FeatureRoute(FeatureId.NODES), { error("No cross-feature route expected") },
+                        dependencies = offlineDependencies(cachedContact), destination = NodesDestination.Detail(cachedContact),
+                        navigation = object : NodesNavigation {
+                            override fun openContact(contact: ContactDTO) = error("Unexpected contact")
+                            override fun openDiscovery() = error("Unexpected discovery")
+                            override fun openChat(contact: ContactDTO) = error("Unexpected chat")
+                            override fun openMap(latitude: Double, longitude: Double) = error("Unexpected map")
+                            override fun openRemoteNode(contact: ContactDTO, action: RemoteNodeAction) = error("Unexpected remote node")
+                            override fun back() = onBack()
+                        })
+                }
+            }
+        }
+    }
+
+    private fun offlineDependencies(cachedContact: ContactDTO = contact): NodesFeatureDependencies {
         val store = object : NodesDataStore {
-            override suspend fun fetchContacts(radioId: RadioId) = listOf(contact).filter { it.radioId == radioId }
-            override suspend fun fetchContact(key: EntityKey) = contact.takeIf { it.id == key.id }
-            override suspend fun fetchContact(radioId: RadioId, publicKey: Bytes) = contact.takeIf { it.radioId == radioId && it.publicKey == publicKey }
+            override suspend fun fetchContacts(radioId: RadioId) = listOf(cachedContact).filter { it.radioId == radioId }
+            override suspend fun fetchContact(key: EntityKey) = cachedContact.takeIf { it.radioId == key.radioId && it.id == key.id }
+            override suspend fun fetchContact(radioId: RadioId, publicKey: Bytes) = cachedContact.takeIf { it.radioId == radioId && it.publicKey == publicKey }
             override suspend fun fetchBlockedContacts(radioId: RadioId) = fetchContacts(radioId).filter { it.isBlocked }
             override suspend fun fetchContactPublicKeys(radioId: RadioId) = fetchContacts(radioId).map { it.publicKey }.toSet()
             override suspend fun fetchDiscoveredNodes(radioId: RadioId) = emptyList<com.meshcoreone.android.core.model.DiscoveredNodeDTO>()
