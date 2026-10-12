@@ -29,6 +29,18 @@ class ConversationDeviceTest {
     }
 
     @Test fun offlineAndByteOverflowAreCapabilityIndependent() = cases.offlineAndUtf8OverflowDoNotInvokeSend()
+    @Test fun actualDeviceShowsDistinctTimelineLoadingEmptyAndFailure() =
+        cases.loadingEmptyAndFailureRemainDistinctAndRetryIsAccessible()
+    @Test fun actualDeviceLocalImageRecoveryAndPreviewSafety() =
+        localContent().imageFailureRetryViewerAndPreviewSafety(output("content"))
+    @Test fun actualDeviceOfflineLocalMapRecoveryAndCoordinateActions() =
+        localContent().offlineMapFailureRetryAndCoordinateAction(output("content"))
+
+    private fun localContent() = LocalContentCases(
+        compose, compose.activity,
+        setContent = { content -> compose.runOnUiThread { compose.activity.setContent(content = content) } },
+        device = true,
+    )
     @Test fun retainedDraftAndRetryWorkOnTheCurrentDeviceWindow() =
         cases.draftFocusAndRetrySurviveCurrentWindowChanges(widths = emptyList())
 

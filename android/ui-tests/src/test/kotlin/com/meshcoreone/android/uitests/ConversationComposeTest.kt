@@ -40,6 +40,16 @@ class ConversationComposeTest {
 
     @Test fun draftFocusAndRetrySurviveResize() = cases.draftFocusAndRetrySurviveCurrentWindowChanges()
     @Test fun disconnectedAndByteOverflowDisableTheRealComposer() = cases.offlineAndUtf8OverflowDoNotInvokeSend()
+    @Test fun timelineLoadingEmptyAndFailureHaveAccessibleRecovery() =
+        cases.loadingEmptyAndFailureRemainDistinctAndRetryIsAccessible()
+    @Test fun localImageRecoveryViewerAndPreviewSafetyUseNoNetwork() =
+        localContent().imageFailureRetryViewerAndPreviewSafety(output("content"))
+    @Test fun offlineLocalMapRecoveryDoesNotGateCoordinateActions() =
+        localContent().offlineMapFailureRetryAndCoordinateAction(output("content"))
+
+    private fun localContent() = LocalContentCases(
+        compose, host.get(), setContent = { host.get().setContent(content = it) },
+    )
 
     @Test fun allNineteenEffectiveThemeFramesRenderDeterministically() {
         org.junit.Assert.assertEquals(10, CoverageMatrix.themeFrames.map { it.theme }.toSet().size)

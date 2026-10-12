@@ -1,109 +1,117 @@
-# WP-502 execution-readiness handoff
+# WP-502 Compose flow and rendering evidence
 
-**Status: implementation in progress; full WP-502 acceptance remains BLOCKED.**
+**Implementation in progress; full WP-502 acceptance is not claimed.**
+The initial docs-only candidate is superseded by owned Kotlin assertions and
+capability-admitted App test source registration. Missing formal verification
+configuration or device observations are acceptance prerequisites, not evidence
+that the installed Linux implementation lane is unavailable.
 
-The initial readiness handoff below records the Windows failure and missing
-WP-specific CI admission. Subsequent user direction resumed implementation using
-the installed Linux runner, whose existing pre-push checks passed at
-`3fce7297eaf47b97ccf9f5ff9359e1699ac1ab01`. Owned production-content Compose
-cases and test-only app source-directory wiring are now being validated.
-Do not treat this initial handoff or a JVM rendering result as device acceptance.
+## Identity and ownership
 
-Issue: [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135).
-Owner: `test-parity-engineer`; dedicated project session
-`3bc8c1b8-20ec-4647-88ae-db3775268489`, CLI session
+Repository: `cbattlegear/MeshCoreOne-Android`; issue [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135);
+draft [PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206).
+Owner: `test-parity-engineer`, canonical project/reservation session
+`3bc8c1b8-20ec-4647-88ae-db3775268489`; runtime alias
 `fb112832-0a71-4f6d-abc0-f07f80eaeb8b`.
 Branch: `cbattlegear-issue-135-wp-502-compose-flows-and-deterministic-534de7`.
-Repository: `cbattlegear/MeshCoreOne-Android`.
 
-## Input and reservation identity
+Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
+Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
+Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
+Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
+The existing typed reservation was evolved to revision 3, not replaced.
+`android/app/build.gradle.kts` is admitted through
+`dependency-resolution-metadata` / `update-directly-required-build-wiring`.
+The shared ledger remains authoritative; no copied receipt is committed.
 
-- Inspected base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
-- Read-only Swift reference: `db14559b39d32322b06477c6ae676112f583db50`.
-- Manifest SHA-256: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
-- Policy revision: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-- Typed reservation acquired through `tools\android-port\local\reserve.py claim`
-  and evolved through `evolve`, without release/recreate or changing authorization.
-  Revision 2 admits `create`, `modify`, and `record-evidence` on WP-owned paths.
-  The shared ledger, not a copied receipt, remains authoritative.
+WP-407 is the only dependency. Its PR #164 merge
+`250dd50ed259c5d9fe1006d4f45a637e4aea0aff`, merged
+`2026-10-11T16:22:30Z`, is an ancestor of this base.
+WP-501's parity/accounting/binding surfaces are not changed or duplicated.
+Disjoint WP-501 test-only and WP-504 release/R8 build additions must survive
+coordinator integration.
 
-WP-502 depends only on WP-407. Git ancestry confirmed that
-`250dd50ed259c5d9fe1006d4f45a637e4aea0aff` is contained in this base.
-GitHub reports [PR #164](https://github.com/cbattlegear/MeshCoreOne-Android/pull/164)
-merged at `2026-10-11T16:22:30Z` with that merge commit.
-This verifies the prerequisite implementation merge, not independent device or
-parity acceptance. WP-501 is not an added dependency.
+## Implemented assertions and input families
 
-## Observed readiness
+| Owned surface | Assertions and provenance |
+| --- | --- |
+| `ConversationScreenCases` | Production `ChatTimeline`/`ComposerBar`, fixed synthetic identities/time, original CJK/Hebrew/ZWJ text; focus/draft retention, accessible retry, offline send rejection, exact UTF-8 boundary, distinct loading/empty/error recovery and 48dp send target. Consumer assertions informed by frozen `ChatInputBar.swift` and `ChatConversationMessagesContent.swift`; not a claim to port every Swift test. |
+| `ConnectedConversationComposeTest` | Actual AppContainer/Room/service graph and existing protocol-speaking firmware harness. Reference `RESP_CODE_ERR=1`, `ErrorCode.notFound=2` rejects a real send; original text/FAILED persistence, visible failure/retry, consumed draft, one connection owner and actual send command are asserted. Expected error bytes are independent of the Kotlin encoder. |
+| `CoverageMatrix` | Independently specified Ember forced-dark rule, all ten unlocked themes/19 effective frames, 20 SYSTEM requests. 57 theme/window/font/direction rows cover each effective frame at 360/744/834dp and both 100%/200% font scales/directions. 48 state rows cover all 176 pairs across 12 locales, four delivery/connection states, three widths, two fonts and two directions. Exact pair-set assertions reject omissions. |
+| `LocalContentCases` | Self-authored schematic raster and cached metadata, not external map/terrain data: production inline-image failure reporting/retry/viewer, manual/loaded/malware preview actions, offline map loading/failure/retry and coordinate callback independence. Injectable local sources never fetch the network. |
+| `ConversationComposeTest` | Native Robolectric API31 execution of the production-content flows and matrix; expected 127 distinct rendering inputs including local image/map content, two identical settled draws per capture, nonblank pixels and unclipped visible message text. Native host evidence is not emulator or approved golden evidence. |
+| `ConversationDeviceTest` | Actual API31/37 wrappers, real current window rather than a pretend expanded phone, system-bar accounting, hardware-window PixelCopy, every effective frame at both font scales plus SYSTEM requests. Defined, not yet credited as executed. |
+| `PlatformApiBoundaryDeviceTest` | Actual API33/34/36-only wrappers: denied notification remains advisory, pre37 LAN independence, connectedDevice manifest/normal permission, API36 public CDM removal availability. Queries only; never remove a bond, start a radio service or reconfigure a radio. Defined, not yet credited as executed. |
 
-On 2026-10-12, the documented credential-stripped launcher was attempted with the
-installed JDK, the default local Android SDK, and explicit private cache locations:
+The matrix is deliberately layered, not the full Cartesian product and not an
+assertion of all theme/locale combinations. Local image/map fixtures are defined
+but not yet credited as executed; broader feature flows, folding observations
+and a spoken TalkBack audit remain gaps.
+Existing prerequisite tests are prior art; newly defined consumer cases do not
+replace WP-501's original-case audit.
+
+Rendering uses no approved golden. Repeatability is an assertion about two
+settled native draws, not visual parity with iOS or an approved baseline.
+RTL shrink-to-fit paragraph allocation can exceed the measured text width
+without clipping a visible glyph; assertions check visible glyph bounds,
+height overflow and ellipsis directly, without geometric tolerance.
+
+## Executed commands and observations
+
+The installed supported lane is the Git-bundle/ext4 snapshot launcher:
 
 ```powershell
-$env:ANDROID_HOME = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
-$env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
-$env:GRADLE_USER_HOME = Join-Path $PWD '.local\wp502\gradle'
-$env:ANDROID_USER_HOME = Join-Path $PWD '.local\wp502\android'
-& .\android\scaffold\invoke-gradle.ps1 -ConstrainedMemory `
-  -GradleArguments @(':app:testDebugUnitTest', '--dependency-verification', 'strict')
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit HEAD --stages preflight
+python tools\android-port\local\check.py --distribution Ubuntu-22.04 --commit HEAD --stages scaffold
 ```
 
-**Result: blocked at preflight; Gradle did not start and no tests were discovered
-or executed.** `platforms\android-37.2\package.xml` is absent. The installed
-platform directory is `android-37.0`; it was not substituted for the pinned
-compile platform. No SDK provisioning or license acceptance was performed.
-The earlier direct `check_environment.py` call rejected the unsanitized agent
-environment; the launcher removed those variables before producing this more
-specific SDK failure.
+The lane preserves the actual shared Gradle flock, credential-stripped
+environment and pinned Linux toolchain. Never invoke Gradle on mounted Windows
+`.git` or bypass another owner's lock.
 
-Installed `platform-tools\adb.exe devices -l` reported no attached devices.
-Installed `emulator\emulator.exe -list-avds` reported `Medium_Phone` and
-`Pixel_10_Pro_XL`; system-image directories exist for API 31, 37.0, and 37.2.
-Names/directories alone do not establish a bootable device, its actual API,
-GMS absence, permissions, or executed assertions. No emulator was launched.
+- At `3fce7297eaf47b97ccf9f5ff9359e1699ac1ab01`, installed Linux pre-push
+  `python/preflight/scaffold/inspect` **passed** (673.36s), before new tests.
+- At `fee7a2dfe9f65808012293da6cb4167bf7094862`, scaffold compilation and
+  positive App discovery succeeded; **684 tests, two failures** in new assertions.
+- At `f005faf884` (abbreviated Git commit), existing `:app:testDebugUnitTest`
+  with the two owned class selectors discovered **six tests, five passed,
+  one failed**: persisted FAILED timeline semantics existed but failed the
+  displayed assertion. The 87 earlier rendering inputs passed. The failure
+  remains under investigation; no pass-shaped fallback was introduced.
+- Expanded matrix, recovery/boundary assertions and instrumentation compilation
+  are pending; no device test pass is claimed.
+- `python tools\android-port\controller\validate.py` **passed** the frozen
+  inventory: 1,866 tracked reference files, 64 WPs, 178 dependency edges.
+  This proves traceability validation, not behavior parity.
 
-`python tools\android-port\controller\validate.py` returned `valid` for the frozen
-manifest/reference inventory. This is an ownership/provenance check, not UI,
-device, screenshot, or feature-parity evidence. Reproducible checks belong in
-the exact-candidate hosted result/log, not a second checked-in CI-result bundle.
+On 2026-10-12 an isolated session-only API31 AOSP x86_64 AVD actually booted
+under the trusted `native-execution` lock. Scoped adb observed
+`sys.boot_completed=1`, `ro.build.version.sdk=31`, 1080x2400px, density420,
+and no `com.google.android.gms` package. It was shut down with scoped
+`adb -s emulator-5556 emu kill`; no app assertions had run.
+An earlier launch correctly rejected another owner's hard lock; it was not bypassed.
+The installed API37 AVD image is Play Store/16KiB, not a no-GMS claim.
+Installed image directories for API33/34/36 are absent; directory inventory
+is not substituted for any required actual platform observation.
 
-## Required coordinator admission
+The earlier Windows launcher failure is historical and host-specific:
+`platforms\android-37.2\package.xml` is absent in the default Windows SDK.
+The installed `android-37.0` was not substituted. No license acceptance,
+SDK provisioning, signing or release action occurred.
 
-The WP-502 manifest entry has `verification.configured = false` and no commands.
-The installed trusted `ci.py` scope table admits only `scaffold`, `protocol`,
-`backup`, and `external-oracle`; it supplies no WP-502 UI/device/screenshot scope.
-Neither `android\ui-tests\` nor `android\screenshot-tests\` is wired into the
-current build. An existing app unit-test task does not authorize inventing a
-device task or crediting missing WP-502 tests.
+## Artifact and acceptance boundaries
 
-The coordinator needs to arrange trusted WP-502 verification admission and
-source-set/module wiring, serialized with the current shared build producer.
-The observed WP-501 reservation includes `android\app\build.gradle.kts` and
-controller/workflow verification surfaces. This worker has not changed those
-files, its parity tests, source accounting, or execution binding. A missing
-command is a tooling prerequisite, not a request to rewrite user authorization.
-Provisioning the pinned platform and actually available required API devices
-is also necessary before execution.
+Native candidate images are generated under
+`android/screenshot-tests/build/screens/sdk31/{themes,system,states}` in the
+managed ext4 snapshot. Device images are generated in the target app's external
+files directory under `wp502/sdk<actual>/themes`. Do not commit a second
+reproducible CI-result/image bundle; exact-candidate hosted results/logs remain
+authoritative. Retain only actual non-reproducible device/human evidence.
 
-Cross-session messaging tools were unavailable to this worker. The actionable
-handoff is recorded on
-[#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135#issuecomment-6125779339)
-for coordinator session `bcb17a74-5fa6-47d0-a4be-b6b595e20559`.
-
-## Acceptance remaining
-
-| Acceptance | Required evidence, all still unverified |
-| --- | --- |
-| WP-502-behavior | Real production Compose flows with deterministic fake-radio/service inputs and local media/map fixtures; screenshots for all ten themes and their actual effective schemes, both normal and 200% font, and current compact/medium/expanded windows. |
-| WP-502-boundaries | Actual API 31/37 device flows and targeted API 33/34/36 behavior; resize/fold and retained draft/detail/focus; keyboard/Back/insets; supported locales, long/CJK/RTL text; denied/revoked permissions, cached offline content, loading/empty/failure/retry states. |
-| WP-502-source-test-parity | Read and map exact original assertion/parameter families and resources, distinguishing new Android flow assertions from existing prerequisite tests and user-approved exclusions. |
-
-The future matrix must record pair coverage and state coverage, rather than
-claiming an arbitrary sample is pairwise or expanding a full Cartesian product.
-Existing WP-301/302 render tests and WP-407 instrumentation are relevant prior
-art, not newly executed WP-502 evidence. Screenshots alone cannot prove send,
-retry, persistence, connection lifecycle, or permission isolation.
-
-No device results, physical-radio evidence, or reviewed golden baselines are
-delivered by this initial handoff. All themes remain unlocked, original message text/localization
-remain in scope, and message translation remains excluded.
+`verification.configured=false` and no WP-502 commands remain in the manifest.
+Existing declared App/scaffold commands can execute registered real tests, but
+do not constitute formal full-WP admission or acceptance.
+`WP-502-behavior`, `WP-502-boundaries`, and `WP-502-source-test-parity` remain
+unaccepted pending complete implemented/observed coverage, exact-candidate
+checks and review. Keep #135 open/assigned; no physical radio, legal, signing,
+golden approval or human gate is claimed.
