@@ -15,6 +15,7 @@ import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.text.style.TextAlign
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppSettingsStrings as S
 import com.meshcoreone.android.core.model.AppBackupError
@@ -169,8 +170,12 @@ class NativeBackupAccessibilityTest : NativeAccessibilityHarness() {
     private fun reachableText(text: String, modal: Boolean = true, scroll: Boolean = true) {
         if (scroll) (if (modal) modalList() else mainList()).performScrollToNode(hasText(text))
         val interaction = compose.onNodeWithText(text, useUnmergedTree = true).assertIsDisplayed()
-        if (modal) assertFont200PaintedUnclipped(interaction, requireNotNull(ShadowDialog.getLatestDialog().window).decorView)
-        else assertFont200Unclipped(interaction)
+        val layout = font200Layout(interaction)
+        if (modal && layout.layoutInput.style.textAlign == TextAlign.Center && layout.multiParagraph.width > layout.size.width) {
+            assertFont200PaintedUnclipped(interaction, requireNotNull(ShadowDialog.getLatestDialog().window).decorView)
+        } else {
+            assertUnclippedContent(layout)
+        }
         val node = interaction.fetchSemanticsNode()
         val root = generateSequence(node) { it.parent }.last()
         val bounds = node.boundsInRoot

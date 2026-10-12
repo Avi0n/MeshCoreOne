@@ -79,14 +79,18 @@ class NativeFontAuditRegressionTest : NativeAccessibilityHarness() {
         content {
             MeshCoreTheme(motionScale = 0f) {
                 AuditSurface {
-                    Box(Modifier.size(100.dp, 60.dp).clipToBounds()) {
-                        Text("No data was changed.", Modifier.requiredWidth(276.dp).testTag("font-paint-clipped"),
-                            style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+                    Column {
+                        Box(Modifier.size(100.dp, 60.dp).clipToBounds().testTag("font-paint-viewport")) {
+                            Text("No data was changed.", Modifier.requiredWidth(276.dp).testTag("font-paint-clipped"),
+                                style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+                        }
                     }
                 }
             }
         }
         val node = compose.onNodeWithTag("font-paint-clipped")
+        assertTrue("The negative control must actually have the constrained native viewport",
+            compose.onNodeWithTag("font-paint-viewport").fetchSemanticsNode().size.width == 100)
         assertTrue("This negative control is clipped by its actual ancestor, not maxLines", !textLayout(node).multiParagraph.didExceedMaxLines)
         val failure = assertThrows(AssertionError::class.java) { assertFont200PaintedUnclipped(node) }
         assertTrue(failure.message.orEmpty().contains("retain"))
