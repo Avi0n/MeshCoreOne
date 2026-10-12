@@ -66,14 +66,17 @@ class BleTransport(
         fun finish() { packets.close(terminalCause) }
     }
 
+    private data class Completion(val reply: GattReply, val acknowledgedWriteDeadline: Duration?)
+
     private class Pending(val operation: GattOperation) {
-        val result = CompletableDeferred<GattReply>()
+        val result = CompletableDeferred<Completion>()
     }
 
     private class Connection(
         val generation: Long,
         val gatt: GattConnection,
         val ingress: Ingress,
+        var writePacing: Duration,
     ) {
         var phase = BlePhase.Connecting
         var pending: Pending? = null
@@ -135,7 +138,7 @@ class BleTransport(
                 if (ingress.closed) ingress = Ingress()
                 generation = Math.addExact(generation, 1L)
                 val gatt = facade.create(events)
-                Connection(generation, gatt, ingress).also {
+                Connection(generation, gatt, ingress, configuration.writePacing).also {
                     active = it
                     issue = null
                     publish()
@@ -260,6 +263,18 @@ class BleTransport(
         }
     }
 
+    fun updateWritePacing(expectedGeneration: Long, delay: Duration) {
+        require(delay.isFinite() && !delay.isNegative()) { "Invalid BLE write pacing" }
+        synchronized(lock) {
+            val connection = active ?: throw BleTransportException(BleError.NotConnected)
+            if (connection.generation != expectedGeneration) {
+                throw BleTransportException(BleError.StaleGeneration(expectedGeneration, connection.generation))
+            }
+            checkConnection(connection, connected = true)
+            connection.writePacing = delay
+        }
+    }
+
     fun recordBondVerification(radioId: UUID, verifiedAt: Instant) {
         synchronized(lock) {
             bondEpochs[radioId] = Math.addExact(bondEpochs[radioId] ?: 0L, 1L)
@@ -363,9 +378,6 @@ class BleTransport(
             }
             synchronized(lock) {
                 checkConnection(connection, connected = true)
-                if (mode == GattWriteMode.WithResponse) {
-                    connection.earliestNextWrite = clock.now + configuration.writePacing
-                }
             }
         }
     }
@@ -373,6 +385,7 @@ class BleTransport(
     private suspend fun awaitWritePacing(connection: Connection) {
         val deadline = synchronized(lock) {
             checkConnection(connection, connected = true)
+            if (connection.writePacing == Duration.ZERO) return
             connection.earliestNextWrite
         }
         if (deadline <= clock.now) return
@@ -429,7 +442,15 @@ class BleTransport(
                 submissionAttempted = true
                 connection.gatt.submit(pending.operation)
             }
-            pending.result.await().also { completed = true }
+            val completion = pending.result.await()
+            completed = true
+            completion.acknowledgedWriteDeadline?.let { nextWrite ->
+                synchronized(lock) {
+                    checkConnection(connection, connected = true)
+                    connection.earliestNextWrite = nextWrite
+                }
+            }
+            completion.reply
         } catch (failure: BleTransportException) {
             if (submissionAttempted) {
                 terminate(connection, failure)
@@ -457,14 +478,18 @@ class BleTransport(
 
     private val events = object : GattEvents {
         override fun onReply(connection: GattConnection, key: GattOperationKey, reply: GattReply) {
-            val pending = synchronized(lock) {
+            val (pending, completion) = synchronized(lock) {
                 val current = callbackConnection(connection, key) ?: return
                 val pending = current.pending ?: return reject(RejectedCallback.Operation)
                 if (pending.operation.key != key) return reject(RejectedCallback.Operation)
                 if (pending.operation.kind != reply.kind) return reject(RejectedCallback.Kind)
-                pending
+                val write = pending.operation as? GattOperation.Write
+                val deadline = if (write?.mode == GattWriteMode.WithResponse) {
+                    clock.now + current.writePacing
+                } else null
+                pending to Completion(reply, deadline)
             }
-            if (!pending.result.complete(reply)) {
+            if (!pending.result.complete(completion)) {
                 synchronized(lock) { reject(RejectedCallback.Duplicate) }
             }
         }
