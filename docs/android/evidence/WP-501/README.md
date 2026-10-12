@@ -28,8 +28,28 @@ radio-bound shared-message deletion are explicitly disclosed for review,
 not fresh original credit or global deletion equivalence.
 The declared covering command is
 `:core:data:testDebugUnitTest --tests com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest --dependency-verification=strict --quiet`.
-Current clean immutable-head positive discovery and combined Python execution
-remain required; no predecessor's unrelated module totals are substituted.
+Clean exact b58d3858471e53af15f987daccfc7d650c128285/d3f executed that
+command: discovered15/run15/pass15/all15required identities, zero failures,
+errors or skips; readiness passed/native locks released normally. This is
+real JVM/Robolectric API31 native SQLite, not a device/SwiftData execution.
+Executed native testblob5d3136dc5c71d9bffbb342d21b40ebb8931a5163.
+Actual same clean-head combined
+`python tools\android-port\controller\test_runner.py --include-tests tools\android-port\local --include-tests android\parity-tests --quiet`
+discovered/ran/passed363, zero failures/errors/skips; fixture negative CLI/
+BLOCKED messages are not failing final results. Both generated checks passed.
+Independent review/current-hosted/persistent merge remain required; no
+predecessor's unrelated module totals or global deletion equivalence substitute.
+
+Separate real mounted durable-retry defect:
+[current-producer intake6116801409](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6116801409).
+Full frozen retry/DM Send Again commits authoritative pending replacement
+before signal-only enqueue; native mounted timeline callback gates READY and
+directly resends through an ephemeral claim, bypassing both existing methods.
+Lost connection/process before completion therefore has no new retry row to
+hydrate. Late-delivered retry versus deliberate Send Again distinction is
+also material. This is complete selected source/native consumer comparison,
+not an executed phone/process-death test, all-composer defect or producer repair
+completion. No overlapping worker production changes.
 
 Requested independent two-path source review of published coordinator179
 repair completed at base d3f/head e2d8a49f1969a42fe98affd64d7bc56471049f75:

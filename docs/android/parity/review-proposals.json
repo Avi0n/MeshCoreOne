@@ -26,8 +26,8 @@
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/PendingSendRepository.kt",
         "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt"
       ],
-      "consumer": "Actual ChatSendQueue hydration/drain/deletion uses radio-bound keys and preserved attempt history. These direct real-repository originals do not execute process death, UI retry, hardware, migration or every error/cancellation boundary. Repository retryReplacement availability alone does not prove that the mounted UI retry uses its atomic operation; that high-level consumer remains separately under comparison.",
-      "unresolved": ["Current repaired immutable-head covering execution, independent bounded review, hosted current-candidate verification and persistent reviewed merge remain required. No fresh execution or full WP501 acceptance is claimed from prior unrelated module totals."],
+      "consumer": "Actual ChatSendQueue hydration/drain/deletion uses radio-bound keys and preserved attempt history. These direct real-repository originals do not execute process death, UI retry, hardware, migration or every error/cancellation boundary. Complete frozen ChatViewModel+MessageActions retry/DM Send Again and no-persist signal wrapper versus mounted native ChatViewModel.retry/AppChatsFeature.timeline.retryService/MessageService ephemeralQueuedDM read: native UI retry bypasses existing durable replacement/queue signal and directly resends with isResend=true. Concrete current-producer intake6116801409 records lost durable retry intent, with no worker product edit or device-execution claim. Passing repository originals does not prove this consumer is wired.",
+      "unresolved": ["Clean b58d3858471e53af15f987daccfc7d650c128285/d3f exact declared Room selector discovered/ran/passed15 and all15required identities, zero failure/error/skip, readinessPASS/locksreleased; exact combined Python363/363PASS. Native testblob5d3136dc5c71d9bffbb342d21b40ebb8931a5163. Independent bounded review, hosted current-candidate verification, persistent reviewed merge and bounded durable-retry producer repair remain required; no full WP501 acceptance or prior unrelated module-total substitution."],
       "methods": [
         "PendingSendDTO round-trips through Model and back",
         "Pending sends are scoped by radioID",
@@ -63,7 +63,7 @@
         "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/MessageDaos.kt"
       ],
       "consumer": "Real ChatSendQueue drain/terminal paths pass the bound radio plus messageID. Equal UUIDs on different native radios must not permit a connection-owned action to erase a foreign partition. This repository test does not execute a radio switch or user retry.",
-      "unresolved": ["Bounded independent acceptance of this explicitly different radioB predicate remains required, along with actual current repaired-head covering discovery, hosted current-candidate verification and persistent reviewed merge. No global Swift deletion equivalence or full-family acceptance is claimed."],
+      "unresolved": ["Clean b58d3858471e53af15f987daccfc7d650c128285/d3f exact Room selector discovered/ran/passed15/all15required identities, zero failure/error/skip/readinessPASS/locksreleased; combined Python363/363PASS. Bounded independent acceptance of this explicitly different radioB predicate, hosted current-candidate verification and persistent reviewed merge remain required. Native execution is not global Swift deletion equivalence or full-family acceptance."],
       "methods": ["deletePendingSendsForMessage removes every row matching the messageID"]
     },
     {
