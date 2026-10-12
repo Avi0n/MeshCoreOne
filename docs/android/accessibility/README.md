@@ -90,8 +90,8 @@ chart summary, but **all three numeric widgets have height zero** in a 360x900dp
 native window: Minimum 253x0, Maximum 260x0, Average 259x0, with zero visible bounds on both
 SDKs. The unweighted, non-scrolling Column places statistics after a fillMaxSize chart that
 consumes remaining height. This measured finding is assigned in
-[#214](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214) for coordinator WP-316
-ownership routing, not a device observation or a WP-503 product edit. Reachability may use
+[#214](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214), claimed by the existing
+coordinator in its WP-316 repair scope, not a device observation or a WP-503 product edit. Reachability may use
 native scrolling; the audit does not require every metric to fit on screen simultaneously.
 
 At exact `abc86cb0dfd885d4dabd14a07f637ea031ad9b29`, the focused appearance/font/diagnostics
@@ -127,7 +127,7 @@ WP-307/WP-308 consumers and WP-301 roles; any repair must be serialized through 
 current producers. WP-503 retains audit evidence. WP-501 retains all original parity
 bindings/accounting; WP-502 retains its screenshot/flow ownership.
 
-WP-308's dedicated producer owns #208; WP-316 ownership routing is requested through #214.
+WP-308's dedicated producer owns #208; the existing coordinator owns WP-316 repair #214.
 No nested worker, golden update, threshold relaxation, signing action or repository-setting
 change occurred. Required repaired room link APIs must be reconciled in owned fixtures only
 against genuinely adopted product bytes; old compilation is not repair evidence.

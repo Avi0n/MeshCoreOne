@@ -1,6 +1,6 @@
 # WP-503 attempt evidence
 
-**Incomplete, not accepted.** Native suites execute through the existing App unit runner:
+**Incomplete, not accepted.** Native suites execute through the existing App unit runner.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, device TalkBack observation or independent review occurred.
@@ -115,6 +115,7 @@ reject the verified project-handle/CLI alias; no identity guard blocked executio
 | `:core:designsystem:testDebugUnitTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeAppearanceAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.direct* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.rendered* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.audit* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.roomFollowUp* --tests com.meshcoreone.android.core.designsystem.ThemeContrastTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `22309ff1eb9a1ccddecdd3375ec2de1aee77a812` | Discovered/run 26, passed 18, failed 8, errors/skips 0. Existing theme-role families 10/10 and actual-timeline guard controls 4/4 pass. Remaining failures: legacy room follow-up author, painted-span contrast, appearance allocation flags and populated diagnostics. |
 | `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeAppearanceAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `1fad28d89f750675285c354c28f91239bc04890e` | Discovered/run 10, passed 8, failed 2, errors/skips 0. Appearance 2/2, font regressions 4/4 and disconnected diagnostics 2/2 pass; populated diagnostics 0/2. |
 | Same focused task/options, `abc86cb0dfd885d4dabd14a07f637ea031ad9b29` | Same 10 run/8 passed/2 failed, zero errors/skips. Rejects empty line measurements and records all three graph widgets' zero heights before failing. |
+| Same focused task/options, `d825ea3d2ec82a270012890767097c77a3aa95c9` | Same 10 run/8 passed/2 failed, zero errors/skips. Compiles native scroll-reachability support; current non-scrolling product still has all three numeric widgets at zero height. No normative failure reclassified. |
 
 Both executing candidates measured **38 effective frames x 2 directions x 5 emitted ranges
 x 2 SDKs = 760** actual foreground/background records. **162 fail** unchanged thresholds,
@@ -140,8 +141,8 @@ visible bounds on both SDKs inside a real 360x900 viewport. Count and all three 
 values/current reading are data-bound and pass. Unlike the font artifact, the actual
 widgets have height zero. Source's unweighted/non-scrolling Column and fillMaxSize chart
 consume the available height before statistics. Assigned
-[#214](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214) requests WP-316 ownership
-routing; no production edits or device observation. A legitimate native scroll ancestor
+[#214](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214) is claimed in the existing
+coordinator's WP-316 repair scope; no production edits or device observation here. A legitimate native scroll ancestor
 may reveal metrics for measurement; all metrics need not fit simultaneously.
 
 The confirmed contrast finding was filed/assigned as
