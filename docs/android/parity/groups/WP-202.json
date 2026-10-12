@@ -8808,7 +8808,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
           ],
@@ -43129,7 +43129,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalFirstDrainRetainsReturnedOneAndPersistedOptionalAttemptOne",
           "line": 51,
@@ -43351,7 +43351,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalMissingPendingMessageReturnsNullWithoutCreatingARow",
           "line": 63,
@@ -43785,7 +43785,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalNilZeroAndThreeAttemptsRetainDeleteOneForbiddenLegacyAndExactSurvivorCounts",
           "line": 70,
@@ -44207,7 +44207,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalRepeatedLegacyPurgeRetainsIndependentOneThenZeroReturns",
           "line": 89,
@@ -44623,7 +44623,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalWarmUpRetainsPairedAndUnpairedNilAttemptContextsAndBothEmptyReads",
           "line": 100,
@@ -44990,7 +44990,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalPublicPendingDeleteRetainsAttemptOneAndImmediateFalseWithoutTestSave",
           "line": 117,
@@ -45375,14 +45375,14 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalChannelZeroHelloDeletionRetainsBothPendingAndMessageEmptyPostconditions",
           "line": 127,
           "end_line": 141,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "7ff4bdc44c0a060f0ce99cafccdfeca3079ac7071583c83ecf579b203b0a6ae0",
+          "body_sha256": "5e22baa02aef015302b6b5cb24a2ecbf651faf864b8b60e1d57ece9d4c4cde9a",
           "registration": null,
           "assertions": [
             {
@@ -45472,9 +45472,15 @@
               "assertion_or_checked_wait": false
             },
             {
-              "name": "store.fetchAllMessages",
+              "name": "db.messages",
               "line": 139,
-              "expression": "store.fetchAllMessages(device.radioId)",
+              "expression": "db.messages()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "backupPageWithoutPreviewBlobs",
+              "line": 139,
+              "expression": "backupPageWithoutPreviewBlobs(device.radioId.value, Long.MAX_VALUE, 0)",
               "assertion_or_checked_wait": false
             },
             {
@@ -45754,7 +45760,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalNoMessageRowOrphanDeletionRetainsPendingEmptyRead",
           "line": 144,
@@ -46067,14 +46073,14 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalMatchedAndOrphanDeviceDataDeletionRetainsPendingEmptyAndNonNullDevice",
           "line": 154,
           "end_line": 169,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "9d5ccb660317d24e5ca05f5e49412ab6bf79d48da49adb15c6a3767893fc3ce2",
+          "body_sha256": "504ca585418a4cf88642e1fdef95bf8fca9fca054fac7c7bc29ee52d5a8d3ded",
           "registration": null,
           "assertions": [
             {
@@ -46086,7 +46092,7 @@
             {
               "name": "assertNotNull",
               "line": 168,
-              "expression": "assertNotNull(store.fetchDevice(device.radioId))",
+              "expression": "assertNotNull(store.fetchDevice(device.id))",
               "assertion_or_checked_wait": true
             }
           ],
@@ -46172,7 +46178,7 @@
             {
               "name": "store.fetchDevice",
               "line": 168,
-              "expression": "store.fetchDevice(device.radioId)",
+              "expression": "store.fetchDevice(device.id)",
               "assertion_or_checked_wait": false
             }
           ],
@@ -46885,7 +46891,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
-          "sha256": "e98ba15723d524b7275126fc85db090426766f3ddd897f9dd472d96ba34c9973",
+          "sha256": "9e9802aac57e8a666ce750ed553e8983ab04b853ecbd97e5ab4f39132fab98ba",
           "class": "com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest",
           "method_or_family_name": "originalThreeContactOneRowsRetainOnlyContactTwoPendingIdentityAndMessageCount",
           "line": 172,

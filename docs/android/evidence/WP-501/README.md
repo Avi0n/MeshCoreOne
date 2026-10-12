@@ -49,6 +49,10 @@ proxy or product edit. Also retain exact source parent UUID lookup through
 fetchDevice(device.id), not the distinct native RadioId overload that could
 find a replacement pairing. Other eight complete bodies unchanged; fresh
 corrected ten-only execution pending, no old XML/outcome relabel.
+The6155056d1 launch was rejected before readiness/discovery because generated
+WP202 native hashes/actions had not been committed with the two corrected
+bodies. Zero native credit/no Gradle or hard-lock acquisition; persist the
+actual generator output rather than bypassing the clean-head guard.
 
 Qualified actual bc7caee/base d958 COMMENTED/SOURCE-ONLY
 [5492147839](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5492147839)
