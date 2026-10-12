@@ -1,2 +1,4 @@
-<!-- AndroidOnly: WP-002 Benchmark shell without claimed instrumentation or measurements. -->
-<manifest />
+<!-- AndroidOnly: WP-504 External test target visibility; no production application edge. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <queries><package android:name="com.meshcoreone.android.benchmark" /></queries>
+</manifest>

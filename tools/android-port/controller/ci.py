@@ -40,6 +40,7 @@ TASKS = {
     ],
     "prepare": ["resolveScaffoldDependencies"],
     "protocol": [":core:protocol:test"],
+    "benchmark": [":benchmark:verifyBenchmarkHarness", "validateModuleGraph"],
 }
 SCOPED_TASKS = {
     "scaffold": TASKS["scaffold"],
@@ -223,6 +224,9 @@ def run_stage(stage: str, state: dict, output: Path, *, local=False, scopes=None
         ]
     execute(command, environment, output / f"gradle-{stage}.log")
     graph = validate_candidate_task_graph(task_graph, tasks)
+    if stage == "benchmark":
+        from controller.performance import verify_build
+        print(json.dumps(verify_build(REPO, Path(state["android_home"]), environment), indent=2))
     report = {
         "stage": stage, "scopes": selected, "result": "success", "tasks": tasks,
         "strict_verification": True, "resolved_task_graph": graph,
