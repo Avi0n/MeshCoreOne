@@ -4,7 +4,7 @@ package com.meshcoreone.android.core.services.reactions
 import com.meshcoreone.android.core.services.rendering.SwiftText
 
 /** Parsed meshcore-open v3 reaction data. [dartHash] is 4 lowercase hex characters as received. */
-internal data class ParsedMCOReaction(val emoji: String, val dartHash: String)
+data class ParsedMCOReaction(val emoji: String, val dartHash: String)
 
 /**
  * Parsed meshcore-open v1 reaction data (pre-Jan 2026 clients).
@@ -13,7 +13,7 @@ internal data class ParsedMCOReaction(val emoji: String, val dartHash: String)
  * wire). For DM reactions, [senderNameHash] is not verified during matching since DMs have implicit sender
  * context.
  */
-internal data class ParsedMCOReactionV1(
+data class ParsedMCOReactionV1(
     val emoji: String,
     val timestampSeconds: UInt,
     val senderNameHash: UInt,
@@ -30,7 +30,7 @@ internal data class ParsedMCOReactionV1(
  * Dart VM's `String.hashCode` algorithm masked to 16 bits. Positions and lengths are Swift `Character`
  * (grapheme) positions, so a combining mark glued to a delimiter defeats the match exactly as in Swift.
  */
-internal object MeshCoreOpenReactionParser {
+object MeshCoreOpenReactionParser {
     private const val PREFIX_LETTER = "r"
     private const val SEPARATOR = ":"
     private const val V3_LENGTH = 9

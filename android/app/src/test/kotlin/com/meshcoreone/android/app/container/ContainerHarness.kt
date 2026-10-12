@@ -79,6 +79,7 @@ internal class ContainerHarness(
     deliveryOverride: RecordingDelivery? = null,
     primerFactory: com.meshcoreone.android.app.state.ChatPrimerFactory = com.meshcoreone.android.app.state.ChatPrimerFactory { null },
     chatContent: AppChatContent? = null,
+    syncClock: com.meshcoreone.android.core.services.sync.SyncClock = com.meshcoreone.android.core.services.sync.SyncClock.SYSTEM,
 ) {
     val scheduler: TestCoroutineScheduler = test.testScheduler
     val links = HarnessLinks(identity)
@@ -105,6 +106,7 @@ internal class ContainerHarness(
             draftStore = draftStore,
             mainScope = test.backgroundScope,
             runtimeClock = SchedulerClock { scheduler.currentTime },
+            syncClock = syncClock,
             runtimeContext = test.backgroundScope.coroutineContext,
             accessibility = SilentAnnouncements,
             sessionLifecycle = lifecycle,

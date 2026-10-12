@@ -1,4 +1,5 @@
-// AndroidOnly: WP-303 Sync codec and reaction adapters; members core:services keeps internal degrade explicitly (see ServiceVisibilityGaps).
+// AndroidOnly: WP-303 Sync codec and reaction adapters.
+// AndroidOnly: WP-216 Bind incoming reactions to the existing generation-owned service and parsers.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.model.DeduplicationKey
@@ -9,6 +10,8 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.contracts.domain.ParsedReaction
 import com.meshcoreone.android.core.services.messaging.ChannelRXCorrelation
 import com.meshcoreone.android.core.services.reactions.HeardRepeatsService
+import com.meshcoreone.android.core.services.reactions.MeshCoreOpenReactionParser
+import com.meshcoreone.android.core.services.reactions.ParsedDMReaction
 import com.meshcoreone.android.core.services.reactions.ReactionParser
 import com.meshcoreone.android.core.services.reactions.ReactionService
 import com.meshcoreone.android.core.services.remote.CLIResponse
@@ -35,9 +38,8 @@ import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.contracts.domain.ReactionPersisting
 
 /**
- * Capabilities the app cannot bind because core:services keeps their implementation `internal` (a Kotlin
- * module boundary the app may not cross, and core:services is outside WP-303's write paths). Each gap is
- * named, reported once per process on first use, and listed in WP-303.md as a coordinator note.
+ * Historical diagnostic identities retained for existing acceptance receipts. These reaction capabilities
+ * are now bound; this list is not the current graph's availability state.
  */
 object ServiceVisibilityGaps {
     const val REACTION_TARGET_LOOKUP = "ReactionService.findTargetMessage/findDMTargetMessage are internal"
@@ -68,7 +70,6 @@ internal class GapReporter(private val sink: (String) -> Unit) {
 
 internal class SyncReactionAdapter(
     private val reactions: ReactionService,
-    private val gaps: GapReporter,
 ) : SyncReactionServicing {
     override suspend fun indexDMMessage(id: UUID, contactID: UUID, text: String, timestamp: UInt): List<SyncPendingDMReaction> =
         reactions.indexDMMessage(id, contactID, text, timestamp).map {
@@ -89,25 +90,23 @@ internal class SyncReactionAdapter(
         SyncReactionPersistResult(it.messageID, it.summary)
     }
 
-    override suspend fun findDMTargetMessage(messageHash: String, contactID: UUID): UUID? {
-        gaps.degraded(ServiceVisibilityGaps.REACTION_TARGET_LOOKUP)
-        return null
-    }
+    override suspend fun findDMTargetMessage(messageHash: String, contactID: UUID): UUID? =
+        reactions.findDMTargetMessage(messageHash, contactID)
 
     override suspend fun queuePendingDMReaction(
         parsed: SyncParsedDMReaction, contactID: UUID, senderName: String, rawText: String, radioId: RadioId,
-    ) = gaps.degraded(ServiceVisibilityGaps.REACTION_PENDING_QUEUE)
+    ) = reactions.queuePendingDMReaction(
+        ParsedDMReaction(parsed.emoji, parsed.messageHash), contactID, senderName, rawText, radioId,
+    )
 
     override fun tryProcessAsReaction(text: String): ParsedReaction? = ReactionParser.parse(text)
 
-    override suspend fun findTargetMessage(parsed: ParsedReaction, channelIndex: UByte): UUID? {
-        gaps.degraded(ServiceVisibilityGaps.REACTION_TARGET_LOOKUP)
-        return null
-    }
+    override suspend fun findTargetMessage(parsed: ParsedReaction, channelIndex: UByte): UUID? =
+        reactions.findTargetMessage(parsed, channelIndex)
 
     override suspend fun queuePendingReaction(
         parsed: ParsedReaction, channelIndex: UByte, senderNodeName: String, rawText: String, radioId: RadioId,
-    ) = gaps.degraded(ServiceVisibilityGaps.REACTION_PENDING_QUEUE)
+    ) = reactions.queuePendingReaction(parsed, channelIndex, senderNodeName, rawText, radioId)
 }
 
 internal class SyncHeardRepeatsAdapter(
@@ -124,32 +123,32 @@ internal class SyncHeardRepeatsAdapter(
     )
 }
 
-/** Reaction text is "a reaction" when the PocketMesh wire format matches; meshcore-open formats are a named gap. */
 internal object ReactionTextParsing : SyncReactionParsing {
     override fun parseDM(text: String): SyncParsedDMReaction? =
         ReactionParser.parseDM(text)?.let { SyncParsedDMReaction(it.emoji, it.messageHash) }
 
     override fun isReactionText(text: String, isDM: Boolean): Boolean =
-        if (isDM) ReactionParser.parseDM(text) != null else ReactionParser.parse(text) != null
+        ReactionParser.isReactionText(text, isDM)
 }
 
-/** Never recognizes a meshcore-open reaction: the parser is internal to core:services (named gap). */
-internal class UnavailableMeshCoreOpenParsing(private val gaps: GapReporter) : SyncMeshCoreOpenReactionParsing {
-    override fun parse(text: String): SyncParsedMCOReaction? = null
-    override fun parseV1(text: String): SyncParsedMCOReactionV1? = null
-    override fun computeReactionHash(timestamp: UInt, senderName: String?, text: String): String {
-        gaps.degraded(ServiceVisibilityGaps.MESHCORE_OPEN_REACTIONS)
-        error("meshcore-open reaction hashing is unavailable; parse() never yields a reaction to hash")
-    }
-    override fun dartStringHash(string: String): UInt {
-        gaps.degraded(ServiceVisibilityGaps.MESHCORE_OPEN_REACTIONS)
-        error("meshcore-open reaction hashing is unavailable; parse() never yields a reaction to hash")
-    }
+internal object MeshCoreOpenParsing : SyncMeshCoreOpenReactionParsing {
+    override fun parse(text: String): SyncParsedMCOReaction? =
+        MeshCoreOpenReactionParser.parse(text)?.let { SyncParsedMCOReaction(it.emoji, it.dartHash) }
+
+    override fun parseV1(text: String): SyncParsedMCOReactionV1? =
+        MeshCoreOpenReactionParser.parseV1(text)?.let {
+            SyncParsedMCOReactionV1(it.emoji, it.timestampSeconds, it.senderNameHash, it.textHash)
+        }
+
+    override fun computeReactionHash(timestamp: UInt, senderName: String?, text: String): String =
+        MeshCoreOpenReactionParser.computeReactionHash(timestamp, senderName, text)
+
+    override fun dartStringHash(string: String): UInt = MeshCoreOpenReactionParser.dartStringHash(string)
 }
 
-internal fun syncMessageCodecs(gaps: GapReporter): SyncMessageCodecs = SyncMessageCodecs(
+internal fun syncMessageCodecs(): SyncMessageCodecs = SyncMessageCodecs(
     reactionParser = ReactionTextParsing,
-    meshCoreOpenParser = UnavailableMeshCoreOpenParsing(gaps),
+    meshCoreOpenParser = MeshCoreOpenParsing,
     deduplicationKey = SyncDeduplicationKeying { contactID, channelIndex, senderNodeName, timestamp, content ->
         DeduplicationKey.contentBased(contactID, channelIndex, senderNodeName, timestamp, content)
     },

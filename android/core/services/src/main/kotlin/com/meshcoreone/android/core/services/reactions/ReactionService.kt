@@ -94,7 +94,7 @@ class ReactionService internal constructor(
         ReactionParser.buildDMReactionText(emoji, targetText, targetTimestamp)
 
     /** Finds the target message ID for a parsed reaction: the most recently indexed hash match. */
-    internal fun findTargetMessage(parsed: ParsedReaction, channelIndex: UByte): UUID? =
+    fun findTargetMessage(parsed: ParsedReaction, channelIndex: UByte): UUID? =
         messageCache.lookup(channelIndex = channelIndex, senderName = parsed.targetSender, messageHash = parsed.messageHash)
             .mostRecentlyIndexed()?.messageID
 
@@ -102,7 +102,7 @@ class ReactionService internal constructor(
     internal fun tryProcessAsReaction(text: String): ParsedReaction? = ReactionParser.parse(text)
 
     /** Queues a reaction that couldn't find its target message. */
-    internal fun queuePendingReaction(
+    fun queuePendingReaction(
         parsed: ParsedReaction,
         channelIndex: UByte,
         senderNodeName: String,
@@ -180,11 +180,11 @@ class ReactionService internal constructor(
     }
 
     /** Finds the target DM message ID by hash and contact: the most recently indexed match. */
-    internal fun findDMTargetMessage(messageHash: String, contactID: UUID): UUID? =
+    fun findDMTargetMessage(messageHash: String, contactID: UUID): UUID? =
         messageCache.lookupDM(contactID = contactID, messageHash = messageHash).mostRecentlyIndexed()?.messageID
 
     /** Queues a DM reaction that couldn't find its target message. */
-    internal fun queuePendingDMReaction(
+    fun queuePendingDMReaction(
         parsed: ParsedDMReaction,
         contactID: UUID,
         senderName: String,

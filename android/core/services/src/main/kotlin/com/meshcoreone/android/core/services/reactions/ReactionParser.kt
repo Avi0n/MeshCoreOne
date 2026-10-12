@@ -48,7 +48,7 @@ object ReactionParser {
     }
 
     /** Returns true if the text matches any known reaction format (PocketMesh or meshcore-open). */
-    internal fun isReactionText(text: String, isDM: Boolean): Boolean {
+    fun isReactionText(text: String, isDM: Boolean): Boolean {
         if (MeshCoreOpenReactionParser.parse(text) != null) return true
         if (MeshCoreOpenReactionParser.parseV1(text) != null) return true
         return if (isDM) parseDM(text) != null else parse(text) != null
