@@ -75,9 +75,14 @@ environment and pinned Linux toolchain. Never invoke Gradle on mounted Windows
   positive App discovery succeeded; **684 tests, two failures** in new assertions.
 - At `f005faf884` (abbreviated Git commit), existing `:app:testDebugUnitTest`
   with the two owned class selectors discovered **six tests, five passed,
-  one failed**: persisted FAILED timeline semantics existed but failed the
-  displayed assertion. The 87 earlier rendering inputs passed. The failure
-  remains under investigation; no pass-shaped fallback was introduced.
+  one failed**: the persisted FAILED row had not yet reached the displayed
+  timeline assertion. The 87 earlier rendering inputs passed.
+- At `5ee3e8fb0d26b345953484bb0dbf5f8d13cf1c80`, the expanded native matrix
+  again discovered **six tests, five passed, one failed**. All 125 rendering
+  inputs passed. The semantic diagnostic showed the visible row was still
+  SENDING while Room already held FAILED; the test now waits explicitly for
+  the asynchronous consumer state before asserting visibility. This repair
+  is pending verification, not a pass-shaped fallback.
 - Expanded matrix, recovery/boundary assertions and instrumentation compilation
   are pending; no device test pass is claimed.
 - `python tools\android-port\controller\validate.py` **passed** the frozen
