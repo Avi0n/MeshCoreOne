@@ -27,6 +27,7 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import com.meshcoreone.android.core.designsystem.ThemeColor
 import kotlin.math.abs
@@ -89,7 +90,9 @@ abstract class NativeAccessibilityHarness {
     protected fun font200Layout(node: SemanticsNodeInteraction): TextLayoutResult {
         val layout = textLayout(node)
         assertEquals("Do not substitute a preview Density for system font", 2f, layout.layoutInput.density.fontScale, 0f)
+        assertEquals("The native layout must actually be RTL", LayoutDirection.Rtl, layout.layoutInput.layoutDirection)
         println("WP503_FONT|text=${layout.layoutInput.text}|size=${layout.size}|constraints=${layout.layoutInput.constraints}" +
+            "|paragraph=${layout.multiParagraph.width}x${layout.multiParagraph.height}" +
             "|widthOverflow=${layout.didOverflowWidth}|heightOverflow=${layout.didOverflowHeight}|lines=${layout.lineCount}")
         return layout
     }
@@ -108,6 +111,14 @@ abstract class NativeAccessibilityHarness {
         for (node in nodes) {
             if (node.config.contains(SemanticsProperties.Disabled)) continue
             if (!node.boundsInRoot.overlaps(root)) continue
+            val origin = node.positionInRoot
+            val size = node.size
+            // A scrollable viewport can show part of the next card. Audit it after scrolling it fully into view.
+            if (origin.x < root.left || origin.y < root.top ||
+                origin.x + size.width > root.right || origin.y + size.height > root.bottom) {
+                println("WP503_PARTIAL_TARGET|position=$origin|size=$size")
+                continue
+            }
             val target = node.touchBoundsInRoot
             val width = target.width / density
             val height = target.height / density
