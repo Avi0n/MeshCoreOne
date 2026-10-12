@@ -25,6 +25,14 @@ zero geography and room/repeater role defaults retained. Diagnostic source
 ack-only query maps to explicitly captured native RadioId for each separately
 allocated source-context radio, not universal global-query equivalence.
 
+Initial clean3d9c3a865fa29a2093d7792aa478c3da27316621/baseab1 twelve-only
+attempt failed before test discovery at compileDebugUnitTestKotlin: incorrect
+ChannelInfo import from protocol.model instead of actual protocol.event.
+No new native credit/XML. Readiness PASS/JDK21.0.12.1/compile37.2/tools37/
+zero notice normalizations; both supported locks released normally and public
+hard_lock_records empty. Correct import preserves all twelve bodies/vectors;
+fresh corrected-input execution pending, initial failure remains separate.
+
 Qualified contact5 SOURCE-ONLY5491201631 at0c9/baseab1,13:06:40Z,
 proposalb445a402/comparison8b5279b1 fully read/reconciled. Guard5 bodies/joins/
 85helperrows/17inputs and actual source/default/Room/order/delete/recompute

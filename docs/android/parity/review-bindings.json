@@ -54156,7 +54156,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalBlockedFiveDoesNotContributeToTheSeparateRegularTwo",
         "line": 133,
@@ -54334,7 +54334,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -54395,7 +54395,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalRepeaterThreeDoesNotContributeToTheSeparateChatTwo",
         "line": 150,
@@ -54639,7 +54639,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -54700,7 +54700,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalRepeaterSessionThreeDoesNotContributeToTheSeparateRoomTwo",
         "line": 167,
@@ -54926,7 +54926,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -54999,7 +54999,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalSeparateTwoOneAndThreeIncrementsRetainAllThreeUnreadTotals",
         "line": 114,
@@ -55249,7 +55249,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -58084,7 +58084,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalPublicAndPrivateChannelsRetainBothSecretsAndAllFiveOrderedPredicates",
         "line": 100,
@@ -58286,7 +58286,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -58775,7 +58775,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalFiveMessageHistoryRetainsCurrentTimestampsCountAndBothEndpoints",
         "line": 66,
@@ -58971,7 +58971,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -60081,7 +60081,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalPendingSendingSentTransitionsRetainBothIndependentStoredReads",
         "line": 83,
@@ -60265,7 +60265,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -64097,7 +64097,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalFailedRetryingPendingContextsRetainAllThreeReturnsAndAllThreeStatuses",
         "line": 199,
@@ -64323,7 +64323,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -64390,7 +64390,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalSeparateDeliveredContextRetainsFalseAndDeliveredReadback",
         "line": 218,
@@ -64532,7 +64532,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -67525,7 +67525,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalDedupLookupRetainsIncomingSentAliceHelloAndIndependentRadioAbsence",
         "line": 50,
@@ -67697,7 +67697,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -68031,7 +68031,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalSentAckDiagnosticRetainsCafeF00dOneAndIndependentDeliveredBadc0de5",
         "line": 228,
@@ -68191,7 +68191,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
@@ -70431,7 +70431,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-        "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4",
+        "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda",
         "class": "com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest",
         "method_or_family_name": "originalFailedDirectRowRejectsTheIndependentDeadBeefDeliveryWrite",
         "line": 189,
@@ -70567,7 +70567,7 @@
         },
         {
           "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceUnreadAndStatusOriginalPredicateTest.kt",
-          "sha256": "b5761005011971d65574693284799215812e4550ec205a050902f792d8bab1d4"
+          "sha256": "463b0249e8e55a91c0931b78347d2cc849a7e86bf63a43087246a2f67c996bda"
         },
         {
           "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Metadata.swift",
