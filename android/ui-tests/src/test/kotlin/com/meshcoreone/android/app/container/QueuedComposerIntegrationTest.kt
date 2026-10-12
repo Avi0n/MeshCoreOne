@@ -15,6 +15,9 @@ import com.meshcoreone.android.feature.chats.composer.*
 import com.meshcoreone.android.feature.chats.timeline.TimelineConversation
 import java.util.Collections
 import java.util.UUID
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import kotlin.test.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -121,7 +124,8 @@ class QueuedComposerIntegrationTest : RoomProcessTest() {
         firmware.respond = { frame ->
             if (frame[0].toInt() == opcode) {
                 snapshots += runBlocking { store.fetchPendingSends(graph.radio).single() }
-                listOf(Bytes.of(1, 2))
+                // Channel notFound is deliberately retryable; illegalArgument (6) is terminal.
+                listOf(Bytes.of(1, if (kind == Kind.DIRECT) 2 else 6))
             } else null
         }
         try {
@@ -231,6 +235,49 @@ class QueuedComposerIntegrationTest : RoomProcessTest() {
 
     @Test fun realRoomEnqueueFailureSurfacesTypedCauseAndFailsSavedDirectAndChannelRows() = runTest {
         localFailure(this, persistence = true)
+    }
+
+    @Test fun failedSeenBookkeepingCannotSuppressDurableFailureEventOrRefresh() = runTest {
+        for (kind in Kind.entries) {
+            val graph = graph(this)
+            val h = graph.harness
+            val failed = observeFailures(this, graph)
+            graph.select(kind)
+            val message = pending(graph, kind)
+            val key = EntityKey(graph.radio, message.id)
+            val before = h.appState.conversationsVersion.value
+            val records = Collections.synchronizedList(mutableListOf<LogRecord>())
+            val handler = object : Handler() {
+                override fun publish(record: LogRecord) {
+                    if (record.message == "Mark visible failed send seen") {
+                        assertTrue(h.appState.conversationsVersion.value > before)
+                        records += record
+                    }
+                }
+                override fun flush() = Unit
+                override fun close() = Unit
+            }
+            val logger = Logger.getLogger("com.mc1.AppChatsFeature")
+            logger.addHandler(handler)
+            db.openHelper.writableDatabase.execSQL(
+                "CREATE TRIGGER wp502_reject_seen BEFORE UPDATE OF failureSeen ON messages " +
+                    "WHEN NEW.failureSeen = 1 BEGIN SELECT RAISE(ABORT, 'seen fixture'); END",
+            )
+            try {
+                graph.feature.sender(graph.radio).recordLocalEnqueueFailure(message.id)
+                h.eventually("real failure published despite rejected seen write") { failed.size == 1 }
+                val stored = assertNotNull(store.fetchMessage(key))
+                assertEquals(MessageStatus.FAILED, stored.status)
+                assertFalse(stored.failureSeen)
+                assertEquals(listOf(message.id), failed.toList())
+                assertIs<PersistenceStoreException>(records.single().thrown)
+                assertFalse(h.links.radios.single().sent.any { it[0].toInt() in 2..3 })
+            } finally {
+                db.openHelper.writableDatabase.execSQL("DROP TRIGGER wp502_reject_seen")
+                logger.removeHandler(handler)
+                h.container.close()
+            }
+        }
     }
 
     @Test fun cancelledComposerAcceptanceRemainsDurableForOneReplacementGeneration() = runTest {

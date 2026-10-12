@@ -1,13 +1,20 @@
 // AndroidOnly: WP-407 Shortcuts use the same process store and connection owner; only confirmed operations enqueue.
+// ReferenceInput: MC1/Intents/SendMessageIntent.swift@db14559b39d32322b06477c6ae676112f583db50
+// ReferenceInput: MC1/Intents/SendMessageIntent+Routing.swift@db14559b39d32322b06477c6ae676112f583db50
 package com.meshcoreone.android.app.container
 
+import com.meshcoreone.android.app.state.MessageEvent
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceException
+import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
+import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.model.*
+import com.meshcoreone.android.core.services.contacts.ChannelServiceError
 import com.meshcoreone.android.core.ui.isBatteryPresent
 import com.meshcoreone.android.core.ui.percentage
 import com.meshcoreone.android.platform.shortcuts.*
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -26,31 +33,65 @@ internal class AppShortcutRadio(private val container: AppContainer) : ShortcutR
         it.token.radioId == radioId && connectionState == DeviceConnectionState.READY
     } ?: throw ShortcutException(ShortcutError.NOT_CONNECTED)
     override suspend fun queueMessage(recipient: ShortcutRecipient, text: String) {
-        val session = live(recipient.radioId)
-        val sender = container.chatsFeature.sender(recipient.radioId)
+        val session = container.sessions.current?.takeIf {
+            it.token.radioId == recipient.radioId && connectionState.isOperational
+        } ?: throw ShortcutException(ShortcutError.NOT_CONNECTED)
+        val localNodeName = app.connectedDevice?.takeIf { it.radioId == recipient.radioId }?.nodeName
+        SendRouting.validate(text, recipient, localNodeName?.toByteArray(Charsets.UTF_8)?.size ?: 0)
         val pending = try {
             when (recipient) {
-                is ShortcutRecipient.Contact -> sender.createPendingDirect(text, recipient.dto, TextType.PLAIN, null)
-                is ShortcutRecipient.Channel -> sender.createPendingChannel(text, recipient.dto.index, recipient.radioId, TextType.PLAIN)
+                is ShortcutRecipient.Contact -> session.messageService.createPendingMessage(text, recipient.dto, TextType.PLAIN, null)
+                is ShortcutRecipient.Channel -> session.messageService.createPendingChannelMessage(text, recipient.dto.index, recipient.radioId, TextType.PLAIN)
             }
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (failure: Exception) {
-            Logger.getLogger("com.mc1.Shortcuts").log(Level.WARNING, "Shortcut enqueue failed", failure)
-            throw ShortcutException(ShortcutError.SEND_FAILED, failure)
+            throw sendFailure(failure)
         }
-        container.uiScope.launch {
-            try {
-                check(live(recipient.radioId) === session) { "Radio connection changed after enqueue" }
-                when (recipient) {
-                    is ShortcutRecipient.Contact -> session.messageService.sendPendingDirectMessage(pending.id, recipient.dto)
-                    is ShortcutRecipient.Channel -> session.messageService.sendPendingChannelMessage(pending.id)
-                }
-            } catch (cancelled: CancellationException) { throw cancelled }
-            catch (failure: Exception) {
-                Logger.getLogger("com.mc1.Shortcuts").log(Level.WARNING, "Queued shortcut send failed; pending row retained", failure)
-                container.chatsFeature.failPending(pending)
+        app.messageEventStream.send(when (recipient) {
+            is ShortcutRecipient.Contact -> MessageEvent.DirectMessageReceived(pending, recipient.dto)
+            is ShortcutRecipient.Channel -> MessageEvent.ChannelMessageReceived(pending, recipient.dto.index)
+        })
+        try {
+            when (recipient) {
+                is ShortcutRecipient.Contact -> session.chatSendQueueService.enqueueDM(
+                    DirectMessageEnvelope(pending.id, recipient.dto.id),
+                )
+                is ShortcutRecipient.Channel -> session.chatSendQueueService.enqueueChannel(
+                    ChannelMessageEnvelope(
+                        pending.id, recipient.dto.index, false, pending.text, pending.timestamp, localNodeName,
+                    ),
+                )
             }
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (failure: Exception) {
+            container.chatsFeature.failPending(pending)
+            throw sendFailure(failure)
         }
+        app.refreshConversations()
+    }
+    private fun sendFailure(failure: Exception): ShortcutException {
+        if (failure is ShortcutException) return failure
+        Logger.getLogger("com.mc1.Shortcuts").log(Level.WARNING, "Shortcut enqueue failed", failure)
+        val error = when (failure) {
+            is MessageServiceException -> when (failure.error) {
+                MessageServiceError.NotConnected -> ShortcutError.NOT_CONNECTED
+                MessageServiceError.ContactNotFound, MessageServiceError.ChannelNotFound,
+                MessageServiceError.InvalidRecipient -> ShortcutError.INVALID_RECIPIENT
+                MessageServiceError.MessageTooLong -> ShortcutError.MESSAGE_TOO_LONG
+                else -> ShortcutError.SEND_FAILED
+            }
+            is ChannelServiceError -> when (failure) {
+                is ChannelServiceError.NotConnected -> ShortcutError.NOT_CONNECTED
+                is ChannelServiceError.ChannelNotFound, is ChannelServiceError.InvalidChannelIndex -> ShortcutError.INVALID_RECIPIENT
+                else -> ShortcutError.SEND_FAILED
+            }
+            is ChatSendQueueServiceException -> when (failure.error) {
+                ChatSendQueueServiceError.NotConnected -> ShortcutError.NOT_CONNECTED
+                is ChatSendQueueServiceError.PersistFailed -> ShortcutError.SEND_FAILED
+            }
+            else -> ShortcutError.SEND_FAILED
+        }
+        return ShortcutException(error, failure)
     }
     override suspend fun sendAdvert(flood: Boolean) {
         try { live(currentRadioId).advertisementService.sendSelfAdvertisement(flood) }
