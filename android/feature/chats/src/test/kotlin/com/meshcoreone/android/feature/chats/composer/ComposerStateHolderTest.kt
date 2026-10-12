@@ -93,7 +93,7 @@ class ComposerStateHolderTest {
     }
 
     @Test
-    fun `send clears the field, sends the trimmed text once and re-enables after one second`() = scenario {
+    fun `send clears the field, enqueues the trimmed text once and re-enables after one second`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
         rig.holder.onDraftChanged("  hello  ")
         assertTrue(rig.holder.send())
@@ -112,16 +112,16 @@ class ComposerStateHolderTest {
     }
 
     @Test
-    fun `a second send while the first is in flight is rejected even after the cooldown`() = scenario {
+    fun `a second send while enqueue is in flight is rejected even after the cooldown`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
-        rig.port.sendGate = CompletableDeferred()
+        rig.port.enqueueGate = CompletableDeferred()
         rig.holder.onDraftChanged("one")
         assertTrue(rig.holder.send())
         rig.timer.advance()
         rig.holder.onDraftChanged("two")
         assertIs<ComposerSendPhase.Sending>(rig.state.sendPhase)
         assertFalse(rig.holder.send())
-        rig.port.sendGate!!.complete(Unit)
+        rig.port.enqueueGate!!.complete(Unit)
         assertEquals(ComposerSendPhase.Idle, rig.state.sendPhase)
         assertEquals(1, rig.port.calls.count { it.startsWith("createPending") })
     }
@@ -160,13 +160,13 @@ class ComposerStateHolderTest {
     fun `enqueue acceptance does not fabricate wire delivery or create another message`() = scenario {
         for (target in listOf<ComposerTarget>(ComposerTarget.Direct(alice), ComposerTarget.Channel(channel))) {
             val rig = rig(target)
-            rig.port.sendGate = CompletableDeferred()
+            rig.port.enqueueGate = CompletableDeferred()
             rig.holder.onDraftChanged("hello")
             assertTrue(rig.holder.send())
             assertIs<ComposerSendPhase.Sending>(rig.state.sendPhase)
             val pending = rig.port.pendingMessages.single()
             assertEquals(MessageStatus.PENDING, pending.status)
-            rig.port.sendGate!!.complete(Unit)
+            rig.port.enqueueGate!!.complete(Unit)
             assertEquals(ComposerSendPhase.Idle, rig.state.sendPhase)
             assertEquals(listOf(pending), rig.port.pendingMessages)
             assertEquals(MessageStatus.PENDING, pending.status)
@@ -184,12 +184,12 @@ class ComposerStateHolderTest {
         for (target in listOf<ComposerTarget>(ComposerTarget.Direct(alice), ComposerTarget.Channel(channel))) {
             for ((failure, reason) in failures) {
                 val rig = rig(target)
-                rig.port.sendGate = CompletableDeferred()
-                rig.port.sendFailure = failure
+                rig.port.enqueueGate = CompletableDeferred()
+                rig.port.enqueueFailure = failure
                 rig.holder.onDraftChanged("saved pending")
                 assertTrue(rig.holder.send())
                 rig.holder.onDraftChanged("new draft")
-                rig.port.sendGate!!.complete(Unit)
+                rig.port.enqueueGate!!.complete(Unit)
                 assertEquals(ComposerSendPhase.Failed(reason, messageSaved = true), rig.state.sendPhase)
                 assertEquals("new draft", rig.state.draft)
                 assertEquals("new draft", rig.drafts.values[target.conversationId])
@@ -224,7 +224,7 @@ class ComposerStateHolderTest {
     fun `enqueue cancellation is neither success nor failure and does not duplicate the saved pending draft`() = scenario {
         for (target in listOf<ComposerTarget>(ComposerTarget.Direct(alice), ComposerTarget.Channel(channel))) {
             val rig = rig(target)
-            rig.port.sendFailure = CancellationException("synthetic observer cancellation")
+            rig.port.enqueueFailure = CancellationException("synthetic observer cancellation")
             rig.holder.onDraftChanged("saved pending")
             assertTrue(rig.holder.send())
             assertTrue(rig.failures.isEmpty())
@@ -252,7 +252,9 @@ class ComposerStateHolderTest {
     @Test
     fun `failure after the pending row exists leaves the draft empty and defers retry to the timeline`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
-        rig.port.sendFailure = MessageServiceException(MessageServiceError.SendFailed("radio busy"))
+        rig.port.enqueueFailure = ChatSendQueueServiceException(
+            ChatSendQueueServiceError.PersistFailed(IllegalStateException("synthetic queue persistence failure")),
+        )
         rig.holder.onDraftChanged("hello")
         rig.holder.send()
         assertEquals("", rig.state.draft)
@@ -264,7 +266,7 @@ class ComposerStateHolderTest {
     @Test
     fun `cancellation is not reported as a send failure`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
-        rig.port.sendFailure = CancellationException("screen closed")
+        rig.port.enqueueFailure = CancellationException("screen closed")
         rig.holder.onDraftChanged("hello")
         rig.holder.send()
         assertTrue(rig.failures.isEmpty())
