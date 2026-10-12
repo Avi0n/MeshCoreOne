@@ -556,6 +556,7 @@ class MessageService(
                     }
                     events.yield(MessageStatusEvent.RoutingChanged(contact.id, true))
                 } catch (failure: MeshCoreException) { remember("resetPath.$id", failure) }
+                catch (failure: MeshTransportError) { remember("resetPath.$id", failure) }
                 catch (failure: PersistenceStoreException) { remember("resetPath.$id", failure) }
                 flood = true
             }
@@ -666,6 +667,7 @@ class MessageService(
             }
             recovered("routing.$id")
         } catch (failure: MeshCoreException) { remember("routing.$id", failure) }
+        catch (failure: MeshTransportError) { remember("routing.$id", failure) }
         catch (failure: PersistenceStoreException) { remember("routing.$id", failure) }
     }
 
