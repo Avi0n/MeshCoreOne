@@ -209,6 +209,9 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
 
     suspend fun delete(message: MessageDTO) {
         store.deleteMessage(EntityKey(message.radioId, message.id))
+        if (!message.isChannelMessage) {
+            message.contactID?.let { store.recomputeContactLastMessageDate(EntityKey(message.radioId, it)) }
+        }
         app.refreshConversations()
     }
 
