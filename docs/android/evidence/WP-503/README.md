@@ -1,0 +1,79 @@
+# WP-503 attempt evidence
+
+**BLOCKED, not accepted.** This document records a bounded source audit and real execution
+gaps. No native test, effective target measurement, painted-feature contrast measurement,
+screenshot golden comparison, TalkBack observation or independent review occurred.
+
+## Identity and revisions
+
+| Field | Actual value |
+| --- | --- |
+| Repository / issue | `cbattlegear/MeshCoreOne-Android` / [#136](https://github.com/cbattlegear/MeshCoreOne-Android/issues/136), open and assigned to `cbattlegear` |
+| WP / profile | `WP-503` / `design-system-engineer` |
+| Native worker / CLI session | `1666502a-0420-46ef-930f-e78651ba8b9f` / `d2980f28-620c-408b-9947-067e2da8eedf` |
+| Managed branch | `cbattlegear-issue-136-wp-503-accessibility-audit-807238` |
+| Inspected base/head before audit documentation | `d958471ab4835813881a5e7af36e8249a8b273a4` |
+| Documentation candidate head | The Git commit containing this document; exact published head belongs in PR/issue handoff, not a self-referential file hash |
+| Frozen source | `db14559b39d32322b06477c6ae676112f583db50` |
+| Manifest SHA-256 | `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda` |
+| Policy revision | `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20` |
+| Typed reservation | Actual worker attempt, `wp-owned`, revision 2, `create`/`modify`, all four manifest WP-503 roots; no release/recreate |
+
+The advisory receipt records the actual native session but has null issue/task/PR identity
+fields. Issue assignment and the eventual PR are independently observable GitHub facts,
+not invented ledger bindings. No hosted publisher task or acceptance receipt is claimed.
+
+WP-503 depends only on WP-407. GitHub reports PR164 merged on `2026-10-11T16:22:30Z`
+as `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`, and that commit is an ancestor of the
+inspected head. The shared advisory WP-407 record is still `leased`, revision 15,
+`completion=null`. Actual implementation merge is verified; independently verified
+dependency acceptance is **not** established by that receipt. No ledger was manually repaired.
+WP-501 is not a dependency and its existing repair/parity surfaces were not edited.
+
+The only reference-tree differences reported by Git are the two test-only paths enumerated
+in `reference-amendments.json` (correlation serializer ordering and advertisement waits).
+The source pin is not advanced. Manifest validation passes against those explicit exceptions.
+
+## Actual commands and outcomes
+
+Commands ran from this worktree on Windows on 2026-10-12.
+
+| Exact command | Result / discovery | Claim boundary |
+| --- | --- | --- |
+| `gh issue view 136 --repo cbattlegear/MeshCoreOne-Android --json number,title,body,comments,assignees,labels,state,url` | Passed; original issue had no assignees and no comments | Required assignment context, not verification |
+| `gh issue edit 136 --repo cbattlegear/MeshCoreOne-Android --add-assignee cbattlegear` | Passed; subsequent view confirmed assignee | Account owns tracking; dedicated worker identified in comment |
+| `gh pr view 164 --repo cbattlegear/MeshCoreOne-Android --json state,mergedAt,mergeCommit,headRefOid,url` | Passed; state MERGED, exact merge recorded above | Not a WP acceptance attestation |
+| `git merge-base --is-ancestor 250dd50ed259c5d9fe1006d4f45a637e4aea0aff HEAD` | Exit 0 | Actual merge ancestry only |
+| `python .\tools\android-port\controller\ci.py preflight` | Exit 2, BLOCKED: `Explicit --state/ANDROID_CI_STATE is required; failed cloud setup is not readiness` | Native environment not ready; no fallback installation |
+| `python .\tools\android-port\controller\ci.py run --stage prepare` | Exit 2, same explicit-state blocker | No strict dependency preparation occurred |
+| `python .\tools\android-port\controller\validate.py` | Exit 0 | Manifest/source/ownership validation, not feature acceptance |
+| `python .\tools\android-port\portmap.py` | Exit 0 | Traceability only |
+| `python .\tools\android-port\theme_convert.py --check --self-test` | Exit 0; discovered/run/passed 22, failed/error/skipped 0; 10 themes, 44 color assets, 89 primary inputs, 23 generated outputs, 12 recovery locales | Python frozen converter/resource checks, **not Kotlin contrast or rendered feature tests** |
+
+No test counts are inferred from filenames, source declaration counts or historical results.
+Reproducible hosted checks remain authoritative at their exact candidate commits; no second
+CI-result bundle is persisted here.
+
+## Acceptance and resumption gates
+
+| Acceptance | Current evidence | Remaining requirement |
+| --- | --- | --- |
+| `WP-503-behavior` | Actual feature-consumer source review; four WP-310 findings; reusable tests identified | Native target/contrast/font/semantics measurements across actual flows and device focus/announcements |
+| `WP-503-boundaries` | Textual alternatives and missing message semantics documented; no golden changes | Data-bound graph/status assertions, approved deterministic screen evidence and distinct device observations |
+| `WP-503-source-test-parity` | All four WP-503 original test cross-references read, 23 source declarations inventoried | Executed acceptance, not a duplicate of WP-501's parity accounting |
+
+Coordinator action: provide an actual trusted Linux toolchain state to this **existing**
+worker and admit WP-503's real module/runner/output contract. Its manifest verification
+still has `configured=false` and no commands; the broader installed scaffold commands do
+not configure WP-503 acceptance or discover an absent `android/accessibility-tests` module.
+Reconcile the real prerequisite acceptance separately. No Gradle task was invented.
+
+Route A503-01 through A503-04 to the current WP-310 producer and return an actual merged
+repair for native re-audit. There is no protected product decision requesting new colors or
+relaxed thresholds. No nested worker, signing/release action or repository setting was changed.
+
+The audit and execution contract are in [accessibility documentation](../../accessibility/README.md).
+The live ownership/execution blocker was posted to
+[issue136](https://github.com/cbattlegear/MeshCoreOne-Android/issues/136#issuecomment-6125830322).
+The native cross-session messaging tool is not exposed in this worker; this issue comment
+and the draft PR are the persistent coordinator handoff, not a fabricated message receipt.
