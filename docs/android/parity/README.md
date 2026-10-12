@@ -1,5 +1,27 @@
 # WP-501 source, case-family and consumer acceptance
 
+Current1407/5133 proposed comparisons/179groups/81mandatory/zero fully
+approved adds12 independent device/retry originals on actual base9e5.
+Restore single-device versus two-device setups, every two-step activation
+predicate, direct PENDING->RETRYING and PENDING->FAILED->stale RETRYING
+without added ACK transitions, two separate absent-delete actions,
+Survivor/General re-pair data, active handleless identity demotion versus
+inactive two-handle stripping, independent unknown-id demotion and
+inactive handleless Alice-child preservation. Two source no-throw actions
+add explicit empty-registry postconditions, supplementary only, no extra
+original credit or swallowed failure. Actual API31 Room/native SQLite/
+production store replaces SwiftData; fixed device0x44/0x45/contact0x55
+keys replace random source keys, UUID/current wire reads remain as source.
+Selected defaults and actual pairing/picker/retry consumers compared;
+store-level cases do not prove mounted pairing/activation/retry loops,
+full cascades, races/cancellation/rollback, SwiftData/API37/device parity.
+Same typed reservation33->34 admits the owned file/create; immutable
+authorization/source/manifest/policy preserved. Twelve-name native
+execution pending;63/135 persistence proposed/remaining72 unresolved.
+All1395 earlier comparison rows/178groups and native witnesses/receipts
+remain unchanged. PR198 source-only comparison and pending genuine
+adoption/calibrated eight remain separate; no unchanged selector replay.
+
 Current1395/5133 proposed comparisons/178groups/81mandatory/zero fully
 approved behavioral acceptances add15 room/session originals, preserving
 original5000->3000 and omitted-sync bookmarks, connected-guest versus

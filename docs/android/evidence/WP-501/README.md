@@ -12,6 +12,33 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Current device/retry original predicates
+
+Current1407/5133 proposed/179groups/81mandatory/zero full approved adds12
+standalone selected originals. Preserve single-device fetch's four
+predicates; independent two-device count; both activation steps and all
+intermediate fields; outgoing PENDING->FAILED->RETRYING1/4/finalFAILED
+without extra ACK; separate PENDING->RETRYING0/4; two independent absent-
+delete no-throw actions; Survivor/General/index0/zero16-secret re-pair
+count/name checks; active handleless ghost's six identity predicates;
+inactive WiFi10.0.0.5:5000+randomBluetooth/nil-display stripping; unknown-id
+empty registry; inactive handleless Alice/same-radio/count/name.
+Each source action-only deletion also asserts empty registry, disclosed
+supplement with no extra original credit. Exceptions/cancellation are
+not caught. Complete selected source/helper/default/native store/model/
+SQL/test and actual pairing/picker/retry consumer bodies read. Actual
+API31 Room/native SQLite replaces SwiftData; fixed device0x44/0x45 and
+contact0x55 keys replace source randomness, UUIDs/current wire reads
+retained. No universal identity/clock/default/cascade/repeat/race/
+cancellation/rollback, SwiftData/API37/device or mounted consumer proof.
+Same typed reservation33->34/owned-create keeps immutable pins and
+authorization. Exact twelve-name native execution pending:
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest --dependency-verification=strict --quiet`.
+63/135 persistence proposed/remaining72 unresolved; all1395 previous
+comparison rows/178groups and actual private/source-review identities
+remain unchanged, not replayed/recounted/relabelled. PR198 actual source
+comparison remains separate; genuine adoption/calibrated eight pending.
+
 ## Current room/session original predicates
 
 Current1395/5133 proposed/178groups/81mandatory/zero full approved adds15

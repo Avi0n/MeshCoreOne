@@ -8025,6 +8025,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/MessageSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRoomOriginalPredicateTest.kt",
@@ -8388,6 +8389,90 @@
               "name": "directRegionUpdateDisambiguatesTheFirstPrefixByteAndPreservesPreviewBlobs",
               "line": 185,
               "end_line": 201
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "device",
+              "line": 29,
+              "end_line": 37
+            },
+            {
+              "name": "frame",
+              "line": 39,
+              "end_line": 42
+            },
+            {
+              "name": "singleDeviceReadbackRetainsAllFourOriginalPredicates",
+              "line": 45,
+              "end_line": 54
+            },
+            {
+              "name": "twoIndependentOriginalDevicesRetainTheExactRegistryCount",
+              "line": 57,
+              "end_line": 64
+            },
+            {
+              "name": "activationRetainsTheOriginalTwoStepAndEveryIntermediatePredicate",
+              "line": 67,
+              "end_line": 81
+            },
+            {
+              "name": "outgoingMessage",
+              "line": 83,
+              "end_line": 90
+            },
+            {
+              "name": "staleRetryRetainsTheOriginalPendingFailedRetrySequenceWithoutAnAck",
+              "line": 93,
+              "end_line": 100
+            },
+            {
+              "name": "nonTerminalRetryRetainsTheOriginalDirectPendingToRetryingTransition",
+              "line": 103,
+              "end_line": 109
+            },
+            {
+              "name": "absentDeviceDataDeletionRetainsItsIndependentEmptyStoreAction",
+              "line": 112,
+              "end_line": 116
+            },
+            {
+              "name": "absentCombinedDeletionRetainsItsIndependentEmptyStoreAction",
+              "line": 119,
+              "end_line": 123
+            },
+            {
+              "name": "rePairRetainsOriginalSurvivorAndGeneralRowsAndAllFourPredicates",
+              "line": 126,
+              "end_line": 140
+            },
+            {
+              "name": "demotionRetainsOriginalActiveDeviceWithoutAddedHandlesOrChildren",
+              "line": 143,
+              "end_line": 155
+            },
+            {
+              "name": "hiddenGhostRetainsOriginalInactiveDeviceAndBothUndisplayedConnectionMethods",
+              "line": 158,
+              "end_line": 166
+            },
+            {
+              "name": "unknownDemotionRetainsItsIndependentEmptyStoreAndEmptyRegistryPredicate",
+              "line": 169,
+              "end_line": 173
+            },
+            {
+              "name": "removedPairingRetainsOriginalInactiveHandlelessDeviceAndAliceChild",
+              "line": 176,
+              "end_line": 186
             }
           ]
         },
@@ -22089,6 +22174,77 @@
             "PersistenceStoreTests::Set active device()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "singleDeviceReadbackRetainsAllFourOriginalPredicates",
+          "line": 45,
+          "end_line": 54,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7f668c0298e5a82cc97e3748fa6329f4c90368b25a378711e18a9b69f4d5a542",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNotNull",
+              "line": 50,
+              "expression": "assertNotNull(fetched)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 51,
+              "expression": "assertEquals(\"TestDevice\", fetched.nodeName)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 52,
+              "expression": "assertEquals(8u.toUByte(), fetched.firmwareVersion)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 53,
+              "expression": "assertEquals(915_000u, fetched.frequency)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 46,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 47,
+              "expression": "store.saveDevice(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 49,
+              "expression": "store.fetchDevice(device.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 52,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Save and fetch device()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -22335,6 +22491,65 @@
             "PersistenceStoreTests::Save and fetch device()",
             "PersistenceStoreTests::Fetch all devices()",
             "PersistenceStoreTests::Set active device()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "twoIndependentOriginalDevicesRetainTheExactRegistryCount",
+          "line": 57,
+          "end_line": 64,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "33282cde21dc91427da170f3e50d09cb62c951a2fb1896a31fe6514b470dd6b3",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 63,
+              "expression": "assertEquals(2, store.fetchDevices().size)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 58,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 59,
+              "expression": "device(0x45)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 60,
+              "expression": "store.saveDevice(first)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 61,
+              "expression": "store.saveDevice(second)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevices",
+              "line": 63,
+              "expression": "store.fetchDevices()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Fetch all devices()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -22627,6 +22842,107 @@
             "PersistenceStoreTests::Set active device()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "activationRetainsTheOriginalTwoStepAndEveryIntermediatePredicate",
+          "line": 67,
+          "end_line": 81,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6f64d8c89fd94ced38da3082420db4f84df6ec4044ef7d7c9082059d0d9d1993",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 75,
+              "expression": "assertEquals(first.id, active?.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 76,
+              "expression": "assertEquals(true, active?.isActive)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 79,
+              "expression": "assertEquals(second.id, store.fetchActiveDevice()?.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 80,
+              "expression": "assertEquals(false, store.fetchDevice(first.id)?.isActive)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 68,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 69,
+              "expression": "device(0x45)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 70,
+              "expression": "store.saveDevice(first)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 71,
+              "expression": "store.saveDevice(second)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setActiveDevice",
+              "line": 72,
+              "expression": "store.setActiveDevice(first.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchActiveDevice",
+              "line": 74,
+              "expression": "store.fetchActiveDevice()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setActiveDevice",
+              "line": 78,
+              "expression": "store.setActiveDevice(second.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchActiveDevice",
+              "line": 79,
+              "expression": "store.fetchActiveDevice()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 80,
+              "expression": "store.fetchDevice(first.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Set active device()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -22882,6 +23198,65 @@
             "PersistenceStoreTests::updateMessageAck refuses to write .delivered onto a .failed row()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "staleRetryRetainsTheOriginalPendingFailedRetrySequenceWithoutAnAck",
+          "line": 93,
+          "end_line": 100,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "7fca99b25f45a0592ef2cc4f41fdb8e8a8ed19aea960906f8437f60b2024b1da",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 99,
+              "expression": "assertEquals(MessageStatus.FAILED, store.fetchMessage(key)?.status)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "outgoingMessage",
+              "line": 94,
+              "expression": "outgoingMessage(\"give-up race\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 95,
+              "expression": "EntityKey(message.radioId, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.updateMessageStatus",
+              "line": 96,
+              "expression": "store.updateMessageStatus(key, MessageStatus.FAILED)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.updateMessageRetryStatus",
+              "line": 97,
+              "expression": "store.updateMessageRetryStatus(key, MessageStatus.RETRYING, 1, 4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 99,
+              "expression": "store.fetchMessage(key)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::updateMessageRetryStatus does not resurrect a .failed row()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -23129,6 +23504,59 @@
             "PersistenceStoreTests::updateMessageRetryStatus does not resurrect a .failed row()",
             "PersistenceStoreTests::updateMessageRetryStatus still advances a non-terminal row()",
             "PersistenceStoreTests::updateMessageAck refuses to write .delivered onto a .failed row()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "nonTerminalRetryRetainsTheOriginalDirectPendingToRetryingTransition",
+          "line": 103,
+          "end_line": 109,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "456dcc54752c0826d95c3cc072f65dd172255472226a0a4a8be50bccbaa97dea",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 108,
+              "expression": "assertEquals(MessageStatus.RETRYING, store.fetchMessage(key)?.status)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "outgoingMessage",
+              "line": 104,
+              "expression": "outgoingMessage(\"in flight\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 105,
+              "expression": "EntityKey(message.radioId, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.updateMessageRetryStatus",
+              "line": 106,
+              "expression": "store.updateMessageRetryStatus(key, MessageStatus.RETRYING, 0, 4)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 108,
+              "expression": "store.fetchMessage(key)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::updateMessageRetryStatus still advances a non-terminal row()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -24292,6 +24720,59 @@
             "PersistenceStoreTests::deleteDeviceAndData for non-existent device does not throw()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "absentDeviceDataDeletionRetainsItsIndependentEmptyStoreAction",
+          "line": 112,
+          "end_line": 116,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "9110688be3c5c3b1d2a07bfdfc8de5b47e869342f418619ea2487732eda4aa7d",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 115,
+              "expression": "assertTrue(store.fetchDevices().isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store.deleteDeviceData",
+              "line": 113,
+              "expression": "store.deleteDeviceData(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 113,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevices",
+              "line": 115,
+              "expression": "store.fetchDevices()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 115,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::deleteDeviceData for non-existent device does not throw()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -24410,6 +24891,59 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::Demote device with unknown id is a no-op()",
             "PersistenceStoreTests::deleteDeviceData for non-existent device does not throw()",
+            "PersistenceStoreTests::deleteDeviceAndData for non-existent device does not throw()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "absentCombinedDeletionRetainsItsIndependentEmptyStoreAction",
+          "line": 119,
+          "end_line": 123,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "2cac8bdf1815359da52356d0ec561ad33c744a17ee485fe928f0b7ec9ef4ee9f",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 122,
+              "expression": "assertTrue(store.fetchDevices().isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store.deleteDeviceAndData",
+              "line": 120,
+              "expression": "store.deleteDeviceAndData(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 120,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevices",
+              "line": 122,
+              "expression": "store.fetchDevices()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 122,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::deleteDeviceAndData for non-existent device does not throw()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -24643,6 +25177,137 @@
               "name": "store.fetchChannels",
               "line": 44,
               "expression": "store.fetchChannels(RADIO_A)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Re-pair after device deletion re-associates orphaned data()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "rePairRetainsOriginalSurvivorAndGeneralRowsAndAllFourPredicates",
+          "line": 126,
+          "end_line": 140,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "2daba3a29602b2aa4e1e3e75d87375d740a2c945d98fa73725a150ef18228b09",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 135,
+              "expression": "assertEquals(1, contacts.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 136,
+              "expression": "assertEquals(\"Survivor\", contacts.firstOrNull()?.name)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 138,
+              "expression": "assertEquals(1, channels.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 139,
+              "expression": "assertEquals(\"General\", channels.firstOrNull()?.name)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 127,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 128,
+              "expression": "store.saveDevice(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 129,
+              "expression": "store.saveContact(device.radioId, frame(\"Survivor\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 129,
+              "expression": "frame(\"Survivor\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveChannel",
+              "line": 130,
+              "expression": "store.saveChannel(device.radioId, ChannelInfo(0u, \"General\", Bytes(ByteArray(16))))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ChannelInfo",
+              "line": 130,
+              "expression": "ChannelInfo(0u, \"General\", Bytes(ByteArray(16)))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 130,
+              "expression": "Bytes(ByteArray(16))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 130,
+              "expression": "ByteArray(16)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.deleteDevice",
+              "line": 131,
+              "expression": "store.deleteDevice(device.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 132,
+              "expression": "store.saveDevice(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContacts",
+              "line": 134,
+              "expression": "store.fetchContacts(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contacts.firstOrNull",
+              "line": 136,
+              "expression": "contacts.firstOrNull()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchChannels",
+              "line": 137,
+              "expression": "store.fetchChannels(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "channels.firstOrNull",
+              "line": 139,
+              "expression": "channels.firstOrNull()",
               "assertion_or_checked_wait": false
             }
           ],
@@ -24913,6 +25578,101 @@
             "PersistenceStoreTests::Removing a paired device preserves child contacts via radioID()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "demotionRetainsOriginalActiveDeviceWithoutAddedHandlesOrChildren",
+          "line": 143,
+          "end_line": 155,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "efcc9bf1fdd9603de9b0b26948ffb8429400b45a818587d3151a54a834d74ac1",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 148,
+              "expression": "assertNull(store.fetchDevice(original.id))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 150,
+              "expression": "assertNotNull(ghost)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotEquals",
+              "line": 151,
+              "expression": "assertNotEquals(original.id, ghost.id)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 152,
+              "expression": "assertEquals(original.publicKey, ghost.publicKey)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 153,
+              "expression": "assertEquals(original.radioId, ghost.radioId)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 154,
+              "expression": "assertEquals(false, ghost.isActive)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 144,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 144,
+              "expression": "copy(isActive = true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 145,
+              "expression": "store.saveDevice(original)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.demoteDeviceToGhost",
+              "line": 146,
+              "expression": "store.demoteDeviceToGhost(original.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 148,
+              "expression": "store.fetchDevice(original.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 149,
+              "expression": "store.fetchDevice(original.publicKey)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Demote device to ghost preserves publicKey and radioID with fresh id()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -25155,6 +25915,95 @@
             "PersistenceStoreTests::Removing a paired device preserves child contacts via radioID()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "hiddenGhostRetainsOriginalInactiveDeviceAndBothUndisplayedConnectionMethods",
+          "line": 158,
+          "end_line": 166,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d4830508a5dfd53239b5c155ad526c306cabc1791542504b385d7cdedc619092",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 165,
+              "expression": "assertEquals(true, store.fetchDevice(original.publicKey)?.connectionMethods?.isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "ConnectionMethod.WiFi",
+              "line": 159,
+              "expression": "ConnectionMethod.WiFi(\"10.0.0.5\", 5000u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ConnectionMethod.Bluetooth",
+              "line": 160,
+              "expression": "ConnectionMethod.Bluetooth(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 160,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 161,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 161,
+              "expression": "copy(connectionMethods = SnapshotList.of(wifi, bluetooth))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 161,
+              "expression": "SnapshotList.of(wifi, bluetooth)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 162,
+              "expression": "store.saveDevice(original)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.demoteDeviceToGhost",
+              "line": 163,
+              "expression": "store.demoteDeviceToGhost(original.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 165,
+              "expression": "store.fetchDevice(original.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "connectionMethods?.isEmpty",
+              "line": 165,
+              "expression": "connectionMethods?.isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Demote device strips all connection methods so it stays hidden()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -25287,6 +26136,59 @@
             "PersistenceStoreTests::Demote device with unknown id is a no-op()",
             "PersistenceStoreTests::deleteDeviceData for non-existent device does not throw()",
             "PersistenceStoreTests::deleteDeviceAndData for non-existent device does not throw()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "unknownDemotionRetainsItsIndependentEmptyStoreAndEmptyRegistryPredicate",
+          "line": 169,
+          "end_line": 173,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "f00c93eeef25af661268aad40b3316dcef56ae2491ce864bd8b61716f1b786c2",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 172,
+              "expression": "assertTrue(store.fetchDevices().isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store.demoteDeviceToGhost",
+              "line": 170,
+              "expression": "store.demoteDeviceToGhost(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 170,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevices",
+              "line": 172,
+              "expression": "store.fetchDevices()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 172,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Demote device with unknown id is a no-op()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -25540,6 +26442,95 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::Demote device to ghost preserves publicKey and radioID with fresh id()",
             "PersistenceStoreTests::Demote device strips all connection methods so it stays hidden()",
+            "PersistenceStoreTests::Removing a paired device preserves child contacts via radioID()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+          "sha256": "22b25a6ee3bd007dec3c6bdb5e4d424d97f0060a37a240431139f11b8d2df943",
+          "class": "com.meshcoreone.android.parity.PersistenceDeviceOriginalPredicateTest",
+          "method_or_family_name": "removedPairingRetainsOriginalInactiveHandlelessDeviceAndAliceChild",
+          "line": 176,
+          "end_line": 186,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0bc905ceac5b5acaf1ea49e9691969338f707acb9d7d0ba0c30e9ab9512d7dbf",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 182,
+              "expression": "assertEquals(device.radioId, store.fetchDevice(device.publicKey)?.radioId)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 184,
+              "expression": "assertEquals(1, contacts.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 185,
+              "expression": "assertEquals(\"Alice\", contacts.firstOrNull()?.name)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 177,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 178,
+              "expression": "store.saveDevice(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveContact",
+              "line": 179,
+              "expression": "store.saveContact(device.radioId, frame(\"Alice\"))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 179,
+              "expression": "frame(\"Alice\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.demoteDeviceToGhost",
+              "line": 180,
+              "expression": "store.demoteDeviceToGhost(device.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 182,
+              "expression": "store.fetchDevice(device.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchContacts",
+              "line": 183,
+              "expression": "store.fetchContacts(device.radioId)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "contacts.firstOrNull",
+              "line": 185,
+              "expression": "contacts.firstOrNull()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::Removing a paired device preserves child contacts via radioID()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
