@@ -9,6 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.async
@@ -269,6 +270,293 @@ class BleWriteTest {
         fixture.transport.sendWithoutResponse(Bytes.of(2))
         assertEquals(0.milliseconds, fixture.clock.now)
         assertEquals(2, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `generation pacing update enforces independent 25 and 60 millisecond boundaries`() = runTest {
+        for (interval in listOf(25, 60)) {
+            val fixture = BleFixture()
+            fixture.transport.connect()
+            fixture.transport.updateWritePacing(fixture.transport.diagnostics.value.generation, interval.milliseconds)
+            fixture.transport.send(Bytes.of(1))
+            val second = async { fixture.transport.send(Bytes.of(2)) }
+            runCurrent()
+            fixture.clock.advanceBy((interval - 1).milliseconds)
+            runCurrent()
+            assertFalse(second.isCompleted)
+            assertEquals(1, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+            fixture.clock.advanceBy(1.milliseconds)
+            runCurrent()
+            second.await()
+            assertEquals(interval.milliseconds, fixture.clock.now)
+            assertEquals(2, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+            fixture.transport.disconnect()
+        }
+    }
+
+    @Test fun `pacing captures the policy and time at ACK rather than continuation resumption`() = runTest {
+        val fixture = BleFixture()
+        fixture.transport.connect()
+        val generation = fixture.transport.diagnostics.value.generation
+        fixture.transport.updateWritePacing(generation, 60.milliseconds)
+        fixture.pause = GattOperationKind.Write
+        val first = async { fixture.transport.send(Bytes.of(1)) }
+        runCurrent()
+        fixture.clock.advanceBy(10.milliseconds)
+        fixture.transport.updateWritePacing(generation, 25.milliseconds)
+        fixture.complete()
+        fixture.transport.updateWritePacing(generation, 60.milliseconds)
+        fixture.clock.advanceBy(5.milliseconds)
+        runCurrent()
+        first.await()
+
+        val second = async { fixture.transport.send(Bytes.of(2)) }
+        runCurrent()
+        fixture.clock.advanceBy(19.milliseconds)
+        runCurrent()
+        assertEquals(1, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        assertEquals(35.milliseconds, fixture.clock.now)
+        assertFalse(second.isCompleted)
+        assertEquals(2, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.complete()
+        runCurrent()
+        second.await()
+
+        val third = async { fixture.transport.send(Bytes.of(3)) }
+        runCurrent()
+        fixture.clock.advanceBy(59.milliseconds)
+        runCurrent()
+        assertEquals(2, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        assertEquals(95.milliseconds, fixture.clock.now)
+        assertEquals(3, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.complete()
+        runCurrent()
+        third.await()
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `positive policy update leaves the previous ACK deadline unchanged`() = runTest {
+        val fixture = BleFixture(BleConfiguration(writePacing = 60.milliseconds))
+        fixture.transport.connect()
+        fixture.transport.send(Bytes.of(1))
+        fixture.transport.updateWritePacing(fixture.transport.diagnostics.value.generation, 25.milliseconds)
+        val second = async { fixture.transport.send(Bytes.of(2)) }
+        runCurrent()
+        fixture.clock.advanceBy(59.milliseconds)
+        runCurrent()
+        assertFalse(second.isCompleted)
+        assertEquals(1, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        second.await()
+        assertEquals(60.milliseconds, fixture.clock.now)
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `zero policy bypasses a previous ACK deadline`() = runTest {
+        val fixture = BleFixture(BleConfiguration(writePacing = 60.milliseconds))
+        fixture.transport.connect()
+        fixture.transport.send(Bytes.of(1))
+        fixture.transport.updateWritePacing(fixture.transport.diagnostics.value.generation, Duration.ZERO)
+        fixture.transport.send(Bytes.of(2))
+        assertEquals(Duration.ZERO, fixture.clock.now)
+        assertEquals(2, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `replacement connection resets both dynamic policy and previous ACK deadline`() = runTest {
+        for (configured in listOf(Duration.ZERO, 60.milliseconds)) {
+            val fixture = BleFixture(BleConfiguration(writePacing = configured))
+            fixture.transport.connect()
+            fixture.transport.updateWritePacing(fixture.transport.diagnostics.value.generation, 25.milliseconds)
+            fixture.transport.send(Bytes.of(1))
+            fixture.transport.disconnect()
+            fixture.transport.connect()
+            fixture.transport.send(Bytes.of(2))
+            val second = async { fixture.transport.send(Bytes.of(3)) }
+            runCurrent()
+            if (configured == Duration.ZERO) {
+                assertTrue(second.isCompleted)
+                assertEquals(Duration.ZERO, fixture.clock.now)
+            } else {
+                fixture.clock.advanceBy(59.milliseconds)
+                runCurrent()
+                assertFalse(second.isCompleted)
+                assertEquals(1, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+                fixture.clock.advanceBy(1.milliseconds)
+                runCurrent()
+            }
+            second.await()
+            assertEquals(2, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+            fixture.transport.disconnect()
+        }
+    }
+
+    @Test fun `pacing updates reject disconnected and stale connection generations`() = runTest {
+        val fixture = BleFixture()
+        assertEquals(BleError.NotConnected, assertFailsWith<BleTransportException> {
+            fixture.transport.updateWritePacing(0, 25.milliseconds)
+        }.error)
+        fixture.transport.connect()
+        val previous = fixture.transport.diagnostics.value.generation
+        fixture.transport.disconnect()
+        fixture.transport.connect()
+        assertEquals(BleError.StaleGeneration(previous, previous + 1), assertFailsWith<BleTransportException> {
+            fixture.transport.updateWritePacing(previous, 60.milliseconds)
+        }.error)
+        fixture.transport.send(Bytes.of(1))
+        fixture.transport.send(Bytes.of(2))
+        assertEquals(Duration.ZERO, fixture.clock.now)
+        fixture.transport.disconnect()
+        assertEquals(BleError.NotConnected, assertFailsWith<BleTransportException> {
+            fixture.transport.updateWritePacing(previous + 1, 25.milliseconds)
+        }.error)
+    }
+
+    @Test fun `invalid pacing durations do not mutate the valid live policy`() = runTest {
+        val fixture = BleFixture()
+        fixture.transport.connect()
+        val generation = fixture.transport.diagnostics.value.generation
+        fixture.transport.updateWritePacing(generation, 25.milliseconds)
+        for (invalid in listOf((-1).milliseconds, Duration.INFINITE, -Duration.INFINITE)) {
+            assertFailsWith<IllegalArgumentException> { fixture.transport.updateWritePacing(generation, invalid) }
+        }
+        fixture.transport.send(Bytes.of(1))
+        val second = async { fixture.transport.send(Bytes.of(2)) }
+        runCurrent()
+        fixture.clock.advanceBy(24.milliseconds)
+        runCurrent()
+        assertFalse(second.isCompleted)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        second.await()
+        assertEquals(25.milliseconds, fixture.clock.now)
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `verified commands bypass dynamic pacing but unverified commands remain acknowledged`() = runTest {
+        for (verified in listOf(false, true)) {
+            val fixture = BleFixture()
+            fixture.transport.connect()
+            fixture.transport.updateWritePacing(fixture.transport.diagnostics.value.generation, 25.milliseconds)
+            if (verified) fixture.verifyFirmware(commands = true)
+            fixture.transport.send(Bytes.of(1))
+            val second = async { fixture.transport.sendWithoutResponse(Bytes.of(2)) }
+            runCurrent()
+            if (verified) {
+                assertTrue(second.isCompleted)
+                assertEquals(Duration.ZERO, fixture.clock.now)
+            } else {
+                fixture.clock.advanceBy(24.milliseconds)
+                runCurrent()
+                assertFalse(second.isCompleted)
+                fixture.clock.advanceBy(1.milliseconds)
+                runCurrent()
+            }
+            second.await()
+            assertEquals(
+                listOf(GattWriteMode.WithResponse,
+                    if (verified) GattWriteMode.WithoutResponse else GattWriteMode.WithResponse),
+                fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().map { it.mode },
+            )
+            fixture.transport.disconnect()
+        }
+    }
+
+    @Test fun `cancelling a dynamic pacing wait preserves the live link and cancels its sleeper`() = runTest {
+        val fixture = BleFixture()
+        fixture.transport.connect()
+        fixture.transport.updateWritePacing(fixture.transport.diagnostics.value.generation, 60.milliseconds)
+        fixture.transport.send(Bytes.of(1))
+        val second = async { fixture.transport.send(Bytes.of(2)) }
+        runCurrent()
+        assertEquals(1, fixture.clock.sleeperCount)
+        second.cancelAndJoin()
+        assertEquals(0, fixture.clock.sleeperCount)
+        assertTrue(fixture.transport.isConnected())
+        assertEquals(0, fixture.connection.closeCalls.values.size)
+        fixture.clock.advanceBy(60.milliseconds)
+        fixture.transport.send(Bytes.of(3))
+        assertEquals(listOf(Bytes.of(1), Bytes.of(3)),
+            fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().map { it.data })
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `disconnect terminates a dynamic pacing wait before its deadline`() = runTest {
+        val fixture = BleFixture()
+        fixture.transport.connect()
+        fixture.transport.updateWritePacing(fixture.transport.diagnostics.value.generation, 60.milliseconds)
+        fixture.transport.send(Bytes.of(1))
+        val second = async { assertFailsWith<BleTransportException> { fixture.transport.send(Bytes.of(2)) } }
+        runCurrent()
+        fixture.transport.disconnect()
+        runCurrent()
+        assertEquals(BleError.NotConnected, second.await().error)
+        assertEquals(Duration.ZERO, fixture.clock.now)
+        assertEquals(0, fixture.clock.sleeperCount)
+        fixture.transport.connect()
+        fixture.transport.send(Bytes.of(3))
+        fixture.transport.send(Bytes.of(4))
+        assertEquals(Duration.ZERO, fixture.clock.now)
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `zero update does not wake an already parked source pacing sleep`() = runTest {
+        val fixture = BleFixture()
+        fixture.transport.connect()
+        val generation = fixture.transport.diagnostics.value.generation
+        fixture.transport.updateWritePacing(generation, 60.milliseconds)
+        fixture.transport.send(Bytes.of(1))
+        val second = async { fixture.transport.send(Bytes.of(2)) }
+        runCurrent()
+        fixture.transport.updateWritePacing(generation, Duration.ZERO)
+        runCurrent()
+        assertFalse(second.isCompleted)
+        fixture.clock.advanceBy(59.milliseconds)
+        runCurrent()
+        assertEquals(1, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        second.await()
+        fixture.transport.send(Bytes.of(3))
+        assertEquals(60.milliseconds, fixture.clock.now)
+        assertEquals(3, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.transport.disconnect()
+    }
+
+    @Test fun `duplicate ACK cannot replace the accepted callback pacing snapshot`() = runTest {
+        val fixture = BleFixture()
+        fixture.transport.connect()
+        val generation = fixture.transport.diagnostics.value.generation
+        fixture.transport.updateWritePacing(generation, 25.milliseconds)
+        fixture.pause = GattOperationKind.Write
+        val first = async { fixture.transport.send(Bytes.of(1)) }
+        runCurrent()
+        val request = requireNotNull(fixture.pending)
+        fixture.clock.advanceBy(10.milliseconds)
+        fixture.complete(operation = request)
+        fixture.transport.updateWritePacing(generation, 60.milliseconds)
+        fixture.clock.advanceBy(1.milliseconds)
+        fixture.complete(operation = request)
+        runCurrent()
+        first.await()
+        assertEquals(1L, fixture.transport.diagnostics.value.rejectedCallbacks)
+        val second = async { fixture.transport.send(Bytes.of(2)) }
+        runCurrent()
+        fixture.clock.advanceBy(23.milliseconds)
+        runCurrent()
+        assertEquals(1, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.clock.advanceBy(1.milliseconds)
+        runCurrent()
+        assertEquals(35.milliseconds, fixture.clock.now)
+        assertEquals(2, fixture.connection.operations.values.filterIsInstance<GattOperation.Write>().size)
+        fixture.complete()
+        runCurrent()
+        second.await()
         fixture.transport.disconnect()
     }
 }
