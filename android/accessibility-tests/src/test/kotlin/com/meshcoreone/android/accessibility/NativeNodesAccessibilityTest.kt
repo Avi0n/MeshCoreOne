@@ -3,16 +3,19 @@ package com.meshcoreone.android.accessibility
 
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.onNodeWithTag
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
@@ -38,6 +41,7 @@ import com.meshcoreone.android.feature.nodes.deps.NodesSession
 import com.meshcoreone.android.feature.nodes.deps.StringListPreferences
 import com.meshcoreone.android.feature.nodes.deps.UserFacingMessages
 import com.meshcoreone.android.feature.nodes.model.NodeSegment
+import com.meshcoreone.android.feature.nodes.model.NodeSortOrder
 import java.time.Instant
 import java.util.UUID
 import kotlin.time.Duration
@@ -53,9 +57,90 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [31, 37], qualifiers = "en-rUS-w360dp-h900dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
+    private var discoveredReads = 0
     private val radio = RadioId(UUID(0, 91))
     private val contact = ContactDTO(id = UUID(0, 92), radioId = radio, publicKey = Bytes(ByteArray(32) { 0xAA.toByte() }),
         name = "\u4e2d", lastHeardTimestamp = null, isBlocked = true)
+
+    @Test fun actualSearchCrossesSelectedSegmentsAndNativeNameSortKeepsScaledResultsReachable() {
+        val favorite = contact.copy(name = "\u4e2dQ", isBlocked = false, isFavorite = true)
+        val repeater = contact.copy(id = UUID(0, 93), name = "BQ", isBlocked = false,
+            publicKey = Bytes(ByteArray(32) { 0xBB.toByte() }), typeRawValue = ContactType.REPEATER.rawValue)
+        val room = contact.copy(id = UUID(0, 94), name = "AQ", isBlocked = false,
+            publicKey = Bytes(ByteArray(32) { 0xCC.toByte() }), typeRawValue = ContactType.ROOM.rawValue)
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    NodesEntry(FeatureRoute(FeatureId.NODES), { error("No cross-feature route requested") },
+                        offlineDependencies(cachedContacts = listOf(favorite, repeater, room)))
+                }
+            }
+        }
+        val favorites = compose.onNodeWithText(activity.getString(NodeSegment.FAVORITES.titleRes))
+        favorites.assertIsSelected()
+        assertFont200Unclipped(compose.onNodeWithText(favorite.name))
+        val repeaters = compose.onNodeWithText(activity.getString(NodeSegment.REPEATERS.titleRes)).performScrollTo()
+        assertFont200Unclipped(repeaters)
+        repeaters.assertIsNotSelected().performClick().assertIsSelected()
+        assertFont200Unclipped(compose.onNodeWithText(repeater.name))
+        compose.onNodeWithText(favorite.name).assertDoesNotExist()
+        val rooms = compose.onNodeWithText(activity.getString(NodeSegment.ROOMS.titleRes)).performScrollTo()
+        assertFont200Unclipped(rooms)
+        rooms.performClick().assertIsSelected()
+        assertFont200Unclipped(compose.onNodeWithText(room.name))
+        val search = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText))
+        search.performTextReplacement("BQ")
+        rooms.assertIsSelected()
+        assertFont200Unclipped(compose.onNodeWithText(repeater.name))
+        compose.onNodeWithText(room.name).assertDoesNotExist()
+        search.performTextReplacement("\u4e0d\u5b58\u5728")
+        val empty = compose.onNode(hasText(activity.getString(C.contactsListEmptySearchTitle)) and
+            SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).assertIsDisplayed()
+        assertFont200Unclipped(empty)
+        search.performTextReplacement("Q")
+        val sort = compose.onNodeWithText(activity.getString(C.contactsListSort)).performScrollTo()
+        assertFont200Unclipped(sort)
+        sort.performClick()
+        val name = compose.onNodeWithText(activity.getString(NodeSortOrder.NAME.titleRes)).assertIsDisplayed()
+        assertFont200Unclipped(name)
+        assertVisibleClickTargetsAtLeast48Dp()
+        name.performClick()
+        val first = compose.onNodeWithText(room.name).performScrollTo().assertIsDisplayed()
+        val second = compose.onNodeWithText(repeater.name).assertIsDisplayed()
+        assertTrue("Actual native rows follow the selected name sort, not the old selected segment",
+            first.fetchSemanticsNode().boundsInRoot.top < second.fetchSemanticsNode().boundsInRoot.top)
+        assertFont200Unclipped(first)
+        assertFont200Unclipped(second)
+        assertFont200Unclipped(compose.onNodeWithText(favorite.name).performScrollTo())
+        search.performTextReplacement("")
+        rooms.performScrollTo().assertIsSelected()
+        assertFont200Unclipped(compose.onNodeWithText(room.name))
+        compose.onNodeWithText(repeater.name).assertDoesNotExist()
+        assertVisibleClickTargetsAtLeast48Dp()
+        println("WP503_NODES_FILTER_SORT|autoFavorite=true|searchCrossesSegments=true|nameSort=true|clearingRetainsRoom=true|realRadio=false")
+    }
+
+    @Test fun offlineDiscoveryHasATextualCachedOutcomeInsteadOfAnUnownedIndefiniteSpinner() {
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    NodesEntry(FeatureRoute(FeatureId.NODES), { error("No route requested") },
+                        offlineDependencies(), destination = NodesDestination.Discovery)
+                }
+            }
+        }
+        compose.waitForIdle()
+        val pending = compose.onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.ProgressBarRangeInfo,
+            ProgressBarRangeInfo.Indeterminate)).fetchSemanticsNodes()
+        println("WP503_OFFLINE_DISCOVERY|indeterminate=${pending.size}|discoveredReads=$discoveredReads" +
+            "|cachedRadio=true|storeAvailable=true|connectedDevice=false|realRadio=false")
+        assertEquals("Offline discovery has no active transport/load; expose a textual cached/empty or recovery outcome",
+            0, pending.size)
+        assertEquals(1, discoveredReads)
+        assertFont200Unclipped(compose.onNodeWithText(activity.getString(C.contactsDiscoveryEmptyTitle)).assertIsDisplayed())
+        assertFont200Unclipped(compose.onNodeWithText(activity.getString(C.contactsDiscoveryEmptyDescription)).assertIsDisplayed())
+        assertVisibleClickTargetsAtLeast48Dp()
+    }
 
     @Test fun offlineCachedNodeRetainsReadableNameTextualStatusAndNativeRowRouting() {
         var opened: ContactDTO? = null
@@ -172,14 +257,21 @@ class NativeNodesAccessibilityTest : NativeAccessibilityHarness() {
         }
     }
 
-    private fun offlineDependencies(cachedContact: ContactDTO = contact): NodesFeatureDependencies {
+    private fun offlineDependencies(
+        cachedContact: ContactDTO = contact,
+        cachedContacts: List<ContactDTO> = listOf(cachedContact),
+    ): NodesFeatureDependencies {
         val store = object : NodesDataStore {
-            override suspend fun fetchContacts(radioId: RadioId) = listOf(cachedContact).filter { it.radioId == radioId }
-            override suspend fun fetchContact(key: EntityKey) = cachedContact.takeIf { it.radioId == key.radioId && it.id == key.id }
-            override suspend fun fetchContact(radioId: RadioId, publicKey: Bytes) = cachedContact.takeIf { it.radioId == radioId && it.publicKey == publicKey }
+            override suspend fun fetchContacts(radioId: RadioId) = cachedContacts.filter { it.radioId == radioId }
+            override suspend fun fetchContact(key: EntityKey) = cachedContacts.firstOrNull { it.radioId == key.radioId && it.id == key.id }
+            override suspend fun fetchContact(radioId: RadioId, publicKey: Bytes) = cachedContacts.firstOrNull { it.radioId == radioId && it.publicKey == publicKey }
             override suspend fun fetchBlockedContacts(radioId: RadioId) = fetchContacts(radioId).filter { it.isBlocked }
             override suspend fun fetchContactPublicKeys(radioId: RadioId) = fetchContacts(radioId).map { it.publicKey }.toSet()
-            override suspend fun fetchDiscoveredNodes(radioId: RadioId) = emptyList<com.meshcoreone.android.core.model.DiscoveredNodeDTO>()
+            override suspend fun fetchDiscoveredNodes(radioId: RadioId): List<com.meshcoreone.android.core.model.DiscoveredNodeDTO> {
+                assertEquals(radio, radioId)
+                discoveredReads++
+                return emptyList()
+            }
             override suspend fun touchContactHeard(radioId: RadioId, publicKey: Bytes, date: Instant): Boolean = error("No touch expected")
             override suspend fun deleteDiscoveredNode(key: EntityKey) = error("No delete expected")
             override suspend fun clearDiscoveredNodes(radioId: RadioId) = error("No clear expected")
