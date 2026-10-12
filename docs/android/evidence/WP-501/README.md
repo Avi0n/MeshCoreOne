@@ -40,6 +40,10 @@ TestClock and callback-completing fake GATT; independently require60/25/60ms
 acknowledged inter-write intervals, both minimum and completion-at-deadline.
 These are supplemental consumer assertions, not extra originals, hardware,
 radio performance results or packet goldens. Native execution is pending.
+Initial7b0ac0aa Python parity92 had91PASS/1FAIL because its existing wiring
+test still required67 mandatory methods; no native execution occurred there.
+The coupled assertion now requires70 and the exact three new distinct names,
+without lowering a coverage threshold or suppressing any earlier identity.
 Typed reservation evolved25-to26 by trusted wp-owned/create before this
 canonical new test path; same identity/revisions/immutable authorization retained.
 
