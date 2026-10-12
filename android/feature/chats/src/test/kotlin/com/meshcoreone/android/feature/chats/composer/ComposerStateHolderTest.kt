@@ -2,9 +2,14 @@
 package com.meshcoreone.android.feature.chats.composer
 
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceException
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.model.Coordinate
+import com.meshcoreone.android.core.model.ChannelMessageEnvelope
+import com.meshcoreone.android.core.model.DirectMessageEnvelope
+import com.meshcoreone.android.core.model.MessageStatus
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.feature.chats.list.support.Fixtures
 import com.meshcoreone.android.feature.chats.list.support.Scenario
@@ -88,13 +93,15 @@ class ComposerStateHolderTest {
     }
 
     @Test
-    fun `send clears the field, sends the trimmed text once and re-enables after one second`() = scenario {
+    fun `send clears the field, enqueues the trimmed text once and re-enables after one second`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
         rig.holder.onDraftChanged("  hello  ")
         assertTrue(rig.holder.send())
         assertEquals("", rig.state.draft)
         assertNull(rig.drafts.values[ComposerTarget.Direct(alice).conversationId])
-        assertEquals(listOf("createPendingDirect:hello", "sendPendingDirect"), rig.port.calls)
+        assertEquals(listOf("createPendingDirect:hello", "enqueueDM"), rig.port.calls)
+        assertEquals(DirectMessageEnvelope(rig.port.pendingMessages.single().id, alice.id), rig.port.directEnvelopes.single())
+        assertTrue(rig.port.channelEnvelopes.isEmpty())
         assertEquals(listOf(1_000L), rig.timer.requested)
         rig.holder.onDraftChanged("again")
         assertFalse(rig.state.canSend, "cooling down")
@@ -105,16 +112,16 @@ class ComposerStateHolderTest {
     }
 
     @Test
-    fun `a second send while the first is in flight is rejected even after the cooldown`() = scenario {
+    fun `a second send while enqueue is in flight is rejected even after the cooldown`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
-        rig.port.sendGate = CompletableDeferred()
+        rig.port.enqueueGate = CompletableDeferred()
         rig.holder.onDraftChanged("one")
         assertTrue(rig.holder.send())
         rig.timer.advance()
         rig.holder.onDraftChanged("two")
         assertIs<ComposerSendPhase.Sending>(rig.state.sendPhase)
         assertFalse(rig.holder.send())
-        rig.port.sendGate!!.complete(Unit)
+        rig.port.enqueueGate!!.complete(Unit)
         assertEquals(ComposerSendPhase.Idle, rig.state.sendPhase)
         assertEquals(1, rig.port.calls.count { it.startsWith("createPending") })
     }
@@ -124,7 +131,110 @@ class ComposerStateHolderTest {
         val rig = rig(ComposerTarget.Channel(channel))
         rig.holder.onDraftChanged("net check")
         rig.holder.send()
-        assertEquals(listOf("createPendingChannel:2:net check", "sendPendingChannel"), rig.port.calls)
+        assertEquals(listOf("createPendingChannel:2:net check", "enqueueChannel"), rig.port.calls)
+        val pending = rig.port.pendingMessages.single()
+        assertEquals(ChannelMessageEnvelope(pending.id, 2u, false, pending.text, pending.timestamp, null),
+            rig.port.channelEnvelopes.single())
+        assertTrue(rig.port.directEnvelopes.isEmpty())
+    }
+
+    @Test
+    fun `channel envelope captures current node identity after pending creation`() = scenario {
+        val env = FakeEnvironment(device = ComposerDeviceInfo("Before", Bytes(ByteArray(32))))
+        val rig = rig(ComposerTarget.Channel(channel), env)
+        rig.port.createGate = CompletableDeferred()
+        rig.holder.onDraftChanged("  original \u4e2d\uD83D\uDE80 text  ")
+        assertTrue(rig.holder.send())
+        assertTrue(rig.port.channelEnvelopes.isEmpty())
+        env.device.value = ComposerDeviceInfo("After", Bytes(ByteArray(32)))
+        rig.port.createGate!!.complete(Unit)
+        val pending = rig.port.pendingMessages.single()
+        assertEquals("original \u4e2d\uD83D\uDE80 text", pending.text)
+        assertEquals(channel.radioId, pending.radioId)
+        assertEquals(channel.index, pending.channelIndex)
+        assertEquals(ChannelMessageEnvelope(pending.id, channel.index, false, pending.text, pending.timestamp, "After"),
+            rig.port.channelEnvelopes.single())
+    }
+
+    @Test
+    fun `enqueue acceptance does not fabricate wire delivery or create another message`() = scenario {
+        for (target in listOf<ComposerTarget>(ComposerTarget.Direct(alice), ComposerTarget.Channel(channel))) {
+            val rig = rig(target)
+            rig.port.enqueueGate = CompletableDeferred()
+            rig.holder.onDraftChanged("hello")
+            assertTrue(rig.holder.send())
+            assertIs<ComposerSendPhase.Sending>(rig.state.sendPhase)
+            val pending = rig.port.pendingMessages.single()
+            assertEquals(MessageStatus.PENDING, pending.status)
+            rig.port.enqueueGate!!.complete(Unit)
+            assertEquals(ComposerSendPhase.Idle, rig.state.sendPhase)
+            assertEquals(listOf(pending), rig.port.pendingMessages)
+            assertEquals(MessageStatus.PENDING, pending.status)
+            assertEquals(1, rig.port.directEnvelopes.size + rig.port.channelEnvelopes.size)
+            assertTrue(rig.port.localEnqueueFailures.isEmpty())
+        }
+    }
+
+    @Test
+    fun `typed queue failures retain saved pending state and current draft for both targets`() = scenario {
+        val failures = listOf(
+            ChatSendQueueServiceException(ChatSendQueueServiceError.NotConnected) to ComposerSendFailure.NOT_CONNECTED,
+            ChatSendQueueServiceException(ChatSendQueueServiceError.PersistFailed(IllegalStateException("synthetic store failure"))) to ComposerSendFailure.OTHER,
+        )
+        for (target in listOf<ComposerTarget>(ComposerTarget.Direct(alice), ComposerTarget.Channel(channel))) {
+            for ((failure, reason) in failures) {
+                val rig = rig(target)
+                rig.port.enqueueGate = CompletableDeferred()
+                rig.port.enqueueFailure = failure
+                rig.holder.onDraftChanged("saved pending")
+                assertTrue(rig.holder.send())
+                rig.holder.onDraftChanged("new draft")
+                rig.port.enqueueGate!!.complete(Unit)
+                assertEquals(ComposerSendPhase.Failed(reason, messageSaved = true), rig.state.sendPhase)
+                assertEquals("new draft", rig.state.draft)
+                assertEquals("new draft", rig.drafts.values[target.conversationId])
+                assertEquals("saved pending", rig.port.pendingMessages.single().text)
+                assertEquals(listOf<Throwable>(failure), rig.failures)
+                assertEquals(listOf(rig.port.pendingMessages.single().id), rig.port.localEnqueueFailures)
+            }
+        }
+    }
+
+    @Test
+    fun `delayed creation failure never overwrites a newly typed draft or enqueues`() = scenario {
+        for (target in listOf<ComposerTarget>(ComposerTarget.Direct(alice), ComposerTarget.Channel(channel))) {
+            val rig = rig(target)
+            rig.port.createGate = CompletableDeferred()
+            rig.port.createFailure = MessageServiceException(MessageServiceError.NotConnected)
+            rig.holder.onDraftChanged("captured draft")
+            assertTrue(rig.holder.send())
+            rig.holder.onDraftChanged("new draft")
+            rig.port.createGate!!.complete(Unit)
+            assertEquals("new draft", rig.state.draft)
+            assertEquals("new draft", rig.drafts.values[target.conversationId])
+            assertEquals(ComposerSendPhase.Failed(ComposerSendFailure.NOT_CONNECTED, messageSaved = false), rig.state.sendPhase)
+            assertTrue(rig.port.pendingMessages.isEmpty())
+            assertTrue(rig.port.directEnvelopes.isEmpty() && rig.port.channelEnvelopes.isEmpty())
+            assertTrue(rig.port.localEnqueueFailures.isEmpty())
+            assertEquals(1, rig.failures.size)
+        }
+    }
+
+    @Test
+    fun `enqueue cancellation is neither success nor failure and does not duplicate the saved pending draft`() = scenario {
+        for (target in listOf<ComposerTarget>(ComposerTarget.Direct(alice), ComposerTarget.Channel(channel))) {
+            val rig = rig(target)
+            rig.port.enqueueFailure = CancellationException("synthetic observer cancellation")
+            rig.holder.onDraftChanged("saved pending")
+            assertTrue(rig.holder.send())
+            assertTrue(rig.failures.isEmpty())
+            assertIs<ComposerSendPhase.Sending>(rig.state.sendPhase)
+            assertEquals("", rig.state.draft)
+            assertNull(rig.drafts.values[target.conversationId])
+            assertEquals("saved pending", rig.port.pendingMessages.single().text)
+            assertEquals(1, rig.port.directEnvelopes.size + rig.port.channelEnvelopes.size)
+            assertTrue(rig.port.localEnqueueFailures.isEmpty())
+        }
     }
 
     @Test
@@ -142,7 +252,9 @@ class ComposerStateHolderTest {
     @Test
     fun `failure after the pending row exists leaves the draft empty and defers retry to the timeline`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
-        rig.port.sendFailure = MessageServiceException(MessageServiceError.SendFailed("radio busy"))
+        rig.port.enqueueFailure = ChatSendQueueServiceException(
+            ChatSendQueueServiceError.PersistFailed(IllegalStateException("synthetic queue persistence failure")),
+        )
         rig.holder.onDraftChanged("hello")
         rig.holder.send()
         assertEquals("", rig.state.draft)
@@ -154,7 +266,7 @@ class ComposerStateHolderTest {
     @Test
     fun `cancellation is not reported as a send failure`() = scenario {
         val rig = rig(ComposerTarget.Direct(alice))
-        rig.port.sendFailure = CancellationException("screen closed")
+        rig.port.enqueueFailure = CancellationException("screen closed")
         rig.holder.onDraftChanged("hello")
         rig.holder.send()
         assertTrue(rig.failures.isEmpty())
