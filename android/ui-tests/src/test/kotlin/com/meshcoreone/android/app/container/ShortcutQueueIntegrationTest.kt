@@ -139,7 +139,7 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
                 radio.queueMessage(recipient, "x".repeat(ProtocolLimits.MAX_DIRECT_MESSAGE_LENGTH + 1))
             }.error)
             assertEquals(ShortcutError.INVALID_RECIPIENT, assertFailsWith<ShortcutException> {
-                radio.queueMessage(ShortcutRecipient.Contact(recipient.dto.copy(type = ContactType.REPEATER)), original)
+                radio.queueMessage(ShortcutRecipient.Contact(recipient.dto.copy(typeRawValue = ContactType.REPEATER.rawValue)), original)
             }.error)
             assertTrue(messages(store, recipient).isEmpty())
             h.manager.disconnect(RuntimeDisconnectReason.USER_INITIATED)
@@ -220,7 +220,10 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
     @Test fun syncingShortcutQueueWaitsForRealSyncCompletionWhileAdvertRemainsReadyOnly() = runTest {
         val radio = RadioId(UUID.fromString("447175B7-557D-4F48-B671-4B2CEE2DC932"))
         store.saveDevice(DeviceDTO(radioId = radio, publicKey = key(7), nodeName = "Restored", isActive = false))
-        val contact = ContactDTO(radioId = radio, publicKey = peerKey, name = "Synthetic shortcut peer", lastHeardTimestamp = null)
+        val contact = ContactDTO(
+            radioId = radio, publicKey = peerKey, name = "Synthetic shortcut peer",
+            typeRawValue = ContactType.CHAT.rawValue, lastHeardTimestamp = null,
+        )
         store.saveContact(contact)
         val h = ContainerHarness(this, store)
         configure(h, holdSync = true, rejectSend = true)
