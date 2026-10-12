@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "1ddffb77ce782da5e6b6988d7c43ca71b229084e18e046ccc8df34c90d574ad8",
+  "proposal_sha256": "71a1c9543f8c49d57280850af355a9089d730df44728aa3a9a81af9cb4315ff2",
   "families": [
     {
       "group": "backup-envelope",
@@ -47260,7 +47260,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -47298,7 +47298,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "ACK timeout keeps message .sent through the grace window so a late ACK can still reconcile",
         "line": 50,
@@ -47483,7 +47483,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -47509,7 +47509,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "checkExpiredAcks does not broadcast failure when DB stays delivered",
         "line": 70,
@@ -47664,7 +47664,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -47690,7 +47690,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "checkExpiredAcks fails a DM after max(ackGiveUpWindow, per-attempt timeout); the window is the floor",
         "line": 79,
@@ -47851,7 +47851,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -47877,7 +47877,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "checkExpiredAcks honors a per-attempt timeout longer than the give-up window (slow preset)",
         "line": 87,
@@ -48038,7 +48038,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -48064,7 +48064,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "checkExpiredAcks marks expired ACK as failed",
         "line": 42,
@@ -48225,7 +48225,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -48245,7 +48245,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "checkExpiredAcks preserves non-expired ACK",
         "line": 60,
@@ -48352,7 +48352,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -48372,7 +48372,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "checkExpiredAcks skips already-delivered ACK",
         "line": 65,
@@ -48479,7 +48479,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -48505,7 +48505,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "failAllPendingMessages does not downgrade or notify on a delivered DB row",
         "line": 115,
@@ -48660,7 +48660,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -48704,7 +48704,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "failAllPendingMessages fails all non-delivered and broadcasts .failed",
         "line": 105,
@@ -48913,7 +48913,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -48939,25 +48939,31 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime",
-        "line": 136,
-        "end_line": 141,
+        "line": 137,
+        "end_line": 143,
         "factory_method": "acknowledgements",
         "registration_identity_resolution": "exact-literal-display",
-        "body_sha256": "cc1ac2630627e2a8253c0a779208b8f296607d78db05c1c862b42d2aa738a873",
+        "body_sha256": "ae4860fbfc4d3ced8e00b83e3f10f7c06bc2623a1d746fb2ae8f5dbc8755d1c5",
         "registration": "original(\"MessageServiceACKTests\", \"handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime\")",
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 140,
+            "line": 139,
+            "expression": "assertEquals(SELF, h.session.currentSelfInfo?.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 142,
             "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertNull",
-            "line": 140,
+            "line": 142,
             "expression": "assertNull(h.stored(m.id).roundTripTime)",
             "assertion_or_checked_wait": true
           }
@@ -48965,61 +48971,67 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 137,
+            "line": 138,
             "expression": "Harness(this, sessionTimeout = 5.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 137,
+            "line": 138,
             "expression": "Bytes.of(0xBE, 0xBA, 0xFE, 0xCA)",
             "assertion_or_checked_wait": false
           },
           {
+            "name": "h.session.start",
+            "line": 139,
+            "expression": "h.session.start()",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "sourceMessage",
-            "line": 138,
+            "line": 140,
             "expression": "sourceMessage(h, ackCode = 0xCAFE_BABEu)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePending",
-            "line": 138,
+            "line": 140,
             "expression": "sourcePending(h, code, m.id, age = 2)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 139,
+            "line": 141,
             "expression": "h.service.installPendingAck(tracking)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.handleAcknowledgement",
-            "line": 139,
+            "line": 141,
             "expression": "h.service.handleAcknowledgement(tracking.ackCodes.first(), null)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "tracking.ackCodes.first",
-            "line": 139,
+            "line": 141,
             "expression": "tracking.ackCodes.first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 140,
+            "line": 142,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 140,
+            "line": 142,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 140,
+            "line": 142,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -49076,7 +49088,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -49108,31 +49120,37 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "handleAcknowledgement matches any CRC accumulated across retry attempts",
-        "line": 142,
-        "end_line": 148,
+        "line": 144,
+        "end_line": 151,
         "factory_method": "acknowledgements",
         "registration_identity_resolution": "exact-literal-display",
-        "body_sha256": "81d8f757a2ae4ad74d5af8c31f7b515d05d00fbf261089364ee00d63a30370d3",
+        "body_sha256": "3827cb2a935ec6631644ab871d0755272a899b2d0107a1fdcb4d18466fa1df2d",
         "registration": "original(\"MessageServiceACKTests\", \"handleAcknowledgement matches any CRC accumulated across retry attempts\")",
         "assertions": [
           {
             "name": "assertEquals",
             "line": 146,
+            "expression": "assertEquals(SELF, h.session.currentSelfInfo?.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 149,
             "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 147,
+            "line": 150,
             "expression": "assertEquals(500u, h.stored(m.id).roundTripTime)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 147,
+            "line": 150,
             "expression": "assertEquals(0, h.service.pendingAckCount)",
             "assertion_or_checked_wait": true
           }
@@ -49140,85 +49158,91 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 143,
+            "line": 145,
             "expression": "Harness(this, sessionTimeout = 5.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceMessage",
-            "line": 143,
+            "line": 145,
             "expression": "sourceMessage(h, MessageStatus.PENDING)",
             "assertion_or_checked_wait": false
           },
           {
+            "name": "h.session.start",
+            "line": 146,
+            "expression": "h.session.start()",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "Bytes.of",
-            "line": 144,
+            "line": 147,
             "expression": "Bytes.of(0xAA, 0xAA, 0xAA, 0xAA)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 145,
+            "line": 148,
             "expression": "h.service.installPendingAck(sourcePending(h, first, m.id).copy(ackCodes = SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)))))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePending",
-            "line": 145,
+            "line": 148,
             "expression": "sourcePending(h, first, m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "copy",
-            "line": 145,
+            "line": 148,
             "expression": "copy(ackCodes = SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC))))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "SnapshotSet",
-            "line": 145,
+            "line": 148,
             "expression": "SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 145,
+            "line": 148,
             "expression": "listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 145,
+            "line": 148,
             "expression": "Bytes.of(0xBB, 0xBB, 0xBB, 0xBB)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 145,
+            "line": 148,
             "expression": "Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.handleAcknowledgement",
-            "line": 146,
+            "line": 149,
             "expression": "h.service.handleAcknowledgement(first, 500u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 146,
+            "line": 149,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 147,
+            "line": 150,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 147,
+            "line": 150,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -49275,7 +49299,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -49301,25 +49325,31 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "handleAcknowledgement uses firmware tripTime when provided",
         "line": 130,
-        "end_line": 135,
+        "end_line": 136,
         "factory_method": "acknowledgements",
         "registration_identity_resolution": "exact-literal-display",
-        "body_sha256": "5a1c2c569c451084096b116573baf1e8438588109c2de52ca63550be26873753",
+        "body_sha256": "0f84d93e7d1f807832e7389d0af887c2c7e61fb2f1cad88be916439a5aea71e9",
         "registration": "original(\"MessageServiceACKTests\", \"handleAcknowledgement uses firmware tripTime when provided\")",
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 134,
+            "line": 132,
+            "expression": "assertEquals(SELF, h.session.currentSelfInfo?.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 135,
             "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 134,
+            "line": 135,
             "expression": "assertEquals(250u, h.stored(m.id).roundTripTime)",
             "assertion_or_checked_wait": true
           }
@@ -49338,50 +49368,56 @@
             "assertion_or_checked_wait": false
           },
           {
-            "name": "sourceMessage",
+            "name": "h.session.start",
             "line": 132,
+            "expression": "h.session.start()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "sourceMessage",
+            "line": 133,
             "expression": "sourceMessage(h, ackCode = 0xDEAD_BEEFu)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourcePending",
-            "line": 132,
+            "line": 133,
             "expression": "sourcePending(h, code, m.id, age = 10)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 133,
+            "line": 134,
             "expression": "h.service.installPendingAck(tracking)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.handleAcknowledgement",
-            "line": 133,
+            "line": 134,
             "expression": "h.service.handleAcknowledgement(tracking.ackCodes.first(), 250u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "tracking.ackCodes.first",
-            "line": 133,
+            "line": 134,
             "expression": "tracking.ackCodes.first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 134,
+            "line": 135,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 134,
+            "line": 135,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 134,
+            "line": 135,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -49438,7 +49474,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -49470,7 +49506,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "isAckExpiryCheckingActive toggles correctly",
         "line": 30,
@@ -49577,7 +49613,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -49609,7 +49645,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "stopAckExpiryChecking cancels the background task",
         "line": 35,
@@ -49728,7 +49764,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -49766,7 +49802,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "stopAckExpiryChecking leaves in-flight DMs .sent instead of failing them",
         "line": 95,
@@ -49945,7 +49981,7 @@
     },
     {
       "group": "messaging-ack-original-unstarted-expiry-failure-toggle-trip-time-and-multi-attempt",
-      "comparison_sha256": "67657a8208ce680706b6137be7e3342e06fd308f0e284fee69502e6cb2546082",
+      "comparison_sha256": "9bbed73d634d6753ef12aec7e3321b2998598abe3eaf10b39544cc7994e19a89",
       "source_file_family_count": 31,
       "group_compared_family_count": 16,
       "partial_source_file": true,
@@ -49977,7 +50013,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceAckTest.kt",
-        "sha256": "9c54f5cd0441937bbc786cf346d90fc51e3c59257013ce66708c2c2b717001a4",
+        "sha256": "edab55a87d7e079873489c9a6399e40201c0bda1d9061caa9d6fe5cd942b0dfc",
         "class": "com.meshcoreone.android.core.services.messaging.SourceAckTest",
         "method_or_family_name": "stopAndFailAllPending stops checking and fails all pending",
         "line": 124,
@@ -50300,11 +50336,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "listener flips message to .delivered after a flood of non-matching events",
-        "line": 339,
-        "end_line": 351,
+        "line": 343,
+        "end_line": 355,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "ab8625ec421dc9187db1e31394933a04c75cbb4cc86a9dc57e71a5e579cadcbc",
@@ -50312,31 +50348,31 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 345,
+            "line": 349,
             "expression": "assertEquals(1, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 348,
+            "line": 352,
             "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 348,
+            "line": 352,
             "expression": "assertEquals(1234u, h.stored(m.id).roundTripTime)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 349,
+            "line": 353,
             "expression": "assertEquals(0L, dispatcher.droppedEventCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 350,
+            "line": 354,
             "expression": "assertEquals(0, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           }
@@ -50344,127 +50380,127 @@
         "actions_and_helper_calls": [
           {
             "name": "EventDispatcher",
-            "line": 340,
+            "line": 344,
             "expression": "EventDispatcher()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Harness",
-            "line": 341,
+            "line": 345,
             "expression": "Harness(this, sessionTimeout = 5.0, eventDispatcher = dispatcher)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 341,
+            "line": 345,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.message",
-            "line": 342,
+            "line": 346,
             "expression": "h.message(text = \"Test message\", timestamp = h.clock.wallClock.instant().epochSecond.toUInt())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.clock.wallClock.instant",
-            "line": 342,
+            "line": 346,
             "expression": "h.clock.wallClock.instant()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 342,
+            "line": 346,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.tracking",
-            "line": 343,
+            "line": 347,
             "expression": "h.tracking(m)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 343,
+            "line": 347,
             "expression": "h.service.installPendingAck(t)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.startEventMonitoring",
-            "line": 344,
+            "line": 348,
             "expression": "h.service.startEventMonitoring()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "repeat",
-            "line": 346,
+            "line": 350,
             "expression": "repeat(500)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dispatcher.dispatch",
-            "line": 346,
+            "line": 350,
             "expression": "dispatcher.dispatch(MeshEvent.Advertisement(Bytes.of(it % 256)))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MeshEvent.Advertisement",
-            "line": 346,
+            "line": 350,
             "expression": "MeshEvent.Advertisement(Bytes.of(it % 256))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 346,
+            "line": 350,
             "expression": "Bytes.of(it % 256)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dispatcher.dispatch",
-            "line": 347,
+            "line": 351,
             "expression": "dispatcher.dispatch(MeshEvent.Acknowledgement(t.ackCodes.first(), 1234u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MeshEvent.Acknowledgement",
-            "line": 347,
+            "line": 351,
             "expression": "MeshEvent.Acknowledgement(t.ackCodes.first(), 1234u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "t.ackCodes.first",
-            "line": 347,
+            "line": 351,
             "expression": "t.ackCodes.first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 347,
+            "line": 351,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 348,
+            "line": 352,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 348,
+            "line": 352,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.stopEventMonitoring",
-            "line": 350,
+            "line": 354,
             "expression": "h.service.stopEventMonitoring()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 350,
+            "line": 354,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -50531,11 +50567,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "listener restart after disconnect/reconnect still observes ACKs",
-        "line": 352,
-        "end_line": 363,
+        "line": 356,
+        "end_line": 367,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "1dbe952cd50401e43f9878ecd5fa746b1cc1766592fab55252c28b73fdae4e0e",
@@ -50543,37 +50579,37 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 357,
+            "line": 361,
             "expression": "assertEquals(1, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 358,
+            "line": 362,
             "expression": "assertFalse(h.service.isEventMonitoringActive)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 358,
+            "line": 362,
             "expression": "assertEquals(0, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 359,
+            "line": 363,
             "expression": "assertEquals(1, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 361,
+            "line": 365,
             "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 362,
+            "line": 366,
             "expression": "assertEquals(0, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           }
@@ -50581,115 +50617,115 @@
         "actions_and_helper_calls": [
           {
             "name": "EventDispatcher",
-            "line": 353,
+            "line": 357,
             "expression": "EventDispatcher()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Harness",
-            "line": 354,
+            "line": 358,
             "expression": "Harness(this, sessionTimeout = 5.0, eventDispatcher = dispatcher)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 354,
+            "line": 358,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.message",
-            "line": 355,
+            "line": 359,
             "expression": "h.message(text = \"Test message\", timestamp = h.clock.wallClock.instant().epochSecond.toUInt())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.clock.wallClock.instant",
-            "line": 355,
+            "line": 359,
             "expression": "h.clock.wallClock.instant()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 355,
+            "line": 359,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.tracking",
-            "line": 356,
+            "line": 360,
             "expression": "h.tracking(m, code = Bytes.of(0x11, 0x22, 0x33, 0x44))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 356,
+            "line": 360,
             "expression": "Bytes.of(0x11, 0x22, 0x33, 0x44)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 356,
+            "line": 360,
             "expression": "h.service.installPendingAck(t)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.startEventMonitoring",
-            "line": 357,
+            "line": 361,
             "expression": "h.service.startEventMonitoring()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.stopEventMonitoring",
-            "line": 358,
+            "line": 362,
             "expression": "h.service.stopEventMonitoring()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.startEventMonitoring",
-            "line": 359,
+            "line": 363,
             "expression": "h.service.startEventMonitoring()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dispatcher.dispatch",
-            "line": 360,
+            "line": 364,
             "expression": "dispatcher.dispatch(MeshEvent.Acknowledgement(t.ackCodes.first(), 200u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MeshEvent.Acknowledgement",
-            "line": 360,
+            "line": 364,
             "expression": "MeshEvent.Acknowledgement(t.ackCodes.first(), 200u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "t.ackCodes.first",
-            "line": 360,
+            "line": 364,
             "expression": "t.ackCodes.first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 360,
+            "line": 364,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 361,
+            "line": 365,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.stopEventMonitoring",
-            "line": 362,
+            "line": 366,
             "expression": "h.service.stopEventMonitoring()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 362,
+            "line": 366,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -51011,7 +51047,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51037,11 +51073,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "a genuine send exception still fails the DM through the outer catch",
-        "line": 274,
-        "end_line": 279,
+        "line": 278,
+        "end_line": 283,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "17e3609881e16bb0f3d041d046b07c003e60f0c68b18bd38a55339ca1ca7d1dd",
@@ -51049,19 +51085,19 @@
         "assertions": [
           {
             "name": "assertFailsWith",
-            "line": 276,
+            "line": 280,
             "expression": "assertFailsWith<Exception> { h.service.sendMessageWithRetry(\"boom\", h.contact) }",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 277,
+            "line": 281,
             "expression": "assertEquals(MessageStatus.FAILED, h.store.fetchMessages(EntityKey(RADIO, h.contact.id), 10, 0).first().status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 278,
+            "line": 282,
             "expression": "assertEquals(MessageStatus.FAILED, h.store.messages.values.single().status)",
             "assertion_or_checked_wait": true
           }
@@ -51069,61 +51105,61 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 275,
+            "line": 279,
             "expression": "Harness(this, sessionTimeout = 10.0, contact = sourceContact())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 275,
+            "line": 279,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 275,
+            "line": 279,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.transport.mock.failSends",
-            "line": 275,
+            "line": 279,
             "expression": "h.transport.mock.failSends(2)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendMessageWithRetry",
-            "line": 276,
+            "line": 280,
             "expression": "h.service.sendMessageWithRetry(\"boom\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.fetchMessages",
-            "line": 277,
+            "line": 281,
             "expression": "h.store.fetchMessages(EntityKey(RADIO, h.contact.id), 10, 0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 277,
+            "line": 281,
             "expression": "EntityKey(RADIO, h.contact.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first",
-            "line": 277,
+            "line": 281,
             "expression": "first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.messages.values.single",
-            "line": 278,
+            "line": 282,
             "expression": "h.store.messages.values.single()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 278,
+            "line": 282,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -51198,7 +51234,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51230,11 +51266,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "checkExpiredAcks cannot fail a DM while its retry loop is still inside waitForEvent",
-        "line": 280,
-        "end_line": 292,
+        "line": 284,
+        "end_line": 296,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "197f1d784189cf926fa0c57b536d1ca57ef20f88bc4cff16c3a99207dcd14e07",
@@ -51242,31 +51278,31 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 287,
+            "line": 291,
             "expression": "assertEquals(1, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertNotEquals",
-            "line": 288,
+            "line": 292,
             "expression": "assertNotEquals(MessageStatus.FAILED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertNotEquals",
-            "line": 289,
+            "line": 293,
             "expression": "assertNotEquals(MessageStatus.FAILED, h.store.fetchMessages(EntityKey(RADIO, CONTACT), 1, 0).first().status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 290,
+            "line": 294,
             "expression": "assertEquals(1, h.service.pendingAckCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 291,
+            "line": 295,
             "expression": "assertEquals(MessageStatus.DELIVERED, sending.await().status)",
             "assertion_or_checked_wait": true
           }
@@ -51274,115 +51310,115 @@
         "actions_and_helper_calls": [
           {
             "name": "EventDispatcher",
-            "line": 281,
+            "line": 285,
             "expression": "EventDispatcher()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Harness",
-            "line": 282,
+            "line": 286,
             "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5),\n                sessionTimeout = 20.0, eventDispatcher = dispatcher, contact = sourceContact())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageServiceConfig",
-            "line": 282,
+            "line": 286,
             "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 283,
+            "line": 287,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 284,
+            "line": 288,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 284,
+            "line": 288,
             "expression": "Bytes.of(0x7A, 0x7B, 0x7C, 0x7D)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendMessageWithRetry",
-            "line": 286,
+            "line": 290,
             "expression": "h.service.sendMessageWithRetry(\"in flight\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 286,
+            "line": 290,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.checkExpiredAcks",
-            "line": 288,
+            "line": 292,
             "expression": "h.service.checkExpiredAcks()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.messages.values.single",
-            "line": 288,
+            "line": 292,
             "expression": "h.store.messages.values.single()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 288,
+            "line": 292,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.fetchMessages",
-            "line": 289,
+            "line": 293,
             "expression": "h.store.fetchMessages(EntityKey(RADIO, CONTACT), 1, 0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 289,
+            "line": 293,
             "expression": "EntityKey(RADIO, CONTACT)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first",
-            "line": 289,
+            "line": 293,
             "expression": "first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dispatcher.dispatch",
-            "line": 290,
+            "line": 294,
             "expression": "dispatcher.dispatch(MeshEvent.Acknowledgement(Bytes.of(0x7A, 0x7B, 0x7C, 0x7D), 100u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MeshEvent.Acknowledgement",
-            "line": 290,
+            "line": 294,
             "expression": "MeshEvent.Acknowledgement(Bytes.of(0x7A, 0x7B, 0x7C, 0x7D), 100u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 290,
+            "line": 294,
             "expression": "Bytes.of(0x7A, 0x7B, 0x7C, 0x7D)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sending.await",
-            "line": 291,
+            "line": 295,
             "expression": "sending.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 291,
+            "line": 295,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -51457,7 +51493,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51489,11 +51525,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "checkExpiredAcks respects a slow-preset per-attempt timeout that exceeds a tiny give-up window",
-        "line": 293,
-        "end_line": 306,
+        "line": 297,
+        "end_line": 310,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "70121779de33e1c66adf94d954ebd2a7a6285144e71c4db9f285948ec640ec88",
@@ -51501,31 +51537,31 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 300,
+            "line": 304,
             "expression": "assertEquals(1, dispatcher.subscriberCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertNotEquals",
-            "line": 302,
+            "line": 306,
             "expression": "assertNotEquals(MessageStatus.FAILED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertNotEquals",
-            "line": 303,
+            "line": 307,
             "expression": "assertNotEquals(MessageStatus.FAILED, h.store.fetchMessages(EntityKey(RADIO, CONTACT), 1, 0).first().status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 304,
+            "line": 308,
             "expression": "assertEquals(1, h.service.pendingAckCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 305,
+            "line": 309,
             "expression": "assertEquals(MessageStatus.DELIVERED, sending.await().status)",
             "assertion_or_checked_wait": true
           }
@@ -51533,127 +51569,127 @@
         "actions_and_helper_calls": [
           {
             "name": "EventDispatcher",
-            "line": 294,
+            "line": 298,
             "expression": "EventDispatcher()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Harness",
-            "line": 295,
+            "line": 299,
             "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5, ackGiveUpWindow = 1.0),\n                sessionTimeout = 20.0, eventDispatcher = dispatcher, contact = sourceContact())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageServiceConfig",
-            "line": 295,
+            "line": 299,
             "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5, ackGiveUpWindow = 1.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 296,
+            "line": 300,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 297,
+            "line": 301,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 297,
+            "line": 301,
             "expression": "Bytes.of(0x7A, 0x7B, 0x7C, 0x7D)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendMessageWithRetry",
-            "line": 299,
+            "line": 303,
             "expression": "h.service.sendMessageWithRetry(\"slow preset\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 299,
+            "line": 303,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "advanceTimeBy",
-            "line": 301,
+            "line": 305,
             "expression": "advanceTimeBy(2000)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 301,
+            "line": 305,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.checkExpiredAcks",
-            "line": 301,
+            "line": 305,
             "expression": "h.service.checkExpiredAcks()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.messages.values.single",
-            "line": 302,
+            "line": 306,
             "expression": "h.store.messages.values.single()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 302,
+            "line": 306,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.fetchMessages",
-            "line": 303,
+            "line": 307,
             "expression": "h.store.fetchMessages(EntityKey(RADIO, CONTACT), 1, 0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "EntityKey",
-            "line": 303,
+            "line": 307,
             "expression": "EntityKey(RADIO, CONTACT)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "first",
-            "line": 303,
+            "line": 307,
             "expression": "first()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "dispatcher.dispatch",
-            "line": 304,
+            "line": 308,
             "expression": "dispatcher.dispatch(MeshEvent.Acknowledgement(Bytes.of(0x7A, 0x7B, 0x7C, 0x7D), 100u))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MeshEvent.Acknowledgement",
-            "line": 304,
+            "line": 308,
             "expression": "MeshEvent.Acknowledgement(Bytes.of(0x7A, 0x7B, 0x7C, 0x7D), 100u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 304,
+            "line": 308,
             "expression": "Bytes.of(0x7A, 0x7B, 0x7C, 0x7D)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sending.await",
-            "line": 305,
+            "line": 309,
             "expression": "sending.await()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 305,
+            "line": 309,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -51728,7 +51764,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51754,7 +51790,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage accepts user text that fills the composed cap",
         "line": 154,
@@ -51897,7 +51933,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -51959,7 +51995,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage saves to dataStore with pending status",
         "line": 139,
@@ -52138,7 +52174,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -52151,7 +52187,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage throws when user text plus node name exceeds composed cap",
         "line": 148,
@@ -52294,7 +52330,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -52307,7 +52343,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingChannelMessage without a device assumes a 31-byte name",
         "line": 160,
@@ -52506,7 +52542,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage creates message with pending status",
         "line": 74,
@@ -52699,7 +52735,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage returns DTO with correct fields",
         "line": 95,
@@ -52850,7 +52886,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage stamps lastMessageDate so a first DM appears in the chat list before any send succeeds",
         "line": 101,
@@ -53000,7 +53036,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage throws invalidRecipient for repeater",
         "line": 83,
@@ -53114,7 +53150,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "createPendingMessage throws messageTooLong for oversized text",
         "line": 89,
@@ -53215,7 +53251,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53241,11 +53277,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "failMessageAndRethrow does not downgrade a delivered DB row",
-        "line": 246,
-        "end_line": 254,
+        "line": 250,
+        "end_line": 258,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "b57f4d6624895d1b4beb40ff8ed78054e097999d714d4879b7c85afe5d9ba30d",
@@ -53253,13 +53289,13 @@
         "assertions": [
           {
             "name": "assertFailsWith",
-            "line": 252,
+            "line": 256,
             "expression": "assertFailsWith<MessageServiceException> { h.service.failMessageAndRethrow(com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected(), m.id) }",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 253,
+            "line": 257,
             "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           }
@@ -53267,79 +53303,79 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 247,
+            "line": 251,
             "expression": "Harness(this, sessionTimeout = 5.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 248,
+            "line": 252,
             "expression": "Bytes.of(0xDD, 0x11, 0x22, 0x33)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.message",
-            "line": 249,
+            "line": 253,
             "expression": "h.message(MessageStatus.DELIVERED, text = \"Test message\",\n                timestamp = h.clock.wallClock.instant().epochSecond.toUInt())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.clock.wallClock.instant",
-            "line": 250,
+            "line": 254,
             "expression": "h.clock.wallClock.instant()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 250,
+            "line": 254,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "copy",
-            "line": 250,
+            "line": 254,
             "expression": "copy(ackCode = ackCode.ackCodeUInt32)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.saveMessage",
-            "line": 251,
+            "line": 255,
             "expression": "h.store.saveMessage(m)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 251,
+            "line": 255,
             "expression": "h.service.installPendingAck(h.tracking(m, code = ackCode, delivered = true))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.tracking",
-            "line": 251,
+            "line": 255,
             "expression": "h.tracking(m, code = ackCode, delivered = true)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.failMessageAndRethrow",
-            "line": 252,
+            "line": 256,
             "expression": "h.service.failMessageAndRethrow(com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected(), m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected",
-            "line": 252,
+            "line": 256,
             "expression": "com.meshcoreone.android.core.protocol.config.MeshCoreException.NotConnected()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 253,
+            "line": 257,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 253,
+            "line": 257,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -53414,7 +53450,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53434,11 +53470,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "finalizeSend exhaustion does not downgrade a delivered DB row",
-        "line": 255,
-        "end_line": 262,
+        "line": 259,
+        "end_line": 266,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "35e2937db2dda191cfe18da6627721290ccca242e0e1adcbb50b5d634a2ea7c2",
@@ -53446,7 +53482,7 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 261,
+            "line": 265,
             "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           }
@@ -53454,73 +53490,73 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 256,
+            "line": 260,
             "expression": "Harness(this, sessionTimeout = 5.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 257,
+            "line": 261,
             "expression": "Bytes.of(0xFE, 0xED, 0xFA, 0xCE)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.message",
-            "line": 258,
+            "line": 262,
             "expression": "h.message(MessageStatus.DELIVERED, text = \"Test message\",\n                timestamp = h.clock.wallClock.instant().epochSecond.toUInt())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.clock.wallClock.instant",
-            "line": 259,
+            "line": 263,
             "expression": "h.clock.wallClock.instant()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 259,
+            "line": 263,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "copy",
-            "line": 259,
+            "line": 263,
             "expression": "copy(ackCode = ackCode.ackCodeUInt32)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.store.saveMessage",
-            "line": 260,
+            "line": 264,
             "expression": "h.store.saveMessage(m)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 260,
+            "line": 264,
             "expression": "h.service.installPendingAck(h.tracking(m, code = ackCode))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.tracking",
-            "line": 260,
+            "line": 264,
             "expression": "h.tracking(m, code = ackCode)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.finalizeSend",
-            "line": 261,
+            "line": 265,
             "expression": "h.service.finalizeSend(m.id, CONTACT, TARGET, null, 0u)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 261,
+            "line": 265,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 261,
+            "line": 265,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -53595,7 +53631,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53608,7 +53644,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendChannelMessage throws when message is not a channel message",
         "line": 185,
@@ -53739,7 +53775,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53752,7 +53788,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendChannelMessage throws when message not found",
         "line": 179,
@@ -53871,7 +53907,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -53909,7 +53945,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendChannelMessage writes .sent before broadcasting .resent and refreshes counts",
         "line": 191,
@@ -54124,7 +54160,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -54150,31 +54186,43 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "resendDirectMessage increments sendCount and broadcasts .resent on a successful resend",
         "line": 201,
-        "end_line": 214,
+        "end_line": 216,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
-        "body_sha256": "8a7f6f0939b3790fc0cba8a3226f6e529e695978e51ec6af9fae85815b8a1ad7",
+        "body_sha256": "01ed62ccedddd998b1859a5602a8c0f96a954b9fb78eaf1fda6941209797f4e7",
         "registration": "original(\"MessageServiceSendTests\", \"resendDirectMessage increments sendCount and broadcasts .resent on a successful resend\")",
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 211,
+            "line": 212,
             "expression": "assertEquals(2L, h.stored(m.id).sendCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 212,
-            "expression": "assertEquals(listOf(MessageStatusEvent.Resent(m.id)), statuses(h.service, events).filterIsInstance<MessageStatusEvent.Resent>())",
+            "line": 213,
+            "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
             "line": 213,
+            "expression": "assertEquals(123u, h.stored(m.id).roundTripTime)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 214,
+            "expression": "assertEquals(listOf(MessageStatusEvent.Resent(m.id)), statuses(h.service, events).filterIsInstance<MessageStatusEvent.Resent>())",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 215,
             "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
             "assertion_or_checked_wait": true
           }
@@ -54225,66 +54273,78 @@
           {
             "name": "h.service.installPendingAck",
             "line": 206,
-            "expression": "h.service.installPendingAck(h.tracking(m, code = ackCode, delivered = true))",
+            "expression": "h.service.installPendingAck(h.tracking(m, code = ackCode))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.tracking",
             "line": 206,
-            "expression": "h.tracking(m, code = ackCode, delivered = true)",
+            "expression": "h.tracking(m, code = ackCode)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.statusEvents",
-            "line": 209,
+            "line": 210,
             "expression": "h.service.statusEvents()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.resendDirectMessage",
-            "line": 210,
+            "line": 211,
             "expression": "h.service.resendDirectMessage(m.id, h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 211,
+            "line": 212,
+            "expression": "h.stored(m.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "h.stored",
+            "line": 213,
+            "expression": "h.stored(m.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "h.stored",
+            "line": 213,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "listOf",
-            "line": 212,
+            "line": 214,
             "expression": "listOf(MessageStatusEvent.Resent(m.id))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageStatusEvent.Resent",
-            "line": 212,
+            "line": 214,
             "expression": "MessageStatusEvent.Resent(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "statuses",
-            "line": 212,
+            "line": 214,
             "expression": "statuses(h.service, events)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "filterIsInstance",
-            "line": 212,
+            "line": 214,
             "expression": "filterIsInstance<MessageStatusEvent.Resent>()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.sends",
-            "line": 213,
+            "line": 215,
             "expression": "h.sends(CommandCode.SEND_MESSAGE)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 213,
+            "line": 215,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -54359,7 +54419,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -54409,11 +54469,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "retry exhaustion leaves the DM .sent with its pending entry alive, never prematurely .failed",
-        "line": 263,
-        "end_line": 273,
+        "line": 267,
+        "end_line": 277,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "d54995feeec96d3f94038dde5b1fa693276fd3101fdec3aae12adf705c82b732",
@@ -54421,37 +54481,37 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 269,
+            "line": 273,
             "expression": "assertEquals(MessageStatus.SENT, m.status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 269,
+            "line": 273,
             "expression": "assertEquals(MessageStatus.SENT, h.stored(m.id).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 270,
+            "line": 274,
             "expression": "assertEquals(1, h.service.pendingAckCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 271,
+            "line": 275,
             "expression": "assertFalse(out.any { it is MessageStatusEvent.Failed })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 272,
+            "line": 276,
             "expression": "assertTrue(out.any { it is MessageStatusEvent.Retrying })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 272,
+            "line": 276,
             "expression": "assertTrue(out.any { it is MessageStatusEvent.StatusResolved })",
             "assertion_or_checked_wait": true
           }
@@ -54459,61 +54519,61 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 264,
+            "line": 268,
             "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5, minTimeout = 0.0),\n                sessionTimeout = 10.0, contact = sourceContact())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageServiceConfig",
-            "line": 264,
+            "line": 268,
             "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5, minTimeout = 0.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 265,
+            "line": 269,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 266,
+            "line": 270,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 266,
+            "line": 270,
             "expression": "Bytes.of(0xA1, 0xB2, 0xC3, 0xD4)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.statusEvents",
-            "line": 267,
+            "line": 271,
             "expression": "h.service.statusEvents()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendMessageWithRetry",
-            "line": 268,
+            "line": 272,
             "expression": "h.service.sendMessageWithRetry(\"exhaust me\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 269,
+            "line": 273,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "statuses",
-            "line": 271,
+            "line": 275,
             "expression": "statuses(h.service, events)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 272,
+            "line": 276,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -54588,7 +54648,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -54626,7 +54686,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendChannelMessage saves message to dataStore before send attempt",
         "line": 128,
@@ -54811,7 +54871,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -54824,7 +54884,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendChannelMessage throws when user text plus node name exceeds composed cap",
         "line": 121,
@@ -54999,7 +55059,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage saves message to dataStore before send attempt",
         "line": 52,
@@ -55173,7 +55233,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage throws invalidRecipient for repeater contacts",
         "line": 40,
@@ -55299,7 +55359,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage throws messageTooLong for oversized text",
         "line": 46,
@@ -55400,7 +55460,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -55413,11 +55473,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race",
-        "line": 228,
-        "end_line": 236,
+        "line": 232,
+        "end_line": 240,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "f317e93ff0b94edf0321085c130b2afa114ccac962164614f53cd5eba26b5db5",
@@ -55425,13 +55485,13 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 234,
+            "line": 238,
             "expression": "assertEquals(1, h.service.pendingAckCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 234,
+            "line": 238,
             "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
             "assertion_or_checked_wait": true
           }
@@ -55439,73 +55499,73 @@
         "actions_and_helper_calls": [
           {
             "name": "Bytes",
-            "line": 229,
+            "line": 233,
             "expression": "Bytes(ByteArray(32) { 0xFE.toByte() })",
             "assertion_or_checked_wait": false
           },
           {
             "name": "ByteArray",
-            "line": 229,
+            "line": 233,
             "expression": "ByteArray(32)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "toByte",
-            "line": 229,
+            "line": 233,
             "expression": "toByte()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Harness",
-            "line": 230,
+            "line": 234,
             "expression": "Harness(this, sessionTimeout = 10.0, contact = sourceContact(),\n                localPublicKey = publicKey, startupPacket = installedSelfInfoPacket(publicKey))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 230,
+            "line": 234,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "installedSelfInfoPacket",
-            "line": 231,
+            "line": 235,
             "expression": "installedSelfInfoPacket(publicKey)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 232,
+            "line": 236,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendDirectMessage",
-            "line": 233,
+            "line": 237,
             "expression": "h.service.sendDirectMessage(\"hi\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 233,
+            "line": 237,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.sends",
-            "line": 234,
+            "line": 238,
             "expression": "h.sends(CommandCode.SEND_MESSAGE)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sending.cancelAndJoin",
-            "line": 235,
+            "line": 239,
             "expression": "sending.cancelAndJoin()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 235,
+            "line": 239,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -55593,7 +55653,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendMessageWithRetry throws invalidRecipient for repeater contacts",
         "line": 62,
@@ -55707,7 +55767,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendMessageWithRetry throws messageTooLong for oversized text",
         "line": 68,
@@ -55808,7 +55868,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -55821,11 +55881,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendMessageWithRetry tracks pending ACK before session.sendMessage",
-        "line": 237,
-        "end_line": 245,
+        "line": 241,
+        "end_line": 249,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "80a85a331c8569b52740a7f18ebec1681124fcfcb328e40e90cddecb43150f9b",
@@ -55833,13 +55893,13 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 243,
+            "line": 247,
             "expression": "assertEquals(1, h.service.pendingAckCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 243,
+            "line": 247,
             "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
             "assertion_or_checked_wait": true
           }
@@ -55847,73 +55907,73 @@
         "actions_and_helper_calls": [
           {
             "name": "Bytes",
-            "line": 238,
+            "line": 242,
             "expression": "Bytes(ByteArray(32) { 0xFE.toByte() })",
             "assertion_or_checked_wait": false
           },
           {
             "name": "ByteArray",
-            "line": 238,
+            "line": 242,
             "expression": "ByteArray(32)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "toByte",
-            "line": 238,
+            "line": 242,
             "expression": "toByte()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Harness",
-            "line": 239,
+            "line": 243,
             "expression": "Harness(this, sessionTimeout = 10.0, contact = sourceContact(),\n                localPublicKey = publicKey, startupPacket = installedSelfInfoPacket(publicKey))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 239,
+            "line": 243,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "installedSelfInfoPacket",
-            "line": 240,
+            "line": 244,
             "expression": "installedSelfInfoPacket(publicKey)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 241,
+            "line": 245,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendMessageWithRetry",
-            "line": 242,
+            "line": 246,
             "expression": "h.service.sendMessageWithRetry(\"hi\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "runCurrent",
-            "line": 242,
+            "line": 246,
             "expression": "runCurrent()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.sends",
-            "line": 243,
+            "line": 247,
             "expression": "h.sends(CommandCode.SEND_MESSAGE)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sending.cancelAndJoin",
-            "line": 244,
+            "line": 248,
             "expression": "sending.cancelAndJoin()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 244,
+            "line": 248,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -55988,7 +56048,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -56014,7 +56074,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingChannelMessage sets failed status on send error",
         "line": 173,
@@ -56157,7 +56217,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -56170,7 +56230,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingChannelMessage throws when message not found",
         "line": 167,
@@ -56289,7 +56349,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -56315,31 +56375,43 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send",
-        "line": 215,
-        "end_line": 227,
+        "line": 217,
+        "end_line": 231,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
-        "body_sha256": "0cb3eb4d80121ae1931ae95c3c55aa821b23f2f0b5378bd52147243cb3bf4b05",
+        "body_sha256": "8d7cf3c36f8dca84978242c1e3616ea44ee1d9198545c8881f2a688e0cd9c0d5",
         "registration": "original(\"MessageServiceSendTests\", \"sendPendingDirectMessage does not bump sendCount or broadcast .resent on first send\")",
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 225,
+            "line": 228,
             "expression": "assertEquals(1L, h.stored(m.id).sendCount)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertFalse",
-            "line": 225,
+            "line": 228,
             "expression": "assertFalse(statuses(h.service, events).any { it is MessageStatusEvent.Resent })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 226,
+            "line": 229,
+            "expression": "assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 229,
+            "expression": "assertEquals(123u, h.stored(m.id).roundTripTime)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 230,
             "expression": "assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size)",
             "assertion_or_checked_wait": true
           }
@@ -56347,91 +56419,103 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 216,
+            "line": 218,
             "expression": "Harness(this, sessionTimeout = 10.0, contact = sourceContact())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 216,
+            "line": 218,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 216,
+            "line": 218,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.message",
-            "line": 217,
+            "line": 219,
             "expression": "h.message(MessageStatus.PENDING, text = \"Test message\",\n                timestamp = h.clock.wallClock.instant().epochSecond.toUInt())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.clock.wallClock.instant",
-            "line": 218,
+            "line": 220,
             "expression": "h.clock.wallClock.instant()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "epochSecond.toUInt",
-            "line": 218,
+            "line": 220,
             "expression": "epochSecond.toUInt()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 219,
+            "line": 221,
             "expression": "Bytes.of(0xAB, 0xCD, 0xEF, 0x12)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.installPendingAck",
-            "line": 220,
-            "expression": "h.service.installPendingAck(h.tracking(m, code = ackCode, delivered = true))",
+            "line": 222,
+            "expression": "h.service.installPendingAck(h.tracking(m, code = ackCode))",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.tracking",
-            "line": 220,
-            "expression": "h.tracking(m, code = ackCode, delivered = true)",
+            "line": 222,
+            "expression": "h.tracking(m, code = ackCode)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.statusEvents",
-            "line": 223,
+            "line": 226,
             "expression": "h.service.statusEvents()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendPendingDirectMessage",
-            "line": 224,
+            "line": 227,
             "expression": "h.service.sendPendingDirectMessage(m.id, h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.stored",
-            "line": 225,
+            "line": 228,
             "expression": "h.stored(m.id)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "statuses",
-            "line": 225,
+            "line": 228,
             "expression": "statuses(h.service, events)",
             "assertion_or_checked_wait": false
           },
           {
+            "name": "h.stored",
+            "line": 229,
+            "expression": "h.stored(m.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "h.stored",
+            "line": 229,
+            "expression": "h.stored(m.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
             "name": "h.sends",
-            "line": 226,
+            "line": 230,
             "expression": "h.sends(CommandCode.SEND_MESSAGE)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 226,
+            "line": 230,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -56519,7 +56603,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingDirectMessage rejects concurrent send for same messageID",
         "line": 109,
@@ -56651,7 +56735,7 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "sendPendingDirectMessage throws when message not found",
         "line": 115,
@@ -56752,7 +56836,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -56784,11 +56868,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "the retry loop escalates from direct to flood via resetPath after exactly config.floodAfter direct failures",
-        "line": 314,
-        "end_line": 322,
+        "line": 318,
+        "end_line": 326,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "16d2af9d2910e9dba48033c97997cc2d7c411cc7174dab6617bd04ce2fda9ec3",
@@ -56796,25 +56880,25 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 318,
+            "line": 322,
             "expression": "assertEquals(MessageStatus.SENT, h.service.sendMessageWithRetry(\"escalate me\", h.contact).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertTrue",
-            "line": 319,
+            "line": 323,
             "expression": "assertTrue(reset >= 0)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 320,
+            "line": 324,
             "expression": "assertEquals(2, h.transport.sentData.take(reset).count { it[0] == CommandCode.SEND_MESSAGE.rawValue })",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 321,
+            "line": 325,
             "expression": "assertEquals(3, h.sends(CommandCode.SEND_MESSAGE).size)",
             "assertion_or_checked_wait": true
           }
@@ -56822,55 +56906,55 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 315,
+            "line": 319,
             "expression": "Harness(this, MessageServiceConfig(maxAttempts = 3, floodAfter = 2, minTimeout = 0.0),\n                sessionTimeout = 10.0, contact = sourceContact())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageServiceConfig",
-            "line": 315,
+            "line": 319,
             "expression": "MessageServiceConfig(maxAttempts = 3, floodAfter = 2, minTimeout = 0.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 316,
+            "line": 320,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 317,
+            "line": 321,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 317,
+            "line": 321,
             "expression": "Bytes.of(0xA1, 0xB2, 0xC3, 0xD4)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendMessageWithRetry",
-            "line": 318,
+            "line": 322,
             "expression": "h.service.sendMessageWithRetry(\"escalate me\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.transport.sentData.take",
-            "line": 320,
+            "line": 324,
             "expression": "h.transport.sentData.take(reset)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.sends",
-            "line": 321,
+            "line": 325,
             "expression": "h.sends(CommandCode.SEND_MESSAGE)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 321,
+            "line": 325,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }
@@ -56945,7 +57029,7 @@
     },
     {
       "group": "messaging-send-original-channel-fields-predelivered-state-ack-order-and-retry-boundaries",
-      "comparison_sha256": "3c9e32069ea7c51e97ceef5eb37e728c972a2c4fcd8c430502f2ff01ef44e454",
+      "comparison_sha256": "614bea55976e87d8e4b31b6dd95feb5200e5e1822cf85ca2571c116c11e039e7",
       "source_file_family_count": 35,
       "group_compared_family_count": 23,
       "partial_source_file": true,
@@ -56971,11 +57055,11 @@
       "original_inputs": null,
       "native": {
         "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
-        "sha256": "0d23749858fc92cfcafeaa8ea2c131b3ada2c56b189dfff7f1b3b2d4e660bef0",
+        "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",
         "class": "com.meshcoreone.android.core.services.messaging.SourceSendTest",
         "method_or_family_name": "the retry loop sends exactly config.maxAttempts times under sustained non-ACK",
-        "line": 307,
-        "end_line": 313,
+        "line": 311,
+        "end_line": 317,
         "factory_method": "sending",
         "registration_identity_resolution": "exact-literal-display",
         "body_sha256": "ebbeb28cce4b492c00c2434e2ef0b2925e92a38942a5a273ca8cff9b3be959b7",
@@ -56983,13 +57067,13 @@
         "assertions": [
           {
             "name": "assertEquals",
-            "line": 311,
+            "line": 315,
             "expression": "assertEquals(MessageStatus.SENT, h.service.sendMessageWithRetry(\"count me\", h.contact).status)",
             "assertion_or_checked_wait": true
           },
           {
             "name": "assertEquals",
-            "line": 312,
+            "line": 316,
             "expression": "assertEquals(2, h.sends(CommandCode.SEND_MESSAGE).size)",
             "assertion_or_checked_wait": true
           }
@@ -56997,49 +57081,49 @@
         "actions_and_helper_calls": [
           {
             "name": "Harness",
-            "line": 308,
+            "line": 312,
             "expression": "Harness(this, MessageServiceConfig(maxAttempts = 2, floodAfter = 5, minTimeout = 0.0),\n                sessionTimeout = 10.0, contact = sourceContact())",
             "assertion_or_checked_wait": false
           },
           {
             "name": "MessageServiceConfig",
-            "line": 308,
+            "line": 312,
             "expression": "MessageServiceConfig(maxAttempts = 2, floodAfter = 5, minTimeout = 0.0)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "sourceContact",
-            "line": 309,
+            "line": 313,
             "expression": "sourceContact()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.start",
-            "line": 310,
+            "line": 314,
             "expression": "h.start()",
             "assertion_or_checked_wait": false
           },
           {
             "name": "Bytes.of",
-            "line": 310,
+            "line": 314,
             "expression": "Bytes.of(0xA1, 0xB2, 0xC3, 0xD4)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.service.sendMessageWithRetry",
-            "line": 311,
+            "line": 315,
             "expression": "h.service.sendMessageWithRetry(\"count me\", h.contact)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.sends",
-            "line": 312,
+            "line": 316,
             "expression": "h.sends(CommandCode.SEND_MESSAGE)",
             "assertion_or_checked_wait": false
           },
           {
             "name": "h.close",
-            "line": 312,
+            "line": 316,
             "expression": "h.close()",
             "assertion_or_checked_wait": false
           }

@@ -203,12 +203,14 @@ class SourceSendTest {
             val m = h.message(MessageStatus.DELIVERED, text = "Test message",
                 timestamp = h.clock.wallClock.instant().epochSecond.toUInt())
             val ackCode = Bytes.of(0xAB, 0xCD, 0xEF, 0x12)
-            h.service.installPendingAck(h.tracking(m, code = ackCode, delivered = true))
+            h.service.installPendingAck(h.tracking(m, code = ackCode))
             h.transport.expectedAckOverride = ackCode
             h.transport.suggestedTimeout = 5000u
+            h.transport.acknowledge = true
             val events = h.service.statusEvents()
             h.service.resendDirectMessage(m.id, h.contact)
             assertEquals(2L, h.stored(m.id).sendCount)
+            assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status); assertEquals(123u, h.stored(m.id).roundTripTime)
             assertEquals(listOf(MessageStatusEvent.Resent(m.id)), statuses(h.service, events).filterIsInstance<MessageStatusEvent.Resent>())
             assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size); h.close()
         },
@@ -217,12 +219,14 @@ class SourceSendTest {
             val m = h.message(MessageStatus.PENDING, text = "Test message",
                 timestamp = h.clock.wallClock.instant().epochSecond.toUInt())
             val ackCode = Bytes.of(0xAB, 0xCD, 0xEF, 0x12)
-            h.service.installPendingAck(h.tracking(m, code = ackCode, delivered = true))
+            h.service.installPendingAck(h.tracking(m, code = ackCode))
             h.transport.expectedAckOverride = ackCode
             h.transport.suggestedTimeout = 5000u
+            h.transport.acknowledge = true
             val events = h.service.statusEvents()
             h.service.sendPendingDirectMessage(m.id, h.contact)
             assertEquals(1L, h.stored(m.id).sendCount); assertFalse(statuses(h.service, events).any { it is MessageStatusEvent.Resent })
+            assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status); assertEquals(123u, h.stored(m.id).roundTripTime)
             assertEquals(1, h.sends(CommandCode.SEND_MESSAGE).size); h.close()
         },
         original("MessageServiceSendTests", "sendDirectMessage tracks pending ACK before session.sendMessage so the listener cannot race") {

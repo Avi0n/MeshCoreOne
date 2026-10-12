@@ -129,18 +129,21 @@ class SourceAckTest {
         },
         original("MessageServiceACKTests", "handleAcknowledgement uses firmware tripTime when provided") {
             val h = Harness(this, sessionTimeout = 5.0); val code = Bytes.of(0xEF, 0xBE, 0xAD, 0xDE)
+            h.session.start(); assertEquals(SELF, h.session.currentSelfInfo?.publicKey)
             val m = sourceMessage(h, ackCode = 0xDEAD_BEEFu); val tracking = sourcePending(h, code, m.id, age = 10)
             h.service.installPendingAck(tracking); h.service.handleAcknowledgement(tracking.ackCodes.first(), 250u)
             assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status); assertEquals(250u, h.stored(m.id).roundTripTime); h.close()
         },
         original("MessageServiceACKTests", "handleAcknowledgement leaves roundTripTime nil when firmware does not supply tripTime") {
             val h = Harness(this, sessionTimeout = 5.0); val code = Bytes.of(0xBE, 0xBA, 0xFE, 0xCA)
+            h.session.start(); assertEquals(SELF, h.session.currentSelfInfo?.publicKey)
             val m = sourceMessage(h, ackCode = 0xCAFE_BABEu); val tracking = sourcePending(h, code, m.id, age = 2)
             h.service.installPendingAck(tracking); h.service.handleAcknowledgement(tracking.ackCodes.first(), null)
             assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status); assertNull(h.stored(m.id).roundTripTime); h.close()
         },
         original("MessageServiceACKTests", "handleAcknowledgement matches any CRC accumulated across retry attempts") {
             val h = Harness(this, sessionTimeout = 5.0); val m = sourceMessage(h, MessageStatus.PENDING)
+            h.session.start(); assertEquals(SELF, h.session.currentSelfInfo?.publicKey)
             val first = Bytes.of(0xAA, 0xAA, 0xAA, 0xAA)
             h.service.installPendingAck(sourcePending(h, first, m.id).copy(ackCodes = SnapshotSet(listOf(first, Bytes.of(0xBB, 0xBB, 0xBB, 0xBB), Bytes.of(0xCC, 0xCC, 0xCC, 0xCC)))))
             h.service.handleAcknowledgement(first, 500u); assertEquals(MessageStatus.DELIVERED, h.stored(m.id).status)

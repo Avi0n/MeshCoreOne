@@ -14,6 +14,41 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Current main adoption and original listener/bookkeeping consumers
 
+Requested immutable six-path185review completed at7fe/base2cdda:
+[6117861669](https://github.com/cbattlegear/MeshCoreOne-Android/pull/185#issuecomment-6117861669).
+No new bounded blocking finding; all five product/test blobs equal executed
+eba, frozen retry/Send Again/no-persist wrappers and actual selected consumers/
+Room/queue/generation helpers read. No duplicate native run, original credit,
+physical-process-death/golden/hardware or protected approval claim. Requested
+real typed routing defect is now [#186](https://github.com/cbattlegear/MeshCoreOne-Android/issues/186);
+coordinator owns its serialized product repair, exact unstarted FEEDFACE case unchanged.
+
+Exact8f00597240605a56803b01ad2f0526b5d3ca69e3/base2cdda Windows
+`:core:services:test --tests com.meshcoreone.android.core.services.messaging.SourceAckTest --dependency-verification=strict --quiet`
+actually discovered31/28PASS/3FAIL/0errors/skips; all16 selected names present,
+readinessPASS/locksreleased. Three unstarted RTT/multi-attempt calls fail at
+native checkIdentity with MessageServiceException.NotConnected. First13
+restored unstarted originals and other15 old regressions pass, not full31
+original equivalence. Same exact clean8f declaredPython363/363PASS. Current
+three native counterparts additionally start only the actual session/assert
+SELF without saving extra contact rows; this explicit identity-handshake
+adaptation is not identical unstarted input or a weakened production check.
+Changed counterparts require fresh execution/independent adaptation review.
+
+Two send-count counterparts now explicitly restore existing WP208 receipt-safety
+adaptation: pending flag false and actual raw ABCDEF12/trip123 ACK after the
+literal accepted ABCDEF12/5000 reply. Original count2 versus count1/noResent and
+stronger one-wire guards remain; supplemental delivered/RTT123 guards require
+the received acknowledgement. Failed source flagtrue/no-new-ACK14f/e938 history
+is retained, never labelled passing identical input. No production change,
+new physical ACK proof or family/group inflation;938/137/67/0 unchanged.
+
+Authoritative e938 hosted38203459682/job114662050638 has actually FAILED:
+the log reports2640services/3failures, the same two seeded witnesses and typed
+unstarted routing failure. Codec/controller succeed; final aggregate fails
+and SwiftData is skipped. This supersedes earlier ongoing status below, not
+a second CI bundle, passing current head, or new full-repository acceptance.
+
 Current proposed comparison adds16 complete ACK originals:938/5133families/
 137groups/67mandatory/0approved. Same reservation evolved24->25, admitting
 only SourceAckTest disjoint test support. Restored unstarted/default5 setup,

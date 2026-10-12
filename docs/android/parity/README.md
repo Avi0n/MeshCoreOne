@@ -1,6 +1,17 @@
 # WP-501 source, case-family and consumer acceptance
 
 Current proposed inspection is938/5133families/137groups/67mandatory/0approved.
+Exact8f ACK selector actually31/28PASS/3FAIL/0errors/skips: native identity
+guard rejects three source-unstarted RTT/multi-attempt cases. Current counterparts
+add only actual session startup/SELF assertion, explicitly different input;
+first13 remain unstarted and no extra contact is saved. Two send-count cases
+restore documented genuine-ACK receipt-safety counterparts while retaining
+failed exact seeded-flag history. No native proof is weakened or fresh ACK called
+identical source input. New bytes still need execution/independent review.
+Requested185source review6117861669 has no new bounded blocker; actual typed
+routing issue186 remains coordinator-owned, unstarted FEEDFACE case unchanged.
+Authoritative e93838203459682/114662050638 now failed2640services/3same witnesses;
+earlier ongoing status below is historical. No second hosted result bundle.
 Next16 complete ACK originals restore unstarted/default5 fixtures, source DTO
 fields, no-row pending cases, exact codes/relative ages/windows and independent
 checker-active/count/membership/retry/RTT predicates. Linked native identity
