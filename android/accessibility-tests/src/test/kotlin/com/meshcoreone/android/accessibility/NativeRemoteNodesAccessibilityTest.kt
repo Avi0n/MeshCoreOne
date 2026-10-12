@@ -253,6 +253,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
 
     @Test fun frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200() {
         val password = mutableStateOf("")
+        compose.mainClock.autoAdvance = false
         content {
             MeshCoreTheme(motionScale = 0f) {
                 AuditSurface {
@@ -270,6 +271,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
                 }
             }
         }
+        compose.mainClock.advanceTimeBy(512)
         val field = compose.onNodeWithTag("secure-field-control").assertIsDisplayed()
         assertEquals("\u2022".repeat(12), field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
         assertTrue(field.fetchSemanticsNode().config.contains(SemanticsProperties.Password))
