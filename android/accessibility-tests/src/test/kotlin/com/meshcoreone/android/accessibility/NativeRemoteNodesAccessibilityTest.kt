@@ -4,6 +4,12 @@ package com.meshcoreone.android.accessibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -30,6 +36,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.click
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.meshcoreone.android.core.contracts.FeatureId
 import com.meshcoreone.android.core.contracts.FeatureRoute
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
@@ -177,7 +184,7 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         openAuthentication(rig)
         val password = compose.onNodeWithTag("remote-login-password").performScrollTo().assertIsEnabled()
         assertTrue(password.fetchSemanticsNode().config.contains(SemanticsProperties.Password))
-        assertEquals("cached-audit", password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
+        assertEquals("\u2022".repeat(12), password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
         val remember = rememberToggle().performScrollTo().assertIsOn().assertIsEnabled()
         assertModalTarget(remember)
         assertScrollableFont200Unclipped(compose.onNodeWithText(host.get().getString(L.remoteNodesAuthRememberPassword),
@@ -239,11 +246,33 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
         compose.onNodeWithTag("open-node:${contact.id}").performScrollTo().assertIsEnabled().performClick()
         val password = compose.onNodeWithTag("remote-login-password").assertIsDisplayed()
         compose.waitUntil(10_000) {
-            val text = password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text
-            println("WP503_REMOTE_PREFILL|reads=${rig.passwordReads}|length=${text.length}|masked=${text.all { it == '\u2022' }}")
-            text == "cached-audit"
+            password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text == "\u2022".repeat(12)
         }
         assertEquals(1, rig.passwordReads)
+    }
+
+    @Test fun frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200() {
+        val password = mutableStateOf("")
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    LaunchedEffect(Unit) { password.value = "cached-audit" }
+                    AlertDialog(
+                        onDismissRequest = {},
+                        title = { Text("Secure field control") },
+                        text = {
+                            OutlinedTextField(password.value, { password.value = it },
+                                modifier = Modifier.testTag("secure-field-control"),
+                                label = { Text("Password") }, visualTransformation = PasswordVisualTransformation())
+                        },
+                        confirmButton = { TextButton({}) { Text("Control") } },
+                    )
+                }
+            }
+        }
+        val field = compose.onNodeWithTag("secure-field-control").assertIsDisplayed()
+        assertEquals("\u2022".repeat(12), field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
+        assertTrue(field.fetchSemanticsNode().config.contains(SemanticsProperties.Password))
     }
 
     private fun rememberToggle() = compose.onNode(hasText(host.get().getString(L.remoteNodesAuthRememberPassword)) and
