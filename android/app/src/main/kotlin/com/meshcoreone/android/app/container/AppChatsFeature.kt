@@ -1,4 +1,6 @@
-// AndroidOnly: WP-407 Bind the existing chat list/timeline/composer to the single process store and live radio graph.
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+SendQueues.swift@db14559b39d32322b06477c6ae676112f583db50
+// PortedFrom: MC1/Views/Chats/ViewModel/ChatViewModel+EventStream.swift@db14559b39d32322b06477c6ae676112f583db50
+// WP-407 native composition binds the existing chat list/timeline/composer to the single process store and live radio graph.
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.app.navigation.ChannelLinkRequest
@@ -7,6 +9,7 @@ import com.meshcoreone.android.app.navigation.HashtagJoinRequest
 import com.meshcoreone.android.app.state.MessageEvent
 import com.meshcoreone.android.core.contracts.domain.ChannelQuery
 import com.meshcoreone.android.core.contracts.domain.EntityKey
+import com.meshcoreone.android.core.contracts.domain.PersistenceStoreException
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
 import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
@@ -20,6 +23,7 @@ import com.meshcoreone.android.feature.chats.timeline.*
 import com.meshcoreone.android.feature.chats.rooms.*
 import com.meshcoreone.android.feature.chats.channels.*
 import com.meshcoreone.android.core.services.contacts.ChannelService
+import com.meshcoreone.android.core.services.messaging.ChatSendQueueService
 import java.time.Clock
 import java.util.UUID
 import java.util.logging.Level
@@ -54,6 +58,14 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
             app.connectionState != com.meshcoreone.android.core.contracts.domain.DeviceConnectionState.READY
         ) throw MessageServiceException(MessageServiceError.NotConnected)
         return current
+    }
+
+    private fun sendQueue(radio: RadioId): ChatSendQueueService {
+        val current = container.sessions.current
+        if (current == null || current.token.radioId != radio ||
+            app.connectionState != com.meshcoreone.android.core.contracts.domain.DeviceConnectionState.READY
+        ) throw ChatSendQueueServiceException(ChatSendQueueServiceError.NotConnected)
+        return current.chatSendQueueService
     }
 
     internal fun maximumChannels(): UByte = app.connectedDevice?.maxChannels ?: 0u
@@ -216,12 +228,12 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
     }
 
     private suspend fun retryDirect(messageId: UUID, contact: ContactDTO, isResend: Boolean) {
+        val current = container.sessions.current?.takeIf { it.token.radioId == contact.radioId }
         val envelope = DirectMessageEnvelope(messageId, contact.id, isResend)
         store.replacePendingSendForRetry(messageId, PendingSendDTO.fromEnvelope(envelope, contact.radioId))
         app.messageEventStream.send(MessageEvent.MessageResent(messageId))
         app.refreshConversations()
-        val queue = container.sessions.current?.takeIf { it.token.radioId == contact.radioId }
-            ?.chatSendQueueService
+        val queue = current?.chatSendQueueService
             ?: throw ChatSendQueueServiceException(ChatSendQueueServiceError.NotConnected)
         queue.signalDMEnqueued(envelope)
     }
@@ -229,13 +241,34 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
     suspend fun sendAgain(message: MessageDTO, conversation: TimelineConversation) {
         when (conversation) {
             is TimelineConversation.Direct -> retryDirect(message.id, conversation.contact, isResend = true)
-            is TimelineConversation.Channel -> sender(message.radioId).resendChannel(message.id)
+            is TimelineConversation.Channel -> enqueueChannel(message.radioId, message.id, isResend = true)
         }
     }
 
     internal suspend fun failPending(message: MessageDTO) {
         if (store.updateMessageStatusUnlessDelivered(EntityKey(message.radioId, message.id), MessageStatus.FAILED)) {
             app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
+            app.refreshConversations()
+            val state = navigation.state.value
+            val open = if (state.selectedTab == com.meshcoreone.android.core.contracts.AppTab.CHATS) {
+                state.stacks.getValue(com.meshcoreone.android.core.contracts.AppTab.CHATS).last().destination
+                    as? com.meshcoreone.android.app.navigation.NavigationDestination.Chat
+            } else null
+            try {
+                when (val selection = open?.selection) {
+                    is com.meshcoreone.android.app.navigation.ChatSelection.Direct ->
+                        if (selection.contact.radioId == message.radioId && selection.contact.id == message.contactID) {
+                            store.markFailedSendsSeen(EntityKey(message.radioId, selection.contact.id))
+                        }
+                    is com.meshcoreone.android.app.navigation.ChatSelection.Channel ->
+                        if (selection.channel.radioId == message.radioId && selection.channel.index == message.channelIndex) {
+                            store.markFailedSendsSeen(message.radioId, selection.channel.index)
+                        }
+                    else -> Unit
+                }
+            } catch (failure: PersistenceStoreException) {
+                report("Mark visible failed send seen", failure)
+            }
             app.refreshConversations()
         }
     }
@@ -304,7 +337,7 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
         override val retryService = TimelineRetryService { message, target ->
             when (target) {
                 is TimelineConversation.Direct -> retryDirect(message.id, target.contact, isResend = false)
-                is TimelineConversation.Channel -> session(radio).messageService.resendChannelMessage(message.id)
+                is TimelineConversation.Channel -> enqueueChannel(radio, message.id, isResend = true)
             }
         }
         override val events: Flow<TimelineEvent> get() = this@AppChatsFeature.events().transform { event ->
@@ -344,22 +377,34 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
                 app.messageEventStream.send(MessageEvent.DirectMessageReceived(it, contact))
                 app.refreshConversations()
             }
-        override suspend fun sendPendingDirect(messageId: UUID, contact: ContactDTO, preserveTimestamp: Boolean) =
-            session(radio).messageService.sendPendingDirectMessage(messageId, contact, preserveTimestamp)
-        override suspend fun sendDirect(text: String, contact: ContactDTO, textType: TextType, replyToId: UUID?) =
-            session(radio).messageService.sendDirectMessage(text, contact, textType, replyToId)
-        override suspend fun resendDirect(messageId: UUID, contact: ContactDTO, preserveTimestamp: Boolean) =
-            session(radio).messageService.resendDirectMessage(messageId, contact, preserveTimestamp)
         override suspend fun createPendingChannel(text: String, channelIndex: UByte, radioId: RadioId, textType: TextType) =
             session(radio).messageService.createPendingChannelMessage(text, channelIndex, radioId, textType).also {
                 app.messageEventStream.send(MessageEvent.ChannelMessageReceived(it, channelIndex))
                 app.refreshConversations()
             }
-        override suspend fun sendPendingChannel(messageId: UUID) = session(radio).messageService.sendPendingChannelMessage(messageId)
-        override suspend fun sendChannel(text: String, channelIndex: UByte, radioId: RadioId, textType: TextType) =
-            session(radio).messageService.sendChannelMessage(text, channelIndex, radioId, textType)
-        override suspend fun resendChannel(messageId: UUID, preserveTimestamp: Boolean) =
-            session(radio).messageService.resendChannelMessage(messageId, preserveTimestamp)
+        override suspend fun enqueueDM(envelope: DirectMessageEnvelope) =
+            sendQueue(radio).enqueueDM(envelope)
+        override suspend fun enqueueChannel(envelope: ChannelMessageEnvelope) =
+            sendQueue(radio).enqueueChannel(envelope)
+        override suspend fun signalDMEnqueued(envelope: DirectMessageEnvelope) =
+            sendQueue(radio).signalDMEnqueued(envelope)
+        override suspend fun recordLocalEnqueueFailure(messageId: UUID) =
+            failPending(savedMessage(radio, messageId))
+    }
+
+    private suspend fun savedMessage(radio: RadioId, id: UUID): MessageDTO =
+        store.fetchMessage(EntityKey(radio, id))
+            ?: throw MessageServiceException(MessageServiceError.SendFailed("Saved message not found"))
+
+    private suspend fun enqueueChannel(radio: RadioId, id: UUID, isResend: Boolean) {
+        val queue = sendQueue(radio)
+        val localName = app.connectedDevice?.takeIf { it.radioId == radio }?.nodeName
+        val message = savedMessage(radio, id)
+        val index = message.channelIndex
+            ?: throw MessageServiceException(MessageServiceError.ChannelNotFound)
+        queue.enqueueChannel(
+            ChannelMessageEnvelope(id, index, isResend, message.text, message.timestamp, localName),
+        )
     }
 
     fun room(room: RemoteNodeSessionDTO): RoomConversationDependencies = object : RoomConversationDependencies {
