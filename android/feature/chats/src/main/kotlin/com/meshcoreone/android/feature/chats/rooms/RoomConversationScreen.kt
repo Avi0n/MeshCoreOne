@@ -109,14 +109,14 @@ fun RoomConversationRoute(
                     holder.authenticate(password, remember)
                     if (holder.state.value.session.isConnected) authenticate = false
                 }
-                pickerContext?.let { context ->
-                    MentionPickerSheet(
-                        context,
-                        onSelect = { contact -> pickerContext = null; links.navigateToContact(contact) },
-                        onDismiss = { pickerContext = null },
-                    )
-                }
             },
+        )
+    }
+    pickerContext?.let { context ->
+        MentionPickerSheet(
+            context,
+            onSelect = { contact -> pickerContext = null; links.navigateToContact(contact) },
+            onDismiss = { pickerContext = null },
         )
     }
 }
