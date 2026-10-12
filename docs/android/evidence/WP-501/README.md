@@ -14,6 +14,19 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Contact/history input increment and qualified reviews
 
+Actual clean4c16e3d4cdfe2adb9afa065f9f9c591586689140/baseab1 strict Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceUnreadAndStatusOriginalPredicateTest --dependency-verification=strict --quiet`
+PASSED12discovered/12passed/0failures-errors-skips/all12 method identities.
+XML2026-10-12T13:26:54.335Z/nativeblob6e895f3cc98f3e8f20c031a62d543b43fb06d58c/
+SHA25687197e5258e5565f63394a1105db8401f2c0f52325c23a9ef31affb608b922a0.
+Raw XML/27 unique input fingerprints/private receipt captured before future
+Gradle overwrite. Readiness PASS/JDK21.0.12.1/compile37.2/tools37/zero notice
+normalizations; supported native/Gradle locks released normally/public records
+empty. Both3d9/52cb compile failures remain zero-credit. Only the new12 class
+selected; no original-five/deletion-two/unrelated replay or source/hosted/
+full135/5133/mounted/device certification. Parity93/config/ownership/provenance/
+audit/semantic checks passed for these inputs.
+
 Latest prepared inputs add twelve independent dedup/history/status/channel/
 unread/terminal-ACK originals:1429/5133 proposals/182groups/83mandatory/0approved,
 85/135 persistence proposed/50remaining. Native discovery/source comparison

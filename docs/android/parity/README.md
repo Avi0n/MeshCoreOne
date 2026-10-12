@@ -1,5 +1,12 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual clean4c16e3d4cdfe2adb9afa065f9f9c591586689140/baseab1 twelve-only
+execution discovered/passed all12 exact identities,0 failures/errors/skips,
+XML13:26:54.335Z/native6e895f3c/SHA87197e52. No old native replay.
+Both initial3d9/52cb compile failures retain zero discovery/credit. Supported
+native/Gradle locks released normally/public records empty; independent
+source/hosted/full acceptance remains pending.
+
 Latest increment:1429/5133 proposed/182groups/83mandatory/0approved,
 85/135 persistence proposed/50remaining. Twelve standalone dedup/history/
 status/channel/unread/terminal-ACK originals now retain complete independent
