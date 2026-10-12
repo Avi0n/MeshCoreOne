@@ -1,5 +1,13 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual a7d/base d958 unchanged mandatory deletion two-only2PASS/zero bad,
+XML13:34:30.850Z/native7d891e99, real changed App bytes/new nine-input receipt.
+Both full existing final list predicates now execute, historical64e/0c9 negatives
+retained. No original-five/twelve/owning-six replay or independent/global credit.
+Separately204 missing retry-row identity prerequisite corrected in existing
+one original; actual matching m.id row required before sequence8. Inputs and
+assigned8 preserved, no product edit/extra original credit; one-only run pending.
+
 Actual owning203 d958/baseab1 adopted407266aa after independent parents/
 candidate-equal8759e6fb/exact three-path verification. All1429 bindings/helper
 bytes unchanged on regeneration; neither generated bindings nor previous receipts

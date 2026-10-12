@@ -158,6 +158,8 @@ class PendingSendPersistenceTest : RepositoryTest() {
         store.upsertPendingSend(pending(RADIO_B, sequence = 99))
         val replacement = PendingSendDTO.fromEnvelope(DirectMessageEnvelope(m.id, CONTACT_A), RADIO_A, enqueuedAt = AT)
         assertEquals(8L, store.replacePendingSendForRetry(m.id, replacement))
-        assertEquals(8L, store.fetchPendingSends(RADIO_A).last().sequence)
+        val rows = store.fetchPendingSends(RADIO_A)
+        val inserted = assertNotNull(rows.firstOrNull { it.messageID == m.id })
+        assertEquals(8L, inserted.sequence)
     }
 }

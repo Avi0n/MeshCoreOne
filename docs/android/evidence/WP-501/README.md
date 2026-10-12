@@ -14,6 +14,39 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Contact/history input increment and qualified reviews
 
+Actual clean a7d12d8ebe218e8222b0d9e1b25e456890e46dbf/base d958 strict
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.ConversationDeletionAcceptanceTest --dependency-verification=strict --quiet`
+PASSED2discovered/2passed/0failures-errors-skips/all2 exact unchanged methods.
+XML2026-10-12T13:34:30.850Z/native7d891e99/SHAfd62c6ad, identical64e witnesses.
+Both full predicates now reach final list date/membership after real App deletion/
+remaining count/persisted recency, no test recompute. AppChatsFeature bytes match
+actual reviewed merged d958 and differ64e; nine execution input fingerprints/
+raw private XML/new receipt captured. Readiness PASS/zero notice normalizations/
+both supported locks released normally/public records empty. No original-five/
+twelve/owning-six replay or private owning/hosted certification; old64e2FAIL
+and0c9 hosted2FAIL retain separate negative provenance.
+
+Separately issue204 identifies a missing original required matching-message
+row prerequisite, not a production insertion failure. Existing admitted
+merge-integration test path/r38/captured current base retained. Changed only
+otherRadioSequenceCannotAdvanceThisRadio: require first matching m.id row, then
+assert its sequence8 instead of relying on last-row ordering. Failed outgoing/
+retry me/isReadtrue/source7-versus99/fromEnvelope/assigned8 inputs unchanged.
+Single changed-method core-data execution pending; no original15 replay/credit
+or old b58d relabel. All original identities remain registered.
+
+Qualified pending SOURCE-ONLY5491495833 (one existing radio-key adaptation)
+and5491585421 (remaining14, old group BLOCKED only204) at exact0c9/baseab1
+fully read/reconciled, distinct from currentd958 adoption. Guards1/1/1/4 and
+14/14/14/126rows/9inputs; no new other13 blocker/privateb58d certification/
+APPROVED/full15/PersistenceStore73 increment. All nine helper inputs/other
+fourteen complete native bodies unchanged; shared native-file SHA changes
+truthfully across15 rows, only corrected method gains body/assertion/action
+metadata. Historical durable-retry intake6116801409 preserved and corrected
+as history: actual185 merged76dd/#181 closed, inherited retryDirect durable
+replacement->captured-radio queue->signal/Retryfalse/SendAgaintrue/status and
+cancellation reconciliation read. No duplicate defect/prose-only native replay.
+
 Actual PR203 MERGED13:24:21Z/#202 CLOSED13:24:22Z; independently verified
 merge d958471ab4835813881a5e7af36e8249a8b273a4 parentsab1b+57636b and
 candidate-equal tree8759e6fb07066dbd5f1bf5fb50bc4a051e167c2a, exact three paths.

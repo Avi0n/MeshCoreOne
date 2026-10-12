@@ -7791,7 +7791,7 @@
       "native_contracts": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "source_references": [
             "MC1Services/Tests/MC1ServicesTests/PendingSendPersistenceTests.swift"
           ],
@@ -7869,7 +7869,7 @@
             {
               "name": "otherRadioSequenceCannotAdvanceThisRadio",
               "line": 154,
-              "end_line": 162
+              "end_line": 164
             }
           ]
         }
@@ -14357,7 +14357,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "pendingDTOFieldsRoundTripThroughTheRealRepository",
           "line": 15,
@@ -14519,7 +14519,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "equalRowIDsDoNotCrossRadios",
           "line": 23,
@@ -14747,7 +14747,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "pendingRowsAreSequenceOrdered",
           "line": 36,
@@ -14879,7 +14879,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "deletePendingRowCommitsAndIsRadioScoped",
           "line": 42,
@@ -15047,7 +15047,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "firstAssignedSequenceIgnoresTheDTOSequence",
           "line": 52,
@@ -15239,7 +15239,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "assignedSequencesArePerRadio",
           "line": 61,
@@ -15419,7 +15419,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "concurrentEnqueuesCannotReuseTheSameSequence",
           "line": 68,
@@ -15695,7 +15695,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "nilZeroAndPositiveAttemptsRemainDifferent",
           "line": 76,
@@ -15905,7 +15905,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "deletingMessagePendingRowsRetainsTheOtherRadio",
           "line": 87,
@@ -16116,7 +16116,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "absentMessageDeleteDoesNotTouchOtherRows",
           "line": 100,
@@ -16296,7 +16296,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "unknownFutureKindIsReportedAndPreservedOnDisk",
           "line": 108,
@@ -16572,7 +16572,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "retryReplacementCommitsStatusAndAuthoritativeEnvelopeTogether",
           "line": 119,
@@ -16806,7 +16806,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "lateDeliveryWinsOverManualRetry",
           "line": 131,
@@ -17070,7 +17070,7 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "replacementReapsAllPriorRowsAndRetainsUnrelatedSequence",
           "line": 141,
@@ -17346,14 +17346,14 @@
       "native_proposals": [
         {
           "path": "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/PendingSendPersistenceTest.kt",
-          "sha256": "f3b3ac4c2859f9cd330842c959c018d3b4cf38c8a7ef0f052f57f8d62f8b7b0f",
+          "sha256": "3c2a1e1eeccc53f5aa93c1c2d50e451b312b27932093c1bd116ef97676993c6e",
           "class": "com.meshcoreone.android.core.data.repository.PendingSendPersistenceTest",
           "method_or_family_name": "otherRadioSequenceCannotAdvanceThisRadio",
           "line": 154,
-          "end_line": 162,
+          "end_line": 164,
           "factory_method": null,
           "registration_identity_resolution": null,
-          "body_sha256": "cad7ae7a934538cb858a3a4c729b142ae269a646c56479e171dab11b8643a0c9",
+          "body_sha256": "1968ede12292cadb872f55fc1cb6b74b199160bfac7ca2587f6c4f99eab91886",
           "registration": null,
           "assertions": [
             {
@@ -17363,9 +17363,15 @@
               "assertion_or_checked_wait": true
             },
             {
+              "name": "assertNotNull",
+              "line": 162,
+              "expression": "assertNotNull(rows.firstOrNull { it.messageID == m.id })",
+              "assertion_or_checked_wait": true
+            },
+            {
               "name": "assertEquals",
-              "line": 161,
-              "expression": "assertEquals(8L, store.fetchPendingSends(RADIO_A).last().sequence)",
+              "line": 163,
+              "expression": "assertEquals(8L, inserted.sequence)",
               "assertion_or_checked_wait": true
             }
           ],
@@ -17434,12 +17440,6 @@
               "name": "store.fetchPendingSends",
               "line": 161,
               "expression": "store.fetchPendingSends(RADIO_A)",
-              "assertion_or_checked_wait": false
-            },
-            {
-              "name": "last",
-              "line": 161,
-              "expression": "last()",
               "assertion_or_checked_wait": false
             }
           ],
