@@ -393,7 +393,7 @@
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/MeshCoreOpenReactionParser.kt",
-          "sha256": "bae9cfff0b359dd1ceb441e74b6ffefe688dfd7e425c9c75cb1b153e6b0bfb5f",
+          "sha256": "29111f206be9e16f518d0c4507dfd912495dcad8ab050af664abb14485ccddcc",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/MeshCoreOpenReactionParser.swift"
           ],
@@ -651,7 +651,7 @@
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionParser.kt",
-          "sha256": "d0ce76caae820f71fdaf92498361b6081f7ea5ef9da6145af964a8d895005b7c",
+          "sha256": "6506dfd1424c1fa8b94765c18b242a13c4cfa4cf9f708cae4d5d276ed28b4b1e",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/ReactionParser.swift"
           ],
@@ -794,7 +794,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/reactions/ReactionService.kt",
-          "sha256": "f4dd8f69896ad2327e310e20b9b064a7b6a3ac3378126d379f3eb0d223adeb1e",
+          "sha256": "1465a32ea2e6b66154f15698a6ba10c3d63d1cc22dc75244c729a738052238b5",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/ReactionService.swift"
           ],

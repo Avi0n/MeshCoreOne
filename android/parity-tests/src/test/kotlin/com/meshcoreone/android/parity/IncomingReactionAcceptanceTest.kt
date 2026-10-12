@@ -12,14 +12,20 @@ import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.model.ContactDTO
 import com.meshcoreone.android.core.model.MessageDTO
 import com.meshcoreone.android.core.protocol.bytes.Bytes
+import com.meshcoreone.android.core.services.sync.SyncClock
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class IncomingReactionAcceptanceTest : RoomProcessTest() {
     private val thumbsUp = "\uD83D\uDC4D"
     private val peerKey = key(3)
@@ -71,7 +77,12 @@ class IncomingReactionAcceptanceTest : RoomProcessTest() {
         expectedHash: String,
         requireForwarding: Boolean = true,
     ) {
-        val harness = ContainerHarness(test, store)
+        val syncClock = object : SyncClock {
+            override fun now() = EPOCH.plusMillis(test.testScheduler.currentTime)
+            override fun elapsed() = test.testScheduler.currentTime.milliseconds
+            override suspend fun sleep(duration: Duration) = delay(duration)
+        }
+        val harness = ContainerHarness(test, store, syncClock = syncClock)
         val secret = Bytes(ByteArray(16) { (it + 1).toByte() })
         harness.links.configureRadio = { radio ->
             radio.respond = { command ->
@@ -98,6 +109,10 @@ class IncomingReactionAcceptanceTest : RoomProcessTest() {
             suspend fun pollTarget() {
                 poll(harness, live, direct, if (direct) "Hello" else "Alice: Hello", stamp)
                 assertEquals(listOf("Hello"), rows().map { it.text })
+                val saved = rows().single()
+                assertEquals(stamp, saved.timestamp)
+                assertEquals(stamp, saved.reactionTimestamp)
+                assertTrue(!saved.timestampCorrected)
             }
             suspend fun reaction() {
                 poll(harness, live, direct, if (direct) reactionText else "Bob: $reactionText", stamp + 1u)

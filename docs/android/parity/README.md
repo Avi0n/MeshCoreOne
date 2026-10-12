@@ -1,5 +1,22 @@
 # WP-501 source, case-family and consumer acceptance
 
+Reviewed reaction merge e0b6a36e96ee54de9aaf7a554a192249358a6831
+is verified/adopted additively at cb69b6d6be34036b6cc500df4a68e2217bce78b2:
+actual parents9e5+31833/eight paths/candidate-equal tree16ac688c.
+Owned incoming fixtures now explicitly inject EPOCH+scheduler SyncClock;
+target preconditions require stored timestamp/reactionTimestamp1704067200
+and no timestamp correction. All eight complete JUnit bodies/raw vectors/
+expected hashes/old assertions and poll-frame body fingerprint remain
+unchanged. Shared assertReaction body changes ab0c75b3->02a63825;
+pollTarget688c2d50->bb7d5a49; whole witness845b0dc9->35d7b8cb and
+harness53418b1f->cf7ff426 SHA256. Regeneration changes209 existing rows
+ONLY in assertion_helper_inputs;1407/179/81/0 accounting unchanged.
+Old cb7/baseedc2PASS6FAIL and every prior private execution/source review
+retain actual input identities; no helper-only relabel or unchanged replay.
+Changed-input eight execution pending; controls may resolve cache-first,
+not independently certify DB fallback. No production SQL/window/hash/
+timestamp-policy change or producer four/private certification.
+
 Current1407/5133 proposed comparisons/179groups/81mandatory/zero fully
 approved adds12 independent device/retry originals on actual base9e5.
 Restore single-device versus two-device setups, every two-step activation

@@ -4,13 +4,50 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `9e5b4340022d5aae416ca2a2f6eafea564681860`.
+Current integrated base: `e0b6a36e96ee54de9aaf7a554a192249358a6831`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
+
+## Adopted reaction repair and explicit fixture-clock inputs
+
+Actual reviewed PR198 merge `e0b6a36e96ee54de9aaf7a554a192249358a6831`
+verified parents9e5+31833/eight paths/candidate-equal tree
+`16ac688cf715144d1f49038c5ae414dd2ff6588b`; quiet checkout adopted
+additively at `cb69b6d6be34036b6cc500df4a68e2217bce78b2`. Source-only
+6122799451 remains qualified, not private/native/APPROVED certification.
+Owned shared helper now injects SyncClock with EPOCH+scheduler now,
+scheduler milliseconds elapsed and coroutine delay sleep. Target asserts
+stored timestamp==reactionTimestamp==1704067200 and !timestampCorrected;
+all original assertions/raw vectors/expected hashes remain. All eight
+complete explicit JUnit declaration bodies have unchanged repository-
+standard fingerprints; poll framing also unchanged. Initial private
+guard counted the nearby unannotated pocket helper using proximity;
+explicit eight declarations plus syntax/body comparison corrected that
+guard before native execution, with no validator/policy relaxation.
+Actual shared assertReaction body SHA256:
+`ab0c75b35f35c0a1eeadc276195cdedd84dfee651388e8d97c41474dd04f14da`
+-> `02a63825561cc99f2688dc66155289ad1bd2d2a001e1680bd54095e7a0688355`.
+Nested pollTarget body:
+`688c2d50f87cee9d8b57778ac956e2a91c01ef83888133df609cfee4c8f24f0c`
+-> `bb7d5a491a4b3b50d40bf37feca64e7f443abc2a5a9f29f4c8e4e443584c7995`.
+Whole witness SHA256:
+`845b0dc97c34b60858c8ee041c6d50882bff358c1098e02083d5091acfb981ec`
+-> `35d7b8cbde89837722ee32d5f9d3a60682d4684b3556c9858cd660abeb36b395`.
+Whole harness SHA256:
+`53418b1f62ddeb8aa88638abd7827e921f66b0dec9ca72a7fc8b1210d1d749f6`
+-> `cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc`.
+Regeneration changes209 existing rows only in assertion_helper_inputs;
+1407/179/81/0 counts and all original/native body bindings unchanged.
+Old cb7/baseedc2PASS6FAIL, producer dd2294PASS, and older private/source
+reviews retain separate input identities; no unchanged rerun/relabel.
+Changed-input eight exact selector pending:
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.IncomingReactionAcceptanceTest --dependency-verification=strict --quiet`.
+Historical controls may hit cache, not independently prove DB fallback.
+No production query/window/hash/timestamp-policy change.
 
 ## Current device/retry original predicates
 
