@@ -5,6 +5,50 @@
   "execution": "Require the listed exact class/display identities in the current candidate's actual JUnit reports; historical results are not promoted.",
   "groups": [
     {
+      "id": "persistence-original-restored-ghost-identity-predicates",
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "partial_source_file": true,
+      "native_path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+      "runner_name": "annotated-method",
+      "methods": [
+        "reconcileGhostIdentity is a no-op when current device already owns the publicKey",
+        "reconcileGhostIdentity returns nil when no ghost matches",
+        "reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods",
+        "reconcileGhostIdentity finds ghost even when current device's publicKey already matches",
+        "reconcileGhostIdentity preserves non-BLE methods from backup ghost"
+      ],
+      "comparison": "Five complete separately joined originals: already-owning-key nil plus optional original-ID radio unchanged; unrelated-key nil plus both optional original-key/radio unchanged; saved-but-inactive BLE current-active different-key nil/required original inactive ID row/Bluetooth membership true; same-key active current stale radio still reconciles inactive method-empty ghost/returned ghostRadio/optional current-ID radio rewrite/exact ghost-ID nil; Backup WiFi10.0.0.7:5000/Backup WiFi and fresh Current BLE handle/name preservation/returned ghostRadio/required original current ID/both full method equality memberships/exactlyoneBluetooth/ghostID nil. No RadioId lookup replacement for required original device IDs/count-only surrogate.",
+      "inputs": "Fresh independently random UUID device IDs/default radio=id, ghost/stale radios/Bluetooth peripheral handles, exact source inactive and active states; source DeviceDTO.testDevice firmware8/v1.11.0/TestDevice/TestMfg/01Jan2025/multiACK0/default915000/geography37.7749/-122.4194. First already-owned/shared/restored random32-byte source keys mapped independent fixed44/45 bytes with same equality/inequality relations; random-byte distribution is not new family/crypto vector evidence. Empty versus Bluetooth-only versus WiFi-only lists/nullable inactive display/defaults and full named methods retained.",
+      "adaptations": "Actual nativeSQLite/API31 in-memory Room replaces SwiftData. RadioId/EntityKey/canonical UUID/legacy Apple peripheralUUID are explicit native adapters, not live Android pairing/radio identities or universal source-global UUID equivalence. Full enum case/payload equality/method.id and original DB-ID lookup preserved. Five normal committed postconditions are not unique-key collision/fault rollback/cancellation/live pairing/hardware/backup interoperability certification; no actual radio commands.",
+      "helpers": [
+        "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+        "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+        "MC1Services/Sources/MC1Services/Models/Device.swift",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+        "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+        "MC1/Views/Settings/DeviceSelectionSheet.swift",
+        "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+        "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+        "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+        "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/DeviceSelection.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+        "MC1Services/Sources/MC1Services/Models/ConnectionMethod.swift",
+        "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ConnectionMethod.kt",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+        "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt"
+      ],
+      "consumer": "Complete frozen source createTestDevice/testDevice/ConnectionMethod/Device DTO-to-model fetch/save/reconcileGhostIdentity isActive/anyBluetooth/currentid/publicKey/radioId/merge nonBLE/delete ghost/save ordering read. Complete native DeviceRepository identity/save/byId/ghost query/filter/transaction/context and Room Device row mappings/JSON method payload/canonicalUUID read; actual pairing reconciliation/remapped radio consumers retained. This new class does not edit/replay old twelve Device originals or product code. No test-side save/reconcile fake result or manufactured row after production action.",
+      "unresolved": [
+        "Five-only native discovery and independent SOURCE-ONLY comparison pending;1450/5133 proposed/185groups/83mandatory/0approved/reservation41,106/135 PersistenceStore proposed/29unprovided,91/135 qualified source-compared/44uncompared. Existing positives/historical negatives/source reviews remain separate; no new original execution credit until actual discovery."
+      ]
+    },
+    {
       "id": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
       "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
       "partial_source_file": true,
@@ -121,11 +165,12 @@
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/contacts/AdvertisementService.kt",
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorContacts.kt",
         "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncCoordinatorMessageHandlers.kt",
-        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt"
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
+        "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift"
       ],
-      "consumer": "Full source/native contact save result/touch/find/upsert/Device watermark/notification level/metadata filtering/Room mapping/query/transaction/error bodies read. Actual SyncCoordinatorContacts stores radio-lastmod watermark; AdvertisementService/SyncCoordinatorMessageHandlers touch known contact recency; AppState/NotificationService consume partitioned unread totals, not inferred mounted/device execution. Both no-discovery creation and unknown contact false are real store paths, not a test-created node or fake clamp. Existing twelve/two/one actual receipts remain separate; no old native selector replay. Actual clean3728210e443a8d80fc718f178b917a5b93ae6b03/based958 six-only strict Windows App execution:6discovered/6PASS/zero failures-errors-skips/all6 exact method identities/XML2026-10-12T14:02:56.632Z/native35ae246e982c1b1c286f71816ccf05474ea176af/SHA2562113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837. Full independent required contact-node/matching key/default/read-state predicates execute on real store. ReadinessPASS/zero notice normalizations/normal supported native-Gradle lock release/public records empty. Private39 input fingerprints/raw XML/new receipt captured before overwrite. No old native selector replay/independent source/hosted/mounted badge/engine/cancellation/API37/hardware/full acceptance certification.",
+      "consumer": "Full source/native contact save result/touch/find/upsert/Device watermark/notification level/metadata filtering/Room mapping/query/transaction/error bodies read. Actual SyncCoordinatorContacts stores radio-lastmod watermark; AdvertisementService/SyncCoordinatorMessageHandlers touch known contact recency; AppState/NotificationService consume partitioned unread totals, not inferred mounted/device execution. Both no-discovery creation and unknown contact false are real store paths, not a test-created node or fake clamp. Existing twelve/two/one actual receipts remain separate; no old native selector replay. Actual clean3728210e443a8d80fc718f178b917a5b93ae6b03/based958 six-only strict Windows App execution:6discovered/6PASS/zero failures-errors-skips/all6 exact method identities/XML2026-10-12T14:02:56.632Z/native35ae246e982c1b1c286f71816ccf05474ea176af/SHA2562113eda93204c68a67699d7f9fe8918e1b61e083d85a7a6cae97b2aa1ef3f837. Full independent required contact-node/matching key/default/read-state predicates execute on real store. ReadinessPASS/zero notice normalizations/normal supported native-Gradle lock release/public records empty. Private39 input fingerprints/raw XML/new receipt captured before overwrite. No old native selector replay/independent source/hosted/mounted badge/engine/cancellation/API37/hardware/full acceptance certification. Qualified independent SOURCE-ONLY COMMENTED5492337029 at exact historical bc7caee/base d958,https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5492337029, complete body read/reconciled. Guard SIX not8 full original/native bodies/joins/234helperrows/39inputs/comparison097a1710; all26 selected required/expectation predicates/defaults and complete Device/Contact/Discovery/DTO/raw-notification/Room queries-transactions/actual sync-advert-unread consumers read, no selected-source blocker. Directly used frozen PersistenceStore+BackupHelpers.swift full phone-clamp definition was read by reviewer but omitted from declared39 inputs; current metadata adds its pinned fingerprint,40inputs/240helperrows, no new original or sourcepin/product change/native replay. Actual3728 sixPASS private/raw 39-input receipt and historical review39 guard remain immutable, NOT execution at this40-input metadata or reviewer privateXML certification. All native bodies/vectors/joins/other39 inputs unchanged. Adds6 qualified source comparisons after twelve5492147839:91/135 source-compared/44uncompared, distinct proposed counts/0APPROVED/full acceptance. Partitioned NotificationService Long path is preserved; AppState Int-width callback alone is not a confirmed mounted badge defect, no speculative duplicate issue.",
       "unresolved": [
-        "Actual3728 six-only6PASS; independent source/current hosted/full acceptance pending.1435/5133 proposals/183groups/83mandatory/0approved;91/135 persistence proposed/44remaining,73 source-compared. All old positive/negative receipts and SOURCE-ONLY qualifications remain separate, no native replay or acceptance promotion."
+        "Qualified historicalbc7 SOURCE-ONLY5492337029 six/full26predicates retained; current frozen-helper declaration40 differs from old review/execution39 only by previously omitted read dependency. No native replay/private XML certification/receipt rebind/new original/approval/full acceptance. 91/135 persistence source-compared/44uncompared remains separate from 106/135 proposed/29unprovided after next five registration."
       ]
     },
     {

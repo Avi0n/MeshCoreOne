@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "fc37f7be90632bccda6c10bbd833936b86685bad6a6736e0cf816aab5786c216",
+  "proposal_sha256": "693562503ce112ae6525ee396f00e6267f8bc54dc1edce5c1405e52dbd3cab69",
   "families": [
     {
       "group": "backup-envelope",
@@ -56382,7 +56382,7 @@
     },
     {
       "group": "persistence-original-restored-contact-clock-and-badge-predicates",
-      "comparison_sha256": "097a1710a85d9e63194865aa7219d3186565adad8cea3301adc53e836f63acbb",
+      "comparison_sha256": "e2bbe4148f493307f4b0663731cd1b155a8acf1365083a0dbd22ec74629245b1",
       "source_file_family_count": 135,
       "group_compared_family_count": 6,
       "partial_source_file": true,
@@ -56657,6 +56657,10 @@
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
           "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+          "sha256": "9d4465443763361614ba0707042da465fbeeae33ca48549fe250d4c662c5fa1b"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -56669,7 +56673,7 @@
     },
     {
       "group": "persistence-original-restored-contact-clock-and-badge-predicates",
-      "comparison_sha256": "097a1710a85d9e63194865aa7219d3186565adad8cea3301adc53e836f63acbb",
+      "comparison_sha256": "e2bbe4148f493307f4b0663731cd1b155a8acf1365083a0dbd22ec74629245b1",
       "source_file_family_count": 135,
       "group_compared_family_count": 6,
       "partial_source_file": true,
@@ -56998,6 +57002,10 @@
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
           "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+          "sha256": "9d4465443763361614ba0707042da465fbeeae33ca48549fe250d4c662c5fa1b"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -71776,6 +71784,1191 @@
       "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
     },
     {
+      "group": "persistence-original-restored-ghost-identity-predicates",
+      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::reconcileGhostIdentity finds ghost even when current device's publicKey already matches()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "6b38928972a187d730ed3b75f11797a250b9471bd6140abba7f2ccee4a7977fc",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3881,
+          "expression": "#expect(result == ghostRadioID, \"Reconciliation must find the ghost on retry\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3884,
+          "expression": "#expect(updated?.radioID == ghostRadioID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3887,
+          "expression": "#expect(ghostLookup == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+        "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+        "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "method_or_family_name": "originalSameKeyRetryRetainsGhostRadioCurrentIdRewriteAndGhostIdAbsence",
+        "line": 70,
+        "end_line": 85,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "b01474af63884c4f11c22b0a333a0d389838c6856b83c6c144d1ccb96d066f53",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 81,
+            "expression": "assertEquals(ghostRadio, store.reconcileGhostIdentity(current.id, restoredPublicKey))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 83,
+            "expression": "assertEquals(ghostRadio, updated?.radioId)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 84,
+            "expression": "assertNull(store.fetchDevice(ghost.id))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes",
+            "line": 71,
+            "expression": "Bytes(ByteArray(32) { 0x45 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 71,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 72,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 72,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "device",
+            "line": 73,
+            "expression": "device(0x45)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 73,
+            "expression": "copy(\n            radioId = ghostRadio, isActive = false, connectionMethods = SnapshotList.empty(),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.empty",
+            "line": 74,
+            "expression": "SnapshotList.empty()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 76,
+            "expression": "store.saveDevice(ghost)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 77,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 77,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "device",
+            "line": 78,
+            "expression": "device(0x45)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 78,
+            "expression": "copy(radioId = staleRadio, isActive = true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 79,
+            "expression": "store.saveDevice(current)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.reconcileGhostIdentity",
+            "line": 81,
+            "expression": "store.reconcileGhostIdentity(current.id, restoredPublicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 82,
+            "expression": "store.fetchDevice(current.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 84,
+            "expression": "store.fetchDevice(ghost.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::reconcileGhostIdentity finds ghost even when current device's publicKey already matches()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "MC1/Views/Settings/DeviceSelectionSheet.swift",
+          "sha256": "f2b950277f77a3e4d14d6c1837d607c0387d5f32628c84766c196b6388566824"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        },
+        {
+          "path": "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/DeviceSelection.kt",
+          "sha256": "eeea6c4aa89672a75b4a7648a5c6d57c8aa5bec83916f5d828911018b8d5b1e8"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/ConnectionMethod.swift",
+          "sha256": "8c3a20ece0927381275ef29bbdafbb8fed7100436d1f88f1a7137a9121a3c16c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ConnectionMethod.kt",
+          "sha256": "8a410a3d20d56c83df55e8eed718a1e13d236e98a7895da5cef53cfe2ae0f0cd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+          "sha256": "f49c27a2cf1df63d4a1d93dff889318830c2c1a5e657549fa0af03241eba943f"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+          "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "originalSameKeyRetryRetainsGhostRadioCurrentIdRewriteAndGhostIdAbsence"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-ghost-identity-predicates",
+      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::reconcileGhostIdentity is a no-op when current device already owns the publicKey()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "1f3e18f4c1a081e410985d9b0f1779ca49958aa447920d0c7b30f2b9ea4dc1a2",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3799,
+          "expression": "#expect(result == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3801,
+          "expression": "#expect(unchanged?.radioID == device.radioID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+        "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+        "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "method_or_family_name": "originalAlreadyOwnedKeyRetainsNullAndOptionalOriginalRadioReadback",
+        "line": 31,
+        "end_line": 39,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "c6383770ac87f4de1e6f34655b0f042c5cd2ea66fa9f6e3e3815348609f1906a",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 36,
+            "expression": "assertNull(result)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 38,
+            "expression": "assertEquals(device.radioId, unchanged?.radioId)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 32,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 33,
+            "expression": "store.saveDevice(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.reconcileGhostIdentity",
+            "line": 35,
+            "expression": "store.reconcileGhostIdentity(device.id, device.publicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 37,
+            "expression": "store.fetchDevice(device.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::reconcileGhostIdentity is a no-op when current device already owns the publicKey()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "MC1/Views/Settings/DeviceSelectionSheet.swift",
+          "sha256": "f2b950277f77a3e4d14d6c1837d607c0387d5f32628c84766c196b6388566824"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        },
+        {
+          "path": "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/DeviceSelection.kt",
+          "sha256": "eeea6c4aa89672a75b4a7648a5c6d57c8aa5bec83916f5d828911018b8d5b1e8"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/ConnectionMethod.swift",
+          "sha256": "8c3a20ece0927381275ef29bbdafbb8fed7100436d1f88f1a7137a9121a3c16c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ConnectionMethod.kt",
+          "sha256": "8a410a3d20d56c83df55e8eed718a1e13d236e98a7895da5cef53cfe2ae0f0cd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+          "sha256": "f49c27a2cf1df63d4a1d93dff889318830c2c1a5e657549fa0af03241eba943f"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+          "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "originalAlreadyOwnedKeyRetainsNullAndOptionalOriginalRadioReadback"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-ghost-identity-predicates",
+      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::reconcileGhostIdentity preserves non-BLE methods from backup ghost()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2c0ab2c3e3b93da6e366ad13c7c034233e333de0012341fb73c79317f4feee5d",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3920,
+          "expression": "#expect(result == ghostRadioID)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#require",
+          "line": 3922,
+          "expression": "#require(await store.fetchDevice(id: current.id))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3923,
+          "expression": "#expect(updated.connectionMethods.contains(currentBLE))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3924,
+          "expression": "#expect(updated.connectionMethods.contains(backupWiFi))",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3925,
+          "expression": "#expect(updated.connectionMethods.filter(\\.isBluetooth).count == 1)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3928,
+          "expression": "#expect(ghostLookup == nil)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+        "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+        "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "method_or_family_name": "originalBackupWifiRetainsRequiredCurrentBothFullMethodsExactlyOneBluetoothAndGhostAbsence",
+        "line": 88,
+        "end_line": 109,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "ecbc3c2e18e11b3a860d7fd60956f84f2a1235b1307533d5c801b5f9f1802556",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertEquals",
+            "line": 103,
+            "expression": "assertEquals(ghostRadio, store.reconcileGhostIdentity(current.id, restoredPublicKey))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 104,
+            "expression": "assertNotNull(store.fetchDevice(current.id))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 105,
+            "expression": "assertTrue(updated.connectionMethods.contains(currentBluetooth))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertTrue",
+            "line": 106,
+            "expression": "assertTrue(updated.connectionMethods.contains(backupWifi))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 107,
+            "expression": "assertEquals(1, updated.connectionMethods.count { it.isBluetooth })",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNull",
+            "line": 108,
+            "expression": "assertNull(store.fetchDevice(ghost.id))",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes",
+            "line": 89,
+            "expression": "Bytes(ByteArray(32) { 0x45 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 89,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ConnectionMethod.WiFi",
+            "line": 90,
+            "expression": "ConnectionMethod.WiFi(\"10.0.0.7\", 5000u, \"Backup WiFi\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 91,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 91,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "device",
+            "line": 92,
+            "expression": "device(0x45)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 92,
+            "expression": "copy(\n            radioId = ghostRadio, isActive = false, connectionMethods = SnapshotList.of(backupWifi),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 93,
+            "expression": "SnapshotList.of(backupWifi)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 95,
+            "expression": "store.saveDevice(ghost)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ConnectionMethod.Bluetooth",
+            "line": 96,
+            "expression": "ConnectionMethod.Bluetooth(UUID.randomUUID(), \"Current BLE\")",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 96,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "device",
+            "line": 97,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 97,
+            "expression": "copy(\n            radioId = RadioId(UUID.randomUUID()), isActive = true,\n            connectionMethods = SnapshotList.of(currentBluetooth),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "RadioId",
+            "line": 98,
+            "expression": "RadioId(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 98,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 99,
+            "expression": "SnapshotList.of(currentBluetooth)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 101,
+            "expression": "store.saveDevice(current)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.reconcileGhostIdentity",
+            "line": 103,
+            "expression": "store.reconcileGhostIdentity(current.id, restoredPublicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 104,
+            "expression": "store.fetchDevice(current.id)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "updated.connectionMethods.contains",
+            "line": 105,
+            "expression": "updated.connectionMethods.contains(currentBluetooth)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "updated.connectionMethods.contains",
+            "line": 106,
+            "expression": "updated.connectionMethods.contains(backupWifi)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 108,
+            "expression": "store.fetchDevice(ghost.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::reconcileGhostIdentity preserves non-BLE methods from backup ghost()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "MC1/Views/Settings/DeviceSelectionSheet.swift",
+          "sha256": "f2b950277f77a3e4d14d6c1837d607c0387d5f32628c84766c196b6388566824"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        },
+        {
+          "path": "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/DeviceSelection.kt",
+          "sha256": "eeea6c4aa89672a75b4a7648a5c6d57c8aa5bec83916f5d828911018b8d5b1e8"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/ConnectionMethod.swift",
+          "sha256": "8c3a20ece0927381275ef29bbdafbb8fed7100436d1f88f1a7137a9121a3c16c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ConnectionMethod.kt",
+          "sha256": "8a410a3d20d56c83df55e8eed718a1e13d236e98a7895da5cef53cfe2ae0f0cd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+          "sha256": "f49c27a2cf1df63d4a1d93dff889318830c2c1a5e657549fa0af03241eba943f"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+          "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "originalBackupWifiRetainsRequiredCurrentBothFullMethodsExactlyOneBluetoothAndGhostAbsence"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-ghost-identity-predicates",
+      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "bb3ee1bf77317b48dea44c50aba31538259150bc830044d73cd7f4d5a11ca125",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3847,
+          "expression": "#expect(result == nil, \"Must not match a non-ghost inactive device\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3850,
+          "expression": "#expect(stillThere != nil, \"Saved-but-inactive device must not be deleted\")",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3851,
+          "expression": "#expect(stillThere?.connectionMethods.contains(where: \\.isBluetooth) == true)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+        "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+        "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "method_or_family_name": "originalInactiveBluetoothDeviceRetainsNullSurvivingOriginalIdAndBluetoothMembership",
+        "line": 54,
+        "end_line": 67,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "5040e5cef2169583994e5c5e70270c7f6e3ec92ed216f7812103f7e47beaa077",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 63,
+            "expression": "assertNull(store.reconcileGhostIdentity(current.id, sharedPublicKey))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertNotNull",
+            "line": 65,
+            "expression": "assertNotNull(stillThere)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 66,
+            "expression": "assertEquals(true, stillThere.connectionMethods.any { it.isBluetooth })",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "Bytes",
+            "line": 55,
+            "expression": "Bytes(ByteArray(32) { 0x45 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 55,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "device",
+            "line": 56,
+            "expression": "device(0x45)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 56,
+            "expression": "copy(\n            isActive = false, connectionMethods = SnapshotList.of(ConnectionMethod.Bluetooth(UUID.randomUUID())),\n        )",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "SnapshotList.of",
+            "line": 57,
+            "expression": "SnapshotList.of(ConnectionMethod.Bluetooth(UUID.randomUUID()))",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ConnectionMethod.Bluetooth",
+            "line": 57,
+            "expression": "ConnectionMethod.Bluetooth(UUID.randomUUID())",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "UUID.randomUUID",
+            "line": 57,
+            "expression": "UUID.randomUUID()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 59,
+            "expression": "store.saveDevice(inactive)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "device",
+            "line": 60,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "copy",
+            "line": 60,
+            "expression": "copy(isActive = true)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 61,
+            "expression": "store.saveDevice(current)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.reconcileGhostIdentity",
+            "line": 63,
+            "expression": "store.reconcileGhostIdentity(current.id, sharedPublicKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 64,
+            "expression": "store.fetchDevice(inactive.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "MC1/Views/Settings/DeviceSelectionSheet.swift",
+          "sha256": "f2b950277f77a3e4d14d6c1837d607c0387d5f32628c84766c196b6388566824"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        },
+        {
+          "path": "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/DeviceSelection.kt",
+          "sha256": "eeea6c4aa89672a75b4a7648a5c6d57c8aa5bec83916f5d828911018b8d5b1e8"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/ConnectionMethod.swift",
+          "sha256": "8c3a20ece0927381275ef29bbdafbb8fed7100436d1f88f1a7137a9121a3c16c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ConnectionMethod.kt",
+          "sha256": "8a410a3d20d56c83df55e8eed718a1e13d236e98a7895da5cef53cfe2ae0f0cd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+          "sha256": "f49c27a2cf1df63d4a1d93dff889318830c2c1a5e657549fa0af03241eba943f"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+          "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "originalInactiveBluetoothDeviceRetainsNullSurvivingOriginalIdAndBluetoothMembership"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
+      "group": "persistence-original-restored-ghost-identity-predicates",
+      "comparison_sha256": "099cdf53b6fe59aaa231ca6daa90d7f86c324eaf730e68911089aebb3dbf4c77",
+      "source_file_family_count": 135,
+      "group_compared_family_count": 5,
+      "partial_source_file": true,
+      "source_path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+      "source_blob_sha": "724751d55402e3ea85421ca6d033d88eac8a4d43",
+      "case_id": "PersistenceStoreTests::reconcileGhostIdentity returns nil when no ghost matches()",
+      "parameter_family": "single",
+      "original_declaration_sha256": "2a1c29a290e3ebdd84f985592583ab6ca3d9b0f7e03465c0ca9908a9d9283c8f",
+      "original_assertions": [
+        {
+          "name": "#expect",
+          "line": 3815,
+          "expression": "#expect(result == nil)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3818,
+          "expression": "#expect(unchanged?.publicKey == device.publicKey)",
+          "assertion_or_checked_wait": true
+        },
+        {
+          "name": "#expect",
+          "line": 3819,
+          "expression": "#expect(unchanged?.radioID == device.radioID)",
+          "assertion_or_checked_wait": true
+        }
+      ],
+      "original_inputs": null,
+      "native": {
+        "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+        "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+        "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "method_or_family_name": "originalUnrelatedKeyRetainsNullAndBothOriginalKeyAndRadioReadbacks",
+        "line": 42,
+        "end_line": 51,
+        "factory_method": null,
+        "registration_identity_resolution": null,
+        "body_sha256": "245693ff0e5af13eb31b9fab71cf4994552d83ee7c4986cb97415cdba108d8fe",
+        "registration": null,
+        "assertions": [
+          {
+            "name": "assertNull",
+            "line": 47,
+            "expression": "assertNull(store.reconcileGhostIdentity(device.id, unrelatedKey))",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 49,
+            "expression": "assertEquals(device.publicKey, unchanged?.publicKey)",
+            "assertion_or_checked_wait": true
+          },
+          {
+            "name": "assertEquals",
+            "line": 50,
+            "expression": "assertEquals(device.radioId, unchanged?.radioId)",
+            "assertion_or_checked_wait": true
+          }
+        ],
+        "actions_and_helper_calls": [
+          {
+            "name": "device",
+            "line": 43,
+            "expression": "device()",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.saveDevice",
+            "line": 44,
+            "expression": "store.saveDevice(device)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "Bytes",
+            "line": 45,
+            "expression": "Bytes(ByteArray(32) { 0x45 })",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "ByteArray",
+            "line": 45,
+            "expression": "ByteArray(32)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.reconcileGhostIdentity",
+            "line": 47,
+            "expression": "store.reconcileGhostIdentity(device.id, unrelatedKey)",
+            "assertion_or_checked_wait": false
+          },
+          {
+            "name": "store.fetchDevice",
+            "line": 48,
+            "expression": "store.fetchDevice(device.id)",
+            "assertion_or_checked_wait": false
+          }
+        ],
+        "source_references": [
+          "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+        ],
+        "explicit_original_case_ids": [
+          "PersistenceStoreTests::reconcileGhostIdentity returns nil when no ghost matches()"
+        ],
+        "execution": "exact-candidate-runner-identity-resolution-required"
+      },
+      "assertion_helper_inputs": [
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift",
+          "sha256": "75ced3028e226254e2851153908e20a1c9fa9bd46efde89896060f27f0372dc9"
+        },
+        {
+          "path": "MC1Services/Tests/MC1ServicesTests/Helpers/DeviceDTO+Testing.swift",
+          "sha256": "3498f197df609e162f496aa05bde37ce830f4c36991fd7fb82cb3832019b9522"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/Device.swift",
+          "sha256": "8b4d5db45dd7c0a72c48283258969053a0053a15e8e55de55ded4b5ca1c7f1b4"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+Devices.swift",
+          "sha256": "a682ce3b21bea769a958129997dda7c8bff36be880c5d215da5a38c348b10887"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager+Pairing.swift",
+          "sha256": "103fa66e32b77fe285c74ef1f98f4c43c0960251b20f149078f7110fe18c1795"
+        },
+        {
+          "path": "MC1/Views/Settings/DeviceSelectionSheet.swift",
+          "sha256": "f2b950277f77a3e4d14d6c1837d607c0387d5f32628c84766c196b6388566824"
+        },
+        {
+          "path": "android/app/src/test/kotlin/com/meshcoreone/android/app/container/ContainerHarness.kt",
+          "sha256": "cf7ff426a319023c5f75f4624357e3b0d36731fbacf89996d4b5d466621adfbc"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/DeviceRepository.kt",
+          "sha256": "88bec2f3390fe3499fe7de48ee0141a76f5367b1ff0095c16509c2c12bec1b82"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomRepositoryContext.kt",
+          "sha256": "53175287bb594cd6c8f4d32a1a69477d12ef3aab70a6e2c7c0542e84b451a4f5"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioDaos.kt",
+          "sha256": "8e52b6d74a7acf5f5fd8f53a95169170832025c1c8c4d25dfb805d2181eba452"
+        },
+        {
+          "path": "android/core/database/src/main/kotlin/com/meshcoreone/android/core/database/RadioMappings.kt",
+          "sha256": "92f5c8cdbac297249069a1eb8fd01761c8564b3e2a7629526ea374a54f3a8459"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
+          "sha256": "78338993321afde8a27d1c9c24ffe5c4787965efa0a25c8138b1def33cbf8776"
+        },
+        {
+          "path": "android/core/connectivity/src/main/kotlin/com/meshcoreone/android/core/connectivity/pairing/PairingCoordinator.kt",
+          "sha256": "f6f394728de143fb0cf835bee262115775e5d29dbc78c94f43fd2f3db7a6a656"
+        },
+        {
+          "path": "android/feature/settings/src/main/kotlin/com/meshcoreone/android/feature/settings/device/DeviceSelection.kt",
+          "sha256": "eeea6c4aa89672a75b4a7648a5c6d57c8aa5bec83916f5d828911018b8d5b1e8"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Models/ConnectionMethod.swift",
+          "sha256": "8c3a20ece0927381275ef29bbdafbb8fed7100436d1f88f1a7137a9121a3c16c"
+        },
+        {
+          "path": "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/ConnectionMethod.kt",
+          "sha256": "8a410a3d20d56c83df55e8eed718a1e13d236e98a7895da5cef53cfe2ae0f0cd"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore.swift",
+          "sha256": "f49c27a2cf1df63d4a1d93dff889318830c2c1a5e657549fa0af03241eba943f"
+        },
+        {
+          "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
+          "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        }
+      ],
+      "native_checked_helper_assertions": [],
+      "runner_directory": "app/build/test-results/testDebugUnitTest",
+      "runner_identity": [
+        "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+        "originalUnrelatedKeyRetainsNullAndBothOriginalKeyAndRadioReadbacks"
+      ],
+      "status": "candidate-semantic-comparison-awaiting-independent-review-and-current-execution"
+    },
+    {
       "group": "persistence-original-restored-independent-predicates",
       "comparison_sha256": "f3b110d5d4c810610793ed4e3b969b01a1062a35bf14c968a5251414c87269ea",
       "source_file_family_count": 135,
@@ -72038,7 +73231,7 @@
     },
     {
       "group": "persistence-original-restored-contact-clock-and-badge-predicates",
-      "comparison_sha256": "097a1710a85d9e63194865aa7219d3186565adad8cea3301adc53e836f63acbb",
+      "comparison_sha256": "e2bbe4148f493307f4b0663731cd1b155a8acf1365083a0dbd22ec74629245b1",
       "source_file_family_count": 135,
       "group_compared_family_count": 6,
       "partial_source_file": true,
@@ -72319,6 +73512,10 @@
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
           "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+          "sha256": "9d4465443763361614ba0707042da465fbeeae33ca48549fe250d4c662c5fa1b"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -73639,7 +74836,7 @@
     },
     {
       "group": "persistence-original-restored-contact-clock-and-badge-predicates",
-      "comparison_sha256": "097a1710a85d9e63194865aa7219d3186565adad8cea3301adc53e836f63acbb",
+      "comparison_sha256": "e2bbe4148f493307f4b0663731cd1b155a8acf1365083a0dbd22ec74629245b1",
       "source_file_family_count": 135,
       "group_compared_family_count": 6,
       "partial_source_file": true,
@@ -73974,6 +75171,10 @@
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
           "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+          "sha256": "9d4465443763361614ba0707042da465fbeeae33ca48549fe250d4c662c5fa1b"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -73986,7 +75187,7 @@
     },
     {
       "group": "persistence-original-restored-contact-clock-and-badge-predicates",
-      "comparison_sha256": "097a1710a85d9e63194865aa7219d3186565adad8cea3301adc53e836f63acbb",
+      "comparison_sha256": "e2bbe4148f493307f4b0663731cd1b155a8acf1365083a0dbd22ec74629245b1",
       "source_file_family_count": 135,
       "group_compared_family_count": 6,
       "partial_source_file": true,
@@ -74333,6 +75534,10 @@
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
           "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+          "sha256": "9d4465443763361614ba0707042da465fbeeae33ca48549fe250d4c662c5fa1b"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -74345,7 +75550,7 @@
     },
     {
       "group": "persistence-original-restored-contact-clock-and-badge-predicates",
-      "comparison_sha256": "097a1710a85d9e63194865aa7219d3186565adad8cea3301adc53e836f63acbb",
+      "comparison_sha256": "e2bbe4148f493307f4b0663731cd1b155a8acf1365083a0dbd22ec74629245b1",
       "source_file_family_count": 135,
       "group_compared_family_count": 6,
       "partial_source_file": true,
@@ -74596,6 +75801,10 @@
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/notifications/NotificationService.kt",
           "sha256": "acb6502c0638cbb01ea05e6a86d9f1b86b3c360ed1b0eb62ab700748aae86376"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Services/PersistenceStore+BackupHelpers.swift",
+          "sha256": "9d4465443763361614ba0707042da465fbeeae33ca48549fe250d4c662c5fa1b"
         }
       ],
       "native_checked_helper_assertions": [],

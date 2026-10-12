@@ -12,7 +12,46 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Pending-maintenance original increment
+## Ghost originals and qualified six-source reconciliation
+
+Five complete new originals registered:1450/5133 proposals/185groups/
+83mandatory/0approved;106/135 PersistenceStore proposed/29unprovided.
+Separate PersistenceGhostOriginalPredicateTest5 bodies/joins/95helperrows/
+19inputs retains already-owned/no-match nil and optional exact-ID radio/key,
+inactive BLE required surviving ID/member, same-key active-current ghost
+retry/returnedRadio/currentID rewrite/deletedghostID, and full Backup WiFi
+10.0.0.7:5000 + Current BLE named payloads/required parent/both membership/
+exactlyoneBLE/ghostID nil. Same actual producer reservation40->41
+automatically admits new class; no auth rewrite/release/recreate/actor.
+Only new five-only strict App command prepared, native discovery pending;
+no old Device twelve replay/product overwrite/actual pairing/radio command.
+
+Qualified actual historicalbc7/d958 SOURCE-ONLY COMMENTED5492337029:
+[review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5492337029).
+Full six original/native bodies/6joins/234rows/39inputs/all26 predicates,
+comparison097a1710a85d9e63194865aa7219d3186565adad8cea3301adc53e836f63acbb,
+no selected-source blocker. SIX not8; arithmetic at reviewedbc7 was1435/183.
+Adds6 after twelve5492147839,91/135 source-compared/44uncompared, not
+proposed106/135/29unprovided or APPROVED/full acceptance/privateXML result.
+Full frozen PersistenceStore+BackupHelpers.swift phone-clamp definition was
+read but absent from declared39; add only pinned read fingerprint, current
+40inputs/240helperrows. All native bodies/vectors/joins/other39 bytes remain
+unchanged. Published3728 sixPASS39-input XML/receipt and historical review
+39 guard remain immutable, not a new40-input execution or replay. Native
+partitioned NotificationService Long path preserves selected small counts;
+AppState Int-width callback is not confirmed mounted badge defect.
+
+Actual normal096 pushEXIT0/public head096d8842314e608cde82533abf1b4a26122685b2/
+base d958 verified, bounded ten-source intake
+[6126678056](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6126678056).
+Installed hook Python15/parity93/local21/preflightPASS, scaffold25s FAILED
+incumbent BLE project-JAR transform locks Expected3/found0; inspectunrun/
+localfastUNVERIFIED. No bypass/cache/process repair/hosted successor PASS.
+Ten public source guard10bodies/10joins/290rows/29inputs/proposalfc37f7be/
+comparison65dd69c9 retained; genuine5725 tenPASS/private source input and
+both earlier zero-credit native attempts separate, no current096 relabel.
+
+## Historical pending-maintenance original increment
 
 Actual clean5725f889d6966789a72ca8ea98c263d4c67db565/base d958 strict
 `:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest --dependency-verification=strict --quiet`
@@ -134,7 +173,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1445 proposals/184groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS each on its own receipt;85/135 qualified source-compared. | 34/135 persistence originals unprovided, new6+10 source comparisons and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1450 proposals/185groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS each on its own receipt;91/135 qualified source-compared. | 29/135 persistence originals unprovided, new10+5 source comparisons/new5 native discovery and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |

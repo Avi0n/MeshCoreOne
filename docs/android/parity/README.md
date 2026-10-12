@@ -1,5 +1,25 @@
 # WP-501 source, case-family and consumer acceptance
 
+Five complete ghost-identity originals newly registered in a separate class:
+1450/5133 proposals/185groups/83mandatory/0approved;106/135 PersistenceStore
+proposed/29unprovided. Five bodies/joins/95helperrows/19inputs preserve nil,
+optional exact-ID readbacks, inactive-BLE protection, same-key retry, required
+current parent, both full named methods, exactly one BLE and ghost-ID absence.
+Same producer reservation40->41; only new five-only execution pending, no
+old Device twelve replay/product edit/radio command.
+
+Qualified historicalbc7 SOURCE-ONLY5492337029 reconciled: SIX/6joins/
+234helperrows/39inputs/26predicates; adds6 after prior12,91/135 source-compared/
+44uncompared, distinct proposed106/135/29unprovided. Full frozen
+PersistenceStore+BackupHelpers.swift phone-clamp definition now declared:
+current40inputs/240helperrows, only a missing read fingerprint added.
+All native bodies/vectors/joins/other39 inputs unchanged. Genuine3728
+sixPASS39-input receipt and review39 guard retain provenance; no native
+replay/execution40-input rebind/private certification/extra original credit.
+AppState Int-width callback is not a confirmed mounted badge defect.
+
+Historical ten-original outcome and preceding registration/negative intake:
+
 Actual clean5725/base d958 ten-only10PASS/0bad/all10 identities,
 XML14:41:33.966Z/native204b3626/SHA9e9802aa/29 fingerprints/private raw XML.
 All required nil/positive/independent radio/first-second return/forbidden UUID/

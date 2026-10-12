@@ -8029,6 +8029,7 @@
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactClockAndBadgeOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceContactOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceDeviceOriginalPredicateTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistencePendingMaintenanceOriginalPredicateTest.kt",
@@ -8640,6 +8641,45 @@
               "name": "removedPairingRetainsOriginalInactiveHandlelessDeviceAndAliceChild",
               "line": 176,
               "end_line": 186
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "device",
+              "line": 20,
+              "end_line": 28
+            },
+            {
+              "name": "originalAlreadyOwnedKeyRetainsNullAndOptionalOriginalRadioReadback",
+              "line": 31,
+              "end_line": 39
+            },
+            {
+              "name": "originalUnrelatedKeyRetainsNullAndBothOriginalKeyAndRadioReadbacks",
+              "line": 42,
+              "end_line": 51
+            },
+            {
+              "name": "originalInactiveBluetoothDeviceRetainsNullSurvivingOriginalIdAndBluetoothMembership",
+              "line": 54,
+              "end_line": 67
+            },
+            {
+              "name": "originalSameKeyRetryRetainsGhostRadioCurrentIdRewriteAndGhostIdAbsence",
+              "line": 70,
+              "end_line": 85
+            },
+            {
+              "name": "originalBackupWifiRetainsRequiredCurrentBothFullMethodsExactlyOneBluetoothAndGhostAbsence",
+              "line": 88,
+              "end_line": 109
             }
           ]
         },
@@ -67575,6 +67615,65 @@
             "PersistenceStoreTests::reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+          "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+          "method_or_family_name": "originalAlreadyOwnedKeyRetainsNullAndOptionalOriginalRadioReadback",
+          "line": 31,
+          "end_line": 39,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "c6383770ac87f4de1e6f34655b0f042c5cd2ea66fa9f6e3e3815348609f1906a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 36,
+              "expression": "assertNull(result)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 38,
+              "expression": "assertEquals(device.radioId, unchanged?.radioId)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 32,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 33,
+              "expression": "store.saveDevice(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.reconcileGhostIdentity",
+              "line": 35,
+              "expression": "store.reconcileGhostIdentity(device.id, device.publicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 37,
+              "expression": "store.fetchDevice(device.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::reconcileGhostIdentity is a no-op when current device already owns the publicKey()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -67821,6 +67920,83 @@
             "PersistenceStoreTests::reconcileGhostIdentity is a no-op when current device already owns the publicKey()",
             "PersistenceStoreTests::reconcileGhostIdentity returns nil when no ghost matches()",
             "PersistenceStoreTests::reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+          "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+          "method_or_family_name": "originalUnrelatedKeyRetainsNullAndBothOriginalKeyAndRadioReadbacks",
+          "line": 42,
+          "end_line": 51,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "245693ff0e5af13eb31b9fab71cf4994552d83ee7c4986cb97415cdba108d8fe",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 47,
+              "expression": "assertNull(store.reconcileGhostIdentity(device.id, unrelatedKey))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 49,
+              "expression": "assertEquals(device.publicKey, unchanged?.publicKey)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 50,
+              "expression": "assertEquals(device.radioId, unchanged?.radioId)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "device",
+              "line": 43,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 44,
+              "expression": "store.saveDevice(device)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 45,
+              "expression": "Bytes(ByteArray(32) { 0x45 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 45,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.reconcileGhostIdentity",
+              "line": 47,
+              "expression": "store.reconcileGhostIdentity(device.id, unrelatedKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 48,
+              "expression": "store.fetchDevice(device.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::reconcileGhostIdentity returns nil when no ghost matches()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -68113,6 +68289,125 @@
             "PersistenceStoreTests::reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+          "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+          "method_or_family_name": "originalInactiveBluetoothDeviceRetainsNullSurvivingOriginalIdAndBluetoothMembership",
+          "line": 54,
+          "end_line": 67,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "5040e5cef2169583994e5c5e70270c7f6e3ec92ed216f7812103f7e47beaa077",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertNull",
+              "line": 63,
+              "expression": "assertNull(store.reconcileGhostIdentity(current.id, sharedPublicKey))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 65,
+              "expression": "assertNotNull(stillThere)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 66,
+              "expression": "assertEquals(true, stillThere.connectionMethods.any { it.isBluetooth })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes",
+              "line": 55,
+              "expression": "Bytes(ByteArray(32) { 0x45 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 55,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 56,
+              "expression": "device(0x45)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 56,
+              "expression": "copy(\n            isActive = false, connectionMethods = SnapshotList.of(ConnectionMethod.Bluetooth(UUID.randomUUID())),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 57,
+              "expression": "SnapshotList.of(ConnectionMethod.Bluetooth(UUID.randomUUID()))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ConnectionMethod.Bluetooth",
+              "line": 57,
+              "expression": "ConnectionMethod.Bluetooth(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 57,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 59,
+              "expression": "store.saveDevice(inactive)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 60,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 60,
+              "expression": "copy(isActive = true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 61,
+              "expression": "store.saveDevice(current)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.reconcileGhostIdentity",
+              "line": 63,
+              "expression": "store.reconcileGhostIdentity(current.id, sharedPublicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 64,
+              "expression": "store.fetchDevice(inactive.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::reconcileGhostIdentity refuses to delete a saved-but-inactive device with BLE methods()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -68389,6 +68684,143 @@
             "PersistenceStoreTests::reconcileGhostIdentity rewrites current device when ghost matches publicKey()",
             "PersistenceStoreTests::reconcileGhostIdentity finds ghost even when current device's publicKey already matches()",
             "PersistenceStoreTests::reconcileGhostIdentity preserves non-BLE methods from backup ghost()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+          "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+          "method_or_family_name": "originalSameKeyRetryRetainsGhostRadioCurrentIdRewriteAndGhostIdAbsence",
+          "line": 70,
+          "end_line": 85,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b01474af63884c4f11c22b0a333a0d389838c6856b83c6c144d1ccb96d066f53",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 81,
+              "expression": "assertEquals(ghostRadio, store.reconcileGhostIdentity(current.id, restoredPublicKey))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 83,
+              "expression": "assertEquals(ghostRadio, updated?.radioId)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 84,
+              "expression": "assertNull(store.fetchDevice(ghost.id))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes",
+              "line": 71,
+              "expression": "Bytes(ByteArray(32) { 0x45 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 71,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 72,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 72,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 73,
+              "expression": "device(0x45)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 73,
+              "expression": "copy(\n            radioId = ghostRadio, isActive = false, connectionMethods = SnapshotList.empty(),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.empty",
+              "line": 74,
+              "expression": "SnapshotList.empty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 76,
+              "expression": "store.saveDevice(ghost)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 77,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 77,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 78,
+              "expression": "device(0x45)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 78,
+              "expression": "copy(radioId = staleRadio, isActive = true)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 79,
+              "expression": "store.saveDevice(current)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.reconcileGhostIdentity",
+              "line": 81,
+              "expression": "store.reconcileGhostIdentity(current.id, restoredPublicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 82,
+              "expression": "store.fetchDevice(current.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 84,
+              "expression": "store.fetchDevice(ghost.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::reconcileGhostIdentity finds ghost even when current device's publicKey already matches()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -68732,6 +69164,197 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::reconcileGhostIdentity rewrites current device when ghost matches publicKey()",
             "PersistenceStoreTests::reconcileGhostIdentity finds ghost even when current device's publicKey already matches()",
+            "PersistenceStoreTests::reconcileGhostIdentity preserves non-BLE methods from backup ghost()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceGhostOriginalPredicateTest.kt",
+          "sha256": "e906f1089dd26202076b25005d15bb418db1e620ca21d7a73556f8959d56ddf1",
+          "class": "com.meshcoreone.android.parity.PersistenceGhostOriginalPredicateTest",
+          "method_or_family_name": "originalBackupWifiRetainsRequiredCurrentBothFullMethodsExactlyOneBluetoothAndGhostAbsence",
+          "line": 88,
+          "end_line": 109,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ecbc3c2e18e11b3a860d7fd60956f84f2a1235b1307533d5c801b5f9f1802556",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 103,
+              "expression": "assertEquals(ghostRadio, store.reconcileGhostIdentity(current.id, restoredPublicKey))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 104,
+              "expression": "assertNotNull(store.fetchDevice(current.id))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 105,
+              "expression": "assertTrue(updated.connectionMethods.contains(currentBluetooth))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 106,
+              "expression": "assertTrue(updated.connectionMethods.contains(backupWifi))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 107,
+              "expression": "assertEquals(1, updated.connectionMethods.count { it.isBluetooth })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNull",
+              "line": 108,
+              "expression": "assertNull(store.fetchDevice(ghost.id))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "Bytes",
+              "line": 89,
+              "expression": "Bytes(ByteArray(32) { 0x45 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 89,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ConnectionMethod.WiFi",
+              "line": 90,
+              "expression": "ConnectionMethod.WiFi(\"10.0.0.7\", 5000u, \"Backup WiFi\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 91,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 91,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 92,
+              "expression": "device(0x45)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 92,
+              "expression": "copy(\n            radioId = ghostRadio, isActive = false, connectionMethods = SnapshotList.of(backupWifi),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 93,
+              "expression": "SnapshotList.of(backupWifi)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 95,
+              "expression": "store.saveDevice(ghost)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ConnectionMethod.Bluetooth",
+              "line": 96,
+              "expression": "ConnectionMethod.Bluetooth(UUID.randomUUID(), \"Current BLE\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 96,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "device",
+              "line": 97,
+              "expression": "device()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "copy",
+              "line": 97,
+              "expression": "copy(\n            radioId = RadioId(UUID.randomUUID()), isActive = true,\n            connectionMethods = SnapshotList.of(currentBluetooth),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 98,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 98,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "SnapshotList.of",
+              "line": 99,
+              "expression": "SnapshotList.of(currentBluetooth)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveDevice",
+              "line": 101,
+              "expression": "store.saveDevice(current)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.reconcileGhostIdentity",
+              "line": 103,
+              "expression": "store.reconcileGhostIdentity(current.id, restoredPublicKey)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 104,
+              "expression": "store.fetchDevice(current.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "updated.connectionMethods.contains",
+              "line": 105,
+              "expression": "updated.connectionMethods.contains(currentBluetooth)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "updated.connectionMethods.contains",
+              "line": 106,
+              "expression": "updated.connectionMethods.contains(backupWifi)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDevice",
+              "line": 108,
+              "expression": "store.fetchDevice(ghost.id)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::reconcileGhostIdentity preserves non-BLE methods from backup ghost()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
