@@ -22,6 +22,8 @@ class PerformanceVerificationTests(unittest.TestCase):
             "  E: activity\n    A: android:name=\"" + FIXTURE + "\"\n"
             "  E: meta-data\n    A: android:name=\"wp504.profileSource\"\n"
             "    A: android:value(0x01010024)=(type 0x12)0x0\n"
+            "  E: meta-data\n    A: android:name=\"wp504.applicationProfileInput\"\n"
+            "    A: android:value(0x01010024)=(type 0x12)0x0\n"
         )
 
     def test_actual_declared_benchmark_build_tasks(self):
@@ -31,6 +33,9 @@ class PerformanceVerificationTests(unittest.TestCase):
         result = verify_manifest(self.badging(), self.tree(), benchmark=True)
         self.assertFalse(result["debuggable"])
         self.assertEqual(result["package"], "com.meshcoreone.android.benchmark")
+
+    def test_actual_aapt37_minimum_sdk_field(self):
+        verify_manifest(self.badging().replace("sdkVersion:", "minSdkVersion:"), self.tree(), benchmark=True)
 
     def test_debug_target_rejected(self):
         with self.assertRaisesRegex(PortError, "debuggable"):
@@ -62,7 +67,8 @@ class PerformanceVerificationTests(unittest.TestCase):
         self.assertEqual(result["package"], "com.meshcoreone.android")
 
     def test_profile_collection_variant_has_true_typed_identity(self):
-        tree = self.tree().replace("0x01010024)=(type 0x12)0x0", "0x01010024)=(type 0x12)0xffffffff")
+        tail = '"wp504.profileSource"\n    A: android:value(0x01010024)=(type 0x12)'
+        tree = self.tree().replace(tail + "0x0", tail + "0xffffffff")
         verify_manifest(self.badging(), tree, benchmark=True, profile_source=True)
         with self.assertRaisesRegex(PortError, "variant identity"):
             verify_manifest(self.badging(), tree, benchmark=True)
@@ -70,6 +76,13 @@ class PerformanceVerificationTests(unittest.TestCase):
     def test_missing_variant_identity_rejected(self):
         with self.assertRaisesRegex(PortError, "variant identity"):
             verify_manifest(self.badging(), self.tree().replace("wp504.profileSource", "unrelated"), benchmark=True)
+
+    def test_application_input_flag_cannot_be_substituted(self):
+        tail = '"wp504.applicationProfileInput"\n    A: android:value(0x01010024)=(type 0x12)'
+        tree = self.tree().replace(tail + "0x0", tail + "0xffffffff")
+        verify_manifest(self.badging(), tree, benchmark=True, application_profile_input=True)
+        with self.assertRaisesRegex(PortError, "applicationProfileInput"):
+            verify_manifest(self.badging(), tree, benchmark=True)
 
     def test_string_instead_of_boolean_identity_rejected(self):
         with self.assertRaisesRegex(PortError, "variant identity"):

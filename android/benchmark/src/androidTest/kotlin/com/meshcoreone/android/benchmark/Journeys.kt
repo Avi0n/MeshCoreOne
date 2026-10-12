@@ -17,13 +17,17 @@ internal const val TARGET = "com.meshcoreone.android.benchmark"
 internal const val FIXTURE_ACTIVITY = "com.meshcoreone.android.benchmarktarget.WorkloadActivity"
 private const val TIMEOUT_MS = 30_000L
 
-internal fun prepareWorkload(profileGeneration: Boolean = false) {
+internal fun prepareWorkload(profileGeneration: Boolean = false, requireApplicationProfile: Boolean = false) {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val metadata = requireNotNull(instrumentation.context.packageManager
         .getApplicationInfo(TARGET, PackageManager.GET_META_DATA).metaData)
     assertTrue("Missing target variant identity", metadata.containsKey("wp504.profileSource"))
     assertEquals("Install the profile APK for collection, benchmark APK for measurements",
         profileGeneration, metadata.getBoolean("wp504.profileSource"))
+    if (requireApplicationProfile) {
+        assertTrue("Partial(Require) needs an admitted generated application profile input, not dependency-only profiles",
+            metadata.containsKey("wp504.applicationProfileInput") && metadata.getBoolean("wp504.applicationProfileInput"))
+    }
     val device = UiDevice.getInstance(instrumentation)
     device.executeShellCommand("am start -W -n $TARGET/$FIXTURE_ACTIVITY --es screen prepare")
     assertTrue("Room dataset preparation failed", device.wait(

@@ -70,6 +70,18 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
 }
 
+val applicationProfileInput = layout.projectDirectory.file("src/main/baseline-prof.txt").asFile
+val applicationProfileAvailable = applicationProfileInput.exists()
+if (applicationProfileAvailable) {
+    check(applicationProfileInput.isFile && !java.nio.file.Files.isSymbolicLink(applicationProfileInput.toPath())) {
+        "WP-504 application profile input must be a regular file"
+    }
+    val applicationRule = Regex("^[HSP]*Lcom/meshcoreone/android/app/.*;.*$")
+    check(applicationProfileInput.useLines { lines -> lines.any(applicationRule::matches) }) {
+        "WP-504 application profile input must contain real application rules, not only dependency profiles"
+    }
+}
+
 android {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -99,6 +111,7 @@ android {
         signingConfig = signingConfigs.getByName("debug")
         matchingFallbacks += "release"
         manifestPlaceholders["wp504ProfileSource"] = "false"
+        manifestPlaceholders["wp504ApplicationProfileInput"] = applicationProfileAvailable.toString()
     }
     buildTypes.create("profile") {
         initWith(buildTypes.getByName("benchmark"))

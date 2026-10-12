@@ -3,6 +3,7 @@
     <application android:testOnly="true">
         <profileable android:shell="true" />
         <meta-data android:name="wp504.profileSource" android:value="${wp504ProfileSource}" />
+        <meta-data android:name="wp504.applicationProfileInput" android:value="${wp504ApplicationProfileInput}" />
         <activity
             android:name="com.meshcoreone.android.benchmarktarget.WorkloadActivity"
             android:exported="true" />

@@ -121,14 +121,19 @@ supported runner and record the discovered cases, device/build and raw outputs.
    profile output. The target metadata rejects collecting from the obfuscated
    benchmark APK. Startup-only rules are separate; fixture classes are filtered.
 2. Retain the generated, sanitized profile inputs and bind them to the exact
-   source/dataset/device. Admit the resulting nonempty profile as the app's
-   baseline/startup-profile input; rebuild the ordinary release and benchmark
+   source/dataset/device. Admit the resulting nonempty application baseline rules
+   at `android/app/src/main/baseline-prof.txt` and genuine startup rules at
+   `android/app/src/main/startup-prof.txt`; rebuild the ordinary release and benchmark
    targets. Do not commit a fabricated or empty profile.
 3. Install the **R8 benchmark APK**, then run `:benchmark:connectedDebugAndroidTest`
    with `-Pandroid.testInstrumentationRunnerArguments.class=com.meshcoreone.android.benchmark.PerformanceBenchmark`.
    Nine cases compare `None`, `Full` and `Partial(Require)` for startup, timeline
    and map, with ten iterations each. Missing embedded baseline profiles fail
    the required Partial mode rather than falling back to warmup/JIT success.
+   APK metadata also requires a real application-specific source input before
+   Partial cases start: built-in dependency profiles alone cannot satisfy this.
+   A present input without application rules fails the build. Input presence
+   does not replace device provenance/admission or prove actual profile collection.
 4. On an actual 16,384-byte-page runtime, separately select
    `com.meshcoreone.android.benchmark.NativePageRuntimeTest`. Its native-rendering
    assertion must execute; static `zipalign -P 16`/ELF checks are not substitutes.

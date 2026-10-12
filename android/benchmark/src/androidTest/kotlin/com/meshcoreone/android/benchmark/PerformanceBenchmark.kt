@@ -16,7 +16,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class PerformanceBenchmark(private val compilation: CompilationMode) {
     @get:Rule val benchmark = MacrobenchmarkRule()
-    @Before fun prepare() = prepareWorkload()
+    @Before fun prepare() = prepareWorkload(requireApplicationProfile = compilation is CompilationMode.Partial)
 
     @Test fun coldStartup() = benchmark.measureRepeated(
         packageName = TARGET,

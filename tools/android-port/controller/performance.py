@@ -11,13 +11,15 @@ from .errors import PortError
 FIXTURE = "com.meshcoreone.android.benchmarktarget.WorkloadActivity"
 
 
-def verify_manifest(badging: str, tree: str, *, benchmark: bool, profile_source: bool = False):
+def verify_manifest(badging: str, tree: str, *, benchmark: bool, profile_source: bool = False,
+                    application_profile_input: bool = False):
     package = "com.meshcoreone.android" + (".benchmark" if benchmark else "")
     if not re.search(r"^package: name='" + re.escape(package) + r"'", badging, re.MULTILINE):
         raise PortError("WP-504 APK package mismatch")
-    for field, value in (("sdkVersion", "31"), ("targetSdkVersion", "37")):
-        if f"{field}:'{value}'" not in badging:
-            raise PortError("WP-504 APK SDK bounds mismatch")
+    minimum = re.search(r"^(?:minSdkVersion|sdkVersion):'(\d+)'", badging, re.MULTILINE)
+    target = re.search(r"^targetSdkVersion:'(\d+)'", badging, re.MULTILINE)
+    if minimum is None or target is None or (int(minimum.group(1)), int(target.group(1))) != (31, 37):
+        raise PortError("WP-504 APK SDK bounds mismatch")
     if re.search(r"android:debuggable[^=\n]*=.*0xffffffff", tree):
         raise PortError("WP-504 target is debuggable, not a release measurement")
     if benchmark:
@@ -29,12 +31,14 @@ def verify_manifest(badging: str, tree: str, *, benchmark: bool, profile_source:
         if not profileable or not re.search(r"android:shell[^=\n]*=.*0xffffffff", profileable.group()):
             raise PortError("Benchmark target is not shell-profileable")
         metadata = re.findall(r"E: meta-data.*?(?=\n\s*E:|\Z)", tree, re.DOTALL)
-        identities = [element for element in metadata if '"wp504.profileSource"' in element]
-        expected = "0xffffffff" if profile_source else "0x0"
-        if len(identities) != 1 or not re.search(
-                r"android:value[^=\n]*=.*\(type 0x12\)" + expected + r"(?:\s|$)", identities[0]):
-            raise PortError("Missing/wrong typed profile-source variant identity")
-    elif FIXTURE in tree or "E: profileable" in tree or "wp504.profileSource" in tree:
+        for name, enabled in (("wp504.profileSource", profile_source),
+                              ("wp504.applicationProfileInput", application_profile_input)):
+            identities = [element for element in metadata if f'"{name}"' in element]
+            expected = "0xffffffff" if enabled else "0x0"
+            if len(identities) != 1 or not re.search(
+                    r"android:value[^=\n]*=.*\(type 0x12\)" + expected + r"(?:\s|$)", identities[0]):
+                raise PortError(f"Missing/wrong typed variant identity: {name}")
+    elif FIXTURE in tree or "E: profileable" in tree or "wp504." in tree:
         raise PortError("Test fixture/profileable overlay leaked into release")
     elif re.search(r"android:testOnly[^=\n]*=.*0xffffffff", tree):
         raise PortError("Ordinary release must not be test-only")
@@ -68,6 +72,7 @@ def verify_build(repo: Path, sdk: Path, environment: dict):
             dump("xmltree", str(apks[0]), "--file", "AndroidManifest.xml"),
             benchmark=variant != "release",
             profile_source=variant == "profile",
+            application_profile_input=(android / "app/src/main/baseline-prof.txt").is_file(),
         )
         alignment = inspect_alignment(apks[0], sdk, environment, windows=windows)
         if not any(name.endswith("/libmaplibre.so") for name in alignment["elf_pt_load_alignment"]):
