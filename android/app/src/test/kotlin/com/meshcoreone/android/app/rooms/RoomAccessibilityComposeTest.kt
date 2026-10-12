@@ -362,14 +362,16 @@ class RoomAccessibilityComposeTest {
                 val body = compose.onNodeWithText(message.text, useUnmergedTree = true)
                 body.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { assertTrue(it(layouts)) }
                 val layout = layouts.single()
-                assertEquals(expectedForeground.toComposeColor(), layout.layoutInput.text.spanStyles.first().item.color)
+                val bodyForeground = layout.layoutInput.text.spanStyles.first().item.color
+                assertEquals(expectedForeground.toComposeColor(), bodyForeground)
                 val start = message.text.indexOf('#')
                 val link = layout.layoutInput.text.getLinkAnnotations(start, message.text.length).single().item
                 val linkForeground = accessibleForeground(
                     if (message.isFromSelf) frame.outgoingText else frame.hashtag,
                     paintedBackground, WCAGContrast.AA_FLOOR,
                 )
-                assertEquals(linkForeground.toComposeColor(), requireNotNull(link.styles?.style).color)
+                val renderedLinkForeground = requireNotNull(link.styles?.style).color
+                assertEquals(linkForeground.toComposeColor(), renderedLinkForeground)
                 val bounds = compose.onNodeWithTag("room-bubble:${message.id}", useUnmergedTree = true)
                     .fetchSemanticsNode().boundsInRoot
                 val painted = bitmap.getPixel(bounds.center.x.toInt(), bounds.top.toInt() + 4)
@@ -389,7 +391,11 @@ class RoomAccessibilityComposeTest {
                 })
                 assertTrue(
                     "Body foreground must meet the existing floor on the painted bubble",
-                    WCAGContrast.contrastRatio(expectedForeground, Color(painted).toThemeColor()) >= WCAGContrast.AA_FLOOR,
+                    WCAGContrast.contrastRatio(bodyForeground.toThemeColor(), Color(painted).toThemeColor()) >= WCAGContrast.AA_FLOOR,
+                )
+                assertTrue(
+                    "Hashtag foreground must meet the existing floor on the painted bubble",
+                    WCAGContrast.contrastRatio(renderedLinkForeground.toThemeColor(), Color(painted).toThemeColor()) >= WCAGContrast.AA_FLOOR,
                 )
             }
         } finally {
