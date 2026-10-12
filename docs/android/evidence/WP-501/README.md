@@ -79,8 +79,22 @@ Fixed0x44 repeated32-byte device key replaces source random32-byte key
 explicitly; no universal identity/randomness, retention/batching/rollback/
 cancellation/ties/SwiftData/API37/device/mounted reprocess proof.
 Same reservation30->31/wp-owned/create preserves immutable identities/pins.
-Fourteen-name native execution is pending; remaining114 of135 persistence
-comparisons and independent/full acceptance remain unresolved.
+Actual clean`f88094284ed7af63dc302b41f2eaa9536a2fcd9f`/base9ed1 strict
+Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceRxOriginalPredicateTest --dependency-verification=strict --quiet`
+discovers14/14PASS/zeroFAIL-error-skip/all14 original identities in actual
+XML2026-10-12T09:41:08.296Z. Native
+blob`3ecbeecfc3921784ffc8fc9814a79b721fcb8c42`; readinessPASS JDK21.0.12.1/
+SDK37.2/tools37/own private state, clean tracked inputs/zero notice
+normalizations/supported native and Gradle locks normally released.
+Only this new native class ran, no previous7/4/19/49/53/incumbent replay.
+Execution predates any197 adoption and remains actualf880/base9ed1, not an
+evidence-only successor relabel. Remaining114 of135 persistence comparisons
+and independent/full acceptance remain unresolved. Initial unsupported
+semantic --generate preparation attempt failed argument parsing before
+native execution; corrected to supported no-flag generation, validators
+unchanged. Preparation parity93/audit/semantic/pin/ownership/diff checksPASS;
+all prior1351 complete binding objects unchanged, exactly14 additions.
 
 Independent bounded SOURCE-ONLY PR197 comparison posted
 [6121536833](https://github.com/cbattlegear/MeshCoreOne-Android/pull/197#issuecomment-6121536833)

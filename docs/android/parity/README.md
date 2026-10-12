@@ -12,8 +12,12 @@ compared; aggregate annotations omitted predicates or changed these inputs.
 Actual inherited API31 Room/native SQLite/production store; original
 preflush observations remain, with two additional committed-column checks.
 Same reservation30->31 admits the owned file/create, preserving pins/audit
-identity. Fourteen-name native execution is pending; remaining114 of135
-persistence comparisons and independent/full acceptance remain unresolved.
+identity. Actual cleanf88094284ed7af63dc302b41f2eaa9536a2fcd9f/base9ed1
+strict Windows App selector14/14PASS/zeroFAIL-error-skip/all14 original
+identities, XML09:41:08.296Z/blob3ecbeecf. ReadinessPASS/cleaninputs/zero
+notice normalizations/supportedlocksreleased; only this new class ran.
+Remaining114 of135 persistence comparisons and independent/full acceptance
+remain unresolved; no previous7/4/19/49/53 replay or successor/197 relabel.
 No existing original comparison, mandatory witness or golden changed.
 
 Bounded SOURCE-ONLY PR197 comparison at9ff71dc/base9ed was posted as
