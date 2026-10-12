@@ -1,7 +1,6 @@
 // AndroidOnly: WP-503 Public remote-node catalog/history/authentication flows with deterministic ports and actual native scroll, controls and cancellation.
 package com.meshcoreone.android.accessibility
 
-import android.view.View
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider
@@ -66,7 +65,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import org.robolectric.shadows.ShadowDialog
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [31, 37], qualifiers = "en-rUS-w360dp-h900dp-mdpi")
@@ -246,7 +244,6 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
 
     private fun openAuthentication(rig: Rig) {
         compose.onNodeWithTag("open-node:${contact.id}").performScrollTo().assertIsEnabled().performClick()
-        configureNativeDialogWindow()
         val password = compose.onNodeWithTag("remote-login-password").assertIsDisplayed()
         compose.waitUntil(10_000) {
             password.fetchSemanticsNode().config[SemanticsProperties.EditableText].text == "\u2022".repeat(12)
@@ -273,22 +270,9 @@ class NativeRemoteNodesAccessibilityTest : NativeAccessibilityHarness() {
                 }
             }
         }
-        configureNativeDialogWindow()
         val field = compose.onNodeWithTag("secure-field-control").assertIsDisplayed()
         assertEquals("\u2022".repeat(12), field.fetchSemanticsNode().config[SemanticsProperties.EditableText].text)
         assertTrue(field.fetchSemanticsNode().config.contains(SemanticsProperties.Password))
-    }
-
-    private fun configureNativeDialogWindow() {
-        compose.runOnUiThread {
-            val window = requireNotNull(ShadowDialog.getLatestDialog().window)
-            val view = window.decorView
-            view.layoutDirection = View.LAYOUT_DIRECTION_RTL
-            view.onWindowFocusChanged(true)
-            println("WP503_REMOTE_DIALOG_WINDOW|width=${view.width}|height=${view.height}")
-            assertTrue("Bind the native dialog to its already measured viewport", view.width > 0 && view.height > 0)
-            window.setLayout(view.width, view.height)
-        }
     }
 
     private fun rememberToggle() = compose.onNode(hasText(host.get().getString(L.remoteNodesAuthRememberPassword)) and
