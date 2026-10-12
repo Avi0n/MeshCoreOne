@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "0e26d200c47032f11486b68648b44c918d9b48618a55a46fc8d5588f2951f4d5",
+  "proposal_sha256": "b445a402829bdcc08d229cf856ec473a787b93990b58358676b860e3ea7639dd",
   "families": [
     {
       "group": "backup-envelope",
@@ -56886,7 +56886,7 @@
     },
     {
       "group": "persistence-original-restored-contact-history-predicates",
-      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "comparison_sha256": "8b5279b10f600dfd0cb2dd37266324baa5ec7208abc115e62e1a5f40c3d6b2e2",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -58104,7 +58104,7 @@
     },
     {
       "group": "persistence-original-restored-contact-history-predicates",
-      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "comparison_sha256": "8b5279b10f600dfd0cb2dd37266324baa5ec7208abc115e62e1a5f40c3d6b2e2",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -64011,7 +64011,7 @@
     },
     {
       "group": "persistence-original-restored-contact-history-predicates",
-      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "comparison_sha256": "8b5279b10f600dfd0cb2dd37266324baa5ec7208abc115e62e1a5f40c3d6b2e2",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -64366,7 +64366,7 @@
     },
     {
       "group": "persistence-original-restored-contact-history-predicates",
-      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "comparison_sha256": "8b5279b10f600dfd0cb2dd37266324baa5ec7208abc115e62e1a5f40c3d6b2e2",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -65492,7 +65492,7 @@
     },
     {
       "group": "persistence-original-restored-contact-history-predicates",
-      "comparison_sha256": "0392e7c6ae267bf07af079b5a4f488082a3402e92cc5bd3e2e177b34b0f1bf74",
+      "comparison_sha256": "8b5279b10f600dfd0cb2dd37266324baa5ec7208abc115e62e1a5f40c3d6b2e2",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,

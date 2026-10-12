@@ -8,7 +8,10 @@ and visibility transitions, and separate five/three/one channel/direct counts.
 Message/direct-helper OUTGOING/PENDING defaults remain correct; channel-delete
 also uses the source Message initializer, not the SENT channel helper.
 Fixed44/55/56 keys versus source randomness and API31 Room versus SwiftData
-are explicit adaptations. Native execution/source comparison pending.
+are explicit adaptations. Actual clean64e/base6863 two-class execution discovers
+7:5originalPASS/2newAppFAIL/zero errors-skips; overall Gradle exits1.
+Original XML12:40:51.038Z, consumer XML12:40:43.969Z, no incumbent replay.
+New five source comparison/full acceptance remain pending.
 
 Qualified SOURCE-ONLY CLI86 review5490750483 and cascade5 review5490788581 at
 6716/base6863 are reconciled additively with guarded unchanged selected bytes,
@@ -22,8 +25,13 @@ Two additional mandatory App deletion consumers independently exercise
 remaining55-row history and final-message conversation removal. Frozen single
 delete recomputes database recency; actual App delete currently only deletes
 and refreshes. Source-selected store recompute succeeds only when explicitly
-called and cannot substitute for this adapter. Native results pending; no
-production edit, mounted Compose paging/TalkBack/API37 or fault-injection claim.
+called and cannot substitute for this adapter. No production edit, mounted
+Compose paging/TalkBack/API37 or fault-injection claim.
+Actual failures retain deleted-message recency instead of next date or null;
+[owning defect202](https://github.com/cbattlegear/MeshCoreOne-Android/issues/202)
+filed. Raw removal/count and initial date/list preconditions pass; final list
+predicates are retained but unreached after each first persisted-date failure.
+ReadinessPASS/clean inputs/zero notice normalizations/locks normally released.
 Older paragraphs below retain their original snapshot accounting.
 
 Actual reviewed CLI199 merge6863a0acb08b01026218962218f5dd60895547d4

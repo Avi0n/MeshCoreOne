@@ -17,9 +17,15 @@ self-referential committed digest or a second CI-result bundle.
 Latest input increment adds five independent contact/history originals and two
 mandatory actual App single-deletion consumers. Current1417/5133 proposals/
 181groups/83mandatory/zero approved;73/135 persistence proposed/62remaining.
-Native discovery/result not yet claimed. Exact bounded command will select
-only `PersistenceContactOriginalPredicateTest` and
-`ConversationDeletionAcceptanceTest`; no old group replay.
+Actual clean64e5a4b682526081e128ba251aa60c8f78f634e4/base6863:
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceContactOriginalPredicateTest --tests com.meshcoreone.android.parity.ConversationDeletionAcceptanceTest --dependency-verification=strict --quiet`
+discovers7:5originalPASS/2newAppFAIL/zero errors-skips/overall Gradle exit1,
+not a green command. Only these new classes, no old group replay.
+Original XML2026-10-12T12:40:51.038Z/natived81a43011880e8d175acff2f616574d6d91a8e67;
+consumer XML2026-10-12T12:40:43.969Z/native7d891e99231574d99d49f8d0b39887abe07f937e.
+ReadinessPASS/clean tracked inputs/zero notice normalizations; supported
+native/Gradle locks normally released on failure. Private local raw XML/
+receipt captured, not a hosted CI-result bundle or independent certification.
 
 Qualified SOURCE-ONLY COMMENTED reviews
 [5490750483](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5490750483)
@@ -38,7 +44,15 @@ Two mandatory independent adapter witnesses retain raw store deletion,
 remaining-row/count/date and real list membership observations, with55 and1
 messages respectively. They do not directly invoke recompute to hide this
 consumer gap or claim mounted paging/physical-device coverage. Actual native
-outcome remains pending; owning product changes are not made in this WP.
+outcome: both FAIL at persisted date, source line53 expected2023-11-14T22:14:13Z/
+actual22:14:14Z and line74 expectednil/actual2023-11-14T22:13:20Z. Raw deletion/
+remaining-count and initial persisted-date/list-membership checks pass. Final
+list predicates remain unreached after these first failures; inferred ghost
+visibility is qualified source/query tracing, not executed last assertions.
+[Defect202](https://github.com/cbattlegear/MeshCoreOne-Android/issues/202)
+requests bounded owning repair. SYSTEM default unchanged; direct-store setup
+after readiness does not traverse timestamp-correcting ingestion. Original
+five source review/full acceptance pending; no owning product edit in this WP.
 
 ## Verified reviewed CLI repair adoption
 
