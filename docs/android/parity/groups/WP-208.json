@@ -496,7 +496,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
-          "sha256": "7e640d0dfe5e0aaacb8b3a596e708b9f66854dba4813cd5c8799cd6f31793715",
+          "sha256": "db9d55423b2c96a76d7f17af4725724cdc96e809e3f144b78402e358b085ee1e",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift",
             "MC1Services/Sources/MC1Services/Services/MessageService+SendChannel.swift",
@@ -723,97 +723,97 @@
             {
               "name": "retryLoop",
               "line": 525,
-              "end_line": 612
+              "end_line": 613
             },
             {
               "name": "mergeSentInfo",
-              "line": 614,
-              "end_line": 624
+              "line": 615,
+              "end_line": 625
             },
             {
               "name": "finalizeSend",
-              "line": 626,
-              "end_line": 654
+              "line": 627,
+              "end_line": 655
             },
             {
               "name": "checkRouting",
-              "line": 656,
-              "end_line": 670
+              "line": 657,
+              "end_line": 672
             },
             {
               "name": "fetchSaved",
-              "line": 672,
-              "end_line": 677
+              "line": 674,
+              "end_line": 679
             },
             {
               "name": "postDMSent",
-              "line": 679,
-              "end_line": 694
+              "line": 681,
+              "end_line": 696
             },
             {
               "name": "rejectChannelText",
-              "line": 696,
-              "end_line": 704
+              "line": 698,
+              "end_line": 706
             },
             {
               "name": "outgoingChannel",
-              "line": 706,
-              "end_line": 711
+              "line": 708,
+              "end_line": 713
             },
             {
               "name": "createPendingChannelMessage",
-              "line": 713,
-              "end_line": 718
+              "line": 715,
+              "end_line": 720
             },
             {
               "name": "sendChannelMessage",
-              "line": 720,
-              "end_line": 739
-            },
-            {
-              "name": "sendPendingChannelMessage",
-              "line": 741,
+              "line": 722,
               "end_line": 741
             },
             {
-              "name": "resendChannelMessage",
-              "line": 742,
+              "name": "sendPendingChannelMessage",
+              "line": 743,
               "end_line": 743
             },
             {
+              "name": "resendChannelMessage",
+              "line": 744,
+              "end_line": 745
+            },
+            {
               "name": "queuedChannel",
-              "line": 745,
-              "end_line": 790
+              "line": 747,
+              "end_line": 792
             },
             {
               "name": "updateChannelDate",
-              "line": 792,
-              "end_line": 798
+              "line": 794,
+              "end_line": 800
             },
             {
               "name": "bookkeeping",
-              "line": 800,
-              "end_line": 803
+              "line": 802,
+              "end_line": 805
             },
             {
               "name": "withPoolBackoff",
-              "line": 805,
-              "end_line": 819
+              "line": 807,
+              "end_line": 821
             },
             {
               "name": "close",
-              "line": 821,
-              "end_line": 855
+              "line": 823,
+              "end_line": 857
             },
             {
               "name": "toFrame",
-              "line": 858,
-              "end_line": 861
+              "line": 860,
+              "end_line": 863
             },
             {
               "name": "contactTimestamp",
-              "line": 863,
-              "end_line": 866
+              "line": 865,
+              "end_line": 868
             }
           ]
         }
@@ -861,7 +861,7 @@
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
-          "sha256": "7e640d0dfe5e0aaacb8b3a596e708b9f66854dba4813cd5c8799cd6f31793715",
+          "sha256": "db9d55423b2c96a76d7f17af4725724cdc96e809e3f144b78402e358b085ee1e",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift",
             "MC1Services/Sources/MC1Services/Services/MessageService+SendChannel.swift",
@@ -1088,97 +1088,97 @@
             {
               "name": "retryLoop",
               "line": 525,
-              "end_line": 612
+              "end_line": 613
             },
             {
               "name": "mergeSentInfo",
-              "line": 614,
-              "end_line": 624
+              "line": 615,
+              "end_line": 625
             },
             {
               "name": "finalizeSend",
-              "line": 626,
-              "end_line": 654
+              "line": 627,
+              "end_line": 655
             },
             {
               "name": "checkRouting",
-              "line": 656,
-              "end_line": 670
+              "line": 657,
+              "end_line": 672
             },
             {
               "name": "fetchSaved",
-              "line": 672,
-              "end_line": 677
+              "line": 674,
+              "end_line": 679
             },
             {
               "name": "postDMSent",
-              "line": 679,
-              "end_line": 694
+              "line": 681,
+              "end_line": 696
             },
             {
               "name": "rejectChannelText",
-              "line": 696,
-              "end_line": 704
+              "line": 698,
+              "end_line": 706
             },
             {
               "name": "outgoingChannel",
-              "line": 706,
-              "end_line": 711
+              "line": 708,
+              "end_line": 713
             },
             {
               "name": "createPendingChannelMessage",
-              "line": 713,
-              "end_line": 718
+              "line": 715,
+              "end_line": 720
             },
             {
               "name": "sendChannelMessage",
-              "line": 720,
-              "end_line": 739
-            },
-            {
-              "name": "sendPendingChannelMessage",
-              "line": 741,
+              "line": 722,
               "end_line": 741
             },
             {
-              "name": "resendChannelMessage",
-              "line": 742,
+              "name": "sendPendingChannelMessage",
+              "line": 743,
               "end_line": 743
             },
             {
+              "name": "resendChannelMessage",
+              "line": 744,
+              "end_line": 745
+            },
+            {
               "name": "queuedChannel",
-              "line": 745,
-              "end_line": 790
+              "line": 747,
+              "end_line": 792
             },
             {
               "name": "updateChannelDate",
-              "line": 792,
-              "end_line": 798
+              "line": 794,
+              "end_line": 800
             },
             {
               "name": "bookkeeping",
-              "line": 800,
-              "end_line": 803
+              "line": 802,
+              "end_line": 805
             },
             {
               "name": "withPoolBackoff",
-              "line": 805,
-              "end_line": 819
+              "line": 807,
+              "end_line": 821
             },
             {
               "name": "close",
-              "line": 821,
-              "end_line": 855
+              "line": 823,
+              "end_line": 857
             },
             {
               "name": "toFrame",
-              "line": 858,
-              "end_line": 861
+              "line": 860,
+              "end_line": 863
             },
             {
               "name": "contactTimestamp",
-              "line": 863,
-              "end_line": 866
+              "line": 865,
+              "end_line": 868
             }
           ]
         }
@@ -1193,7 +1193,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/MessagingContracts.kt",
-        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/RoutingTransportFailureTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
@@ -1226,7 +1227,7 @@
         },
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
-          "sha256": "7e640d0dfe5e0aaacb8b3a596e708b9f66854dba4813cd5c8799cd6f31793715",
+          "sha256": "db9d55423b2c96a76d7f17af4725724cdc96e809e3f144b78402e358b085ee1e",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift",
             "MC1Services/Sources/MC1Services/Services/MessageService+SendChannel.swift",
@@ -1453,97 +1454,192 @@
             {
               "name": "retryLoop",
               "line": 525,
-              "end_line": 612
+              "end_line": 613
             },
             {
               "name": "mergeSentInfo",
-              "line": 614,
-              "end_line": 624
+              "line": 615,
+              "end_line": 625
             },
             {
               "name": "finalizeSend",
-              "line": 626,
-              "end_line": 654
+              "line": 627,
+              "end_line": 655
             },
             {
               "name": "checkRouting",
-              "line": 656,
-              "end_line": 670
+              "line": 657,
+              "end_line": 672
             },
             {
               "name": "fetchSaved",
-              "line": 672,
-              "end_line": 677
+              "line": 674,
+              "end_line": 679
             },
             {
               "name": "postDMSent",
-              "line": 679,
-              "end_line": 694
+              "line": 681,
+              "end_line": 696
             },
             {
               "name": "rejectChannelText",
-              "line": 696,
-              "end_line": 704
+              "line": 698,
+              "end_line": 706
             },
             {
               "name": "outgoingChannel",
-              "line": 706,
-              "end_line": 711
+              "line": 708,
+              "end_line": 713
             },
             {
               "name": "createPendingChannelMessage",
-              "line": 713,
-              "end_line": 718
+              "line": 715,
+              "end_line": 720
             },
             {
               "name": "sendChannelMessage",
-              "line": 720,
-              "end_line": 739
-            },
-            {
-              "name": "sendPendingChannelMessage",
-              "line": 741,
+              "line": 722,
               "end_line": 741
             },
             {
-              "name": "resendChannelMessage",
-              "line": 742,
+              "name": "sendPendingChannelMessage",
+              "line": 743,
               "end_line": 743
             },
             {
+              "name": "resendChannelMessage",
+              "line": 744,
+              "end_line": 745
+            },
+            {
               "name": "queuedChannel",
-              "line": 745,
-              "end_line": 790
+              "line": 747,
+              "end_line": 792
             },
             {
               "name": "updateChannelDate",
-              "line": 792,
-              "end_line": 798
+              "line": 794,
+              "end_line": 800
             },
             {
               "name": "bookkeeping",
-              "line": 800,
-              "end_line": 803
+              "line": 802,
+              "end_line": 805
             },
             {
               "name": "withPoolBackoff",
-              "line": 805,
-              "end_line": 819
+              "line": 807,
+              "end_line": 821
             },
             {
               "name": "close",
-              "line": 821,
-              "end_line": 855
+              "line": 823,
+              "end_line": 857
             },
             {
               "name": "toFrame",
-              "line": 858,
-              "end_line": 861
+              "line": 860,
+              "end_line": 863
             },
             {
               "name": "contactTimestamp",
-              "line": 863,
-              "end_line": 866
+              "line": 865,
+              "end_line": 868
+            }
+          ]
+        },
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/RoutingTransportFailureTest.kt",
+          "sha256": "d102f930e736eb18913bd9a60140b7a4cb6201334d6c8552d802561eebbb86d9",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Services/MessageService+SendDM.swift",
+            "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "unstartedFinalizePreservesDeliveredRowAndReportsNotConnected",
+              "line": 28,
+              "end_line": 40
+            },
+            {
+              "name": "typedSendFailureInOptionalLookupDoesNotFailRetryExhaustion",
+              "line": 42,
+              "end_line": 53
+            },
+            {
+              "name": "routingCancellationPropagatesWithoutBeingReportedAsOptionalFailure",
+              "line": 55,
+              "end_line": 64
+            },
+            {
+              "name": "optionalRoutingFailureCannotInventAMissingMessage",
+              "line": 66,
+              "end_line": 76
+            },
+            {
+              "name": "retiredGenerationIsNotConvertedIntoBestEffortSuccess",
+              "line": 78,
+              "end_line": 88
+            },
+            {
+              "name": "typedResetFailureIsReportedAndDoesNotRemoveTheFloodAttempt",
+              "line": 90,
+              "end_line": 119
+            },
+            {
+              "name": "resetPath",
+              "line": 96,
+              "end_line": 101
+            },
+            {
+              "name": "ambiguousResetWriteStillRejectsUncorrelatedSend",
+              "line": 121,
+              "end_line": 146
+            },
+            {
+              "name": "seed",
+              "line": 162,
+              "end_line": 171
+            },
+            {
+              "name": "finalize",
+              "line": 173,
+              "end_line": 174
+            },
+            {
+              "name": "assertRoutingFailure",
+              "line": 176,
+              "end_line": 180
+            },
+            {
+              "name": "close",
+              "line": 182,
+              "end_line": 188
+            },
+            {
+              "name": "connect",
+              "line": 194,
+              "end_line": 194
+            },
+            {
+              "name": "disconnect",
+              "line": 195,
+              "end_line": 195
+            },
+            {
+              "name": "send",
+              "line": 196,
+              "end_line": 200
+            },
+            {
+              "name": "receivedData",
+              "line": 201,
+              "end_line": 201
+            },
+            {
+              "name": "isConnected",
+              "line": 202,
+              "end_line": 202
             }
           ]
         }
@@ -1563,7 +1659,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
-          "sha256": "7e640d0dfe5e0aaacb8b3a596e708b9f66854dba4813cd5c8799cd6f31793715",
+          "sha256": "db9d55423b2c96a76d7f17af4725724cdc96e809e3f144b78402e358b085ee1e",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift",
             "MC1Services/Sources/MC1Services/Services/MessageService+SendChannel.swift",
@@ -1790,97 +1886,97 @@
             {
               "name": "retryLoop",
               "line": 525,
-              "end_line": 612
+              "end_line": 613
             },
             {
               "name": "mergeSentInfo",
-              "line": 614,
-              "end_line": 624
+              "line": 615,
+              "end_line": 625
             },
             {
               "name": "finalizeSend",
-              "line": 626,
-              "end_line": 654
+              "line": 627,
+              "end_line": 655
             },
             {
               "name": "checkRouting",
-              "line": 656,
-              "end_line": 670
+              "line": 657,
+              "end_line": 672
             },
             {
               "name": "fetchSaved",
-              "line": 672,
-              "end_line": 677
+              "line": 674,
+              "end_line": 679
             },
             {
               "name": "postDMSent",
-              "line": 679,
-              "end_line": 694
+              "line": 681,
+              "end_line": 696
             },
             {
               "name": "rejectChannelText",
-              "line": 696,
-              "end_line": 704
+              "line": 698,
+              "end_line": 706
             },
             {
               "name": "outgoingChannel",
-              "line": 706,
-              "end_line": 711
+              "line": 708,
+              "end_line": 713
             },
             {
               "name": "createPendingChannelMessage",
-              "line": 713,
-              "end_line": 718
+              "line": 715,
+              "end_line": 720
             },
             {
               "name": "sendChannelMessage",
-              "line": 720,
-              "end_line": 739
-            },
-            {
-              "name": "sendPendingChannelMessage",
-              "line": 741,
+              "line": 722,
               "end_line": 741
             },
             {
-              "name": "resendChannelMessage",
-              "line": 742,
+              "name": "sendPendingChannelMessage",
+              "line": 743,
               "end_line": 743
             },
             {
+              "name": "resendChannelMessage",
+              "line": 744,
+              "end_line": 745
+            },
+            {
               "name": "queuedChannel",
-              "line": 745,
-              "end_line": 790
+              "line": 747,
+              "end_line": 792
             },
             {
               "name": "updateChannelDate",
-              "line": 792,
-              "end_line": 798
+              "line": 794,
+              "end_line": 800
             },
             {
               "name": "bookkeeping",
-              "line": 800,
-              "end_line": 803
+              "line": 802,
+              "end_line": 805
             },
             {
               "name": "withPoolBackoff",
-              "line": 805,
-              "end_line": 819
+              "line": 807,
+              "end_line": 821
             },
             {
               "name": "close",
-              "line": 821,
-              "end_line": 855
+              "line": 823,
+              "end_line": 857
             },
             {
               "name": "toFrame",
-              "line": 858,
-              "end_line": 861
+              "line": 860,
+              "end_line": 863
             },
             {
               "name": "contactTimestamp",
-              "line": 863,
-              "end_line": 866
+              "line": 865,
+              "end_line": 868
             }
           ]
         }
@@ -1900,7 +1996,7 @@
       "native_contracts": [
         {
           "path": "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
-          "sha256": "7e640d0dfe5e0aaacb8b3a596e708b9f66854dba4813cd5c8799cd6f31793715",
+          "sha256": "db9d55423b2c96a76d7f17af4725724cdc96e809e3f144b78402e358b085ee1e",
           "source_references": [
             "MC1Services/Sources/MC1Services/Services/MessageService+ACK.swift",
             "MC1Services/Sources/MC1Services/Services/MessageService+SendChannel.swift",
@@ -2127,97 +2223,97 @@
             {
               "name": "retryLoop",
               "line": 525,
-              "end_line": 612
+              "end_line": 613
             },
             {
               "name": "mergeSentInfo",
-              "line": 614,
-              "end_line": 624
+              "line": 615,
+              "end_line": 625
             },
             {
               "name": "finalizeSend",
-              "line": 626,
-              "end_line": 654
+              "line": 627,
+              "end_line": 655
             },
             {
               "name": "checkRouting",
-              "line": 656,
-              "end_line": 670
+              "line": 657,
+              "end_line": 672
             },
             {
               "name": "fetchSaved",
-              "line": 672,
-              "end_line": 677
+              "line": 674,
+              "end_line": 679
             },
             {
               "name": "postDMSent",
-              "line": 679,
-              "end_line": 694
+              "line": 681,
+              "end_line": 696
             },
             {
               "name": "rejectChannelText",
-              "line": 696,
-              "end_line": 704
+              "line": 698,
+              "end_line": 706
             },
             {
               "name": "outgoingChannel",
-              "line": 706,
-              "end_line": 711
+              "line": 708,
+              "end_line": 713
             },
             {
               "name": "createPendingChannelMessage",
-              "line": 713,
-              "end_line": 718
+              "line": 715,
+              "end_line": 720
             },
             {
               "name": "sendChannelMessage",
-              "line": 720,
-              "end_line": 739
-            },
-            {
-              "name": "sendPendingChannelMessage",
-              "line": 741,
+              "line": 722,
               "end_line": 741
             },
             {
-              "name": "resendChannelMessage",
-              "line": 742,
+              "name": "sendPendingChannelMessage",
+              "line": 743,
               "end_line": 743
             },
             {
+              "name": "resendChannelMessage",
+              "line": 744,
+              "end_line": 745
+            },
+            {
               "name": "queuedChannel",
-              "line": 745,
-              "end_line": 790
+              "line": 747,
+              "end_line": 792
             },
             {
               "name": "updateChannelDate",
-              "line": 792,
-              "end_line": 798
+              "line": 794,
+              "end_line": 800
             },
             {
               "name": "bookkeeping",
-              "line": 800,
-              "end_line": 803
+              "line": 802,
+              "end_line": 805
             },
             {
               "name": "withPoolBackoff",
-              "line": 805,
-              "end_line": 819
+              "line": 807,
+              "end_line": 821
             },
             {
               "name": "close",
-              "line": 821,
-              "end_line": 855
+              "line": 823,
+              "end_line": 857
             },
             {
               "name": "toFrame",
-              "line": 858,
-              "end_line": 861
+              "line": 860,
+              "end_line": 863
             },
             {
               "name": "contactTimestamp",
-              "line": 863,
-              "end_line": 866
+              "line": 865,
+              "end_line": 868
             }
           ]
         }
@@ -4756,10 +4852,106 @@
       "owner": "WP-208",
       "exclusion": null,
       "candidate_native_paths": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/RoutingTransportFailureTest.kt",
         "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt"
       ],
       "acceptance": "independent-behavior-review-required",
       "native_contracts": [
+        {
+          "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/RoutingTransportFailureTest.kt",
+          "sha256": "d102f930e736eb18913bd9a60140b7a4cb6201334d6c8552d802561eebbb86d9",
+          "source_references": [
+            "MC1Services/Sources/MC1Services/Services/MessageService+SendDM.swift",
+            "MC1Services/Tests/MC1ServicesTests/Services/MessageServiceSendTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "unstartedFinalizePreservesDeliveredRowAndReportsNotConnected",
+              "line": 28,
+              "end_line": 40
+            },
+            {
+              "name": "typedSendFailureInOptionalLookupDoesNotFailRetryExhaustion",
+              "line": 42,
+              "end_line": 53
+            },
+            {
+              "name": "routingCancellationPropagatesWithoutBeingReportedAsOptionalFailure",
+              "line": 55,
+              "end_line": 64
+            },
+            {
+              "name": "optionalRoutingFailureCannotInventAMissingMessage",
+              "line": 66,
+              "end_line": 76
+            },
+            {
+              "name": "retiredGenerationIsNotConvertedIntoBestEffortSuccess",
+              "line": 78,
+              "end_line": 88
+            },
+            {
+              "name": "typedResetFailureIsReportedAndDoesNotRemoveTheFloodAttempt",
+              "line": 90,
+              "end_line": 119
+            },
+            {
+              "name": "resetPath",
+              "line": 96,
+              "end_line": 101
+            },
+            {
+              "name": "ambiguousResetWriteStillRejectsUncorrelatedSend",
+              "line": 121,
+              "end_line": 146
+            },
+            {
+              "name": "seed",
+              "line": 162,
+              "end_line": 171
+            },
+            {
+              "name": "finalize",
+              "line": 173,
+              "end_line": 174
+            },
+            {
+              "name": "assertRoutingFailure",
+              "line": 176,
+              "end_line": 180
+            },
+            {
+              "name": "close",
+              "line": 182,
+              "end_line": 188
+            },
+            {
+              "name": "connect",
+              "line": 194,
+              "end_line": 194
+            },
+            {
+              "name": "disconnect",
+              "line": 195,
+              "end_line": 195
+            },
+            {
+              "name": "send",
+              "line": 196,
+              "end_line": 200
+            },
+            {
+              "name": "receivedData",
+              "line": 201,
+              "end_line": 201
+            },
+            {
+              "name": "isConnected",
+              "line": 202,
+              "end_line": 202
+            }
+          ]
+        },
         {
           "path": "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt",
           "sha256": "34a3afe39c0319093d0d0298556b46f6acb92988c09755f90df546c44e4782c8",

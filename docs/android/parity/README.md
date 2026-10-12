@@ -1,6 +1,29 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is953/5133families/138groups/67mandatory/0approved.
+Current proposed inspection is1002/5133families/139groups/70mandatory/0approved.
+The added49 DevicePlatform original bodies/existing App assertions preserve
+all selected strings/enums and60/25/60ms scalar pacing. They do not prove
+localized Unicode normalization or the actual BLE pacing consumer. Source-only
+[#189](https://github.com/cbattlegear/MeshCoreOne-Android/issues/189) records
+the concrete post-query platform drop at BleRuntimeLink.configure; WP303/
+necessaryWP205 owns repair. Three supplemental actual-link/actual-transport/
+TestClock/fake-GATT witnesses are mandatory, not three extra original families
+or physical evidence. Their native execution remains pending.
+
+Actual187 maina4fae0fa87dd32505ad2ebab1cd890c878fa9a6a is adopted
+by clean same-branch rebase, verified parents76dd+01fb/candidate-equal tree
+266d2182 and exactly the inherited three-path delta. No worker test/helper
+bytes changed during adoption; its hosted success is not fresh changedACK
+or platform-consumer execution.
+Independent6115227237 updated05:30:22Z was actually read: remaining15 ACK
+bindings/current9f8 and15distinct native-helper files source-compared.
+Six additional linked-ID/started-only direct-ACK counterparts are qualified
+only as different-input equivalents for selected handler/date/RTT/terminal
+predicates. Together with earlier disjoint16 this compares all31 bodies,
+not all31 passing/full acceptance. Nine unstarted cases, six failed routing
+inputs, zero32 keys, separate branches and unreachedPartB history remain.
+
+Historical953/138/67/0 candidate and failed9123 execution:
 Exact9123/base76dd Windows ACK-only execution31/25PASS/6FAIL/0errors/skips,
 all31 distinct original identities checked. First16 pass, remaining15nine
 pass/six fail with genuine typed NotConnected at optional routing. All six

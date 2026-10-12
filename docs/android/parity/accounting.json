@@ -9904,7 +9904,8 @@
         "android/core/model/src/main/kotlin/com/meshcoreone/android/core/model/DeviceDTO.kt",
         "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
         "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionRetryPolicy.kt",
-        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncRetryController.kt"
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/sync/SyncRetryController.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/BlePacingAcceptanceTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -11958,7 +11959,8 @@
       "exclusion": null,
       "candidate_native_paths": [
         "android/core/contracts/src/main/kotlin/com/meshcoreone/android/core/contracts/domain/MessagingContracts.kt",
-        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt"
+        "android/core/services/src/main/kotlin/com/meshcoreone/android/core/services/messaging/MessageService.kt",
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/RoutingTransportFailureTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"
     },
@@ -14814,6 +14816,7 @@
       "owner": "WP-208",
       "exclusion": null,
       "candidate_native_paths": [
+        "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/RoutingTransportFailureTest.kt",
         "android/core/services/src/test/kotlin/com/meshcoreone/android/core/services/messaging/SourceSendTest.kt"
       ],
       "acceptance": "independent-behavior-review-required"

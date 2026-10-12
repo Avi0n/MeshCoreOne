@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `76ddc9157271b1a409e6a467aab904d48c9a8949`.
+Current integrated base: `a4fae0fa87dd32505ad2ebab1cd890c878fa9a6a`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -12,7 +12,48 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Current main adoption and original listener/bookkeeping consumers
+## Current platform consumer audit and actual routing-repair adoption
+
+Actual PR187 mergea4fa was independently checked: parents76dd+01fb,
+candidate-equal tree266d218246dc906539ddb4e02f54c3acf5429edc,
+MERGED identity. Clean same-branch rebase produced491a859f52331d8705f48a840479e567d5f5b0dd;
+c10-to-491a changes exactly the inherited MessageService/two optional typed
+catches, seven-case RoutingTransportFailureTest and WP208 deviation.
+All worker test/helper blobs remain unchanged. Actual exact01fb run38207429922
+classifier114673917396/Linux114673982275/final114678865166 SUCCESS was
+observed; controller-suite unselected/Swift and SwiftData skipped are not passes.
+Producer App661/services2647 are not new worker changedACK31/platform3 proof.
+
+Complete DevicePlatform49 original/existing App bodies, ordered source/native
+rules, normalization/units and actual query/platform/link/transport callers
+were read. New disjoint proposal group preserves43 known detections, three
+unknown strings and three independent pacing scalars. Current proposals
+1002/5133families/139groups/70mandatory App methods/0approved full acceptance.
+CrossInputPolicy supplements are not additional originals.
+
+[#189](https://github.com/cbattlegear/MeshCoreOne-Android/issues/189) routes
+the actual post-query BLE platform drop to WP303 plus necessaryWP205 support.
+WP205 A-05's component-default-zero/callback backpressure adaptation does not
+disclose dropping the integrated detected-platform caller. Three new mandatory
+BlePacingAcceptanceTest methods mount real BleRuntimeLink/BleTransport with
+TestClock and callback-completing fake GATT; independently require60/25/60ms
+acknowledged inter-write intervals, both minimum and completion-at-deadline.
+These are supplemental consumer assertions, not extra originals, hardware,
+radio performance results or packet goldens. Native execution is pending.
+Typed reservation evolved25-to26 by trusted wp-owned/create before this
+canonical new test path; same identity/revisions/immutable authorization retained.
+
+Independent6115227237 updated05:30:22Z was actually read and reconciled:
+remaining15 ACK/current9f8 bindings/15distinct helper-native files qualified
+for selected observable predicates; six more linked-ID/started-only direct-ACK
+counterparts are explicitly different inputs. Alongside earlier16 comparison,
+all31 ACK bodies are source-compared, not all31 passing or full acceptance.
+Historical six unstarted routing failures, nine unstarted cases, zero32 keys,
+separate branches/unreachedPartB, persistence/clock/identity limits remain.
+No unchanged producer native rerun, selfapproval, product-path edit or second
+hosted CI-result bundle.
+
+## Historical c10 qualification and failed9123 listener/bookkeeping execution
 
 Qualified independent review
 [6115227237](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6115227237),
