@@ -16,12 +16,15 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import com.meshcoreone.android.feature.chats.list.support.OriginalCase
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -254,6 +257,40 @@ class ChatViewModelTest {
 
         assertEquals(MessageStatus.FAILED, viewModel.state.value.messages.single().status)
         assertEquals(failure, viewModel.state.value.sendError)
+        assertTrue(viewModel.state.value.retryingMessageIds.isEmpty())
+    }
+
+    @Test
+    fun `post commit signal failure retains pending state and exposes the original error`() = runBlocking {
+        val contact = contact()
+        val failed = message(contact, 1, direction = MessageDirection.OUTGOING, status = MessageStatus.FAILED)
+        val data = FakeData(listOf(failed))
+        val failure = IllegalStateException("queue closed after commit")
+        val viewModel = viewModel(contact, data = data, retry = TimelineRetryService { _, _ ->
+            data.messages[0] = failed.copy(status = MessageStatus.PENDING)
+            throw failure
+        })
+        viewModel.open()
+        viewModel.retry(failed.id)
+        assertEquals(MessageStatus.PENDING, viewModel.state.value.messages.single().status)
+        assertSame(failure, viewModel.state.value.sendError)
+        assertTrue(viewModel.state.value.retryingMessageIds.isEmpty())
+    }
+
+    @Test
+    fun `post commit cancellation retains pending state and propagates the same cancellation`() = runBlocking {
+        val contact = contact()
+        val failed = message(contact, 1, direction = MessageDirection.OUTGOING, status = MessageStatus.FAILED)
+        val data = FakeData(listOf(failed))
+        val cancellation = CancellationException("caller cancelled after commit")
+        val viewModel = viewModel(contact, data = data, retry = TimelineRetryService { _, _ ->
+            data.messages[0] = failed.copy(status = MessageStatus.PENDING)
+            throw cancellation
+        })
+        viewModel.open()
+        assertSame(cancellation, assertFailsWith<CancellationException> { viewModel.retry(failed.id) })
+        assertEquals(MessageStatus.PENDING, viewModel.state.value.messages.single().status)
+        assertNull(viewModel.state.value.sendError)
         assertTrue(viewModel.state.value.retryingMessageIds.isEmpty())
     }
 

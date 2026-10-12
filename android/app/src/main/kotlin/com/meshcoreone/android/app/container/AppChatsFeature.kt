@@ -9,6 +9,8 @@ import com.meshcoreone.android.core.contracts.domain.ChannelQuery
 import com.meshcoreone.android.core.contracts.domain.EntityKey
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceException
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
+import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceException
 import com.meshcoreone.android.core.model.*
 import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.services.reactions.ReactionParser
@@ -210,6 +212,24 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
         app.refreshConversations()
     }
 
+    private suspend fun retryDirect(messageId: UUID, contact: ContactDTO, isResend: Boolean) {
+        val envelope = DirectMessageEnvelope(messageId, contact.id, isResend)
+        store.replacePendingSendForRetry(messageId, PendingSendDTO.fromEnvelope(envelope, contact.radioId))
+        app.messageEventStream.send(MessageEvent.MessageResent(messageId))
+        app.refreshConversations()
+        val queue = container.sessions.current?.takeIf { it.token.radioId == contact.radioId }
+            ?.chatSendQueueService
+            ?: throw ChatSendQueueServiceException(ChatSendQueueServiceError.NotConnected)
+        queue.signalDMEnqueued(envelope)
+    }
+
+    suspend fun sendAgain(message: MessageDTO, conversation: TimelineConversation) {
+        when (conversation) {
+            is TimelineConversation.Direct -> retryDirect(message.id, conversation.contact, isResend = true)
+            is TimelineConversation.Channel -> sender(message.radioId).resendChannel(message.id)
+        }
+    }
+
     internal suspend fun failPending(message: MessageDTO) {
         if (store.updateMessageStatusUnlessDelivered(EntityKey(message.radioId, message.id), MessageStatus.FAILED)) {
             app.messageEventStream.send(MessageEvent.MessageFailed(message.id))
@@ -279,10 +299,9 @@ class AppChatsFeature internal constructor(private val container: AppContainer) 
             }
         }
         override val retryService = TimelineRetryService { message, target ->
-            val service = session(radio).messageService
             when (target) {
-                is TimelineConversation.Direct -> service.resendDirectMessage(message.id, target.contact)
-                is TimelineConversation.Channel -> service.resendChannelMessage(message.id)
+                is TimelineConversation.Direct -> retryDirect(message.id, target.contact, isResend = false)
+                is TimelineConversation.Channel -> session(radio).messageService.resendChannelMessage(message.id)
             }
         }
         override val events: Flow<TimelineEvent> get() = this@AppChatsFeature.events().transform { event ->
