@@ -10,6 +10,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performClick
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppToolsStrings as T
 import com.meshcoreone.android.core.protocol.event.RadioStats
@@ -18,6 +19,7 @@ import com.meshcoreone.android.feature.tools.diagnostics.ToolsDiagnosticsScreen
 import com.meshcoreone.android.feature.tools.diagnostics.cli.CliToolFeatureDependencies
 import com.meshcoreone.android.feature.tools.diagnostics.noisefloor.RadioStatsSource
 import com.meshcoreone.android.feature.tools.diagnostics.rxlog.RxLogFeatureDependencies
+import com.meshcoreone.android.feature.tools.diagnostics.rxlog.RxLogRouteFilter
 import com.meshcoreone.android.feature.tools.navigation.ToolSelection
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertTrue
@@ -104,6 +106,39 @@ class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
         assertTrue(compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.ContentDescription))
             .fetchSemanticsNodes().none { it.config[SemanticsProperties.ContentDescription].any { label -> label.contains("-110") } })
         assertVisibleClickTargetsAtLeast48Dp()
+    }
+
+    @Test fun disconnectedCliExplainsUnavailableCommandsInsteadOfAnActiveTerminal() {
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface { ToolsDiagnosticsScreen(dependencies(false, null), ToolSelection.CLI) }
+            }
+        }
+        compose.onNodeWithTag("diagnostics-page:CLI").assertIsSelected()
+        val inputs = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.SetText)).fetchSemanticsNodes()
+        println("WP503_CLI_OFFLINE|editableInputs=${inputs.size}|disabled=${inputs.map { it.config.contains(SemanticsProperties.Disabled) }}")
+        val description = compose.onNodeWithText(host.get().getString(T.toolsCliNotConnectedDescription)).assertIsDisplayed()
+        assertFont200Unclipped(description)
+        compose.onNodeWithText(host.get().getString(T.toolsCliNotConnected)).assertIsDisplayed()
+        assertVisibleClickTargetsAtLeast48Dp()
+    }
+
+    @Test fun disconnectedRxLogRetainsTextualStatusRecoveryAndReachableFilterSelection() {
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface { ToolsDiagnosticsScreen(dependencies(false, null), ToolSelection.RX_LOG) }
+            }
+        }
+        compose.onNodeWithTag("diagnostics-page:RX_LOG").assertIsSelected()
+        val status = compose.onNodeWithText(host.get().getString(T.toolsRxLogOffline)).assertIsDisplayed()
+        assertFont200Unclipped(status)
+        val description = compose.onNodeWithText(host.get().getString(T.toolsRxLogNotConnectedDescription)).assertIsDisplayed()
+        assertFont200Unclipped(description)
+        val filter = compose.onNodeWithText(host.get().getString(RxLogRouteFilter.FLOOD_ONLY.labelId)).performScrollTo()
+        filter.performClick().assertIsSelected()
+        assertFont200Unclipped(filter)
+        assertVisibleClickTargetsAtLeast48Dp()
+        description.assertIsDisplayed()
     }
 
     private fun dependencies(connected: Boolean, source: RadioStatsSource?) = ToolsDiagnosticsDependencies(
