@@ -1,6 +1,6 @@
 # WP-503 accessibility audit
 
-**Status: source audit started; native measurements and TalkBack observations BLOCKED.**
+**Status: native audit suites implemented; execution pending; device TalkBack unavailable.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The inspected native tree is `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
@@ -16,9 +16,11 @@ those observations. Performance and visual redesign are outside this audit.
 The [execution matrix](execution-matrix.md) records the required assertions and observations.
 [WP evidence](../evidence/WP-503/README.md) records actual commands and the execution gate.
 Follow-up investigation found installed Linux build inputs and admitted App support
-operations. Live implementation is now specifically gated on reconciling the existing
-reservation's creation-handle identity with the coordinator-verified actual worker identity;
-it is not blocked merely by a missing SDK assumption or a generic path permission.
+operations. The coordinator verified that the canonical project-session handle and actual
+CLI ID resolve to this same worker. This is a valid alias relationship, not an identity gate.
+The same reservation now admits additive App test registration. Native suites mount the real
+room, timeline/rich-message and appearance content; they do not change product code or
+WP-501's parity bindings. Their results must be read from actual discovery, not this inventory.
 The product retains native Material navigation, five sections, all ten unlocked themes,
 original identity algorithms, app localization and original message text. Dynamic color,
 translation, billing and new palette choices are not proposed.
@@ -28,7 +30,8 @@ translation, billing and new palette choices are not proposed.
 All locations below are relative to `android/feature/chats/src/main/kotlin/com/meshcoreone/android/feature/chats/`.
 These four findings concern WP-310 production ownership, not WP-501's existing parity
 bindings or eight assigned defects. No production repair or acceptance-binding edit was made.
-They require coordinator routing to the current product producer before implementation.
+The coordinator routed them to the dedicated WP-310 producer in
+[#207](https://github.com/cbattlegear/MeshCoreOne-Android/issues/207).
 
 | ID / severity | Location at inspected tree | Evidence and user impact | Required repair and verification |
 | --- | --- | --- | --- |
@@ -78,8 +81,9 @@ offline and failed data rather than accepting the existence of a generic chart l
 
 ## Ownership handoff
 
-Coordinator session `bcb17a74-5fa6-47d0-a4be-b6b595e20559` must route A503-01 through
-A503-04 to the current WP-310 producer. The span/surface measurement involves the
+Coordinator session `bcb17a74-5fa6-47d0-a4be-b6b595e20559` routed A503-01 through
+A503-04 to WP-310 issue #207, worker `5ca13f75-8466-4dd5-b630-02b30841a5d0`.
+Re-audit genuinely repaired bytes once available. The span/surface measurement involves the
 WP-307/WP-308 consumers and WP-301 roles; any repair must be serialized through their
 current producers. WP-503 retains audit evidence. WP-501 retains all original parity
 bindings/accounting; WP-502 retains its screenshot/flow ownership.

@@ -96,6 +96,27 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         assertEquals("Status should not be spoken twice", 1, Regex(Regex.escape(label)).findAll(narrative(node)).count())
     }
 
+    @Test fun roomClusterStartAnnouncesItsAuthorExactlyOnce() {
+        val message = roomMessage("cluster body")
+        roomContent(RoomConversationState(room, listOf(message),
+            RoomConversationStateHolder.rows(listOf(message)), hasLoadedOnce = true))
+        val node = compose.onNode(messageNarrative(message.text, "Alice")).assertIsDisplayed().fetchSemanticsNode()
+        assertEquals(1, Regex("Alice").findAll(narrative(node)).count())
+    }
+
+    @Test fun roomSentMessageHasNoRetryAction() {
+        val message = roomMessage("sent without retry", self = true)
+        var retried = false
+        roomContent(RoomConversationState(room, listOf(message),
+            RoomConversationStateHolder.rows(listOf(message)), hasLoadedOnce = true)) { retried = true }
+        val retry = host.get().getString(C.chatsMessageStatusRetry)
+        assertTrue(compose.onAllNodes(hasText(retry)).fetchSemanticsNodes().isEmpty())
+        val customActions = compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.CustomActions))
+            .fetchSemanticsNodes().flatMap { it.config[SemanticsProperties.CustomActions] }
+        assertTrue(customActions.none { it.label == retry })
+        assertTrue(!retried)
+    }
+
     @Test fun roomFailedRetryHasANativeTargetAndInvokesTheCorrectMessageOnly() {
         val failed = roomMessage("failed body", self = true, status = MessageStatus.FAILED)
         var retried: UUID? = null

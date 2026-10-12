@@ -1,8 +1,8 @@
 # WP-503 attempt evidence
 
-**BLOCKED, not accepted.** This document records a bounded source audit and real execution
-gaps. No native test, effective target measurement, painted-feature contrast measurement,
-screenshot golden comparison, TalkBack observation or independent review occurred.
+**Incomplete, not accepted.** Native suites now exist and are registered additively with the
+existing App unit runner. Actual execution is pending on the serialized Linux Gradle lane.
+No screenshot golden comparison, device TalkBack observation or independent review occurred.
 
 ## Identity and revisions
 
@@ -17,23 +17,24 @@ screenshot golden comparison, TalkBack observation or independent review occurre
 | Frozen source | `db14559b39d32322b06477c6ae676112f583db50` |
 | Manifest SHA-256 | `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda` |
 | Policy revision | `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20` |
-| Typed reservation | Actual worker attempt, `wp-owned`, revision 2, `create`/`modify`, all four manifest WP-503 roots; no release/recreate |
+| Typed reservation | Same canonical attempt, revision 3; `wp-owned` create/modify on the four WP-503 roots plus `dependency-resolution-metadata` / `update-directly-required-build-wiring` on `android/app/build.gradle.kts`; no release/recreate |
 
-The advisory receipt records the workspace creation handle as `session_id` and has null
-issue/task/PR identity fields. The coordinator's independently verified host-resolution
-comment identifies `d2980f28-620c-408b-9947-067e2da8eedf` as the actual worker session and
-`1666502a-0420-46ef-930f-e78651ba8b9f` as its creation handle. This is an unresolved receipt
-identity mismatch, not two workers. The supplied workspace context used the creation handle,
-which was initially recorded as the native session. No second claim, release/recreate,
-manual ledger edit or fabricated native-host reconciliation was used to correct it.
+The advisory receipt correctly preserves canonical project handle
+`1666502a-0420-46ef-930f-e78651ba8b9f` as `session_id`. The coordinator independently
+resolved BOTH it and CLI/runtime alias `d2980f28-620c-408b-9947-067e2da8eedf` to this same
+worker, branch/worktree, creation timestamp and PR205. The earlier hypothetical identity
+mismatch is withdrawn; no guard requiring replacement was encountered. No second claim,
+immutable identity replacement, release/recreate or manual ledger edit occurred.
 Issue assignment and PR205 are independently observable GitHub facts, not invented ledger
 bindings. No hosted publisher task or acceptance receipt is claimed.
 
 WP-503 depends only on WP-407. GitHub reports PR164 merged on `2026-10-11T16:22:30Z`
 as `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`, and that commit is an ancestor of the
-inspected head. The shared advisory WP-407 record is still `leased`, revision 15,
-`completion=null`. Actual implementation merge is verified; independently verified
-dependency acceptance is **not** established by that receipt. No ledger was manually repaired.
+inspected head. The coordinator additionally identified WP-407's
+`advisory-terminal-merged` receipt: session `524fad60`, PR164, head
+`e9f0febc7e53b09adb00ac56928e7073366023f6`, merge as above. Lease/completion fields are
+not that terminal receipt and are not a pre-edit blocker. No device/source acceptance is
+inferred from it, and no ledger was manually repaired.
 WP-501 is not a dependency and its existing repair/parity surfaces were not edited.
 
 The only reference-tree differences reported by Git are the two test-only paths enumerated
@@ -80,8 +81,8 @@ The trusted admission helper also confirms `android/app/build.gradle.kts` is adm
 `update-directly-required-build-wiring` (`dependency-resolution-metadata`) and
 `update-build-or-manifest` (`app-build-launcher`). A generic `modify` probe fails because
 it is not the typed support operation. Therefore App runner support is **not** an unknown
-path capability, and does not require new authorization prose. No support edit was made
-while the actual worker/receipt identity is unresolved.
+path capability, and does not require new authorization prose. Same-attempt CAS evolution
+revision 2 -> 3 admitted additive registration before the App edit.
 
 The hosted result for initial documentation head
 `ea4300e0e457dd9ad63767c244d908722f1e6984` is
@@ -98,21 +99,25 @@ Only that hosted result/log is referenced; no CI bundle is retained.
 | `WP-503-boundaries` | Textual alternatives and missing message semantics documented; no golden changes | Data-bound graph/status assertions, approved deterministic screen evidence and distinct device observations |
 | `WP-503-source-test-parity` | All four WP-503 original test cross-references read, 23 source declarations inventoried | Executed acceptance, not a duplicate of WP-501's parity accounting |
 
-**Actionable live-work gate:** reconcile the existing reservation's creation-handle identity
-with the coordinator-verified actual worker identity, preserving its attempt, authorization
-and history. This worker has no native `get_session`/session-message interface, and the
-installed reservation CLI has no handle-to-session reconciliation operation. Its underlying
-identity helper rejects replacing an existing non-null `session_id` with a different value.
-Do not release/recreate the claim or launch another worker. Resume support wiring and the
-installed native snapshot runner after this reconciliation.
+**Identity blocker withdrawn:** the coordinator verified the valid alias relationship.
+Implementation resumed with canonical identity/history unchanged. A session-local targeted
+launcher uses the existing `local/run.sh` bundle/ext4 snapshot adapter, shared Gradle lock,
+installed state and `candidate_environment` credential stripping. It invokes the declared
+`:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.*` task with strict
+dependency verification. It checks actual JUnit discovery and rejects missing/zero/skipped
+tests. It is local diagnostic execution, not a manifest acceptance runner or hosted CI result.
+An initial launcher call exposed CRLF in the mounted shell script; the adapter is copied
+with LF into the private control directory, just as `check.py` already does. Product/tool
+source files were not changed to work around host paths.
 
 Separately admit WP-503's real runner/output acceptance contract: its manifest verification
-still has `configured=false` and no commands. Existing scaffold tasks do not configure
-WP-503 acceptance or discover an absent `android/accessibility-tests` module. Reconcile
-real prerequisite acceptance separately. No Gradle task was invented.
+still has `configured=false` and no commands. Existing App task registration executes owned
+sources without claiming that the manifest acceptance contract has become configured.
+No Gradle task was invented.
 
-Route A503-01 through A503-04 to the current WP-310 producer and return an actual merged
-repair for native re-audit. There is no protected product decision requesting new colors or
+The coordinator routed A503-01 through A503-04 to the dedicated WP-310 producer in issue
+#207, worker `5ca13f75-8466-4dd5-b630-02b30841a5d0`. Re-audit actual repaired bytes once
+published/merged. There is no protected product decision requesting new colors or
 relaxed thresholds. No nested worker, signing/release action or repository setting was changed.
 
 The audit and execution contract are in [accessibility documentation](../../accessibility/README.md).
