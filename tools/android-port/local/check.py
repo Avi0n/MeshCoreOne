@@ -16,6 +16,7 @@ import tempfile
 SHA = re.compile(r"[0-9a-f]{40}")
 ZERO = "0" * 40
 ALL_STAGES = ["python", "preflight", "scaffold", "inspect"]
+OPTIONAL_STAGES = {"benchmark", "benchmark-dependencies"}
 REQUIRED_TOOLCHAIN = {"python", "jdk", "android_sdk", "gradle"}
 def runtime_files():
     return (
@@ -218,7 +219,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         stages = list(ALL_STAGES) if args.stages == "all" else args.stages.split(",")
-        if not stages or len(stages) != len(set(stages)) or set(stages) - set(ALL_STAGES):
+        if not stages or len(stages) != len(set(stages)) or set(stages) - (set(ALL_STAGES) | OPTIONAL_STAGES):
             raise ValueError("Unknown, empty or duplicate stage")
         if args.pre_push and (args.worktree or args.stages != "all" or args.install_hook):
             raise ValueError("Pre-push accepts only exact committed declared-stage candidates")

@@ -85,6 +85,33 @@ android {
     sourceSets.getByName("test").kotlin.srcDir(
         "src/androidTest/kotlin/com/meshcoreone/android/app/navigation/cases",
     )
+
+    // AndroidOnly: WP-504 Release optimization and isolated, non-shipping workload target.
+    buildTypes.getByName("release") {
+        isMinifyEnabled = true
+        isShrinkResources = true
+        proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    }
+    buildTypes.create("benchmark") {
+        initWith(buildTypes.getByName("release"))
+        applicationIdSuffix = ".benchmark"
+        isDebuggable = false
+        signingConfig = signingConfigs.getByName("debug")
+        matchingFallbacks += "release"
+        manifestPlaceholders["wp504ProfileSource"] = "false"
+    }
+    buildTypes.create("profile") {
+        initWith(buildTypes.getByName("benchmark"))
+        isMinifyEnabled = false
+        isShrinkResources = false
+        manifestPlaceholders["wp504ProfileSource"] = "true"
+    }
+    listOf("benchmark", "profile").forEach { name ->
+        sourceSets.getByName(name) {
+            kotlin.srcDirs("../benchmark/target/kotlin", "../benchmark/dataset/kotlin")
+            manifest.srcFile("../benchmark/target/AndroidManifest.xml")
+        }
+    }
 }
 
 class ContentPlatformSdkArguments(

@@ -1,0 +1,21 @@
+MeshCore One Android performance tooling (WP-504)
+
+Application/tooling source remains covered by the repository's GPL-3.0 license.
+The immutable MeshCore protocol specification retains its MIT notice.
+
+AndroidX Benchmark Macro/JUnit4 1.5.0 is published by the Android Open Source
+Project under Apache-2.0:
+https://dl.google.com/dl/android/maven2/androidx/benchmark/benchmark-macro-junit4/1.5.0/benchmark-macro-junit4-1.5.0.pom
+Source: https://android.googlesource.com/platform/frameworks/support/
+
+The producer is development-only and is not linked into the shipping app.
+Its complete resolved dependency versions/checksums are Gradle-generated in
+android/gradle/dependency-locks/benchmark.lockfile and verification-metadata.xml.
+benchmarkDependencyInventory records every actually resolved instrumentation
+component's declared or inherited license, exact POM coordinate and POM hash.
+Those inputs are not a legal compatibility approval or a release SBOM.
+
+The target reuses the app's existing GPL/MIT/Apache/MapLibre notices verbatim.
+No tile, glyph, sprite, third-party dataset or provider asset is bundled by
+the self-authored local map workload. All workload text and coordinates are
+synthetic WP-504 inputs, not captured messages, device identities or measurements.

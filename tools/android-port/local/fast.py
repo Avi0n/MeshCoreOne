@@ -86,6 +86,15 @@ def main():
             print(json.dumps(report, indent=2), flush=True)
         elif stage == "inspect":
             ci.inspect(state, args.output)
+        elif stage in ("benchmark", "benchmark-dependencies"):
+            from controller.performance import verify_build
+            options = scaffold_options()
+            if stage == "benchmark-dependencies":
+                options += ["--write-locks", "--write-verification-metadata", "sha256"]
+            execute([str(args.repo / "android" / "gradlew"), "-p", str(args.repo / "android"),
+                     *ci.TASKS["benchmark"], *options], args.repo, environment, args.output / f"gradle-{stage}.log")
+            if stage == "benchmark":
+                print(json.dumps(verify_build(args.repo, Path(state["android_home"]), environment), indent=2))
         else:
             raise ValueError("Unknown local stage: " + stage)
         print(f"===== PASS: {stage} =====", flush=True)
