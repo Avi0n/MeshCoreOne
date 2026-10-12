@@ -1,6 +1,19 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current proposed inspection is899/5133families/135groups/67mandatory/0approved:
+Current proposed inspection is922/5133families/136groups/67mandatory/0approved.
+All35 frozen SendTests bodies are now compared across disjoint12/23 groups;
+the remaining23 restore channel helper/query/pending fields, exact delivered
+ACK literals, FE32 ordering, non-ACK retry windows and typed in-flight checker
+inputs. The two original pre-delivered synthetic ACK states are preserved
+without injecting a fresh ACK or manufacturing a native completed receipt.
+This is proposed comparison, not passing execution or full behavioral credit.
+Actual merged183/182 main2cdda0f484722419cc074813ff44dd846dfb7d43 is adopted
+by clean disjoint rebase after checking parents440d/805 and exact tree equality
+to independently reviewed805. Prior90d/e497/440d execution remains historical;
+fresh exact adopted-main native execution and independent/hosted/persistent
+acceptance are required. No additional actor, product edit or human approval.
+
+The preceding proposed inspection was899/5133families/135groups/67mandatory/0approved:
 12 full unstarted send-validation/pending/DTO/query/in-flight originals,
 exact source ContactDTO helper values/rawchat1/timeout5 and independent
 saved/fetched predicates. Prior bookkeeping constructors also restore
@@ -9,11 +22,11 @@ e4977a2e2413f6a4c732cfd183300b65fb9618cc/440d passed210messaging/all44required
 IDs,44realRoom/all44required IDs and5App/all5required IDs,0fail/error/skip;
 declaredPython363/readinessPASS/bothlocksreleased. b371/627is historical,
 not changed-input proof. Executed source/helper blobs are in WP501receipt.
-All other23send originals remain uncredited; independent/hosted/persistent
-acceptance still required. Producer182one-positive handoff is complete
+The other23send originals were uncredited at that historical increment;
+independent/hosted/persistent acceptance still required. Producer182one-positive handoff is complete
 by its explicit bound report, not inferred from an idle/empty-lock state.
 
-Current proposed inspection is 887/5133 original families in 134 groups,
+An earlier proposed inspection was 887/5133 original families in 134 groups,
 67 mandatory App methods and zero approved behavioral acceptances. Actual main
 440d8cd6380c7cc7be92de65b18e05837e4b6854 adopted by clean rebase after verifying
 merged180/e2d exact tree equality and authoritative38196362797 success; 179 is

@@ -4,7 +4,7 @@ Repository: `cbattlegear/MeshCoreOne-Android`; owner: `test-parity-engineer`.
 Existing issue: [#134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134).
 Native project session: `d6056690-3a5d-453e-b67e-36866c676ac5`.
 CLI session: `27f3c368-787a-4cad-8050-8c7c57b25eb4`.
-Current integrated base: `440d8cd6380c7cc7be92de65b18e05837e4b6854`.
+Current integrated base: `2cdda0f484722419cc074813ff44dd846dfb7d43`.
 Initial assignment/reservation base: `250dd50ed259c5d9fe1006d4f45a637e4aea0aff`.
 Source: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
@@ -24,8 +24,14 @@ Actual existing cap labels and helper01key already match frozen source;
 no registration rename or fabricated CD-key repair. Shared fixture defaults
 remain intact. New test/helper bytes require fresh exact-candidate execution;
 historical e497/90d success remains historical. Producer183 actual merge
-2cdda0f484722419cc074813ff44dd846dfb7d43 is supplied for disjoint adoption,
-not inferred from issue closure or the independent review.
+2cdda0f484722419cc074813ff44dd846dfb7d43 is actually adopted by a clean
+71-commit disjoint rebase after checking parents440d/805 and exact tree
+equality to805. No source pin or product overlap changed. Initial dirty
+combinedPython invocation actually discovered363/passed361/errors2:
+immutable runtime input checks correctly refused the not-yet-committed
+review-bindings. No tests were excluded or checks disabled; the proposed
+bytes were committed before rebase, and fresh clean verification is required.
+This setup failure is not a native failure or a positive candidate receipt.
 
 Latest clean execution `e4977a2e2413f6a4c732cfd183300b65fb9618cc` /
 actual base440d passed the exact same current covering command below:
