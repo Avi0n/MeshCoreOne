@@ -1,6 +1,7 @@
 // AndroidOnly: WP-503 Actual diagnostics graph/value/status alternatives with deterministic radio data.
 package com.meshcoreone.android.accessibility
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
@@ -8,6 +9,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.l10n.generated.AppToolsStrings as T
 import com.meshcoreone.android.core.protocol.event.RadioStats
@@ -53,6 +55,13 @@ class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
             node
         }
         for (node in values) {
+            val ancestors = generateSequence(node.fetchSemanticsNode()) { it.parent }
+            if (ancestors.any {
+                it.config.contains(SemanticsActions.ScrollBy) &&
+                    it.config.contains(SemanticsProperties.VerticalScrollAxisRange)
+            }) {
+                node.performScrollTo()
+            }
             node.assertIsDisplayed()
             assertFont200Unclipped(node)
         }

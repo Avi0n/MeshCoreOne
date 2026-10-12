@@ -1,7 +1,8 @@
 # WP-503 attempt evidence
 
 **Incomplete, not accepted.** Native suites execute through the existing App unit runner:
-24 discovered/run, 6 passed, 18 assertion failures, no errors/skips at the candidate below.
+The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
+and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, device TalkBack observation or independent review occurred.
 
 ## Identity and revisions
@@ -111,6 +112,9 @@ reject the verified project-handle/CLI alias; no identity guard blocked executio
 | `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.* --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `b42c9a41e8ccc62b3c82f255dca7dc7065a2c472` | Native preflight succeeded; compilation failed on test-only `CustomActions` key location; zero discovery explicitly rejected, not success. Fixed to `SemanticsActions.CustomActions`. |
 | Same task/options, `86993ee65ca43fb5f7da26f537b3857e1cd4c1a9` | Compiled; discovered/run 24, passed 6, failed 18, errors/skips 0, SDK31/37. Passing families: disconnected diagnostics explanation, sent-room no retry, mixed CJK/Hebrew direct retry/font/targets. |
 | Same task/options, `4f8b6a5d324d2d13dcbbce2502c200992c7e325a` | Discovered/run 24, passed 6, failed 18, errors/skips 0. Added paragraph/viewport diagnostics; partial grid-target artifact is not promoted to an intrinsic control defect. |
+| `:core:designsystem:testDebugUnitTest :app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeAppearanceAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.direct* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.rendered* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.audit* --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest.roomFollowUp* --tests com.meshcoreone.android.core.designsystem.ThemeContrastTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `22309ff1eb9a1ccddecdd3375ec2de1aee77a812` | Discovered/run 26, passed 18, failed 8, errors/skips 0. Existing theme-role families 10/10 and actual-timeline guard controls 4/4 pass. Remaining failures: legacy room follow-up author, painted-span contrast, appearance allocation flags and populated diagnostics. |
+| `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeAppearanceAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest --console=plain --dependency-verification strict --build-cache --no-parallel --max-workers=2 -PscaffoldTestHeap=512m`, `1fad28d89f750675285c354c28f91239bc04890e` | Discovered/run 10, passed 8, failed 2, errors/skips 0. Appearance 2/2, font regressions 4/4 and disconnected diagnostics 2/2 pass; populated diagnostics 0/2. |
+| Same focused task/options, `abc86cb0dfd885d4dabd14a07f637ea031ad9b29` | Same 10 run/8 passed/2 failed, zero errors/skips. Rejects empty line measurements and records all three graph widgets' zero heights before failing. |
 
 Both executing candidates measured **38 effective frames x 2 directions x 5 emitted ranges
 x 2 SDKs = 760** actual foreground/background records. **162 fail** unchanged thresholds,
@@ -124,8 +128,21 @@ No source-palette proxy or sampled text foreground is substituted.
 Enabled targets on passing flows measured at least 48dp; observed examples include
 70x48, 114x48, 165x48, 86x54 and 110x54dp. This is not all-feature target acceptance.
 Real Resources font scale 2.0 was asserted; mixed-direction direct text was unclipped.
-Short-label width-overflow flags and zero visible noise-floor Minimum-row bounds are
-qualified diagnostics, not yet independently diagnosed visible clipping/new product issues.
+Short-label width-overflow flags were disproved as clipping: e.g. Default's native widget is
+84x30 but paragraph allocation 312x30; actual line left/right 0..84, top/bottom 0..30 and
+896 non-background pixels. All 20 theme/API labels have visible ink and contained lines.
+The oracle now requires nonempty lines, no truncation/ellipsis and zero-tolerance actual
+line bounds. SDK31/37 regression controls demonstrate valid shrink-wrap and reject genuine
+32x4dp clipping; no threshold/golden change or font product finding.
+
+Populated noise-floor Minimum/Maximum/Average widgets are 253x0/260x0/259x0, with zero
+visible bounds on both SDKs inside a real 360x900 viewport. Count and all three summary
+values/current reading are data-bound and pass. Unlike the font artifact, the actual
+widgets have height zero. Source's unweighted/non-scrolling Column and fillMaxSize chart
+consume the available height before statistics. Assigned
+[#214](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214) requests WP-316 ownership
+routing; no production edits or device observation. A legitimate native scroll ancestor
+may reveal metrics for measurement; all metrics need not fit simultaneously.
 
 The confirmed contrast finding was filed/assigned as
 [#208](https://github.com/cbattlegear/MeshCoreOne-Android/issues/208) at coordinator direction.
@@ -136,8 +153,10 @@ The coordinator identified a test assertion weakness: checking only the artifici
 owned tests to inspect actual ancestors/subtrees of two real rows. A negative control puts
 a live region on the real `ChatTimeline`; a positive control permits a small failure-only
 region. These are harness regressions, not product bugs or expected-passing room defects.
-Focused verification of the changed harness, all-theme name/target enumeration and existing
-source/Material-role families is pending; unchanged room cases await genuinely repaired bytes.
+Actual guard controls and source/Material-role families passed at exact22309ff1e above.
+Corrected all-theme name/font/target enumeration passed at exactabc86cb0d. Unchanged
+normative room cases await genuinely repaired bytes, including their new required link API;
+these passing selected cohorts do not turn legacy room/contrast failures into success.
 
 Hosted [run38264623000](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38264623000)
 for exact b42c9a41e failed at that test compilation error. Its authoritative result is not

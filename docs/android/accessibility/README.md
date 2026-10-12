@@ -77,14 +77,29 @@ The room authentication sheet is a non-scrolling Column. Appearance cards constr
 theme-name text to one line. Map's first controls row does not wrap. These merit the
 compact-window/200%-font checks in the matrix; source shape alone is not evidence of
 clipping, overlap or an undersized effective hit target. Initial native TextLayout overflow
-flags on short English labels require paragraph/rounding diagnosis, not an immediate visual
-clipping claim. A partially revealed scroll-grid card is not classified as intrinsically
+flags on short English labels were disproved as clipping: the native paragraph retains unused
+parent width while the widget shrink-wraps actual lines. All ten appearance labels on both
+SDKs have visible ink and actual lines within their boxes. The corrected oracle requires
+nonempty lines, no truncation/ellipsis and zero-tolerance actual line bounds; a genuinely
+clipped 32x4dp negative control still fails. No font product defect or relaxed floor is claimed.
+A partially revealed scroll-grid card is not classified as intrinsically
 undersized; the audit scrolls cards fully into view before measuring their effective bounds.
 
 The populated noise-floor audit exposes its actual count/minimum/maximum/average in the
-chart summary, but the numeric Minimum row has zero visible bounds in a 360x900dp/200%-font
-native window. This remains a qualified viewport finding pending owner/context diagnosis,
-not a new filed product defect or device observation.
+chart summary, but **all three numeric widgets have height zero** in a 360x900dp/200%-font
+native window: Minimum 253x0, Maximum 260x0, Average 259x0, with zero visible bounds on both
+SDKs. The unweighted, non-scrolling Column places statistics after a fillMaxSize chart that
+consumes remaining height. This measured finding is assigned in
+[#214](https://github.com/cbattlegear/MeshCoreOne-Android/issues/214) for coordinator WP-316
+ownership routing, not a device observation or a WP-503 product edit. Reachability may use
+native scrolling; the audit does not require every metric to fit on screen simultaneously.
+
+At exact `abc86cb0dfd885d4dabd14a07f637ea031ad9b29`, the focused appearance/font/diagnostics
+cohort discovered/run 10, passed 8, failed 2, errors/skips 0. All unlocked appearance
+selections/real font/targets and font regressions passed. Only populated diagnostics failed.
+At exact `22309ff1eb9a1ccddecdd3375ec2de1aee77a812`, the earlier role/guard cohort ran 26,
+passed 18, failed 8: existing theme-role families passed 10/10 and actual-timeline live-region
+controls passed 4/4. These selected results do not replace the recorded contrast/room failures.
 
 ## Existing strengths to preserve
 
@@ -112,5 +127,7 @@ WP-307/WP-308 consumers and WP-301 roles; any repair must be serialized through 
 current producers. WP-503 retains audit evidence. WP-501 retains all original parity
 bindings/accounting; WP-502 retains its screenshot/flow ownership.
 
-No new issue, nested worker, golden update, threshold relaxation, signing action or
-repository-setting change is needed for this handoff.
+WP-308's dedicated producer owns #208; WP-316 ownership routing is requested through #214.
+No nested worker, golden update, threshold relaxation, signing action or repository-setting
+change occurred. Required repaired room link APIs must be reconciled in owned fixtures only
+against genuinely adopted product bytes; old compilation is not repair evidence.

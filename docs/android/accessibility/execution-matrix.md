@@ -4,7 +4,12 @@
 full assertion/observation contract, not a passing result. The real App runner discovered
 24 audit tests on SDK31/37 at candidate86993ee65: 6 passed, 18 failed, no errors/skips.
 It covered all 38 rich-span/pixel frames, room distinctions, mixed-direction direct retry,
-appearance and noise-floor states. See [exact evidence](../evidence/WP-503/README.md).
+appearance and noise-floor states. Later focused cohorts ran 26 (18 passed/8 failed) at
+22309ff1e and 10 (8 passed/2 failed) at abc86cb0d, without errors/skips. Theme-role and
+actual-timeline guard controls passed; the corrected native font oracle and all ten
+appearance selections passed. Populated diagnostics still failed on zero-height metrics.
+These are distinct candidate/selector results, not a new full-suite pass.
+See [exact evidence](../evidence/WP-503/README.md).
 The remaining states/flows/windows below are NOT RUN. Do not reuse historical screenshots
 or promote a partial automated check to observed TalkBack/whole-WP acceptance.
 
@@ -16,7 +21,9 @@ dimensions. A visual icon's size or a source modifier is not a hit-region measur
 Check adjacent expanded hit regions do not make another action unreachable.
 
 Use actual system **2.0 font scale** and record the effective native configuration. Check
-text layout overflow, action visibility/reachability, dialog/sheet scrolling, IME occlusion
+actual nonempty line extents, truncation/ellipsis and native ink, not unused parent-width
+paragraph allocation flags on shrink-wrapped Text. Retain zero tolerance and a genuinely
+clipped-text negative control. Check action visibility/reachability, dialog/sheet scrolling, IME occlusion
 and focus after resize. Include long localized labels, CJK, RTL layout and mixed-direction
 message bodies. A manually supplied Density in a preview is supplemental, not system-font
 or TalkBack evidence.
