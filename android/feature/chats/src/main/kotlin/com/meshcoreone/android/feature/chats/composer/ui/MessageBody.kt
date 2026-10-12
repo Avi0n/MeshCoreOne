@@ -90,6 +90,8 @@ internal fun FormattedMessage.toAnnotatedString(
 /**
  * Message text with tappable mentions, links, hashtags and coordinates. TalkBack gets one named
  * custom action per link (preview URL first, deduplicated, capped), derived from the same model.
+ * [backgroundColor] is the opaque painted surface; callers with other bubble roles or translucent
+ * fills must supply their actual composited background rather than the default timeline roles.
  */
 @Composable
 fun MessageBody(

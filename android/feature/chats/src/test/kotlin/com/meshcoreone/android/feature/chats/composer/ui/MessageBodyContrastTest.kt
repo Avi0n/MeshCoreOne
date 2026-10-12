@@ -9,6 +9,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.meshcoreone.android.core.designsystem.ColorScheme
+import com.meshcoreone.android.core.designsystem.AppColors
 import com.meshcoreone.android.core.designsystem.MaterialRoles
 import com.meshcoreone.android.core.designsystem.ThemeFrame
 import com.meshcoreone.android.core.designsystem.ThemeId
@@ -110,7 +111,7 @@ class MessageBodyContrastTest {
     }
 
     @Test
-    fun `identity colors use the bubble luminance without changing avatar identity roles`() {
+    fun `identity colors use the actual bubble luminance`() {
         for (frame in frames()) {
             val bubble = MaterialRoles.from(frame).surfaceVariant
             val formatted = MessageTextFormatter.format("@[Alice]")
@@ -120,6 +121,32 @@ class MessageBodyContrastTest {
             assertEquals(expected, annotated.styleAt(0, annotated.length).color)
             assertFalse(annotated.styleAt(0, annotated.length).background.isSpecified)
         }
+    }
+
+    @Test
+    fun `explicit source room surfaces including failed fills retain readable outgoing overrides`() {
+        var measured = 0
+        for (frame in frames()) {
+            val failed = AppColors.Message.outgoingBubbleFailed(frame.highContrast).compositeOver(frame.canvas)
+            for (bubble in listOf(frame.accent, failed, frame.incomingBubble)) {
+                val outgoing = bubble != frame.incomingBubble
+                val base = accessibleForeground(
+                    if (outgoing) frame.outgoingText else Color.Black.toThemeColor(),
+                    bubble, WCAGContrast.AA_FLOOR,
+                )
+                val formatted = MessageTextFormatter.format("@[Alice] see https://example.com #ops", outgoing, "Alice")
+                val annotated = formatted.toAnnotatedString(base.toComposeColor(), frame, outgoing, bubble.toComposeColor()) {}
+                for (token in formatted.tokens) {
+                    val style = annotated.styleAt(token.start, token.end)
+                    val fill = if (style.background.isSpecified) style.background.toThemeColor().compositeOver(bubble) else bubble
+                    val floor = if (frame.highContrast && token.color == LinkColor.MENTION_IDENTITY) 7.0 else 4.5
+                    assertTrue(WCAGContrast.contrastRatio(style.color.toThemeColor(), fill) >= floor,
+                        "${frame.theme.id}: ${frame.colorScheme}, hc=${frame.highContrast}, $bubble, ${token.kind}")
+                    measured++
+                }
+            }
+        }
+        assertEquals(38 * 3 * 3, measured)
     }
 
     @Test
