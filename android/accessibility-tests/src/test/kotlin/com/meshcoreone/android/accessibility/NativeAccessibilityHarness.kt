@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
@@ -130,9 +131,23 @@ abstract class NativeAccessibilityHarness {
         return measured
     }
 
-    protected fun assertNoWholeScreenLiveRegion() {
+    protected fun assertNoWholeTimelineLiveRegion(vararg messageBodies: String) {
+        require(messageBodies.toSet().size >= 2) { "Audit at least two distinct actual message rows" }
         val config = compose.onNodeWithTag("audit-root", useUnmergedTree = true).fetchSemanticsNode().config
         assertFalse("Do not announce the whole changing screen", config.contains(SemanticsProperties.LiveRegion))
+        val rows = messageBodies.flatMap { body ->
+            compose.onAllNodes(hasText(body), useUnmergedTree = true).fetchSemanticsNodes().also {
+                assertTrue("Actual message row not mounted: $body", it.isNotEmpty())
+            }
+        }
+        fun containsBody(node: SemanticsNode, body: String): Boolean =
+            narrative(node).contains(body) || node.children.any { containsBody(it, body) }
+        val regions = rows.flatMap { node -> generateSequence(node) { it.parent }.toList() }
+            .distinctBy { it.id }.filter { it.config.contains(SemanticsProperties.LiveRegion) }
+        for (region in regions) {
+            val messages = messageBodies.count { containsBody(region, it) }
+            assertTrue("Actual live region ${region.id} absorbs $messages message rows", messages < 2)
+        }
     }
 
     protected fun narrative(node: SemanticsNode): String = buildString {

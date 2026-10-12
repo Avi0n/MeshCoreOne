@@ -1,14 +1,20 @@
 // AndroidOnly: WP-503 Mounted native chat/room semantics, effective targets, system font and actual span/surface contrast.
 package com.meshcoreone.android.accessibility
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
@@ -46,6 +52,7 @@ import java.time.Instant
 import java.util.UUID
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -83,9 +90,9 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         val followUp = roomMessage("follow up").copy(id = UUID(0, 4), timestamp = 101u)
         roomContent(RoomConversationState(room, listOf(first, followUp),
             RoomConversationStateHolder.rows(listOf(first, followUp)), hasLoadedOnce = true))
+        assertNoWholeTimelineLiveRegion(first.text, followUp.text)
         val node = compose.onNode(messageNarrative("follow up", "Alice")).assertIsDisplayed().fetchSemanticsNode()
         assertTrue("The row must not absorb the other message", !narrative(node).contains(first.text))
-        assertNoWholeScreenLiveRegion()
     }
 
     @Test fun roomOutgoingSentStatusIsExposedExactlyOnceOnItsMessage() {
@@ -167,10 +174,11 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
             timestamp = 100u, createdAt = Instant.ofEpochSecond(100), status = MessageStatus.FAILED,
         )
         var retried: UUID? = null
+        val other = message.copy(id = UUID(0, 8), text = "other cached message", direction = MessageDirection.INCOMING)
         content {
             MeshCoreTheme(motionScale = 0f) {
                 AuditSurface {
-                    ChatTimeline(timeline(message), callbacks { retried = it.id })
+                    ChatTimeline(timeline(message, other), callbacks { retried = it.id })
                 }
             }
         }
@@ -179,7 +187,41 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         assertEquals(message.id, retried)
         assertVisibleClickTargetsAtLeast48Dp()
         assertFont200Unclipped(compose.onNodeWithText(message.text, useUnmergedTree = true))
-        assertNoWholeScreenLiveRegion()
+        assertNoWholeTimelineLiveRegion(message.text, other.text)
+    }
+
+    @Test fun auditDetectsLiveRegionOnTheActualTimelineInsteadOfOnlyTheTestSurface() {
+        val first = auditMessage("first actual row", 20)
+        val second = auditMessage("second actual row", 21)
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    ChatTimeline(timeline(first, second), callbacks {},
+                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                }
+            }
+        }
+        val failure = assertThrows(AssertionError::class.java) {
+            assertNoWholeTimelineLiveRegion(first.text, second.text)
+        }
+        assertTrue("Regression must reach the actual timeline ancestor", failure.message.orEmpty().contains("absorbs 2"))
+    }
+
+    @Test fun auditAllowsASmallFailureOnlyLiveRegionWithoutAnnouncingOtherRows() {
+        val first = auditMessage("first independent row", 22)
+        val second = auditMessage("second independent row", 23)
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    Column {
+                        ChatTimeline(timeline(first, second), callbacks {}, modifier = Modifier.weight(1f))
+                        Text("local send failure", Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                    }
+                }
+            }
+        }
+        compose.onNodeWithText("local send failure").assertIsDisplayed()
+        assertNoWholeTimelineLiveRegion(first.text, second.text)
     }
 
     @Test fun renderedDirectAndChannelSpansClearTheirPaintedBubblesInAll38EffectiveFrames() {
@@ -262,8 +304,13 @@ class NativeMessagingAccessibilityTest : NativeAccessibilityHarness() {
         assertTrue("Actual painted-feature contrast below 4.5:1: ${failures.joinToString()}", failures.isEmpty())
     }
 
-    private fun timeline(message: MessageDTO) = ChatTimelineState(
-        messages = listOf(message), rows = listOf(TimelineRow.Message(message, true, true)),
+    private fun auditMessage(body: String, id: Long) = MessageDTO(
+        id = UUID(0, id), radioId = radio, text = body, timestamp = 100u,
+        createdAt = Instant.ofEpochSecond(100), direction = MessageDirection.INCOMING,
+    )
+
+    private fun timeline(vararg messages: MessageDTO) = ChatTimelineState(
+        messages = messages.toList(), rows = messages.map { TimelineRow.Message(it, true, true) },
         hasLoadedOnce = true, hasMoreMessages = false, initialAnchorConsumed = true,
     )
 
