@@ -1,11 +1,45 @@
 # WP-503 attempt evidence
 
-**Current owned cases pass across JVM and actual Android; PR205/WP503 remain incomplete.**
+**New populated-map List case fails on both actual APIs; PR205/WP503 remain incomplete.**
 Native suites execute through the existing App unit and AndroidJUnitRunner tasks.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
+
+## Current populated-map product finding
+
+At actual fixture `8eb2d610b7a954dedfefcba6a973c497c41ce8f1` and unchanged main d818
+production, both installed emulators execute:
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest#populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200 -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**API31:1 discovered/0 passed/1 failed,0 errors/skips** ([actual transcript](device-map-list-api31.txt),3.575s).
+**API37:1 discovered/0 passed/1 failed,0 errors/skips** ([actual transcript](device-map-list-api37.txt),10.176s).
+Declared strict App/debug-test assembly passes at that fixture commit; no compilation or
+zero-test pass substitutes for these failures. [APK input/source binding](device-map-list-inputs.json)
+is retained only for these non-reproducible device executions.
+
+The profile is the same verified actual OS font2/RTL/360x900/mdpi/reduced motion on fresh,
+isolated, read-only AOSP31 x86_64/4KiB/no GMS and Play Store37.2 x86_64/16KiB/GMS.
+Both List controls measure0x144px/empty visible bounds. API31 touch bounds(-8,75)-(40,219)
+versus viewport(0,63)-(360,774); API37(-8,64)-(40,208) versus(0,52)-(360,876).
+The target extends8px outside the viewport; actual `assertIsDisplayed` fails first.
+Marker selection, coordinate callout and favorite filtering assertions after it are
+unexecuted, not credited as passes.
+
+The real first `MapControls` Row at `MapEntry.kt:290-304` exhausts horizontal allocation.
+Production file blob907f3060dc3c533a84c6175ca97b4106119a2485 and App APK hash
+6a18619e0eacb9522c28348e605218d4d5bff00e79f72c3d6fdea3e93a95f92f are unchanged.
+Actual [defect224](https://github.com/cbattlegear/MeshCoreOne-Android/issues/224) is open,
+WP312/nodes-map-ui-engineer product ownership; no verified active repair producer yet.
+Existing coordinator/authorized producer repair is required. No product edit, new worker,
+lowered assertion or physical TalkBack claim. Emulator helpers are stopped.
+
+The earlier c4 positive92 complementary cases below did not include this new case.
+They are retained accurately, not relabeled as a complete current populated-map execution.
 
 ## Current runner repair and actual Android evidence
 

@@ -1,11 +1,27 @@
 # WP-503 accessibility audit
 
-**Status: runtime-dependent failures repaired in the audit runner; PR205 remains draft and incomplete.**
+**Status: runner failures repaired; new native Map List defect224 blocks acceptance. PR205 remains draft.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Current execution and base refresh
+
+Further actual populated-map execution at
+`8eb2d610b7a954dedfefcba6a973c497c41ce8f1` discovers one case per API31/37; **both
+fail**, zero errors/skips. The real List control has0x144px visual allocation, empty
+visible bounds and an expanded48dp target extending8px outside the viewport. The first
+fixed MapControls Row exhausts its available width. This is a measured product defect,
+not the repaired JVM idling/JNI limit. Actual marker-list selection, coordinates and
+favorite-filter assertions cannot execute after this visibility failure.
+
+Assigned product ownership is WP312/nodes-map-ui-engineer; actual
+[#224](https://github.com/cbattlegear/MeshCoreOne-Android/issues/224) is open, with no
+verified active repair producer yet. The regression/evidence stays here; product repair
+must be serialized through the existing coordinator/authorized producer. No product
+patch, additional worker or assertion relaxation is introduced. Earlier passing92
+complementary cases below did not include this new case; they are not a current complete
+populated-map pass.
 
 At `c4c5b94000077c1a3cbe5e7a60efbb89a2cc15ce`, the unchanged strict shared oracles
 pass **70/70 JVM native cases**, plus **11/11 actual Android instrumentation cases on

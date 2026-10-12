@@ -1,6 +1,11 @@
 # WP-503 native execution matrix
 
-**Current owned cases pass in complementary JVM/Android runners; WP503 remains incomplete.**
+**New populated-map List case fails on both actual APIs; WP503 remains incomplete.**
+At fixture8eb2d610b, one scoped case on each actual API31/37 fails List visibility:
+0x144px allocation, empty visible bounds and48dp target clipped8px at the viewport edge.
+Actual WP312 defect224 owns the product repair; no active repair producer is yet verified.
+Marker selection/coordinate/favorite assertions after that failure remain UNEXECUTED.
+The earlier positive cohort below does not include this new populated-map case.
 At source `c4c5b94000077c1a3cbe5e7a60efbb89a2cc15ce`, JVM70/70 and actual Android11/11
 per API31/37 pass, zero failures/errors/skips. All nine remote cases and both Map/LoS
 cases are mandatory instrumentation cases on both APIs, not excluded JVM failures.
@@ -194,7 +199,9 @@ counts from the admitted runner; missing, malformed or zero-test output must fai
 
 ## Device evidence record
 
-No physical/device record exists for this attempt. When available, retain only necessary
+Actual automated Android31/37 emulator records are retained under WP503 evidence,
+including the current negative Map List cases. No physical TalkBack record exists.
+When available, retain only necessary
 non-reproducible evidence: exact APK commit, API/device class, TalkBack version, font/locale/
 window/animation settings, tested state/action, expected/observed result, sanitized screenshot
 or recording location, observer and date. Do not retain identifiers, message contents, keys

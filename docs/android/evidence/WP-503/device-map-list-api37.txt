@@ -1,0 +1,38 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest:
+INSTRUMENTATION_STATUS: test=populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Assert failed: The component with Text + InputText + EditableText contains 'List' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest.populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200(NativeMapRuntimeAccessibilityTest.kt:74)
+
+INSTRUMENTATION_STATUS: stream=
+Error in populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200(com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest):
+java.lang.AssertionError: Assert failed: The component with Text + InputText + EditableText contains 'List' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest.populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200(NativeMapRuntimeAccessibilityTest.kt:74)
+
+INSTRUMENTATION_STATUS: test=populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 10.176
+There was 1 failure:
+1) populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200(com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest)
+java.lang.AssertionError: Assert failed: The component with Text + InputText + EditableText contains 'List' (ignoreCase: false) is not displayed!
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:34)
+	at com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest.populatedNativeMapListSelectionKeepsCoordinatesAndFavoriteFilterReachableAtFont200(NativeMapRuntimeAccessibilityTest.kt:74)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1
