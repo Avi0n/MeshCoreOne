@@ -5,7 +5,9 @@ Incoming reaction bridge defect192 is separately routed WP303/necessaryWP216:
 Pocket late-target queue writes are no-ops; MeshCoreOpen v3/v1 is never parsed
 by actual App composition. Six mandatory real Room/normal-polling consumers and
 two supplemental existing-target Pocket DB-fallback controls use independent
-fixed source hashes. Execution pending, no additional original family credit.
+fixed source hashes. Actual cleancb7/baseedc App8/2PASS/6FAIL/zeroerror skip/
+all8unique names: both controls PASS and exactly six real reaction1vs0 FAIL.
+Overall FAILED/192 producer repair needed, no additional original credit.
 The new44 RFCalculator originals are four disjoint comparisons:29 independent
 formula/distance cases,11 terrain/path cases,two returned-field cases and two
 inclusive slice/segment cases. Their literal expectations, strict tolerances,

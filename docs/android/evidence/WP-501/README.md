@@ -12,8 +12,6 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
-## Current platform consumer audit and actual routing-repair adoption
-
 ## Incoming reaction composition gap and mounted witnesses
 
 Source-confirmed [#192](https://github.com/cbattlegear/MeshCoreOne-Android/issues/192)
@@ -38,9 +36,18 @@ is calibrated by source hello=150804507: v3timestamp+Alice+Hello ->aa61,
 DMtimestamp+Hello ->92c7; v1Alice210078619/Hello828172268. Test uses fixed
 literal wire/hash expectations, not candidate-produced expected packets.
 All real target/reaction radio/contact/channel IDs, raw text,emoji,sender,
-hash,summary and ordinary-row absence are asserted. Executable witnesses
-not yet run at this candidate; no source family, hardware or full acceptance
-credit. All original/fresh ACK and three pacing failures stay unchanged.
+hash,summary and ordinary-row absence are asserted.
+Actual cleancb7c50cf0510eeb11d0bfc31805eef1d9cff022f/baseedc Windows
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.IncomingReactionAcceptanceTest --dependency-verification=strict --quiet`
+discovered8/2PASS/6FAIL/zeroerrors-skips. Both existing-target Pocket controls
+pass all Room/summary/raw/radio/contact/channel/row-count guards. Exactly the
+six required consumers reach the real assertion expectedreaction1/actual0;
+all fail java.lang.AssertionError at line116, not compile/discovery/fixture
+startup or timeout failure. Real XML verifies all8 distinct expected names.
+Overall command remains FAILED; no parser/other native selection or original
+family/hardware/full acceptance credit. Sourceclean/readinessPASS; context-managed
+resource locks release on the nonzero native command. All original/fresh ACK
+and three pacing failures stay unchanged; no unchanged8 rerun before192 repair.
 
 Exact previous356/baseedc authoritative run38213469724/Linux114693124335/
 final114696520348 is actually FAILURE: App732completed3FAIL, exactly the three
@@ -49,6 +56,8 @@ the authoritative log, not copied/uploaded/revalidated a second result bundle.
 No unchanged native replay;189 stays serialized with its product owner.
 Bounded191/f61 two-path source-only review6119373639 is posted without
 native replay, fabricated approval or unexecuted producer-evidence credit.
+
+## Current platform consumer audit and actual routing-repair adoption
 
 Current proposals1046/5133families/143groups/70mandatory/0approved include44
 new disjoint RFCalculator originals:29 propagation/constants/distance,
