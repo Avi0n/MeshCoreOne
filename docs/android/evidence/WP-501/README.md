@@ -14,6 +14,19 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Qualified ten-source follow-up
 
+Actual clean543275b9dd842d3e6637a0a2626fb12bacb94d4d/base d958
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistencePendingMaintenanceOriginalPredicateTest.originalWarmUpRetainsPairedAndUnpairedNilAttemptContextsAndBothEmptyReads --dependency-verification=strict --quiet`
+PASS1discovered/1passed/0failure-error-skip/one exact identity, XML
+2026-10-12T15:18:10.456Z/native0e895b5106ebdf193a260420fdf2ef5bb50c3592/
+SHA256855eed2f22b9d2e7e8a27fd609e7a8f0e1b785d11bfec850caa7ba553092a823/
+bodybc8ccefcb0e3e11c16b62d488e743a82a1699424fc9745a13de949beaf428312.
+Exact delegated01/FW9/v1.13.0/multiACK2/active/latlon0/full defaults/id=radio
+and both original nil-row empty predicates execute on actual Room.
+ReadinessPASS/zero notice normalization/normal native+Gradle lock release/
+public records empty. Private raw XML/current30-input receipt captured;
+other nine not replayed, raw5725 tenPASS29 unmodified, not new original/
+source recheck/private reviewer/hosted/successor/device/full acceptance.
+
 Historical exact096/base d958 SOURCE-ONLY COMMENTED5492590619:
 [review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5492590619).
 Complete10 frozen/native bodies/10joins/290rows/29inputs/20expectations,
@@ -26,7 +39,7 @@ multi0/inactive/SF initially ported. Actual orphan selector uses all stored
 Device.radioId, so original two-nil empty predicates stayed intact, but old
 input was not literal equality. Only warmUp method now uses distinct complete
 source factory defaults/id=radioWithDevice; all other nine bodies unchanged.
-One changed-method-only execution pending; no other-nine replay.
+One changed-method-only execution passed above; no other-nine replay.
 Frozen Helpers/PersistenceStore+TestFetch.swift full actual all-radio SELECT
 read and declared, current30inputs/300rows; no narrower channel predicate/
 product API widening. Genuine5725 tenPASS/private raw29-input receipt and
@@ -213,7 +226,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1450 proposals/185groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS each on its own receipt;101/135 qualified source-compared with warmUp fixture correction. | 29/135 persistence originals unprovided, new5 source comparison/one-only changed warmUp discovery and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1450 proposals/185groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS each on its own receipt;101/135 qualified source-compared. | 29/135 persistence originals unprovided, new5/source warmUp correction recheck and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |

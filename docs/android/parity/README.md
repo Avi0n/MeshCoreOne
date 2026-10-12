@@ -1,11 +1,18 @@
 # WP-501 source, case-family and consumer acceptance
 
+Actual clean543/base d958 corrected warmUp-ONLY1PASS/0bad/exact identity,
+XML15:18:10.456Z/native0e895b51/SHA855eed2f/bodybc8ccefcb/30 fingerprints/
+private raw XML. Exact delegated01/FW9/v1.13.0/multi2/active/latlon0 and
+two original independent nil-row empty reads execute on real Room.
+Readiness PASS/zero notices/normal supported lock release; other nine not
+replayed/old5725 tenPASS29 not rebound/no extra original/current certification.
+
 Qualified096 SOURCE-ONLY5492590619 ten/20expectations/290rows/29inputs
 reconciled:101/135 source-compared/34uncompared, not accepted. One literal
 warmUp fixture corrected from other createTestDevice defaults to actual
 DeviceDTO.testDevice(id:radioID:):01/FW9/v1.13.0/multi2/active/latlon0 and full
 remaining fields, retaining id=radioWithDevice/both nil rows/two empty reads.
-All other nine native bodies unchanged; only changed-method execution pending.
+All other nine native bodies unchanged; only changed-method execution passed above.
 Actual frozen TestFetch.swift all-radio helper declared, current30inputs/
 300rows. Original5725 tenPASS29-input receipt remains immutable/not faithful
 old warmUp-input equality/new30-input execution; no unchanged nine replay.
