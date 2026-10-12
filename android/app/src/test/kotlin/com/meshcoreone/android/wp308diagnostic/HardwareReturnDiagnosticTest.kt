@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -16,6 +17,7 @@ import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
@@ -40,6 +42,7 @@ import org.robolectric.annotation.GraphicsMode
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [31, 37], qualifiers = "w1080dp-h1000dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@OptIn(ExperimentalTestApi::class)
 class HardwareReturnDiagnosticTest {
     @get:Rule val compose = createEmptyComposeRule()
     private lateinit var host: ActivityController<ComponentActivity>
