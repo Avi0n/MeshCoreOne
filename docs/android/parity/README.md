@@ -61,6 +61,13 @@ legacy/default-repeater/room-server bodies before parsing unchanged bytes;
 first59/extended63guards/AABBprefix/RF/tails/decodedfields retained. Already
 admitted test path/reservation21; three restored predicates are not new
 families. Fresh BugFix discovery/rebinding/review required;178remainsopen.
+Final178scope also restores whole defaultMCore suffix, not slice(8,13).
+Clean7bdb90afa/d3f actual combined73/73protocol (70requiredoriginal identities)
+and363/363Pythonpassed,0failure/error/skip/readinesspassed/locksreleased.
+That predecessor contains all five size repairs but not this final suffix
+correction; fresh final-scope execution still required. Source-only coordinator
+review6115227237 covers unaffected RxLog24/RoundTrip33/BugFix32 with no new
+blocker, not execution/full acceptance. Do not repeat those unchanged reads.
 Exact8d26bd12b/d3f PythonReference28/28 and cleanPython363/363passed,
 0failure/error/skip, readiness/locks passed/released. Independent/full
 843of5133acceptance remains unfinished; prior47da hosted stillrunning.

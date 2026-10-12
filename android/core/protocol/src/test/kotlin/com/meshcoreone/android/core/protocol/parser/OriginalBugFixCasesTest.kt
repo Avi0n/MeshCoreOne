@@ -36,7 +36,10 @@ class OriginalBugFixCasesTest {
         source("appStart truncates long client ID") {
             val packet = PacketBuilder.appStart("LongClientName"); assertEquals(Bytes.utf8("LongC"), packet.slice(8, packet.size)); assertEquals(13, packet.size)
         },
-        source("appStart default client ID") { assertEquals(Bytes.utf8("MCore"), PacketBuilder.appStart().slice(8, 13)) },
+        source("appStart default client ID") {
+            val packet = PacketBuilder.appStart()
+            assertEquals(Bytes.utf8("MCore"), packet.slice(8, packet.size))
+        },
         source("statusResponse skips reserved byte") {
             val body = push(); assertEquals(59, body.size); val response = status(body)
             assertEquals(nodePrefix, response.publicKeyPrefix); assertEquals(1000L, response.battery)

@@ -59,6 +59,26 @@ Same already-admitted OriginalBugFixCasesTest path/owner/reservation21, no new
 families/product defect/golden/threshold edit. Fresh declared BugFix selector/
 positive discovery/rebinding/independent review/persistent merge required.
 Prior34/58case passes retain their exact old assertion bytes;178remainsopen.
+The updated178scope additionally restores entire default-MCore suffix
+equality with actual packet.slice(8,packet.size), unchanged default call/
+literal/identity. Final scope is four178plus two177predicate repairs.
+
+Clean `7bdb90afa96c57170c697714c295c31003fe3027`/d3f executed
+`python <session-files>\wp501-native-check.py --head 7bdb90afa96c57170c697714c295c31003fe3027 --reference-device-bugfix`,
+one declared invocation
+`:core:protocol:test --tests com.meshcoreone.android.core.protocol.parser.OriginalPythonReferenceCasesTest --tests com.meshcoreone.android.core.protocol.parser.CrossComponentParserCasesTest.deviceAndContactRoundTrips --tests com.meshcoreone.android.core.protocol.parser.OriginalBugFixCasesTest --dependency-verification=strict --quiet`.
+Actual73discovered/run/passed, all70required original identities
+(28reference+8bounddevice/selfinfo+34BugFix); three unchanged legacy component
+cases are not additional accepted original families.0failure/error/skip;
+readiness/supported locks passed/released. Clean declared Python363/363passed.
+This predecessor contains all five restored size predicates but not the newly
+handed-off default-suffix correction; final-scope execution still required.
+No earlier73result/oldXML is promoted to the final changed assertion.
+
+Bounded source-only [coordinator review6115227237](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#issuecomment-6115227237)
+at47da/d3f records no new mismatch in RxLog24/unaffected remainingRoundTrip33/
+BugFix32;177holds2and178holds4predicates. It is not new execution, privileged
+gate or full acceptance; these unaffected comparisons need no repeated read.
 
 ## Latest actual new-base execution
 
