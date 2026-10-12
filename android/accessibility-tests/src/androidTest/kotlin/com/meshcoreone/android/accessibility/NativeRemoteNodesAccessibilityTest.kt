@@ -2,8 +2,12 @@
 package com.meshcoreone.android.accessibility
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.AlertDialog
@@ -14,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.positionInRoot
@@ -80,6 +85,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -175,10 +181,11 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
             L.remoteNodesStatusSensorVoltage, L.remoteNodesStatusSensorGps, L.remoteNodesStatusSensorHumidity)) {
             assertScrollableFont200Unclipped(compose.onNodeWithText(activity.getString(label)))
         }
-        for (value in listOf("77.9 \u00b0F", "72.5 \u00b0F", "3.850 V", "55.5%",
+        for (value in listOf("77.9 \u00b0F", "72.5 \u00b0F", "3.850 V",
             "37.77490, -122.41940 @ 42.0m")) {
             assertScrollableFont200Unclipped(compose.onNodeWithText(value))
         }
+        assertFont200PaintedUnclipped(compose.onNodeWithText("55.5%").performScrollTo())
         compose.onNodeWithText(activity.getString(L.remoteNodesStatusNoSensorData)).assertDoesNotExist()
         compose.onNodeWithText(activity.getString(L.remoteNodesStatusNoTelemetryData)).assertDoesNotExist()
         val viewMap = compose.onNodeWithText(activity.getString(L.remoteNodesStatusViewOnMap)).performScrollTo()
@@ -239,6 +246,35 @@ class NativeRemoteNodesAccessibilityTest : DeviceAccessibilityHarness() {
         assertEquals(3, rig.handlerRegistrations)
         assertEquals(0, rig.loginAttempts)
         println("WP503_REMOTE_PENDING_TELEMETRY|reads=1|cancelled=1|teardown=1|duplicateEnabled=false|realRadio=false")
+    }
+
+    @Test fun frameworkNeutralRtlParagraphRetainsAllNativeInkAndRejectsActualAncestorClipping() {
+        content {
+            MeshCoreTheme(motionScale = 0f) {
+                AuditSurface {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 28.dp)) {
+                        Text("55.5%", Modifier.testTag("neutral-rtl"),
+                            style = MaterialTheme.typography.bodyLarge)
+                        Box(Modifier.size(50.dp, 60.dp).clipToBounds().testTag("neutral-rtl-viewport")) {
+                            Text("55.5%", Modifier.requiredWidth(76.dp).testTag("neutral-rtl-clipped"),
+                                style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+            }
+        }
+        val visible = compose.onNodeWithTag("neutral-rtl")
+        val layout = font200Layout(visible)
+        assertTrue("Neutral RTL line coordinates retain the parent's paragraph allocation",
+            layout.getLineRight(0) > layout.size.width && layout.getLineLeft(0) > 0f)
+        assertFont200PaintedUnclipped(visible)
+        val clipped = compose.onNodeWithTag("neutral-rtl-clipped")
+        assertEquals(50, compose.onNodeWithTag("neutral-rtl-viewport").fetchSemanticsNode().size.width)
+        assertTrue("The negative control loses real ink at its ancestor, not maxLines",
+            !textLayout(clipped).multiParagraph.didExceedMaxLines)
+        val failure = assertThrows(AssertionError::class.java) { assertFont200PaintedUnclipped(clipped) }
+        assertTrue(failure.message.orEmpty().contains("retain"))
+        println("WP503_NEUTRAL_RTL_FONT_CONTROL|fullInk=true|actualAncestorClipRejected=true|tolerance=0")
     }
 
     @Test fun catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow() {
