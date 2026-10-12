@@ -22,6 +22,10 @@ import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.platform.shortcuts.*
 import java.util.UUID
 import java.util.concurrent.Executor
+import java.util.logging.Handler
+import java.util.logging.LogRecord
+import java.util.logging.Logger
+import java.util.Collections
 import kotlin.test.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
@@ -133,6 +137,69 @@ class ShortcutQueueIntegrationTest : RoomProcessTest() {
             assertFalse(h.links.radios.single().sent.any { it[0].toInt() in 2..3 })
         } finally {
             db.openHelper.writableDatabase.execSQL("DROP TRIGGER wp502_reject_shortcut")
+            h.container.close()
+        }
+    }
+
+    @Test fun realPendingCreationFailureNeverReturnsQueuedOrPersistsOptimisticRows() = runTest {
+        val h = connected(this)
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER wp502_reject_shortcut_message BEFORE INSERT ON messages " +
+                "BEGIN SELECT RAISE(ABORT, 'pending message fixture'); END",
+        )
+        try {
+            for (recipient in recipients(h)) {
+                val error = assertFailsWith<ShortcutException> { flow(h).execute(id(recipient), original) }
+                assertEquals(ShortcutError.SEND_FAILED, error.error)
+                assertIs<PersistenceStoreException>(error.cause)
+                assertTrue(messages(store, recipient).isEmpty())
+                assertTrue(store.fetchPendingSends(recipient.radioId).isEmpty())
+            }
+            assertFalse(h.links.radios.single().sent.any { it[0].toInt() in 2..3 })
+        } finally {
+            db.openHelper.writableDatabase.execSQL("DROP TRIGGER wp502_reject_shortcut_message")
+            h.container.close()
+        }
+    }
+
+    @Test fun rejectedFailureStatusWriteCannotReplaceTheTypedEnqueueError() = runTest {
+        val h = connected(this)
+        val records = Collections.synchronizedList(mutableListOf<LogRecord>())
+        val handler = object : Handler() {
+            override fun publish(record: LogRecord) {
+                if (record.message == "Mark shortcut pending send failed") records += record
+            }
+            override fun flush() = Unit
+            override fun close() = Unit
+        }
+        val logger = Logger.getLogger("com.mc1.Shortcuts")
+        logger.addHandler(handler)
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER wp502_reject_shortcut_enqueue BEFORE INSERT ON pending_sends " +
+                "BEGIN SELECT RAISE(ABORT, 'enqueue fixture'); END",
+        )
+        db.openHelper.writableDatabase.execSQL(
+            "CREATE TRIGGER wp502_reject_shortcut_failure BEFORE UPDATE OF statusRawValue ON messages " +
+                "BEGIN SELECT RAISE(ABORT, 'failed status fixture'); END",
+        )
+        try {
+            for (recipient in recipients(h)) {
+                val error = assertFailsWith<ShortcutException> { flow(h).execute(id(recipient), original) }
+                assertEquals(ShortcutError.SEND_FAILED, error.error)
+                val queue = assertIs<ChatSendQueueServiceException>(error.cause)
+                assertIs<PersistenceStoreException>(assertIs<ChatSendQueueServiceError.PersistFailed>(queue.error).underlying)
+                val message = messages(store, recipient).single()
+                assertEquals(original, message.text)
+                assertEquals(MessageStatus.PENDING, message.status)
+                assertTrue(store.fetchPendingSendsForMessage(EntityKey(recipient.radioId, message.id)).isEmpty())
+            }
+            assertEquals(2, records.size)
+            records.forEach { assertIs<PersistenceStoreException>(it.thrown) }
+            assertFalse(h.links.radios.single().sent.any { it[0].toInt() in 2..3 })
+        } finally {
+            db.openHelper.writableDatabase.execSQL("DROP TRIGGER wp502_reject_shortcut_enqueue")
+            db.openHelper.writableDatabase.execSQL("DROP TRIGGER wp502_reject_shortcut_failure")
+            logger.removeHandler(handler)
             h.container.close()
         }
     }
