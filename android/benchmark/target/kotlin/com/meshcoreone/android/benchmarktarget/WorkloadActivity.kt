@@ -5,6 +5,8 @@ import android.content.Context
 import android.graphics.RectF
 import android.os.Bundle
 import android.os.StrictMode
+import android.system.Os
+import android.system.OsConstants
 import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -150,6 +152,11 @@ class WorkloadActivity : ComponentActivity() {
     }
 
     private fun showMap(savedInstanceState: Bundle?) {
+        if (intent.getBooleanExtra("requireNative16KiB", false)) {
+            check(Os.sysconf(OsConstants._SC_PAGESIZE) == 16_384L) {
+                "WP-504 target process must report native 16 KiB pages; kernel size alone is insufficient"
+            }
+        }
         MapLibre.getInstance(applicationContext)
         val status = TextView(this).apply { text = "WP504_MAP_LOADING" }
         val view = MapView(this).apply { contentDescription = "WP504_MAP" }

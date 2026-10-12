@@ -136,7 +136,10 @@ supported runner and record the discovered cases, device/build and raw outputs.
    does not replace device provenance/admission or prove actual profile collection.
 4. On an actual 16,384-byte-page runtime, separately select
    `com.meshcoreone.android.benchmark.NativePageRuntimeTest`. Its native-rendering
-   assertion must execute; static `zipalign -P 16`/ELF checks are not substitutes.
+   assertion must execute. The kernel shell check and the target process's native
+   `Os.sysconf(_SC_PAGESIZE)` must both report 16,384; a kernel-only value is not
+   sufficient. A native rendered dataset feature must also satisfy readiness.
+   Static `zipalign -P 16`/ELF checks are not substitutes.
    Record OS/API/ABI/page size and compatibility-mode facts, and distinguish
    emulator observations from physical-device evidence.
 

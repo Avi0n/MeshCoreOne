@@ -29,7 +29,7 @@ internal fun prepareWorkload(profileGeneration: Boolean = false, requireApplicat
             metadata.containsKey("wp504.applicationProfileInput") && metadata.getBoolean("wp504.applicationProfileInput"))
     }
     val device = UiDevice.getInstance(instrumentation)
-    device.executeShellCommand("am start -W -n $TARGET/$FIXTURE_ACTIVITY --es screen prepare")
+    device.executeShellCommand("am start -W --activity-clear-task --activity-new-task -n $TARGET/$FIXTURE_ACTIVITY --es screen prepare")
     assertTrue("Room dataset preparation failed", device.wait(
         Until.hasObject(By.desc("WP504_READY:prepare:${Workload.VERSION}:${Workload.digest()}")), TIMEOUT_MS,
     ))

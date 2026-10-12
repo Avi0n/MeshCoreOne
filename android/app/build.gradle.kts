@@ -14,6 +14,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.process.CommandLineArgumentProvider
 import java.security.MessageDigest
+import java.nio.file.Files
 import java.util.Properties
 
 plugins {
@@ -73,7 +74,7 @@ dependencies {
 val applicationProfileInput = layout.projectDirectory.file("src/main/baseline-prof.txt").asFile
 val applicationProfileAvailable = applicationProfileInput.exists()
 if (applicationProfileAvailable) {
-    check(applicationProfileInput.isFile && !java.nio.file.Files.isSymbolicLink(applicationProfileInput.toPath())) {
+    check(applicationProfileInput.isFile && !Files.isSymbolicLink(applicationProfileInput.toPath())) {
         "WP-504 application profile input must be a regular file"
     }
     val applicationRule = Regex("^[HSP]*Lcom/meshcoreone/android/app/.*;.*$")

@@ -18,7 +18,7 @@ class NativePageRuntimeTest {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         assertEquals("This test requires an actual 16 KiB-page runtime; do not substitute static ELF checks",
             "16384", device.executeShellCommand("getconf PAGE_SIZE").trim())
-        device.executeShellCommand("am start -W -n $TARGET/$FIXTURE_ACTIVITY --es screen map")
+        device.executeShellCommand("am start -W --activity-clear-task --activity-new-task -n $TARGET/$FIXTURE_ACTIVITY --es screen map --ez requireNative16KiB true")
         assertTrue("Native MapLibre did not fully render the 1000-marker workload", device.wait(
             Until.hasObject(By.desc("WP504_READY:map:${Workload.VERSION}:${Workload.digest()}")), 30_000,
         ))
