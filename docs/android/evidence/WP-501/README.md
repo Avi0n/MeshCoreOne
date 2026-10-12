@@ -14,8 +14,39 @@ self-referential committed digest or a second CI-result bundle.
 
 ## Seven independent orphan/unread originals
 
+Actual clean4dbbb2df4597e85df833d78cb0da85898c1854e4/base d958
+`:app:testDebugUnitTest --tests com.meshcoreone.android.parity.PersistenceOrphanAdoptionOriginalPredicateTest --dependency-verification=strict --quiet`
+PASS7discovered/7passed/0failure-error-skip/all7 exact identities,
+XML2026-10-12T15:37:18.299Z/nativebefc410ada18dc6e8134b5f43662bbeeed893035/
+SHA2567497a9dc2c16edaec563f7058ac0930ca68c0c5c1cd4ea1a08f9c593a02f49ef.
+All24 source expectations+7 required row predicates execute on real Room;
+readinessPASS/zero notices/normal native+Gradle supported lock release/
+public records empty. Private raw XML/current32-input receipt captured
+before later Gradle overwrite; no old aggregate/newest-positive replay/
+source pre-read acceptance/private reviewer/current successor hosted/
+mounted/API37/hardware/backup/full135/5133 approval.
+
+Qualified historical454/d958 SOURCE-ONLY COMMENTED5492921695:
+[review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5492921695).
+Full5 source/native bodies/joins/95rows/19inputs/16expectations+required
+current row/comparison392fc0af read/no selected postcondition weakness.
+Adds5 after previous101,106/135 source-compared/29uncompared; distinct
+proposed113/135/22unprovided/0approved, seven source comparison still pending.
+Additional actually read frozen ConnectionManager.swift1054-1140/native
+runtime ConnectionManager.kt923-945 context fingerprints now declared:
+current21inputs/105rows, no same-key early return/original-ID refresh/
+captured-generation/immutable-radio graph rebuild retained as source context,
+not runtime execution. All five native bodies/vectors/joins/other19 inputs
+unchanged, genuine1aad fivePASS19 raw receipt/historical review19 immutable,
+no replay/execution21 rebind/new original/private reviewer certification.
+Actual454 warmUp distinct defaults/id=radio/other-nine unchanged and frozen
+TestFetch30/BackupHelpers40 followups were additionally read in this review;
+no extra original/source credit, actual543 onePASS versus5725 tenPASS29 remain.
+Reviewer's reported exact predecessor096 hosted865 App SUCCESS is external
+qualified context only here, not my full log/current454/successor inspection.
+
 New1457/5133 proposals/186groups/83mandatory/0approved,113/135 PersistenceStore
-proposed/22unprovided versus qualified101/135 source-compared/34uncompared.
+proposed/22unprovided versus qualified106/135 source-compared/29uncompared.
 Same producer reservation41->42 automatically admits only new owned
 PersistenceOrphanAdoptionOriginalPredicateTest class;7bodies/7joins/
 224helperrows/32inputs, all1450 incumbent complete bindings unchanged.
@@ -31,7 +62,7 @@ fields/blockedtrue/adopt1/requiredafter/unread0/history1. Fixed44/55 keys,
 fresh UUID/ambient dates/pinned UInt timestamps/defaults explicit.
 Frozen TestFetch/ReactionParser/MeshCoreOpen/delegated ContactDTO helper and
 actual Room mapper/policy/advertisement adoption consumers declared.
-Only new seven-only strict App command prepared, discovery/source comparison
+Only new seven-only strict App command passed above/source comparison
 pending; coordinator pre-read is not credit/APPROVED/native execution.
 No existing aggregate/newest-positive twelve replay/product API widening/
 source pin advance/consumer overwrite or manufactured packet expectations.
@@ -263,7 +294,7 @@ unchanged selector was replayed for assignment/status or source-only reviews.
 
 | Issue | Repaired and bounded verification | Remaining |
 | --- | --- | --- |
-| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1457 proposals/186groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS each on its own receipt;101/135 qualified source-compared. | 22/135 persistence originals unprovided, new5/source warmUp correction/new7 rechecks/native7 discovery and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
+| [134](https://github.com/cbattlegear/MeshCoreOne-Android/issues/134) | Ongoing full audit/gap fill;1457 proposals/186groups/83mandatory/0approved. Actual new12 PASS, changed-product2 PASS, corrected pending1 PASS, next6 PASS/new10 PASS/new5 PASS/corrected warmUp-only1 PASS/new7 PASS each on its own receipt;106/135 qualified source-compared. | 22/135 persistence originals unprovided, new7 source comparison and full5133 source/test/feature audit; exact successor hosted/protected/human gates and reviewed PR165 merge. |
 | [170](https://github.com/cbattlegear/MeshCoreOne-Android/issues/170) | Restored independent2s WiFi milestones/checked elapsed helper; historical906df6fb52App+37protocol PASS and bounded qualified source comparison. | Current PR165 exact verification/reviewed persistent merge; no present hardware/global certification. |
 | [171](https://github.com/cbattlegear/MeshCoreOne-Android/issues/171) | Original populated1A2B3C route restored; historical7a98f99d13 model identities PASS and qualified source review, not new native replay. | Current reviewed PR165 merge/full acceptance; historical model result not new candidate execution. |
 | [172](https://github.com/cbattlegear/MeshCoreOne-Android/issues/172) | Restored18 URL/coordinate/scalar original predicates; historical6e98b6e460 chats PASS/all57 original identities and bounded source comparison. | Current reviewed PR165 merge/full audit, not universal Unicode/device certification. |

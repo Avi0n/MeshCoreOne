@@ -2,7 +2,7 @@
   "schema_version": 1,
   "generator": "android/parity-tests/semantic.py",
   "source_sha": "db14559b39d32322b06477c6ae676112f583db50",
-  "proposal_sha256": "ec5326d7e6a5d7e7a6ef582654fa30b5e3a885238e3ab80e39a49e3bc1f82a9b",
+  "proposal_sha256": "687ae0c7309f166c0d8f664cce610ed7cafa0a746288b090d54d8f8b7e9ee046",
   "families": [
     {
       "group": "backup-envelope",
@@ -62634,7 +62634,7 @@
     },
     {
       "group": "persistence-original-restored-orphan-adoption-predicates",
-      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "comparison_sha256": "70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48",
       "source_file_family_count": 135,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -62971,7 +62971,7 @@
     },
     {
       "group": "persistence-original-restored-orphan-adoption-predicates",
-      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "comparison_sha256": "70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48",
       "source_file_family_count": 135,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -63416,7 +63416,7 @@
     },
     {
       "group": "persistence-original-restored-orphan-adoption-predicates",
-      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "comparison_sha256": "70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48",
       "source_file_family_count": 135,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -63717,7 +63717,7 @@
     },
     {
       "group": "persistence-original-restored-orphan-adoption-predicates",
-      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "comparison_sha256": "70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48",
       "source_file_family_count": 135,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -64000,7 +64000,7 @@
     },
     {
       "group": "persistence-original-restored-orphan-adoption-predicates",
-      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "comparison_sha256": "70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48",
       "source_file_family_count": 135,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -64301,7 +64301,7 @@
     },
     {
       "group": "persistence-original-restored-orphan-adoption-predicates",
-      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "comparison_sha256": "70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48",
       "source_file_family_count": 135,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -68957,7 +68957,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -69413,7 +69413,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -69694,7 +69694,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -70288,7 +70288,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -70972,7 +70972,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -72235,7 +72235,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -72468,7 +72468,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -72677,7 +72677,7 @@
     },
     {
       "group": "persistence-original-restored-orphan-adoption-predicates",
-      "comparison_sha256": "cde58fedc9aa18078818618425b3c94b3adbea2751a2ee73604dde0635494b27",
+      "comparison_sha256": "70eb69cb4d35f7d003d297cc7cb562f0fa136bf0cf593908891db7ceb8836f48",
       "source_file_family_count": 135,
       "group_compared_family_count": 7,
       "partial_source_file": true,
@@ -73173,7 +73173,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -73460,7 +73460,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
@@ -74030,7 +74030,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
+      "comparison_sha256": "074cd3b2df23248fb9b68f24c43ea1186b7c0cd324d268ba9c3fca8837c840f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -74273,6 +74273,14 @@
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
           "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift",
+          "sha256": "81dc1617aed182e85abca7c2ce805ac8dcebddccd650e6b45af9654bc371d58f"
+        },
+        {
+          "path": "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
+          "sha256": "f3b5914683be3b4422ad9e8a6d04e2f4ad26da15655fc93f770f8407509499ec"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -74285,7 +74293,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
+      "comparison_sha256": "074cd3b2df23248fb9b68f24c43ea1186b7c0cd324d268ba9c3fca8837c840f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -74444,6 +74452,14 @@
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
           "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift",
+          "sha256": "81dc1617aed182e85abca7c2ce805ac8dcebddccd650e6b45af9654bc371d58f"
+        },
+        {
+          "path": "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
+          "sha256": "f3b5914683be3b4422ad9e8a6d04e2f4ad26da15655fc93f770f8407509499ec"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -74456,7 +74472,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
+      "comparison_sha256": "074cd3b2df23248fb9b68f24c43ea1186b7c0cd324d268ba9c3fca8837c840f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -74771,6 +74787,14 @@
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
           "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift",
+          "sha256": "81dc1617aed182e85abca7c2ce805ac8dcebddccd650e6b45af9654bc371d58f"
+        },
+        {
+          "path": "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
+          "sha256": "f3b5914683be3b4422ad9e8a6d04e2f4ad26da15655fc93f770f8407509499ec"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -74783,7 +74807,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
+      "comparison_sha256": "074cd3b2df23248fb9b68f24c43ea1186b7c0cd324d268ba9c3fca8837c840f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -75008,6 +75032,14 @@
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
           "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift",
+          "sha256": "81dc1617aed182e85abca7c2ce805ac8dcebddccd650e6b45af9654bc371d58f"
+        },
+        {
+          "path": "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
+          "sha256": "f3b5914683be3b4422ad9e8a6d04e2f4ad26da15655fc93f770f8407509499ec"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -75020,7 +75052,7 @@
     },
     {
       "group": "persistence-original-restored-ghost-identity-predicates",
-      "comparison_sha256": "392fc0afa6bdbde1290641bf4b5e18d3615a94a3048999a32092cb247b432417",
+      "comparison_sha256": "074cd3b2df23248fb9b68f24c43ea1186b7c0cd324d268ba9c3fca8837c840f8",
       "source_file_family_count": 135,
       "group_compared_family_count": 5,
       "partial_source_file": true,
@@ -75203,6 +75235,14 @@
         {
           "path": "android/core/data/src/main/kotlin/com/meshcoreone/android/core/data/repository/RoomPersistenceStore.kt",
           "sha256": "ed2bb77b1079f7e7859e8907760bdbd9a68d1b9d1304034022457e5dabab1173"
+        },
+        {
+          "path": "MC1Services/Sources/MC1Services/Connection/ConnectionManager.swift",
+          "sha256": "81dc1617aed182e85abca7c2ce805ac8dcebddccd650e6b45af9654bc371d58f"
+        },
+        {
+          "path": "android/core/runtime/src/main/kotlin/com/meshcoreone/android/core/runtime/ConnectionManager.kt",
+          "sha256": "f3b5914683be3b4422ad9e8a6d04e2f4ad26da15655fc93f770f8407509499ec"
         }
       ],
       "native_checked_helper_assertions": [],
@@ -78864,7 +78904,7 @@
     },
     {
       "group": "persistence-original-restored-pending-maintenance-and-cascade-predicates",
-      "comparison_sha256": "eb5d6fd97b7d5b673ee66d600fd8d5963374d8be02c5fcf063e301f6b19ea085",
+      "comparison_sha256": "295ee28f39a1121f01a2589892b6f994d2d49ba103ee92de605006141d9a379a",
       "source_file_family_count": 135,
       "group_compared_family_count": 10,
       "partial_source_file": true,
