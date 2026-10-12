@@ -5,6 +5,7 @@ package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.app.state.MessageEvent
 import com.meshcoreone.android.core.contracts.domain.DeviceConnectionState
+import com.meshcoreone.android.core.contracts.domain.PersistenceStoreException
 import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceError
 import com.meshcoreone.android.core.contracts.domain.errors.ChatSendQueueServiceException
 import com.meshcoreone.android.core.contracts.domain.errors.MessageServiceError
@@ -64,7 +65,11 @@ internal class AppShortcutRadio(private val container: AppContainer) : ShortcutR
             }
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (failure: Exception) {
-            container.chatsFeature.failPending(pending)
+            try {
+                container.chatsFeature.failPending(pending)
+            } catch (cleanup: PersistenceStoreException) {
+                Logger.getLogger("com.mc1.Shortcuts").log(Level.WARNING, "Mark shortcut pending send failed", cleanup)
+            }
             throw sendFailure(failure)
         }
         app.refreshConversations()

@@ -9,7 +9,7 @@ that the installed Linux implementation lane is unavailable.
 ## Identity and ownership
 
 Repository: `cbattlegear/MeshCoreOne-Android`; issue [#135](https://github.com/cbattlegear/MeshCoreOne-Android/issues/135);
-draft [PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206).
+[PR #206](https://github.com/cbattlegear/MeshCoreOne-Android/pull/206), ready for review.
 Owner: `test-parity-engineer`, canonical project/reservation session
 `3bc8c1b8-20ec-4647-88ae-db3775268489`; runtime alias
 `fb112832-0a71-4f6d-abc0-f07f80eaeb8b`.
@@ -19,7 +19,7 @@ Base: `d958471ab4835813881a5e7af36e8249a8b273a4`.
 Immutable reference: `db14559b39d32322b06477c6ae676112f583db50`.
 Manifest: `39bd73ab7759d7f65f7ecc681cd472e4763d8c8d3e9f5973bc0c515323611dda`.
 Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
-The existing typed reservation was evolved to revision 10, not replaced.
+The existing typed reservation was evolved to revision 11, not replaced.
 `android/app/build.gradle.kts` is admitted through
 `dependency-resolution-metadata` / `update-directly-required-build-wiring`.
 The shared ledger remains authoritative; no copied receipt is committed.
@@ -68,6 +68,19 @@ without clipping a visible glyph; assertions check visible glyph bounds,
 height overflow and ellipsis directly, without geometric tolerance.
 
 ## Executed commands and observations
+
+The fault-boundary candidate `66102ee7fd382c91be6cfcdd5bc9e14f86b66b35`
+runs the declared `:app:testDebugUnitTest` with only
+`com.meshcoreone.android.app.container.ShortcutQueueIntegrationTest`:
+**ten discovered, nine passed, one failed, zero errors/skips** (35s).
+Both direct/channel pending INSERT failures already return a typed shortcut
+error without persisting a message. The new simultaneous `pending_sends` INSERT
+and message `statusRawValue` UPDATE rejection case instead observes a cleanup
+`PersistenceStoreException` as the shortcut cause, replacing the original
+`ChatSendQueueServiceException.PersistFailed`. This is an actual provenance
+failure, not successful cleanup. The owned App adapter now logs that narrow
+typed cleanup failure while retaining the original enqueue error and leaving
+cancellation untouched. Its successor results are not inferred from older passes.
 
 Current functional check at `fdbcc3472`: the installed serialized ext4 lane ran
 `:app:testDebugUnitTest` with `ConversationComposeTest`,
@@ -133,6 +146,35 @@ Non-reproducible native logs/PNGs are retained in this worker's session
 `api*-instrumentation-bad5-private.txt` / `api33-boundary-bad5-private.txt`.
 Raw emulator logs are not committed. Earlier binaries and failures below retain
 their original identities. Full WP acceptance/review is not claimed.
+
+### Matching native device observations at `49a0a5fa6`
+
+Exact source `49a0a5fa68790faa0687ef509815e8d42c5a4e49` includes actual live
+main `d8181418614a5acaa46f4acde54b741b492ac4b0`. Its authoritative hosted
+[run 38299465982](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38299465982)
+passes all six jobs; that scaffold does not compile/execute `androidTest`.
+Separate declared `:app:assembleDebug :app:assembleDebugAndroidTest` passes (38s).
+Matching target SHA256 is
+`481fdbf11e17cfba30176c83afa19bb4d9b76753fdd0fbc5677b3ae9758776dd`;
+test SHA256 is
+`8a3cc0e0a8fd8d4e1e43b15e55182521bcaa789235ec9e40bf056c16060b18e8`.
+The same scoped instrumentation commands above actually pass
+**API31 12/12** (107.004s), **full API37.2 12/12** (146.309s),
+**API33 2/2** (0.032s), **API34 2/2** (0.058s), and **API36 2/2** (1.534s).
+API31/37 observe OS font2/no default network, with 60 retained PNGs each;
+31 has no GMS/4KiB pages,37 GMS present/16KiB pages. All targeted33/34/36
+have no GMS/4KiB pages;33/34 observe no default network, but36 observes
+active default network100, so no API36 offline-flow result is claimed.
+
+Source/APK-bound non-reproducible logs persist in session
+`files/api*-observation-49a0a5fa6-private.txt` and individual instrumentation logs;
+PNGs in `files/api31-device-49a0a5fa6` / `files/api37-device-49a0a5fa6`.
+The first local functional attempt terminated with Windows `0xC00000FD` before
+discovery; the bounded-output retry passes30/30 (1m25s). The first API31
+installation preparation became unresponsive before tests; only its verified
+owned QEMU was stopped, and the unchanged retry passes. Successful AVDs shut
+down normally, and31 font setting restored. None of these results is relabeled
+as a successor pass, approved golden or whole-WP/hardware acceptance.
 
 The installed supported lane is the Git-bundle/ext4 snapshot launcher:
 

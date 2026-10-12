@@ -20,12 +20,12 @@ import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.ContactType
 import com.meshcoreone.android.core.runtime.RuntimeDisconnectReason
 import com.meshcoreone.android.platform.shortcuts.*
+import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.Executor
 import java.util.logging.Handler
 import java.util.logging.LogRecord
 import java.util.logging.Logger
-import java.util.Collections
 import kotlin.test.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
