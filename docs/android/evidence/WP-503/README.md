@@ -7,6 +7,46 @@ and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates
 No screenshot golden comparison, physical TalkBack observation or independent review of this
 WP occurred. Bounded COMMENTED reviews of genuine producer repairs are recorded below.
 
+## Current native guest/status execution
+
+At exact code/test commit `39d87b60af67486ad2ce824110d841e229617114`, declared strict
+`:app:assembleDebug :app:assembleDebugAndroidTest` **passes** through the existing
+serialized snapshot/preflight adapter. The installed production APK is unchanged main d818,
+SHA256 `6a18619e0eacb9522c28348e605218d4d5bff00e79f72c3d6fdea3e93a95f92f`.
+[Native input binding](device-remote-status-inputs.json) records the exact test APK too.
+
+The new public saved-guest flow runs the actual management/status holders with explicit
+deterministic service ports. It verifies textual guest permission/no admin tabs; actual
+voltage, RSSI, SNR and noise units; empty sensor/location explanations without an invented
+chart or map; a real injected I/O failure with live-region text, reload and recovery;
+48dp targets; and exactly one status read, three telemetry attempts, three handler
+registrations and one status-only teardown. No password read or fabricated radio login.
+
+```text
+adb -s SERIAL shell am instrument -w -r -e class com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest -e expectedApi API com.meshcoreone.android.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+**API31:10 discovered/10 passed,0 failures/errors/skips**,15.968s
+([actual runner/metrics](device-remote-status-api31.txt)).
+**API37:10 discovered/10 passed,0 failures/errors/skips**,34.725s
+([actual runner/metrics](device-remote-status-api37.txt)).
+This class includes all nine existing auth/history/calibration cases and the new guest case.
+A preceding API31 `-e class ...#guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200`
+probe passed1/1 in5.687s; it overlaps the ten-case class, not another unique case.
+
+Both fresh owned read-only emulator profiles verify actual font2/RTL/360x900/mdpi/
+reduced motion: AOSP31 x86_64/4KiB/no GMS and Play Store37.2 x86_64/16KiB/GMS.
+Guest Mode measures150x42px; voltage169x33px, RSSI105x33px, SNR79x33px and noise121x33px
+on both APIs, with every actual line contained/reachable by native scroll. Visible
+enabled guest controls measure at least54dp tall; heading targets are191x108dp and
+191x66dp. Helpers are stopped; saved AVD data/snapshots are untouched.
+
+These20 executions are a current remote-class regression, not a full runtime/JVM/theme
+matrix or physical TalkBack/radio pass. Map defect224's distinct negative cases remain
+normative. Earlier c4 painted760/92-case and abb hosted results are not relabeled as
+39d executions. Hosted results remain authoritative at their own exact commits; no
+second CI-result bundle is retained.
+
 ## Current populated-map product finding
 
 At actual fixture `8eb2d610b7a954dedfefcba6a973c497c41ce8f1` and unchanged main d818

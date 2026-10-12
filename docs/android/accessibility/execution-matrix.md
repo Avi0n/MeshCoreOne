@@ -1,6 +1,15 @@
 # WP-503 native execution matrix
 
 **New populated-map List case fails on both actual APIs; WP503 remains incomplete.**
+At exact fixture39d87b60af67486ad2ce824110d841e229617114, the complete remote class
+passes10/10 on each actual API31/37, zero failures/errors/skips. The added guest flow
+covers real public status/telemetry holders, units, empty sensors/location, injected I/O
+failure/live-region/reload recovery, unchanged font2/RTL/48dp/scroll checks and exact
+status-only handler teardown. No successful radio login or physical TalkBack is claimed.
+This20-case current regression includes the nine existing remote cases, not the distinct
+blocked Map case, a new painted-contrast execution or full remaining-state acceptance.
+Current mandatory instrumentation registration is ten remote plus three Map/LoS methods;
+the whole13/API selection has not passed. Native commands/transcripts are in the evidence.
 At fixture8eb2d610b, one scoped case on each actual API31/37 fails List visibility:
 0x144px allocation, empty visible bounds and48dp target clipped8px at the viewport edge.
 Actual WP312 defect224 owns the product repair; no active repair producer is yet verified.

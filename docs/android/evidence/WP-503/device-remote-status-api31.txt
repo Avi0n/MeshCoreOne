@@ -1,0 +1,257 @@
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest:
+INSTRUMENTATION_STATUS: test=authenticationPrefillsProtectedPasswordAndExposesLabelledRememberAndFloodState
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=authenticationPrefillsProtectedPasswordAndExposesLabelledRememberAndFloodState
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=guestStatusAndEmptyTelemetryExposeRealUnitsRecoveryAndHandlerTeardownAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=emptyOfflineHistoryExplainsTheAbsenceOfSnapshotsWithoutDrawingAFakeChart
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkLinearProgressCalibratesExpandedSemanticsVersusActualNativeAllocation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkSliderCalibratesNativeSemanticsVersusPointerTargetExpansion
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=frameworkSecureDialogPrefillIsMaskedAndIdleAtSystemFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=catalogFailureIsTextualAndRefreshRecoversTheActualOfflineRemoteRow
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pendingAuthenticationHasTextualCountdownDisabledDuplicatesAndRealCancellation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pendingAuthenticationHasTextualCountdownDisabledDuplicatesAndRealCancellation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=authenticationLongPasswordWarningAndTypedFailureRemainReachableAndEditingRecovers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=authenticationLongPasswordWarningAndTypedFailureRemainReachableAndEditingRecovers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=offlineSavedHistoryExposesActualVoltageAndNonGestureSampleSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=offlineSavedHistoryExposesActualVoltageAndNonGestureSampleSelectionAtFont200
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 15.968
+
+OK (10 tests)
+
+
+INSTRUMENTATION_CODE: -1
+
+Actual owned-emulator System.out metrics from the same invocation:
+
+10-12 16:55:33.583  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:34.373  2504  2504 I System.out: WP503_REMOTE_PASSWORD_READ|count=1
+10-12 16:55:35.249  2504  2523 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(24.0, 345.0, 296.0, 421.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 711.0)
+10-12 16:55:35.282  2504  2523 I System.out: WP503_FONT|text=Remember Password|size=240 x 76|constraints=Constraints(minWidth = 0, maxWidth = 240, minHeight = 0, maxHeight = Infinity)|paragraph=240.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 16:55:35.283  2504  2523 I System.out: WP503_FONT_LINE|text=Remember Password|line=0|left=0.0|right=128.0|top=0.0|bottom=38.0
+10-12 16:55:35.283  2504  2523 I System.out: WP503_FONT_LINE|text=Remember Password|line=1|left=0.0|right=114.61719|top=38.0|bottom=76.0
+10-12 16:55:35.345  2504  2523 I System.out: WP503_SCROLL_LINE|text=Remember Password|line=0|position=Offset(24.0, 345.0)->Offset(24.0, 345.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:35.395  2504  2523 I System.out: WP503_SCROLL_LINE|text=Remember Password|line=1|position=Offset(24.0, 345.0)->Offset(24.0, 345.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:35.814  2504  2523 I System.out: WP503_FONT|text=No known route to this node. The network will find a path automatically.|size=272 x 152|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x152.0|widthOverflow=false|heightOverflow=false|lines=4
+10-12 16:55:35.815  2504  2523 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=0|left=0.0|right=260.4922|top=0.0|bottom=38.0
+10-12 16:55:35.815  2504  2523 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=1|left=0.0|right=259.0|top=38.0|bottom=76.0
+10-12 16:55:35.815  2504  2523 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=2|left=0.0|right=121.0|top=76.0|bottom=114.0
+10-12 16:55:35.816  2504  2523 I System.out: WP503_FONT_LINE|text=No known route to this node. The network will find a path automatically.|line=3|left=0.0|right=161.38672|top=114.0|bottom=152.0
+10-12 16:55:35.879  2504  2523 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=0|position=Offset(24.0, 457.0)->Offset(24.0, 457.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:35.929  2504  2523 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=1|position=Offset(24.0, 457.0)->Offset(24.0, 457.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:35.979  2504  2523 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=2|position=Offset(24.0, 457.0)->Offset(24.0, 457.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:36.029  2504  2523 I System.out: WP503_SCROLL_LINE|text=No known route to this node. The network will find a path automatically.|line=3|position=Offset(24.0, 457.0)->Offset(24.0, 457.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:36.080  2504  2523 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(24.0, 633.0, 145.0, 687.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 711.0)
+10-12 16:55:36.130  2504  2523 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(145.0, 633.0, 249.0, 687.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 711.0)
+10-12 16:55:36.601  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:37.081  2504  2523 I System.out: WP503_FONT|text=Guest Mode|size=150 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = 391)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:37.081  2504  2523 I System.out: WP503_FONT_LINE|text=Guest Mode|line=0|left=0.0|right=150.0|top=0.0|bottom=42.0
+10-12 16:55:37.298  2504  2523 I System.out: WP503_FONT|text=3.700V (48%)|size=169 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:37.299  2504  2523 I System.out: WP503_FONT_LINE|text=3.700V (48%)|line=0|left=0.0|right=169.0|top=0.0|bottom=33.0
+10-12 16:55:37.364  2504  2523 I System.out: WP503_SCROLL_LINE|text=3.700V (48%)|line=0|position=Offset(163.0, 613.0)->Offset(163.0, 613.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:37.495  2504  2523 I System.out: WP503_FONT|text=-90 dBm|size=105 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:37.495  2504  2523 I System.out: WP503_FONT_LINE|text=-90 dBm|line=0|left=0.0|right=105.0|top=0.0|bottom=33.0
+10-12 16:55:37.562  2504  2523 I System.out: WP503_SCROLL_LINE|text=-90 dBm|line=0|position=Offset(227.0, 725.0)->Offset(227.0, 725.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:37.597  2504  2523 I System.out: WP503_FONT|text=5.0 dB|size=79 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:37.597  2504  2523 I System.out: WP503_FONT_LINE|text=5.0 dB|line=0|left=0.0|right=79.0|top=0.0|bottom=33.0
+10-12 16:55:37.662  2504  2523 I System.out: WP503_SCROLL_LINE|text=5.0 dB|line=0|position=Offset(253.0, 654.0)->Offset(253.0, 654.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:37.764  2504  2523 I System.out: WP503_FONT|text=-110 dBm|size=121 x 33|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x33.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:37.764  2504  2523 I System.out: WP503_FONT_LINE|text=-110 dBm|line=0|left=0.0|right=121.0|top=0.0|bottom=33.0
+10-12 16:55:37.829  2504  2523 I System.out: WP503_SCROLL_LINE|text=-110 dBm|line=0|position=Offset(211.0, 725.0)->Offset(211.0, 725.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:38.164  2504  2523 I System.out: WP503_FONT|text=No sensor data|size=188 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:38.164  2504  2523 I System.out: WP503_FONT_LINE|text=No sensor data|line=0|left=0.0|right=188.0|top=0.0|bottom=42.0
+10-12 16:55:38.229  2504  2523 I System.out: WP503_SCROLL_LINE|text=No sensor data|line=0|position=Offset(144.0, 674.0)->Offset(144.0, 674.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:38.264  2504  2523 I System.out: WP503_FONT|text=No telemetry data|size=223 x 42|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:38.265  2504  2523 I System.out: WP503_FONT_LINE|text=No telemetry data|line=0|left=0.0|right=222.2461|top=0.0|bottom=42.0
+10-12 16:55:38.329  2504  2523 I System.out: WP503_SCROLL_LINE|text=No telemetry data|line=0|position=Offset(109.0, 716.0)->Offset(109.0, 716.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:38.564  2504  2523 I System.out: WP503_FONT|text=Deterministic guest telemetry read failure|size=304 x 84|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 16:55:38.565  2504  2523 I System.out: WP503_FONT_LINE|text=Deterministic guest telemetry read failure|line=0|left=0.0|right=241.0|top=0.0|bottom=42.0
+10-12 16:55:38.565  2504  2523 I System.out: WP503_FONT_LINE|text=Deterministic guest telemetry read failure|line=1|left=0.0|right=263.72266|top=42.0|bottom=84.0
+10-12 16:55:38.629  2504  2523 I System.out: WP503_SCROLL_LINE|text=Deterministic guest telemetry read failure|line=0|position=Offset(28.0, 674.0)->Offset(28.0, 674.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:38.679  2504  2523 I System.out: WP503_SCROLL_LINE|text=Deterministic guest telemetry read failure|line=1|position=Offset(28.0, 674.0)->Offset(28.0, 674.0)|viewport=Rect.fromLTRB(28.0, 463.0, 332.0, 758.0)
+10-12 16:55:38.878  2504  2523 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 16:55:38.879  2504  2523 I System.out: WP503_TARGET|width=84.0|height=54.0|role=Button
+10-12 16:55:38.880  2504  2523 I System.out: WP503_TARGET|width=147.0|height=54.0|role=Button
+10-12 16:55:38.880  2504  2523 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 16:55:38.880  2504  2523 I System.out: WP503_TARGET|width=191.0|height=108.0|role=Button
+10-12 16:55:38.881  2504  2523 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 16:55:38.881  2504  2523 I System.out: WP503_TARGET|width=191.0|height=66.0|role=Button
+10-12 16:55:38.882  2504  2523 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 16:55:38.995  2504  2523 I System.out: WP503_REMOTE_GUEST_STATUS|statusReads=1|telemetryReads=3|registered=3|teardown=1|realRadio=false
+10-12 16:55:39.297  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:39.697  2504  2523 I System.out: WP503_FONT|text=Connect to this node at least once to see history.|size=304 x 126|constraints=Constraints(minWidth = 0, maxWidth = 304, minHeight = 0, maxHeight = Infinity)|paragraph=304.0x126.0|widthOverflow=false|heightOverflow=false|lines=3
+10-12 16:55:39.697  2504  2523 I System.out: WP503_FONT_LINE|text=Connect to this node at least once to see history.|line=0|left=0.0|right=286.72656|top=0.0|bottom=42.0
+10-12 16:55:39.697  2504  2523 I System.out: WP503_FONT_LINE|text=Connect to this node at least once to see history.|line=1|left=0.0|right=210.72656|top=42.0|bottom=84.0
+10-12 16:55:39.698  2504  2523 I System.out: WP503_FONT_LINE|text=Connect to this node at least once to see history.|line=2|left=0.0|right=88.50781|top=84.0|bottom=126.0
+10-12 16:55:40.067  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:40.146  2504  2523 I System.out: WP503_FRAMEWORK_PROGRESS|semantics=312 x 24|allocation=312 x 4|layout=312x4|visual=Rect.fromLTRB(24.0, 87.0, 336.0, 91.0)
+10-12 16:55:40.450  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:40.833  2504  2523 I System.out: WP503_FRAMEWORK_SLIDER|bounds=Rect.fromLTRB(54.0, 129.0, 306.0, 173.0)|size=252 x 44|top2pxCallbacks=1|bottom2pxCallbacks=1
+10-12 16:55:41.186  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:41.272  2504  2504 I System.out: WP503_SECURE_GEOMETRY|272 x 84|Rect.fromLTRB(24.0, 136.0, 296.0, 220.0)
+10-12 16:55:41.395  2504  2523 I System.out: WP503_SECURE_PLACEMENTS|count=3|distinct=1
+10-12 16:55:41.701  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:41.830  2504  2523 I System.out: WP503_FONT|text=Deterministic catalog read failure|size=328 x 84|constraints=Constraints(minWidth = 0, maxWidth = 328, minHeight = 0, maxHeight = 637)|paragraph=328.0x84.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 16:55:41.831  2504  2523 I System.out: WP503_FONT_LINE|text=Deterministic catalog read failure|line=0|left=0.0|right=326.73828|top=0.0|bottom=42.0
+10-12 16:55:41.831  2504  2523 I System.out: WP503_FONT_LINE|text=Deterministic catalog read failure|line=1|left=0.0|right=77.73828|top=42.0|bottom=84.0
+10-12 16:55:42.056  2504  2523 I System.out: WP503_TARGET|width=113.0|height=54.0|role=Button
+10-12 16:55:42.057  2504  2523 I System.out: WP503_TARGET|width=232.0|height=54.0|role=Button
+10-12 16:55:42.348  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:42.522  2504  2504 I System.out: WP503_REMOTE_PASSWORD_READ|count=1
+10-12 16:55:43.146  2504  2523 I System.out: WP503_FONT|text=Up to 30 seconds remaining|size=272 x 76|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 16:55:43.147  2504  2523 I System.out: WP503_FONT_LINE|text=Up to 30 seconds remaining|line=0|left=0.0|right=201.7461|top=0.0|bottom=38.0
+10-12 16:55:43.147  2504  2523 I System.out: WP503_FONT_LINE|text=Up to 30 seconds remaining|line=1|left=0.0|right=114.75781|top=38.0|bottom=76.0
+10-12 16:55:43.212  2504  2523 I System.out: WP503_SCROLL_LINE|text=Up to 30 seconds remaining|line=0|position=Offset(24.0, 533.0)->Offset(24.0, 533.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:43.278  2504  2523 I System.out: WP503_SCROLL_LINE|text=Up to 30 seconds remaining|line=1|position=Offset(24.0, 533.0)->Offset(24.0, 533.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:43.362  2504  2523 I System.out: WP503_REMOTE_PENDING_PROGRESS|semantics=272 x 24|allocation=272x4|before=Rect.fromLTRB(0.0, 0.0, 0.0, 0.0)|scroll=12.0|visual=Rect.fromLTRB(24.0, 605.0, 296.0, 609.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:43.430  2504  2523 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(145.0, 633.0, 249.0, 687.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 711.0)
+10-12 16:55:43.850  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:44.032  2504  2504 I System.out: WP503_REMOTE_PASSWORD_READ|count=1
+10-12 16:55:44.743  2504  2523 I System.out: WP503_FONT|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|size=272 x 190|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x190.0|widthOverflow=false|heightOverflow=false|lines=5
+10-12 16:55:44.743  2504  2523 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=0|left=0.0|right=235.51562|top=0.0|bottom=38.0
+10-12 16:55:44.745  2504  2523 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=1|left=0.0|right=265.7578|top=38.0|bottom=76.0
+10-12 16:55:44.745  2504  2523 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=2|left=0.0|right=231.23828|top=76.0|bottom=114.0
+10-12 16:55:44.745  2504  2523 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=3|left=0.0|right=267.98438|top=114.0|bottom=152.0
+10-12 16:55:44.746  2504  2523 I System.out: WP503_FONT_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=4|left=0.0|right=94.75781|top=152.0|bottom=190.0
+10-12 16:55:44.812  2504  2523 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=0|position=Offset(24.0, 419.0)->Offset(24.0, 419.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:44.862  2504  2523 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=1|position=Offset(24.0, 419.0)->Offset(24.0, 419.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:44.912  2504  2523 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=2|position=Offset(24.0, 419.0)->Offset(24.0, 419.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:44.963  2504  2523 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=3|position=Offset(24.0, 419.0)->Offset(24.0, 419.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:45.012  2504  2523 I System.out: WP503_SCROLL_LINE|text=MeshCore repeaters only accept passwords up to 15 characters. Extra characters will be ignored.|line=4|position=Offset(24.0, 419.0)->Offset(24.0, 419.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:45.180  2504  2523 I System.out: WP503_FONT|text=Deterministic authentication failure|size=272 x 76|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x76.0|widthOverflow=false|heightOverflow=false|lines=2
+10-12 16:55:45.181  2504  2523 I System.out: WP503_FONT_LINE|text=Deterministic authentication failure|line=0|left=0.0|right=154.0|top=0.0|bottom=38.0
+10-12 16:55:45.181  2504  2523 I System.out: WP503_FONT_LINE|text=Deterministic authentication failure|line=1|left=0.0|right=243.75781|top=38.0|bottom=76.0
+10-12 16:55:45.245  2504  2523 I System.out: WP503_SCROLL_LINE|text=Deterministic authentication failure|line=0|position=Offset(24.0, 533.0)->Offset(24.0, 533.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:45.295  2504  2523 I System.out: WP503_SCROLL_LINE|text=Deterministic authentication failure|line=1|position=Offset(24.0, 533.0)->Offset(24.0, 533.0)|viewport=Rect.fromLTRB(24.0, 88.0, 296.0, 609.0)
+10-12 16:55:45.723  2504  2523 I System.out: WP503_REMOTE_AUTH_TARGET|bounds=Rect.fromLTRB(145.0, 633.0, 249.0, 687.0)|viewport=Rect.fromLTRB(0.0, 0.0, 320.0, 711.0)
+10-12 16:55:46.151  2504  2523 I System.out: WP503_DEVICE_PROFILE|sdk=31|fontScale=2.0|density=1.0
+10-12 16:55:46.629  2504  2523 I System.out: WP503_REMOTE_HISTORY_TARGET|bounds=Rect.fromLTRB(34.0, 714.0, 326.0, 758.0)|size=292 x 44
+10-12 16:55:47.278  2504  2523 I System.out: WP503_REMOTE_HISTORY_POINTER|semanticHeight=44.0|extension=2.0|verifiedSquare=48x48dp|corners=4
+10-12 16:55:47.380  2504  2523 I System.out: WP503_FONT|text=Battery: 3.7 V |size=173 x 42|constraints=Constraints(minWidth = 0, maxWidth = 272, minHeight = 0, maxHeight = Infinity)|paragraph=272.0x42.0|widthOverflow=true|heightOverflow=false|lines=1
+10-12 16:55:47.381  2504  2523 I System.out: WP503_FONT_LINE|text=Battery: 3.7 V |line=0|left=0.0|right=172.2461|top=0.0|bottom=42.0

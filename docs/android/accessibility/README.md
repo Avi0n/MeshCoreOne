@@ -7,6 +7,17 @@ specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Current execution and base refresh
 
+At exact owned fixture `39d87b60af67486ad2ce824110d841e229617114`, the complete
+remote/auth/history/calibration class passes **10/10 on each actual API31/37**, zero
+failures/errors/skips. The new saved-guest case mounts the real management/status holders,
+checks guest restrictions and readable voltage/RSSI/SNR/noise units, then empty telemetry,
+textual I/O failure/reload recovery and exact handler teardown without a fake radio login.
+Actual font2/RTL/native scroll/48dp requirements remain unchanged. Strict App/debug-test
+assembly passes; production APK remains unchanged main d818. This20-case re-execution
+does not include the blocked populated-map case or remeasure the historical painted760.
+[Exact commands and native transcripts](../evidence/WP-503/README.md#current-native-gueststatus-execution)
+preserve these source/selection distinctions.
+
 Further actual populated-map execution at
 `8eb2d610b7a954dedfefcba6a973c497c41ce8f1` discovers one case per API31/37; **both
 fail**, zero errors/skips. The real List control has0x144px visual allocation, empty
