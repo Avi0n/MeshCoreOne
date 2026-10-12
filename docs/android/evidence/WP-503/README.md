@@ -1,6 +1,7 @@
 # WP-503 attempt evidence
 
-**Incomplete, not accepted.** Native suites execute through the existing App unit runner.
+**Latest owned native cohort78/78 passed; broader coverage incomplete, not accepted.**
+Native suites execute through the existing App unit runner.
 The baseline ran 24, passed 6, failed 18; later focused cohorts ran 26 (18 passed/8 failed)
 and 10 (8 passed/2 failed), with zero errors/skips, at their distinct candidates below.
 No screenshot golden comparison, device TalkBack observation or independent review of this
@@ -35,6 +36,13 @@ No device/TalkBack claim.
 | Product9103863d004ecf9a035383e10281de01a012ad4d + auditb7fd/checked required-onLink patch; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest` | **22/22 passed**,0 failures/errors/skips. Independently executed current room product, all source distinctions and760 painted records/zero failing floors; bounded COMMENTED review5494555941. The earlier e18 pass is not transferred. |
 | OWNa330f328a27a5063e8c9af9113f08751318dee51 after actual maincd436 and genuine room910 integration; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeBackupAccessibilityTest --tests com.meshcoreone.android.accessibility.NativeFontAuditRegressionTest --tests com.meshcoreone.android.accessibility.NativeMessagingAccessibilityTest` | **38/38 passed**,0 failures/errors/skips in one execution: backup8/font8/messaging22. Room callback/actual URL assertions now persist in owned source; snapshot patch removed. No producer-source substitutes or weakened thresholds. |
 | OWNa48f6608877d771e6bba791612920b0e103c3bfa; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeNodesAccessibilityTest` | **8/8 passed**,0 failures/errors/skips. Public NodesEntry detail/list: long CJK heading, native nickname input/cancel, real destructive confirmation/cancel, typed unavailable-service recovery without false Back; existing offline cache/routing/Sync retained. Realfont2/RTL/native graphics SDK31/37,48dp controls. No persistence-write/device claim. |
+| Product270c9ea423637753b4f8475a3d6d5c58d4861e69 + unchanged auditb7fd03199b46b597b90157067c3fa88452ddb695; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeDiagnosticsAccessibilityTest.disconnectedCli* --tests com.meshcoreone.android.wp316diagnostic.DisconnectedCliTest` | **6/6 passed**,0 failures/errors/skips: owned2/producer4. Source unavailable description312x84px/two unclipped font2/RTL lines; editableInputs0 offline; reconnect focus/history retained across both generations and exactly one advert callback per submission. COMMENTED review5494686999, not protected approval. |
+| OWN7890dda8e90bd30fa43ded65431df66d2c9d4f47; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.*` | **70/70 passed**,0 failures/errors/skips, in one integrated execution: diagnostics10/backup8/shell4/onboarding8/appearance2/font8/messaging22/Nodes8. Authentic room910/maincd436/CLI270 integrated. |
+| OWN3fc596065ecaef0102cc89f36d5b2d06025e91be; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest` | 6 discovered/4 passed/2 failed,0 errors/skips. Public catalog recovery/empty history pass;44px Slider semantics rectangle incorrectly treated as the entire pointer hit region. No product bug inferred before native calibration. |
+| OWNcffa18eab37ce37263abb9b11262081ee30fd5f8; same remote command | Failed test compilation before discovery: unavailable touch-scope `size` accessor. Zero discovery rejected, corrected to actual measured node dimensions. |
+| OWN4252780a16457ec6a6a4553551b23302ca2871f7; same remote command | 8 discovered/6 passed/2 failed,0 errors/skips. Actual3.9V/3.7V SetProgress and fully contained42px numeric text already pass; independent framework Slider252x44px receives both native boundary clicks2px beyond the semantic box. Remaining two assertions still use the disproved44px proxy. |
+| OWNd468c185db7766389c1582fb9db99b53c423e0a0; same remote command | **8/8 passed**,0 failures/errors/skips. Actual public catalog error/refresh, saved/empty history and native font2/RTL SDK31/37. Real history Slider292x44px receives all four native pointer corners of a48x48dp square within its scrolled viewport, each selects3.7V; non-gesture progress and zero-clipped actual numeric alternative retained. No floor changed/product bug fabricated. |
+| Same OWNd468c185; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.*` | **78/78 passed**,0 failures/errors/skips, in a separate entire-cohort execution at this actual commit: messaging22/diagnostics10/backup8/onboarding8/Nodes8/remote8/font8/shell4/appearance2. Exactly760 painted records/0 below unchanged floors/min4.517812074094317. Not a sum of earlier runs or device certification. |
 
 The room oracle now preserves **both** the source named accessibility action and the actual
 native pointer button. Cleared child speech is not native visibility. It measures the
@@ -75,6 +83,19 @@ eight-case result; the earlier d2 painted result is not transferred to037.
 Assigned [issue220](https://github.com/cbattlegear/MeshCoreOne-Android/issues/220) contains
 the real CLI head/consumer/source/measurements and exact failed command. Production stays
 with the existing WP-316 coordinator; the regression is neither waived nor expected-passing.
+It now passes unchanged against exact270 above. Actual PR223/#220 subsequently merged as
+main726f00dd45bf5d1a55e29a3775ea474a2e5787bf, adopted at OWN67e3daf31d0717bbea6f764f7abd0a97404c97ad.
+#220 is retired as active; no additional CLI re-audit/publication cycle is required.
+The78-case execution already uses270 product and remains bound to d468, not relabeled
+as a test of this later merge commit.
+
+Remote-node fixtures provide explicit typed read-only catalog/history ports and stable
+time. Public RemoteNodesEntry drives the real history holder, cached sample selection,
+numeric native scroll and empty/error UI. They do not prove database persistence,
+remote authentication, live radio status/telemetry or location/map behavior. The Slider
+oracle is calibrated against a native Material control, then proves actual48dp pointer
+acceptance through real product state changes; neither a source modifier nor a44px
+semantic allocation substitutes for the measured pointer region.
 
 Actual reviewed main663fa73fab99356f7097534288e820a126890195 is integrated at
 OWN4d86cc00b6eaecdc7eb043d8b357557523a5121b. The single disjoint App build conflict preserves

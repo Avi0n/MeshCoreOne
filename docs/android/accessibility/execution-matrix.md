@@ -1,6 +1,6 @@
 # WP-503 native execution matrix
 
-**Partial native execution; no complete row or device acceptance.** This matrix remains the
+**Latest owned native execution78/78 passed; no full-matrix or device acceptance.** This matrix remains the
 full assertion/observation contract, not a passing result. The real App runner discovered
 24 audit tests on SDK31/37 at candidate86993ee65: 6 passed, 18 failed, no errors/skips.
 It covered all 38 rich-span/pixel frames, room distinctions, mixed-direction direct retry,
@@ -44,7 +44,7 @@ Current composer03753f129 existing native hardware Return cohort passes **8/8** 
 New actual disconnected CLI/Rx cohort at OWN33f9dea0d: **4 run,2 Rx pass,2 CLI fail**,
 zero errors/skips. Rx textual offline/recovery/filter selection/targets/font pass.
 Assigned defect220 records CLI's enabled editor/missing source disconnected explanation;
-the normative regression remains failing pending authentic producer repair.
+that historical normative regression now passes unchanged against authentic270/landed726.
 
 Actual maincd436/composer repair and genuine room910 are adopted. At OWNa330f328a,
 one native execution passes **38/38**: messaging22/backup8/font controls8, zero
@@ -58,6 +58,23 @@ rows' full native ink with zero tolerance; actual ancestor/32x4dp clipping contr
 Actual Nodes class at OWNa48f66088 passes **8/8**, including long CJK detail heading,
 native nickname cancel and offline destructive confirmation/unavailable recovery without
 false navigation. Other discovery/path/share/detail actions remain NOT RUN.
+
+At OWN `d468c185db7766389c1582fb9db99b53c423e0a0`, a new single execution passes the
+entire owned cohort **78/78**, zero failures/errors/skips: messaging22/diagnostics10/
+backup8/onboarding8/Nodes8/remote nodes8/font controls8/shell4/appearance2. Exactly760
+painted records clear unchanged floors. This supersedes the preceding combined70/70
+at OWN7890dda8, not the remaining unexecuted states or physical TalkBack requirements.
+
+Remote nodes8 covers public catalog error/refresh recovery, offline real-holder cached
+history and empty explanation,3.9V/3.7V data-bound non-gesture selection, actual numeric
+scroll containment/font2, and framework/native pointer calibration. Both APIs verify all
+four corners of a48x48dp square despite44px semantic Slider allocation. Authentication,
+live status/sensors/location/map remain NOT RUN; fixture stores do not prove persistence.
+
+Authentic product270 + unchanged owned auditb7fd independently passesCLI2 and producer
+reconnect/focus/history4 in one **6/6** native run. PR223/#220 landed as main726f00dd,
+adopted at OWN67e3daf31. #220 is retired as active, historical2 failures preserved;
+the78-case cohort already contains actual270 production, not a new landed-merge execution.
 
 ## Shared acceptance rules
 

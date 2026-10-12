@@ -1,11 +1,39 @@
 # WP-503 accessibility audit
 
-**Status: native suites executed with failures; acceptance incomplete; device TalkBack unavailable.**
+**Status: latest owned native cohort passes 78/78; broader coverage incomplete; device TalkBack unavailable.**
 This is not accessibility acceptance, a completed WP, or permission to close issue #136.
 The initial inspected native tree was `d958471ab4835813881a5e7af36e8249a8b273a4`; the Swift
 specification remains `db14559b39d32322b06477c6ae676112f583db50`.
 
 ## Latest native execution
+
+At OWN `d468c185db7766389c1582fb9db99b53c423e0a0`, the entire current owned native
+cohort passes **78/78**, zero failures/errors/skips in one actual execution: messaging22,
+diagnostics10, backup8, onboarding8, Nodes8, remote nodes8, font controls8, shell4 and
+appearance2. Real Resources font2/RTL and native SDK31/37 are retained. Exactly **760
+painted spans clear unchanged floors**, minimum4.517812074094317:1. The preceding
+OWN `7890dda8e90bd30fa43ded65431df66d2c9d4f47` cohort passed70/70; this is a new
+combined execution, not addition of historical counts.
+
+The public RemoteNodesEntry now exercises actual catalog failure/refresh recovery and
+offline saved-history/empty-history presentation with explicit read-only ports.
+Real snapshots expose3.9V then3.7V through native non-gesture SetProgress; the earlier
+numeric sample is wholly contained and unclipped after actual scroll at font2.
+Material Slider's44px semantic allocation is not its pointer hit region: an independent
+native framework control receives clicks2px beyond both vertical boundaries. The real
+history slider independently receives all four corners of a **48x48dp** pointer square,
+inside its scrolled viewport, and each click selects the expected sample. No slider
+product defect, reduced target floor or synthetic graph substitute is claimed.
+Authentication, live status/telemetry and location/map flows remain unexecuted.
+
+Authentic CLI product `270c9ea423637753b4f8475a3d6d5c58d4861e69` independently passes
+unchanged owned disconnected cases2 plus producer reconnect/focus/history cases4:
+**6/6**, zero failures/errors/skips. Offline editable inputs0; source description312x84px,
+two unclipped font2/RTL lines. Review5494686999 is COMMENTED, not protected approval.
+PR223/#220 subsequently merged as actual main
+`726f00dd45bf5d1a55e29a3775ea474a2e5787bf`, adopted here at
+`67e3daf31d0717bbea6f764f7abd0a97404c97ad`. #220 is retired as active; its historical
+negative cases remain below. No further CLI re-audit cycle or device claim is made.
 
 Actual merged main `cd436cb63c3b651241058d16db2fa576cbc6d412` and genuine room producer
 `9103863d004ecf9a035383e10281de01a012ad4d` are now integrated without production substitutes.
@@ -62,7 +90,8 @@ Shift newline and forward/reverse Unicode selection replacement. This cohort use
 actual 1080x1000dp/default-font native window, not font200 or physical keyboard/IME.
 New disconnected tools selection at audit33f9dea0d runs **4**, passes **2 Rx cases**, fails
 **2 CLI cases**, zero errors/skips. The concrete CLI unavailable-state defect is assigned
-[#220](https://github.com/cbattlegear/MeshCoreOne-Android/issues/220); its regression remains failing.
+[#220](https://github.com/cbattlegear/MeshCoreOne-Android/issues/220); that historical
+failure is superseded by the authentic repair and unchanged positive re-audit above.
 
 Actual reviewed main `663fa73fab99356f7097534288e820a126890195` is adopted at
 `4d86cc00b6eaecdc7eb043d8b357557523a5121b`; disjoint App build conflict resolution retains
@@ -198,8 +227,8 @@ a radio session. This is a source-bound observed functional explanation gap, not
 artifact or claimed hardware transmission.
 
 Assigned issue220 routes production to the existing WP-316 coordinator/source owner,
-not a new worker. WP-503 preserves the failing native description assertion and owns
-re-audit only. The companion real Rx offline text/recovery/filter/48dp/font checks pass
+not a new worker. WP-503 preserves the native description assertion unchanged; it now
+passes against genuine270/landed726 bytes. The companion real Rx offline text/recovery/filter/48dp/font checks pass
 2/2 at the same candidate. No full connected CLI/Rx or device coverage is implied.
 
 ## Existing strengths to preserve
@@ -246,8 +275,9 @@ change occurred. Required repaired room link APIs must be reconciled in owned fi
 against genuinely adopted product bytes; old compilation is not repair evidence.
 Historical standalone PR209 head83e957917 could not compile its contextual room caller:
 `RoomConversationScreen.kt:272`, missing `MessageBody.backgroundColor`. Owned fixture
-adaptation is checked/committed, but executable room re-audit remains blocked on serialized
-compatible WP-310/WP-308 product integration, not hypothetical identity or permissions.
+adaptation was checked/committed, but that historical executable re-audit was blocked on
+serialized compatible WP-310/WP-308 product integration, not identity or permissions.
+That old compile blocker is superseded by genuine room910 integration and the78-case pass.
 Historical room9892e7c7f failed that same missing production parameter before
 discovery. Composer948951f27 independently failed the actual AppChatsFeature adapter's
 obsolete queue-send overrides/unresolved resendChannel before discovery. Their producers/
