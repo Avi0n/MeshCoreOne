@@ -1,6 +1,31 @@
 # WP-501 source, case-family and consumer acceptance
 
-Current1365/5133 proposed comparisons/176groups/81mandatory/zero fully
+Current1380/5133 proposed comparisons/177groups/81mandatory/zero fully
+approved behavioral acceptances add15 independent persistence originals:
+nine exact hop/nil/buffer/DTO inputs, four ordering families with source
+PENDING defaults and complete Live-last predicate, and two incoming/SENT
+first-path originals with unchanged SNR/repeat fields. Actual production
+repository/policy/DTO/SQL and RX/adoption/timeline consumer bodies were
+read; aggregate labels changed selected inputs or omitted predicates.
+Same reservation31->32 admits the owned file/create without changing
+immutable authorization/pins. Fixed32-byte fixture keys and captured
+current frame timestamps are disclosed adaptations, not universal
+identity/randomness/clock evidence. New15-name execution pending;
+36 of135 persistence comparisons proposed/remaining99 unresolved.
+No earlier7/14/4/19/49/53 selector or mounted witness replay.
+
+Qualified independent COMMENTED5489056444/475/base9ed/09:48:22Z
+[source-only preset review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5489056444)
+is read and reconciled additively into six groups/76 bindings. All six
+group objects/76 rows/nine native blobs were independently unchanged099->475.
+The review's sorted-compact proposal digesteb0dfab9 matches actual475;
+formatted raw-LF digest is a different identity, not source drift.
+LocaleUS/ambient selected-predicate limits, Bermuda location/manual and
+two inert getter inputs remain explicit. Six supplements have no original
+credit; private4fc/basee50882 result stays separate. No native rerun,
+private certification, APPROVED or full acceptance.
+
+Previous1365/5133 proposed comparisons/176groups/81mandatory/zero fully
 approved behavioral acceptances restore14 more independent persistence
 originals: single non-null/nil RX timestamps, model unsigned projection,
 correlated row count/arrival paths, both region storage fields, exact

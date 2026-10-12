@@ -8025,6 +8025,7 @@
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/MessageSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RoomSourceTest.kt",
         "android/core/data/src/test/kotlin/com/meshcoreone/android/core/data/repository/RxLogSourceTest.kt",
+        "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceOriginalPredicateTest.kt",
         "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceRxOriginalPredicateTest.kt"
       ],
@@ -8386,6 +8387,105 @@
               "name": "directRegionUpdateDisambiguatesTheFirstPrefixByteAndPreservesPreviewBlobs",
               "line": 185,
               "end_line": 201
+            }
+          ]
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "methods": [
+            {
+              "name": "frame",
+              "line": 26,
+              "end_line": 32
+            },
+            {
+              "name": "radio",
+              "line": 34,
+              "end_line": 44
+            },
+            {
+              "name": "conversation",
+              "line": 46,
+              "end_line": 49
+            },
+            {
+              "name": "hopRoundTripRetainsOriginalCountAndBothStoredValues",
+              "line": 52,
+              "end_line": 61
+            },
+            {
+              "name": "unknownHopWriteRetainsTheOriginalNilAdvertTimestamp",
+              "line": 64,
+              "end_line": 70
+            },
+            {
+              "name": "sameBroadcastRetainsTheOriginalThreeToZeroThenFiveSequence",
+              "line": 73,
+              "end_line": 82
+            },
+            {
+              "name": "newerAdvertRetainsTheOriginalDirectThenFartherPredicates",
+              "line": 85,
+              "end_line": 95
+            },
+            {
+              "name": "olderAdvertRetainsTheOriginalThreeAtTwoHundredThenOneAtOneHundred",
+              "line": 98,
+              "end_line": 107
+            },
+            {
+              "name": "advertUpsertRetainsTheOriginalTwoHopAndFloodZeroCoordinateSetup",
+              "line": 110,
+              "end_line": 121
+            },
+            {
+              "name": "firstAdvertRetainsTheOriginalSingleBufferedThreeHopWrite",
+              "line": 124,
+              "end_line": 134
+            },
+            {
+              "name": "bufferedBroadcastRetainsTheOriginalFourOneSixAndReturnedNodePredicate",
+              "line": 137,
+              "end_line": 145
+            },
+            {
+              "name": "discoveredDtoRetainsTheOriginalOneHopNilTimestampEqualityInput",
+              "line": 148,
+              "end_line": 158
+            },
+            {
+              "name": "interleavedBacklogRetainsTheOriginalPendingModelAndScrambledReceiveOrder",
+              "line": 161,
+              "end_line": 174
+            },
+            {
+              "name": "liveRowRetainsTheOriginalFullOrderAndIndependentLastPredicate",
+              "line": 177,
+              "end_line": 193
+            },
+            {
+              "name": "tertiaryOrderingRetainsTheOriginalEqualPrimaryAndSecondaryKeys",
+              "line": 196,
+              "end_line": 208
+            },
+            {
+              "name": "drainAnchorRetainsOriginalDifferentSendersAndIncomingPendingDefaults",
+              "line": 211,
+              "end_line": 225
+            },
+            {
+              "name": "firstIncomingPathRetainsOriginalTextDirectionSignalAndAllStoredPredicates",
+              "line": 228,
+              "end_line": 245
+            },
+            {
+              "name": "missingIncomingPathRetainsTheOriginalEmptyStoreAndOneByteLength",
+              "line": 248,
+              "end_line": 252
             }
           ]
         },
@@ -28172,6 +28272,149 @@
             "PersistenceStoreTests::adoptIncomingPathIfUnknown returns false when the row is missing()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "firstIncomingPathRetainsOriginalTextDirectionSignalAndAllStoredPredicates",
+          "line": 228,
+          "end_line": 245,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "fb83d00205fa6ed7118bf21a435a5ac9ca563f620f7ee99f0db521095b789767",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 238,
+              "expression": "assertTrue(store.adoptIncomingPathIfUnknown(key, Bytes.of(0xAA), 1u))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertFalse",
+              "line": 239,
+              "expression": "assertFalse(store.adoptIncomingPathIfUnknown(key, Bytes.of(0xBB), 2u))",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 241,
+              "expression": "assertEquals(Bytes.of(0xAA), fetched?.pathNodes)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 242,
+              "expression": "assertEquals(1u.toUByte(), fetched?.pathLength)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 243,
+              "expression": "assertEquals(0L, fetched?.heardRepeats)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 244,
+              "expression": "assertEquals(7.5, fetched?.snr)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 229,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 229,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 230,
+              "expression": "MessageDTO(\n            radioId = radio, channelIndex = 0u, text = \"unknown path\",\n            timestamp = Instant.now().epochSecond.toUInt(), direction = MessageDirection.INCOMING,\n            status = MessageStatus.SENT, snr = 7.5, pathNodes = null,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 232,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 232,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 235,
+              "expression": "store.saveMessage(message)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 236,
+              "expression": "EntityKey(radio, message.id)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptIncomingPathIfUnknown",
+              "line": 238,
+              "expression": "store.adoptIncomingPathIfUnknown(key, Bytes.of(0xAA), 1u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 238,
+              "expression": "Bytes.of(0xAA)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.adoptIncomingPathIfUnknown",
+              "line": 239,
+              "expression": "store.adoptIncomingPathIfUnknown(key, Bytes.of(0xBB), 2u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 239,
+              "expression": "Bytes.of(0xBB)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessage",
+              "line": 240,
+              "expression": "store.fetchMessage(key)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 241,
+              "expression": "Bytes.of(0xAA)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "u.toUByte",
+              "line": 242,
+              "expression": "u.toUByte()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::adoptIncomingPathIfUnknown writes the first path onto a nil column()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -28398,6 +28641,71 @@
           ],
           "explicit_original_case_ids": [
             "PersistenceStoreTests::adoptIncomingPathIfUnknown writes the first path onto a nil column()",
+            "PersistenceStoreTests::adoptIncomingPathIfUnknown returns false when the row is missing()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "missingIncomingPathRetainsTheOriginalEmptyStoreAndOneByteLength",
+          "line": 248,
+          "end_line": 252,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "d382250bd4672b754b48bc5c101d60c736bbfc2766c9d0af38587ac49dcb7567",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertFalse",
+              "line": 249,
+              "expression": "assertFalse(store.adoptIncomingPathIfUnknown(\n            EntityKey(RadioId(UUID.randomUUID()), UUID.randomUUID()), Bytes.of(0xAA), 1u,\n        ))",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "store.adoptIncomingPathIfUnknown",
+              "line": 249,
+              "expression": "store.adoptIncomingPathIfUnknown(\n            EntityKey(RadioId(UUID.randomUUID()), UUID.randomUUID()), Bytes.of(0xAA), 1u,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "EntityKey",
+              "line": 250,
+              "expression": "EntityKey(RadioId(UUID.randomUUID()), UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "RadioId",
+              "line": 250,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 250,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 250,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes.of",
+              "line": 250,
+              "expression": "Bytes.of(0xAA)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::adoptIncomingPathIfUnknown returns false when the row is missing()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -28972,6 +29280,125 @@
             "PersistenceStoreTests::Live message stays last even when an earlier-sortDate backlog row is inserted after it()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "interleavedBacklogRetainsTheOriginalPendingModelAndScrambledReceiveOrder",
+          "line": 161,
+          "end_line": 174,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ab3fd3b24f4afc379f6a08f79fbdcee55fd33240968dea1ce2c5db2f9dc3111a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 173,
+              "expression": "assertEquals(listOf(\"Send 0\", \"Send 1\", \"Send 2\", \"Send 3\"), store.fetchMessages(contact).map { it.text })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "conversation",
+              "line": 162,
+              "expression": "conversation()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 163,
+              "expression": "Instant.ofEpochSecond(2_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 164,
+              "expression": "Instant.ofEpochSecond(1_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 165,
+              "expression": "for ((offset, index) in listOf(2, 0, 3, 1).withIndex())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 165,
+              "expression": "listOf(2, 0, 3, 1)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "withIndex",
+              "line": 165,
+              "expression": "withIndex()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 166,
+              "expression": "store.saveMessage(MessageDTO(\n                radioId = contact.radioId, contactID = contact.id, text = \"Send $index\",\n                timestamp = 1_000_000u + index.toUInt(), createdAt = drain.plusSeconds(offset.toLong()),\n                sortDate = send.plusSeconds(index.toLong()),\n            ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 166,
+              "expression": "MessageDTO(\n                radioId = contact.radioId, contactID = contact.id, text = \"Send $index\",\n                timestamp = 1_000_000u + index.toUInt(), createdAt = drain.plusSeconds(offset.toLong()),\n                sortDate = send.plusSeconds(index.toLong()),\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toUInt",
+              "line": 168,
+              "expression": "index.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "drain.plusSeconds",
+              "line": 168,
+              "expression": "drain.plusSeconds(offset.toLong())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "offset.toLong",
+              "line": 168,
+              "expression": "offset.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "send.plusSeconds",
+              "line": 169,
+              "expression": "send.plusSeconds(index.toLong())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toLong",
+              "line": 169,
+              "expression": "index.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 173,
+              "expression": "listOf(\"Send 0\", \"Send 1\", \"Send 2\", \"Send 3\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 173,
+              "expression": "store.fetchMessages(contact)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Interleaved backlog from multiple senders reassembles in sortDate (send) order()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -29321,6 +29748,113 @@
             "PersistenceStoreTests::Live message stays last even when an earlier-sortDate backlog row is inserted after it()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "liveRowRetainsTheOriginalFullOrderAndIndependentLastPredicate",
+          "line": 177,
+          "end_line": 193,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "ccfb823dce5778c53c16f1b4b5b2312739a0c34c027e67010725d81a9a05927f",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 191,
+              "expression": "assertEquals(listOf(\"Backlog\", \"Live\"), messages.map { it.text })",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 192,
+              "expression": "assertEquals(\"Live\", messages.lastOrNull()?.text)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "conversation",
+              "line": 178,
+              "expression": "conversation()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 179,
+              "expression": "Instant.ofEpochSecond(3_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 180,
+              "expression": "store.saveMessage(MessageDTO(\n            radioId = contact.radioId, contactID = contact.id, text = \"Live\",\n            timestamp = 3_000_000u, createdAt = now, sortDate = now,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 180,
+              "expression": "MessageDTO(\n            radioId = contact.radioId, contactID = contact.id, text = \"Live\",\n            timestamp = 3_000_000u, createdAt = now, sortDate = now,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "now.minusSeconds",
+              "line": 184,
+              "expression": "now.minusSeconds(3600)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 185,
+              "expression": "store.saveMessage(MessageDTO(\n            radioId = contact.radioId, contactID = contact.id, text = \"Backlog\",\n            timestamp = earlier.epochSecond.toUInt(), createdAt = now.plusSeconds(60), sortDate = earlier,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 185,
+              "expression": "MessageDTO(\n            radioId = contact.radioId, contactID = contact.id, text = \"Backlog\",\n            timestamp = earlier.epochSecond.toUInt(), createdAt = now.plusSeconds(60), sortDate = earlier,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "earlier.epochSecond.toUInt",
+              "line": 187,
+              "expression": "earlier.epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "now.plusSeconds",
+              "line": 187,
+              "expression": "now.plusSeconds(60)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 190,
+              "expression": "store.fetchMessages(contact)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 191,
+              "expression": "listOf(\"Backlog\", \"Live\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "messages.lastOrNull",
+              "line": 192,
+              "expression": "messages.lastOrNull()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Live message stays last even when an earlier-sortDate backlog row is inserted after it()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -29596,6 +30130,95 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::Equal sortDate and timestamp fall back to createdAt order (tertiary key)()",
             "PersistenceStoreTests::Backlog block orders by send time within a shared drain anchor()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "tertiaryOrderingRetainsTheOriginalEqualPrimaryAndSecondaryKeys",
+          "line": 196,
+          "end_line": 208,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e58449328c4e2f4c5aa6d6d82761b233b6e5f7f6f50a834388bb47a9007c50be",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 207,
+              "expression": "assertEquals(listOf(\"Tie 0\", \"Tie 1\", \"Tie 2\"), store.fetchMessages(contact).map { it.text })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "conversation",
+              "line": 197,
+              "expression": "conversation()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 198,
+              "expression": "Instant.ofEpochSecond(4_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 199,
+              "expression": "Instant.ofEpochSecond(5_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 200,
+              "expression": "for (index in 0 until 3)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 201,
+              "expression": "store.saveMessage(MessageDTO(\n                radioId = contact.radioId, contactID = contact.id, text = \"Tie $index\",\n                timestamp = 4_000_000u, createdAt = created.plusSeconds(index.toLong()), sortDate = sort,\n            ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 201,
+              "expression": "MessageDTO(\n                radioId = contact.radioId, contactID = contact.id, text = \"Tie $index\",\n                timestamp = 4_000_000u, createdAt = created.plusSeconds(index.toLong()), sortDate = sort,\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "created.plusSeconds",
+              "line": 203,
+              "expression": "created.plusSeconds(index.toLong())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "index.toLong",
+              "line": 203,
+              "expression": "index.toLong()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 207,
+              "expression": "listOf(\"Tie 0\", \"Tie 1\", \"Tie 2\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 207,
+              "expression": "store.fetchMessages(contact)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::Equal sortDate and timestamp fall back to createdAt order (tertiary key)()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -29878,6 +30501,107 @@
           ],
           "explicit_original_case_ids": [
             "PersistenceStoreTests::Equal sortDate and timestamp fall back to createdAt order (tertiary key)()",
+            "PersistenceStoreTests::Backlog block orders by send time within a shared drain anchor()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "drainAnchorRetainsOriginalDifferentSendersAndIncomingPendingDefaults",
+          "line": 211,
+          "end_line": 225,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "cdd6205eb8b96bbd154486721693ae48639c383bc1a8218f94af89267b8d5c2e",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 224,
+              "expression": "assertEquals(listOf(\"Alice\", \"Bob\", \"Carol\"), store.fetchMessages(radio, 0u).map { it.text })",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "radio",
+              "line": 212,
+              "expression": "radio()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.ofEpochSecond",
+              "line": 213,
+              "expression": "Instant.ofEpochSecond(1_700_000_000)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "for",
+              "line": 214,
+              "expression": "for ((sender, time, offset) in listOf(\n            Triple(\"Carol\", 300u, 0L), Triple(\"Bob\", 200u, 1L), Triple(\"Alice\", 100u, 2L),\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 214,
+              "expression": "listOf(\n            Triple(\"Carol\", 300u, 0L), Triple(\"Bob\", 200u, 1L), Triple(\"Alice\", 100u, 2L),\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Triple",
+              "line": 215,
+              "expression": "Triple(\"Carol\", 300u, 0L)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Triple",
+              "line": 215,
+              "expression": "Triple(\"Bob\", 200u, 1L)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Triple",
+              "line": 215,
+              "expression": "Triple(\"Alice\", 100u, 2L)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.saveMessage",
+              "line": 217,
+              "expression": "store.saveMessage(MessageDTO(\n                radioId = radio, channelIndex = 0u, text = sender, timestamp = time,\n                createdAt = anchor.plusSeconds(offset), sortDate = anchor,\n                direction = MessageDirection.INCOMING, senderNodeName = sender,\n            ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "MessageDTO",
+              "line": 217,
+              "expression": "MessageDTO(\n                radioId = radio, channelIndex = 0u, text = sender, timestamp = time,\n                createdAt = anchor.plusSeconds(offset), sortDate = anchor,\n                direction = MessageDirection.INCOMING, senderNodeName = sender,\n            )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "anchor.plusSeconds",
+              "line": 219,
+              "expression": "anchor.plusSeconds(offset)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "listOf",
+              "line": 224,
+              "expression": "listOf(\"Alice\", \"Bob\", \"Carol\")",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchMessages",
+              "line": 224,
+              "expression": "store.fetchMessages(radio, 0u)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::Backlog block orders by send time within a shared drain anchor()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -63021,6 +63745,95 @@
             "PersistenceStoreTests::DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "hopRoundTripRetainsOriginalCountAndBothStoredValues",
+          "line": 52,
+          "end_line": 61,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "6cd2807181e484254b471697fa3bcd4998ea0c2d9975fed0572f99c537b1f800",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 58,
+              "expression": "assertEquals(1, fetched.size)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 59,
+              "expression": "assertEquals(4L, fetched.first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 60,
+              "expression": "assertEquals(100u, fetched.first().inboundHopAdvertTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 53,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 53,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 54,
+              "expression": "store.upsertDiscoveredNode(radio, frame())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 54,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 55,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 4, 100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 57,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "fetched.first",
+              "line": 59,
+              "expression": "fetched.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "fetched.first",
+              "line": 60,
+              "expression": "fetched.first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::setInboundHopCount round-trips onto an existing discovered node()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -63201,6 +64014,77 @@
             "PersistenceStoreTests::setInboundHopCount is a no-op when no matching row exists()",
             "PersistenceStoreTests::an inbound hop heard before the node row exists is applied when the advert upsert lands()",
             "PersistenceStoreTests::a buffered inbound hop keeps the closest copy of the same broadcast before the row lands()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "unknownHopWriteRetainsTheOriginalNilAdvertTimestamp",
+          "line": 64,
+          "end_line": 70,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0d492c3abf4da47e921f12f7c64a32aa07fdbfe2600efcecf225c2dccd3ff7c1",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 69,
+              "expression": "assertTrue(store.fetchDiscoveredNodes(radio).isEmpty())",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 65,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 65,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Bytes",
+              "line": 66,
+              "expression": "Bytes(ByteArray(32) { 0x46 })",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ByteArray",
+              "line": 66,
+              "expression": "ByteArray(32)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 67,
+              "expression": "store.setInboundHopCount(radio, unknown, 2, null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 69,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 69,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::setInboundHopCount is a no-op when no matching row exists()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -63508,6 +64392,107 @@
             "PersistenceStoreTests::DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "sameBroadcastRetainsTheOriginalThreeToZeroThenFiveSequence",
+          "line": 73,
+          "end_line": 82,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "0924fe7766afd2bc09169b7ec914fe3e9c3adbac2a0e9e94a6a7d676068b5e9a",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 78,
+              "expression": "assertEquals(0L, store.fetchDiscoveredNodes(radio).first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 81,
+              "expression": "assertEquals(0L, store.fetchDiscoveredNodes(radio).first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 74,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 74,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 75,
+              "expression": "store.upsertDiscoveredNode(radio, frame())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 75,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 76,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 3, 200u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 77,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 0, 200u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 78,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 78,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 80,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 5, 200u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 81,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 81,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::setInboundHopCount keeps the closest copy within the same broadcast()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -63813,6 +64798,113 @@
             "PersistenceStoreTests::DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "newerAdvertRetainsTheOriginalDirectThenFartherPredicates",
+          "line": 85,
+          "end_line": 95,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "a01d72f5d9efa89939f130391aba2bd80dc0959ad6eecd4551e802a4d4920aa0",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 89,
+              "expression": "assertEquals(0L, store.fetchDiscoveredNodes(radio).first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 93,
+              "expression": "assertEquals(3L, fetched.first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 94,
+              "expression": "assertEquals(200u, fetched.first().inboundHopAdvertTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 86,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 86,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 87,
+              "expression": "store.upsertDiscoveredNode(radio, frame())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 87,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 88,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 0, 100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 89,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 89,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 91,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 3, 200u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 92,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "fetched.first",
+              "line": 93,
+              "expression": "fetched.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "fetched.first",
+              "line": 94,
+              "expression": "fetched.first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::a newer advert timestamp raises the inbound hop count()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -64104,6 +65196,95 @@
             "PersistenceStoreTests::an older advert timestamp is a no-op even when it has a closer hop count()",
             "PersistenceStoreTests::upsertDiscoveredNode does not reset a stored inbound hop count()",
             "PersistenceStoreTests::DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "olderAdvertRetainsTheOriginalThreeAtTwoHundredThenOneAtOneHundred",
+          "line": 98,
+          "end_line": 107,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "98160e24c0e10f29a3542a35763368c553fe67a8fceae7096123a75915e71a34",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 105,
+              "expression": "assertEquals(3L, fetched.first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 106,
+              "expression": "assertEquals(200u, fetched.first().inboundHopAdvertTimestamp)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 99,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 99,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 100,
+              "expression": "store.upsertDiscoveredNode(radio, frame())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 100,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 101,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 3, 200u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 102,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 1, 100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 104,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "fetched.first",
+              "line": 105,
+              "expression": "fetched.first()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "fetched.first",
+              "line": 106,
+              "expression": "fetched.first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::an older advert timestamp is a no-op even when it has a closer hop count()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
         }
@@ -64429,6 +65610,101 @@
             "PersistenceStoreTests::DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "advertUpsertRetainsTheOriginalTwoHopAndFloodZeroCoordinateSetup",
+          "line": 110,
+          "end_line": 121,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "b56fc7dc9e2b95674a996b57eac5a2a1026b167756f647be41f1855346fbf6f2",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 120,
+              "expression": "assertEquals(2L, store.fetchDiscoveredNodes(radio).first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 111,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 111,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 112,
+              "expression": "store.upsertDiscoveredNode(radio, frame())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 112,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 113,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 2, 50u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "Instant.now",
+              "line": 114,
+              "expression": "Instant.now()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "epochSecond.toUInt",
+              "line": 114,
+              "expression": "epochSecond.toUInt()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 115,
+              "expression": "store.upsertDiscoveredNode(radio, ContactFrame(\n            node.publicKey, ContactType.CHAT, 0u, 255u, Bytes.EMPTY, \"Advertiser\",\n            timestamp, 0.0, 0.0, timestamp,\n        ))",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "ContactFrame",
+              "line": 115,
+              "expression": "ContactFrame(\n            node.publicKey, ContactType.CHAT, 0u, 255u, Bytes.EMPTY, \"Advertiser\",\n            timestamp, 0.0, 0.0, timestamp,\n        )",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 120,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 120,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::upsertDiscoveredNode does not reset a stored inbound hop count()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -64641,6 +65917,107 @@
             "PersistenceStoreTests::a buffered inbound hop keeps the closest copy of the same broadcast before the row lands()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "firstAdvertRetainsTheOriginalSingleBufferedThreeHopWrite",
+          "line": 124,
+          "end_line": 134,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "fddd9806acc0de46f9c01cb7dc1a0cb4d2b453af2fffc84b0f4a64a66f9530c4",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertTrue",
+              "line": 128,
+              "expression": "assertTrue(store.fetchDiscoveredNodes(radio).isEmpty())",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertTrue",
+              "line": 131,
+              "expression": "assertTrue(result.isNew)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 132,
+              "expression": "assertEquals(3L, result.node.inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertEquals",
+              "line": 133,
+              "expression": "assertEquals(3L, store.fetchDiscoveredNodes(radio).first().inboundHopCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 125,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 125,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 126,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 127,
+              "expression": "store.setInboundHopCount(radio, frame.publicKey, 3, 100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 128,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "isEmpty",
+              "line": 128,
+              "expression": "isEmpty()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 130,
+              "expression": "store.upsertDiscoveredNode(radio, frame)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 133,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "first",
+              "line": 133,
+              "expression": "first()",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
+            "PersistenceStoreTests::an inbound hop heard before the node row exists is applied when the advert upsert lands()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
         }
       ],
       "review": "compare-assertion-input-helper-and-consumer-semantics"
@@ -64832,6 +66209,77 @@
           "explicit_original_case_ids": [
             "PersistenceStoreTests::setInboundHopCount is a no-op when no matching row exists()",
             "PersistenceStoreTests::an inbound hop heard before the node row exists is applied when the advert upsert lands()",
+            "PersistenceStoreTests::a buffered inbound hop keeps the closest copy of the same broadcast before the row lands()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "bufferedBroadcastRetainsTheOriginalFourOneSixAndReturnedNodePredicate",
+          "line": 137,
+          "end_line": 145,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "89b51b728e4c258fda22241c28934f5ac107d5466281458c3c355977e8fa17eb",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 144,
+              "expression": "assertEquals(1L, store.upsertDiscoveredNode(radio, frame).node.inboundHopCount)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 138,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 138,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 139,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 140,
+              "expression": "store.setInboundHopCount(radio, frame.publicKey, 4, 100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 141,
+              "expression": "store.setInboundHopCount(radio, frame.publicKey, 1, 100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 142,
+              "expression": "store.setInboundHopCount(radio, frame.publicKey, 6, 100u)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 144,
+              "expression": "store.upsertDiscoveredNode(radio, frame)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::a buffered inbound hop keeps the closest copy of the same broadcast before the row lands()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"
@@ -65131,6 +66579,95 @@
             "PersistenceStoreTests::a newer advert timestamp raises the inbound hop count()",
             "PersistenceStoreTests::an older advert timestamp is a no-op even when it has a closer hop count()",
             "PersistenceStoreTests::upsertDiscoveredNode does not reset a stored inbound hop count()",
+            "PersistenceStoreTests::DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it()"
+          ],
+          "execution": "exact-candidate-runner-identity-resolution-required"
+        },
+        {
+          "path": "android/parity-tests/src/test/kotlin/com/meshcoreone/android/parity/PersistenceHopOrderOriginalPredicateTest.kt",
+          "sha256": "b7bed286ddb624e19fb9c626d80f9bcc15e2b5337d30e2811f304d9eb72bf052",
+          "class": "com.meshcoreone.android.parity.PersistenceHopOrderOriginalPredicateTest",
+          "method_or_family_name": "discoveredDtoRetainsTheOriginalOneHopNilTimestampEqualityInput",
+          "line": 148,
+          "end_line": 158,
+          "factory_method": null,
+          "registration_identity_resolution": null,
+          "body_sha256": "e9e6d2ba0890af0977e6e57ee7005523e0d0f97a4d3f5b2c90ef06750b2ba911",
+          "registration": null,
+          "assertions": [
+            {
+              "name": "assertEquals",
+              "line": 153,
+              "expression": "assertEquals(1L, fetched?.inboundHopCount)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotNull",
+              "line": 155,
+              "expression": "assertNotNull(fetched)",
+              "assertion_or_checked_wait": true
+            },
+            {
+              "name": "assertNotEquals",
+              "line": 157,
+              "expression": "assertNotEquals(base, mutated)",
+              "assertion_or_checked_wait": true
+            }
+          ],
+          "actions_and_helper_calls": [
+            {
+              "name": "RadioId",
+              "line": 149,
+              "expression": "RadioId(UUID.randomUUID())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "UUID.randomUUID",
+              "line": 149,
+              "expression": "UUID.randomUUID()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.upsertDiscoveredNode",
+              "line": 150,
+              "expression": "store.upsertDiscoveredNode(radio, frame())",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "frame",
+              "line": 150,
+              "expression": "frame()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.setInboundHopCount",
+              "line": 151,
+              "expression": "store.setInboundHopCount(radio, node.publicKey, 1, null)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "store.fetchDiscoveredNodes",
+              "line": 152,
+              "expression": "store.fetchDiscoveredNodes(radio)",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "firstOrNull",
+              "line": 152,
+              "expression": "firstOrNull()",
+              "assertion_or_checked_wait": false
+            },
+            {
+              "name": "base.copy",
+              "line": 156,
+              "expression": "base.copy(inboundHopCount = 99, inboundHopAdvertTimestamp = null)",
+              "assertion_or_checked_wait": false
+            }
+          ],
+          "source_references": [
+            "MC1Services/Tests/MC1ServicesTests/PersistenceStoreTests.swift"
+          ],
+          "explicit_original_case_ids": [
             "PersistenceStoreTests::DiscoveredNodeDTO carries inboundHopCount and equality discriminates on it()"
           ],
           "execution": "exact-candidate-runner-identity-resolution-required"

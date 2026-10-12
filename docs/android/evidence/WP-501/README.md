@@ -12,6 +12,42 @@ Policy: `3fc0afa19ad31f0210a5d427f655ef90b50a8e64e818fe3420b188303b99fb20`.
 Candidate head and hosted outcome belong to the actual PR/check, not a
 self-referential committed digest or a second CI-result bundle.
 
+## Current hop, ordering and first-path originals
+
+Current1380/5133 proposed/177groups/81mandatory/zero approved adds15
+standalone originals: nine hop/nil/advert/buffer/DTO cases, four exact
+sort/backlog families and two first-path predicates. Complete selected
+frozen/helper/default/native repository/policy/DTO/SQL bodies were read;
+source PENDING ordering defaults, lone buffered3/100, missing-row2/nil,
+DTO1/nil, exact intermediate0 and Live.last predicates replace no old
+witness. Actual RX stamp, advert/pending adoption, hop fallback,
+HeardRepeatsService and AppChatsFeature timeline consumer trace is not
+mounted execution. Existing real API31 Room/native SQLite fixture and
+production store are used. Source random keys become disclosed fixed
+32-byte0x44/45/46 keys; one current Unix read supplies frame advert and
+modified timestamps instead of two unasserted Date reads. No universal
+identity/randomness, cap/eviction/reboot, concurrency/cancellation/rollback,
+all-ties/clustering, SwiftData/API37/device/full parity evidence.
+Same reservation31->32/owned-create retains immutable authorization/pins.
+New15-name exact selector execution pending;36/135 persistence originals
+proposed/remaining99 unresolved. Previous7/14/4/19/49/53 unchanged.
+
+## Qualified independent76 preset source comparison
+
+Actual COMMENTED5489056444 at47542239981d3b9233dc8e5ec3d0546a396e14d5/
+base9ed1,2026-10-12T09:48:22Z was fully read and reconciled additively:
+[review](https://github.com/cbattlegear/MeshCoreOne-Android/pull/165#pullrequestreview-5489056444).
+All selected complete bodies/helpers/catalog/consumer trace are the
+reviewed scope. Worker independently proves six group objects/76 rows/
+nine native input blobs unchanged099->475. Sorted-compact JSON proposal
+identityeb0dfab9382719343d413fa0ce898fa485f05285cac2a1969e1d9b8a1c6fd253
+matches actual475; formatted raw-LF identity is not this canonical digest.
+LocaleUS/ambient selected predicates, Bermuda default-location versus
+manual and two inert getter-field limits remain. Six native supplements
+have no original credit; actual private4fc/basee50882 receipt is not
+replayed, certified or relabeled. Source-only, not APPROVED/full acceptance;
+no native execution or extra original count from reconciliation.
+
 Actual reviewed193 merge185466/parentse508+032c has independently verified
 candidate-equal tree252bc0c6f11328b60087a44f252772255021795a and exactly
 inherited BleTransport/BleWriteTest/WP205 deviation. Clean same-branch
