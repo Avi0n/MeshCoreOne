@@ -47,6 +47,8 @@ class NativeDiagnosticsAccessibilityTest : NativeAccessibilityHarness() {
             val label = host.get().getString(id)
             val node = compose.onNode(hasText(label, substring = true) and
                 SemanticsMatcher("Numeric data is present") { it.config[SemanticsProperties.Text].any { text -> text.text.contains("-110") } })
+            println("WP503_GRAPH_VALUE|label=$label|bounds=${node.fetchSemanticsNode().boundsInRoot}" +
+                "|viewport=${compose.onNodeWithTag("audit-root").fetchSemanticsNode().boundsInRoot}")
             node.assertIsDisplayed()
             assertFont200Unclipped(node)
         }

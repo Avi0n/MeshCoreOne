@@ -7,7 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToIndex
 import com.meshcoreone.android.core.designsystem.AppColorSchemePreference
 import com.meshcoreone.android.core.designsystem.MeshCoreTheme
 import com.meshcoreone.android.core.designsystem.ThemeId
@@ -19,6 +19,7 @@ import com.meshcoreone.android.feature.settings.app.appearance.AppearanceSelecti
 import com.meshcoreone.android.feature.settings.app.appearance.ui.AppearanceScreen
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -42,22 +43,26 @@ class NativeAppearanceAccessibilityTest : NativeAccessibilityHarness() {
         }
         val resources = host.get().resources
         var selected = ThemeId.DEFAULT
-        for (theme in ThemeRegistry.allThemes) {
+        val clipped = mutableListOf<String>()
+        for ((index, theme) in ThemeRegistry.allThemes.withIndex()) {
+            compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollToIndex)).performScrollToIndex(index + 1)
             val name = theme.localizedName(resources)
             val label = if (theme.id == selected) S.appearanceAccessibilityThemeCardSelectedLabel(resources, name)
                 else S.appearanceAccessibilityThemeCardOwnedLabel(resources, name)
-            val card = compose.onNodeWithContentDescription(label).performScrollTo().assertIsDisplayed()
+            val card = compose.onNodeWithContentDescription(label).assertIsDisplayed()
             if (theme.id != selected) card.performClick()
             compose.waitForIdle()
             assertEquals(theme.id, controller.selection.value.themeId)
             selected = theme.id
             compose.onNodeWithContentDescription(S.appearanceAccessibilityThemeCardSelectedLabel(resources, name)).assertIsDisplayed()
-            assertFont200Unclipped(compose.onNode(
+            val layout = font200Layout(compose.onNode(
                 hasText(name) and SemanticsMatcher.keyIsDefined(SemanticsActions.GetTextLayoutResult),
                 useUnmergedTree = true,
             ))
+            if (layout.hasVisualOverflow) clipped += name
             assertVisibleClickTargetsAtLeast48Dp()
         }
         assertEquals(10, ThemeRegistry.allThemes.size)
+        assertTrue("200% native theme names overflow: ${clipped.joinToString()}", clipped.isEmpty())
     }
 }

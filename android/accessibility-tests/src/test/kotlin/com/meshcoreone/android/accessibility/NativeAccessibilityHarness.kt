@@ -86,9 +86,16 @@ abstract class NativeAccessibilityHarness {
         return layouts.single()
     }
 
-    protected fun assertFont200Unclipped(node: SemanticsNodeInteraction) {
+    protected fun font200Layout(node: SemanticsNodeInteraction): TextLayoutResult {
         val layout = textLayout(node)
         assertEquals("Do not substitute a preview Density for system font", 2f, layout.layoutInput.density.fontScale, 0f)
+        println("WP503_FONT|text=${layout.layoutInput.text}|size=${layout.size}|constraints=${layout.layoutInput.constraints}" +
+            "|widthOverflow=${layout.didOverflowWidth}|heightOverflow=${layout.didOverflowHeight}|lines=${layout.lineCount}")
+        return layout
+    }
+
+    protected fun assertFont200Unclipped(node: SemanticsNodeInteraction) {
+        val layout = font200Layout(node)
         assertFalse("Native text overflows: ${layout.layoutInput.text}", layout.hasVisualOverflow)
     }
 
