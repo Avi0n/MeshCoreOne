@@ -80,8 +80,8 @@ internal class FakeSendPort(val radio: RadioId) : ComposerSendPort {
     val localEnqueueFailures = ArrayList<UUID>()
     var createFailure: Throwable? = null
     var createGate: CompletableDeferred<Unit>? = null
-    var sendFailure: Throwable? = null
-    var sendGate: CompletableDeferred<Unit>? = null
+    var enqueueFailure: Throwable? = null
+    var enqueueGate: CompletableDeferred<Unit>? = null
 
     private fun row(text: String, contactId: UUID?, channelIndex: UByte? = null) = MessageDTO(
         id = UUID.nameUUIDFromBytes("row-${calls.size}".toByteArray()), radioId = radio, contactID = contactId,
@@ -100,8 +100,8 @@ internal class FakeSendPort(val radio: RadioId) : ComposerSendPort {
     override suspend fun enqueueDM(envelope: DirectMessageEnvelope) {
         calls += "enqueueDM"
         directEnvelopes += envelope
-        sendGate?.await()
-        sendFailure?.let { throw it }
+        enqueueGate?.await()
+        enqueueFailure?.let { throw it }
     }
 
     override suspend fun signalDMEnqueued(envelope: DirectMessageEnvelope) =
@@ -122,7 +122,7 @@ internal class FakeSendPort(val radio: RadioId) : ComposerSendPort {
     override suspend fun enqueueChannel(envelope: ChannelMessageEnvelope) {
         calls += "enqueueChannel"
         channelEnvelopes += envelope
-        sendGate?.await()
-        sendFailure?.let { throw it }
+        enqueueGate?.await()
+        enqueueFailure?.let { throw it }
     }
 }
