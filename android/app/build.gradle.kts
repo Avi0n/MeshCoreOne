@@ -14,6 +14,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.process.CommandLineArgumentProvider
 import java.security.MessageDigest
+import java.nio.file.Files
 import java.util.Properties
 
 plugins {
@@ -71,6 +72,18 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
 }
 
+val applicationProfileInput = layout.projectDirectory.file("src/main/baseline-prof.txt").asFile
+val applicationProfileAvailable = applicationProfileInput.exists()
+if (applicationProfileAvailable) {
+    check(applicationProfileInput.isFile && !Files.isSymbolicLink(applicationProfileInput.toPath())) {
+        "WP-504 application profile input must be a regular file"
+    }
+    val applicationRule = Regex("^[HSP]*Lcom/meshcoreone/android/app/.*;.*$")
+    check(applicationProfileInput.useLines { lines -> lines.any(applicationRule::matches) }) {
+        "WP-504 application profile input must contain real application rules, not only dependency profiles"
+    }
+}
+
 android {
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -88,6 +101,34 @@ android {
     )
     // AndroidOnly: WP-501 Test-only cross-component acceptance; never an APK source set.
     sourceSets.getByName("test").kotlin.srcDir("../parity-tests/src/test/kotlin")
+
+    // AndroidOnly: WP-504 Release optimization and isolated, non-shipping workload target.
+    buildTypes.getByName("release") {
+        isMinifyEnabled = true
+        isShrinkResources = true
+        proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    }
+    buildTypes.create("benchmark") {
+        initWith(buildTypes.getByName("release"))
+        applicationIdSuffix = ".benchmark"
+        isDebuggable = false
+        signingConfig = signingConfigs.getByName("debug")
+        matchingFallbacks += "release"
+        manifestPlaceholders["wp504ProfileSource"] = "false"
+        manifestPlaceholders["wp504ApplicationProfileInput"] = applicationProfileAvailable.toString()
+    }
+    buildTypes.create("profile") {
+        initWith(buildTypes.getByName("benchmark"))
+        isMinifyEnabled = false
+        isShrinkResources = false
+        manifestPlaceholders["wp504ProfileSource"] = "true"
+    }
+    listOf("benchmark", "profile").forEach { name ->
+        sourceSets.getByName(name) {
+            kotlin.srcDirs("../benchmark/target/kotlin", "../benchmark/dataset/kotlin")
+            manifest.srcFile("../benchmark/target/AndroidManifest.xml")
+        }
+    }
 }
 
 class ContentPlatformSdkArguments(
@@ -96,6 +137,13 @@ class ContentPlatformSdkArguments(
 ) : CommandLineArgumentProvider {
     override fun asArguments(): Iterable<String> =
         listOf("-Drobolectric.dependency.dir=${directory.get().asFile.absolutePath}")
+}
+// AndroidOnly: WP-504 The fixture compiles against existing pins, without widening production API edges.
+dependencies {
+    listOf("benchmarkImplementation", "profileImplementation").forEach { configuration ->
+        add(configuration, libs.androidx.room.runtime)
+        add(configuration, libs.maplibre.android)
+    }
 }
 val appPlatformSdk33 = configurations.create("appPlatformSdk33") {
     isCanBeConsumed = false
