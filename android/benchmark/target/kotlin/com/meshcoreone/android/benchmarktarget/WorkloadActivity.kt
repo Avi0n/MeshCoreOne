@@ -2,6 +2,7 @@
 package com.meshcoreone.android.benchmarktarget
 
 import android.content.Context
+import android.graphics.RectF
 import android.os.Bundle
 import android.os.StrictMode
 import android.view.Gravity
@@ -45,6 +46,7 @@ import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.Style
 import org.maplibre.android.style.expressions.Expression
 import org.maplibre.android.style.layers.CircleLayer
@@ -159,6 +161,7 @@ class WorkloadActivity : ComponentActivity() {
         setContentView(frame)
         var styleLoaded = false
         var reportedDrawn = false
+        var readyMap: MapLibreMap? = null
         view.addOnDidFailLoadingMapListener { reason ->
             logger.severe("WP-504 native map failed: $reason")
             status.text = "WP504_FAILED:map"
@@ -166,6 +169,10 @@ class WorkloadActivity : ComponentActivity() {
         }
         view.addOnDidFinishRenderingFrameListener { fully, _, _ ->
             if (fully && styleLoaded && !reportedDrawn) {
+                val map = checkNotNull(readyMap)
+                if (map.queryRenderedFeatures(
+                    RectF(0f, 0f, view.width.toFloat(), view.height.toFloat()), "wp504-clusters", "wp504-markers",
+                ).isEmpty()) return@addOnDidFinishRenderingFrameListener
                 status.text = Workload.VERSION
                 if (status.contentDescription != "WP504_MAP_MOVED") status.contentDescription = readyDescription
                 reportedDrawn = true
@@ -174,6 +181,7 @@ class WorkloadActivity : ComponentActivity() {
         }
         view.onCreate(savedInstanceState)
         view.getMapAsync { map ->
+            readyMap = map
             map.uiSettings.isAttributionEnabled = false
             map.uiSettings.isLogoEnabled = false
             map.cameraPosition = CameraPosition.Builder().target(LatLng(37.024, -121.961)).zoom(11.0).build()

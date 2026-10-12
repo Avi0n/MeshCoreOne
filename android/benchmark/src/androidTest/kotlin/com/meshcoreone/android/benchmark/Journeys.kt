@@ -60,7 +60,7 @@ internal fun MacrobenchmarkScope.panMap() {
         "Native MapLibre surface was not mounted"
     }
     map.setGestureMargin(device.displayWidth / 5)
-    repeat(8) { map.swipe(Direction.LEFT, 0.6f) }
+    repeat(8) { index -> map.swipe(if (index % 2 == 0) Direction.LEFT else Direction.RIGHT, 0.6f) }
     assertTrue("Native map never reported a camera change", device.wait(
         Until.hasObject(By.desc("WP504_MAP_MOVED")), TIMEOUT_MS,
     ))

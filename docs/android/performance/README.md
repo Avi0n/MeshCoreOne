@@ -53,7 +53,10 @@ The screen checks the stored count and loads real pages; it never seeds during
 composition. Its process-owned store uses the existing container's process
 scope, not a radio connection scope. It cannot send to a radio.
 The self-authored map style has no external tiles, fonts, sprites or network
-dependency; a blank/failed/loading native map cannot satisfy readiness.
+dependency; readiness requires a fully rendered native frame and an actual
+rendered dataset cluster/point within the viewport, not just a loaded style.
+Pan gestures alternate left/right over the same grid instead of repeatedly
+moving away from all dataset points.
 
 ## Build and discovery
 
