@@ -25,6 +25,7 @@ import com.meshcoreone.android.core.runtime.RuntimeLink
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.toKotlinDuration
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -189,10 +190,12 @@ class BleRuntimeLink(
     }
 
     override suspend fun configure(capabilities: DeviceCapabilities, platform: DevicePlatform) {
+        val generation = diagnostics.value.generation
         ble.updateFirmwareCapabilities(
-            diagnostics.value.generation,
+            generation,
             FirmwareFrameCapabilities(maximumCommandBytes = COMPANION_FRAME_BYTES, evidence = FRAME_EVIDENCE),
         )
+        ble.updateWritePacing(generation, platform.recommendedWritePacing.toKotlinDuration())
     }
 
     override suspend fun setSessionLive(token: SessionToken?) {

@@ -2,6 +2,8 @@
 package com.meshcoreone.android.app.container
 
 import com.meshcoreone.android.core.ble.BleConnectMode
+import com.meshcoreone.android.core.ble.BleClock
+import com.meshcoreone.android.core.ble.BleConfiguration
 import com.meshcoreone.android.core.ble.BleDeviceHandle
 import com.meshcoreone.android.core.ble.BleError
 import com.meshcoreone.android.core.ble.BleLinkDiagnostics
@@ -31,6 +33,7 @@ import com.meshcoreone.android.core.connectivity.ble.LinkFailureKind
 import com.meshcoreone.android.core.model.DevicePlatform
 import com.meshcoreone.android.core.model.RadioId
 import com.meshcoreone.android.core.model.TransportType
+import com.meshcoreone.android.core.protocol.bytes.Bytes
 import com.meshcoreone.android.core.protocol.model.DeviceCapabilities
 import com.meshcoreone.android.core.runtime.LinkCallbacks
 import com.meshcoreone.android.core.runtime.LinkFailure
@@ -42,13 +45,25 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class BleRuntimeLinkTest {
     private class FakeConnection(val events: GattEvents, val script: FakeFacade) : GattConnection {
         override fun submit(operation: GattOperation) {
@@ -59,7 +74,7 @@ class BleRuntimeLinkTest {
                 is GattOperation.DiscoverServices -> GattReply.Services(listOf(script.service))
                 is GattOperation.Mtu -> GattReply.Mtu(517)
                 is GattOperation.Subscribe -> GattReply.Subscribed
-                is GattOperation.Write -> GattReply.Written
+                is GattOperation.Write -> { script.onWrite(); GattReply.Written }
                 is GattOperation.Rssi -> GattReply.Rssi(-50, 0)
             }
             events.onReply(this, operation.key, reply)
@@ -70,6 +85,7 @@ class BleRuntimeLinkTest {
     private class FakeFacade(override val handle: BleDeviceHandle = BleDeviceHandle(ADDRESS)) : GattFacade {
         var bond = BondState.Bonded
         var failOn: Pair<com.meshcoreone.android.core.ble.GattOperationKind, BleTransportException>? = null
+        var onWrite: () -> Unit = {}
         val connections = mutableListOf<FakeConnection>()
         private val cccd = GattDescriptor(NusUuid.CCCD)
         val service = GattService(
@@ -99,7 +115,9 @@ class BleRuntimeLinkTest {
     private val token = SessionToken(ProcessEpoch(UUID.randomUUID()), Generation(1), RadioId(UUID.randomUUID()))
     private val capabilities = DeviceCapabilities(9u, 100, 8, 123456u, "b", "T-Echo", "1.0")
 
-    private class Rig(val facade: FakeFacade, val ble: BleTransport, val link: BleRuntimeLink, val memory: BleReconnectMemory)
+    private class Rig(val facade: FakeFacade, val ble: BleTransport, val link: BleRuntimeLink, val memory: BleReconnectMemory) {
+        val writesAt = mutableListOf<Duration>()
+    }
 
     private fun rig(deviceId: UUID, diagnostics: MutableStateFlow<BleLinkDiagnostics>? = null): Rig {
         val facade = FakeFacade()
@@ -112,6 +130,122 @@ class BleRuntimeLinkTest {
     private fun snapshot(phase: BlePhase, issue: BleError? = null) = BleLinkDiagnostics(
         BluetoothAvailability.Ready, phase, 1, null, null, null, null, false, false, false, 0, null, issue,
     )
+
+    private fun TestScope.pacingRig(
+        configuration: BleConfiguration = BleConfiguration(),
+        diagnostics: (StateFlow<BleLinkDiagnostics>) -> StateFlow<BleLinkDiagnostics> = { it },
+    ): Rig {
+        val facade = FakeFacade()
+        val clock = object : BleClock {
+            override val now: Duration get() = testScheduler.currentTime.milliseconds
+            override suspend fun sleepUntil(deadline: Duration) = delay((deadline - now).coerceAtLeast(Duration.ZERO))
+        }
+        val ble = BleTransport(facade, configuration, clock)
+        val memory = BleReconnectMemory()
+        val link = BleRuntimeLink(ble, deviceId, memory, diagnostics(ble.diagnostics), UnconfinedTestDispatcher(testScheduler))
+        return Rig(facade, ble, link, memory).also { rig -> facade.onWrite = { rig.writesAt += clock.now } }
+    }
+
+    private suspend fun TestScope.assertConfiguredPacing(
+        platform: DevicePlatform,
+        expected: Duration,
+        configuration: BleConfiguration = BleConfiguration(),
+        diagnostics: (StateFlow<BleLinkDiagnostics>) -> StateFlow<BleLinkDiagnostics> = { it },
+    ) {
+        val rig = pacingRig(configuration, diagnostics)
+        try {
+            rig.link.transport.connect()
+            rig.link.configure(capabilities, platform)
+            assertEquals(172, rig.ble.diagnostics.value.maximumCommandBytes)
+            assertTrue(rig.ble.diagnostics.value.firmwareVerified)
+            rig.link.transport.send(Bytes.of(1))
+            val second = async { rig.link.transport.send(Bytes.of(2)) }
+            runCurrent()
+            assertEquals(listOf(Duration.ZERO), rig.writesAt)
+            assertFalse(second.isCompleted)
+            advanceTimeBy(expected - 1.milliseconds)
+            runCurrent()
+            assertEquals(listOf(Duration.ZERO), rig.writesAt)
+            assertFalse(second.isCompleted)
+            advanceTimeBy(1.milliseconds)
+            runCurrent()
+            second.await()
+            assertEquals(listOf(Duration.ZERO, expected), rig.writesAt)
+        } finally {
+            rig.link.transport.disconnect()
+            rig.link.release()
+        }
+    }
+
+    @Test fun configuringEsp32PacesAcknowledgedWritesForSixtyMilliseconds() = runTest {
+        assertConfiguredPacing(DevicePlatform.ESP32, 60.milliseconds)
+    }
+
+    @Test fun configuringNrf52PacesAcknowledgedWritesForTwentyFiveMilliseconds() = runTest {
+        assertConfiguredPacing(DevicePlatform.NRF52, 25.milliseconds)
+    }
+
+    @Test fun configuringUnknownPlatformUsesConservativeSixtyMillisecondPacing() = runTest {
+        assertConfiguredPacing(DevicePlatform.UNKNOWN, 60.milliseconds)
+    }
+
+    @Test fun detectedPlatformReplacesConstructorPacingPolicy() = runTest {
+        assertConfiguredPacing(DevicePlatform.NRF52, 25.milliseconds, BleConfiguration(writePacing = 10.milliseconds))
+    }
+
+    @Test fun firmwareAndPacingUseOneCapturedGeneration() = runTest {
+        var reads = 0
+        assertConfiguredPacing(DevicePlatform.NRF52, 25.milliseconds, diagnostics = { state ->
+            object : StateFlow<BleLinkDiagnostics> by state {
+                override val value: BleLinkDiagnostics
+                    get() = state.value.let { it.copy(generation = it.generation + reads++) }
+            }
+        })
+        assertEquals(1, reads)
+    }
+
+    @Test fun staleConfigurationCannotChangeReplacementFirmwareOrPacing() = runTest {
+        val stale = MutableStateFlow(snapshot(BlePhase.Idle))
+        val rig = pacingRig(diagnostics = { stale })
+        try {
+            rig.link.transport.connect()
+            stale.value = rig.ble.diagnostics.value
+            rig.link.transport.disconnect()
+            rig.link.transport.connect()
+            val current = rig.ble.diagnostics.value.generation
+            val failure = assertFailsWith<BleTransportException> {
+                rig.link.configure(capabilities, DevicePlatform.ESP32)
+            }
+            assertEquals(BleError.StaleGeneration(stale.value.generation, current), failure.error)
+            assertFalse(rig.ble.diagnostics.value.firmwareVerified)
+            assertEquals(20, rig.ble.diagnostics.value.maximumCommandBytes)
+            rig.link.transport.send(Bytes.of(1))
+            rig.link.transport.send(Bytes.of(2))
+            assertEquals(listOf(Duration.ZERO, Duration.ZERO), rig.writesAt)
+        } finally {
+            rig.link.transport.disconnect()
+            rig.link.release()
+        }
+    }
+
+    @Test fun disconnectedConfigurationReportsNotConnectedAndDoesNotPreconfigureNextConnection() = runTest {
+        val rig = pacingRig()
+        try {
+            val failure = assertFailsWith<BleTransportException> {
+                rig.link.configure(capabilities, DevicePlatform.ESP32)
+            }
+            assertEquals(BleError.NotConnected, failure.error)
+            rig.link.transport.connect()
+            assertFalse(rig.ble.diagnostics.value.firmwareVerified)
+            assertEquals(20, rig.ble.diagnostics.value.maximumCommandBytes)
+            rig.link.transport.send(Bytes.of(1))
+            rig.link.transport.send(Bytes.of(2))
+            assertEquals(listOf(Duration.ZERO, Duration.ZERO), rig.writesAt)
+        } finally {
+            rig.link.transport.disconnect()
+            rig.link.release()
+        }
+    }
 
     @Test fun connectSuccessReachesConnectedAndConfiguresFrameCapacity() = runBlocking<Unit> {
         val rig = rig(deviceId)
