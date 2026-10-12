@@ -50,6 +50,9 @@ No device/TalkBack claim.
 | OWNe2514783e2edc4b0ff6c25ea2a963242696f7e40; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.pendingAuthentication* --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.frameworkSecure*` | 4 discovered/1 passed/3 failed,0 errors/skips. Real Settings.Global animator scale0 asserted before activity creation. SDK31 framework/product each fail `AppNotIdleException` after60s (175541/192963 attempts); SDK37 pending fails512m OOM. Actual countdown312x76px/two lines is scroll-contained in(24,88)-(336,764) with zero clipping before failure. No success inferred from the earlier filtered invocation's missing output. |
 | OWN82f2777937500c884803693a37544abb182c6128; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeMapRuntimeAccessibilityTest` | 4 discovered/0 passed/4 failed,0 errors/skips. Unsupported-runtime assumption disproved: SDK31/37 both actually report process64=true/product supported=true. No product defect inferred; oracle corrected to mount the real supported branch. |
 | OWN8de58a8102913b1826fcc879c211cfe760779741; same map command | 4 discovered/0 passed/4 failed,0 errors/skips. Public MapEntry fails actual `TileServerOptions.mapLibreConfiguration()` JNI; public LineOfSightEntry fails actual `NativeConnectivityListener.initialize()` JNI on both APIs. No architecture/JNI guard bypass or copied renderer. Intended font/target/point assertions cannot execute after mount. |
+| OWN9e3b8692a0fec85372412084254ccd487d0b16d2; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.*` | 90 discovered/81 passed/9 failed,0 errors/skips. Messaging22/diagnostics10/backup8/onboarding8/Nodes8/font8/shell4/appearance2 all pass; remote16 passes11/fails5 and Map4 fails4. Every original78 case passes in this single exact-candidate execution; failures are SDK31 auth/control4, SDK37 pending OOM1, Map JNI4. Not a later-fix result. |
+| OWN ec0dd1146c8b6b75b51433a2d35e318afb460a98; `:app:testDebugUnitTest --tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.pendingAuthentication*` | 2 discovered/0 passed/2 failed,0 errors/skips. SDK31 idling; SDK37 no longer OOM with bounded ScrollBy but an overstrong24px semantics containment assertion fails. Actual viewport bottom764 versus semantics y750/height24 suggests expansion, not a product defect before calibration. |
+| OWN db8367163da2c044171ffafef194e4b07d3e6640; same pending selector plus `--tests com.meshcoreone.android.accessibility.NativeRemoteNodesAccessibilityTest.frameworkLinear*` | 4 discovered/3 passed/1 failed,0 errors/skips. Both API controls prove actual measured/public layout312x4px versus312x24px expanded semantics. Real SDK37 product visual bar(24,760)-(336,764) is wholly within actual viewport(24,88)-(336,764), zero clipping. Countdown312x76/two lines, disabled duplicates and actual cancellation pass; Cancel104x54dp fully inside360x866 dialog. Only SDK31 product idling remains. |
 
 All later attempts above contain the genuinely adopted live main
 `d8181418614a5acaa46f4acde54b741b492ac4b0` (merge95ad80c13).
@@ -57,6 +60,12 @@ The shared scroll helper preserves actual native line reachability and unchanged
 clipping thresholds. Android animator scale0 is now an explicit reduced-motion profile;
 it does not verify the default-motion profile or solve secure-dialog/progress idling.
 SDK31 remains declared; neither it nor the failed cancellation assertions are silently removed.
+The subsequent db836 control proves that the historical SDK37 OOM came from repeatedly
+scrolling an expanded noninteractive semantic box into a viewport that already fully contains
+its visual bar. The corrected oracle reads the real product's public layout coordinates,
+not only the calibration control or a source height constant. Progress visibility/full
+visual containment and actual cancellation remain asserted. No native clock/heap/timeout
+change is used; SDK37 pending is now positive, SDK31 idling remains negative.
 
 Authoritative published33 [run38294672952](https://github.com/cbattlegear/MeshCoreOne-Android/actions/runs/38294672952)
 binds `33f355059ab9510fad736f386fc6299ca54777b9`, completed SUCCESS in all six jobs.

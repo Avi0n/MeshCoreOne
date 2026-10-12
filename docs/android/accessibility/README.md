@@ -27,6 +27,22 @@ disabled actions and zero-clipped native scroll measurements. Public Android ani
 scale is set and asserted to zero before window creation; this did **not** solve either
 failure. No timeout/heap relaxation, omitted SDK or product defect inference is made.
 
+The OOM is subsequently diagnosed as an audit scroll-oracle error, not a product failure.
+At `db8367163da2c044171ffafef194e4b07d3e6640`, independent native Material controls on
+both APIs prove a 24px semantics expansion around a real 4px visual allocation. Requiring
+that noninteractive semantic padding to fit caused repeated unachievable scroll requests.
+The product's actual public layout coordinates are instead measured with unchanged zero
+clipping: visual bar(24,760)-(336,764), wholly inside viewport(24,88)-(336,764).
+Countdown, disabled duplicates and real cancellation now pass on SDK37; Cancel104x54dp
+is wholly contained. The four-case pending/control run passes3/fails1, zero errors/skips:
+only SDK31 authentication idling remains. No enlarged heap, frozen animation or omitted
+progress/cancellation assertion is used.
+
+The intervening exact published `9e3b8692a0fec85372412084254ccd487d0b16d2` execution
+discovered90, passed81, failed9, zero errors/skips. All original78 cases passed in that
+same execution; the failures were SDK31 authentication/control4, the now-corrected SDK37
+progress oracle1 and actual missing MapLibre JNI4. It is not a result for the later fix.
+
 Real runtime probing disproves the earlier unsupported-architecture assumption:
 `Process.is64Bit()` and the product guard are both true on SDK31/37. Actual mounted
 MapEntry and LineOfSightEntry at `8de58a8102913b1826fcc879c211cfe760779741` discover

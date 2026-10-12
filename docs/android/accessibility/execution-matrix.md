@@ -90,6 +90,15 @@ SDK37 pending exhausts512m after its countdown/disabled/zero-clipped scroll asse
 The real system animator scale0 reduced-motion profile is asserted, but does not fix this.
 The earlier SDK31/37 declarations and all normative assertions remain enabled.
 
+At exact9e3, the entire expanded cohort discovers90/passes81/fails9, zero errors/skips.
+The original78 all pass together; SDK31 auth/control4, SDK37 pending OOM1 and Map JNI4
+fail. Later db836 calibrates real Material progress geometry on both APIs: semantics24px,
+actual public layout allocation4px. The product's visual bar(24,760)-(336,764) is wholly
+inside its actual viewport; forcing expanded noninteractive semantics into it was an
+unachievable scroll/oracle error. Pending/control4 now pass3/fail1(SDK31 idling), with
+actual SDK37 countdown/disabled actions/Cancel104x54dp/real cancellation all passing.
+No progress assertion, clipping threshold, animation or heap limit is relaxed.
+
 Native runtime82 probing discovers4/fails4 because the unsupported-architecture assumption
 is false: both APIs actually report process64=true/product supported=true. Corrected mounted
 public Map/LoS tests at8de discover4/fail4 on unavailable MapLibre JNI symbols. No populated
