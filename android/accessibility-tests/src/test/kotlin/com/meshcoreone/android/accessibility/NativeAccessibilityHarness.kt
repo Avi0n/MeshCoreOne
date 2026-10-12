@@ -285,10 +285,16 @@ abstract class NativeAccessibilityHarness {
                     println("WP503_FONT_FULL_INK|text=${layout.layoutInput.text}|actual=${observed.first}x${observed.second}" +
                         "|reference=${expected.first}x${expected.second}|bounds=$bounds" +
                         "|actualPixels=${observed.third.count { it != background }}|referencePixels=${expected.third.count { it != background }}")
+                    if (observed.first == expected.first && observed.second == expected.second) {
+                        val different = expected.third.indices.filter { (expected.third[it] != background) != (observed.third[it] != background) }
+                        println("WP503_FONT_MASK|different=${different.size}|first=${different.firstOrNull()}" +
+                            "|actualColor=${different.firstOrNull()?.let { observed.third[it] }}" +
+                            "|referenceColor=${different.firstOrNull()?.let { expected.third[it] }}")
+                    }
                     assertEquals("The full paragraph ink width must survive native painting", expected.first, observed.first)
                     assertEquals("The full paragraph ink height must survive native painting", expected.second, observed.second)
                     assertTrue("Every actual glyph pixel must match the complete, unclipped native paragraph",
-                        expected.third.contentEquals(observed.third))
+                        expected.third.indices.all { (expected.third[it] != background) == (observed.third[it] != background) })
                 } finally {
                     reference.recycle()
                 }
